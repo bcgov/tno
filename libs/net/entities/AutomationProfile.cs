@@ -5,8 +5,7 @@ namespace TNO.Entities;
 
 /// <summary>
 /// AutomationProfile class, provides a DB model to manage a named automation configuration profile.
-/// A profile optionally selects a filter to load Elasticsearch content for iteration, and owns an
-/// ordered collection of steps.
+/// The configuration is a v2 definition document (prompts library, phased steps, analyses, actions).
 /// </summary>
 [Cache("automation_profile")]
 [Table("automation_profile")]
@@ -14,29 +13,17 @@ public class AutomationProfile : BaseType<int>
 {
     #region Properties
     /// <summary>
-    /// get/set - The schema version of the profile configuration; supports future step/action extensibility.
+    /// get/set - The schema version of the profile configuration; supports future extensibility.
     /// </summary>
     [Column("schema_version")]
-    public int SchemaVersion { get; set; } = 1;
+    public int SchemaVersion { get; set; } = 2;
 
     /// <summary>
-    /// get/set - The v2 profile definition document (prompts library, steps, analyses, actions).
-    /// Only used when SchemaVersion >= 2; v1 profiles keep their configuration in the
-    /// automation_step/automation_action tables. Validated against the action catalog on save.
+    /// get/set - The profile definition document (prompts library, steps, analyses, actions).
+    /// Validated against the action catalog on save.
     /// </summary>
     [Column("definition")]
     public System.Text.Json.JsonDocument? Definition { get; set; }
-
-    /// <summary>
-    /// get/set - Optional foreign key to the Elasticsearch filter used to select content for iteration.
-    /// </summary>
-    [Column("filter_id")]
-    public int? FilterId { get; set; }
-
-    /// <summary>
-    /// get/set - The filter used to select content for iteration.
-    /// </summary>
-    public Filter? Filter { get; set; }
 
     /// <summary>
     /// get/set - Optional foreign key to the LLM used to evaluate step/action prompts.
@@ -48,11 +35,6 @@ public class AutomationProfile : BaseType<int>
     /// get/set - The LLM used to evaluate step/action prompts.
     /// </summary>
     public LLM? LLM { get; set; }
-
-    /// <summary>
-    /// get - The ordered collection of steps within this profile (ordered by SortOrder).
-    /// </summary>
-    public virtual List<AutomationStep> Steps { get; } = new List<AutomationStep>();
 
     /// <summary>
     /// get - The collection of runs recorded for this profile.

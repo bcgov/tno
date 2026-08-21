@@ -39,8 +39,6 @@ export const defaultAutomationProfile: IAutomationProfileModel = {
   isEnabled: true,
   schemaVersion: 2,
   definition: defaultDefinition,
-  filterId: undefined,
   llmId: undefined,
   schedules: [],
-  steps: [],
 };

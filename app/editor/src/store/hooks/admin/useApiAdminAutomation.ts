@@ -13,7 +13,6 @@ import {
   type IAutomationRunLogFilter,
   type IAutomationRunLogPage,
   type IV2ActionDescriptor,
-  type IV2MigrateResultModel,
   type IV2ValidationError,
 } from 'features/admin/automation/v2/interfaces';
 import React from 'react';
@@ -93,11 +92,6 @@ export const useApiAdminAutomation = () => {
       return api.post<IAutomationProfileModel, AxiosResponse<IV2ValidationError[]>, any>(
         '/admin/automation/profiles/validate',
         model,
-      );
-    },
-    migrateProfile: (id: number) => {
-      return api.post<never, AxiosResponse<IV2MigrateResultModel>, any>(
-        `/admin/automation/profiles/${id}/migrate`,
       );
     },
     findRunLogs: (runId: number, filter: IAutomationRunLogFilter) => {

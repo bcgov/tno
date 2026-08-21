@@ -35,7 +35,6 @@ public class AutomationController : ControllerBase
     #region Variables
     private readonly IAutomationProfileService _profileService;
     private readonly IAutomationRunService _runService;
-    private readonly IAutomationRunResponseService _runResponseService;
     private readonly IAutomationRunLogService _runLogService;
     private readonly ILLMService _llmService;
     private readonly IContentService _contentService;
@@ -65,7 +64,6 @@ public class AutomationController : ControllerBase
     public AutomationController(
         IAutomationProfileService profileService,
         IAutomationRunService runService,
-        IAutomationRunResponseService runResponseService,
         IAutomationRunLogService runLogService,
         ILLMService llmService,
         IContentService contentService,
@@ -78,7 +76,6 @@ public class AutomationController : ControllerBase
     {
         _profileService = profileService;
         _runService = runService;
-        _runResponseService = runResponseService;
         _runLogService = runLogService;
         _llmService = llmService;
         _contentService = contentService;
@@ -373,70 +370,79 @@ public class AutomationController : ControllerBase
     }
 
     /// <summary>
-    /// Describe how the automation profile processes content: its enabled steps (in order), each
-    /// step's instructions, and each enabled action with its confirmation marker and criteria. This
-    /// gives the LLM the rules the automation actually applies so it can explain a content item's
-    /// outcome.
+    /// Describe how the automation profile processes content from its definition document: the
+    /// enabled steps by phase, each step's analyses, and each enabled action with its gate. This
+    /// gives the LLM the rules the automation actually applies so it can explain an outcome.
     /// </summary>
     private static string BuildProfileProcessDescription(Entities.AutomationProfile profile)
     {
         var sb = new System.Text.StringBuilder();
         sb.AppendLine("## How this automation profile works");
         sb.AppendLine(
-            "The automation selects content items with the profile's filter, then runs each item through the " +
-            "enabled steps below, in order. A step's target controls when it runs: 'content' runs once per " +
-            "content item, while 'start' and 'end' run once per run (before and after the items). For each " +
-            "step the automation builds a prompt from the step's instructions plus its actions and sends it " +
-            "to the LLM; an action is applied only when the LLM response contains that action's confirmation " +
-            "marker (shown in quotes below). Actions perform effects such as updating a field, adding tags or " +
-            "sentiment, scoring an item, selecting the top-scored items, publishing, deduplicating, or " +
-            "aborting. A 'deduplicate' action that finds a duplicate, or a confirmed abort/stop action, halts " +
-            "the remaining actions on that step for that item - so actions ordered after it (including " +
-            "publish) do not run. An action marked 'always runs' is applied without a confirmation.");
+            "The profile is a definition document. Steps run by phase: 'init' steps run once (typically " +
+            "searching content into named collections), 'process' steps run once per item of their source " +
+            "collection, and 'complete' steps run after all items. Each step declares analyses (LLM prompts " +
+            "producing named results, sent lazily when first used) and ordered actions. An action runs when " +
+            "its gate passes: always, a condition over analysis results and content fields, or an LLM " +
+            "confirmation statement. Changes accumulate on working copies and are only written by a " +
+            "Save Collection or Save Content Now action.");
         sb.AppendLine();
         sb.AppendLine("## Profile configuration");
 
-        var steps = profile.Steps.Where(s => s.IsEnabled).OrderBy(s => s.SortOrder).ToList();
-        if (steps.Count == 0) sb.AppendLine("(This profile has no enabled steps.)");
-        var stepNumber = 1;
-        foreach (var step in steps)
+        var definitionJson = profile.Definition?.RootElement.GetRawText();
+        if (string.IsNullOrWhiteSpace(definitionJson))
         {
-            sb.AppendLine($"### Step {stepNumber++}: \"{step.Name}\" (target: {step.Target})");
-            if (step.FilterId.HasValue)
-                sb.AppendLine(step.ApplyToAutomationFilter
-                    ? "This step only acts on content that matches its own filter."
-                    : "This step uses a filter to source or enrich content for the prompt.");
-            var instructions = PromptToText(step.Prompt);
-            if (!string.IsNullOrWhiteSpace(instructions)) sb.AppendLine($"Instructions: {instructions}");
+            sb.AppendLine("(This profile has no definition document.)");
+            return sb.ToString();
+        }
 
-            var actions = step.Actions.Where(a => a.IsEnabled).OrderBy(a => a.SortOrder).ToList();
-            if (actions.Count > 0)
+        try
+        {
+            var definition = AutomationDefinition.Parse(definitionJson);
+            var steps = definition.Steps.Where(s => s.IsEnabled).ToList();
+            if (steps.Count == 0) sb.AppendLine("(This profile has no enabled steps.)");
+            var stepNumber = 1;
+            foreach (var step in steps)
             {
-                sb.AppendLine("Actions (applied in this order):");
-                foreach (var action in actions)
+                sb.AppendLine($"### Step {stepNumber++}: \"{step.Name}\" (phase: {step.Phase})");
+                if (step.Source?.Collection != null)
+                    sb.AppendLine($"Iterates the '{step.Source.Collection}' collection.");
+                foreach (var analysis in step.Analyses)
                 {
-                    var notes = "";
-                    if (action.AutoExecute) notes += " [always runs]";
-                    if (action.AbortIfNoConfirmation) notes += " [aborts the step if not confirmed]";
-                    if (action.MaxCalls.HasValue) notes += $" [max {action.MaxCalls} per run]";
-                    if (!string.IsNullOrWhiteSpace(action.Objective)) notes += $" [objective: {action.Objective}]";
-                    var confirmation = PromptToText(action.ConfirmationStatement);
-                    sb.Append($"- \"{action.Name}\" ({action.ActionType}){notes}");
-                    if (!string.IsNullOrWhiteSpace(confirmation)) sb.Append($": confirmed by \"{confirmation}\"");
-                    sb.AppendLine();
-                    var criteria = PromptToText(action.Prompt);
-                    if (!string.IsNullOrWhiteSpace(criteria)) sb.AppendLine($"  Criteria: {criteria}");
+                    var promptRef = !string.IsNullOrWhiteSpace(analysis.Prompt.Ref)
+                        ? $"library prompt '{analysis.Prompt.Ref}'"
+                        : "an inline prompt";
+                    var returns = analysis.Returns.Count > 0
+                        ? $" returning {string.Join(", ", analysis.Returns.Select(r => $"{r.Key} ({r.Value})"))}"
+                        : analysis.Raw ? " returning the raw response" : "";
+                    sb.AppendLine($"- Analysis \"{analysis.Name}\" uses {promptRef}{returns}.");
                 }
+                var actions = step.Actions.Where(a => a.IsEnabled).ToList();
+                if (actions.Count > 0)
+                {
+                    sb.AppendLine("Actions (applied in this order):");
+                    foreach (var action in actions)
+                    {
+                        var gate = !string.IsNullOrWhiteSpace(action.Confirm)
+                            ? $" [runs when the LLM responds \"{action.Confirm}\"{(string.IsNullOrWhiteSpace(action.Analysis) ? "" : $" from analysis '{action.Analysis}'")}]"
+                            : action.When != null ? " [runs when its condition passes]" : " [always runs]";
+                        sb.AppendLine($"- \"{action.Name ?? action.Type}\" ({action.Type}){gate}");
+                    }
+                }
+                else sb.AppendLine("(No enabled actions.)");
+                sb.AppendLine();
             }
-            else sb.AppendLine("(No enabled actions.)");
-            sb.AppendLine();
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            sb.AppendLine("(The definition document could not be parsed.)");
         }
         return sb.ToString();
     }
 
     /// <summary>
-    /// Extract the recorded responses and changes for a content item from a run - preferring the
-    /// dedicated response table, falling back to the run's summary JSON (older runs).
+    /// Extract the recorded responses and changes for a content item from a run: the per-item
+    /// trace from the decision log, plus the changes recorded in the run's summary JSON.
     /// </summary>
     private (List<(string Step, string? Action, string Response)> Responses, List<string> Changes) GetRunRecordsForContent(Entities.AutomationRun? run, long contentId)
     {
@@ -444,12 +450,7 @@ public class AutomationController : ControllerBase
         var changes = new List<string>();
         if (run == null) return (responses, changes);
 
-        // Responses: dedicated table first (v1 runs).
-        foreach (var r in _runResponseService.FindByRun(run.Id).Where(r => r.ContentId == contentId))
-            responses.Add((r.StepName, r.ActionName, r.Response));
-
-        // v2 runs record their per-item trace in the decision log instead.
-        if (responses.Count == 0)
+        // The per-item trace lives in the decision log.
         {
             var (logs, _) = _runLogService.FindByRun(run.Id, contentId: contentId, qty: 300);
             foreach (var l in logs)
@@ -803,36 +804,12 @@ public class AutomationController : ControllerBase
             }
         }
 
-        // Prompt/response text is stored separately (not in the summary) to keep run data small.
-        var responses = _runResponseService.FindByRun(runId).Select(r => new AutomationRunResponseModel(r));
-
         return new JsonResult(new
         {
             Run = new AutomationRunModel(run),
             Changes = (object?)changes ?? Array.Empty<object>(),
             StepHits = (object?)stepHits ?? Array.Empty<object>(),
-            Responses = responses,
         });
-    }
-
-    /// <summary>
-    /// Append a batch of LLM prompt/response records to the specified run. The automation service
-    /// posts these incrementally (per step) so the large prompt/response text is never accumulated
-    /// in the run summary or held in the service's memory for the whole run.
-    /// </summary>
-    /// <param name="runId"></param>
-    /// <param name="responses"></param>
-    /// <returns>The number of responses added.</returns>
-    [HttpPost("runs/{runId}/responses")]
-    [DisableRequestSizeLimit]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
-    [SwaggerOperation(Tags = new[] { "Automation" })]
-    public IActionResult AddRunResponses(long runId, [FromBody] IEnumerable<AutomationRunResponseModel> responses)
-    {
-        _ = _runService.FindById(runId) ?? throw new NoContentException();
-        var added = _runResponseService.AddRange(responses.Select(r => r.ToEntity(runId)));
-        return new JsonResult(added);
     }
 
     /// <summary>
@@ -910,43 +887,6 @@ public class AutomationController : ControllerBase
         {
             return new JsonResult(new[] { new V2ValidationError("definition", $"The definition is not valid JSON: {ex.Message}") });
         }
-    }
-
-    /// <summary>
-    /// Create a v2 copy of a v1 profile using the documented mapping: each action becomes a raw
-    /// single-response analysis gated by the same confirmation statement, so the copy issues the
-    /// same prompts in the same order. The copy is created disabled, without schedules, so the v1
-    /// profile keeps running until the copy is proven. Approximations are returned as warnings.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    [HttpPost("profiles/{id}/migrate")]
-    [Produces(MediaTypeNames.Application.Json)]
-    [SwaggerOperation(Tags = new[] { "Automation" })]
-    public IActionResult MigrateProfile(int id)
-    {
-        var source = _profileService.FindById(id) ?? throw new NoContentException();
-        if (source.SchemaVersion >= 2) throw new BadRequestException("The profile is already schema version 2.");
-
-        var result = AutomationProfileV2Migrator.Migrate(new AutomationProfileModel(source));
-
-        // A unique name for the copy.
-        var existing = _profileService.FindAll().Select(p => p.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
-        var name = $"{source.Name} (v2)";
-        var suffix = 1;
-        while (existing.Contains(name)) name = $"{source.Name} (v2 {++suffix})";
-
-        var entity = new Entities.AutomationProfile(name)
-        {
-            Description = source.Description,
-            IsEnabled = false,
-            SchemaVersion = 2,
-            LLMId = source.LLMId,
-            Definition = System.Text.Json.JsonDocument.Parse(result.Definition.ToJson()),
-        };
-        _profileService.AddAndSave(entity);
-        var model = new AutomationProfileModel(_profileService.FindById(entity.Id) ?? entity);
-        return new JsonResult(new { profile = model, warnings = result.Warnings });
     }
 
     /// <summary>

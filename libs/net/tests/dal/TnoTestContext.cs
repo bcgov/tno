@@ -146,11 +146,6 @@ public class TnoTestContext : TNOContext
                 v => JsonDocumentToString(v),
                 v => JsonDocument.Parse(v, new JsonDocumentOptions()));
 
-        modelBuilder.Entity<Entities.AutomationAction>().Property(p => p.Settings)
-            .HasConversion(
-                v => JsonDocumentToString(v),
-                v => JsonDocument.Parse(v, new JsonDocumentOptions()));
-
         modelBuilder.Entity<Entities.AutomationProfile>().Property(p => p.Definition)
             .HasConversion(
                 v => JsonDocumentToString(v!),

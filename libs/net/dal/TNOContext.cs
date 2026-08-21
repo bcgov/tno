@@ -128,10 +128,7 @@ public class TNOContext : DbContext
 
     #region Automation
     public DbSet<AutomationProfile> AutomationProfiles => Set<AutomationProfile>();
-    public DbSet<AutomationStep> AutomationSteps => Set<AutomationStep>();
-    public DbSet<AutomationAction> AutomationActions => Set<AutomationAction>();
     public DbSet<AutomationRun> AutomationRuns => Set<AutomationRun>();
-    public DbSet<AutomationRunResponse> AutomationRunResponses => Set<AutomationRunResponse>();
     public DbSet<AutomationRunLog> AutomationRunLogs => Set<AutomationRunLog>();
     #endregion
 

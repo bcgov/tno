@@ -12,7 +12,6 @@ import {
   type IAutomationRunLogFilter,
   type IAutomationRunLogPage,
   type IV2ActionDescriptor,
-  type IV2MigrateResultModel,
   type IV2ValidationError,
 } from 'features/admin/automation/v2/interfaces';
 import React from 'react';
@@ -38,7 +37,6 @@ interface IAutomationProfileController {
   clearScheduleLastRun: (profileId: number, scheduleId: number) => Promise<void>;
   getV2Descriptors: () => Promise<IV2ActionDescriptor[]>;
   validateProfile: (model: IAutomationProfileModel) => Promise<IV2ValidationError[]>;
-  migrateProfile: (id: number) => Promise<IV2MigrateResultModel>;
   findRunLogs: (runId: number, filter: IAutomationRunLogFilter) => Promise<IAutomationRunLogPage>;
   explainRunLog: (
     runId: number,
@@ -156,13 +154,6 @@ export const useAutomationProfiles = (): [IAdminState, IAutomationProfileControl
           async () => await api.validateProfile(model),
           undefined,
           true,
-        );
-        return response.data;
-      },
-      migrateProfile: async (id: number) => {
-        const response = await dispatch<IV2MigrateResultModel>(
-          'migrate-automation-profile',
-          async () => await api.migrateProfile(id),
         );
         return response.data;
       },

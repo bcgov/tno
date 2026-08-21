@@ -1,7 +1,5 @@
 export * from './buildProfileForExport';
 export * from './buildProfileForSave';
-export * from './cloneAction';
-export * from './cloneStep';
 export * from './createDefaultSchedule';
 export * from './createOption';
 export * from './findOptionByValue';
@@ -9,6 +7,5 @@ export * from './formatRunTime';
 export * from './formatScheduleWeekDays';
 export * from './normalizeOptionValue';
 export * from './normalizeProfile';
-export * from './normalizeSteps';
 export * from './scheduleWeekDayOptions';
 export * from './toNumberOrUndefined';

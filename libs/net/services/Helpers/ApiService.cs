@@ -1434,29 +1434,6 @@ public class ApiService : IApiService
     }
 
     /// <summary>
-    /// Append a batch of LLM prompt/response records to the specified run. Sent in chunks so a step
-    /// with many responses never builds one huge request body; combined with the automation service
-    /// flushing per step, the large prompt/response text is never held for the whole run.
-    /// </summary>
-    /// <param name="runId"></param>
-    /// <param name="responses"></param>
-    /// <returns></returns>
-    public async Task AddAutomationRunResponsesAsync(long runId, IEnumerable<API.Areas.Admin.Models.Automation.AutomationRunResponseModel> responses)
-    {
-        var url = this.Options.ApiUrl.Append($"admin/automation/runs/{runId}/responses");
-        // Small chunks keep each POST payload bounded even for runs that process many stories.
-        foreach (var chunk in responses.Chunk(10))
-        {
-            await RetryRequestAsync<HttpResponseMessage>(async () =>
-            {
-                var response = await this.OpenClient.PostAsync(url, JsonContent.Create(chunk));
-                response.EnsureSuccessStatusCode();
-                return response;
-            });
-        }
-    }
-
-    /// <summary>
     /// Make a request to the API to atomically claim a queued automation run (Draft -> Running).
     /// </summary>
     /// <param name="runId"></param>

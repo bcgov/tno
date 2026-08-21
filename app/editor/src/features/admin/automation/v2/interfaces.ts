@@ -219,11 +219,6 @@ export interface IAutomationExplainResultModel {
   messages: { role: string; content: string }[];
 }
 
-export interface IV2MigrateResultModel {
-  profile: { id: number; name: string };
-  warnings: string[];
-}
-
 /** The v2 run summary persisted on the run (run.summary JSON with engineVersion 2). */
 export interface IV2RunSummaryModel {
   engineVersion: number;

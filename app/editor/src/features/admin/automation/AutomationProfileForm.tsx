@@ -311,7 +311,6 @@ const AutomationProfileForm: React.FC = () => {
         name: imported.name ? `${imported.name} (imported)` : imported.name,
         llmId: mapLLM(imported.llmId),
         schedules: (imported.schedules ?? []).map((schedule) => ({ ...schedule, id: 0 })),
-        steps: [],
       });
       setActiveTab('profile');
       toast.success('Profile loaded from file. Review the values and click Save to create it.');

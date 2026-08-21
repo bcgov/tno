@@ -60,16 +60,10 @@ public class AutomationRun : AuditColumns
     public DateTime? CompletedOn { get; set; }
 
     /// <summary>
-    /// get/set - JSON summary of the run outcome (steps and content changes). Prompt/response text is
-    /// captured separately in <see cref="Responses"/> to keep this field small.
+    /// get/set - JSON summary of the run outcome (steps and content changes).
     /// </summary>
     [Column("summary")]
     public string? Summary { get; set; }
-
-    /// <summary>
-    /// get/set - The LLM prompt/response records captured during the run (many-to-one).
-    /// </summary>
-    public virtual ICollection<AutomationRunResponse> Responses { get; set; } = new List<AutomationRunResponse>();
 
     /// <summary>
     /// get/set - Whether this run is a dry run: every decision and change is computed and logged,

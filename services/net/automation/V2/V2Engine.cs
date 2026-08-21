@@ -319,15 +319,10 @@ public class V2Engine
                     entries = await SearchDigestEntriesAsync(query, settings, source.Fields, source.Max ?? DefaultSourceMax, null, env, step.Name);
                     break;
                 }
-            default: // profile
+            default:
                 {
-                    if (string.IsNullOrWhiteSpace(env.Profile.FilterQuery))
-                    {
-                        env.Log.LogDecision(step.Name, null, null, null, V2Outcomes.Skipped, "The step sources the profile filter, but the profile has none.");
-                        return new List<V2ContentEntry>();
-                    }
-                    entries = await SearchDigestEntriesAsync(env.Profile.FilterQuery!, env.Profile.FilterSettings, source.Fields, source.Max ?? DefaultSourceMax, null, env, step.Name);
-                    break;
+                    env.Log.LogDecision(step.Name, null, null, null, V2Outcomes.Skipped, $"Unknown step source '{source.From}'; the step has nothing to iterate.");
+                    return new List<V2ContentEntry>();
                 }
         }
 

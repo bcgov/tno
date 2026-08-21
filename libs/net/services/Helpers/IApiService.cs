@@ -733,14 +733,6 @@ public interface IApiService
     /// <returns></returns>
     Task UpdateAutomationRunSummaryAsync(long runId, string summary);
 
-    /// <summary>
-    /// Append a batch of LLM prompt/response records to the specified run. Sent in chunks so the
-    /// large prompt/response text is never accumulated in the run summary or held for the whole run.
-    /// </summary>
-    /// <param name="runId"></param>
-    /// <param name="responses"></param>
-    /// <returns></returns>
-    Task AddAutomationRunResponsesAsync(long runId, IEnumerable<API.Areas.Admin.Models.Automation.AutomationRunResponseModel> responses);
 
     /// <summary>
     /// Make a request to the API to atomically claim a queued automation run (Draft -> Running).
