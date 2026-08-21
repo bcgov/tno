@@ -176,6 +176,29 @@ public class ContentController : ControllerBase
     }
 
     /// <summary>
+    /// Find the content items linked to the specified content (either direction), optionally
+    /// filtered by link value; defaults to 'duplicate' links recorded by the automation dedupe.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/links")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public IActionResult FindLinkedContent(long id, [FromQuery] string? value = "duplicate")
+    {
+        var linked = _contentService.FindLinkedContent(id, string.IsNullOrWhiteSpace(value) ? null : value);
+        return new JsonResult(linked.Select(c => new
+        {
+            id = c.Id,
+            headline = c.Headline,
+            source = c.Source?.Name ?? c.OtherSource,
+            publishedOn = c.PublishedOn,
+            status = c.Status.ToString(),
+        }));
+    }
+
+    /// <summary>
     /// Add the new content to the database.
     /// Publish message to kafka to index content in elasticsearch.
     /// </summary>

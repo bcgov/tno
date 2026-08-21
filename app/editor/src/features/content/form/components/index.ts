@@ -1,4 +1,5 @@
 export * from '../../../../components/topic';
+export * from './duplicates';
 export * from './tags';
 export * from './time-log';
 export * from './tool-bar';

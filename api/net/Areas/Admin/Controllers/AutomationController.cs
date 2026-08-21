@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.Automation;
+using TNO.API.Areas.Admin.Models.Automation;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
 using TNO.DAL.Services;
@@ -34,7 +35,7 @@ public class AutomationController : ControllerBase
     #region Variables
     private readonly IAutomationProfileService _profileService;
     private readonly IAutomationRunService _runService;
-    private readonly IAutomationRunResponseService _runResponseService;
+    private readonly IAutomationRunLogService _runLogService;
     private readonly ILLMService _llmService;
     private readonly IContentService _contentService;
     private readonly IEventScheduleService _eventScheduleService;
@@ -63,7 +64,7 @@ public class AutomationController : ControllerBase
     public AutomationController(
         IAutomationProfileService profileService,
         IAutomationRunService runService,
-        IAutomationRunResponseService runResponseService,
+        IAutomationRunLogService runLogService,
         ILLMService llmService,
         IContentService contentService,
         IEventScheduleService eventScheduleService,
@@ -75,7 +76,7 @@ public class AutomationController : ControllerBase
     {
         _profileService = profileService;
         _runService = runService;
-        _runResponseService = runResponseService;
+        _runLogService = runLogService;
         _llmService = llmService;
         _contentService = contentService;
         _eventScheduleService = eventScheduleService;
@@ -132,6 +133,9 @@ public class AutomationController : ControllerBase
         if (_profileService.FindAll().Any(p => p.Name.Equals(model.Name, StringComparison.OrdinalIgnoreCase)))
             throw new BadRequestException($"Automation profile '{model.Name}' already exists.");
 
+        var validationErrors = ValidateDefinition(model);
+        if (validationErrors != null) return validationErrors;
+
         model.Id = 0;
         var entity = model.ToEntity();
         _profileService.AddAndSave(entity);
@@ -156,6 +160,9 @@ public class AutomationController : ControllerBase
         if (string.IsNullOrWhiteSpace(model.Name)) throw new BadRequestException("Automation profile name is required.");
         if (_profileService.FindAll().Any(p => p.Id != id && p.Name.Equals(model.Name, StringComparison.OrdinalIgnoreCase)))
             throw new BadRequestException($"Automation profile '{model.Name}' already exists.");
+
+        var validationErrors = ValidateDefinition(model);
+        if (validationErrors != null) return validationErrors;
 
         model.Id = id;
         var entity = model.ToEntity();
@@ -213,10 +220,18 @@ public class AutomationController : ControllerBase
 
         if (isFirstTurn)
         {
-            // First turn: compose the content and last-run context as the opening user message.
-            var content = _contentService.FindById(request.ContentId) ?? throw new NoContentException();
+            // First turn: compose the profile, most-recent-run, and (optional) content context as
+            // the opening user message. Without a content item the question is answered against
+            // the run as a whole.
+            var content = request.ContentId > 0
+                ? _contentService.FindById(request.ContentId) ?? throw new NoContentException()
+                : null;
+            // The decision log is written incrementally, so a run still executing is fair game -
+            // the prompt notes that its information is partial.
             var lastRun = _runService.Find(id)
-                .Where(r => r.Status == Entities.AutomationRunStatus.Completed)
+                .Where(r => r.Status == Entities.AutomationRunStatus.Completed
+                    || r.Status == Entities.AutomationRunStatus.Failed
+                    || r.Status == Entities.AutomationRunStatus.Running)
                 .OrderByDescending(r => r.StartedOn)
                 .FirstOrDefault();
             runId = lastRun?.Id;
@@ -262,7 +277,7 @@ public class AutomationController : ControllerBase
     /// Compose the full debugging prompt from the question, the last run's information for the content
     /// item, and the full content item data.
     /// </summary>
-    private string BuildDebugPrompt(Entities.AutomationProfile profile, long? runId, AutomationDebugRequestModel request, Entities.Content content)
+    private string BuildDebugPrompt(Entities.AutomationProfile profile, long? runId, AutomationDebugRequestModel request, Entities.Content? content)
     {
         var sb = new System.Text.StringBuilder();
         sb.AppendLine(PromptToText(request.Question));
@@ -275,116 +290,159 @@ public class AutomationController : ControllerBase
         // about why the content item was or was not acted upon.
         sb.Append(BuildProfileProcessDescription(profile));
 
-        sb.AppendLine("## Last successful automation run");
+        sb.AppendLine("## Most recent automation run");
         if (runId.HasValue)
         {
             var run = _runService.FindById(runId.Value);
-            sb.AppendLine($"Run #{runId} completed {run?.CompletedOn:u}.");
+            if (run?.CompletedOn == null)
+                sb.AppendLine($"Run #{runId} is STILL EXECUTING (started {run?.StartedOn:u}); the information below is partial.");
+            else
+                sb.AppendLine($"Run #{runId} ({run?.Status}) completed {run?.CompletedOn:u}.");
             if (!string.IsNullOrWhiteSpace(run?.Note)) sb.AppendLine($"Outcome: {run!.Note}");
 
-            var (responses, changes) = GetRunRecordsForContent(run, request.ContentId);
-            sb.AppendLine();
-            sb.AppendLine("Actions the automation evaluated for this content item (empty means the action did not fire):");
-            if (responses.Count == 0) sb.AppendLine("- (no records for this content item in the last run)");
-            foreach (var r in responses)
-                sb.AppendLine($"- [{r.Step}{(string.IsNullOrEmpty(r.Action) ? "" : $" / {r.Action}")}]: {(string.IsNullOrWhiteSpace(r.Response) ? "(no response)" : r.Response.Trim())}");
+            if (content != null)
+            {
+                var (responses, changes) = GetRunRecordsForContent(run, request.ContentId);
+                sb.AppendLine();
+                sb.AppendLine("Actions the automation evaluated for this content item (empty means the action did not fire):");
+                if (responses.Count == 0) sb.AppendLine("- (no records for this content item in the last run)");
+                foreach (var r in responses)
+                    sb.AppendLine($"- [{r.Step}{(string.IsNullOrEmpty(r.Action) ? "" : $" / {r.Action}")}]: {(string.IsNullOrWhiteSpace(r.Response) ? "(no response)" : r.Response.Trim())}");
 
-            sb.AppendLine();
-            sb.AppendLine("Changes the automation applied to this content item:");
-            if (changes.Count == 0) sb.AppendLine("- (none)");
-            foreach (var c in changes) sb.AppendLine($"- {c}");
+                sb.AppendLine();
+                sb.AppendLine("Changes the automation applied to this content item:");
+                if (changes.Count == 0) sb.AppendLine("- (none)");
+                foreach (var c in changes) sb.AppendLine($"- {c}");
+            }
+            else
+            {
+                // No content item: whole-run outcome counts (so aggregate questions have real
+                // numbers), then the decision log tail for detail.
+                sb.AppendLine();
+                sb.AppendLine("Outcome counts for the WHOLE run, grouped by step (on a Detect Duplicate action, 'confirmed' means a duplicate was found and 'not-confirmed' means no match):");
+                foreach (var (stepName, outcome, count) in _runLogService.CountByRun(runId.Value))
+                    sb.AppendLine($"- {stepName}: {outcome} = {count}");
+
+                var (_, totalLogs) = _runLogService.FindByRun(runId.Value, qty: 1);
+                var lastPage = Math.Max(1, (int)Math.Ceiling(totalLogs / 80.0));
+                var (tail, _) = _runLogService.FindByRun(runId.Value, page: lastPage, qty: 80);
+                sb.AppendLine();
+                sb.AppendLine($"Decision log (most recent {Math.Min(80, totalLogs)} of {totalLogs} entries):");
+                foreach (var l in tail)
+                {
+                    var text = (l.Response ?? "").Trim();
+                    if (text.Length > 240) text = text[..240] + "…";
+                    sb.AppendLine($"- [{l.StepName}{(string.IsNullOrEmpty(l.ActionName) ? "" : $" / {l.ActionName}")}] {l.Outcome}{(l.ContentId.HasValue ? $" (content {l.ContentId})" : "")}: {text}");
+                }
+            }
         }
         else
         {
-            sb.AppendLine("(No successful run was found for this profile.)");
+            sb.AppendLine("(No completed run was found for this profile.)");
         }
 
         sb.AppendLine();
-        sb.AppendLine($"## Content item (id {content.Id})");
-        sb.AppendLine(System.Text.Json.JsonSerializer.Serialize(new
+        if (content != null)
         {
-            content.Id,
-            content.Headline,
-            content.Byline,
-            Source = content.Source?.Name ?? content.OtherSource,
-            content.Section,
-            content.Page,
-            content.Edition,
-            Status = content.Status.ToString(),
-            ContentType = content.ContentType.ToString(),
-            content.PublishedOn,
-            content.Summary,
-            Body = PromptToText(content.Body),
-        }, _serializerOptions));
+            sb.AppendLine($"## Content item (id {content.Id})");
+            sb.AppendLine(System.Text.Json.JsonSerializer.Serialize(new
+            {
+                content.Id,
+                content.Headline,
+                content.Byline,
+                Source = content.Source?.Name ?? content.OtherSource,
+                content.Section,
+                content.Page,
+                content.Edition,
+                Status = content.Status.ToString(),
+                ContentType = content.ContentType.ToString(),
+                content.PublishedOn,
+                content.Summary,
+                Body = PromptToText(content.Body),
+            }, _serializerOptions));
+        }
+        else
+        {
+            sb.AppendLine("(No specific content item was selected; answer about the run as a whole.)");
+        }
 
         return sb.ToString();
     }
 
     /// <summary>
-    /// Describe how the automation profile processes content: its enabled steps (in order), each
-    /// step's instructions, and each enabled action with its confirmation marker and criteria. This
-    /// gives the LLM the rules the automation actually applies so it can explain a content item's
-    /// outcome.
+    /// Describe how the automation profile processes content from its definition document: the
+    /// enabled steps by phase, each step's analyses, and each enabled action with its gate. This
+    /// gives the LLM the rules the automation actually applies so it can explain an outcome.
     /// </summary>
     private static string BuildProfileProcessDescription(Entities.AutomationProfile profile)
     {
         var sb = new System.Text.StringBuilder();
         sb.AppendLine("## How this automation profile works");
         sb.AppendLine(
-            "The automation selects content items with the profile's filter, then runs each item through the " +
-            "enabled steps below, in order. A step's target controls when it runs: 'content' runs once per " +
-            "content item, while 'start' and 'end' run once per run (before and after the items). For each " +
-            "step the automation builds a prompt from the step's instructions plus its actions and sends it " +
-            "to the LLM; an action is applied only when the LLM response contains that action's confirmation " +
-            "marker (shown in quotes below). Actions perform effects such as updating a field, adding tags or " +
-            "sentiment, scoring an item, selecting the top-scored items, publishing, deduplicating, or " +
-            "aborting. A 'deduplicate' action that finds a duplicate, or a confirmed abort/stop action, halts " +
-            "the remaining actions on that step for that item - so actions ordered after it (including " +
-            "publish) do not run. An action marked 'always runs' is applied without a confirmation.");
+            "The profile is a definition document. Steps run by phase: 'init' steps run once (typically " +
+            "searching content into named collections), 'process' steps run once per item of their source " +
+            "collection, and 'complete' steps run after all items. Each step declares analyses (LLM prompts " +
+            "producing named results, sent lazily when first used) and ordered actions. An action runs when " +
+            "its gate passes: always, a condition over analysis results and content fields, or an LLM " +
+            "confirmation statement. Changes accumulate on working copies and are only written by a " +
+            "Save Collection or Save Content Now action.");
         sb.AppendLine();
         sb.AppendLine("## Profile configuration");
 
-        var steps = profile.Steps.Where(s => s.IsEnabled).OrderBy(s => s.SortOrder).ToList();
-        if (steps.Count == 0) sb.AppendLine("(This profile has no enabled steps.)");
-        var stepNumber = 1;
-        foreach (var step in steps)
+        var definitionJson = profile.Definition?.RootElement.GetRawText();
+        if (string.IsNullOrWhiteSpace(definitionJson))
         {
-            sb.AppendLine($"### Step {stepNumber++}: \"{step.Name}\" (target: {step.Target})");
-            if (step.FilterId.HasValue)
-                sb.AppendLine(step.ApplyToAutomationFilter
-                    ? "This step only acts on content that matches its own filter."
-                    : "This step uses a filter to source or enrich content for the prompt.");
-            var instructions = PromptToText(step.Prompt);
-            if (!string.IsNullOrWhiteSpace(instructions)) sb.AppendLine($"Instructions: {instructions}");
+            sb.AppendLine("(This profile has no definition document.)");
+            return sb.ToString();
+        }
 
-            var actions = step.Actions.Where(a => a.IsEnabled).OrderBy(a => a.SortOrder).ToList();
-            if (actions.Count > 0)
+        try
+        {
+            var definition = AutomationDefinition.Parse(definitionJson);
+            var steps = definition.Steps.Where(s => s.IsEnabled).ToList();
+            if (steps.Count == 0) sb.AppendLine("(This profile has no enabled steps.)");
+            var stepNumber = 1;
+            foreach (var step in steps)
             {
-                sb.AppendLine("Actions (applied in this order):");
-                foreach (var action in actions)
+                sb.AppendLine($"### Step {stepNumber++}: \"{step.Name}\" (phase: {step.Phase})");
+                if (step.Source?.Collection != null)
+                    sb.AppendLine($"Iterates the '{step.Source.Collection}' collection.");
+                foreach (var analysis in step.Analyses)
                 {
-                    var notes = "";
-                    if (action.AutoExecute) notes += " [always runs]";
-                    if (action.AbortIfNoConfirmation) notes += " [aborts the step if not confirmed]";
-                    if (action.MaxCalls.HasValue) notes += $" [max {action.MaxCalls} per run]";
-                    if (!string.IsNullOrWhiteSpace(action.Objective)) notes += $" [objective: {action.Objective}]";
-                    var confirmation = PromptToText(action.ConfirmationStatement);
-                    sb.Append($"- \"{action.Name}\" ({action.ActionType}){notes}");
-                    if (!string.IsNullOrWhiteSpace(confirmation)) sb.Append($": confirmed by \"{confirmation}\"");
-                    sb.AppendLine();
-                    var criteria = PromptToText(action.Prompt);
-                    if (!string.IsNullOrWhiteSpace(criteria)) sb.AppendLine($"  Criteria: {criteria}");
+                    var promptRef = !string.IsNullOrWhiteSpace(analysis.Prompt.Ref)
+                        ? $"library prompt '{analysis.Prompt.Ref}'"
+                        : "an inline prompt";
+                    var returns = analysis.Returns.Count > 0
+                        ? $" returning {string.Join(", ", analysis.Returns.Select(r => $"{r.Key} ({r.Value})"))}"
+                        : analysis.Raw ? " returning the raw response" : "";
+                    sb.AppendLine($"- Analysis \"{analysis.Name}\" uses {promptRef}{returns}.");
                 }
+                var actions = step.Actions.Where(a => a.IsEnabled).ToList();
+                if (actions.Count > 0)
+                {
+                    sb.AppendLine("Actions (applied in this order):");
+                    foreach (var action in actions)
+                    {
+                        var gate = !string.IsNullOrWhiteSpace(action.Confirm)
+                            ? $" [runs when the LLM responds \"{action.Confirm}\"{(string.IsNullOrWhiteSpace(action.Analysis) ? "" : $" from analysis '{action.Analysis}'")}]"
+                            : action.When != null ? " [runs when its condition passes]" : " [always runs]";
+                        sb.AppendLine($"- \"{action.Name ?? action.Type}\" ({action.Type}){gate}");
+                    }
+                }
+                else sb.AppendLine("(No enabled actions.)");
+                sb.AppendLine();
             }
-            else sb.AppendLine("(No enabled actions.)");
-            sb.AppendLine();
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            sb.AppendLine("(The definition document could not be parsed.)");
         }
         return sb.ToString();
     }
 
     /// <summary>
-    /// Extract the recorded responses and changes for a content item from a run - preferring the
-    /// dedicated response table, falling back to the run's summary JSON (older runs).
+    /// Extract the recorded responses and changes for a content item from a run: the per-item
+    /// trace from the decision log, plus the changes recorded in the run's summary JSON.
     /// </summary>
     private (List<(string Step, string? Action, string Response)> Responses, List<string> Changes) GetRunRecordsForContent(Entities.AutomationRun? run, long contentId)
     {
@@ -392,9 +450,16 @@ public class AutomationController : ControllerBase
         var changes = new List<string>();
         if (run == null) return (responses, changes);
 
-        // Responses: dedicated table first.
-        foreach (var r in _runResponseService.FindByRun(run.Id).Where(r => r.ContentId == contentId))
-            responses.Add((r.StepName, r.ActionName, r.Response));
+        // The per-item trace lives in the decision log.
+        {
+            var (logs, _) = _runLogService.FindByRun(run.Id, contentId: contentId, qty: 300);
+            foreach (var l in logs)
+            {
+                var text = (l.Response ?? "").Trim();
+                if (text.Length > 400) text = text[..400] + "…";
+                responses.Add((l.StepName, l.ActionName ?? l.AnalysisName, $"{l.Outcome}{(text.Length > 0 ? $": {text}" : "")}"));
+            }
+        }
 
         if (string.IsNullOrWhiteSpace(run.Summary)) return (responses, changes);
         try
@@ -416,7 +481,13 @@ public class AutomationController : ControllerBase
             {
                 foreach (var c in chs.EnumerateArray())
                 {
-                    if (!c.TryGetProperty("contentId", out var cid) || !cid.TryGetInt64(out var v) || v != contentId) continue;
+                    // Older summaries carry 'contentId' (number); current ones 'contentRef' (string).
+                    var matches = c.TryGetProperty("contentId", out var cid) && cid.TryGetInt64(out var v) && v == contentId;
+                    if (!matches && c.TryGetProperty("contentRef", out var cref)
+                        && cref.ValueKind == System.Text.Json.JsonValueKind.String
+                        && cref.GetString() == contentId.ToString())
+                        matches = true;
+                    if (!matches) continue;
                     var type = c.TryGetProperty("type", out var t) ? t.GetString() : "";
                     var field = c.TryGetProperty("field", out var f) && f.ValueKind == System.Text.Json.JsonValueKind.String ? f.GetString() : null;
                     var value = c.TryGetProperty("value", out var val) && val.ValueKind == System.Text.Json.JsonValueKind.String ? val.GetString() : null;
@@ -528,11 +599,30 @@ public class AutomationController : ControllerBase
     {
         _ = _profileService.FindById(id) ?? throw new NoContentException();
 
+        // A comparison run always executes dry - it exists to show differences, not to act twice.
+        System.Text.Json.JsonDocument? compareDefinition = null;
+        if (!string.IsNullOrWhiteSpace(request?.CompareDefinition))
+        {
+            try
+            {
+                var candidate = AutomationDefinition.Parse(request!.CompareDefinition!);
+                var candidateErrors = AutomationDefinitionValidator.Validate(candidate).Where(e => e.Severity == "error").ToArray();
+                if (candidateErrors.Length > 0) return BadRequest(new { errors = candidateErrors });
+                compareDefinition = System.Text.Json.JsonDocument.Parse(request.CompareDefinition!);
+            }
+            catch (System.Text.Json.JsonException ex)
+            {
+                throw new BadRequestException($"The comparison definition is not valid JSON: {ex.Message}");
+            }
+        }
+
         var run = new Entities.AutomationRun(id, string.IsNullOrWhiteSpace(request?.Trigger) ? "manual" : request!.Trigger!)
         {
             Status = Entities.AutomationRunStatus.Draft,
             Note = request?.Note,
             StartedOn = DateTime.UtcNow,
+            IsDryRun = request?.IsDryRun == true || compareDefinition != null,
+            CompareDefinition = compareDefinition,
         };
         _runService.AddAndSave(run);
 
@@ -714,36 +804,12 @@ public class AutomationController : ControllerBase
             }
         }
 
-        // Prompt/response text is stored separately (not in the summary) to keep run data small.
-        var responses = _runResponseService.FindByRun(runId).Select(r => new AutomationRunResponseModel(r));
-
         return new JsonResult(new
         {
             Run = new AutomationRunModel(run),
             Changes = (object?)changes ?? Array.Empty<object>(),
             StepHits = (object?)stepHits ?? Array.Empty<object>(),
-            Responses = responses,
         });
-    }
-
-    /// <summary>
-    /// Append a batch of LLM prompt/response records to the specified run. The automation service
-    /// posts these incrementally (per step) so the large prompt/response text is never accumulated
-    /// in the run summary or held in the service's memory for the whole run.
-    /// </summary>
-    /// <param name="runId"></param>
-    /// <param name="responses"></param>
-    /// <returns>The number of responses added.</returns>
-    [HttpPost("runs/{runId}/responses")]
-    [DisableRequestSizeLimit]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
-    [SwaggerOperation(Tags = new[] { "Automation" })]
-    public IActionResult AddRunResponses(long runId, [FromBody] IEnumerable<AutomationRunResponseModel> responses)
-    {
-        _ = _runService.FindById(runId) ?? throw new NoContentException();
-        var added = _runResponseService.AddRange(responses.Select(r => r.ToEntity(runId)));
-        return new JsonResult(added);
     }
 
     /// <summary>
@@ -779,6 +845,270 @@ public class AutomationController : ControllerBase
     {
         var deleted = _runService.DeleteOlderThan(days);
         return new JsonResult(deleted);
+    }
+    #endregion
+
+    #region Definition Endpoints
+    /// <summary>
+    /// Return the action catalog: every registered action type with its descriptor
+    /// (phases, requirements, and configuration fields). The editor renders action forms from
+    /// these descriptors so it follows the engine automatically.
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("descriptors")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<ActionDescriptor>), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Automation" })]
+    public IActionResult GetV2Descriptors()
+    {
+        return new JsonResult(ActionCatalog.Types.Values.OrderBy(d => d.Category).ThenBy(d => d.Label));
+    }
+
+    /// <summary>
+    /// Validate a profile definition without saving it. Returns every finding (errors and
+    /// warnings) with the definition path it anchors to.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPost("profiles/validate")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<ValidationError>), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Automation" })]
+    public IActionResult ValidateProfile([FromBody] AutomationProfileModel model)
+    {
+        if (model.SchemaVersion < 2 || string.IsNullOrWhiteSpace(model.Definition))
+            return new JsonResult(Array.Empty<ValidationError>());
+        try
+        {
+            var definition = AutomationDefinition.Parse(model.Definition!);
+            return new JsonResult(AutomationDefinitionValidator.Validate(definition));
+        }
+        catch (System.Text.Json.JsonException ex)
+        {
+            return new JsonResult(new[] { new ValidationError("definition", $"The definition is not valid JSON: {ex.Message}") });
+        }
+    }
+
+    /// <summary>
+    /// Return a page of the run's decision log, in execution order, with optional filters.
+    /// Every prompt and response is recorded (no capture flag); entries are retained for the
+    /// current date only.
+    /// </summary>
+    /// <param name="runId"></param>
+    /// <param name="step"></param>
+    /// <param name="action"></param>
+    /// <param name="outcome"></param>
+    /// <param name="contentId"></param>
+    /// <param name="search"></param>
+    /// <param name="page"></param>
+    /// <param name="qty"></param>
+    /// <returns></returns>
+    [HttpGet("runs/{runId}/logs")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [SwaggerOperation(Tags = new[] { "Automation" })]
+    public IActionResult FindRunLogs(long runId, [FromQuery] string? step, [FromQuery] string? action, [FromQuery] string? outcome, [FromQuery] long? contentId, [FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int qty = 100, [FromQuery] string? direction = null)
+    {
+        _ = _runService.FindById(runId) ?? throw new NoContentException();
+        var (items, total) = _runLogService.FindByRun(runId, step, action, outcome, contentId, search, page, qty,
+            string.Equals(direction, "desc", StringComparison.OrdinalIgnoreCase));
+        return new JsonResult(new
+        {
+            items = items.Select(l => new AutomationRunLogModel(l)),
+            page,
+            qty,
+            total,
+        });
+    }
+
+    /// <summary>
+    /// Append a batch of decision log entries to the specified run. Used by the automation service,
+    /// which flushes its log buffer incrementally so a failed run still has its log up to the failure.
+    /// </summary>
+    /// <param name="runId"></param>
+    /// <param name="logs"></param>
+    /// <returns></returns>
+    [HttpPost("runs/{runId}/logs")]
+    [DisableRequestSizeLimit]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Automation" })]
+    public IActionResult AddRunLogs(long runId, [FromBody] IEnumerable<AutomationRunLogModel> logs)
+    {
+        _ = _runService.FindById(runId) ?? throw new NoContentException();
+        var added = _runLogService.AddRange(logs.Select(l => l.ToEntity(runId)));
+        return new JsonResult(added);
+    }
+
+    /// <summary>
+    /// Delete decision log entries created before the specified cutoff (UTC). Used by the
+    /// automation service's daily sweep - the log retention (current date) is independent of the
+    /// run-history retention.
+    /// </summary>
+    /// <param name="cutoff"></param>
+    /// <returns>The number of entries deleted.</returns>
+    [HttpDelete("runs/logs/prune")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Automation" })]
+    public IActionResult PruneRunLogs([FromQuery] DateTime cutoff)
+    {
+        if (cutoff == default) throw new BadRequestException("A cutoff date is required.");
+        var deleted = _runLogService.Prune(cutoff.ToUniversalTime());
+        return new JsonResult(deleted);
+    }
+
+    /// <summary>
+    /// Open (or continue) an explain-and-improve conversation about one run log entry. The
+    /// conversation is seeded with the entry's exact prompt, response, parsed outcome, action
+    /// configuration, and content reference. When the assistant proposes a prompt revision it is
+    /// returned in SuggestedPrompt for the editor to show as a diff - nothing is applied
+    /// automatically, and the conversation itself is logged and attributed to the caller.
+    /// </summary>
+    /// <param name="runId"></param>
+    /// <param name="logId"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPost("runs/{runId}/logs/{logId}/explain")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(AutomationExplainResultModel), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Automation" })]
+    public async Task<IActionResult> ExplainRunLog(long runId, long logId, [FromBody] AutomationExplainRequestModel request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Question)) throw new BadRequestException("A question is required.");
+        var run = _runService.FindById(runId) ?? throw new NoContentException();
+        var entry = _runLogService.FindById(logId);
+        if (entry == null || entry.AutomationRunId != runId) throw new NoContentException();
+
+        var profile = _profileService.FindById(run.AutomationProfileId) ?? throw new NoContentException();
+        if (!profile.LLMId.HasValue) throw new BadRequestException("This automation profile has no LLM configured.");
+        var llm = _llmService.FindById(profile.LLMId.Value) ?? throw new BadRequestException("The profile's LLM could not be found.");
+
+        var conversation = new List<(string Role, string Content)>();
+        if (!request.Messages.Any())
+        {
+            conversation.Add(("system", ExplainSystemPrompt));
+            conversation.Add(("user", BuildExplainPrompt(profile, entry, request.Question)));
+        }
+        else
+        {
+            foreach (var message in request.Messages) conversation.Add((message.Role, message.Content));
+            conversation.Add(("user", PromptToText(request.Question)));
+        }
+
+        var answer = await InvokeChatAsync(llm, conversation);
+        conversation.Add(("assistant", answer));
+
+        // Extract a proposed revision when the assistant made one, so the editor can diff it.
+        string? suggested = null;
+        var match = System.Text.RegularExpressions.Regex.Match(answer, @"<revised-prompt>\s*([\s\S]*?)\s*</revised-prompt>");
+        if (match.Success) suggested = match.Groups[1].Value;
+
+        // The tuning session is auditable: record the exchange in the run log, attributed to the
+        // caller (audit columns carry the admin's username, unlike engine-written entries).
+        _runLogService.AddAndSave(new Entities.AutomationRunLog(runId, entry.StepName, "explain")
+        {
+            ActionName = entry.ActionName,
+            AnalysisName = entry.AnalysisName,
+            ContentId = entry.ContentId,
+            IsLLM = true,
+            Prompt = PromptToText(request.Question),
+            Response = answer,
+            Detail = $"{{\"explainsLogId\":{entry.Id}}}",
+        });
+
+        return new JsonResult(new AutomationExplainResultModel
+        {
+            LogId = logId,
+            Answer = answer,
+            SuggestedPrompt = suggested,
+            Messages = conversation.Select(m => new AutomationDebugMessageModel(m.Role, m.Content)).ToArray(),
+        });
+    }
+
+    private const string ExplainSystemPrompt =
+        "You are an assistant that helps an editor understand and improve one specific decision made " +
+        "by an automated editorial process. You are given the exact prompt that was sent, the exact " +
+        "response that came back, how the engine parsed it (the outcome), and the configuration of the " +
+        "action involved.\n\n" +
+        "Answer the user's question with a clear, specific explanation grounded ONLY in the provided " +
+        "prompt, response, and configuration - you are reasoning about a recorded exchange, not " +
+        "re-running it, so never claim certainty about what the model would do differently. When the " +
+        "user asks how to improve the prompt, propose a complete revised prompt wrapped exactly in " +
+        "<revised-prompt></revised-prompt> tags so it can be shown as a diff. Never claim a change was " +
+        "applied - revisions are proposals the editor must review and save.";
+
+    /// <summary>
+    /// Compose the first-turn explain prompt from the log entry's recorded exchange and outcome.
+    /// </summary>
+    private string BuildExplainPrompt(Entities.AutomationProfile profile, Entities.AutomationRunLog entry, string question)
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine(PromptToText(question));
+        sb.AppendLine();
+        sb.AppendLine($"## The decision being examined");
+        sb.AppendLine($"Profile: {profile.Name}");
+        sb.AppendLine($"Step: {entry.StepName}");
+        if (!string.IsNullOrWhiteSpace(entry.ActionName)) sb.AppendLine($"Action: {entry.ActionName} ({entry.ActionType})");
+        if (!string.IsNullOrWhiteSpace(entry.AnalysisName)) sb.AppendLine($"Analysis: {entry.AnalysisName}");
+        if (entry.ContentId.HasValue) sb.AppendLine($"Content id: {entry.ContentId}");
+        sb.AppendLine($"Outcome: {entry.Outcome}");
+        if (!string.IsNullOrWhiteSpace(entry.Detail)) sb.AppendLine($"Engine detail: {entry.Detail}");
+        sb.AppendLine();
+        if (entry.IsLLM)
+        {
+            sb.AppendLine("## The exact prompt that was sent");
+            sb.AppendLine(entry.Prompt ?? "(not recorded)");
+            sb.AppendLine();
+            sb.AppendLine("## The exact response that came back");
+            sb.AppendLine(entry.Response ?? "(empty)");
+        }
+        else
+        {
+            sb.AppendLine("## The engine decision (no LLM was involved)");
+            sb.AppendLine(entry.Response ?? "(no description)");
+        }
+        if (entry.ContentId.HasValue)
+        {
+            var content = _contentService.FindById(entry.ContentId.Value);
+            if (content != null)
+            {
+                sb.AppendLine();
+                sb.AppendLine($"## Content item (id {content.Id})");
+                sb.AppendLine(System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    content.Id,
+                    content.Headline,
+                    content.Byline,
+                    Source = content.Source?.Name ?? content.OtherSource,
+                    content.Section,
+                    content.Page,
+                    Status = content.Status.ToString(),
+                    content.PublishedOn,
+                    content.Summary,
+                    Body = PromptToText(content.Body),
+                }, _serializerOptions));
+            }
+        }
+        return sb.ToString();
+    }
+
+    /// <summary>
+    /// Validate a profile definition at save. Only malformed JSON blocks the save - a
+    /// work-in-progress definition with validation errors persists as a draft (the findings
+    /// panel and the run-time guard in the automation service cover invalid definitions).
+    /// </summary>
+    private IActionResult? ValidateDefinition(AutomationProfileModel model)
+    {
+        if (model.SchemaVersion < 2 || string.IsNullOrWhiteSpace(model.Definition)) return null;
+        try
+        {
+            AutomationDefinition.Parse(model.Definition!);
+            return null;
+        }
+        catch (System.Text.Json.JsonException ex)
+        {
+            return BadRequest(new { errors = new[] { new ValidationError("definition", $"The definition is not valid JSON: {ex.Message}") } });
+        }
     }
     #endregion
 }

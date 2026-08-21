@@ -321,6 +321,61 @@ public class ContentService : BaseService<Content, long>, IContentService
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
+    /// <summary>
+    /// Find content links touching the specified content (either direction), optionally filtered
+    /// by value (e.g. 'duplicate').
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public IEnumerable<ContentLink> FindLinks(long contentId, string? value = null)
+    {
+        return this.Context.ContentLinks.AsNoTracking()
+            .Where(l => (l.ContentId == contentId || l.LinkId == contentId)
+                && (value == null || l.Value == value))
+            .ToArray();
+    }
+
+    /// <summary>
+    /// Find the content items linked to the specified content (either direction), optionally
+    /// filtered by link value (e.g. 'duplicate'), newest first.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public IEnumerable<Content> FindLinkedContent(long contentId, string? value = null)
+    {
+        var linkedIds = this.Context.ContentLinks.AsNoTracking()
+            .Where(l => (l.ContentId == contentId || l.LinkId == contentId)
+                && (value == null || l.Value == value))
+            .Select(l => l.ContentId == contentId ? l.LinkId : l.ContentId);
+        return this.Context.Contents.AsNoTracking()
+            .Include(c => c.Source)
+            .Where(c => linkedIds.Contains(c.Id) && c.Id != contentId)
+            .OrderByDescending(c => c.PublishedOn)
+            .ToArray();
+    }
+
+    /// <summary>
+    /// Add a content link between the two items (or update its value when the pair exists).
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="linkId"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public ContentLink AddOrUpdateLink(long contentId, long linkId, string value)
+    {
+        var link = this.Context.ContentLinks.Find(contentId, linkId);
+        if (link == null)
+        {
+            link = new ContentLink(contentId, linkId) { Value = value };
+            this.Context.Add(link);
+        }
+        else link.Value = value;
+        this.CommitTransaction();
+        return link;
+    }
+
     public override Content? FindById(long id)
     {
         return this.Context.Contents

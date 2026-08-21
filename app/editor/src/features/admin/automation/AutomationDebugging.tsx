@@ -48,6 +48,7 @@ export const AutomationDebugging: React.FC<IAutomationDebuggingProps> = ({ profi
   const toFilter = useElasticsearch();
 
   // Content search (first turn only).
+  const [idTerm, setIdTerm] = React.useState('');
   const [term, setTerm] = React.useState('');
   const [results, setResults] = React.useState<IContentHit[]>([]);
   const [selected, setSelected] = React.useState<IContentHit | null>(null);
@@ -74,7 +75,9 @@ export const AutomationDebugging: React.FC<IAutomationDebuggingProps> = ({ profi
   };
 
   const handleSearch = async () => {
-    if (!term.trim()) return;
+    // An id finds the one item directly; otherwise the headline term searches.
+    const byId = idTerm.trim();
+    if (!byId && !term.trim()) return;
     setIsSearching(true);
     try {
       const filter = {
@@ -91,8 +94,8 @@ export const AutomationDebugging: React.FC<IAutomationDebuggingProps> = ({ profi
         sourceIds: [],
         excludeSourceIds: [],
         sort: [],
-        fieldType: AdvancedSearchKeys.Headline,
-        searchTerm: term,
+        fieldType: byId ? AdvancedSearchKeys.Id : AdvancedSearchKeys.Headline,
+        searchTerm: byId || term,
       };
       const response = await findContentWithElasticsearch(toFilter(filter as any), true);
       const hits = (response.hits?.hits ?? [])
@@ -115,10 +118,6 @@ export const AutomationDebugging: React.FC<IAutomationDebuggingProps> = ({ profi
   };
 
   const handleSend = async () => {
-    if (!hasConversation && !selected) {
-      toast.warning('Select a content item first.');
-      return;
-    }
     const text = stripHtml(input);
     if (!text) {
       toast.warning('Enter a question.');
@@ -150,6 +149,7 @@ export const AutomationDebugging: React.FC<IAutomationDebuggingProps> = ({ profi
     setSelected(null);
     setResults([]);
     setTerm('');
+    setIdTerm('');
   };
 
   const renderMessage = (role: string, text: string, index: number, collapsible: boolean) => {
@@ -175,17 +175,32 @@ export const AutomationDebugging: React.FC<IAutomationDebuggingProps> = ({ profi
   return (
     <Col className="debugging-section" gap="1rem">
       <p>
-        Ask the profile&apos;s LLM why a specific content item was or was not acted upon. The first
-        message sent (shown in the history) combines your question with how the profile works, its
-        configuration, the last run&apos;s outcome, and the content item; follow-up questions
-        continue the same conversation.
+        Ask the profile&apos;s LLM about the most recent run. The first message sent (shown in the
+        history) combines your question with how the profile works, its configuration, and the
+        run&apos;s outcome — plus a specific content item when you pick one below; follow-up
+        questions continue the same conversation.
       </p>
 
       {/* 1. Find the content item (first turn only). */}
       <Show visible={!hasConversation && !isAsking}>
         <Col gap="0.5rem">
-          <label>Find content by headline</label>
+          <label>
+            Find content by id or headline (optional — focuses the question on one item)
+          </label>
           <Row gap="0.5rem" alignItems="center">
+            <Text
+              name="debug-search-id"
+              value={idTerm}
+              width="8rem"
+              placeholder="Id"
+              onChange={(e) => setIdTerm(e.target.value.replace(/[^0-9]/g, ''))}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSearch();
+                }
+              }}
+            />
             <Text
               name="debug-search"
               value={term}
@@ -198,14 +213,16 @@ export const AutomationDebugging: React.FC<IAutomationDebuggingProps> = ({ profi
                 }
               }}
             />
-            <Button
-              type="button"
-              variant={ButtonVariant.secondary}
-              disabled={isSearching || !term.trim()}
-              onClick={handleSearch}
-            >
-              Search
-            </Button>
+            <Row className="automation-log-filter-actions">
+              <Button
+                type="button"
+                variant={ButtonVariant.secondary}
+                disabled={isSearching || (!idTerm.trim() && !term.trim())}
+                onClick={handleSearch}
+              >
+                Search
+              </Button>
+            </Row>
           </Row>
           <Show visible={results.length > 0}>
             <ul className="debug-results">
@@ -266,11 +283,7 @@ export const AutomationDebugging: React.FC<IAutomationDebuggingProps> = ({ profi
         <Show visible={!hasConversation}>
           <span />
         </Show>
-        <Button
-          type="button"
-          disabled={isAsking || (!hasConversation && !selected)}
-          onClick={handleSend}
-        >
+        <Button type="button" disabled={isAsking} onClick={handleSend}>
           {isAsking ? 'Sending…' : hasConversation ? 'Send' : 'Ask the LLM'}
         </Button>
       </Row>

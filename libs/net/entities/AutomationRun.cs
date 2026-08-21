@@ -60,16 +60,30 @@ public class AutomationRun : AuditColumns
     public DateTime? CompletedOn { get; set; }
 
     /// <summary>
-    /// get/set - JSON summary of the run outcome (steps and content changes). Prompt/response text is
-    /// captured separately in <see cref="Responses"/> to keep this field small.
+    /// get/set - JSON summary of the run outcome (steps and content changes).
     /// </summary>
     [Column("summary")]
     public string? Summary { get; set; }
 
     /// <summary>
-    /// get/set - The LLM prompt/response records captured during the run (many-to-one).
+    /// get/set - Whether this run is a dry run: every decision and change is computed and logged,
+    /// but no content is written and no reports or notifications are sent.
     /// </summary>
-    public virtual ICollection<AutomationRunResponse> Responses { get; set; } = new List<AutomationRunResponse>();
+    [Column("is_dry_run")]
+    public bool IsDryRun { get; set; }
+
+    /// <summary>
+    /// get/set - Optional candidate definition for a comparison run. When present the v2 engine
+    /// executes both the profile's definition (variant 'A') and this candidate (variant 'B') as
+    /// dry runs over the same trigger and records the differences in the summary and log.
+    /// </summary>
+    [Column("compare_definition")]
+    public System.Text.Json.JsonDocument? CompareDefinition { get; set; }
+
+    /// <summary>
+    /// get/set - The engine decision log entries captured during the run (v2 engine; many-to-one).
+    /// </summary>
+    public virtual ICollection<AutomationRunLog> Logs { get; set; } = new List<AutomationRunLog>();
 
     /// <summary>
     /// get/set - When the most recent response record was captured for this run (not persisted;

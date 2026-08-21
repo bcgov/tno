@@ -1,4 +1,12 @@
 import {
+  type IAutomationActionDescriptor,
+  type IAutomationExplainRequestModel,
+  type IAutomationExplainResultModel,
+  type IAutomationRunLogFilter,
+  type IAutomationRunLogPage,
+  type IAutomationValidationError,
+} from 'features/admin/automation/designer/interfaces';
+import {
   type IAutomationDebugRequestModel,
   type IAutomationDebugResultModel,
   type IAutomationProfileModel,
@@ -27,6 +35,14 @@ interface IAutomationProfileController {
     request: IAutomationDebugRequestModel,
   ) => Promise<IAutomationDebugResultModel>;
   clearScheduleLastRun: (profileId: number, scheduleId: number) => Promise<void>;
+  getDescriptors: () => Promise<IAutomationActionDescriptor[]>;
+  validateProfile: (model: IAutomationProfileModel) => Promise<IAutomationValidationError[]>;
+  findRunLogs: (runId: number, filter: IAutomationRunLogFilter) => Promise<IAutomationRunLogPage>;
+  explainRunLog: (
+    runId: number,
+    logId: number,
+    request: IAutomationExplainRequestModel,
+  ) => Promise<IAutomationExplainResultModel>;
 }
 
 export const useAutomationProfiles = (): [IAdminState, IAutomationProfileController] => {
@@ -106,9 +122,13 @@ export const useAutomationProfiles = (): [IAdminState, IAutomationProfileControl
         return response.data;
       },
       debugContent: async (id: number, request: IAutomationDebugRequestModel) => {
+        // Silent: the debugging panel shows its own pending state; the page overlay would block
+        // navigating to other tabs while the LLM answers.
         const response = await dispatch<IAutomationDebugResultModel>(
           'debug-automation-content',
           async () => await api.debugContent(id, request),
+          undefined,
+          true,
         );
         return response.data;
       },
@@ -117,6 +137,48 @@ export const useAutomationProfiles = (): [IAdminState, IAutomationProfileControl
           'clear-automation-schedule-last-run',
           async () => await api.clearScheduleLastRun(profileId, scheduleId),
         );
+      },
+      getDescriptors: async () => {
+        // Silent: fetched to render the action forms; must not trigger the page loading overlay.
+        const response = await dispatch<IAutomationActionDescriptor[]>(
+          'get-automation-automation-descriptors',
+          async () => await api.getDescriptors(),
+          undefined,
+          true,
+        );
+        return response.data;
+      },
+      validateProfile: async (model: IAutomationProfileModel) => {
+        const response = await dispatch<IAutomationValidationError[]>(
+          'validate-automation-profile',
+          async () => await api.validateProfile(model),
+          undefined,
+          true,
+        );
+        return response.data;
+      },
+      findRunLogs: async (runId: number, filter: IAutomationRunLogFilter) => {
+        // Silent: fetched inside the log viewer; must not trigger the page loading overlay.
+        const response = await dispatch<IAutomationRunLogPage>(
+          'find-automation-run-logs',
+          async () => await api.findRunLogs(runId, filter),
+          undefined,
+          true,
+        );
+        return response.data;
+      },
+      explainRunLog: async (
+        runId: number,
+        logId: number,
+        request: IAutomationExplainRequestModel,
+      ) => {
+        const response = await dispatch<IAutomationExplainResultModel>(
+          'explain-automation-run-log',
+          async () => await api.explainRunLog(runId, logId, request),
+          undefined,
+          true,
+        );
+        return response.data;
       },
     }),
     [api, dispatch],

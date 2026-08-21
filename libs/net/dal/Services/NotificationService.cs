@@ -363,19 +363,26 @@ public class NotificationService : BaseService<Notification, int>, INotification
                 query = query.AddExcludeContent(sentNotificationContentIds);
         }
 
-        // update top story last run on setting
-        if (topStoryLastRunOnSetting == null)
+        var results = await _elasticClient.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(defaultIndex, query);
+
+        // Advance the incremental last-run pointer only when the search found content. An empty
+        // attempt must stay retryable - advancing unconditionally burns the increment, so stories
+        // assigned since the previous run could never be sent by a later attempt.
+        if (results.Hits.Hits.Any())
         {
-            var newSetting = new Setting(TopStoryLastRunOn, DateTime.Now.ToUniversalTime().ToString());
-            newSetting.Description = TopStoryLastRunOnDescription;
-            _settingService.AddAndSave(newSetting);
+            if (topStoryLastRunOnSetting == null)
+            {
+                var newSetting = new Setting(TopStoryLastRunOn, DateTime.Now.ToUniversalTime().ToString());
+                newSetting.Description = TopStoryLastRunOnDescription;
+                _settingService.AddAndSave(newSetting);
+            }
+            else
+            {
+                topStoryLastRunOnSetting.Value = DateTime.Now.ToUniversalTime().ToString();
+                _settingService.UpdateAndSave(topStoryLastRunOnSetting);
+            }
         }
-        else
-        {
-            topStoryLastRunOnSetting.Value = DateTime.Now.ToUniversalTime().ToString();
-            _settingService.UpdateAndSave(topStoryLastRunOnSetting);
-        }
-        return await _elasticClient.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(defaultIndex, query);
+        return results;
     }
 
     /// <summary>

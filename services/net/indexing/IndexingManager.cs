@@ -477,13 +477,24 @@ public class IndexingManager : ServiceManager<IndexingOptions>
                 _ = await this.Api.SendMessageAsync(notification)
                     ?? throw new HttpClientRequestException($"Failed to receive result from Kafka when sending message.  Topic: {this.Options.NotificationTopic}, Content ID: {content.Id}");
 
-                var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetAbsoluteExpiration(TimeSpan.FromSeconds(CacheExpirationSeconds))
-                    .SetSize(1);
+                // Only cache when the content is published: alerts only send for published
+                // content, so a request fired while it is still a draft cannot produce an email -
+                // caching it would swallow the request fired when the content publishes moments
+                // later (e.g. a create immediately followed by a publish).
+                if (content.Status is Entities.ContentStatus.Publish or Entities.ContentStatus.Published)
+                {
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(CacheExpirationSeconds))
+                        .SetSize(1);
 
-                // add to cache
-                _cache.Set(cacheKey, true, cacheEntryOptions);
-                this.Logger.LogInformation("Notification for Content {contentId} was sent, added to cache.", content.Id);
+                    // add to cache
+                    _cache.Set(cacheKey, true, cacheEntryOptions);
+                    this.Logger.LogInformation("Notification for Content {contentId} was sent, added to cache.", content.Id);
+                }
+                else
+                {
+                    this.Logger.LogInformation("Notification for Content {contentId} was sent for unpublished content; not cached so a publish can notify again.", content.Id);
+                }
             }
         }
         else

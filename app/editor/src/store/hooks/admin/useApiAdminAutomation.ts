@@ -1,5 +1,13 @@
 import { AxiosResponse } from 'axios';
 import {
+  type IAutomationActionDescriptor,
+  type IAutomationExplainRequestModel,
+  type IAutomationExplainResultModel,
+  type IAutomationRunLogFilter,
+  type IAutomationRunLogPage,
+  type IAutomationValidationError,
+} from 'features/admin/automation/designer/interfaces';
+import {
   type IAutomationDebugRequestModel,
   type IAutomationDebugResultModel,
   type IAutomationProfileModel,
@@ -74,6 +82,38 @@ export const useApiAdminAutomation = () => {
       return api.post<never, AxiosResponse<void>, any>(
         `/admin/automation/profiles/${profileId}/schedules/${scheduleId}/clear-last-run`,
       );
+    },
+    getDescriptors: () => {
+      return api.get<never, AxiosResponse<IAutomationActionDescriptor[]>, any>(
+        '/admin/automation/descriptors',
+      );
+    },
+    validateProfile: (model: IAutomationProfileModel) => {
+      return api.post<IAutomationProfileModel, AxiosResponse<IAutomationValidationError[]>, any>(
+        '/admin/automation/profiles/validate',
+        model,
+      );
+    },
+    findRunLogs: (runId: number, filter: IAutomationRunLogFilter) => {
+      const params = new URLSearchParams();
+      if (filter.step) params.set('step', filter.step);
+      if (filter.action) params.set('action', filter.action);
+      if (filter.outcome) params.set('outcome', filter.outcome);
+      if (filter.contentId) params.set('contentId', `${filter.contentId}`);
+      if (filter.search) params.set('search', filter.search);
+      params.set('page', `${filter.page ?? 1}`);
+      params.set('qty', `${filter.qty ?? 100}`);
+      if (filter.direction) params.set('direction', filter.direction);
+      return api.get<never, AxiosResponse<IAutomationRunLogPage>, any>(
+        `/admin/automation/runs/${runId}/logs?${params.toString()}`,
+      );
+    },
+    explainRunLog: (runId: number, logId: number, request: IAutomationExplainRequestModel) => {
+      return api.post<
+        IAutomationExplainRequestModel,
+        AxiosResponse<IAutomationExplainResultModel>,
+        any
+      >(`/admin/automation/runs/${runId}/logs/${logId}/explain`, request);
     },
   }).current;
 };

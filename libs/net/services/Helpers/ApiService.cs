@@ -528,6 +528,48 @@ public class ApiService : IApiService
     }
 
     /// <summary>
+    /// Make an HTTP request to the api to fetch the content links touching the specified content,
+    /// optionally filtered by value (e.g. 'duplicate').
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<API.Areas.Services.Models.Content.ContentLinkModel>> FindContentLinksAsync(long contentId, string? value = null)
+    {
+        var url = this.Options.ApiUrl.Append($"services/contents/{contentId}/links{(value != null ? $"?value={System.Web.HttpUtility.UrlEncode(value)}" : "")}");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Services.Models.Content.ContentLinkModel>>(url))
+            ?? Array.Empty<API.Areas.Services.Models.Content.ContentLinkModel>();
+    }
+
+    /// <summary>
+    /// Make an HTTP request to the api to add a contributor (or return the existing enabled
+    /// match by name/alias).
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.Contributor.ContributorModel?> AddContributorAsync(string name)
+    {
+        var url = this.Options.ApiUrl.Append($"services/contributors");
+        var model = new API.Areas.Services.Models.Contributor.ContributorModel { Name = name };
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Services.Models.Contributor.ContributorModel>(url, JsonContent.Create(model)));
+    }
+
+    /// <summary>
+    /// Make an HTTP request to the api to add a content link (or update its value when the pair
+    /// already exists).
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="linkId"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.Content.ContentLinkModel?> AddContentLinkAsync(long contentId, long linkId, string value)
+    {
+        var url = this.Options.ApiUrl.Append($"services/contents/{contentId}/links");
+        var model = new API.Areas.Services.Models.Content.ContentLinkModel { ContentId = contentId, LinkId = linkId, Value = value };
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Services.Models.Content.ContentLinkModel>(url, JsonContent.Create(model)));
+    }
+
+    /// <summary>
     /// Make an HTTP request to the api to get the specified image content.
     /// </summary>
     /// <param name="id"></param>
@@ -892,6 +934,18 @@ public class ApiService : IApiService
     {
         var url = this.Options.ApiUrl.Append($"services/llms/{id}");
         return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.LLM.LLMModel?>(url));
+    }
+
+    /// <summary>
+    /// Make a request to the API to fetch the filter for the specified 'id'.
+    /// Used by the v2 automation engine, whose definitions reference filters by id.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Admin.Models.Filter.FilterModel?> GetFilterAsync(int id)
+    {
+        var url = this.Options.ApiUrl.Append($"admin/filters/{id}");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Admin.Models.Filter.FilterModel>(url));
     }
 
     /// <summary>
@@ -1380,18 +1434,27 @@ public class ApiService : IApiService
     }
 
     /// <summary>
-    /// Append a batch of LLM prompt/response records to the specified run. Sent in chunks so a step
-    /// with many responses never builds one huge request body; combined with the automation service
-    /// flushing per step, the large prompt/response text is never held for the whole run.
+    /// Make a request to the API to atomically claim a queued automation run (Draft -> Running).
     /// </summary>
     /// <param name="runId"></param>
-    /// <param name="responses"></param>
-    /// <returns></returns>
-    public async Task AddAutomationRunResponsesAsync(long runId, IEnumerable<API.Areas.Admin.Models.Automation.AutomationRunResponseModel> responses)
+    /// <returns>Whether this caller claimed the run.</returns>
+    public async Task<bool> ClaimAutomationRunAsync(long runId)
     {
-        var url = this.Options.ApiUrl.Append($"admin/automation/runs/{runId}/responses");
-        // Small chunks keep each POST payload bounded even for runs that process many stories.
-        foreach (var chunk in responses.Chunk(10))
+        var url = this.Options.ApiUrl.Append($"admin/automation/runs/{runId}/claim");
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<bool>(url));
+    }
+
+    /// <summary>
+    /// Append a batch of decision log entries to the specified run (v2 engine). Sent in chunks so
+    /// a step with many entries never builds one huge request body.
+    /// </summary>
+    /// <param name="runId"></param>
+    /// <param name="logs"></param>
+    /// <returns></returns>
+    public async Task AddAutomationRunLogsAsync(long runId, IEnumerable<API.Areas.Admin.Models.Automation.AutomationRunLogModel> logs)
+    {
+        var url = this.Options.ApiUrl.Append($"admin/automation/runs/{runId}/logs");
+        foreach (var chunk in logs.Chunk(20))
         {
             await RetryRequestAsync<HttpResponseMessage>(async () =>
             {
@@ -1403,14 +1466,15 @@ public class ApiService : IApiService
     }
 
     /// <summary>
-    /// Make a request to the API to atomically claim a queued automation run (Draft -> Running).
+    /// Delete decision log entries created before the specified cutoff (UTC). The log retention
+    /// (current date) is independent of the run-history retention.
     /// </summary>
-    /// <param name="runId"></param>
-    /// <returns>Whether this caller claimed the run.</returns>
-    public async Task<bool> ClaimAutomationRunAsync(long runId)
+    /// <param name="cutoffUtc"></param>
+    /// <returns>The number of entries deleted.</returns>
+    public async Task<int> PruneAutomationRunLogsAsync(DateTime cutoffUtc)
     {
-        var url = this.Options.ApiUrl.Append($"admin/automation/runs/{runId}/claim");
-        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<bool>(url));
+        var url = this.Options.ApiUrl.Append($"admin/automation/runs/logs/prune?cutoff={Uri.EscapeDataString(cutoffUtc.ToString("O"))}");
+        return await RetryRequestAsync(async () => await this.OpenClient.DeleteAsync<int>(url));
     }
     #endregion
 
