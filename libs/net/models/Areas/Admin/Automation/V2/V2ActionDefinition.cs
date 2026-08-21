@@ -153,6 +153,12 @@ public class V2ActionDefinition
     public int? MaxComparisons { get; set; }
 
     /// <summary>
+    /// get/set - 'dedupe': persist confirmed duplicates as content_link records (value
+    /// 'duplicate') and skip the LLM for items already linked.
+    /// </summary>
+    public bool? Remember { get; set; }
+
+    /// <summary>
     /// get/set - Prompt override for 'dedupe' comparisons.
     /// </summary>
     public V2PromptDefinition? Prompt { get; set; }

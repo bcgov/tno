@@ -528,6 +528,35 @@ public class ApiService : IApiService
     }
 
     /// <summary>
+    /// Make an HTTP request to the api to fetch the content links touching the specified content,
+    /// optionally filtered by value (e.g. 'duplicate').
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<API.Areas.Services.Models.Content.ContentLinkModel>> FindContentLinksAsync(long contentId, string? value = null)
+    {
+        var url = this.Options.ApiUrl.Append($"services/contents/{contentId}/links{(value != null ? $"?value={System.Web.HttpUtility.UrlEncode(value)}" : "")}");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Services.Models.Content.ContentLinkModel>>(url))
+            ?? Array.Empty<API.Areas.Services.Models.Content.ContentLinkModel>();
+    }
+
+    /// <summary>
+    /// Make an HTTP request to the api to add a content link (or update its value when the pair
+    /// already exists).
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="linkId"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.Content.ContentLinkModel?> AddContentLinkAsync(long contentId, long linkId, string value)
+    {
+        var url = this.Options.ApiUrl.Append($"services/contents/{contentId}/links");
+        var model = new API.Areas.Services.Models.Content.ContentLinkModel { ContentId = contentId, LinkId = linkId, Value = value };
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Services.Models.Content.ContentLinkModel>(url, JsonContent.Create(model)));
+    }
+
+    /// <summary>
     /// Make an HTTP request to the api to get the specified image content.
     /// </summary>
     /// <param name="id"></param>

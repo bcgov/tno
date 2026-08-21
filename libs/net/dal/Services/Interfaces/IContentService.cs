@@ -15,6 +15,8 @@ public interface IContentService : IBaseService<Content, long>
     /// <param name="includeUserNotifications"></param>
     /// <returns></returns>
     Content? FindById(long id, bool includeUserNotifications);
+    IEnumerable<ContentLink> FindLinks(long contentId, string? value = null);
+    ContentLink AddOrUpdateLink(long contentId, long linkId, string value);
 
     IPaged<Content> FindWithDatabase(ContentFilter filter, bool asNoTracking = true);
     Task<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>> FindWithElasticsearchAsync(string index, JsonDocument filter);

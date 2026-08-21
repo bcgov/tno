@@ -117,6 +117,8 @@ export interface IV2Action {
   mode?: string | null;
   batchSize?: number | null;
   maxComparisons?: number | null;
+  /** dedupe: persist confirmed duplicates as content_link records and skip linked items. */
+  remember?: boolean | null;
   onDuplicate?: string | null;
   prompt?: IV2Prompt | null;
   objective?: string | null;

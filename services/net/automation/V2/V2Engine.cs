@@ -1243,6 +1243,34 @@ public class V2Engine
         var subject = scope.Subject!;
         var actionName = action.Name ?? action.Type;
         var contentId = subject.Kind == "existing" ? subject.Id : (long?)null;
+        var remember = action.Remember == true;
+
+        // Dedupe memory: an item already linked as a duplicate needs no comparison at all.
+        if (remember && subject.Kind == "existing")
+        {
+            try
+            {
+                var known = (await _api.FindContentLinksAsync(subject.Id, "duplicate")).FirstOrDefault();
+                if (known != null)
+                {
+                    var matched = (known.ContentId == subject.Id ? known.LinkId : known.ContentId).ToString();
+                    lock (env.Summary.Changes) env.Summary.Changes.Add(new V2ChangeSummary
+                    {
+                        Type = "duplicate",
+                        ContentRef = subject.Id.ToString(),
+                        Value = matched,
+                        Step = step.Name,
+                    });
+                    StoreDedupeResult(scope, actionName, true, matched);
+                    env.Log.LogDecision(step.Name, actionName, action.Type, contentId, V2Outcomes.Confirmed, $"Known duplicate of {matched} (content link); no comparison sent.");
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to read content links for {id}; falling back to comparison.", subject.Id);
+            }
+        }
 
         List<V2ContentEntry> candidates;
         lock (env.Context.Sync)
@@ -1362,6 +1390,21 @@ public class V2Engine
             // result with condition gates - the action itself decides nothing.
             StoreDedupeResult(scope, actionName, true, matchedRef);
             env.Log.LogDecision(step.Name, actionName, action.Type, contentId, V2Outcomes.Confirmed, $"Duplicate of {matchedRef}; recorded {actionName}.isDuplicate = true.");
+
+            // Dedupe memory: persist the confirmed pair so later runs skip the comparison.
+            // Real runs only - a dry run writes nothing.
+            if (remember && !env.IsDryRun && subject.Kind == "existing" && long.TryParse(matchedRef, out var matchedContentId))
+            {
+                try
+                {
+                    await _api.AddContentLinkAsync(subject.Id, matchedContentId, "duplicate");
+                    env.Log.LogDecision(step.Name, actionName, action.Type, contentId, V2Outcomes.Info, $"Recorded content link {subject.Id} -> {matchedContentId} (duplicate).");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to record the duplicate content link {id} -> {matched}.", subject.Id, matchedRef);
+                }
+            }
             return;
         }
 

@@ -591,5 +591,39 @@ public class ContentController : ControllerBase
 
         return new BadRequestResult();
     }
+    /// <summary>
+    /// Find the content links touching the specified content (either direction), optionally
+    /// filtered by value (e.g. 'duplicate').
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/links")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<ContentLinkModel>), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public IActionResult FindLinks(long id, [FromQuery] string? value = null)
+    {
+        var links = _contentService.FindLinks(id, value);
+        return new JsonResult(links.Select(l => new ContentLinkModel(l)));
+    }
+
+    /// <summary>
+    /// Add a content link (or update its value when the pair already exists).
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPost("{id}/links")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ContentLinkModel), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public IActionResult AddLink(long id, [FromBody] ContentLinkModel model)
+    {
+        if (model.LinkId == 0) return new BadRequestObjectResult(new { error = "A linkId is required." });
+        var link = _contentService.AddOrUpdateLink(id, model.LinkId, model.Value ?? "");
+        return new JsonResult(new ContentLinkModel(link));
+    }
+
     #endregion
 }
