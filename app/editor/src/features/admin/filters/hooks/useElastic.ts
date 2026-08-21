@@ -49,12 +49,55 @@ export const useElastic = () => {
         else if (frontpageMustNot) mustNot = [...mustNot, frontpageMustNot];
       }
 
+      // Body length constraints run as Elasticsearch runtime fields computed from _source, so
+      // they need no mapping change or reindex. Reconciled on every pass like the front-page
+      // exclusion: prior body-length clauses/runtime fields are stripped and re-added from the
+      // current settings.
+      const extended = filter as IFilterSettingsModel & {
+        minBodyLength?: number;
+        minBodyWords?: number;
+      };
+      const { runtime_mappings: priorRuntime, ...elasticRest } = elastic as Record<string, any>;
+      const runtimeMappings: Record<string, unknown> = { ...(priorRuntime ?? {}) };
+      delete runtimeMappings.body_length;
+      delete runtimeMappings.body_words;
+      const lengthClauses: unknown[] = [];
+      if (extended.minBodyLength && extended.minBodyLength > 0) {
+        runtimeMappings.body_length = {
+          type: 'long',
+          script: { source: 'def b = params._source["body"]; emit(b == null ? 0 : b.length())' },
+        };
+        lengthClauses.push({ range: { body_length: { gte: extended.minBodyLength } } });
+      }
+      if (extended.minBodyWords && extended.minBodyWords > 0) {
+        runtimeMappings.body_words = {
+          type: 'long',
+          script: {
+            source:
+              'def b = params._source["body"]; emit(b == null ? 0 : b.splitOnToken(" ").length)',
+          },
+        };
+        lengthClauses.push({ range: { body_words: { gte: extended.minBodyWords } } });
+      }
+      const priorFilter = (restBool as Record<string, any>).filter;
+      const filterClauses: any[] = Array.isArray(priorFilter)
+        ? priorFilter
+        : priorFilter
+        ? [priorFilter]
+        : [];
+      const isLengthClause = (clause: any) =>
+        clause?.range?.body_length != null || clause?.range?.body_words != null;
+      const nextFilter = [...filterClauses.filter((c) => !isLengthClause(c)), ...lengthClauses];
+      const { filter: _priorFilter, ...restBoolNoFilter } = restBool as Record<string, any>;
+
       return {
-        ...elastic,
+        ...elasticRest,
+        ...(Object.keys(runtimeMappings).length ? { runtime_mappings: runtimeMappings } : {}),
         query: {
           ...elastic.query,
           bool: {
-            ...restBool,
+            ...restBoolNoFilter,
+            ...(nextFilter.length ? { filter: nextFilter } : {}),
             ...(mustNot.length ? { must_not: mustNot } : {}),
           },
         },

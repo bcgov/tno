@@ -17,6 +17,8 @@ public class AutomationRunConfiguration : AuditColumnsConfiguration<AutomationRu
         builder.Property(m => m.StartedOn).IsRequired();
         builder.Property(m => m.CompletedOn);
         builder.Property(m => m.Summary).HasColumnType("text");
+        builder.Property(m => m.IsDryRun).IsRequired().HasDefaultValue(false);
+        builder.Property(m => m.CompareDefinition).HasColumnType("jsonb");
 
         builder.HasOne(m => m.AutomationProfile).WithMany(m => m.Runs).HasForeignKey(m => m.AutomationProfileId).OnDelete(DeleteBehavior.Cascade);
 

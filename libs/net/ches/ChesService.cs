@@ -369,6 +369,14 @@ namespace TNO.Ches
                 var address = !String.IsNullOrWhiteSpace(this.Options.OverrideTo)
                     ? this.Options.OverrideTo?.Split(";").NotNullOrWhiteSpace().Select(e => e.Trim()) ?? []
                     : new[] { _user.GetEmail() }.NotNullOrWhiteSpace();
+                // In a headless service there is no current user, so an unset OverrideTo leaves no
+                // recipient at all - CHES rejects an empty 'to' with 422. Skip the send with a clear
+                // warning instead of posting an invalid payload.
+                if (!address.Any())
+                {
+                    _logger.LogWarning("Email not sent: CHES is not authorized to email real recipients (Ches:EmailAuthorized=false) and no Ches:OverrideTo address is configured.");
+                    return new EmailResponseModel();
+                }
                 email.Contexts.ForEach(c =>
                 {
                     c.To = address;

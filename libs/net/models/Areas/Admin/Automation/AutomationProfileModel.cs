@@ -31,22 +31,13 @@ public class AutomationProfileModel
     /// <summary>
     /// get/set - Schema version.
     /// </summary>
-    public int SchemaVersion { get; set; } = 1;
+    public int SchemaVersion { get; set; } = 2;
 
     /// <summary>
-    /// get/set - Optional Elasticsearch filter used to select content for iteration.
+    /// get/set - The profile definition document as raw JSON (prompts library, steps, analyses,
+    /// actions); validated against the action catalog on save.
     /// </summary>
-    public int? FilterId { get; set; }
-
-    /// <summary>
-    /// get - The Elasticsearch query of the profile filter (read-only; provided for the automation service).
-    /// </summary>
-    public string? FilterQuery { get; set; }
-
-    /// <summary>
-    /// get - The settings of the profile filter (read-only; provided for the automation service).
-    /// </summary>
-    public string? FilterSettings { get; set; }
+    public string? Definition { get; set; }
 
     /// <summary>
     /// get/set - LLM identifier.
@@ -57,26 +48,6 @@ public class AutomationProfileModel
     /// get/set - Schedules (event schedules fired by the scheduler service).
     /// </summary>
     public IEnumerable<AutomationScheduleModel> Schedules { get; set; } = Array.Empty<AutomationScheduleModel>();
-
-    /// <summary>
-    /// get/set - Ordered automation steps.
-    /// </summary>
-    [JsonPropertyName("steps")]
-    public IEnumerable<AutomationStepModel> Steps { get; set; } = Array.Empty<AutomationStepModel>();
-
-    /// <summary>
-    /// get/set - Legacy alias for step payload.
-    /// </summary>
-    [JsonPropertyName("rules")]
-    public IEnumerable<AutomationStepModel> Rules
-    {
-        get => this.Steps;
-        set
-        {
-            if (this.Steps.Any()) return;
-            this.Steps = value ?? Array.Empty<AutomationStepModel>();
-        }
-    }
     #endregion
 
     #region Constructors
@@ -96,25 +67,19 @@ public class AutomationProfileModel
         this.Description = entity.Description;
         this.IsEnabled = entity.IsEnabled;
         this.SchemaVersion = entity.SchemaVersion;
-        this.FilterId = entity.FilterId;
-        this.FilterQuery = entity.Filter?.Query.RootElement.GetRawText();
-        this.FilterSettings = entity.Filter?.Settings.RootElement.GetRawText();
+        this.Definition = entity.Definition?.RootElement.GetRawText();
         this.LLMId = entity.LLMId;
         this.Schedules = entity.Events
             .Where(e => e.EventType == Entities.EventScheduleType.Automation)
             .OrderBy(e => e.Id)
             .Select(e => new AutomationScheduleModel(e))
             .ToArray();
-        this.Steps = entity.Steps
-            .OrderBy(s => s.SortOrder)
-            .Select(s => new AutomationStepModel(s))
-            .ToArray();
     }
     #endregion
 
     #region Methods
     /// <summary>
-    /// Creates a new AutomationProfile entity from this model, including its step/action graph.
+    /// Creates a new AutomationProfile entity from this model, including its schedules.
     /// </summary>
     /// <returns></returns>
     public Entities.AutomationProfile ToEntity()
@@ -124,7 +89,9 @@ public class AutomationProfileModel
             Description = this.Description,
             IsEnabled = this.IsEnabled,
             SchemaVersion = this.SchemaVersion,
-            FilterId = this.FilterId,
+            Definition = !string.IsNullOrWhiteSpace(this.Definition)
+                ? System.Text.Json.JsonDocument.Parse(this.Definition)
+                : null,
             LLMId = this.LLMId,
         };
 
@@ -147,11 +114,6 @@ public class AutomationProfileModel
                 IsEnabled = this.IsEnabled && schedule.IsEnabled,
                 AutomationProfileId = this.Id,
             });
-        }
-
-        foreach (var step in this.Steps)
-        {
-            entity.Steps.Add(step.ToEntity(this.Id));
         }
 
         return entity;

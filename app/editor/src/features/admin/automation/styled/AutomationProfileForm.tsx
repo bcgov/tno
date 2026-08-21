@@ -40,18 +40,37 @@ export const AutomationProfileForm = styled(FormPage)`
 
     .tab-menu {
       width: 100%;
+      /* The design's gold underline replaces tno-core's navy one. */
+      border-bottom: solid 3px #fcba19;
 
       /* The tab bar is a flex Row: the tabs and the Run button sit on the left, the Save/Export/
          Import/Delete action group is pushed to the right. Keep everything vertically centered and
          allow wrapping on narrow screens. */
+      /* Bottom-align the row so the tabs sit flush on the gold underline; the action buttons
+         lift off it with their own bottom margin. */
       > div {
-        align-items: center;
+        align-items: flex-end;
         flex-wrap: wrap;
         row-gap: 0.35rem;
       }
 
-      .run-button {
-        margin-left: 0.5rem;
+      /* Folder tabs (per the design): inactive tabs are light grey with rounded top corners;
+         the active tab is gold and connects to the underline. tno-core's Tab styles its
+         background from the 'active' prop (no .active class), so the form stamps .tab-active. */
+      .tab {
+        background: #f2f4f7;
+        border: 1px solid #e4e7ec;
+        border-bottom: none;
+        border-radius: 0.35rem 0.35rem 0 0;
+        padding: 0.4rem 1.2rem;
+        margin-bottom: 0;
+        font-weight: 600;
+        color: #1d2939;
+
+        &.tab-active {
+          background: #fcba19;
+          border-color: #fcba19;
+        }
       }
 
       .tab-header-actions {
@@ -59,6 +78,50 @@ export const AutomationProfileForm = styled(FormPage)`
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        /* The action buttons float clear of the gold underline instead of sitting on it. */
+        margin-bottom: 0.4rem;
+      }
+
+      /* Header action buttons (per the design): green Run, navy-outline secondaries, red-outline
+         Delete, solid navy Save. */
+      .header-btn-outline {
+        background: #fff;
+        border: 1px solid #1a3a6b;
+        color: #1a3a6b;
+        font-weight: 600;
+
+        &:hover:not(:disabled) {
+          background: #f5f8ff;
+          color: #1a3a6b;
+        }
+      }
+
+      /* Visual grouping: run actions | transfer actions | destructive + save. */
+      .header-btn-gap {
+        margin-left: 1rem;
+      }
+
+      .header-btn-delete {
+        background: #fff;
+        border: 1px solid #d8292f;
+        color: #d8292f;
+        font-weight: 600;
+
+        &:hover:not(:disabled) {
+          background: #fff5f5;
+          color: #d8292f;
+        }
+      }
+
+      .header-btn-save {
+        background: #1a3a6b;
+        border: 1px solid #1a3a6b;
+        color: #fff;
+        font-weight: 600;
+
+        &:hover:not(:disabled) {
+          background: #26428b;
+        }
       }
 
       /* The TabMenu applies 'margin-right: 0.5em' to every non-last-child descendant div. Inside a
@@ -148,10 +211,32 @@ export const AutomationProfileForm = styled(FormPage)`
     align-self: start;
   }
 
+  .page-header {
+    align-self: start;
+    align-items: center;
+
+    .profile-title {
+      margin: 0;
+      font-size: 1.35rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
   .section-header {
     align-items: center;
     justify-content: space-between;
     margin-top: 1rem;
+
+    h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: #1a5a96;
+    }
   }
 
   .section-header-inline {
@@ -159,6 +244,10 @@ export const AutomationProfileForm = styled(FormPage)`
     gap: 0.35rem;
   }
 
+  .automation-section-toggle {
+    cursor: pointer;
+    user-select: none;
+  }
   .section-header-title {
     align-items: center;
     gap: 0.35rem;
@@ -179,16 +268,48 @@ export const AutomationProfileForm = styled(FormPage)`
     line-height: 1.4;
   }
 
+  .section-doc-anchor {
+    position: relative;
+    display: inline-flex;
+    /* Room for the icon's full circle so neighbouring layout never clips it. */
+    padding-right: 0.15rem;
+  }
+  .section-doc-popover {
+    position: absolute;
+    top: calc(100% + 0.4rem);
+    left: 0;
+    z-index: 1100;
+    width: min(34rem, 80vw);
+    background: #fff;
+    border: 1px solid #d0d5dd;
+    border-radius: 0.35rem;
+    box-shadow: 0 8px 24px rgba(16, 24, 40, 0.18);
+    padding: 0.75rem 1rem;
+    text-align: left;
+    text-transform: none;
+    font-weight: 400;
+    font-size: 0.9rem;
+    color: #1d2939;
+  }
+  .section-doc-popover-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.4rem;
+  }
   .section-doc-button {
     all: unset;
     appearance: none;
     -webkit-appearance: none;
     min-width: 0;
-    /* Fixed 1em square, centered on the adjacent text line: the icon can never be
-       clipped, and it never changes the row's vertical spacing. */
-    width: 1rem;
-    height: 1rem;
-    font-size: 0.85rem;
+    /* A square slightly larger than the glyph, centered on the text line, so the
+       icon's circle always renders fully. */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    font-size: 0.9rem;
     overflow: visible;
     padding: 0;
     margin: 0;
@@ -350,6 +471,13 @@ export const AutomationProfileForm = styled(FormPage)`
   }
 
   .modal-intro-text {
+    background: #f8f9fa;
+    border: 1px solid #d0d5dd;
+    border-radius: 0.35rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .modal-intro-text-legacy {
     margin: 0;
     font-size: 0.9rem;
     line-height: 1.45;
@@ -465,6 +593,10 @@ export const AutomationProfileForm = styled(FormPage)`
 
   .schedules-grid-row:hover {
     background: #f8fafc;
+  }
+
+  .schedules-grid-row .condition-col {
+    color: #1a5a96;
   }
 
   .rules-grid-header,
@@ -627,7 +759,9 @@ export const AutomationProfileForm = styled(FormPage)`
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    min-width: min(60rem, 90vw);
+    /* Must stay narrower than the popup's max-width (52rem) or the modal scrolls horizontally. */
+    min-width: min(46rem, 86vw);
+    max-width: 100%;
   }
 
   .section-doc-content {
@@ -775,6 +909,10 @@ export const AutomationProfileForm = styled(FormPage)`
       }
     }
   }
+
+  .section-help-text .help-accent {
+    color: #2b7a78;
+  }
 `;
 
 /**
@@ -784,6 +922,827 @@ export const AutomationProfileForm = styled(FormPage)`
  * (document.body); scoped to these modals via their '.rule-modal-content' body root.
  */
 export const AutomationModalStyles = createGlobalStyle`
+  /* Modal chrome per the design: dark header bar with a modest white title, white body,
+     grey footer strip for the buttons. Applies to the automation page's modals (this global
+     stylesheet is only mounted with the form). */
+  /* Icon buttons render inside portaled modals too (e.g. the run modal's log pager), so the
+     base styling lives here rather than page-scoped. */
+  .rule-icon-button {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #475467;
+    font-size: 1rem;
+    line-height: 1;
+  }
+  .rule-icon-button:hover:not(:disabled) {
+    color: #0f172a;
+  }
+  .rule-icon-button.delete:hover:not(:disabled) {
+    color: #b42318;
+  }
+  .rule-icon-button:disabled {
+    color: #b8c4d4;
+    cursor: not-allowed;
+  }
+
+  /* The modal box is .modal-popup (tno-core gives it 1.5rem padding; .modal-wrapper is the
+     fullscreen layer). tno-core's rules compile as '.generated .modal-popup' (two classes), so
+     these overrides need the wrapper prefix and !important on the contested properties to win
+     regardless of style-injection order. */
+  /* tno-core's overlay is rgba(0,0,0,0.9) - nearly black; use a standard scrim instead. */
+  .modal-overlay {
+    background: rgba(0, 0, 0, 0.45) !important;
+  }
+  .modal-wrapper .modal-popup,
+  .modal-wrapper .modal-full {
+    padding: 0 !important;
+    overflow: hidden;
+  }
+
+  .modal-wrapper .modal-header {
+    background: #332e2c;
+    color: #fff;
+    padding: 0.55rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    h1 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      text-transform: none;
+    }
+
+    svg,
+    button {
+      color: #fff;
+    }
+  }
+
+  .modal-wrapper .modal-body {
+    padding: 1rem;
+
+    /* tno-core renders a second, empty .modal-body row when only 'component' is used;
+       collapse it so the header does not trail dead space. */
+    &:empty {
+      display: none;
+      padding: 0;
+    }
+  }
+
+  .modal-wrapper .button-row {
+    background: #ece9e6;
+    border-top: 1px solid #dcd8d4;
+    padding: 0.65rem 1rem;
+    margin: 0 !important;
+    width: 100%;
+  }
+
+  /* Designer component styles. Global (not page-scoped) because the step,
+     action, analysis, and prompt editors render inside portal-mounted modals,
+     outside the page wrapper - page-scoped rules never reach them. */
+  /* Inline checkboxes beside labelled inputs: size the box to the input height and center the
+     checkbox in it, so bottom-aligned rows line it up with the input instead of floating. */
+  .checkbox-inline {
+    min-height: 2.35rem;
+    display: inline-flex;
+    align-items: center;
+
+    .frm-in,
+    p {
+      margin: 0;
+      padding: 0;
+    }
+  }
+  .schedule-picker {
+    position: relative;
+
+    input {
+      padding-right: 1.9rem;
+    }
+
+    /* Our own icon: react-datepicker's showIcon renders unpredictably inside the SelectDate
+       wrapper, so the field owns an absolutely-positioned one instead. */
+    .schedule-picker-icon {
+      position: absolute;
+      right: 0.55rem;
+      bottom: 0.5rem;
+      pointer-events: none;
+      color: #1d2939;
+      display: flex;
+      align-items: center;
+
+      svg {
+        width: 0.95rem;
+        height: 0.95rem;
+      }
+    }
+
+    /* Keep the clearable × from colliding with the icon. */
+    .react-datepicker__close-icon {
+      right: 1.8rem;
+    }
+  }
+  /* ---- designer, log viewer, and run outcome ---- */
+  .automation-designer,
+  .automation-step-editor,
+  .automation-action-editor,
+  .automation-analysis-editor {
+    width: 100%;
+  }
+  .automation-step-card {
+    border: 1px solid #d0d5dd;
+    border-radius: 0.35rem;
+    padding: 0.5rem;
+    background: #fff;
+  }
+  .automation-step-card-header {
+    cursor: default;
+
+    strong {
+      flex: 0 1 auto;
+    }
+  }
+  .automation-list-item {
+    border: 1px solid #e4e7ec;
+    border-radius: 0.35rem;
+    padding: 0.4rem;
+    background: #fcfcfd;
+    width: 100%;
+  }
+  .automation-steps-list .automation-step-card {
+    margin-bottom: 0.5rem;
+  }
+  .automation-actions-list .automation-list-item {
+    margin-bottom: 0.4rem;
+  }
+  .automation-step-card.is-dragging,
+  .automation-list-item.is-dragging {
+    box-shadow: 0 4px 12px rgba(16, 24, 40, 0.15);
+  }
+  .automation-drag-handle {
+    display: flex;
+    align-items: center;
+    padding: 0.35rem 0.2rem;
+    color: #98a2b3;
+    cursor: grab;
+
+    &:hover {
+      color: #475467;
+    }
+  }
+  /* Action fields flow side by side and wrap; structured editors take their own line. */
+  .automation-action-fields {
+    row-gap: 0.5rem;
+  }
+  .automation-field-wide {
+    flex-basis: 100%;
+  }
+  /* Steps grid: header row, draggable rows, expanded analyses/actions subgrids. */
+  .automation-grid {
+    border: 1px solid #dfe3e8;
+    border-radius: 0.35rem;
+    background: #fff;
+    width: 100%;
+  }
+  .automation-grid-header,
+  .automation-grid-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.6rem;
+    width: 100%;
+  }
+  .automation-grid-header {
+    font-weight: 600;
+    background: #f2f4f7;
+    border-bottom: 1px solid #dfe3e8;
+  }
+  .automation-grid-item {
+    border-bottom: 1px solid #eef2f6;
+    background: #fff;
+
+    /* Zebra rows per the design (the droppable wraps the rows; header sits outside it). */
+    &:nth-child(even) {
+      background: #f7f8fa;
+    }
+
+    &:last-child {
+      border-bottom: 0;
+    }
+
+    &.is-dragging {
+      box-shadow: 0 4px 12px rgba(16, 24, 40, 0.15);
+    }
+  }
+  .automation-grid-row:hover {
+    background: #f8fafc;
+  }
+  .automation-gc-drag {
+    width: 1.5rem;
+    flex: 0 0 auto;
+  }
+  .automation-gc-collapse {
+    width: 1.75rem;
+    flex: 0 0 auto;
+  }
+  .automation-gc-name {
+    flex: 2 1 0;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .automation-gc-phase {
+    width: 7rem;
+    flex: 0 0 auto;
+  }
+  .automation-gc-source {
+    flex: 1.5 1 0;
+    min-width: 0;
+  }
+  .automation-gc-clip {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .automation-gc-count {
+    width: 5rem;
+    flex: 0 0 auto;
+  }
+  .automation-gc-enabled {
+    width: 5rem;
+    flex: 0 0 auto;
+  }
+  .automation-gc-on {
+    width: 5rem;
+    flex: 0 0 auto;
+  }
+  /* Step grouping: a band labels the first row of a run of same-group steps, and every
+     grouped row carries the accent edge so membership reads at a glance. */
+  .automation-group-band {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    width: 100%;
+    text-align: left;
+    border: none;
+    cursor: pointer;
+    background: #e8eef7;
+    color: #234075;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.75rem;
+    border-left: 3px solid #234075;
+
+    svg {
+      font-size: 0.7rem;
+    }
+  }
+  .automation-grouped > .automation-grid-row {
+    box-shadow: inset 3px 0 0 #234075;
+  }
+  /* The step name doubles as the expand/collapse control. */
+  .automation-step-name-toggle {
+    cursor: pointer;
+
+    &:hover {
+      color: #1a5a96;
+      text-decoration: underline;
+    }
+  }
+  /* Quick enable/disable directly in the grid rows. */
+  .automation-enabled-toggle {
+    width: 1.05rem;
+    height: 1.05rem;
+    accent-color: #1a3a6b;
+    cursor: pointer;
+  }
+  .automation-gc-actions {
+    width: 7rem;
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+
+    .rule-icon-button,
+    .rule-icon-button.delete {
+      color: #1a5a96;
+
+      &:hover:not(:disabled) {
+        color: #0f3e6d;
+      }
+    }
+  }
+  .automation-grid-expanded {
+    /* Inset white card per the design. */
+    margin: 0.4rem 0.75rem 0.75rem 3.4rem;
+    border: 1px solid #e4e7ec;
+    border-radius: 0.35rem;
+    background: #fff;
+    padding: 0.25rem 0.5rem 0.5rem;
+  }
+
+  .automation-gc-sm {
+    width: 8rem;
+    flex: 0 0 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .automation-gc-icon {
+    color: #98a2b3;
+    display: flex;
+    align-items: center;
+  }
+
+  .automation-muted {
+    color: #98a2b3;
+  }
+
+  .automation-config-label {
+    display: block;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #eef2f6;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #5b7a9b;
+  }
+
+    .automation-config-desc {
+    margin: 0;
+    color: #495057;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    max-width: 72ch;
+  }
+  .automation-config-hint {
+    margin: 0;
+    color: #5b7a9b;
+  }
+
+  .automation-override-note {
+    font-size: 0.7rem;
+    color: #667085;
+  }
+
+  .automation-row-even {
+    background: #f7f8fa;
+  }
+
+  /* Drag placeholder: a visible dropzone row while dragging (react-beautiful-dnd sizes it to
+     the dragged row); the droppable keeps a little tail space so drops land cleanly below the
+     last row and above the first. */
+  .automation-grid [data-rbd-placeholder-context-id] {
+    background: #e0eaff;
+    border: 1px dashed #84a9e2;
+    border-radius: 0.2rem;
+  }
+
+  .automation-grid [data-rbd-droppable-id] {
+    min-height: 0.4rem;
+    padding-bottom: 2px;
+  }
+
+  .automation-subgrid {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    border: none;
+
+    .automation-grid-header,
+    .automation-grid-row {
+      padding: 0.3rem 0.5rem;
+    }
+
+    .automation-grid-header {
+      background: #fff;
+      border-bottom: 1px solid #dfe3e8;
+    }
+  }
+  /* Prompt library table. */
+  .automation-library-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    border: 1px solid #e4e7ec;
+    border-radius: 0.35rem;
+
+    th,
+    td {
+      border-bottom: 1px solid #e4e7ec;
+      padding: 0.4rem 0.6rem;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      background: #f2f4f7;
+      font-weight: 600;
+    }
+  }
+  .automation-col-name {
+    width: 14rem;
+  }
+  .automation-col-refs {
+    width: 14rem;
+  }
+  .automation-col-actions {
+    width: 5.5rem;
+    text-align: right !important;
+    white-space: nowrap;
+
+    .rule-icon-button + .rule-icon-button {
+      margin-left: 0.6rem;
+    }
+
+    .rule-icon-button,
+    .rule-icon-button.delete {
+      color: #1a5a96;
+
+      &:hover:not(:disabled) {
+        color: #0f3e6d;
+      }
+    }
+  }
+  /* Built-in defaults not yet overridden: present but visibly not part of the document. */
+  .automation-builtin-row td {
+    color: #667085;
+    font-style: italic;
+  }
+  .automation-library-empty {
+    color: #667085;
+    text-align: center;
+  }
+  .automation-prompt-name {
+    font-family: monospace;
+    font-size: 0.8rem;
+    background: #f2f4f7;
+    border-radius: 0.25rem;
+    padding: 0.1rem 0.4rem;
+  }
+  .automation-chip-open {
+    border: none;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+    color: #1570ef;
+    font-size: 0.8rem;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  .automation-subsection-header {
+    align-items: center;
+    gap: 0.5rem;
+
+    h3 {
+      margin: 0;
+    }
+  }
+  .automation-field-help {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #667085;
+  }
+  .automation-badge {
+    display: inline-block;
+    padding: 0.05rem 0.5rem;
+    border-radius: 0.75rem;
+    background: #eaecf0;
+    color: #344054;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+  .automation-badge-success {
+    background: #d1fadf;
+    color: #05603a;
+  }
+  .automation-badge-warning {
+    background: #fef0c7;
+    color: #93370d;
+  }
+  .automation-badge-danger {
+    background: #fee4e2;
+    color: #912018;
+  }
+  .automation-phase-init {
+    background: #e0eaff;
+    color: #26428b;
+  }
+  .automation-phase-process {
+    background: #fef0c7;
+    color: #93370d;
+  }
+  .automation-phase-complete {
+    background: #d1fadf;
+    color: #05603a;
+  }
+  .automation-chips {
+    flex-wrap: wrap;
+  }
+  .automation-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: 0.75rem;
+    background: #eaecf0;
+    font-size: 0.8rem;
+
+    button {
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: #667085;
+      padding: 0;
+    }
+  }
+  /* Filter fields: the edit pencil renders inside the control's indicators area; the compact +
+     renders in the Select's own control row (its children slot), so alignment matches every
+     other labelled field. */
+  .automation-filter-edit {
+    border: none;
+    background: none;
+    padding: 0 0.15rem;
+    cursor: pointer;
+    color: #1a5a96;
+    display: flex;
+    align-items: center;
+
+    svg {
+      width: 0.95rem;
+      height: 0.95rem;
+    }
+
+    &:hover {
+      color: #0f3e6d;
+    }
+  }
+
+  .automation-filter-separator {
+    /* Same geometry/colour as react-select's .rs__indicator-separator. */
+    align-self: stretch;
+    width: 1px;
+    margin: 8px 0;
+    background-color: hsl(0, 0%, 80%);
+  }
+
+  .automation-filter-add {
+    /* Attached inside the control per the design: a bare plus glyph after the dropdown arrow. */
+    border: none;
+    background: none;
+    color: #1a5a96;
+    cursor: pointer;
+    padding: 0 0.5rem 0 0.35rem;
+    display: flex;
+    align-items: center;
+
+    svg {
+      width: 0.9rem;
+      height: 0.9rem;
+    }
+
+    &:hover {
+      color: #0f3e6d;
+    }
+  }
+  .automation-scoped-name label {
+    display: block;
+  }
+  .automation-scoped-name-input {
+    gap: 0.15rem;
+  }
+  .automation-scope-prefix {
+    font-family: monospace;
+    color: #475467;
+    background: #f2f4f7;
+    border: 1px solid #d0d5dd;
+    border-right: none;
+    border-radius: 0.25rem 0 0 0.25rem;
+    padding: 0.3rem 0.35rem;
+  }
+  .automation-link-button {
+    border: none;
+    background: none;
+    color: #1570ef;
+    cursor: pointer;
+    padding: 0;
+    font-size: 0.85rem;
+    text-align: left;
+  }
+  /* The 'all fields' checkbox sits beside the labelled Copy fields picker in a top-aligned
+     row; drop it one label line so it centers on the picker's control. */
+  .automation-copy-fields-row .checkbox-inline {
+    margin-top: 1.6rem;
+  }
+  /* Set-fields rows top-align so the value source's help line never pushes the field name
+     input down; the remove button nudges down to sit on the control line. */
+  .automation-set-fields-row .rule-icon-button {
+    margin-top: 0.5em;
+  }
+  /* Config fields top-align so a field's help line never pushes its neighbours down;
+     help wraps under its own field instead of widening the column. */
+  .automation-action-fields .automation-field-help {
+    max-width: 16rem;
+  }
+  /* Wide blocks (value sources, condition builders) span the modal; their help does too. */
+  .automation-action-fields .automation-field-wide .automation-field-help,
+  .automation-value-source .automation-field-help {
+    max-width: none;
+  }
+  /* Hand-rolled field columns carry .frm-in, so label spacing/weight match tno-core fields
+     exactly; the nested combobox drops its own wrapper padding to avoid doubling it. */
+  .automation-scoped-name .frm-in,
+  .automation-fields-picker .frm-in {
+    padding-bottom: 0;
+  }
+  .automation-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    max-width: 24rem;
+  }
+  .automation-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: #f2f4f7;
+    border: 1px solid #d0d5dd;
+    border-radius: 999px;
+    padding: 0.1rem 0.6rem;
+    font-size: 0.85rem;
+
+    button {
+      border: none;
+      background: #667085;
+      color: #fff;
+      border-radius: 50%;
+      width: 0.95rem;
+      height: 0.95rem;
+      line-height: 1;
+      font-size: 0.7rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+    }
+  }
+  .automation-condition-children {
+    margin-left: 0.35rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #e4e7ec;
+    border-left: 3px solid #234075;
+    border-radius: 0 0.25rem 0.25rem 0;
+  }
+  .automation-condition-remove {
+    border: none;
+    background: none;
+    color: #234075;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0.6rem 0 0 0;
+    cursor: pointer;
+
+    &:disabled {
+      color: #b8c4d4;
+      cursor: not-allowed;
+    }
+  }
+  .automation-condition-add {
+    border: none;
+    background: none;
+    color: #1a5a96;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0;
+    cursor: pointer;
+    width: max-content;
+    text-align: left;
+  }
+  .automation-returns {
+    border: 1px solid #e4e7ec;
+
+    .automation-returns-head {
+      display: grid;
+      grid-template-columns: 1fr 1fr 2.25rem;
+      align-items: center;
+      background: #f2f4f7;
+      border-bottom: 1px solid #e4e7ec;
+      font-weight: 700;
+      padding: 0.4rem 0.75rem;
+    }
+    .automation-returns-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 2.25rem;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.35rem 0.75rem;
+
+      /* Strip the fields' wrapper padding so the Key input and Type combobox align; their
+         natural control heights already match. (No input height rules here - react-select's
+         search input is also type=text and inflates the control.) */
+      .frm-in {
+        padding: 0;
+      }
+    }
+    .automation-returns-add,
+    .automation-returns-del {
+      border: none;
+      background: none;
+      color: #234075;
+      cursor: pointer;
+      font-size: 1rem;
+      justify-self: end;
+      padding: 0;
+    }
+  }
+  /* Run outcome: per-item change groups and the unwritten-changes list. */
+  .automation-change-group {
+    margin: 0.35rem 0 0.35rem 0.75rem;
+
+    > summary {
+      cursor: pointer;
+      font-weight: 600;
+    }
+  }
+  .automation-flush-list {
+    list-style: none;
+    margin: 0.4rem 0 0;
+    padding: 0;
+
+    li {
+      padding: 0.3rem 0.5rem;
+    }
+    li:nth-child(even) {
+      background: #f2f4f7;
+    }
+  }
+  .automation-findings > summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .automation-findings {
+    border: 1px solid #fda29b;
+    border-radius: 0.35rem;
+    padding: 0.5rem;
+    background: #fffbfa;
+
+    code {
+      font-size: 0.8rem;
+    }
+  }
+
+  .header-btn-outline {
+    background: #fff;
+    border: 1px solid #1a3a6b;
+    color: #1a3a6b;
+    font-weight: 600;
+
+    &:hover:not(:disabled) {
+      background: #f5f8ff;
+      color: #1a3a6b;
+    }
+  }
+
+  .header-btn-delete {
+    background: #fff;
+    border: 1px solid #d8292f;
+    color: #d8292f;
+    font-weight: 600;
+
+    &:hover:not(:disabled) {
+      background: #fff5f5;
+      color: #d8292f;
+    }
+  }
+
+  .header-btn-save {
+    background: #1a3a6b;
+    border: 1px solid #1a3a6b;
+    color: #fff;
+    font-weight: 600;
+
+    &:hover:not(:disabled) {
+      background: #26428b;
+    }
+  }
+
   .modal-popup:has(.rule-modal-content) {
     max-height: calc(100vh - 3rem);
     overflow: hidden;
@@ -797,7 +1756,6 @@ export const AutomationModalStyles = createGlobalStyle`
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
-    padding-right: 0.25rem;
   }
 
   .modal-popup:has(.rule-modal-content) .button-row {
@@ -824,7 +1782,208 @@ export const AutomationModalStyles = createGlobalStyle`
     width: 100%;
   }
 
-  /* Run detail modal content. */
+  /* The shared insertable-token section (PromptTokens): rendered by the Prompt Library
+     modal and the analysis editor, so these are not scoped to one modal. */
+  .automation-token-help {
+    margin: 0.5rem 0 0.25rem 0;
+    font-size: 0.85rem;
+    color: #475467;
+  }
+
+  .automation-token-group-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #667085;
+  }
+
+  .automation-token-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .automation-token {
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: #26428b;
+    background: #f5f8ff;
+    border: 1px solid #b2ccff;
+    border-radius: 0.9rem;
+    padding: 0.15rem 0.5rem;
+    cursor: pointer;
+
+    &:hover {
+      background: #e0eaff;
+    }
+  }
+
+  /* Folder tabs inside the run modal, matching the page's gold-underline tab design. */
+  .run-detail-content .automation-modal-tabs {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.25rem;
+    border-bottom: solid 3px #fcba19;
+    margin-bottom: 0.5rem;
+  }
+  .run-detail-content .automation-modal-tab {
+    background: #f2f4f7;
+    border: 1px solid #e4e7ec;
+    border-bottom: none;
+    border-radius: 0.35rem 0.35rem 0 0;
+    padding: 0.4rem 1.2rem;
+    font-weight: 600;
+    color: #1d2939;
+    cursor: pointer;
+
+    &.active {
+      background: #fcba19;
+      border-color: #fcba19;
+    }
+  }
+  /* The log entries wrap instead of forcing the modal wider. */
+  .run-detail-content .automation-log-entry-header {
+    flex-wrap: wrap;
+  }
+  .run-detail-content .automation-log-entry-body pre,
+  .run-detail-content .automation-log-entry-body {
+    max-width: 100%;
+    overflow-x: hidden;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .run-detail-content .automation-log-viewer,
+  .run-detail-content .automation-log-scroll {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  .run-detail-content .automation-run-detail-toggle {
+    margin: 0.5rem 0;
+  }
+
+  .run-detail-content .automation-dry-run-banner {
+    padding: 0.4rem 0.75rem;
+    border-radius: 0.35rem;
+    background: #fef0c7;
+    color: #93370d;
+    font-weight: 600;
+  }
+
+  .run-detail-content .automation-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+
+    th,
+    td {
+      border: 1px solid #e4e7ec;
+      padding: 0.25rem 0.5rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f9fafb;
+    }
+  }
+
+  .run-detail-content .automation-cell-clip {
+    max-width: 20rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Buttons beside the filter fields: the fields' .frm-in wrappers carry bottom padding, so
+     the bottom-aligned buttons lift by the same amount to sit level with the controls. */
+  .automation-log-filter-actions {
+    margin-bottom: 0.5em;
+  }
+  /* The entries list scrolls in place so a long (or live) log never grows the page. */
+  .automation-log-scroll {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  .automation-log-viewer .automation-log-entry {
+    border: 1px solid #e4e7ec;
+    border-radius: 0.35rem;
+    padding: 0.35rem 0.5rem;
+    background: #fff;
+  }
+
+  .automation-log-viewer .automation-log-entry-decision {
+    background: #f9fafb;
+  }
+
+  .automation-log-viewer .automation-log-entry-header {
+    cursor: pointer;
+    flex-wrap: wrap;
+  }
+
+  .automation-log-viewer .automation-log-entry-body pre {
+    max-height: 20rem;
+    overflow: auto;
+    white-space: pre-wrap;
+    background: #f2f4f7;
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+    margin: 0.25rem 0;
+  }
+
+  .run-detail-content .automation-badge {
+    display: inline-block;
+    padding: 0.05rem 0.5rem;
+    border-radius: 0.75rem;
+    background: #eaecf0;
+    color: #344054;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .run-detail-content .automation-badge-success {
+    background: #d1fadf;
+    color: #05603a;
+  }
+
+  .run-detail-content .automation-badge-warning {
+    background: #fef0c7;
+    color: #93370d;
+  }
+
+  .run-detail-content .automation-badge-danger {
+    background: #fee4e2;
+    color: #912018;
+  }
+
+  .run-detail-content .automation-field-help {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #667085;
+  }
+
+  .run-detail-content .automation-explain-panel {
+    border-top: 1px solid #e4e7ec;
+    padding-top: 0.5rem;
+  }
+
+  .run-detail-content .automation-explain-exchange {
+    border: 1px solid #e4e7ec;
+    border-radius: 0.35rem;
+    padding: 0.5rem;
+  }
+
+  .run-detail-content .automation-explain-suggestion {
+    border: 1px dashed #84caff;
+    border-radius: 0.35rem;
+    padding: 0.5rem;
+    background: #f5faff;
+  }
+
   .run-detail-content .run-detail-summary {
     display: grid;
     grid-template-columns: repeat(2, minmax(14rem, 1fr));

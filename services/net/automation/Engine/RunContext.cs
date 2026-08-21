@@ -1,0 +1,245 @@
+using System.Text.Json;
+
+namespace TNO.Services.Automation.Engine;
+
+/// <summary>
+/// ContentEntry class, one item in the run context: a reference plus a projected digest and the
+/// deltas actions have accumulated. Entries are shared - the same content item appearing in two
+/// collections is one entry, so a change made in one step is visible everywhere. Full content
+/// models are never held here; they are fetched transiently at flush.
+/// </summary>
+public class ContentEntry
+{
+    /// <summary>get/set - 'existing' (has a database id) or 'draft' (created during the run).</summary>
+    public string Kind { get; set; } = "existing";
+
+    /// <summary>get/set - The database id (0 for an unsaved draft).</summary>
+    public long Id { get; set; }
+
+    /// <summary>get/set - The temporary key of a draft, unique within the run.</summary>
+    public string? TempKey { get; set; }
+
+    /// <summary>get - Projected field values (headline, byline, body, publishedOn, ...).</summary>
+    public Dictionary<string, string?> Digest { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>get - The changes actions have accumulated for this item.</summary>
+    public Deltas Deltas { get; } = new();
+
+    /// <summary>get - A stable key for dictionaries and self-comparison.</summary>
+    public string Key => Kind == "draft" ? $"draft:{TempKey}" : $"id:{Id}";
+
+    /// <summary>
+    /// Resolve a field from the working copy: deltas override the digest, and the delta-only
+    /// virtual fields (tags, sentiment, status) merge with what the digest carried.
+    /// </summary>
+    public string? GetField(string field)
+    {
+        lock (Deltas)
+        {
+            if (Deltas.Fields.TryGetValue(field, out var overridden)) return overridden;
+            // 'story' is a virtual read: the summary, or the body when there is no summary.
+            // (The lock is reentrant, so the nested reads are safe.)
+            if (field.Equals("story", StringComparison.OrdinalIgnoreCase))
+            {
+                var summary = GetField("summary");
+                return string.IsNullOrWhiteSpace(summary) ? GetField("body") : summary;
+            }
+            if (field.Equals("tags", StringComparison.OrdinalIgnoreCase) && Deltas.Tags.Count > 0)
+            {
+                var baseTags = Digest.TryGetValue("tags", out var t) ? t : null;
+                var all = ParseTagCodes(baseTags)
+                    .Concat(Deltas.Tags.Select(tag => tag.Code)).Distinct(StringComparer.OrdinalIgnoreCase);
+                return JsonSerializer.Serialize(all);
+            }
+            if (field.Equals("sentiment", StringComparison.OrdinalIgnoreCase) && Deltas.Sentiment.HasValue)
+                return Deltas.Sentiment.Value.ToString();
+            if (field.Equals("status", StringComparison.OrdinalIgnoreCase) && Deltas.Status != null)
+                return Deltas.Status;
+            if ((field.Equals("contributor.name", StringComparison.OrdinalIgnoreCase)
+                || field.Equals("contributor", StringComparison.OrdinalIgnoreCase))
+                && Deltas.ContributorName != null)
+                return Deltas.ContributorName;
+        }
+        return Digest.TryGetValue(field, out var value) ? value : null;
+    }
+
+    /// <summary>
+    /// Tag codes from a digest value in either stored shape: a JSON array of codes, or the
+    /// legacy comma-separated list.
+    /// </summary>
+    private static IEnumerable<string> ParseTagCodes(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return Enumerable.Empty<string>();
+        if (value.TrimStart().StartsWith('['))
+        {
+            try
+            {
+                return JsonSerializer.Deserialize<string[]>(value) ?? Array.Empty<string>();
+            }
+            catch (JsonException)
+            {
+                // Fall through to the comma parse.
+            }
+        }
+        return value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    }
+
+    /// <summary>
+    /// Serialize the working copy (digest with deltas folded in) for prompts, so later analyses
+    /// see what earlier steps changed whether or not it has been written to the database.
+    /// </summary>
+    public string ToWorkingJson(JsonSerializerOptions options)
+    {
+        var view = new Dictionary<string, string?>(Digest, StringComparer.OrdinalIgnoreCase);
+        lock (Deltas)
+        {
+            foreach (var (field, value) in Deltas.Fields) view[field] = value;
+            if (Deltas.Tags.Count > 0) view["tags"] = GetField("tags");
+            if (Deltas.Sentiment.HasValue) view["sentiment"] = Deltas.Sentiment.Value.ToString();
+            if (Deltas.Status != null) view["status"] = Deltas.Status;
+            if (Deltas.ContributorName != null) view["contributor"] = Deltas.ContributorName;
+        }
+        view["id"] = Kind == "draft" ? TempKey : Id.ToString();
+        return JsonSerializer.Serialize(view, options);
+    }
+}
+
+/// <summary>
+/// Deltas class, the changes accumulated for one item. A handful of strings rather than a full
+/// content model - holding full models for every dirty item until end-of-run is exactly the
+/// memory problem the engine avoids. Lock the instance when mutating (items run in parallel
+/// but an entry can be shared).
+/// </summary>
+public class Deltas
+{
+    public Dictionary<string, string> Fields { get; } = new(StringComparer.OrdinalIgnoreCase);
+    public List<(int Id, string Code, string Name)> Tags { get; } = new();
+    public int? Sentiment { get; set; }
+    public int? ContributorId { get; set; }
+    public string? ContributorName { get; set; }
+    public List<int> ContentActionIds { get; } = new();
+    /// <summary>'publish' or 'unpublish'; null when no status change is pending.</summary>
+    public string? Status { get; set; }
+    public bool Dirty => Fields.Count > 0 || Tags.Count > 0 || Sentiment.HasValue || ContributorId.HasValue || ContentActionIds.Count > 0 || Status != null;
+}
+
+/// <summary>
+/// RunContext class, the whole state of a run: named collections, scores, exclusions, and the
+/// shared entry registry. Replaces the v1 engine's per-purpose dictionaries. Mutations of the
+/// run-scoped members are serialized through <see cref="Sync"/>; per-iteration state lives in
+/// <see cref="ItemScope"/> and needs no locking.
+/// </summary>
+public class RunContext
+{
+    /// <summary>get - The lock guarding collections, scores, and exclusions.</summary>
+    public object Sync { get; } = new();
+
+    /// <summary>get - Named collections ($run.*). Ordered lists of shared entries.</summary>
+    public Dictionary<string, List<ContentEntry>> Collections { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>get - Shared entry registry: one entry per existing content item.</summary>
+    public Dictionary<long, ContentEntry> EntriesById { get; } = new();
+
+    /// <summary>get - All drafts created during the run (persisted at flush).</summary>
+    public List<ContentEntry> Drafts { get; } = new();
+
+    /// <summary>get - Scores: objective -> (entry key -> score). Written by 'score', read by 'select-top'.</summary>
+    public Dictionary<string, Dictionary<string, int>> Scores { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>get - Excluded entry keys with their reasons. Excluded items skip all later steps
+    /// but keep their accumulated deltas - exclusion never discards changes.</summary>
+    public Dictionary<string, string> Excluded { get; } = new();
+
+    /// <summary>get - Draft temp key -> database id, recorded at flush for the run summary.</summary>
+    public Dictionary<string, long> DraftIds { get; } = new();
+
+    /// <summary>
+    /// Get (or register) the shared entry for an existing content item.
+    /// </summary>
+    public ContentEntry GetOrAddEntry(long id, Func<ContentEntry> factory)
+    {
+        lock (Sync)
+        {
+            if (EntriesById.TryGetValue(id, out var existing)) return existing;
+            var entry = factory();
+            EntriesById[id] = entry;
+            return entry;
+        }
+    }
+
+    /// <summary>
+    /// Get a collection, creating it when absent.
+    /// </summary>
+    public List<ContentEntry> GetCollection(string name)
+    {
+        lock (Sync)
+        {
+            if (!Collections.TryGetValue(name, out var list))
+            {
+                list = new List<ContentEntry>();
+                Collections[name] = list;
+            }
+            return list;
+        }
+    }
+
+    /// <summary>
+    /// Every dirty entry (existing items with pending deltas) plus every unsaved draft.
+    /// </summary>
+    /// <summary>get - Contributors created this run (via the contributor action's 'create'),
+    /// so later items match without refetching the lookup bundle.</summary>
+    public System.Collections.Concurrent.ConcurrentDictionary<string, (int Id, string Name)> CreatedContributors { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+    public List<ContentEntry> GetFlushables()
+    {
+        lock (Sync)
+        {
+            return EntriesById.Values.Where(e => e.Deltas.Dirty)
+                .Concat(Drafts.Where(d => d.Kind == "draft" || d.Deltas.Dirty))
+                .Distinct()
+                .ToList();
+        }
+    }
+}
+
+/// <summary>
+/// ItemScope class, per-iteration state: the subject, analysis results, chained conversations,
+/// and drafts created this iteration. Isolated per parallel item - no locking needed.
+/// </summary>
+public class ItemScope
+{
+    public ItemScope(ContentEntry? subject)
+    {
+        Subject = subject;
+    }
+
+    /// <summary>get - The item this iteration processes (null in init/complete steps).</summary>
+    public ContentEntry? Subject { get; }
+
+    /// <summary>get - Parsed structured analysis results by analysis name.</summary>
+    public Dictionary<string, JsonDocument> Structured { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>get - Raw analysis responses by analysis name.</summary>
+    public Dictionary<string, string> Raw { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>get - Conversations for chained analyses, keyed by the chain root's name.</summary>
+    public Dictionary<string, List<(string Role, string Content)>> Conversations { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>get - Drafts created this iteration by name ($item.*).</summary>
+    public Dictionary<string, ContentEntry> Drafts { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>get/set - Set when 'abort' stops the remaining actions of this step instance.</summary>
+    public bool Aborted { get; set; }
+
+    /// <summary>get/set - Set when 'exclude' removes the subject from later steps.</summary>
+    public bool Excluded { get; set; }
+
+    /// <summary>
+    /// Resolve an action's target: the named draft, or the subject when no target is given.
+    /// </summary>
+    public ContentEntry? ResolveTarget(string? target)
+    {
+        if (string.IsNullOrWhiteSpace(target)) return Subject;
+        return Drafts.TryGetValue(target, out var draft) ? draft : null;
+    }
+}

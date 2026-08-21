@@ -15,6 +15,15 @@
 #                 (montford in dev, mooncrest in test, moonstep in prod). Omit to copy whatever
 #                 the api StatefulSet in that namespace uses.
 
+# Local configuration (openshift/.env, gitignored - see .env.sample): ACR credentials for
+# machines where 'az login' is unavailable. The same values the build/push/pull/tag scripts use.
+_env_file="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/.env"
+if [[ -f "$_env_file" ]]; then
+  set -a
+  source "$_env_file"
+  set +a
+fi
+
 env=${1-dev}
 tag=${2-latest}
 name=${3-}
@@ -221,12 +230,33 @@ _docker_cred_login () {
   return 1
 }
 
+# ACR credentials from openshift/.env (ACR_USERNAME/ACR_PASSWORD) - an ACR token or admin
+# credential with push access. Preferred over az on machines where 'az login' is blocked.
+# Scoped ACR tokens cannot basic-auth the /v2/ API directly, so the credentials are exchanged
+# for an oauth2 access token and used with the null-GUID basic convention - the same shape the
+# docker-credential path below produces.
+_env_cred_login () {
+  [[ -n "${ACR_USERNAME:-}" && -n "${ACR_PASSWORD:-}" ]] || return 1
+  local _resp _access
+  _resp=$(curl -sf -u "$ACR_USERNAME:$ACR_PASSWORD"     "https://$ACR_HOST/oauth2/token?service=$ACR_HOST&scope=repository:*:pull,push") || return 1
+  if [[ "$_json_tool" == "jq" ]]; then
+    _access=$(echo "$_resp" | jq -r '.access_token // empty')
+  else
+    _access=$(echo "$_resp" | python3 -c "import sys,json; print(json.load(sys.stdin).get('access_token',''))")
+  fi
+  [[ -n "$_access" ]] || return 1
+  ACR_USER="00000000-0000-0000-0000-000000000000"
+  ACR_PASS="$_access"
+}
+
 # Verify ACR credentials are valid before doing any work; auto-login if not
 echo "Verifying ACR authentication..."
 _auth_status=$(curl -sf -o /dev/null -w "%{http_code}" -u "$ACR_USER:$ACR_PASS" "https://$ACR_HOST/v2/")
 if [[ "$_auth_status" != "200" ]]; then
   echo "NOTE: ACR credentials invalid or expired (HTTP $_auth_status)."
-  if _docker_cred_login; then
+  if _env_cred_login && [[ $(curl -sf -o /dev/null -w "%{http_code}" -u "$ACR_USER:$ACR_PASS" "https://$ACR_HOST/v2/") == "200" ]]; then
+    echo "Using ACR credentials from openshift/.env."
+  elif _docker_cred_login; then
     echo "Using the local docker credential for $ACR_HOST."
   else
     echo "Attempting login..."

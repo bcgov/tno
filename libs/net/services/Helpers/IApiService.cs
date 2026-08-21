@@ -268,6 +268,9 @@ public interface IApiService
     /// <param name="includeUserNotifications"></param>
     /// <returns></returns>
     Task<API.Areas.Services.Models.Content.ContentModel?> FindContentByIdAsync(long id, bool includeUserNotifications = false);
+    Task<IEnumerable<API.Areas.Services.Models.Content.ContentLinkModel>> FindContentLinksAsync(long contentId, string? value = null);
+    Task<API.Areas.Services.Models.Content.ContentLinkModel?> AddContentLinkAsync(long contentId, long linkId, string value);
+    Task<API.Areas.Services.Models.Contributor.ContributorModel?> AddContributorAsync(string name);
 
     /// <summary>
     /// Make a request to the API to get all notification instances for the specified 'contentId'.
@@ -448,6 +451,13 @@ public interface IApiService
     /// <param name="id"></param>
     /// <returns></returns>
     Task<API.Areas.Services.Models.LLM.LLMModel?> GetLLMAsync(int id);
+
+    /// <summary>
+    /// Make a request to the API to fetch the filter for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<API.Areas.Admin.Models.Filter.FilterModel?> GetFilterAsync(int id);
 
     /// <summary>
     /// Make a request to the API to fetch the report instance with the specified 'id'.
@@ -723,14 +733,6 @@ public interface IApiService
     /// <returns></returns>
     Task UpdateAutomationRunSummaryAsync(long runId, string summary);
 
-    /// <summary>
-    /// Append a batch of LLM prompt/response records to the specified run. Sent in chunks so the
-    /// large prompt/response text is never accumulated in the run summary or held for the whole run.
-    /// </summary>
-    /// <param name="runId"></param>
-    /// <param name="responses"></param>
-    /// <returns></returns>
-    Task AddAutomationRunResponsesAsync(long runId, IEnumerable<API.Areas.Admin.Models.Automation.AutomationRunResponseModel> responses);
 
     /// <summary>
     /// Make a request to the API to atomically claim a queued automation run (Draft -> Running).
@@ -738,5 +740,20 @@ public interface IApiService
     /// <param name="runId"></param>
     /// <returns>Whether this caller claimed the run.</returns>
     Task<bool> ClaimAutomationRunAsync(long runId);
+
+    /// <summary>
+    /// Append a batch of decision log entries to the specified run (v2 engine).
+    /// </summary>
+    /// <param name="runId"></param>
+    /// <param name="logs"></param>
+    /// <returns></returns>
+    Task AddAutomationRunLogsAsync(long runId, IEnumerable<API.Areas.Admin.Models.Automation.AutomationRunLogModel> logs);
+
+    /// <summary>
+    /// Delete decision log entries created before the specified cutoff (UTC).
+    /// </summary>
+    /// <param name="cutoffUtc"></param>
+    /// <returns>The number of entries deleted.</returns>
+    Task<int> PruneAutomationRunLogsAsync(DateTime cutoffUtc);
     #endregion
 }

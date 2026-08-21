@@ -54,7 +54,15 @@ import {
   ContentStoryForm,
   ContentTranscriptForm,
 } from '.';
-import { ContentFormToolBar, type IFile, Tags, TimeLogSection, Topic, Upload } from './components';
+import {
+  ContentDuplicates,
+  ContentFormToolBar,
+  type IFile,
+  Tags,
+  TimeLogSection,
+  Topic,
+  Upload,
+} from './components';
 import { useContentForm } from './hooks';
 import { ImageSection } from './ImageSection';
 import { type IContentForm } from './interfaces';
@@ -216,13 +224,14 @@ const ContentForm: React.FC<IContentFormProps> = ({
                   <Row alignItems="flex-start" className="content-details fvh">
                     <Show visible={size === 0}>
                       <Row flex="1 1 100%" wrap="nowrap">
-                        <Col flex="1 1 0%">
+                        <Col flex="1 1 0%" className="headline-col">
                           <FormikTextArea
                             name="headline"
                             required
                             label="Headline"
                             value={props.values.headline}
                           />
+                          <ContentDuplicates contentId={+props.values.id} />
                         </Col>
                         <Col>
                           <Button
@@ -241,7 +250,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                     <Show visible={size === 1}>
                       <Col flex="1.5 1 0%">
                         <Row>
-                          <Col flex="1 1 0%">
+                          <Col flex="1 1 0%" className="headline-col">
                             <FormikTextArea
                               name="headline"
                               required
@@ -249,6 +258,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                               label="Headline"
                               value={props.values.headline}
                             />
+                            <ContentDuplicates contentId={+props.values.id} />
                           </Col>
                           <Col>
                             {/* AudioVideo form */}

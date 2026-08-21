@@ -87,30 +87,30 @@ export const ReportFormSections = () => {
     );
   };
 
-  const handleDelete = (index: number) => {
-    if (!section) return;
-
-    // Remove the content from the removed section in the current instance.
+  const handleDelete = (row: IReportSectionModel, index: number) => {
+    // Remove the deleted section's content from the current instance.
     const instance = values.instances.length > 0 ? { ...values.instances[0] } : undefined;
     if (instance) {
-      const sectionNames = values.sections
-        .filter((s) => s.name !== section.name)
-        .map((s) => s.name);
-      const content = instance
-        ? instance.content.filter((c) => sectionNames.includes(c.sectionName))
-        : [];
-      instance.content = content;
+      instance.content = instance.content.filter((c) => c.sectionName !== row.name);
     }
 
-    if (index === section.sortOrder) setSection(undefined);
+    const remaining = values.sections
+      .filter((_, i) => i !== index)
+      .map((section, index) => ({
+        ...section,
+        sortOrder: index,
+      }));
+
+    // Deselect when the deleted row is the expanded one; otherwise keep the selection pointed at
+    // its renumbered entry (sort orders shift when an earlier row is removed).
+    if (section) {
+      if (section.name === row.name) setSection(undefined);
+      else setSection(remaining.find((s) => s.name === section.name));
+    }
+
     setValues({
       ...values,
-      sections: values.sections
-        .filter((s, i) => i !== index)
-        .map((section, index) => ({
-          ...section,
-          sortOrder: index,
-        })),
+      sections: remaining,
       instances: instance
         ? values.instances.map((original, index) => (index === 0 ? instance : original))
         : values.instances,
@@ -270,7 +270,7 @@ export const ReportFormSections = () => {
                         onClick={async (e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          handleDelete(index);
+                          handleDelete(row, index);
                         }}
                       >
                         <FaTrash />

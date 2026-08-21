@@ -1,56 +1,66 @@
-# MMI Automation Planning
+# MMI Automation
 
-This folder contains implementation stories for AI-assisted automation in MMI.
+Automation profiles are scheduled (or manually run) processes that use an LLM to inspect and act
+on content: triage wire stories, set metadata, detect duplicates, score and select top stories,
+create digest items, and publish reports and notifications.
 
-For a conceptual overview of what an automation profile is and how it executes, see
-[00-concept.md](00-concept.md).
+For the execution model in detail — run context, collections, phases, analyses, actions, the save
+model, and observability — see [01-engine.md](01-engine.md).
 
-## Scope
+> History: this folder previously held the v1 delivery stories and the engine-v2 design proposal.
+> The v2 design shipped, v1 was removed entirely (code, endpoints, and tables), and the planning
+> documents were retired with it. Git history has them if needed.
 
-- An automation profile is a scheduled (or manually run) process that uses an LLM to inspect and act on content.
-- A profile is configured with an LLM, an optional Elasticsearch filter used to fetch content items to iterate over, and zero or more schedules (event schedules fired by the scheduler service).
-- When a profile has a filter, it iterates over each returned content item and executes its steps in order. Filters return **all** matches — the engine pages through the full result set (the filter's stored `size` is a UI page size, not a cap).
-- Profiles use ordered steps (not rules) and ordered actions within each step.
-- Step targets support `start` ("Run once at start"), `content`, and `end` ("Run once at end") execution timing (with a profile filter), or `none` (without one).
-- A `content` step can run its own Elasticsearch query (results injected at `{results}`), or apply the profile filter's results as a gate (`applyToAutomationFilter`). A `start`/`end` step can instead iterate over its step filter's results (`iterateStepFilter`) — each hit becomes the step's content item.
-- Step prompts support templating with runtime tokens: `{content}`, `{content.<field>}`, `{results}`, `{results[i].<field>}`, `{actions}`, and `{candidates:<objective>}`; action prompts/statements also support `{value}`, `{field}`, `{objective}`, and (deduplicate) `{previous}`.
-- Each action requires its configured confirmation statement in the LLM response before the coded action (by action type) is performed; per-action `maxCalls` bounds executions. The `deduplicate` action type instead runs its own LLM comparisons against a prior action's processed items and aborts the step for duplicates.
-- Score/select objectives support choosing the best X stories (e.g. Top Stories, Featured, Commentary) via per-item scoring and a candidate-selection prompt over all scored items.
-- Runs are queued by the API and executed by the automation service (`services/net/automation`), which atomically claims each run (safe for horizontal scaling) and records a JSON outcome summary per run, including every LLM response.
+## Shape of a profile
 
-## Story Files
+- A profile is a **definition document** (`automation_profile.definition`, jsonb): a prompt
+  library plus ordered steps. There are no step/action tables — the document is the
+  configuration, validated against the action catalog on save.
+- Profile fields: `name`, `description`, `isEnabled`, `schemaVersion` (2), `definition`, optional
+  `llmId` (the default LLM), `schedules[]` (event schedules fired by the scheduler service).
+- Steps run by **phase**: `init` runs once (typically `search` actions loading content into named
+  collections), `process` runs once per item of its source collection, `complete` runs once after
+  all items.
+- Steps declare **analyses** (named LLM prompts with declared result shapes, sent lazily) and
+  ordered **actions** gated by conditions or LLM confirmations.
+- Nothing is written to the database until an explicit **Save Collection** or **Save Content Now**
+  action runs; unwritten changes are reported at the end of the run.
 
-- [00-concept.md](00-concept.md)
-- [01-foundation-and-shared-ai.md](01-foundation-and-shared-ai.md)
-- [02-data-and-api.md](02-data-and-api.md)
-- [03-automation-service.md](03-automation-service.md)
-- [04-editor-configuration.md](04-editor-configuration.md)
-- [05-editor-operations-and-review.md](05-editor-operations-and-review.md)
-- [06-scheduling-observability-rollout.md](06-scheduling-observability-rollout.md)
-- [07-prioritized-delivery-plan.md](07-prioritized-delivery-plan.md)
-- [08-dependency-map-and-checklist.md](08-dependency-map-and-checklist.md)
+## Where things live
 
-## Current Configuration Standard
+| Path | Role |
+| ---- | ---- |
+| `services/net/automation/` | The service: Kafka listener, run claim, watchdog, pruning |
+| `services/net/automation/Engine/` | The execution engine (`AutomationEngine`, `RunContext`, `PromptBuilder`, `RunLogger`) |
+| `libs/net/models/Areas/Admin/Automation/` | Definition model, validator, `ActionCatalog` (the single source of truth for action types) |
+| `api/net/Areas/Admin/Controllers/AutomationController.cs` | Profile CRUD, runs, run logs, descriptors, validation, debug assistant |
+| `app/editor/src/features/admin/automation/` | The admin page: designer, run history, live log, debugging |
+| `libs/net/dal/Migrations/1.5.3` + `20260821171416_1.5.3` | The consolidated schema migration (adds run log/definition columns, drops the v1 tables) |
 
-- Profile fields: `name`, `description`, `isEnabled`, `schemaVersion`, optional `filterId`, optional `llmId`, `schedules[]` (each an `event_schedule` fired by the scheduler service: `name`, `isEnabled`, `startAt` run-at time, `runOnWeekDays`), `steps[]`.
-- Step fields: `name`, `description`, `prompt`, `priority`, `target` (`none|content|start|end`), optional `filterId`, `applyToAutomationFilter` (`content` targets only), `iterateStepFilter` (`start`/`end` targets only), optional `llmId` (overrides the profile LLM for this step), `sendSeparatePrompts` (one prompt per action; an abort stops later actions before their prompts are sent), `useChatCompletions` (conversation mode: the step prompt is the system prompt and each action is its own user message that builds on earlier responses; requires a deployment-based LLM), `isEnabled`, `actions[]`.
-- Action fields: `id` (round-tripped so saves keep action identities stable), `name`, `prompt`, `actionType`, `maxCalls`, `confirmationStatement`, optional `contentField` (update-content-field), optional `contentActionId` (add-action, select-top), optional `reportId` (run-report), optional `notificationId` (run-notification), optional `priorActionId` (deduplicate), optional `objective` (score-content, select-top), optional `llmId` (used for the action's own prompt when the step sends separate prompts), `autoExecute` ("Always run": executes unconditionally with no LLM confirmation; value-less action types only; a step of only always-run actions skips the LLM call), `isEnabled`.
-- Run fields: `profileId`, `status` (`Draft|Running|Completed|Failed`), `trigger` (`manual|schedule`), `note`, `startedOn`, `completedOn`, `summary` (JSON outcome).
+## Operations
 
-## Persistence
+- Runs are queued by the API (manual button or scheduler) and executed by the automation service,
+  which atomically claims each run — safe for horizontal scaling.
+- A startup sweep fails runs orphaned by a service restart; a watchdog fails runs whose decision
+  log goes quiet. **Do not restart the automation service or the API while a run is executing**
+  (`select count(*) from automation_run where status = 1`).
+- Run history is pruned after `RunRetentionDays` (default 7); the decision log keeps the current
+  date only.
+- Dry runs execute everything and write nothing, producing the full decision log and intended
+  change set; comparison runs execute a candidate definition beside the saved one.
 
-- Profiles, steps, actions, and runs are stored in the database (`automation_profile`, `automation_step`, `automation_action`, `automation_run`).
-- Profile schedules are stored as `event_schedule` rows (type `Automation`, FK `automation_profile_id`) with child `schedule` rows, reconciled on profile save and fired by the scheduler service.
-- Run history is retained for a configurable number of days (`RunRetentionDays`, default 7); older runs are pruned by the automation service.
-- The run `summary` records per-step/per-action confirmation, execution, skip, abort, and failure counts, the list of content changes, and every LLM response; the run diff endpoint serves it to the editor's run review modal.
+## Status (2026-08-21)
 
-## Implementation Status (2026-07-24)
+Shipped and in daily use: the definition engine (all of [01-engine.md](01-engine.md)), the
+designer UI, run history/outcome/decision-log views, live log, the debugging assistant,
+export/import (filters and LLMs are bundled and remapped by name), dedupe memory via
+`content_link`, and report/notification publishing from runs.
 
-- **Done:** shared AI library (`libs/net/ai`) with reporting backward compatibility; DB schema + admin CRUD/run APIs; Kafka-driven run execution with an atomic run claim (scale-safe), Draft-run reconciliation, and abandoned-run failure; scheduler-service integration (`EventScheduleType.Automation` — the automation service performs no schedule evaluation); the execution engine (full filter paging, parallel per-item processing within each step (`MaxParallelContentItems`) with synchronized run state and atomic `maxCalls` reservations, three prompt modes per step — combined, separate prompt per action, and chat-completions conversation (step prompt as system prompt, one user message per action sharing context) — confirmation parsing with `{value}`/`{field}`/`{objective}` tokens, per-step and per-action LLM overrides, "Always run" actions with LLM-call skipping, per-step batched content updates with indexing, score/select objectives, deduplication against a prior action's items, run-report/run-notification, LLM request timeout/retry with per-item failure tolerance, and step start/end/filter-count logging); editor profile/step/action configuration UI (collapsible steps grid with a show/hide-all toggle, schedules grid with add/edit/delete, LLM/prior-action/report/notification selects, chat-aware default prompts), manual Run button with live status, and run history grid with an outcome modal showing LLM responses and action outcomes.
-- **Not started:** run-item/field-diff persistence (MMI-AUTO-008/009 detail tables), step test harness UI (MMI-AUTO-028), granular authorization, metrics, automated test coverage, UAT, and the rollout runbook (MMI-AUTO-032..038).
+Known gaps:
 
-## Ordering Standard
-
-- Steps execute by configured order (`priority ASC`).
-- Actions execute by configured array order within each step.
-- `maxCalls` limits total action executions in a single profile run.
+- **Import does not remap report/notification ids** — an imported profile keeps the source
+  environment's `report`/`notification` ids in `report.run`/`notification.run` actions, saves
+  without complaint, and at run time either fails (id missing) or silently publishes the wrong
+  target (id exists). Until import bundles names for these, review those actions after importing.
+- No run-cancel: a running automation can only be stopped by deleting the run (the log writer
+  aborts) — there is no cooperative cancel button.

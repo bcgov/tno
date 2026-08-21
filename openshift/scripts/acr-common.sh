@@ -13,6 +13,16 @@
 # Only build.sh cares about the environment; push/pull/tag resolve the image name alone, which
 # is the same for every variant.
 
+# Local configuration (openshift/.env, gitignored - see .env.sample): ACR credentials and
+# overrides for machines where 'az login' is unavailable (Conditional Access requires a
+# registered device, which a passkey-only account on Ubuntu cannot satisfy).
+_ACR_ENV_FILE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/.env"
+if [ -f "$_ACR_ENV_FILE" ]; then
+  set -a
+  source "$_ACR_ENV_FILE"
+  set +a
+fi
+
 ACR_REGISTRY=${ACR_REGISTRY:-bcgov-c4awhwfpcremdbga.azurecr.io}
 ACR_NAME=${ACR_NAME:-bcgov}
 
@@ -129,17 +139,29 @@ require_az() {
 # Probes the registry's oauth2 endpoint with the stored refresh token; checks the snap docker
 # config path too, since snap confinement keeps it out of ~/.docker.
 docker_acr_logged_in() {
-  local cfg token code
+  local cfg token auth code
   for cfg in "${DOCKER_CONFIG:-$HOME/.docker}/config.json" "$HOME/snap/docker/current/.docker/config.json"; do
     [ -f "$cfg" ] || continue
-    token=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("auths",{}).get(sys.argv[2],{}).get("identitytoken",""))' "$cfg" "$ACR_REGISTRY" 2>/dev/null) || continue
-    [ -n "$token" ] || continue
-    code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 -X POST "https://$ACR_REGISTRY/oauth2/token" \
-      --data-urlencode "grant_type=refresh_token" \
-      --data-urlencode "service=$ACR_REGISTRY" \
-      --data-urlencode "scope=registry:catalog:*" \
-      --data-urlencode "refresh_token=$token") || continue
-    [ "$code" = "200" ] && return 0
+    # An AAD-derived credential ('az acr login' or a pasted --expose-token) is stored as an
+    # identitytoken; validate it as a refresh token.
+    token=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("auths",{}).get(sys.argv[2],{}).get("identitytoken",""))' "$cfg" "$ACR_REGISTRY" 2>/dev/null) || token=""
+    if [ -n "$token" ]; then
+      code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 -X POST "https://$ACR_REGISTRY/oauth2/token" \
+        --data-urlencode "grant_type=refresh_token" \
+        --data-urlencode "service=$ACR_REGISTRY" \
+        --data-urlencode "scope=registry:catalog:*" \
+        --data-urlencode "refresh_token=$token") || code=""
+      [ "$code" = "200" ] && return 0
+    fi
+    # A username/password login (service principal or ACR token) is stored as basic 'auth';
+    # validate it against the oauth2 token endpoint with a pull scope, since /v2/ itself only
+    # accepts bearer tokens and 'registry:catalog:*' is not granted to scoped tokens.
+    auth=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("auths",{}).get(sys.argv[2],{}).get("auth",""))' "$cfg" "$ACR_REGISTRY" 2>/dev/null) || auth=""
+    if [ -n "$auth" ]; then
+      code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 -H "Authorization: Basic $auth" \
+        "https://$ACR_REGISTRY/oauth2/token?service=$ACR_REGISTRY&scope=repository:api:pull") || code=""
+      [ "$code" = "200" ] && return 0
+    fi
   done
   return 1
 }
