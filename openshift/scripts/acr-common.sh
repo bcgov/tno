@@ -13,6 +13,16 @@
 # Only build.sh cares about the environment; push/pull/tag resolve the image name alone, which
 # is the same for every variant.
 
+# Local configuration (openshift/.env, gitignored - see .env.sample): ACR credentials and
+# overrides for machines where 'az login' is unavailable (Conditional Access requires a
+# registered device, which a passkey-only account on Ubuntu cannot satisfy).
+_ACR_ENV_FILE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/.env"
+if [ -f "$_ACR_ENV_FILE" ]; then
+  set -a
+  source "$_ACR_ENV_FILE"
+  set +a
+fi
+
 ACR_REGISTRY=${ACR_REGISTRY:-bcgov-c4awhwfpcremdbga.azurecr.io}
 ACR_NAME=${ACR_NAME:-bcgov}
 
