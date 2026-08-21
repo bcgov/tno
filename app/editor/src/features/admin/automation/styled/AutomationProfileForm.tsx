@@ -908,6 +908,32 @@ export const AutomationModalStyles = createGlobalStyle`
   /* Modal chrome per the design: dark header bar with a modest white title, white body,
      grey footer strip for the buttons. Applies to the automation page's modals (this global
      stylesheet is only mounted with the form). */
+  /* Icon buttons render inside portaled modals too (e.g. the run modal's log pager), so the
+     base styling lives here rather than page-scoped. */
+  .rule-icon-button {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #475467;
+    font-size: 1rem;
+    line-height: 1;
+  }
+  .rule-icon-button:hover:not(:disabled) {
+    color: #0f172a;
+  }
+  .rule-icon-button.delete:hover:not(:disabled) {
+    color: #b42318;
+  }
+  .rule-icon-button:disabled {
+    color: #b8c4d4;
+    cursor: not-allowed;
+  }
+
   /* The modal box is .modal-popup (tno-core gives it 1.5rem padding; .modal-wrapper is the
      fullscreen layer). tno-core's rules compile as '.generated .modal-popup' (two classes), so
      these overrides need the wrapper prefix and !important on the contested properties to win
@@ -1703,7 +1729,6 @@ export const AutomationModalStyles = createGlobalStyle`
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
-    padding-right: 0.25rem;
   }
 
   .modal-popup:has(.rule-modal-content) .button-row {
