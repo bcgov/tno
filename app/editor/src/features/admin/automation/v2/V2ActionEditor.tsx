@@ -313,7 +313,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
         const entries = Object.entries(action.set ?? {});
         return (
           <div key={key} className="v2-field-wide frm-in">
-            <label>set fields</label>
+            <label>Set fields</label>
             <p className="v2-field-help">
               Each row sets one field on every item. Analysis result / content field:{' '}
               {kindHelp.from} Literal value: {kindHelp.literal} Template: {kindHelp.template}
@@ -473,7 +473,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           <Select
             key={key}
             name={key}
-            label={field.name}
+            label={isCopyFrom ? 'Copy from' : field.name}
             width="16rem"
             options={itemOptions}
             value={findOptionByValue(itemOptions, current) ?? ''}
