@@ -12,9 +12,9 @@ export const contentFieldOptions = [
 ];
 
 /**
- * The starter v2 definition for a new profile: one step per phase, mirroring
- * createDefaultV2Definition in ../v2 (kept inline as JSON so this constants module does not
- * import ../v2, which itself imports ../utils at module scope - a cycle).
+ * The starter definition for a new profile: one step per phase, mirroring
+ * createDefaultDefinition in ../designer (kept inline as JSON so this constants module does
+ * not import ../designer, which itself imports ../utils at module scope - a cycle).
  */
 const defaultDefinition = JSON.stringify({
   prompts: {},

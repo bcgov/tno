@@ -1,5 +1,13 @@
 import { AxiosResponse } from 'axios';
 import {
+  type IAutomationActionDescriptor,
+  type IAutomationExplainRequestModel,
+  type IAutomationExplainResultModel,
+  type IAutomationRunLogFilter,
+  type IAutomationRunLogPage,
+  type IAutomationValidationError,
+} from 'features/admin/automation/designer/interfaces';
+import {
   type IAutomationDebugRequestModel,
   type IAutomationDebugResultModel,
   type IAutomationProfileModel,
@@ -7,14 +15,6 @@ import {
   type IAutomationRunModel,
   type IAutomationRunRequestModel,
 } from 'features/admin/automation/interfaces';
-import {
-  type IAutomationExplainRequestModel,
-  type IAutomationExplainResultModel,
-  type IAutomationRunLogFilter,
-  type IAutomationRunLogPage,
-  type IV2ActionDescriptor,
-  type IV2ValidationError,
-} from 'features/admin/automation/v2/interfaces';
 import React from 'react';
 import { useApi } from 'tno-core';
 
@@ -83,13 +83,13 @@ export const useApiAdminAutomation = () => {
         `/admin/automation/profiles/${profileId}/schedules/${scheduleId}/clear-last-run`,
       );
     },
-    getV2Descriptors: () => {
-      return api.get<never, AxiosResponse<IV2ActionDescriptor[]>, any>(
-        '/admin/automation/v2/descriptors',
+    getDescriptors: () => {
+      return api.get<never, AxiosResponse<IAutomationActionDescriptor[]>, any>(
+        '/admin/automation/descriptors',
       );
     },
     validateProfile: (model: IAutomationProfileModel) => {
-      return api.post<IAutomationProfileModel, AxiosResponse<IV2ValidationError[]>, any>(
+      return api.post<IAutomationProfileModel, AxiosResponse<IAutomationValidationError[]>, any>(
         '/admin/automation/profiles/validate',
         model,
       );

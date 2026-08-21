@@ -1,7 +1,7 @@
 namespace TNO.API.Areas.Admin.Models.Automation;
 
 /// <summary>
-/// AutomationRunLogModel class, represents a single engine decision recorded during a v2 run.
+/// AutomationRunLogModel class, represents a single engine decision recorded during a run.
 /// LLM entries carry the prompt/response and token counts; non-LLM entries record condition
 /// evaluations, exclusions, skips, and flushes so every item's outcome has a trace.
 /// </summary>

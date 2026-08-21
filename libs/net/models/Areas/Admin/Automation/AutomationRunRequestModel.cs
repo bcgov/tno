@@ -23,7 +23,7 @@ public class AutomationRunRequestModel
     public bool IsDryRun { get; set; }
 
     /// <summary>
-    /// get/set - Optional candidate definition (raw v2 definition JSON) for a comparison run.
+    /// get/set - Optional candidate definition (raw definition JSON) for a comparison run.
     /// When provided the run executes both the profile's definition (variant 'A') and this
     /// candidate (variant 'B') as dry runs and records the differences. Forces IsDryRun.
     /// </summary>

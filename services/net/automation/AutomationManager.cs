@@ -367,20 +367,20 @@ public class AutomationManager : ServiceManager<AutomationOptions>
                 // The definition-document engine (run context, collections, phases, analyses,
                 // always-on decision log, dry runs). Schema version 1 is no longer supported.
                 // Drafts persist with validation errors; runs must not execute one.
-                var parsed = TNO.API.Areas.Admin.Models.Automation.V2.AutomationDefinition.Parse(profile.Definition!);
-                var invalid = TNO.API.Areas.Admin.Models.Automation.V2.AutomationDefinitionValidator.Validate(parsed)
+                var parsed = TNO.API.Areas.Admin.Models.Automation.AutomationDefinition.Parse(profile.Definition!);
+                var invalid = TNO.API.Areas.Admin.Models.Automation.AutomationDefinitionValidator.Validate(parsed)
                     .Where(e => e.Severity == "error")
                     .ToArray();
                 if (invalid.Length > 0)
                     throw new InvalidOperationException(
                         $"The definition is invalid and cannot run ({invalid.Length} error(s)): " +
                         string.Join("; ", invalid.Take(5).Select(e => $"{e.Path}: {e.Message}")));
-                var engine = new V2.V2Engine(this.Api, _elasticClient, _elasticOptions, this.Options, this.Logger);
-                var v2Summary = await engine.ExecuteAsync(profile, run);
+                var engine = new Engine.AutomationEngine(this.Api, _elasticClient, _elasticOptions, this.Options, this.Logger);
+                var runSummary = await engine.ExecuteAsync(profile, run);
                 run.Status = AdminAutomationRunStatus.Completed;
                 run.CompletedOn = DateTime.UtcNow;
-                run.Summary = JsonSerializer.Serialize(v2Summary, _jsonOptions);
-                run.Note = BuildV2RunNote(run.Note, v2Summary);
+                run.Summary = JsonSerializer.Serialize(runSummary, _jsonOptions);
+                run.Note = BuildRunNote(run.Note, runSummary);
             }
             else
             {
@@ -404,7 +404,7 @@ public class AutomationManager : ServiceManager<AutomationOptions>
     }
 
 
-    private static string BuildV2RunNote(string? note, V2.V2RunSummary summary)
+    private static string BuildRunNote(string? note, Engine.RunSummary summary)
     {
         var variant = summary.VariantA;
         var result = summary.IsComparison
@@ -449,7 +449,7 @@ public class AutomationManager : ServiceManager<AutomationOptions>
             if (deleted > 0)
                 this.Logger.LogInformation("Pruned {count} automation run(s) older than {days} day(s).", deleted, this.Options.RunRetentionDays);
 
-            // The v2 decision log keeps the current date only (independent of run retention):
+            // The decision log keeps the current date only (independent of run retention):
             // cut off at the start of today in the service's default time zone.
             if (this.Options.RunLogRetentionDays > 0)
             {

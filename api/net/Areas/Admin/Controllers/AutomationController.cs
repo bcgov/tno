@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.Automation;
-using TNO.API.Areas.Admin.Models.Automation.V2;
+using TNO.API.Areas.Admin.Models.Automation;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
 using TNO.DAL.Services;
@@ -481,7 +481,7 @@ public class AutomationController : ControllerBase
             {
                 foreach (var c in chs.EnumerateArray())
                 {
-                    // v1 summaries carry 'contentId' (number); v2 summaries 'contentRef' (string).
+                    // Older summaries carry 'contentId' (number); current ones 'contentRef' (string).
                     var matches = c.TryGetProperty("contentId", out var cid) && cid.TryGetInt64(out var v) && v == contentId;
                     if (!matches && c.TryGetProperty("contentRef", out var cref)
                         && cref.ValueKind == System.Text.Json.JsonValueKind.String
@@ -848,36 +848,36 @@ public class AutomationController : ControllerBase
     }
     #endregion
 
-    #region V2 Endpoints
+    #region Definition Endpoints
     /// <summary>
-    /// Return the v2 action catalog: every registered action type with its descriptor
+    /// Return the action catalog: every registered action type with its descriptor
     /// (phases, requirements, and configuration fields). The editor renders action forms from
     /// these descriptors so it follows the engine automatically.
     /// </summary>
     /// <returns></returns>
-    [HttpGet("v2/descriptors")]
+    [HttpGet("descriptors")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(IEnumerable<V2ActionDescriptor>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(IEnumerable<ActionDescriptor>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Automation" })]
     public IActionResult GetV2Descriptors()
     {
-        return new JsonResult(V2ActionCatalog.Types.Values.OrderBy(d => d.Category).ThenBy(d => d.Label));
+        return new JsonResult(ActionCatalog.Types.Values.OrderBy(d => d.Category).ThenBy(d => d.Label));
     }
 
     /// <summary>
-    /// Validate a v2 profile definition without saving it. Returns every finding (errors and
+    /// Validate a profile definition without saving it. Returns every finding (errors and
     /// warnings) with the definition path it anchors to.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
     [HttpPost("profiles/validate")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(IEnumerable<V2ValidationError>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(IEnumerable<ValidationError>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Automation" })]
     public IActionResult ValidateProfile([FromBody] AutomationProfileModel model)
     {
         if (model.SchemaVersion < 2 || string.IsNullOrWhiteSpace(model.Definition))
-            return new JsonResult(Array.Empty<V2ValidationError>());
+            return new JsonResult(Array.Empty<ValidationError>());
         try
         {
             var definition = AutomationDefinition.Parse(model.Definition!);
@@ -885,7 +885,7 @@ public class AutomationController : ControllerBase
         }
         catch (System.Text.Json.JsonException ex)
         {
-            return new JsonResult(new[] { new V2ValidationError("definition", $"The definition is not valid JSON: {ex.Message}") });
+            return new JsonResult(new[] { new ValidationError("definition", $"The definition is not valid JSON: {ex.Message}") });
         }
     }
 
@@ -1093,7 +1093,7 @@ public class AutomationController : ControllerBase
     }
 
     /// <summary>
-    /// Validate a v2 profile definition at save. Only malformed JSON blocks the save - a
+    /// Validate a profile definition at save. Only malformed JSON blocks the save - a
     /// work-in-progress definition with validation errors persists as a draft (the findings
     /// panel and the run-time guard in the automation service cover invalid definitions).
     /// </summary>
@@ -1107,7 +1107,7 @@ public class AutomationController : ControllerBase
         }
         catch (System.Text.Json.JsonException ex)
         {
-            return BadRequest(new { errors = new[] { new V2ValidationError("definition", $"The definition is not valid JSON: {ex.Message}") } });
+            return BadRequest(new { errors = new[] { new ValidationError("definition", $"The definition is not valid JSON: {ex.Message}") } });
         }
     }
     #endregion

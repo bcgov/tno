@@ -53,17 +53,17 @@ import {
   type IAutomationScheduleModel,
 } from './interfaces';
 import {
-  type IV2ActionDescriptor,
-  parseV2Definition,
-  parseV2RunSummary,
+  type IAutomationActionDescriptor,
+  parseDefinition,
+  parseRunSummary,
   RunLogViewer,
-  serializeV2Definition,
-  V2Designer,
-  V2RunOutcome,
-  collectV2FilterIds,
-  collectV2LlmIds,
-  remapV2Definition,
-} from './v2';
+  serializeDefinition,
+  AutomationDesigner,
+  RunOutcome,
+  collectFilterIds,
+  collectLlmIds,
+  remapDefinition,
+} from './designer';
 import {
   buildProfileForExport,
   buildProfileForSave,
@@ -118,9 +118,11 @@ const AutomationProfileForm: React.FC = () => {
   const { toggle: toggleRunDetailModal, isShowing: isRunDetailModalShowing } = useModal();
   // The run pending deletion; also drives the confirmation modal's visibility.
   const [runDeleteState, setRunDeleteState] = React.useState<IAutomationRunModel | null>(null);
-  // The v2 action catalog (fetched once); the v2 designer renders action forms from it.
-  const [v2Descriptors, setV2Descriptors] = React.useState<IV2ActionDescriptor[]>([]);
-  // What the run detail modal shows: the outcome summary or the decision log (v2 runs).
+  // The action catalog (fetched once); the designer renders action forms from it.
+  const [actionDescriptors, setActionDescriptors] = React.useState<IAutomationActionDescriptor[]>(
+    [],
+  );
+  // What the run detail modal shows: the outcome summary or the decision log.
   const [runDetailView, setRunDetailView] = React.useState<'outcome' | 'log'>('outcome');
 
   const profileId = Number(id);
@@ -165,11 +167,11 @@ const AutomationProfileForm: React.FC = () => {
       const filterIds = new Set<number>();
       const llmIds = new Set<number>();
       if (values.llmId) llmIds.add(values.llmId);
-      // Filters and LLM overrides live inside the v2 definition document.
+      // Filters and LLM overrides live inside the definition document.
       if (values.definition) {
-        const definition = parseV2Definition(values.definition);
-        collectV2FilterIds(definition).forEach((id) => filterIds.add(id));
-        collectV2LlmIds(definition).forEach((id) => llmIds.add(id));
+        const definition = parseDefinition(values.definition);
+        collectFilterIds(definition).forEach((id) => filterIds.add(id));
+        collectLlmIds(definition).forEach((id) => llmIds.add(id));
       }
 
       const [filterDefs, llmDefs] = await Promise.all([
@@ -241,7 +243,7 @@ const AutomationProfileForm: React.FC = () => {
       const llmDefs: any[] = Array.isArray(raw?.llms) ? raw.llms : [];
       const imported = normalizeProfile(rawProfile);
       if (imported.schemaVersion < 2 || !imported.definition) {
-        toast.error('Only v2 automation profiles can be imported.');
+        toast.error('Only definition (schema version 2) profile exports can be imported.');
         return;
       }
 
@@ -299,8 +301,8 @@ const AutomationProfileForm: React.FC = () => {
       const mapLLM = (id?: number) => (id ? llmMap.get(id) ?? id : id);
 
       // Rewrite the filter/LLM ids inside the definition document through the same maps.
-      const importedDefinition = serializeV2Definition(
-        remapV2Definition(parseV2Definition(imported.definition), mapFilter, mapLLM),
+      const importedDefinition = serializeDefinition(
+        remapDefinition(parseDefinition(imported.definition), mapFilter, mapLLM),
       );
 
       setProfile({
@@ -402,7 +404,7 @@ const AutomationProfileForm: React.FC = () => {
             return;
           }
           if ((data.schemaVersion ?? 1) < 2) {
-            toast.error('This page only supports v2 automation profiles.');
+            toast.error('This page only supports definition (schema version 2) profiles.');
             navigate('/admin/automations');
             return;
           }
@@ -453,8 +455,8 @@ const AutomationProfileForm: React.FC = () => {
 
   React.useEffect(() => {
     api
-      .getV2Descriptors()
-      .then(setV2Descriptors)
+      .getDescriptors()
+      .then(setActionDescriptors)
       .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -675,11 +677,11 @@ const AutomationProfileForm: React.FC = () => {
                           live={(lastRun ?? runs[0])?.status === 'Running'}
                           onFetch={api.findRunLogs}
                           onExplain={api.explainRunLog}
-                          promptNames={Object.keys(parseV2Definition(values.definition).prompts)}
+                          promptNames={Object.keys(parseDefinition(values.definition).prompts)}
                           onApplyPrompt={(name, text) => {
-                            const definition = parseV2Definition(values.definition);
+                            const definition = parseDefinition(values.definition);
                             definition.prompts[name] = { ...definition.prompts[name], text };
-                            setFieldValue('definition', serializeV2Definition(definition));
+                            setFieldValue('definition', serializeDefinition(definition));
                           }}
                         />
                       </Show>
@@ -854,10 +856,10 @@ const AutomationProfileForm: React.FC = () => {
                           width={FieldSize.Stretch}
                         />
                       </Row>
-                      <V2Designer
+                      <AutomationDesigner
                         value={values.definition}
                         onChange={(definition) => setFieldValue('definition', definition)}
-                        descriptors={v2Descriptors}
+                        descriptors={actionDescriptors}
                         filterOptions={filterOptions}
                         llmOptions={llmOptions}
                         reportOptions={reportOptions}
@@ -1096,14 +1098,14 @@ const AutomationProfileForm: React.FC = () => {
                       </div>
                     </Show>
                     {(() => {
-                      const v2Summary = parseV2RunSummary(runDiff?.run?.summary);
-                      if (!v2Summary) return null;
+                      const runSummary = parseRunSummary(runDiff?.run?.summary);
+                      if (!runSummary) return null;
                       return (
                         <>
-                          <div className="v2-modal-tabs">
+                          <div className="automation-modal-tabs">
                             <button
                               type="button"
-                              className={`v2-modal-tab${
+                              className={`automation-modal-tab${
                                 runDetailView === 'outcome' ? ' active' : ''
                               }`}
                               onClick={() => setRunDetailView('outcome')}
@@ -1112,34 +1114,34 @@ const AutomationProfileForm: React.FC = () => {
                             </button>
                             <button
                               type="button"
-                              className={`v2-modal-tab${runDetailView === 'log' ? ' active' : ''}`}
+                              className={`automation-modal-tab${
+                                runDetailView === 'log' ? ' active' : ''
+                              }`}
                               onClick={() => setRunDetailView('log')}
                             >
                               Decision Log
                             </button>
                           </div>
                           <Show visible={runDetailView === 'outcome'}>
-                            <V2RunOutcome summary={v2Summary} />
+                            <RunOutcome summary={runSummary} />
                           </Show>
                           <Show visible={runDetailView === 'log' && !!runDetail}>
                             <RunLogViewer
                               runId={runDetail!.id}
                               onFetch={api.findRunLogs}
                               onExplain={api.explainRunLog}
-                              promptNames={Object.keys(
-                                parseV2Definition(values.definition).prompts,
-                              )}
+                              promptNames={Object.keys(parseDefinition(values.definition).prompts)}
                               onApplyPrompt={(name, text) => {
-                                const definition = parseV2Definition(values.definition);
+                                const definition = parseDefinition(values.definition);
                                 definition.prompts[name] = { ...definition.prompts[name], text };
-                                setFieldValue('definition', serializeV2Definition(definition));
+                                setFieldValue('definition', serializeDefinition(definition));
                               }}
                             />
                           </Show>
                         </>
                       );
                     })()}
-                    <Show visible={!parseV2RunSummary(runDiff?.run?.summary)}>
+                    <Show visible={!parseRunSummary(runDiff?.run?.summary)}>
                       <p className="modal-help-text">
                         No outcome summary was recorded for this run.
                       </p>

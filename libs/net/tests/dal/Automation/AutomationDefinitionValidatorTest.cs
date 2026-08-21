@@ -1,4 +1,4 @@
-using TNO.API.Areas.Admin.Models.Automation.V2;
+using TNO.API.Areas.Admin.Models.Automation;
 
 namespace TNO.Test.DAL.Automation;
 
@@ -49,7 +49,7 @@ public class AutomationDefinitionValidatorTest
     public void UnknownActionType_IsAnError()
     {
         var definition = ValidDefinition();
-        definition.Steps[1].Actions.Add(new V2ActionDefinition { Type = "content.teleport" });
+        definition.Steps[1].Actions.Add(new ActionDefinition { Type = "content.teleport" });
         var errors = AutomationDefinitionValidator.Validate(definition);
         Assert.Contains(errors, e => e.Severity == "error" && e.Message.Contains("content.teleport"));
     }
@@ -67,7 +67,7 @@ public class AutomationDefinitionValidatorTest
     public void InitStepWithSource_IsAnError()
     {
         var definition = ValidDefinition();
-        definition.Steps[0].Source = new V2SourceDefinition { From = "collection", Collection = "$run.inbox" };
+        definition.Steps[0].Source = new SourceDefinition { From = "collection", Collection = "$run.inbox" };
         var errors = AutomationDefinitionValidator.Validate(definition);
         Assert.Contains(errors, e => e.Path == "steps[0].source");
     }
@@ -77,7 +77,7 @@ public class AutomationDefinitionValidatorTest
     {
         // v2 has no profile filter: content enters a run through 'search' actions.
         var definition = ValidDefinition();
-        definition.Steps[1].Source = new V2SourceDefinition { From = "profile" };
+        definition.Steps[1].Source = new SourceDefinition { From = "profile" };
         var errors = AutomationDefinitionValidator.Validate(definition);
         Assert.Contains(errors, e => e.Path == "steps[1].source.from" && e.Severity == "error");
     }
@@ -116,7 +116,7 @@ public class AutomationDefinitionValidatorTest
     public void UnknownAnalysisReference_IsAnError()
     {
         var definition = ValidDefinition();
-        definition.Steps[1].Actions[1].Value = new V2ValueSource { From = "missing.sentiment" };
+        definition.Steps[1].Actions[1].Value = new ValueSource { From = "missing.sentiment" };
         var errors = AutomationDefinitionValidator.Validate(definition);
         Assert.Contains(errors, e => e.Message.Contains("'missing'"));
     }
@@ -134,10 +134,10 @@ public class AutomationDefinitionValidatorTest
     public void UnconsumedAnalysis_IsAWarning()
     {
         var definition = ValidDefinition();
-        definition.Steps[1].Analyses.Add(new V2AnalysisDefinition
+        definition.Steps[1].Analyses.Add(new AnalysisDefinition
         {
             Name = "orphan",
-            Prompt = new V2PromptDefinition { Text = "unused" },
+            Prompt = new PromptDefinition { Text = "unused" },
             Returns = new Dictionary<string, string> { ["x"] = "string" },
         });
         var errors = AutomationDefinitionValidator.Validate(definition);
@@ -149,7 +149,7 @@ public class AutomationDefinitionValidatorTest
     public void ConditionWithTwoShapes_IsAnError()
     {
         var definition = ValidDefinition();
-        definition.Steps[1].Actions[0].When = new V2ConditionDefinition
+        definition.Steps[1].Actions[0].When = new ConditionDefinition
         {
             Field = "body",
             Op = "isEmpty",
@@ -168,7 +168,7 @@ public class AutomationDefinitionValidatorTest
         var errors = AutomationDefinitionValidator.Validate(definition);
         Assert.DoesNotContain(errors, e => e.Path == "steps[2].source" && e.Severity == "error");
         // Without a source the step cannot iterate, so subject actions are invalid.
-        definition.Steps[2].Actions.Add(new V2ActionDefinition { Type = "content.publish" });
+        definition.Steps[2].Actions.Add(new ActionDefinition { Type = "content.publish" });
         errors = AutomationDefinitionValidator.Validate(definition);
         Assert.Contains(errors, e => e.Path.StartsWith("steps[2]") && e.Message.Contains("process"));
     }
@@ -179,8 +179,8 @@ public class AutomationDefinitionValidatorTest
         // A complete step that declares a source iterates it like a process step (v1's
         // iterate-at-end capability), so per-item actions are valid there.
         var definition = ValidDefinition();
-        definition.Steps[2].Source = new V2SourceDefinition { From = "collection", Collection = "$run.inbox" };
-        definition.Steps[2].Actions.Add(new V2ActionDefinition { Type = "content.publish" });
+        definition.Steps[2].Source = new SourceDefinition { From = "collection", Collection = "$run.inbox" };
+        definition.Steps[2].Actions.Add(new ActionDefinition { Type = "content.publish" });
         var errors = AutomationDefinitionValidator.Validate(definition);
         Assert.Empty(errors.Where(e => e.Severity == "error"));
     }
@@ -189,11 +189,11 @@ public class AutomationDefinitionValidatorTest
     public void DraftTargetWithoutCreate_IsAnError()
     {
         var definition = ValidDefinition();
-        definition.Steps[1].Actions.Add(new V2ActionDefinition
+        definition.Steps[1].Actions.Add(new ActionDefinition
         {
             Type = "content.update",
             Field = "headline",
-            Value = new V2ValueSource { Literal = System.Text.Json.JsonDocument.Parse("\"x\"").RootElement.Clone() },
+            Value = new ValueSource { Literal = System.Text.Json.JsonDocument.Parse("\"x\"").RootElement.Clone() },
             Target = "$item.ghost",
         });
         var errors = AutomationDefinitionValidator.Validate(definition);
@@ -206,8 +206,8 @@ public class AutomationDefinitionValidatorTest
         // Two creates with the same 'as' would leave later references pointing at only the last
         // draft while the first still persists as an orphan.
         var definition = ValidDefinition();
-        definition.Steps[1].Actions.Add(new V2ActionDefinition { Type = "content.create", As = "$item.digest" });
-        definition.Steps[1].Actions.Add(new V2ActionDefinition { Type = "content.create", As = "$item.digest" });
+        definition.Steps[1].Actions.Add(new ActionDefinition { Type = "content.create", As = "$item.digest" });
+        definition.Steps[1].Actions.Add(new ActionDefinition { Type = "content.create", As = "$item.digest" });
         var errors = AutomationDefinitionValidator.Validate(definition);
         Assert.Contains(errors, e => e.Severity == "error" && e.Message.Contains("already created"));
     }
@@ -218,12 +218,12 @@ public class AutomationDefinitionValidatorTest
         // Deliberate fan-out (one marker driving two consequences) is legal, so a duplicate is
         // surfaced as a warning against copy-paste accidents rather than an error.
         var definition = ValidDefinition();
-        definition.Steps[1].Actions.Add(new V2ActionDefinition { Type = "content.publish", Confirm = "[GO]", Analysis = "triage" });
-        definition.Steps[1].Actions.Add(new V2ActionDefinition { Type = "collection.add", Into = "$run.inbox", Confirm = "[GO]", Analysis = "triage" });
+        definition.Steps[1].Actions.Add(new ActionDefinition { Type = "content.publish", Confirm = "[GO]", Analysis = "triage" });
+        definition.Steps[1].Actions.Add(new ActionDefinition { Type = "collection.add", Into = "$run.inbox", Confirm = "[GO]", Analysis = "triage" });
         var errors = AutomationDefinitionValidator.Validate(definition);
         Assert.Contains(errors, e => e.Severity == "warning" && e.Message.Contains("[GO]"));
         // The same marker against a DIFFERENT analysis does not warn - no crosstalk.
-        definition.Steps[1].Analyses.Add(new V2AnalysisDefinition { Name = "second", Raw = true, Prompt = new V2PromptDefinition { Text = "x" } });
+        definition.Steps[1].Analyses.Add(new AnalysisDefinition { Name = "second", Raw = true, Prompt = new PromptDefinition { Text = "x" } });
         definition.Steps[1].Actions[^1].Analysis = "second";
         errors = AutomationDefinitionValidator.Validate(definition);
         Assert.DoesNotContain(errors, e => e.Severity == "warning" && e.Message.Contains("[GO]"));

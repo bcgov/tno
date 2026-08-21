@@ -19,7 +19,7 @@ const AutomationProfileList: React.FC = () => {
 
   React.useEffect(() => {
     api.findProfiles().then((profiles) => {
-      // This page only works with v2 profiles; anything older is invisible here.
+      // This page only works with definition (schema version 2) profiles; anything older is invisible here.
       setItems(profiles.filter((profile) => profile.schemaVersion >= 2));
     });
   }, [api]);

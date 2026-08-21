@@ -28,7 +28,7 @@ public class AutomationOptions : ServiceOptions
     public int RunRetentionDays { get; set; } = 7;
 
     /// <summary>
-    /// get/set - The number of days of v2 decision-log entries to keep (1 = the current date only,
+    /// get/set - The number of days of decision-log entries to keep (1 = the current date only,
     /// the default). The log records every prompt, response, and engine decision, so its retention
     /// is deliberately independent of (and much shorter than) the run-history retention.
     /// Set to zero or less to disable pruning.

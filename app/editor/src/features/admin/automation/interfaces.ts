@@ -30,7 +30,7 @@ export interface IAutomationRunRequestModel {
   note?: string;
   /** Compute and log every decision and change without writing anything. */
   isDryRun?: boolean;
-  /** A candidate definition (raw v2 JSON) for a comparison run; forces a dry run. */
+  /** A candidate definition (raw definition JSON) for a comparison run; forces a dry run. */
   compareDefinition?: string | null;
 }
 

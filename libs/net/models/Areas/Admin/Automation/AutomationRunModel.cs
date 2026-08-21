@@ -53,7 +53,7 @@ public class AutomationRunModel
     public bool IsDryRun { get; set; }
 
     /// <summary>
-    /// get/set - Optional candidate definition (raw v2 definition JSON) for a comparison run.
+    /// get/set - Optional candidate definition (raw definition JSON) for a comparison run.
     /// </summary>
     public string? CompareDefinition { get; set; }
 

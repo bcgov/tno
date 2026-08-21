@@ -1,4 +1,12 @@
 import {
+  type IAutomationActionDescriptor,
+  type IAutomationExplainRequestModel,
+  type IAutomationExplainResultModel,
+  type IAutomationRunLogFilter,
+  type IAutomationRunLogPage,
+  type IAutomationValidationError,
+} from 'features/admin/automation/designer/interfaces';
+import {
   type IAutomationDebugRequestModel,
   type IAutomationDebugResultModel,
   type IAutomationProfileModel,
@@ -6,14 +14,6 @@ import {
   type IAutomationRunModel,
   type IAutomationRunRequestModel,
 } from 'features/admin/automation/interfaces';
-import {
-  type IAutomationExplainRequestModel,
-  type IAutomationExplainResultModel,
-  type IAutomationRunLogFilter,
-  type IAutomationRunLogPage,
-  type IV2ActionDescriptor,
-  type IV2ValidationError,
-} from 'features/admin/automation/v2/interfaces';
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
 import { type IAdminState, useAdminStore } from 'store/slices';
@@ -35,8 +35,8 @@ interface IAutomationProfileController {
     request: IAutomationDebugRequestModel,
   ) => Promise<IAutomationDebugResultModel>;
   clearScheduleLastRun: (profileId: number, scheduleId: number) => Promise<void>;
-  getV2Descriptors: () => Promise<IV2ActionDescriptor[]>;
-  validateProfile: (model: IAutomationProfileModel) => Promise<IV2ValidationError[]>;
+  getDescriptors: () => Promise<IAutomationActionDescriptor[]>;
+  validateProfile: (model: IAutomationProfileModel) => Promise<IAutomationValidationError[]>;
   findRunLogs: (runId: number, filter: IAutomationRunLogFilter) => Promise<IAutomationRunLogPage>;
   explainRunLog: (
     runId: number,
@@ -138,18 +138,18 @@ export const useAutomationProfiles = (): [IAdminState, IAutomationProfileControl
           async () => await api.clearScheduleLastRun(profileId, scheduleId),
         );
       },
-      getV2Descriptors: async () => {
-        // Silent: fetched to render v2 action forms; must not trigger the page loading overlay.
-        const response = await dispatch<IV2ActionDescriptor[]>(
-          'get-automation-v2-descriptors',
-          async () => await api.getV2Descriptors(),
+      getDescriptors: async () => {
+        // Silent: fetched to render the action forms; must not trigger the page loading overlay.
+        const response = await dispatch<IAutomationActionDescriptor[]>(
+          'get-automation-automation-descriptors',
+          async () => await api.getDescriptors(),
           undefined,
           true,
         );
         return response.data;
       },
       validateProfile: async (model: IAutomationProfileModel) => {
-        const response = await dispatch<IV2ValidationError[]>(
+        const response = await dispatch<IAutomationValidationError[]>(
           'validate-automation-profile',
           async () => await api.validateProfile(model),
           undefined,

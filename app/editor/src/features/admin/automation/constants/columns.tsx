@@ -2,16 +2,16 @@ import moment from 'moment';
 import { FaTrash } from 'react-icons/fa';
 import { CellCheckbox, CellEllipsis, type ITableHookColumn } from 'tno-core';
 
-import { type IAutomationProfileModel, type IAutomationRunModel } from '../interfaces';
-// Imported from the module, not the ../v2 barrel: the barrel pulls in components that import
+// Imported from the module, not the ../designer barrel: the barrel pulls in components that import
 // ../constants, which would cycle back into this file.
-import { parseV2Definition } from '../v2/constants';
+import { parseDefinition } from '../designer/constants';
+import { type IAutomationProfileModel, type IAutomationRunModel } from '../interfaces';
 
 const formatRunDate = (value?: string): string =>
   value ? moment(value).format('YYYY-MM-DD HH:mm:ss') : '-';
 
 const getStepCount = (profile: IAutomationProfileModel): number =>
-  parseV2Definition(profile.definition).steps.length;
+  parseDefinition(profile.definition).steps.length;
 
 export const columns: Array<ITableHookColumn<IAutomationProfileModel>> = [
   {

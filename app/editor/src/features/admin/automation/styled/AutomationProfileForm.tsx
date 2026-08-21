@@ -231,7 +231,7 @@ export const AutomationProfileForm = styled(FormPage)`
     gap: 0.35rem;
   }
 
-  .v2-section-toggle {
+  .automation-section-toggle {
     cursor: pointer;
     user-select: none;
   }
@@ -993,7 +993,7 @@ export const AutomationModalStyles = createGlobalStyle`
     width: 100%;
   }
 
-  /* v2 designer component styles. Global (not page-scoped) because the step,
+  /* Designer component styles. Global (not page-scoped) because the step,
      action, analysis, and prompt editors render inside portal-mounted modals,
      outside the page wrapper - page-scoped rules never reach them. */
   /* Inline checkboxes beside labelled inputs: size the box to the input height and center the
@@ -1038,44 +1038,44 @@ export const AutomationModalStyles = createGlobalStyle`
       right: 1.8rem;
     }
   }
-  /* ---- v2 designer, log viewer, and run outcome ---- */
-  .v2-designer,
-  .v2-step-editor,
-  .v2-action-editor,
-  .v2-analysis-editor {
+  /* ---- designer, log viewer, and run outcome ---- */
+  .automation-designer,
+  .automation-step-editor,
+  .automation-action-editor,
+  .automation-analysis-editor {
     width: 100%;
   }
-  .v2-step-card {
+  .automation-step-card {
     border: 1px solid #d0d5dd;
     border-radius: 0.35rem;
     padding: 0.5rem;
     background: #fff;
   }
-  .v2-step-card-header {
+  .automation-step-card-header {
     cursor: default;
 
     strong {
       flex: 0 1 auto;
     }
   }
-  .v2-list-item {
+  .automation-list-item {
     border: 1px solid #e4e7ec;
     border-radius: 0.35rem;
     padding: 0.4rem;
     background: #fcfcfd;
     width: 100%;
   }
-  .v2-steps-list .v2-step-card {
+  .automation-steps-list .automation-step-card {
     margin-bottom: 0.5rem;
   }
-  .v2-actions-list .v2-list-item {
+  .automation-actions-list .automation-list-item {
     margin-bottom: 0.4rem;
   }
-  .v2-step-card.is-dragging,
-  .v2-list-item.is-dragging {
+  .automation-step-card.is-dragging,
+  .automation-list-item.is-dragging {
     box-shadow: 0 4px 12px rgba(16, 24, 40, 0.15);
   }
-  .v2-drag-handle {
+  .automation-drag-handle {
     display: flex;
     align-items: center;
     padding: 0.35rem 0.2rem;
@@ -1087,33 +1087,33 @@ export const AutomationModalStyles = createGlobalStyle`
     }
   }
   /* Action fields flow side by side and wrap; structured editors take their own line. */
-  .v2-action-fields {
+  .automation-action-fields {
     row-gap: 0.5rem;
   }
-  .v2-field-wide {
+  .automation-field-wide {
     flex-basis: 100%;
   }
   /* Steps grid: header row, draggable rows, expanded analyses/actions subgrids. */
-  .v2-grid {
+  .automation-grid {
     border: 1px solid #dfe3e8;
     border-radius: 0.35rem;
     background: #fff;
     width: 100%;
   }
-  .v2-grid-header,
-  .v2-grid-row {
+  .automation-grid-header,
+  .automation-grid-row {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     padding: 0.45rem 0.6rem;
     width: 100%;
   }
-  .v2-grid-header {
+  .automation-grid-header {
     font-weight: 600;
     background: #f2f4f7;
     border-bottom: 1px solid #dfe3e8;
   }
-  .v2-grid-item {
+  .automation-grid-item {
     border-bottom: 1px solid #eef2f6;
     background: #fff;
 
@@ -1130,52 +1130,52 @@ export const AutomationModalStyles = createGlobalStyle`
       box-shadow: 0 4px 12px rgba(16, 24, 40, 0.15);
     }
   }
-  .v2-grid-row:hover {
+  .automation-grid-row:hover {
     background: #f8fafc;
   }
-  .v2-gc-drag {
+  .automation-gc-drag {
     width: 1.5rem;
     flex: 0 0 auto;
   }
-  .v2-gc-collapse {
+  .automation-gc-collapse {
     width: 1.75rem;
     flex: 0 0 auto;
   }
-  .v2-gc-name {
+  .automation-gc-name {
     flex: 2 1 0;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .v2-gc-phase {
+  .automation-gc-phase {
     width: 7rem;
     flex: 0 0 auto;
   }
-  .v2-gc-source {
+  .automation-gc-source {
     flex: 1.5 1 0;
     min-width: 0;
   }
-  .v2-gc-clip {
+  .automation-gc-clip {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .v2-gc-count {
+  .automation-gc-count {
     width: 5rem;
     flex: 0 0 auto;
   }
-  .v2-gc-enabled {
+  .automation-gc-enabled {
     width: 5rem;
     flex: 0 0 auto;
   }
-  .v2-gc-on {
+  .automation-gc-on {
     width: 5rem;
     flex: 0 0 auto;
   }
   /* Step grouping: a band labels the first row of a run of same-group steps, and every
      grouped row carries the accent edge so membership reads at a glance. */
-  .v2-group-band {
+  .automation-group-band {
     display: flex;
     align-items: center;
     gap: 0.4rem;
@@ -1196,11 +1196,11 @@ export const AutomationModalStyles = createGlobalStyle`
       font-size: 0.7rem;
     }
   }
-  .v2-grouped > .v2-grid-row {
+  .automation-grouped > .automation-grid-row {
     box-shadow: inset 3px 0 0 #234075;
   }
   /* The step name doubles as the expand/collapse control. */
-  .v2-step-name-toggle {
+  .automation-step-name-toggle {
     cursor: pointer;
 
     &:hover {
@@ -1209,13 +1209,13 @@ export const AutomationModalStyles = createGlobalStyle`
     }
   }
   /* Quick enable/disable directly in the grid rows. */
-  .v2-enabled-toggle {
+  .automation-enabled-toggle {
     width: 1.05rem;
     height: 1.05rem;
     accent-color: #1a3a6b;
     cursor: pointer;
   }
-  .v2-gc-actions {
+  .automation-gc-actions {
     width: 7rem;
     flex: 0 0 auto;
     display: flex;
@@ -1231,7 +1231,7 @@ export const AutomationModalStyles = createGlobalStyle`
       }
     }
   }
-  .v2-grid-expanded {
+  .automation-grid-expanded {
     /* Inset white card per the design. */
     margin: 0.4rem 0.75rem 0.75rem 3.4rem;
     border: 1px solid #e4e7ec;
@@ -1240,7 +1240,7 @@ export const AutomationModalStyles = createGlobalStyle`
     padding: 0.25rem 0.5rem 0.5rem;
   }
 
-  .v2-gc-sm {
+  .automation-gc-sm {
     width: 8rem;
     flex: 0 0 auto;
     overflow: hidden;
@@ -1248,17 +1248,17 @@ export const AutomationModalStyles = createGlobalStyle`
     white-space: nowrap;
   }
 
-  .v2-gc-icon {
+  .automation-gc-icon {
     color: #98a2b3;
     display: flex;
     align-items: center;
   }
 
-  .v2-muted {
+  .automation-muted {
     color: #98a2b3;
   }
 
-  .v2-config-label {
+  .automation-config-label {
     display: block;
     margin-top: 0.5rem;
     padding-top: 0.5rem;
@@ -1270,58 +1270,58 @@ export const AutomationModalStyles = createGlobalStyle`
     color: #5b7a9b;
   }
 
-    .v2-config-desc {
+    .automation-config-desc {
     margin: 0;
     color: #495057;
     font-size: 0.9rem;
     line-height: 1.45;
     max-width: 72ch;
   }
-  .v2-config-hint {
+  .automation-config-hint {
     margin: 0;
     color: #5b7a9b;
   }
 
-  .v2-override-note {
+  .automation-override-note {
     font-size: 0.7rem;
     color: #667085;
   }
 
-  .v2-row-even {
+  .automation-row-even {
     background: #f7f8fa;
   }
 
   /* Drag placeholder: a visible dropzone row while dragging (react-beautiful-dnd sizes it to
      the dragged row); the droppable keeps a little tail space so drops land cleanly below the
      last row and above the first. */
-  .v2-grid [data-rbd-placeholder-context-id] {
+  .automation-grid [data-rbd-placeholder-context-id] {
     background: #e0eaff;
     border: 1px dashed #84a9e2;
     border-radius: 0.2rem;
   }
 
-  .v2-grid [data-rbd-droppable-id] {
+  .automation-grid [data-rbd-droppable-id] {
     min-height: 0.4rem;
     padding-bottom: 2px;
   }
 
-  .v2-subgrid {
+  .automation-subgrid {
     margin-bottom: 0.5rem;
     font-size: 0.9rem;
     border: none;
 
-    .v2-grid-header,
-    .v2-grid-row {
+    .automation-grid-header,
+    .automation-grid-row {
       padding: 0.3rem 0.5rem;
     }
 
-    .v2-grid-header {
+    .automation-grid-header {
       background: #fff;
       border-bottom: 1px solid #dfe3e8;
     }
   }
   /* Prompt library table. */
-  .v2-library-table {
+  .automation-library-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.9rem;
@@ -1341,13 +1341,13 @@ export const AutomationModalStyles = createGlobalStyle`
       font-weight: 600;
     }
   }
-  .v2-col-name {
+  .automation-col-name {
     width: 14rem;
   }
-  .v2-col-refs {
+  .automation-col-refs {
     width: 14rem;
   }
-  .v2-col-actions {
+  .automation-col-actions {
     width: 5.5rem;
     text-align: right !important;
     white-space: nowrap;
@@ -1366,22 +1366,22 @@ export const AutomationModalStyles = createGlobalStyle`
     }
   }
   /* Built-in defaults not yet overridden: present but visibly not part of the document. */
-  .v2-builtin-row td {
+  .automation-builtin-row td {
     color: #667085;
     font-style: italic;
   }
-  .v2-library-empty {
+  .automation-library-empty {
     color: #667085;
     text-align: center;
   }
-  .v2-prompt-name {
+  .automation-prompt-name {
     font-family: monospace;
     font-size: 0.8rem;
     background: #f2f4f7;
     border-radius: 0.25rem;
     padding: 0.1rem 0.4rem;
   }
-  .v2-chip-open {
+  .automation-chip-open {
     border: none;
     background: none;
     padding: 0;
@@ -1393,7 +1393,7 @@ export const AutomationModalStyles = createGlobalStyle`
       text-decoration: underline;
     }
   }
-  .v2-subsection-header {
+  .automation-subsection-header {
     align-items: center;
     gap: 0.5rem;
 
@@ -1401,12 +1401,12 @@ export const AutomationModalStyles = createGlobalStyle`
       margin: 0;
     }
   }
-  .v2-field-help {
+  .automation-field-help {
     margin: 0;
     font-size: 0.8rem;
     color: #667085;
   }
-  .v2-badge {
+  .automation-badge {
     display: inline-block;
     padding: 0.05rem 0.5rem;
     border-radius: 0.75rem;
@@ -1415,34 +1415,34 @@ export const AutomationModalStyles = createGlobalStyle`
     font-size: 0.75rem;
     white-space: nowrap;
   }
-  .v2-badge-success {
+  .automation-badge-success {
     background: #d1fadf;
     color: #05603a;
   }
-  .v2-badge-warning {
+  .automation-badge-warning {
     background: #fef0c7;
     color: #93370d;
   }
-  .v2-badge-danger {
+  .automation-badge-danger {
     background: #fee4e2;
     color: #912018;
   }
-  .v2-phase-init {
+  .automation-phase-init {
     background: #e0eaff;
     color: #26428b;
   }
-  .v2-phase-process {
+  .automation-phase-process {
     background: #fef0c7;
     color: #93370d;
   }
-  .v2-phase-complete {
+  .automation-phase-complete {
     background: #d1fadf;
     color: #05603a;
   }
-  .v2-chips {
+  .automation-chips {
     flex-wrap: wrap;
   }
-  .v2-chip {
+  .automation-chip {
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
@@ -1462,7 +1462,7 @@ export const AutomationModalStyles = createGlobalStyle`
   /* Filter fields: the edit pencil renders inside the control's indicators area; the compact +
      renders in the Select's own control row (its children slot), so alignment matches every
      other labelled field. */
-  .v2-filter-edit {
+  .automation-filter-edit {
     border: none;
     background: none;
     padding: 0 0.15rem;
@@ -1481,7 +1481,7 @@ export const AutomationModalStyles = createGlobalStyle`
     }
   }
 
-  .v2-filter-separator {
+  .automation-filter-separator {
     /* Same geometry/colour as react-select's .rs__indicator-separator. */
     align-self: stretch;
     width: 1px;
@@ -1489,7 +1489,7 @@ export const AutomationModalStyles = createGlobalStyle`
     background-color: hsl(0, 0%, 80%);
   }
 
-  .v2-filter-add {
+  .automation-filter-add {
     /* Attached inside the control per the design: a bare plus glyph after the dropdown arrow. */
     border: none;
     background: none;
@@ -1508,13 +1508,13 @@ export const AutomationModalStyles = createGlobalStyle`
       color: #0f3e6d;
     }
   }
-  .v2-scoped-name label {
+  .automation-scoped-name label {
     display: block;
   }
-  .v2-scoped-name-input {
+  .automation-scoped-name-input {
     gap: 0.15rem;
   }
-  .v2-scope-prefix {
+  .automation-scope-prefix {
     font-family: monospace;
     color: #475467;
     background: #f2f4f7;
@@ -1523,7 +1523,7 @@ export const AutomationModalStyles = createGlobalStyle`
     border-radius: 0.25rem 0 0 0.25rem;
     padding: 0.3rem 0.35rem;
   }
-  .v2-link-button {
+  .automation-link-button {
     border: none;
     background: none;
     color: #1570ef;
@@ -1534,37 +1534,37 @@ export const AutomationModalStyles = createGlobalStyle`
   }
   /* The 'all fields' checkbox sits beside the labelled Copy fields picker in a top-aligned
      row; drop it one label line so it centers on the picker's control. */
-  .v2-copy-fields-row .checkbox-inline {
+  .automation-copy-fields-row .checkbox-inline {
     margin-top: 1.6rem;
   }
   /* Set-fields rows top-align so the value source's help line never pushes the field name
      input down; the remove button nudges down to sit on the control line. */
-  .v2-set-fields-row .rule-icon-button {
+  .automation-set-fields-row .rule-icon-button {
     margin-top: 0.5em;
   }
   /* Config fields top-align so a field's help line never pushes its neighbours down;
      help wraps under its own field instead of widening the column. */
-  .v2-action-fields .v2-field-help {
+  .automation-action-fields .automation-field-help {
     max-width: 16rem;
   }
   /* Wide blocks (value sources, condition builders) span the modal; their help does too. */
-  .v2-action-fields .v2-field-wide .v2-field-help,
-  .v2-value-source .v2-field-help {
+  .automation-action-fields .automation-field-wide .automation-field-help,
+  .automation-value-source .automation-field-help {
     max-width: none;
   }
   /* Hand-rolled field columns carry .frm-in, so label spacing/weight match tno-core fields
      exactly; the nested combobox drops its own wrapper padding to avoid doubling it. */
-  .v2-scoped-name .frm-in,
-  .v2-fields-picker .frm-in {
+  .automation-scoped-name .frm-in,
+  .automation-fields-picker .frm-in {
     padding-bottom: 0;
   }
-  .v2-chips {
+  .automation-chips {
     display: flex;
     flex-wrap: wrap;
     gap: 0.35rem;
     max-width: 24rem;
   }
-  .v2-chip {
+  .automation-chip {
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
@@ -1590,14 +1590,14 @@ export const AutomationModalStyles = createGlobalStyle`
       padding: 0;
     }
   }
-  .v2-condition-children {
+  .automation-condition-children {
     margin-left: 0.35rem;
     padding: 0.5rem 0.75rem;
     border: 1px solid #e4e7ec;
     border-left: 3px solid #234075;
     border-radius: 0 0.25rem 0.25rem 0;
   }
-  .v2-condition-remove {
+  .automation-condition-remove {
     border: none;
     background: none;
     color: #234075;
@@ -1611,7 +1611,7 @@ export const AutomationModalStyles = createGlobalStyle`
       cursor: not-allowed;
     }
   }
-  .v2-condition-add {
+  .automation-condition-add {
     border: none;
     background: none;
     color: #1a5a96;
@@ -1622,10 +1622,10 @@ export const AutomationModalStyles = createGlobalStyle`
     width: max-content;
     text-align: left;
   }
-  .v2-returns {
+  .automation-returns {
     border: 1px solid #e4e7ec;
 
-    .v2-returns-head {
+    .automation-returns-head {
       display: grid;
       grid-template-columns: 1fr 1fr 2.25rem;
       align-items: center;
@@ -1634,7 +1634,7 @@ export const AutomationModalStyles = createGlobalStyle`
       font-weight: 700;
       padding: 0.4rem 0.75rem;
     }
-    .v2-returns-row {
+    .automation-returns-row {
       display: grid;
       grid-template-columns: 1fr 1fr 2.25rem;
       align-items: center;
@@ -1648,8 +1648,8 @@ export const AutomationModalStyles = createGlobalStyle`
         padding: 0;
       }
     }
-    .v2-returns-add,
-    .v2-returns-del {
+    .automation-returns-add,
+    .automation-returns-del {
       border: none;
       background: none;
       color: #234075;
@@ -1660,7 +1660,7 @@ export const AutomationModalStyles = createGlobalStyle`
     }
   }
   /* Run outcome: per-item change groups and the unwritten-changes list. */
-  .v2-change-group {
+  .automation-change-group {
     margin: 0.35rem 0 0.35rem 0.75rem;
 
     > summary {
@@ -1668,7 +1668,7 @@ export const AutomationModalStyles = createGlobalStyle`
       font-weight: 600;
     }
   }
-  .v2-flush-list {
+  .automation-flush-list {
     list-style: none;
     margin: 0.4rem 0 0;
     padding: 0;
@@ -1680,11 +1680,11 @@ export const AutomationModalStyles = createGlobalStyle`
       background: #f2f4f7;
     }
   }
-  .v2-findings > summary {
+  .automation-findings > summary {
     cursor: pointer;
     font-weight: 600;
   }
-  .v2-findings {
+  .automation-findings {
     border: 1px solid #fda29b;
     border-radius: 0.35rem;
     padding: 0.5rem;
@@ -1769,15 +1769,15 @@ export const AutomationModalStyles = createGlobalStyle`
     width: 100%;
   }
 
-  /* The shared insertable-token section (V2PromptTokens): rendered by the Prompt Library
+  /* The shared insertable-token section (PromptTokens): rendered by the Prompt Library
      modal and the analysis editor, so these are not scoped to one modal. */
-  .v2-token-help {
+  .automation-token-help {
     margin: 0.5rem 0 0.25rem 0;
     font-size: 0.85rem;
     color: #475467;
   }
 
-  .v2-token-group-label {
+  .automation-token-group-label {
     font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.03em;
@@ -1785,14 +1785,14 @@ export const AutomationModalStyles = createGlobalStyle`
     color: #667085;
   }
 
-  .v2-token-list {
+  .automation-token-list {
     display: flex;
     flex-wrap: wrap;
     gap: 0.35rem;
     margin-bottom: 0.5rem;
   }
 
-  .v2-token {
+  .automation-token {
     font-family: monospace;
     font-size: 0.75rem;
     color: #26428b;
@@ -1808,14 +1808,14 @@ export const AutomationModalStyles = createGlobalStyle`
   }
 
   /* Folder tabs inside the run modal, matching the page's gold-underline tab design. */
-  .run-detail-content .v2-modal-tabs {
+  .run-detail-content .automation-modal-tabs {
     display: flex;
     align-items: flex-end;
     gap: 0.25rem;
     border-bottom: solid 3px #fcba19;
     margin-bottom: 0.5rem;
   }
-  .run-detail-content .v2-modal-tab {
+  .run-detail-content .automation-modal-tab {
     background: #f2f4f7;
     border: 1px solid #e4e7ec;
     border-bottom: none;
@@ -1831,26 +1831,26 @@ export const AutomationModalStyles = createGlobalStyle`
     }
   }
   /* The log entries wrap instead of forcing the modal wider. */
-  .run-detail-content .v2-log-entry-header {
+  .run-detail-content .automation-log-entry-header {
     flex-wrap: wrap;
   }
-  .run-detail-content .v2-log-entry-body pre,
-  .run-detail-content .v2-log-entry-body {
+  .run-detail-content .automation-log-entry-body pre,
+  .run-detail-content .automation-log-entry-body {
     max-width: 100%;
     overflow-x: hidden;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
   }
-  .run-detail-content .v2-log-viewer,
-  .run-detail-content .v2-log-scroll {
+  .run-detail-content .automation-log-viewer,
+  .run-detail-content .automation-log-scroll {
     max-width: 100%;
     overflow-x: hidden;
   }
-  .run-detail-content .v2-run-detail-toggle {
+  .run-detail-content .automation-run-detail-toggle {
     margin: 0.5rem 0;
   }
 
-  .run-detail-content .v2-dry-run-banner {
+  .run-detail-content .automation-dry-run-banner {
     padding: 0.4rem 0.75rem;
     border-radius: 0.35rem;
     background: #fef0c7;
@@ -1858,7 +1858,7 @@ export const AutomationModalStyles = createGlobalStyle`
     font-weight: 600;
   }
 
-  .run-detail-content .v2-table {
+  .run-detail-content .automation-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.85rem;
@@ -1876,7 +1876,7 @@ export const AutomationModalStyles = createGlobalStyle`
     }
   }
 
-  .run-detail-content .v2-cell-clip {
+  .run-detail-content .automation-cell-clip {
     max-width: 20rem;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1885,34 +1885,34 @@ export const AutomationModalStyles = createGlobalStyle`
 
   /* Buttons beside the filter fields: the fields' .frm-in wrappers carry bottom padding, so
      the bottom-aligned buttons lift by the same amount to sit level with the controls. */
-  .v2-log-filter-actions {
+  .automation-log-filter-actions {
     margin-bottom: 0.5em;
   }
   /* The entries list scrolls in place so a long (or live) log never grows the page. */
-  .v2-log-scroll {
+  .automation-log-scroll {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
     max-height: 60vh;
     overflow-y: auto;
   }
-  .v2-log-viewer .v2-log-entry {
+  .automation-log-viewer .automation-log-entry {
     border: 1px solid #e4e7ec;
     border-radius: 0.35rem;
     padding: 0.35rem 0.5rem;
     background: #fff;
   }
 
-  .v2-log-viewer .v2-log-entry-decision {
+  .automation-log-viewer .automation-log-entry-decision {
     background: #f9fafb;
   }
 
-  .v2-log-viewer .v2-log-entry-header {
+  .automation-log-viewer .automation-log-entry-header {
     cursor: pointer;
     flex-wrap: wrap;
   }
 
-  .v2-log-viewer .v2-log-entry-body pre {
+  .automation-log-viewer .automation-log-entry-body pre {
     max-height: 20rem;
     overflow: auto;
     white-space: pre-wrap;
@@ -1922,7 +1922,7 @@ export const AutomationModalStyles = createGlobalStyle`
     margin: 0.25rem 0;
   }
 
-  .run-detail-content .v2-badge {
+  .run-detail-content .automation-badge {
     display: inline-block;
     padding: 0.05rem 0.5rem;
     border-radius: 0.75rem;
@@ -1932,39 +1932,39 @@ export const AutomationModalStyles = createGlobalStyle`
     white-space: nowrap;
   }
 
-  .run-detail-content .v2-badge-success {
+  .run-detail-content .automation-badge-success {
     background: #d1fadf;
     color: #05603a;
   }
 
-  .run-detail-content .v2-badge-warning {
+  .run-detail-content .automation-badge-warning {
     background: #fef0c7;
     color: #93370d;
   }
 
-  .run-detail-content .v2-badge-danger {
+  .run-detail-content .automation-badge-danger {
     background: #fee4e2;
     color: #912018;
   }
 
-  .run-detail-content .v2-field-help {
+  .run-detail-content .automation-field-help {
     margin: 0;
     font-size: 0.8rem;
     color: #667085;
   }
 
-  .run-detail-content .v2-explain-panel {
+  .run-detail-content .automation-explain-panel {
     border-top: 1px solid #e4e7ec;
     padding-top: 0.5rem;
   }
 
-  .run-detail-content .v2-explain-exchange {
+  .run-detail-content .automation-explain-exchange {
     border: 1px solid #e4e7ec;
     border-radius: 0.35rem;
     padding: 0.5rem;
   }
 
-  .run-detail-content .v2-explain-suggestion {
+  .run-detail-content .automation-explain-suggestion {
     border: 1px dashed #84caff;
     border-radius: 0.35rem;
     padding: 0.5rem;
