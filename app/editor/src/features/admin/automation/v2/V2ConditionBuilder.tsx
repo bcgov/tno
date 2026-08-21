@@ -32,21 +32,43 @@ const getShape = (condition: IV2Condition): ConditionShape => {
   return 'leaf';
 };
 
-/** Render a condition value for editing: lists join with commas, scalars stringify. */
+/** Split a comma list honouring backslash escapes: '\,' is a literal comma, '\\' a literal
+ * backslash. Everything else (quotes included) is kept exactly as typed. */
+const splitEscaped = (text: string): string[] => {
+  const items: string[] = [];
+  let current = '';
+  for (let i = 0; i < text.length; i++) {
+    const character = text[i];
+    if (
+      character === '\\' &&
+      i + 1 < text.length &&
+      (text[i + 1] === ',' || text[i + 1] === '\\')
+    ) {
+      current += text[i + 1];
+      i++;
+    } else if (character === ',') {
+      items.push(current);
+      current = '';
+    } else current += character;
+  }
+  items.push(current);
+  return items.map((item) => item.trim()).filter((item) => item.length > 0);
+};
+
+/** Render a condition value for editing: lists join with commas (escaping literal commas and
+ * backslashes so the text round-trips), scalars stringify. */
 const valueToText = (value: unknown): string => {
   if (value === undefined || value === null) return '';
-  if (Array.isArray(value)) return value.map((item) => `${item}`).join(', ');
+  if (Array.isArray(value))
+    return value.map((item) => `${item}`.replace(/\\/g, '\\\\').replace(/,/g, '\\,')).join(', ');
   return `${value}`;
 };
 
-/** Parse edited text back to a condition value: lists split on commas, numbers stay numbers. */
+/** Parse edited text back to a condition value: lists split on unescaped commas, numbers stay
+ * numbers. */
 const textToValue = (text: string, op?: string | null): unknown => {
   const trimmed = text.trim();
-  if (V2_LIST_OPS.includes(op ?? ''))
-    return trimmed
-      .split(',')
-      .map((item) => item.trim())
-      .filter((item) => item.length > 0);
+  if (V2_LIST_OPS.includes(op ?? '')) return splitEscaped(trimmed);
   if (trimmed !== '' && !Number.isNaN(Number(trimmed))) return Number(trimmed);
   return trimmed;
 };
@@ -134,7 +156,7 @@ export const V2ConditionBuilder: React.FC<IV2ConditionBuilderProps> = ({
             <V2DraftText
               name={`condition-value-${depth}`}
               placeholder={
-                V2_LIST_OPS.includes(value.op ?? '') ? 'comma-separated values' : 'value'
+                V2_LIST_OPS.includes(value.op ?? '') ? 'comma-separated (\\, escapes)' : 'value'
               }
               canonical={valueToText(value.value)}
               width="10rem"

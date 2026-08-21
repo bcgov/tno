@@ -129,7 +129,7 @@ export const RunLogViewer: React.FC<IRunLogViewerProps> = ({
 
   return (
     <Col className="v2-log-viewer" gap="0.5rem">
-      <Row gap="0.5rem" alignItems="flex-end" nowrap>
+      <Row gap="0.5rem" alignItems="flex-end">
         <Text
           name="log-step"
           label="Step"
