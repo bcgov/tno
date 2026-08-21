@@ -759,12 +759,13 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
                   return;
                 }
                 const draft = { ...stepModal.draft };
-                // Init steps never declare a source; process and complete steps require one.
+                // Init steps never declare a source; process steps require one; complete steps
+                // may leave it unset (they run once) but a half-configured source is an error.
                 const source = draft.source;
                 const sourceIsSet =
                   !!source && (source.from === 'filter' ? !!source.filter : !!source.collection);
                 if (draft.phase === 'init') draft.source = undefined;
-                else if (!sourceIsSet) {
+                else if (!sourceIsSet && (draft.phase === 'process' || source != null)) {
                   toast.error(
                     draft.source?.from === 'filter'
                       ? 'A filter is required for the step source.'
