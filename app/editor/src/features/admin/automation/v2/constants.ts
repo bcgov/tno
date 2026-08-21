@@ -331,6 +331,7 @@ export const v2CopyFieldOptions: IOptionItem[] = [
   createOption('licenseId', 'licenseId'),
   createOption('mediaTypeId', 'mediaTypeId'),
   createOption('uid', 'uid'),
+  createOption('publishedOnUtc', 'publishedOnUtc'),
 ];
 
 /** Outcomes that indicate a decision rather than an LLM exchange. */

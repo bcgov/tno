@@ -45,7 +45,7 @@ public class V2Engine
         "id", "headline", "byline", "summary", "body", "publishedOn", "source", "otherSource",
         "section", "page", "edition", "status", "contentType", "sourceId", "licenseId", "mediaTypeId", "uid",
         "source.name", "source.code", "mediaType.name", "series.name", "contributor.name",
-        "labels", "topics", "sentiment", "tags", "actions",
+        "labels", "topics", "sentiment", "tags", "actions", "publishedOnUtc",
     };
 
     /// <summary>
@@ -61,6 +61,7 @@ public class V2Engine
         ["series.name"] = new[] { "series", "otherSeries" },
         ["contributor.name"] = new[] { "contributor" },
         ["sentiment"] = new[] { "tonePools" },
+        ["publishedOnUtc"] = new[] { "publishedOn" },
     };
 
     // The body is never capped by default: content.update writes the LLM's body back, so a
@@ -454,6 +455,8 @@ public class V2Engine
                 "body" => content.Body,
                 // Compared as a date, not a timestamp - two stories filed the same day must render identically.
                 "publishedon" => content.PublishedOn?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) ?? "",
+                // The full timestamp, kept so a copied/created item preserves the original's dates.
+                "publishedonutc" => content.PublishedOn?.ToUniversalTime().ToString("o", System.Globalization.CultureInfo.InvariantCulture),
                 "source" => content.Source?.Name ?? content.OtherSource,
                 "othersource" => content.OtherSource,
                 "section" => content.Section,
@@ -1049,7 +1052,7 @@ public class V2Engine
                         else
                             copyFields = action.CopyFields is { Count: > 0 }
                                 ? action.CopyFields
-                                : new List<string> { "sourceId", "otherSource", "licenseId", "mediaTypeId", "publishedOn", "contentType" };
+                                : new List<string> { "sourceId", "otherSource", "licenseId", "mediaTypeId", "publishedOn", "publishedOnUtc", "contentType" };
                         foreach (var field in copyFields)
                         {
                             var copied = copySource.GetField(field);
@@ -1588,13 +1591,38 @@ public class V2Engine
         if (int.TryParse(entry.GetField("mediaTypeId"), out var mediaTypeId)) model.MediaTypeId = mediaTypeId;
         if (Enum.TryParse<Entities.ContentType>(entry.GetField("contentType"), true, out var contentType)) model.ContentType = contentType;
         // Published content without a published-on date is invisible to every date-filtered query.
-        // The digest renders publishedOn as a bare date (yyyy-MM-dd); parse it as UTC - postgres
-        // rejects DateTime Kind=Unspecified for 'timestamp with time zone'.
-        model.PublishedOn = DateTime.TryParse(entry.GetField("publishedOn"), System.Globalization.CultureInfo.InvariantCulture,
-            System.Globalization.DateTimeStyles.AssumeUniversal | System.Globalization.DateTimeStyles.AdjustToUniversal, out var publishedOn)
-            ? publishedOn
-            : DateTime.UtcNow;
+        // publishedOnUtc carries the original's exact timestamp; the bare comparison date is the
+        // fallback (parsed as editorial-timezone midnight).
+        var publishedOnUtc = entry.GetField("publishedOnUtc");
+        model.PublishedOn = ParsePublishedOn(string.IsNullOrWhiteSpace(publishedOnUtc) ? entry.GetField("publishedOn") : publishedOnUtc) ?? DateTime.UtcNow;
         return model;
+    }
+
+    /// <summary>
+    /// The digest renders publishedOn as a bare date (yyyy-MM-dd). Midnight UTC would read as the
+    /// previous day in the editorial timezone - date-scoped searches (US/Pacific) would exclude the
+    /// item - so a bare date means local midnight in the configured timezone, converted to UTC.
+    /// A value carrying a time parses as UTC (postgres rejects Kind=Unspecified for timestamptz).
+    /// </summary>
+    private DateTime? ParsePublishedOn(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return null;
+        if (DateTime.TryParseExact(text, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var date))
+        {
+            try
+            {
+                var zone = TimeZoneInfo.FindSystemTimeZoneById(_options.DefaultTimeZone);
+                return TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(date, DateTimeKind.Unspecified), zone);
+            }
+            catch (TimeZoneNotFoundException)
+            {
+                return DateTime.SpecifyKind(date, DateTimeKind.Utc);
+            }
+        }
+        return DateTime.TryParse(text, System.Globalization.CultureInfo.InvariantCulture,
+            System.Globalization.DateTimeStyles.AssumeUniversal | System.Globalization.DateTimeStyles.AdjustToUniversal, out var full)
+            ? full
+            : null;
     }
 
     private void ApplyDeltas(V2ContentEntry entry, ContentModel content, V2Environment env)
