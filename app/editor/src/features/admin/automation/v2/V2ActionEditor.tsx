@@ -551,15 +551,13 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           }}
           onChange={(newValue) => {
             const option = newValue as IOptionItem;
-            // Changing the type keeps only the identity/gate fields; type-specific config resets.
+            // The type controls which fields exist and are required, so changing it resets the
+            // action entirely - only the name and enabled flag carry over.
             if (option?.value)
               onChange({
                 type: `${option.value}`,
                 name: action.name,
                 isEnabled: action.isEnabled,
-                when: action.when,
-                confirm: action.confirm,
-                analysis: action.analysis,
               });
           }}
         />
