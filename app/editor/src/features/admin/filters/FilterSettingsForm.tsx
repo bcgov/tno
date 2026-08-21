@@ -101,6 +101,34 @@ export const FilterSettingsForm: React.FC<IFilterSEttingsFormProps> = ({
           is 10, the maximum is 10,000.
         </p>
       </Row>
+      <Row alignItems="center">
+        <FormikText
+          name={`${path}minBodyLength`}
+          label="Minimum body length"
+          type="number"
+          width="10ch"
+          value={(settings as { minBodyLength?: number }).minBodyLength ?? ''}
+          onChange={(e) => {
+            const value = e.target.value ? parseInt(e.target.value) : undefined;
+            updateSettings('minBodyLength' as keyof IFilterSettingsModel, value);
+          }}
+        />
+        <FormikText
+          name={`${path}minBodyWords`}
+          label="Minimum body words"
+          type="number"
+          width="10ch"
+          value={(settings as { minBodyWords?: number }).minBodyWords ?? ''}
+          onChange={(e) => {
+            const value = e.target.value ? parseInt(e.target.value) : undefined;
+            updateSettings('minBodyWords' as keyof IFilterSettingsModel, value);
+          }}
+        />
+        <p>
+          Exclude stories whose body is shorter than the configured characters and/or words
+          (computed at search time; no reindex required). Leave empty for no minimum.
+        </p>
+      </Row>
       <Section>
         <Row gap="1rem" alignItems="center" className="frm-in">
           <label>Advanced Options:</label>
