@@ -1532,6 +1532,11 @@ export const AutomationModalStyles = createGlobalStyle`
     font-size: 0.85rem;
     text-align: left;
   }
+  /* The 'all fields' checkbox sits beside the labelled Copy fields picker in a top-aligned
+     row; drop it one label line so it centers on the picker's control. */
+  .v2-copy-fields-row .checkbox-inline {
+    margin-top: 1.6rem;
+  }
   /* Set-fields rows top-align so the value source's help line never pushes the field name
      input down; the remove button nudges down to sit on the control line. */
   .v2-set-fields-row .rule-icon-button {

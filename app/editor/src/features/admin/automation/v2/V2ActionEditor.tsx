@@ -3,7 +3,7 @@ import { Checkbox, Col, type IOptionItem, Row, Select, Show, Text } from 'tno-co
 
 import { contentFieldOptionItems } from '../constants';
 import { createOption, findOptionByValue, toNumberOrUndefined } from '../utils';
-import { fitSelectWidth, v2ContentFieldOptions } from './constants';
+import { fitSelectWidth, v2ContentFieldOptions, v2CopyFieldOptions } from './constants';
 import {
   type IV2Action,
   type IV2ActionDescriptor,
@@ -374,17 +374,42 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           .replace(/([A-Z])/g, ' $1')
           .toLowerCase()
           .replace(/^./, (c) => c.toUpperCase());
+        // Copy fields offers an 'all fields' checkbox, stored as the '*' sentinel the engine
+        // expands to every field the item carries.
+        const offersAll = field.name === 'copyFields';
+        const allFields = offersAll && (current ?? []).includes('*');
         return (
-          <V2FieldsPicker
-            key={key}
-            name={key}
-            label={fieldsLabel}
-            values={current ?? []}
-            suggestions={v2ContentFieldOptions.map((option) => `${option.value}`)}
-            onChange={(list) =>
-              set({ [field.name]: list.length > 0 ? list : null } as Partial<IV2Action>)
-            }
-          />
+          <Row key={key} gap="1rem" alignItems="flex-start" nowrap className="v2-copy-fields-row">
+            <Show visible={!allFields}>
+              <V2FieldsPicker
+                name={key}
+                label={fieldsLabel}
+                values={current ?? []}
+                suggestions={v2CopyFieldOptions.map((option) => `${option.value}`)}
+                onChange={(list) =>
+                  set({ [field.name]: list.length > 0 ? list : null } as Partial<IV2Action>)
+                }
+              />
+            </Show>
+            <Show visible={allFields}>
+              <div className="frm-in">
+                <label>{fieldsLabel}</label>
+                <p className="v2-field-help">Every field the item carries is copied.</p>
+              </div>
+            </Show>
+            <Show visible={offersAll}>
+              <div className="checkbox-inline">
+                <Checkbox
+                  name={`${key}-all`}
+                  label="all fields"
+                  checked={allFields}
+                  onChange={(e) =>
+                    set({ [field.name]: e.target.checked ? ['*'] : null } as Partial<IV2Action>)
+                  }
+                />
+              </div>
+            </Show>
+          </Row>
         );
       }
       case 'truncateMap':

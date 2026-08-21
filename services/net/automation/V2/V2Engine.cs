@@ -1034,9 +1034,22 @@ public class V2Engine
                     var copySource = action.CopyFrom != null && action.CopyFrom.Equals("$item", StringComparison.OrdinalIgnoreCase) ? subject : null;
                     if (copySource != null)
                     {
-                        var copyFields = action.CopyFields is { Count: > 0 }
-                            ? action.CopyFields
-                            : new List<string> { "sourceId", "otherSource", "licenseId", "mediaTypeId", "publishedOn", "contentType" };
+                        // '*' (the UI's 'all fields' checkbox) copies every field the item carries -
+                        // digest plus fields set by earlier actions; id stays out (the draft gets its
+                        // own) and uid is derived below.
+                        List<string> copyFields;
+                        if (action.CopyFields?.Contains("*") == true)
+                        {
+                            lock (copySource.Deltas)
+                                copyFields = copySource.Digest.Keys
+                                    .Union(copySource.Deltas.Fields.Keys, StringComparer.OrdinalIgnoreCase)
+                                    .Where(f => !f.Equals("id", StringComparison.OrdinalIgnoreCase) && !f.Equals("uid", StringComparison.OrdinalIgnoreCase))
+                                    .ToList();
+                        }
+                        else
+                            copyFields = action.CopyFields is { Count: > 0 }
+                                ? action.CopyFields
+                                : new List<string> { "sourceId", "otherSource", "licenseId", "mediaTypeId", "publishedOn", "contentType" };
                         foreach (var field in copyFields)
                         {
                             var copied = copySource.GetField(field);

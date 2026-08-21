@@ -323,6 +323,16 @@ export const v2ContentFieldOptions: IOptionItem[] = V2_CONTENT_TOKENS.filter(({ 
   return createOption(field, field);
 });
 
+/** Digest field options for fields pickers (search 'fields', create 'copyFields'): the prompt
+ * token fields plus the identity ids a created row needs but which are noise as prompt tokens. */
+export const v2CopyFieldOptions: IOptionItem[] = [
+  ...v2ContentFieldOptions,
+  createOption('sourceId', 'sourceId'),
+  createOption('licenseId', 'licenseId'),
+  createOption('mediaTypeId', 'mediaTypeId'),
+  createOption('uid', 'uid'),
+];
+
 /** Outcomes that indicate a decision rather than an LLM exchange. */
 export const v2OutcomeBadgeClass = (outcome: string): string => {
   switch (outcome) {
