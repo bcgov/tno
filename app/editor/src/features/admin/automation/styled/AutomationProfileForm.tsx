@@ -1764,14 +1764,15 @@ export const AutomationModalStyles = createGlobalStyle`
     width: 100%;
   }
 
-  /* Run detail modal content. */
-  .v2-prompt-modal .v2-token-help {
+  /* The shared insertable-token section (V2PromptTokens): rendered by the Prompt Library
+     modal and the analysis editor, so these are not scoped to one modal. */
+  .v2-token-help {
     margin: 0.5rem 0 0.25rem 0;
     font-size: 0.85rem;
     color: #475467;
   }
 
-  .v2-prompt-modal .v2-token-group-label {
+  .v2-token-group-label {
     font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.03em;
@@ -1779,14 +1780,14 @@ export const AutomationModalStyles = createGlobalStyle`
     color: #667085;
   }
 
-  .v2-prompt-modal .v2-token-list {
+  .v2-token-list {
     display: flex;
     flex-wrap: wrap;
     gap: 0.35rem;
     margin-bottom: 0.5rem;
   }
 
-  .v2-prompt-modal .v2-token {
+  .v2-token {
     font-family: monospace;
     font-size: 0.75rem;
     color: #26428b;
