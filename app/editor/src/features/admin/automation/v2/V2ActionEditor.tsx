@@ -97,6 +97,18 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
   onChange,
 }) => {
   const descriptor = descriptors.find((d) => d.type === action.type);
+  // Display-only ordering: copyFrom seeds the draft, so it reads before 'as (new draft)'.
+  // The catalog's field order (the data contract) is untouched.
+  const displayFields = React.useMemo(() => {
+    const fields = [...(descriptor?.fields ?? [])];
+    const fromIndex = fields.findIndex((f) => f.name === 'copyFrom');
+    const asIndex = fields.findIndex((f) => f.name === 'as');
+    if (fromIndex >= 0 && asIndex >= 0 && fromIndex > asIndex) {
+      const [copyFrom] = fields.splice(fromIndex, 1);
+      fields.splice(asIndex, 0, copyFrom);
+    }
+    return fields;
+  }, [descriptor]);
   // Grouped by category for the menu; a flat list backs the value lookup.
   const typeGroups = React.useMemo(() => {
     const allowed = descriptors.filter((d) => d.phases.includes(phase));
@@ -703,7 +715,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
       </Show>
       <Show visible={!!descriptor}>
         <Row className="v2-action-fields" gap="1rem" alignItems="flex-start">
-          {descriptor?.fields.map((field) => renderField(field))}
+          {displayFields.map((field) => renderField(field))}
         </Row>
       </Show>
       <Show visible={!!descriptor && descriptor.fields.length === 0}>
