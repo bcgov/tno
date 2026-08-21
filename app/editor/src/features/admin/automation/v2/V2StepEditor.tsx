@@ -62,10 +62,16 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
           onChange={(newValue) => {
             const option = newValue as IOptionItem;
             const phase = `${option?.value ?? 'process'}` as IV2Step['phase'];
+            // Phases have different semantics, so switching resets the step to the new phase's
+            // defaults - only the name and enabled flag carry over.
             set({
               phase,
-              // Init steps only gather; they never declare a source.
-              source: phase === 'init' ? undefined : step.source,
+              description: undefined,
+              llmId: undefined,
+              source:
+                phase === 'process' ? { from: 'collection', include: [], exclude: [] } : undefined,
+              analyses: [],
+              actions: [],
             });
           }}
         />
