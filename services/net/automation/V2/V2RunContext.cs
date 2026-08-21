@@ -47,9 +47,9 @@ public class V2ContentEntry
             if (field.Equals("tags", StringComparison.OrdinalIgnoreCase) && Deltas.Tags.Count > 0)
             {
                 var baseTags = Digest.TryGetValue("tags", out var t) ? t : null;
-                var all = (baseTags ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                var all = ParseTagCodes(baseTags)
                     .Concat(Deltas.Tags.Select(tag => tag.Code)).Distinct(StringComparer.OrdinalIgnoreCase);
-                return string.Join(",", all);
+                return JsonSerializer.Serialize(all);
             }
             if (field.Equals("sentiment", StringComparison.OrdinalIgnoreCase) && Deltas.Sentiment.HasValue)
                 return Deltas.Sentiment.Value.ToString();
@@ -61,6 +61,27 @@ public class V2ContentEntry
                 return Deltas.ContributorName;
         }
         return Digest.TryGetValue(field, out var value) ? value : null;
+    }
+
+    /// <summary>
+    /// Tag codes from a digest value in either stored shape: a JSON array of codes, or the
+    /// legacy comma-separated list.
+    /// </summary>
+    private static IEnumerable<string> ParseTagCodes(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return Enumerable.Empty<string>();
+        if (value.TrimStart().StartsWith('['))
+        {
+            try
+            {
+                return JsonSerializer.Deserialize<string[]>(value) ?? Array.Empty<string>();
+            }
+            catch (JsonException)
+            {
+                // Fall through to the comma parse.
+            }
+        }
+        return value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
     }
 
     /// <summary>

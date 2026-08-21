@@ -45,7 +45,7 @@ public class V2Engine
         "id", "headline", "byline", "summary", "body", "publishedOn", "source", "otherSource",
         "section", "page", "edition", "status", "contentType", "sourceId", "licenseId", "mediaTypeId", "uid",
         "source.name", "source.code", "mediaType.name", "series.name", "contributor.name",
-        "labels", "topics", "sentiment",
+        "labels", "topics", "sentiment", "tags", "actions",
     };
 
     /// <summary>
@@ -465,16 +465,22 @@ public class V2Engine
                 "licenseid" => content.LicenseId.ToString(),
                 "mediatypeid" => content.MediaTypeId.ToString(),
                 "uid" => content.Uid,
-                "tags" => string.Join(",", content.Tags.Select(t => t.Code)),
-                "actions" => string.Join(",", content.Actions.Select(a => a.Name)),
+                "tags" => JsonSerializer.Serialize(content.Tags.Select(t => t.Code)),
+                // Only actions that are actually applied: Boolean actions carry value "true",
+                // String actions a non-empty value.
+                "actions" => JsonSerializer.Serialize(content.Actions
+                    .Where(a => a.ValueType == Entities.ValueType.Boolean
+                        ? string.Equals(a.Value, "true", StringComparison.OrdinalIgnoreCase)
+                        : !string.IsNullOrWhiteSpace(a.Value))
+                    .Select(a => a.Name)),
                 "source.name" => content.Source?.Name ?? content.OtherSource,
                 "source.code" => content.Source?.Code ?? content.OtherSource,
                 "mediatype.name" => content.MediaType?.Name,
                 "series.name" => content.Series?.Name ?? content.OtherSeries,
                 "contributor.name" => content.Contributor?.Name,
                 "labels" => string.Join(",", content.Labels.Select(l => string.IsNullOrWhiteSpace(l.Value) ? l.Key : l.Value)),
-                "topics" => string.Join(",", content.Topics.Select(t => t.Name)),
-                "sentiment" => content.TonePools.FirstOrDefault()?.Value.ToString(),
+                "topics" => JsonSerializer.Serialize(content.Topics.Select(t => new { name = t.Name, score = t.Score })),
+                "sentiment" => (content.TonePools.FirstOrDefault(t => t.Name == "Default") ?? content.TonePools.FirstOrDefault())?.Value.ToString(),
                 _ => null,
             };
             if (value == null) continue;

@@ -288,7 +288,7 @@ export const V2_CONTENT_TOKENS: { token: string; hint: string }[] = [
   { token: '{content.contentType}', hint: 'e.g. PrintContent, AudioVideo' },
   { token: '{content.headline}', hint: 'The headline' },
   { token: '{content.byline}', hint: 'The byline' },
-  { token: '{content.body}', hint: 'The story body (truncated per the digest settings)' },
+  { token: '{content.body}', hint: 'The full story body (only capped by an explicit truncate)' },
   { token: '{content.summary}', hint: 'The summary' },
   { token: '{content.story}', hint: 'Summary, or body when there is no summary' },
   { token: '{content.source.name}', hint: 'e.g. Vancouver Sun' },
@@ -301,11 +301,17 @@ export const V2_CONTENT_TOKENS: { token: string; hint: string }[] = [
   { token: '{content.section}', hint: 'e.g. A, Business' },
   { token: '{content.page}', hint: 'e.g. A1' },
   { token: '{content.publishedOn}', hint: 'The published date, yyyy-MM-dd' },
-  { token: '{content.tags}', hint: 'Comma-separated tag codes (includes pending adds)' },
-  { token: '{content.sentiment}', hint: '-5 to 5 (reflects a pending value)' },
-  { token: '{content.actions}', hint: 'Comma-separated content action names' },
+  {
+    token: '{content.tags}',
+    hint: 'JSON array of tag codes, e.g. ["hth","edu"] (includes pending adds)',
+  },
+  {
+    token: '{content.sentiment}',
+    hint: 'The default tone pool value, -5 to 5 (reflects a pending value)',
+  },
+  { token: '{content.actions}', hint: 'JSON array of applied content action names' },
   { token: '{content.labels}', hint: 'Comma-separated label values' },
-  { token: '{content.topics}', hint: 'Comma-separated topic names' },
+  { token: '{content.topics}', hint: 'JSON array of {"name","score"} topic objects' },
 ];
 
 /** The working-copy property fields conditions can test, derived from the content token list so
