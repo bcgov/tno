@@ -3,13 +3,9 @@ import { FaCopy, FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { Button, ButtonVariant, Col, Modal, Row, Show, Text, TextArea, Wysiwyg } from 'tno-core';
 
-import {
-  V2_CANDIDATE_TOKENS,
-  V2_CONTENT_TOKENS,
-  V2_DEFAULT_PROMPTS,
-  V2_LOOKUP_TOKENS,
-} from './constants';
+import { V2_DEFAULT_PROMPTS } from './constants';
 import { type IV2Definition, type IV2Prompt } from './interfaces';
+import { V2PromptTokens } from './V2PromptTokens';
 
 export interface IV2PromptLibraryProps {
   definition: IV2Definition;
@@ -145,21 +141,6 @@ export const V2PromptLibrary: React.FC<IV2PromptLibraryProps> = ({ definition, o
     onChange({ ...definition, prompts });
     if (used !== 'unused')
       toast.warn(`Prompt '${name}' was referenced by ${used}; those references now dangle.`);
-  };
-
-  /**
-   * Insert a token at the cursor when the prompt editor has focus (mousedown keeps the focus and
-   * the caret); otherwise append it to the end of the text.
-   */
-  const insertToken = (token: string) => {
-    const editor = editorRef.current?.querySelector('.ql-editor') as HTMLElement | null;
-    if (editor && document.activeElement && editor.contains(document.activeElement)) {
-      document.execCommand('insertText', false, token);
-      return;
-    }
-    setDraft((current) =>
-      current ? { ...current, text: `${current.text}<p>${token}</p>` } : current,
-    );
   };
 
   return (
@@ -310,62 +291,15 @@ export const V2PromptLibrary: React.FC<IV2PromptLibraryProps> = ({ definition, o
               value={draft?.text ?? ''}
               onChange={(text) => setDraft((d) => (d ? { ...d, text: text ?? '' } : d))}
             />
-            <p className="v2-token-help">
-              <strong>Insert Data Token</strong> — the prompt is exactly what is sent to the LLM;
-              tokens mark where data is inserted, replaced once per item.{' '}
-              <code>{'{content.*}'}</code> is the item being processed (its working copy, changes
-              included). In Detect Duplicate prompts <code>{'{candidates}'}</code> inserts the
-              compared stories and <code>{'{candidate.*}'}</code> single fields (iterate mode); the
-              prompt must place them itself — see default-dedupe for the layout.{' '}
-              <code>{'{lookup:*}'}</code> inserts reference lists (identical for every item).
-              Analyses only: a prompt with no content tokens at all gets the story appended as a
-              final '## News Story' section; any <code>{'{content...}'}</code> token disables that.
-            </p>
-            <label className="v2-token-group-label">Lookups</label>
-            <div className="v2-token-list">
-              {V2_LOOKUP_TOKENS.map(({ token, hint }) => (
-                <button
-                  key={token}
-                  type="button"
-                  className="v2-token"
-                  title={hint}
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => insertToken(token)}
-                >
-                  {token}
-                </button>
-              ))}
-            </div>
-            <label className="v2-token-group-label">Content (the item being processed)</label>
-            <div className="v2-token-list">
-              {V2_CONTENT_TOKENS.map(({ token, hint }) => (
-                <button
-                  key={token}
-                  type="button"
-                  className="v2-token"
-                  title={hint}
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => insertToken(token)}
-                >
-                  {token}
-                </button>
-              ))}
-            </div>
-            <label className="v2-token-group-label">Candidate (Detect Duplicate prompts)</label>
-            <div className="v2-token-list">
-              {V2_CANDIDATE_TOKENS.map(({ token, hint }) => (
-                <button
-                  key={token}
-                  type="button"
-                  className="v2-token"
-                  title={hint}
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => insertToken(token)}
-                >
-                  {token}
-                </button>
-              ))}
-            </div>
+            <V2PromptTokens
+              editorRef={editorRef}
+              onAppend={(token) =>
+                setDraft((current) =>
+                  current ? { ...current, text: `${current.text}<p>${token}</p>` } : current,
+                )
+              }
+              showCandidates
+            />
           </div>
         }
         customButtons={

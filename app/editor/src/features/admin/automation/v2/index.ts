@@ -11,6 +11,7 @@ export * from './V2DraftText';
 export * from './V2FieldsPicker';
 export * from './V2FilterField';
 export * from './V2PromptLibrary';
+export * from './V2PromptTokens';
 export * from './V2RunOutcome';
 export * from './V2ScopedNameField';
 export * from './V2StepEditor';

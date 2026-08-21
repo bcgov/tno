@@ -16,6 +16,7 @@ import { createOption, findOptionByValue, toNumberOrUndefined } from '../utils';
 import { fitSelectWidth } from './constants';
 import { type IV2Analysis } from './interfaces';
 import { V2ComboBox } from './V2ComboBox';
+import { V2PromptTokens } from './V2PromptTokens';
 
 export interface IV2AnalysisEditorProps {
   analysis: IV2Analysis;
@@ -42,6 +43,7 @@ export const V2AnalysisEditor: React.FC<IV2AnalysisEditorProps> = ({
   llmOptions,
   onChange,
 }) => {
+  const overrideRef = React.useRef<HTMLDivElement>(null);
   const promptOptions = [
     createOption('(inline text)', ''),
     ...promptNames.map((name) => createOption(name, name)),
@@ -123,12 +125,25 @@ export const V2AnalysisEditor: React.FC<IV2AnalysisEditorProps> = ({
         />
       </Show>
       <Show visible={!!analysis.prompt?.ref}>
-        <Wysiwyg
-          className="modal-wysiwyg"
-          name="analysis-prompt-override"
-          label="Prompt Override"
-          value={analysis.prompt?.override ?? ''}
-          onChange={(text) => set({ prompt: { ...analysis.prompt, override: text || null } })}
+        <div ref={overrideRef}>
+          <Wysiwyg
+            className="modal-wysiwyg"
+            name="analysis-prompt-override"
+            label="Prompt Override"
+            value={analysis.prompt?.override ?? ''}
+            onChange={(text) => set({ prompt: { ...analysis.prompt, override: text || null } })}
+          />
+        </div>
+        <V2PromptTokens
+          editorRef={overrideRef}
+          onAppend={(token) =>
+            set({
+              prompt: {
+                ...analysis.prompt,
+                override: `${analysis.prompt?.override ?? ''}<p>${token}</p>`,
+              },
+            })
+          }
         />
       </Show>
       <Show visible={!analysis.raw}>

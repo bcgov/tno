@@ -63,11 +63,13 @@ public class V2Engine
         ["sentiment"] = new[] { "tonePools" },
     };
 
+    // The body is never capped by default: content.update writes the LLM's body back, so a
+    // truncated ingest would silently destroy story text on save. An explicit per-action
+    // 'truncate' config can still cap it deliberately.
     private static readonly Dictionary<string, int> DefaultTruncation = new(StringComparer.OrdinalIgnoreCase)
     {
         ["headline"] = 300,
         ["summary"] = 500,
-        ["body"] = 2000,
     };
 
     private readonly IApiService _api;
