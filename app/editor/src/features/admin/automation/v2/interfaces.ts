@@ -16,6 +16,9 @@ export interface IV2Definition {
 export interface IV2Step {
   name: string;
   description?: string;
+  /** Optional group label; the steps grid bands consecutive steps sharing it. The engine and
+   * validator ignore it (unknown document properties round-trip untouched). */
+  group?: string;
   /** Lifecycle phase: 'init' (once, first), 'process' (per item), 'complete' (once, last). */
   phase: 'init' | 'process' | 'complete';
   isEnabled: boolean;

@@ -75,6 +75,14 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
             });
           }}
         />
+        <Text
+          name="step-group"
+          label="Group"
+          width="10rem"
+          placeholder="Optional"
+          value={step.group ?? ''}
+          onChange={(e) => set({ group: e.target.value || undefined })}
+        />
         <div className="checkbox-inline">
           <Checkbox
             name="step-enabled"

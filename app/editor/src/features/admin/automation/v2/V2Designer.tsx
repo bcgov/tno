@@ -274,10 +274,17 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
                   <DraggableAny key={`step-${index}`} draggableId={`step-${index}`} index={index}>
                     {(dragProvided: any, dragSnapshot: any) => (
                       <div
-                        className={`v2-grid-item${dragSnapshot.isDragging ? ' is-dragging' : ''}`}
+                        className={`v2-grid-item${dragSnapshot.isDragging ? ' is-dragging' : ''}${
+                          step.group ? ' v2-grouped' : ''
+                        }`}
                         ref={dragProvided.innerRef}
                         {...dragProvided.draggableProps}
                       >
+                        {!!step.group &&
+                          step.group !== definition.steps[index - 1]?.group &&
+                          !dragSnapshot.isDragging && (
+                            <div className="v2-group-band">{step.group}</div>
+                          )}
                         <Row className="v2-grid-row" nowrap>
                           <span
                             className="v2-gc-drag v2-drag-handle"
