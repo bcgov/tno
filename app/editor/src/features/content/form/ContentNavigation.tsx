@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLocalStorage } from 'store/hooks';
 import { Button, ButtonVariant, Row, Show, Spinner } from 'tno-core';
 
+import { ContentDuplicatesButton } from './components/duplicates';
 import { useContentForm } from './hooks';
 import { type IContentForm } from './interfaces/IContentForm';
 import { getContentPath } from './utils';
@@ -90,6 +91,7 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
             {isProcessing ? <Spinner size="10px" /> : <FaSpinner />}
           </Button>
         )}
+        <ContentDuplicatesButton contentId={+values.id} />
       </Show>
     </Row>
   );

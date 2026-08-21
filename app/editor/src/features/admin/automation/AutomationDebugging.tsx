@@ -48,6 +48,7 @@ export const AutomationDebugging: React.FC<IAutomationDebuggingProps> = ({ profi
   const toFilter = useElasticsearch();
 
   // Content search (first turn only).
+  const [idTerm, setIdTerm] = React.useState('');
   const [term, setTerm] = React.useState('');
   const [results, setResults] = React.useState<IContentHit[]>([]);
   const [selected, setSelected] = React.useState<IContentHit | null>(null);
@@ -74,7 +75,9 @@ export const AutomationDebugging: React.FC<IAutomationDebuggingProps> = ({ profi
   };
 
   const handleSearch = async () => {
-    if (!term.trim()) return;
+    // An id finds the one item directly; otherwise the headline term searches.
+    const byId = idTerm.trim();
+    if (!byId && !term.trim()) return;
     setIsSearching(true);
     try {
       const filter = {
@@ -91,8 +94,8 @@ export const AutomationDebugging: React.FC<IAutomationDebuggingProps> = ({ profi
         sourceIds: [],
         excludeSourceIds: [],
         sort: [],
-        fieldType: AdvancedSearchKeys.Headline,
-        searchTerm: term,
+        fieldType: byId ? AdvancedSearchKeys.Id : AdvancedSearchKeys.Headline,
+        searchTerm: byId || term,
       };
       const response = await findContentWithElasticsearch(toFilter(filter as any), true);
       const hits = (response.hits?.hits ?? [])
@@ -146,6 +149,7 @@ export const AutomationDebugging: React.FC<IAutomationDebuggingProps> = ({ profi
     setSelected(null);
     setResults([]);
     setTerm('');
+    setIdTerm('');
   };
 
   const renderMessage = (role: string, text: string, index: number, collapsible: boolean) => {
@@ -180,8 +184,23 @@ export const AutomationDebugging: React.FC<IAutomationDebuggingProps> = ({ profi
       {/* 1. Find the content item (first turn only). */}
       <Show visible={!hasConversation && !isAsking}>
         <Col gap="0.5rem">
-          <label>Find content by headline (optional — focuses the question on one item)</label>
+          <label>
+            Find content by id or headline (optional — focuses the question on one item)
+          </label>
           <Row gap="0.5rem" alignItems="center">
+            <Text
+              name="debug-search-id"
+              value={idTerm}
+              width="8rem"
+              placeholder="Id"
+              onChange={(e) => setIdTerm(e.target.value.replace(/[^0-9]/g, ''))}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSearch();
+                }
+              }}
+            />
             <Text
               name="debug-search"
               value={term}
@@ -194,14 +213,16 @@ export const AutomationDebugging: React.FC<IAutomationDebuggingProps> = ({ profi
                 }
               }}
             />
-            <Button
-              type="button"
-              variant={ButtonVariant.secondary}
-              disabled={isSearching || !term.trim()}
-              onClick={handleSearch}
-            >
-              Search
-            </Button>
+            <Row className="automation-log-filter-actions">
+              <Button
+                type="button"
+                variant={ButtonVariant.secondary}
+                disabled={isSearching || (!idTerm.trim() && !term.trim())}
+                onClick={handleSearch}
+              >
+                Search
+              </Button>
+            </Row>
           </Row>
           <Show visible={results.length > 0}>
             <ul className="debug-results">
