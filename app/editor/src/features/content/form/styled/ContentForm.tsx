@@ -64,6 +64,75 @@ export const ContentForm = styled.div`
     height: 2.5em;
   }
 
+  /* The duplicates icon anchors to the headline field's top-right corner; its popover is a
+     light-weight non-modal panel positioned at the icon. */
+  .headline-col {
+    position: relative;
+  }
+
+  .duplicates-anchor {
+    position: absolute;
+    top: 0;
+    right: 0.25rem;
+    display: flex;
+    z-index: 10;
+  }
+
+  .duplicates-popover {
+    position: absolute;
+    top: 1.9em;
+    right: 0;
+    z-index: 100;
+    width: 34rem;
+    max-width: 82vw;
+    max-height: 20rem;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #d0d5dd;
+    border-radius: 0.35rem;
+    box-shadow: 0 8px 24px rgba(16, 24, 40, 0.18);
+    padding: 0.5rem 0.75rem;
+  }
+
+  .duplicates-head {
+    font-weight: 700;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid #e4e7ec;
+  }
+
+  .duplicates-empty {
+    margin: 0.5rem 0 0.25rem 0;
+    color: #667085;
+  }
+
+  .duplicates-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li:not(:last-child) {
+      border-bottom: 1px solid #e4e7ec;
+    }
+  }
+
+  .duplicates-row {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 0.4rem 0.25rem;
+    cursor: pointer;
+
+    &:hover {
+      background: #f5f8ff;
+    }
+  }
+
+  .duplicates-meta {
+    color: #667085;
+  }
+
   .checkbox-column {
     margin-left: 2em;
 

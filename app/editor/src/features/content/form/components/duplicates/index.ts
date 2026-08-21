@@ -1,1 +1,1 @@
-export * from './ContentDuplicatesButton';
+export * from './ContentDuplicates';
