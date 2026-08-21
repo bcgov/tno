@@ -870,6 +870,14 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
                       )
                     : []
                 }
+                objectiveNames={Array.from(
+                  new Set(
+                    definition.steps
+                      .flatMap((s) => s.actions)
+                      .filter((a) => a.type === 'score' && a.objective)
+                      .map((a) => `${a.objective}`),
+                  ),
+                ).sort()}
                 collectionNames={collectionNames}
                 draftNames={
                   actionModal

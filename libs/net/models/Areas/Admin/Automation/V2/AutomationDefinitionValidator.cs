@@ -35,6 +35,7 @@ public static class AutomationDefinitionValidator
         // Collections that receive drafts (items created during the run without a database id).
         var draftCollections = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var usedPrompts = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var objectives = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var stepNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var lastPhaseRank = 0;
 
@@ -186,6 +187,12 @@ public static class AutomationDefinitionValidator
                     else if (!dedupeResults.Contains(name))
                         errors.Add(new($"{path}.{refPath}", $"Analysis '{name}' is not declared on this step (and no earlier Detect Duplicate action publishes it)."));
                 }
+                // Objectives are recorded by score actions and consumed by select-top.
+                if (action.Type == "score" && !string.IsNullOrWhiteSpace(action.Objective))
+                    objectives.Add(action.Objective!);
+                if (action.Type == "select-top" && !string.IsNullOrWhiteSpace(action.Objective) && !objectives.Contains(action.Objective!))
+                    errors.Add(new($"{path}.objective", $"No earlier score action records objective '{action.Objective}'; select-top will find nothing to rank.", "warning"));
+
                 if (action.Type == "dedupe")
                 {
                     dedupeResults.Add(action.Name ?? "dedupe");

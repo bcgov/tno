@@ -10,6 +10,7 @@ import {
   type IV2Analysis,
   type IV2FieldSpec,
 } from './interfaces';
+import { V2ComboBox } from './V2ComboBox';
 import { V2ConditionBuilder } from './V2ConditionBuilder';
 import { V2DraftText } from './V2DraftText';
 import { V2FieldsPicker } from './V2FieldsPicker';
@@ -61,6 +62,8 @@ export interface IV2ActionEditorProps {
   analyses: IV2Analysis[];
   /** '<name>.isDuplicate' references published by the step's Detect Duplicate actions. */
   dedupeRefs?: string[];
+  /** Objectives recorded by score actions anywhere in the definition (for select-top). */
+  objectiveNames?: string[];
   collectionNames: string[];
   /** Drafts created by earlier content.create actions in this step ($item.* names). */
   draftNames: string[];
@@ -83,6 +86,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
   phase,
   analyses,
   dedupeRefs = [],
+  objectiveNames = [],
   collectionNames,
   draftNames,
   filterOptions,
@@ -495,6 +499,22 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
         const current = (action as unknown as Record<string, unknown>)[field.name] as
           | string
           | undefined;
+        // Objectives are declared by score actions; offer them (typing a new one is how a
+        // score action declares it in the first place).
+        if (field.name === 'objective')
+          return (
+            <div key={key} className="frm-in">
+              <label>{field.name}</label>
+              <V2ComboBox
+                name={key}
+                placeholder={action.type === 'score' ? 'Name an objective' : 'Pick an objective'}
+                width="16rem"
+                suggestions={objectiveNames}
+                value={current ?? ''}
+                onChange={(next) => set({ [field.name]: next || null } as Partial<IV2Action>)}
+              />
+            </div>
+          );
         return (
           <Text
             key={key}
