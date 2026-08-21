@@ -1001,8 +1001,8 @@ public class V2Engine
                         if (!target.Deltas.ContentActionIds.Contains(action.ContentAction.Value))
                             target.Deltas.ContentActionIds.Add(action.ContentAction.Value);
                     }
-                    RecordChange("add-action", target, null, action.ContentAction.Value.ToString());
-                    LogExecuted($"Applied content action {action.ContentAction} to {target.Key}.");
+                    RecordChange("add-action", target, ContentActionName(action.ContentAction.Value, env.Lookups), action.ContentAction.Value.ToString());
+                    LogExecuted($"Applied content action '{ContentActionName(action.ContentAction.Value, env.Lookups)}' to {target.Key}.");
                     break;
                 }
             case "content.publish":
@@ -1168,7 +1168,7 @@ public class V2Engine
                                 if (!entry.Deltas.ContentActionIds.Contains(action.ContentAction.Value))
                                     entry.Deltas.ContentActionIds.Add(action.ContentAction.Value);
                             }
-                            RecordChange("add-action", entry, null, action.ContentAction.Value.ToString());
+                            RecordChange("add-action", entry, ContentActionName(action.ContentAction.Value, env.Lookups), action.ContentAction.Value.ToString());
                         }
                         if (!string.IsNullOrWhiteSpace(action.Into))
                         {
@@ -1223,6 +1223,10 @@ public class V2Engine
         if (string.IsNullOrWhiteSpace(item) || item.Equals("$item", StringComparison.OrdinalIgnoreCase)) return scope.Subject;
         return scope.Drafts.TryGetValue(item, out var draft) ? draft : null;
     }
+
+    /// <summary>Resolve a content action's display name for readable change records.</summary>
+    private static string ContentActionName(int id, LookupModel? lookups)
+        => lookups?.Actions.FirstOrDefault(a => a.Id == id)?.Name ?? $"action {id}";
 
     private static (int Id, string Name)? FindContributor(string name, LookupModel? lookups)
     {
