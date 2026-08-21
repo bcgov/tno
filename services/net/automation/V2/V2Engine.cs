@@ -1463,9 +1463,35 @@ public class V2Engine
         foreach (var entry in env.Context.GetFlushables())
         {
             var reference = entry.Kind == "draft" ? entry.TempKey ?? entry.Key : entry.Id.ToString();
+
+            // What is pending: the specific fields/flags that never reached the database.
+            string pending;
+            lock (entry.Deltas)
+            {
+                var parts = new List<string>();
+                if (entry.Kind == "draft") parts.Add("draft never created");
+                if (entry.Deltas.Fields.Count > 0) parts.Add(string.Join(", ", entry.Deltas.Fields.Keys));
+                if (entry.Deltas.Tags.Count > 0) parts.Add($"{entry.Deltas.Tags.Count} tag(s)");
+                if (entry.Deltas.Sentiment.HasValue) parts.Add("sentiment");
+                if (entry.Deltas.ContributorId.HasValue) parts.Add("contributor");
+                if (entry.Deltas.ContentActionIds.Count > 0) parts.Add($"{entry.Deltas.ContentActionIds.Count} content action(s)");
+                if (entry.Deltas.Status != null) parts.Add(entry.Deltas.Status);
+                pending = parts.Count > 0 ? string.Join("; ", parts) : "changes";
+            }
+
+            // Where it lives: the collections that would write it via a Save Collection action.
+            string collections;
+            lock (env.Context.Sync)
+                collections = string.Join(", ", env.Context.Collections
+                    .Where(kv => kv.Value.Any(e => e.Key == entry.Key))
+                    .Select(kv => kv.Key));
+            var hint = collections.Length > 0
+                ? $"in {collections} - a Save Collection action on one of these would write it"
+                : "in no collection - use Save Content Now in the step that changed it";
+
             lock (env.Summary.FlushFailures)
-                env.Summary.FlushFailures.Add($"{reference}: changes were not saved - no Save Collection or Save Content Now action covered this item.");
-            env.Log.LogDecision("end-of-run", null, null, entry.Kind == "existing" ? entry.Id : null, V2Outcomes.Skipped, $"{entry.Key}: accumulated changes were never saved (add a Save Collection action).");
+                env.Summary.FlushFailures.Add($"{reference}: unsaved ({pending}); {hint}.");
+            env.Log.LogDecision("end-of-run", null, null, entry.Kind == "existing" ? entry.Id : null, V2Outcomes.Skipped, $"{entry.Key}: unsaved ({pending}); {hint}.");
         }
     }
 
