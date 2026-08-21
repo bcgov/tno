@@ -212,6 +212,7 @@ export const AutomationProfileForm = styled(FormPage)`
   }
 
   .page-header {
+    align-self: start;
     align-items: center;
 
     .profile-title {
