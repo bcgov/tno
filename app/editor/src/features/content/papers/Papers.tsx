@@ -402,11 +402,18 @@ const Papers: React.FC<IPapersProps> = (props) => {
                     Headline
                   </Row>
                 ),
-                size: '40%',
+                // fr tracks (with a 0 minimum so cells can shrink) always fit the container,
+                // unlike percentages which stack on top of the fixed-width columns.
+                size: 'minmax(0, 4fr)',
               },
-              { name: 'otherSource', label: 'Source', sortable: true, size: '15%' },
-              { name: 'byline', label: 'Byline', sortable: false, size: '15%' },
-              { name: 'mediaTypeId', label: 'Media Type', sortable: true, size: '15%' },
+              { name: 'otherSource', label: 'Source', sortable: true, size: 'minmax(0, 1.5fr)' },
+              { name: 'byline', label: 'Byline', sortable: false, size: 'minmax(0, 1.5fr)' },
+              {
+                name: 'mediaTypeId',
+                label: 'Media Type',
+                sortable: true,
+                size: 'minmax(0, 1.5fr)',
+              },
               {
                 name: 'page',
                 label: (
@@ -432,6 +439,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
                   </Row>
                 ),
                 sortable: true,
+                size: 'minmax(0, 1.5fr)',
               },
               { name: 'status', label: 'Use', sortable: true, size: '80px' },
             ]}

@@ -18,8 +18,21 @@ export const Papers = styled(FormPage)`
   .content-list {
     border-radius: 4px;
     box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+    max-width: 100%;
     table {
       background: transparent;
+    }
+
+    /* The grid must never widen past its container: cells clip long unbreakable content
+       instead of stretching their tracks. */
+    .grid-table {
+      max-width: 100%;
+
+      .grid-header,
+      .grid-column {
+        min-width: 0;
+        overflow: hidden;
+      }
     }
 
     div[role='rowgroup'] {
