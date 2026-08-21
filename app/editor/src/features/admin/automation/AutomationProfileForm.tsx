@@ -502,14 +502,19 @@ const AutomationProfileForm: React.FC = () => {
   return (
     <styled.AutomationProfileForm>
       <styled.AutomationModalStyles />
-      <IconButton
-        iconType="back"
-        label="Back to automation profiles"
-        className="back-button"
-        onClick={() => {
-          navigate('/admin/automations');
-        }}
-      />
+      <Row className="page-header" alignItems="center" gap="1rem" nowrap>
+        <IconButton
+          iconType="back"
+          label="Back to automation profiles"
+          className="back-button"
+          onClick={() => {
+            navigate('/admin/automations');
+          }}
+        />
+        <Show visible={!!profile.name}>
+          <h1 className="profile-title">{profile.name}</h1>
+        </Show>
+      </Row>
       <FormikForm
         initialValues={profile}
         validationSchema={AutomationSchema}

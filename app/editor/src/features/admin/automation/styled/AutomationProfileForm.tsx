@@ -211,6 +211,18 @@ export const AutomationProfileForm = styled(FormPage)`
     align-self: start;
   }
 
+  .page-header {
+    align-items: center;
+
+    .profile-title {
+      margin: 0;
+      font-size: 1.35rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
   .section-header {
     align-items: center;
     justify-content: space-between;
