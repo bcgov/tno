@@ -13,8 +13,8 @@ TNO / MMI (Media Monitoring Insights) — a BC Government news aggregation and m
 ```bash
 make setup            # Generate .env files and directories (first-time setup)
 make up p=api         # Start a profile: all, api, editor, subscriber, kafka, service, ingest, utility
-make up n=tno-api     # Start a single named container
-make refresh n=tno-api  # Stop → rebuild → start a single container
+make up n=api         # Start a single service
+make refresh n=api    # Stop → remove container+image → rebuild → start a single service
 make down             # Stop and remove all containers (volumes/data are kept)
 make down v=1         # ...and delete the volumes — wipes the database (asks to confirm; y=1 skips)
 make nuke             # Full reset: down v=1 + delete all config
@@ -22,6 +22,41 @@ make nuke             # Full reset: down v=1 + delete all config
 
 All `make` commands use four compose files together:
 `docker-compose.yml`, `docker-compose.override.yml`, `db/kafka/docker-compose.yml`, `services/docker-compose.yml`
+
+#### `n=` is the compose **service** name, never the container name
+
+Containers are named `tno-<service>` (`api` → `tno-api`, `automation` → `tno-automation`), but
+`n=` always takes the **service** name. `make refresh` calls `tools/scripts/docker-remove.sh`,
+which prepends the prefix itself (`docker rm -f tno-$1`), so `n=tno-api` looks for a container
+`tno-tno-api` and a compose service `tno-api` — neither exists.
+
+List the real service names rather than guessing them:
+
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.override.yml \
+  -f db/kafka/docker-compose.yml -f services/docker-compose.yml \
+  --profile all config --services | sort
+```
+
+`up`, `build` and `stop` pass `$(n)` through unquoted, so several services fit in one call —
+`make up n="editor subscriber nginx"`. **`refresh` takes exactly one**: its remove step only
+reads the first name, so the rest are rebuilt without their stale image being dropped.
+
+#### Which containers a change requires you to rebuild
+
+| Changed | Rebuild |
+| --- | --- |
+| `services/net/<name>/` | that service — `make refresh n=<name>` |
+| `api/net/` | `make refresh n=api` |
+| `libs/net/**` (shared) | every container that consumes it — always `api`, plus each service in the change's blast radius. `libs/net/models/Areas/Admin/**` in particular is served to the UIs *by the API*, so an editor-visible change there needs `api` rebuilt, not `editor`. |
+| `app/editor/src/`, `app/subscriber/src/` | **nothing** — both bind-mount `src/` and `public/` into the container and Vite hot-reloads. Only a dependency, Dockerfile, or config change outside `src/` needs `make refresh n=editor` / `n=subscriber`. |
+| `libs/npm/**` | re-pack into the consuming app (see the tno-core workflow), then `make refresh n=editor` |
+
+Rebuilding `api` takes the whole platform's API down for the duration. The .NET services treat a
+sustained API outage as a critical failure: they log `The service is stopping: 'RequestFailed'`
+and back off (~120s) before restarting themselves. Those errors during an `api` rebuild are
+expected — confirm the service logs a fresh `Subscribing to topics: …` afterwards rather than
+assuming it died.
 
 ### Database
 

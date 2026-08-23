@@ -238,52 +238,56 @@ export const RunLogViewer: React.FC<IRunLogViewerProps> = ({
           </LogEntry>
         ))}
       </div>
-      <Show visible={(data?.total ?? 0) > PAGE_SIZE}>
-        <Row gap="0.5rem" alignItems="center">
-          <button
-            type="button"
-            className="rule-icon-button"
-            aria-label="Beginning of the log"
-            title="Beginning of the log"
-            disabled={page <= 1}
-            onClick={() => setPage(1)}
-          >
-            <FaAnglesLeft />
-          </button>
-          <button
-            type="button"
-            className="rule-icon-button"
-            aria-label="Previous page"
-            title="Previous page"
-            disabled={page <= 1}
-            onClick={() => setPage((current) => current - 1)}
-          >
-            <FaAngleLeft />
-          </button>
-          <span>
-            Page {page} of {totalPages} ({data?.total.toLocaleString()} entries)
-          </span>
-          <button
-            type="button"
-            className="rule-icon-button"
-            aria-label="Next page"
-            title="Next page"
-            disabled={page >= totalPages}
-            onClick={() => setPage((current) => current + 1)}
-          >
-            <FaAngleRight />
-          </button>
-          <button
-            type="button"
-            className="rule-icon-button"
-            aria-label="End of the log"
-            title="End of the log (newest entries)"
-            disabled={page >= totalPages}
-            onClick={() => setPage(totalPages)}
-          >
-            <FaAnglesRight />
-          </button>
-        </Row>
+      {/* The pager sits below the scrolling entry list, so it stays reachable at the bottom of the
+          modal without scrolling to the end of the page. */}
+      <Show visible={(data?.total ?? 0) > 0}>
+        <div className="automation-log-pager">
+          <Row gap="0.5rem" alignItems="center">
+            <button
+              type="button"
+              className="rule-icon-button"
+              aria-label="Beginning of the log"
+              title="Beginning of the log"
+              disabled={page <= 1}
+              onClick={() => setPage(1)}
+            >
+              <FaAnglesLeft />
+            </button>
+            <button
+              type="button"
+              className="rule-icon-button"
+              aria-label="Previous page"
+              title="Previous page"
+              disabled={page <= 1}
+              onClick={() => setPage((current) => current - 1)}
+            >
+              <FaAngleLeft />
+            </button>
+            <span>
+              Page {page} of {totalPages} ({data?.total.toLocaleString()} entries)
+            </span>
+            <button
+              type="button"
+              className="rule-icon-button"
+              aria-label="Next page"
+              title="Next page"
+              disabled={page >= totalPages}
+              onClick={() => setPage((current) => current + 1)}
+            >
+              <FaAngleRight />
+            </button>
+            <button
+              type="button"
+              className="rule-icon-button"
+              aria-label="End of the log"
+              title="End of the log (newest entries)"
+              disabled={page >= totalPages}
+              onClick={() => setPage(totalPages)}
+            >
+              <FaAnglesRight />
+            </button>
+          </Row>
+        </div>
       </Show>
     </Col>
   );

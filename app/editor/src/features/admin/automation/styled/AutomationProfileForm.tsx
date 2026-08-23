@@ -1762,6 +1762,55 @@ export const AutomationModalStyles = createGlobalStyle`
     flex-shrink: 0;
   }
 
+  /* Decision Log tab only: the modal body stops scrolling and becomes a fixed-height flex column,
+     so the entry list is the only thing that scrolls and the pager stays pinned at the bottom of
+     the modal instead of sitting past the end of a long page. Must come after the '.modal-body'
+     rule above - the two tie on specificity, so source order decides the overflow. */
+  .modal-popup:has(.run-detail-log-view) .modal-body {
+    overflow-y: hidden;
+    /* The body is a Row (wrap by default). A single, unwrapped line stretches its item to the
+       body's height, which is what hands the log viewer a definite height to divide up. */
+    flex-wrap: nowrap;
+    align-items: stretch;
+  }
+
+  .modal-popup:has(.run-detail-log-view) .modal-body > .run-detail-log-view {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+  }
+
+  .modal-popup:has(.run-detail-log-view) .automation-log-viewer {
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+    /* Col defaults to flex-wrap: wrap; a height-constrained column would wrap into a second
+       column instead of letting the list scroll. */
+    flex-wrap: nowrap;
+    /* 'clip' is the one horizontal value that does not make this a scroll container. The
+       'overflow-x: hidden' below would compute overflow-y to auto and break the height chain. */
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+
+  .modal-popup:has(.run-detail-log-view) .automation-log-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    /* Defeat the 60vh cap that otherwise pushes the pager below the fold. */
+    max-height: none;
+  }
+
+  .modal-popup:has(.run-detail-log-view) .automation-log-pager {
+    /* The last item of the flex column; it must keep its height while the list absorbs the rest. */
+    flex: 0 0 auto;
+    border-top: 1px solid #e4e7ec;
+    padding-top: 0.5rem;
+    background: #fff;
+  }
+
   /* The schedule modal clips its popup ('overflow: hidden' above) and scrolls its body, so the
      Start After calendar is rendered into a body-level portal ('portalId') instead of inline.
      Both the modal and the portal are children of document.body, so the popper has to out-rank
@@ -1889,6 +1938,17 @@ export const AutomationModalStyles = createGlobalStyle`
     }
   }
 
+  /* Content ids in the run outcome open the story in a new tab. */
+  .run-detail-content .automation-content-link {
+    color: #1a5a96;
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover {
+      color: #0c3d6b;
+    }
+  }
+
   .run-detail-content .automation-cell-clip {
     max-width: 20rem;
     overflow: hidden;
@@ -2001,6 +2061,18 @@ export const AutomationModalStyles = createGlobalStyle`
 
   .run-detail-content h3 {
     margin: 0.5rem 0 0.25rem;
+  }
+
+  .run-detail-content h4 {
+    margin: 0.5rem 0 0.15rem;
+    font-size: 0.95rem;
+  }
+
+  /* The score distribution is a three-column tally, not a data grid; it should not stretch. */
+  .run-detail-content .automation-distribution-table {
+    width: auto;
+    min-width: 14rem;
+    margin-bottom: 0.35rem;
   }
 
   .run-detail-content .run-detail-outcomes {

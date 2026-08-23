@@ -9,3 +9,4 @@ export * from './normalizeOptionValue';
 export * from './normalizeProfile';
 export * from './scheduleWeekDayOptions';
 export * from './toNumberOrUndefined';
+export * from './toReferenceOption';

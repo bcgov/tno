@@ -192,6 +192,10 @@ public static class AutomationDefinitionValidator
                     objectives.Add(action.Objective!);
                 if (action.Type == "select-top" && !string.IsNullOrWhiteSpace(action.Objective) && !objectives.Contains(action.Objective!))
                     errors.Add(new($"{path}.objective", $"No earlier score action records objective '{action.Objective}'; select-top will find nothing to rank.", "warning"));
+                // How many to keep: a fixed count, a score threshold, or a threshold with a cap.
+                // Neither means the action has no rule at all, so it would silently select nothing.
+                if (action.Type == "select-top" && !action.Take.HasValue && !action.MinScore.HasValue)
+                    errors.Add(new($"{path}.take", "Select Top Scored needs 'take' (keep a fixed count), 'minScore' (keep everything at or above a score), or both."));
 
                 if (action.Type == "dedupe")
                 {
@@ -347,6 +351,7 @@ public static class AutomationDefinitionValidator
         "against" => !string.IsNullOrWhiteSpace(action.Against),
         "objective" => !string.IsNullOrWhiteSpace(action.Objective),
         "take" => action.Take.HasValue,
+        "minScore" => action.MinScore.HasValue,
         "contentAction" => action.ContentAction.HasValue,
         "report" => action.Report.HasValue,
         "notification" => action.Notification.HasValue,
