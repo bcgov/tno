@@ -39,6 +39,12 @@ public class AutomationEngine
     private const int MaxResultWindow = 10000;
     private const int DefaultSourceMax = 2000;
     private const int DefaultSearchMax = 500;
+    // The summary travels whole to the browser and is capped at 10MB by the API; a headline is
+    // there to identify a story, not to reproduce it.
+    private const int SummaryHeadlineLength = 120;
+    // How many items a single log message names inline; the rest are reported as a count (the
+    // per-item entries carry the detail, and the run outcome carries the full list).
+    private const int MaxLoggedItems = 25;
 
     private static readonly string[] DefaultDigestFields =
     {
@@ -242,6 +248,8 @@ public class AutomationEngine
         // Nothing auto-saves: whatever is still dirty (or an unsaved draft) was never covered by
         // a Save Collection / Save Content Now action - surface it rather than silently drop it.
         ReportUnwritten(environment);
+        FinalizeScoreSummaries(summary);
+        ReportScoreObjectives(environment);
         await runLogger.FlushAsync();
 
         runTimer.Stop();
@@ -920,25 +928,38 @@ public class AutomationEngine
             case "content.tags":
                 {
                     if (target == null || string.IsNullOrWhiteSpace(value)) break;
-                    // Only tags that exist (matched by code or name) can be added - the same lookup
-                    // data the {lookup:tags} token renders, so prompt and validation cannot disagree.
+                    // Only ENABLED tags that exist (matched by code or name) can be added - exactly
+                    // the data the {lookup:tags} token renders, so the prompt's vocabulary and this
+                    // validation cannot disagree. A disabled tag is reported, never applied.
                     var requested = value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
                     var unmatched = new List<string>();
+                    var disabled = new List<string>();
                     var added = new List<string>();
                     foreach (var request in requested)
                     {
-                        var tag = env.Lookups?.Tags.FirstOrDefault(t =>
+                        var match = env.Lookups?.Tags.FirstOrDefault(t =>
                             t.Code.Equals(request, StringComparison.OrdinalIgnoreCase) ||
                             t.Name.Equals(request, StringComparison.OrdinalIgnoreCase));
-                        if (tag == null) { unmatched.Add(request); continue; }
+                        if (match == null) { unmatched.Add(request); continue; }
+                        // Distinguished from 'no such tag': a disabled tag is a retired vocabulary
+                        // entry, and the author needs to see that rather than a bare miss.
+                        if (!match.IsEnabled) { disabled.Add(match.Code); continue; }
                         lock (target.Deltas)
                         {
-                            if (!target.Deltas.Tags.Any(t => t.Id == tag.Id)) target.Deltas.Tags.Add((tag.Id, tag.Code, tag.Name));
+                            if (!target.Deltas.Tags.Any(t => t.Id == match.Id)) target.Deltas.Tags.Add((match.Id, match.Code, match.Name));
                         }
-                        added.Add(tag.Code);
+                        added.Add(match.Code);
                     }
                     if (added.Count > 0) RecordChange("add-tags", target, null, string.Join(",", added));
-                    LogExecuted($"Added {added.Count} tag(s) to {target.Key}.", unmatched.Count > 0 ? $"{{\"unmatched\":{JsonSerializer.Serialize(string.Join(",", unmatched))}}}" : null);
+                    LogExecuted(
+                        $"Added {added.Count} tag(s) to {target.Key}"
+                        + (added.Count > 0 ? $": {string.Join(", ", added)}" : "")
+                        + (disabled.Count > 0 ? $". Skipped {disabled.Count} disabled tag(s): {string.Join(", ", disabled)}" : "")
+                        + (unmatched.Count > 0 ? $". No tag matched: {string.Join(", ", unmatched)}" : "")
+                        + ".",
+                        unmatched.Count > 0 || disabled.Count > 0
+                            ? JsonSerializer.Serialize(new { added, disabled, unmatched }, _jsonOptions)
+                            : null);
                     break;
                 }
             case "content.sentiment":
@@ -1002,6 +1023,15 @@ public class AutomationEngine
             case "content.action":
                 {
                     if (target == null || !action.ContentAction.HasValue) break;
+                    // A content action disabled since the profile was authored must not keep being
+                    // stamped on every run. Checked here, where the log can say why, rather than
+                    // silently at flush.
+                    if (!IsContentActionEnabled(action.ContentAction.Value, env.Lookups))
+                    {
+                        env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Skipped,
+                            $"Content action '{ContentActionName(action.ContentAction.Value, env.Lookups)}' is disabled; nothing was applied to {target.Key}.");
+                        break;
+                    }
                     lock (target.Deltas)
                     {
                         if (!target.Deltas.ContentActionIds.Contains(action.ContentAction.Value))
@@ -1080,38 +1110,64 @@ public class AutomationEngine
                     // Only items with something to write: dirty deltas or unsaved drafts.
                     var dirtyKeys = env.Context.GetFlushables().Select(e => e.Key).ToHashSet();
                     var toSave = items.Where(e => dirtyKeys.Contains(e.Key)).ToList();
+                    var index = action.Index ?? true;
                     var saved = 0;
+                    var fieldTally = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
                     foreach (var entry in toSave)
                     {
+                        // The deltas are cleared by the flush, so what the save will write is
+                        // described before it runs - the log and the outcome name the fields.
+                        var pending = DescribeDeltas(entry, env.Lookups);
+                        // Tallied only once the write succeeds: 'fields written' must never count a
+                        // save that failed.
+                        void TallyFields()
+                        {
+                            foreach (var field in pending) fieldTally[field] = fieldTally.TryGetValue(field, out var count) ? count + 1 : 1;
+                        }
                         if (env.IsDryRun)
                         {
-                            env.Log.LogDecision(step.Name, actionName, action.Type, entry.Kind == "existing" ? entry.Id : null, Outcomes.Flushed, $"Dry run: {entry.Key} would be saved.");
+                            RecordSave(env, entry, step.Name, actionName, action.FromCollection, pending, "would-save", index, null);
+                            env.Log.LogDecision(step.Name, actionName, action.Type, entry.Kind == "existing" ? entry.Id : null, Outcomes.Flushed,
+                                $"Dry run: {EntryLabel(entry)} would be saved from {action.FromCollection} - {DescribeWrite(entry, pending)}.");
+                            TallyFields();
                             saved++;
                             continue;
                         }
                         try
                         {
-                            await FlushEntryAsync(entry, env, step.Name, action.Index ?? true);
+                            await FlushEntryAsync(entry, env, step.Name, index, actionName, action.Type, action.FromCollection);
+                            TallyFields();
                             saved++;
                         }
                         catch (Exception ex)
                         {
                             _logger.LogError(ex, "Failed to save {key}.", entry.Key);
                             lock (env.Summary.FlushFailures) env.Summary.FlushFailures.Add($"{entry.Key}: {ex.Message}");
-                            env.Log.LogDecision(step.Name, actionName, action.Type, entry.Kind == "existing" ? entry.Id : null, Outcomes.Failed, $"Save failed; changes were not written: {ex.Message}");
+                            RecordSave(env, entry, step.Name, actionName, action.FromCollection, pending, "failed", index, ex.Message);
+                            env.Log.LogDecision(step.Name, actionName, action.Type, entry.Kind == "existing" ? entry.Id : null, Outcomes.Failed,
+                                $"Save failed for {EntryLabel(entry)}; {DescribeWrite(entry, pending)} was not written: {ex.Message}");
                         }
                     }
-                    LogExecuted($"Saved {saved} of {items.Count} item(s) from {action.FromCollection} ({items.Count - toSave.Count} unchanged).");
+                    LogExecuted(
+                        $"Saved {saved} of {items.Count} item(s) from {action.FromCollection} ({items.Count - toSave.Count} unchanged)."
+                        + (fieldTally.Count > 0 ? $" Fields written: {string.Join(", ", fieldTally.OrderByDescending(f => f.Value).ThenBy(f => f.Key, StringComparer.OrdinalIgnoreCase).Select(f => $"{f.Key} ({f.Value})"))}." : ""),
+                        JsonSerializer.Serialize(new { from = action.FromCollection, saved, unchanged = items.Count - toSave.Count, index, fields = fieldTally }, _jsonOptions));
                     break;
                 }
             case "content.save":
                 {
                     var saveTarget = target ?? subject;
                     if (saveTarget == null) break;
+                    var index = action.Index ?? true;
+                    var pending = DescribeDeltas(saveTarget, env.Lookups);
                     if (env.IsDryRun)
-                        env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Flushed, $"Dry run: {saveTarget.Key} would be saved now.");
+                    {
+                        RecordSave(env, saveTarget, step.Name, actionName, null, pending, "would-save", index, null);
+                        env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Flushed,
+                            $"Dry run: {EntryLabel(saveTarget)} would be saved now - {DescribeWrite(saveTarget, pending)}.");
+                    }
                     else
-                        await FlushEntryAsync(saveTarget, env, step.Name, action.Index ?? true);
+                        await FlushEntryAsync(saveTarget, env, step.Name, index, actionName, action.Type, null);
                     break;
                 }
             case "exclude":
@@ -1144,7 +1200,8 @@ public class AutomationEngine
                     if (subject == null || string.IsNullOrWhiteSpace(action.Objective)) break;
                     if (!int.TryParse((value ?? "").Trim(), out var score))
                     {
-                        env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Skipped, $"Score value '{value}' is not a number.");
+                        RecordUnscored(env, action.Objective!, step.Name);
+                        env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Skipped, $"Score value '{value}' is not a number; {EntryLabel(subject)} was not scored for '{action.Objective}'.");
                         break;
                     }
                     lock (env.Context.Sync)
@@ -1156,30 +1213,68 @@ public class AutomationEngine
                         }
                         scores[subject.Key] = score;
                     }
-                    LogExecuted($"Scored {subject.Key} at {score} for '{action.Objective}'.");
+                    RecordScore(env, action.Objective!, step.Name, subject, score);
+                    // Name the story, the score, and the objective on every entry: filtering the log
+                    // by content id must answer 'what score did this item get, and why'.
+                    LogExecuted(
+                        $"Scored {EntryLabel(subject)} at {score} for '{action.Objective}'.",
+                        JsonSerializer.Serialize(new { objective = action.Objective, score, contentRef = EntryRef(subject) }, _jsonOptions));
                     break;
                 }
             case "select-top":
                 {
-                    List<(string Key, int Score)> ranked;
+                    var objective = action.Objective ?? "";
+                    // How many to keep: a fixed count, every item at or above a score, or both
+                    // (the threshold qualifies, the count caps). Neither is a definition error the
+                    // validator rejects; default to the historical top ten rather than selecting
+                    // nothing if one slips through.
+                    var minScore = action.MinScore;
+                    var take = action.Take ?? (minScore.HasValue ? (int?)null : 10);
+                    List<(string Key, int Score)> candidates;
                     lock (env.Context.Sync)
                     {
-                        ranked = env.Context.Scores.TryGetValue(action.Objective ?? "", out var scores)
-                            ? scores.OrderByDescending(kv => kv.Value).Take(action.Take ?? 10).Select(kv => (kv.Key, kv.Value)).ToList()
+                        candidates = env.Context.Scores.TryGetValue(objective, out var scores)
+                            ? scores.Select(kv => (kv.Key, kv.Value)).ToList()
                             : new List<(string, int)>();
                     }
-                    var selected = new List<ContentEntry>();
+                    // No LLM decides this: the recorded scores are ranked highest first, and the
+                    // content id breaks ties. Items are scored in parallel, so the order they land
+                    // in the score table is not reproducible and cannot be the tie-break.
+                    var qualified = minScore.HasValue
+                        ? candidates.Where(candidate => candidate.Score >= minScore.Value).ToList()
+                        : candidates;
+                    var ordered = qualified
+                        .OrderByDescending(candidate => candidate.Score)
+                        .ThenBy(candidate => RankId(candidate.Key))
+                        .ThenBy(candidate => candidate.Key, StringComparer.Ordinal);
+                    var ranked = (take.HasValue ? ordered.Take(take.Value) : ordered).ToList();
+                    var distribution = candidates
+                        .GroupBy(candidate => candidate.Score)
+                        .OrderByDescending(group => group.Key)
+                        .ToDictionary(group => group.Key, group => group.Count());
+                    var selected = new List<(ContentEntry Entry, int Score)>();
+                    var unresolved = new List<string>();
                     lock (env.Context.Sync)
                     {
-                        foreach (var (key, _) in ranked)
+                        foreach (var (key, rankedScore) in ranked)
                         {
                             var entry = env.Context.EntriesById.Values.FirstOrDefault(e => e.Key == key)
                                 ?? env.Context.Drafts.FirstOrDefault(d => d.Key == key);
-                            if (entry != null) selected.Add(entry);
+                            if (entry != null) selected.Add((entry, rankedScore));
+                            else unresolved.Add(key);
                         }
                     }
-                    foreach (var entry in selected)
+                    // A disabled content action stamps nothing; the selection itself still runs so
+                    // the collection and the outcome are unaffected.
+                    var stampAction = action.ContentAction.HasValue && IsContentActionEnabled(action.ContentAction.Value, env.Lookups);
+                    var contentActionName = action.ContentAction.HasValue ? ContentActionName(action.ContentAction.Value, env.Lookups) : null;
+                    if (action.ContentAction.HasValue && !stampAction)
+                        env.Log.LogDecision(step.Name, actionName, action.Type, null, Outcomes.Skipped,
+                            $"Content action '{contentActionName}' is disabled; the selected items were not stamped with it.");
+                    var rank = 0;
+                    foreach (var (entry, entryScore) in selected)
                     {
+                        rank++;
                         if (action.ContentAction.HasValue)
                         {
                             lock (entry.Deltas)
@@ -1187,7 +1282,7 @@ public class AutomationEngine
                                 if (!entry.Deltas.ContentActionIds.Contains(action.ContentAction.Value))
                                     entry.Deltas.ContentActionIds.Add(action.ContentAction.Value);
                             }
-                            RecordChange("add-action", entry, ContentActionName(action.ContentAction.Value, env.Lookups), action.ContentAction.Value.ToString());
+                            RecordChange("add-action", entry, contentActionName, action.ContentAction.Value.ToString());
                         }
                         if (!string.IsNullOrWhiteSpace(action.Into))
                         {
@@ -1197,8 +1292,65 @@ public class AutomationEngine
                                 if (!into.Any(e => e.Key == entry.Key)) into.Add(entry);
                             }
                         }
+                        // One entry per selected item, carrying the content id, so the log can be
+                        // filtered to 'was this story selected, at what rank, on what score'.
+                        env.Log.LogDecision(step.Name, actionName, action.Type, entry.Kind == "existing" ? entry.Id : null, Outcomes.Executed,
+                            $"Selected #{rank} of {selected.Count} for '{objective}': {EntryLabel(entry)} scored {entryScore}"
+                            + $"{(action.Into != null ? $"; added to {action.Into}" : "")}"
+                            + $"{(stampAction ? $"; stamped '{contentActionName}'" : "")}.",
+                            JsonSerializer.Serialize(new { objective, rank, score = entryScore, contentRef = EntryRef(entry), into = action.Into, contentAction = stampAction ? contentActionName : null }, _jsonOptions));
                     }
-                    LogExecuted($"Selected top {selected.Count} of '{action.Objective}'{(action.Into != null ? $" into {action.Into}" : "")}.");
+                    var sortedBy = "score descending, then content id ascending (no LLM - the recorded scores are ranked)";
+                    var rule = minScore.HasValue
+                        ? $"every item scoring {minScore} or higher{(take.HasValue ? $", capped at {take}" : "")}"
+                        : $"the top {take}";
+                    lock (env.Summary.Selections)
+                    {
+                        env.Summary.Selections.Add(new SelectionSummary
+                        {
+                            Objective = objective,
+                            Step = step.Name,
+                            Action = actionName,
+                            SortedBy = sortedBy,
+                            Rule = rule,
+                            Take = take,
+                            MinScore = minScore,
+                            Qualified = qualified.Count,
+                            Candidates = candidates.Count,
+                            Into = action.Into,
+                            ContentAction = contentActionName,
+                            Distribution = distribution,
+                            Unresolved = unresolved,
+                            Selected = selected.Select(s => new ScoredItemSummary
+                            {
+                                ContentRef = EntryRef(s.Entry),
+                                Score = s.Score,
+                                Headline = Truncate(s.Entry.GetField("headline") ?? "", SummaryHeadlineLength),
+                                Step = step.Name,
+                            }).ToList(),
+                        });
+                    }
+                    LogExecuted(
+                        $"Selected {selected.Count} of {candidates.Count} item(s) scored for '{objective}' - kept {rule}, ranked by {sortedBy}"
+                        + (minScore.HasValue ? $"; {qualified.Count} item(s) met the {minScore} threshold" : "")
+                        + $"{(action.Into != null ? $"; into {action.Into}" : "")}"
+                        + $"{(stampAction ? $"; stamping '{contentActionName}'" : "")}."
+                        + $" Score distribution: {DescribeDistribution(distribution)}."
+                        + $" Selected: {DescribeSelection(selected)}."
+                        + (unresolved.Count > 0 ? $" {unresolved.Count} ranked item(s) no longer resolved and were dropped: {string.Join(", ", unresolved)}." : ""),
+                        JsonSerializer.Serialize(new
+                        {
+                            objective,
+                            rule,
+                            sortedBy,
+                            take,
+                            minScore,
+                            candidates = candidates.Count,
+                            qualified = qualified.Count,
+                            distribution = distribution.ToDictionary(kv => kv.Key.ToString(), kv => kv.Value),
+                            selected = selected.Select(s => new { contentRef = EntryRef(s.Entry), score = s.Score, headline = Truncate(s.Entry.GetField("headline") ?? "", SummaryHeadlineLength) }),
+                            unresolved,
+                        }, _jsonOptions));
                     break;
                 }
             case "report.run":
@@ -1243,9 +1395,21 @@ public class AutomationEngine
         return scope.Drafts.TryGetValue(item, out var draft) ? draft : null;
     }
 
-    /// <summary>Resolve a content action's display name for readable change records.</summary>
+    /// <summary>
+    /// Resolve a content action's display name for readable change records. Deliberately
+    /// unfiltered: naming an action that has since been disabled must still work, or the log
+    /// would report an id where it used to report a name.
+    /// </summary>
     private static string ContentActionName(int id, LookupModel? lookups)
         => lookups?.Actions.FirstOrDefault(a => a.Id == id)?.Name ?? $"action {id}";
+
+    /// <summary>
+    /// Whether a content action may still be applied. A profile keeps the id it was authored with,
+    /// so an action disabled since then would otherwise keep being stamped on every run.
+    /// An unavailable lookup bundle is not treated as 'disabled' - that would stop every stamp.
+    /// </summary>
+    private static bool IsContentActionEnabled(int id, LookupModel? lookups)
+        => lookups?.Actions.FirstOrDefault(a => a.Id == id)?.IsEnabled ?? true;
 
     private static (int Id, string Name)? FindContributor(string name, LookupModel? lookups)
     {
@@ -1475,6 +1639,35 @@ public class AutomationEngine
     }
     #endregion
 
+    /// <summary>
+    /// Close the log with one entry per scoring objective: how many items were scored, how many
+    /// carried each score, and the highest-scoring stories. Score actions log per item, which is
+    /// the detail; this is the shape of the whole objective in one place.
+    /// </summary>
+    private static void ReportScoreObjectives(RunEnvironment env)
+    {
+        foreach (var objective in env.Summary.Scores)
+        {
+            var top = objective.Items.Take(MaxLoggedItems)
+                .Select((item, position) => $"#{position + 1} content {item.ContentRef}{(string.IsNullOrWhiteSpace(item.Headline) ? "" : $" \"{item.Headline}\"")} ({item.Score})");
+            env.Log.LogDecision("end-of-run", null, "score", null, Outcomes.Info,
+                $"Objective '{objective.Objective}': {objective.Items.Count} item(s) scored by {string.Join(", ", objective.Steps)}"
+                + (objective.Unscored > 0 ? $", {objective.Unscored} not scored (the value was not a number)" : "")
+                + $". Score distribution: {DescribeDistribution(objective.Distribution)}."
+                + (objective.Items.Count > 0
+                    ? $" Highest scoring: {string.Join("; ", top)}{(objective.Items.Count > MaxLoggedItems ? $"; and {objective.Items.Count - MaxLoggedItems} more" : "")}."
+                    : ""),
+                JsonSerializer.Serialize(new
+                {
+                    objective = objective.Objective,
+                    steps = objective.Steps,
+                    scored = objective.Items.Count,
+                    unscored = objective.Unscored,
+                    distribution = objective.Distribution.ToDictionary(kv => kv.Key.ToString(), kv => kv.Value),
+                }, _jsonOptions));
+        }
+    }
+
     #region Flushing
     /// <summary>
     /// Report every entry still dirty (or an unsaved draft) at the end of the run: nothing
@@ -1521,9 +1714,14 @@ public class AutomationEngine
     /// <summary>
     /// Persist one entry: drafts are created (obtaining a database id, recorded for the summary),
     /// existing items are fetched and updated with all deltas applied in one request with indexing.
+    /// The fields the write carries are described before the deltas are cleared, so the decision
+    /// log and the run outcome name what was written rather than counting it. An entry with no
+    /// pending deltas returns without a save record - there was nothing to write.
     /// </summary>
-    private async Task FlushEntryAsync(ContentEntry entry, RunEnvironment env, string stepName, bool index)
+    private async Task FlushEntryAsync(ContentEntry entry, RunEnvironment env, string stepName, bool index, string? actionName = null, string? actionType = null, string? collection = null)
     {
+        var written = DescribeDeltas(entry, env.Lookups);
+        var headline = Truncate(entry.GetField("headline") ?? "", SummaryHeadlineLength);
         if (entry.Kind == "draft")
         {
             var model = BuildDraftModel(entry);
@@ -1545,7 +1743,12 @@ public class AutomationEngine
             entry.Id = created.Id;
             lock (entry.Deltas) ClearDeltas(entry.Deltas);
             lock (env.Context.Sync) env.Context.DraftIds[tempKey] = created.Id;
-            env.Log.LogDecision(stepName, null, null, created.Id, Outcomes.Flushed, $"Draft {tempKey} created as content {created.Id}{(publish ? " and published" : "")}.");
+            RecordSave(env, entry, stepName, actionName, collection, written, "created", index, null, headline, created.Id.ToString());
+            env.Log.LogDecision(stepName, actionName, actionType, created.Id, Outcomes.Flushed,
+                $"Draft {tempKey} created as content {created.Id}{(publish ? " and published" : "")}"
+                + (written.Count > 0 ? $" - wrote {string.Join(", ", written)}" : "")
+                + $"{(headline.Length > 0 ? $" (\"{headline}\")" : "")}.",
+                JsonSerializer.Serialize(new { tempKey, contentId = created.Id, published = publish, indexed = index, fields = written }, _jsonOptions));
             return;
         }
 
@@ -1556,14 +1759,13 @@ public class AutomationEngine
         var content = await _api.FindContentByIdAsync(entry.Id)
             ?? throw new InvalidOperationException($"Content {entry.Id} could not be found to apply changes.");
         ApplyDeltas(entry, content, env);
-        string summary;
-        lock (entry.Deltas)
-        {
-            summary = $"Applied {entry.Deltas.Fields.Count} field(s), {entry.Deltas.Tags.Count} tag(s){(entry.Deltas.Sentiment.HasValue ? ", sentiment" : "")}{(entry.Deltas.ContributorId.HasValue ? ", contributor" : "")}{(entry.Deltas.ContentActionIds.Count > 0 ? $", {entry.Deltas.ContentActionIds.Count} action(s)" : "")}{(entry.Deltas.Status != null ? $", {entry.Deltas.Status}" : "")} in one update.";
-        }
         await _api.UpdateContentAsync(content, index);
         lock (entry.Deltas) ClearDeltas(entry.Deltas);
-        env.Log.LogDecision(stepName, null, null, entry.Id, Outcomes.Flushed, summary);
+        RecordSave(env, entry, stepName, actionName, collection, written, "saved", index, null, headline);
+        env.Log.LogDecision(stepName, actionName, actionType, entry.Id, Outcomes.Flushed,
+            $"Saved {EntryLabel(entry)} in one update - wrote {(written.Count > 0 ? string.Join(", ", written) : "nothing")}."
+            + (index ? " Indexed." : " Not indexed."),
+            JsonSerializer.Serialize(new { contentId = entry.Id, indexed = index, fields = written }, _jsonOptions));
     }
 
     private ContentModel BuildDraftModel(ContentEntry entry)
@@ -1640,7 +1842,9 @@ public class AutomationEngine
             }
             foreach (var actionId in entry.Deltas.ContentActionIds.Distinct())
             {
-                var definition = env.Lookups?.Actions.FirstOrDefault(a => a.Id == actionId);
+                // Defence in depth: the request sites already refuse a disabled action, so a
+                // delta reaching here disabled means it was disabled mid-run. Never write it.
+                var definition = env.Lookups?.Actions.FirstOrDefault(a => a.Id == actionId && a.IsEnabled);
                 if (definition == null) continue;
                 var value = definition.ValueType == Entities.ValueType.Boolean
                     ? "true"
@@ -1669,6 +1873,16 @@ public class AutomationEngine
         deltas.ContentActionIds.Clear();
         deltas.Status = null;
     }
+
+    /// <summary>
+    /// The content fields a save can actually write to an existing item. Kept beside
+    /// <see cref="ApplyContentField"/>: a delta for anything else is accepted by the working copy
+    /// and then dropped at flush, so the save report names it rather than claiming it was written.
+    /// </summary>
+    private static readonly HashSet<string> WritableFields = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "headline", "byline", "summary", "body", "edition", "section", "page",
+    };
 
     private static void ApplyContentField(ContentModel content, string field, string value)
     {
@@ -1742,6 +1956,160 @@ public class AutomationEngine
 
     private static string Truncate(string value, int length)
         => value.Length <= length ? value : value[..length];
+
+    /// <summary>The content id, or a draft's temp key before it has one.</summary>
+    private static string EntryRef(ContentEntry entry)
+        => entry.Kind == "draft" ? entry.TempKey ?? "" : entry.Id.ToString();
+
+    /// <summary>
+    /// A log-friendly label for an entry: the reference plus the headline, so a decision reads as
+    /// a story rather than an opaque key.
+    /// </summary>
+    private static string EntryLabel(ContentEntry entry)
+    {
+        var reference = entry.Kind == "draft" ? $"draft {entry.TempKey}" : $"content {entry.Id}";
+        var headline = entry.GetField("headline");
+        return string.IsNullOrWhiteSpace(headline) ? reference : $"{reference} \"{Truncate(headline.Trim(), 120)}\"";
+    }
+
+    /// <summary>
+    /// The tie-break for ranked scores: the content id, so items sharing a score always order the
+    /// same way. Items are scored in parallel, so the order they land in the score table is not
+    /// reproducible and cannot be the tie-break. Drafts (no id yet) sort last.
+    /// </summary>
+    private static long RankId(string key)
+        => key.StartsWith("id:", StringComparison.Ordinal) && long.TryParse(key[3..], out var id) ? id : long.MaxValue;
+
+    /// <summary>How many items carry each score, highest score first.</summary>
+    private static string DescribeDistribution(IReadOnlyDictionary<int, int> distribution)
+        => distribution.Count == 0
+            ? "no scores were recorded"
+            : string.Join(", ", distribution.OrderByDescending(entry => entry.Key).Select(entry => $"{entry.Value} item(s) scored {entry.Key}"));
+
+    /// <summary>
+    /// The selected items in rank order, each with its score. Long selections are trimmed - the
+    /// per-item log entries and the run outcome carry the whole list.
+    /// </summary>
+    private static string DescribeSelection(IReadOnlyList<(ContentEntry Entry, int Score)> selected)
+        => selected.Count == 0
+            ? "none"
+            : string.Join("; ", selected.Take(MaxLoggedItems).Select((item, position) => $"#{position + 1} {EntryLabel(item.Entry)} ({item.Score})"))
+                + (selected.Count > MaxLoggedItems ? $"; and {selected.Count - MaxLoggedItems} more" : "");
+
+    /// <summary>
+    /// The fields a save would write for this entry, named rather than counted. Read before the
+    /// flush, which clears the deltas. A field an update cannot write (see
+    /// <see cref="WritableFields"/>) is named as ignored rather than reported as written.
+    /// </summary>
+    private static List<string> DescribeDeltas(ContentEntry entry, LookupModel? lookups)
+    {
+        var written = new List<string>();
+        lock (entry.Deltas)
+        {
+            // A draft is built from its whole digest, so every field it carries is written.
+            written.AddRange(entry.Deltas.Fields.Keys
+                .OrderBy(field => field, StringComparer.OrdinalIgnoreCase)
+                .Select(field => entry.Kind == "draft" || WritableFields.Contains(field) ? field : $"{field} (ignored - not a writable field)"));
+            if (entry.Deltas.Tags.Count > 0)
+                written.Add($"tags ({string.Join(", ", entry.Deltas.Tags.Select(tag => tag.Code).Distinct(StringComparer.OrdinalIgnoreCase))})");
+            if (entry.Deltas.Sentiment.HasValue)
+                written.Add($"sentiment ({entry.Deltas.Sentiment.Value})");
+            if (entry.Deltas.ContributorId.HasValue)
+                written.Add($"contributor ({entry.Deltas.ContributorName ?? entry.Deltas.ContributorId.Value.ToString()})");
+            if (entry.Deltas.ContentActionIds.Count > 0)
+                written.Add($"actions ({string.Join(", ", entry.Deltas.ContentActionIds.Distinct().Select(id => ContentActionName(id, lookups)))})");
+            if (entry.Deltas.Status != null)
+                written.Add($"status ({entry.Deltas.Status})");
+        }
+        return written;
+    }
+
+    /// <summary>What a save is about to write, phrased for a decision-log sentence.</summary>
+    private static string DescribeWrite(ContentEntry entry, IReadOnlyList<string> written)
+        => written.Count > 0
+            ? $"{(entry.Kind == "draft" ? "creating the item and writing" : "writing")} {string.Join(", ", written)}"
+            : entry.Kind == "draft" ? "creating the item" : "nothing to write";
+
+    /// <summary>
+    /// Record one item written (or, on a dry run, intended) by a save action, with the fields the
+    /// write carried.
+    /// </summary>
+    private static void RecordSave(RunEnvironment env, ContentEntry entry, string stepName, string? actionName, string? collection, List<string> fields, string outcome, bool index, string? error, string? headline = null, string? contentRef = null)
+    {
+        var save = new SaveSummary
+        {
+            ContentRef = contentRef ?? EntryRef(entry),
+            Step = stepName,
+            Action = actionName,
+            Collection = collection,
+            Headline = headline ?? Truncate(entry.GetField("headline") ?? "", SummaryHeadlineLength),
+            Fields = fields.ToList(),
+            Outcome = outcome,
+            Indexed = index,
+            Error = error,
+        };
+        lock (env.Summary.Saves) env.Summary.Saves.Add(save);
+    }
+
+    /// <summary>
+    /// Record one score against its objective so the outcome lists which items were scored and at
+    /// what. A rescored item replaces its earlier score, exactly as the run's score table does.
+    /// </summary>
+    private static void RecordScore(RunEnvironment env, string objective, string stepName, ContentEntry entry, int score)
+    {
+        var item = new ScoredItemSummary
+        {
+            ContentRef = EntryRef(entry),
+            Score = score,
+            Headline = Truncate(entry.GetField("headline") ?? "", SummaryHeadlineLength),
+            Step = stepName,
+        };
+        lock (env.Summary.Scores)
+        {
+            var objectiveSummary = GetObjectiveSummary(env, objective, stepName);
+            objectiveSummary.Items.RemoveAll(existing => existing.ContentRef == item.ContentRef);
+            objectiveSummary.Items.Add(item);
+        }
+    }
+
+    /// <summary>Count an item whose value was not an integer, so a short objective is never silent.</summary>
+    private static void RecordUnscored(RunEnvironment env, string objective, string stepName)
+    {
+        lock (env.Summary.Scores) GetObjectiveSummary(env, objective, stepName).Unscored++;
+    }
+
+    /// <summary>Get (or add) the objective's summary. Callers hold the Scores lock.</summary>
+    private static ScoreObjectiveSummary GetObjectiveSummary(RunEnvironment env, string objective, string stepName)
+    {
+        var objectiveSummary = env.Summary.Scores.FirstOrDefault(s => s.Objective.Equals(objective, StringComparison.OrdinalIgnoreCase));
+        if (objectiveSummary == null)
+        {
+            objectiveSummary = new ScoreObjectiveSummary { Objective = objective };
+            env.Summary.Scores.Add(objectiveSummary);
+        }
+        if (!objectiveSummary.Steps.Contains(stepName)) objectiveSummary.Steps.Add(stepName);
+        return objectiveSummary;
+    }
+
+    /// <summary>
+    /// Order every objective's scored items highest first and compute its distribution, so the
+    /// outcome can show how many items carried each score without recounting in the browser.
+    /// </summary>
+    private static void FinalizeScoreSummaries(VariantSummary summary)
+    {
+        foreach (var objective in summary.Scores)
+        {
+            objective.Items = objective.Items
+                .OrderByDescending(item => item.Score)
+                .ThenBy(item => RankId(item.ContentRef.All(char.IsDigit) ? $"id:{item.ContentRef}" : item.ContentRef))
+                .ThenBy(item => item.ContentRef, StringComparer.Ordinal)
+                .ToList();
+            objective.Distribution = objective.Items
+                .GroupBy(item => item.Score)
+                .OrderByDescending(group => group.Key)
+                .ToDictionary(group => group.Key, group => group.Count());
+        }
+    }
     #endregion
     #endregion
 }

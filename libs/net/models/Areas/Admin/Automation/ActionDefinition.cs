@@ -175,9 +175,17 @@ public class ActionDefinition
     public string? Objective { get; set; }
 
     /// <summary>
-    /// get/set - How many top-scored items 'select-top' takes.
+    /// get/set - How many top-scored items 'select-top' takes. Optional when 'minScore' is set,
+    /// in which case it caps how many of the qualifying items are kept.
     /// </summary>
     public int? Take { get; set; }
+
+    /// <summary>
+    /// get/set - The lowest score 'select-top' accepts: every item scoring at or above it is
+    /// selected, however many that is. Combined with 'take' it caps the qualifying items;
+    /// on its own the selection size follows the scores rather than a fixed count.
+    /// </summary>
+    public int? MinScore { get; set; }
 
     /// <summary>
     /// get/set - The content action (e.g. Top Story) applied by 'content.action'/'select-top'.

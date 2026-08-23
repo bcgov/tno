@@ -149,6 +149,14 @@ export const AnalysisEditor: React.FC<IAnalysisEditorProps> = ({
       <Show visible={!analysis.raw}>
         <div className="frm-in">
           <label>Returns</label>
+          <p className="automation-field-help">
+            The keys this analysis answers with. The engine asks for JSON in exactly this shape and
+            validates the reply, then actions read a key as{' '}
+            <code>{analysis.name || '<analysis>'}. &lt;key&gt;</code> in their Value field. To score
+            stories, declare an integer key with a range — e.g. key <code>score</code> of type{' '}
+            <code>int(1..10)</code> — and point a Score Content action&apos;s Value at{' '}
+            <code>{`${analysis.name || '<analysis>'}.score`}</code>.
+          </p>
           <div className="automation-returns">
             <div className="automation-returns-head">
               <span>Key</span>

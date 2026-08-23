@@ -45,6 +45,28 @@ public class AutomationDefinitionValidatorTest
         Assert.Empty(errors.Where(e => e.Severity == "error"));
     }
 
+    /// <summary>A select-top action must say how much to keep: a count, a score threshold, or both.</summary>
+    [Fact]
+    public void SelectTopWithoutTakeOrMinScore_IsAnError()
+    {
+        var definition = ValidDefinition();
+        definition.Steps[1].Actions.Add(new ActionDefinition { Type = "score", Objective = "top-story", Value = new ValueSource { From = "triage.sentiment" } });
+        definition.Steps[2].Actions.Add(new ActionDefinition { Type = "select-top", Objective = "top-story" });
+        var errors = AutomationDefinitionValidator.Validate(definition);
+        Assert.Contains(errors, e => e.Severity == "error" && e.Message.Contains("minScore"));
+    }
+
+    /// <summary>A score threshold alone is a complete rule - 'take' is not required with it.</summary>
+    [Fact]
+    public void SelectTopWithMinScoreOnly_IsValid()
+    {
+        var definition = ValidDefinition();
+        definition.Steps[1].Actions.Add(new ActionDefinition { Type = "score", Objective = "top-story", Value = new ValueSource { From = "triage.sentiment" } });
+        definition.Steps[2].Actions.Add(new ActionDefinition { Type = "select-top", Objective = "top-story", MinScore = 7 });
+        var errors = AutomationDefinitionValidator.Validate(definition);
+        Assert.Empty(errors.Where(e => e.Severity == "error"));
+    }
+
     [Fact]
     public void UnknownActionType_IsAnError()
     {
