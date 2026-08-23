@@ -30,8 +30,8 @@
 - `ffmpeg`: media transformation worker. Run `make up n=ffmpeg`; build `dotnet build services/net/ffmpeg/`; depends on `api`, `broker`, volume `tno-api-data`.
 - `scheduler`: scheduled jobs orchestrator. Run `make up n=scheduler`; build `dotnet build services/net/scheduler/`; depends on `api`, `broker`.
 - `event-handler`: event-driven processing. Run `make up n=event-handler`; build `dotnet build services/net/event-handler/`; depends on `api`, `broker`.
-- `automation`: morning automation service scaffold. Build `dotnet build services/net/automation/`; run manually with `cd services/net/automation && dotnet run`.
-- `ches-retry`: CHES retry support service. Build `dotnet build services/net/ches-retry/`; run manually as needed.
+- `automation`: AI automation engine — executes schema-v2 automation profiles (steps, analyses, actions, scoring, saves) and writes each run's decision log and outcome summary back through the API. Run `make up n=automation`; build `dotnet build services/net/automation/TNO.Services.Automation.csproj`; depends on `api`, `broker`, `elastic`, and an LLM configured on the profile.
+- `ches-retry`: CHES retry support service. Build `dotnet build services/net/ches-retry/`; run manually as needed. **Not a compose service** — it has no entry in `services/docker-compose.yml`, so `make up n=ches-retry` will not work.
 
 ## Service Testing Guidance
 
@@ -39,3 +39,10 @@
 - API/service integration checks: run required containers and call health endpoints.
 - Frontend checks: `yarn build` and targeted `yarn test` for modified app(s).
 - Repo integration tests: see `test/README.md` (Postman/e2e flows).
+
+## Seeing a Change in a Running Stack
+
+A `dotnet build` proves the code compiles; it does **not** update the running container. Rebuild
+what the change actually reaches — `make refresh n=<service>` for a service, `n=api` for `api/net`
+**or any `libs/net/**` change the UIs read through the API**. Editor/subscriber `src/` changes need
+no rebuild (bind-mounted, Vite hot-reloads). Full rules in the `docker-compose-services` skill.
