@@ -259,11 +259,40 @@ export const AutomationDesigner: React.FC<IAutomationDesignerProps> = ({
           <SectionInfoButton
             title="Steps"
             content={
-              <p>
-                Steps run in phase order (init → process → complete) and in row order within a
-                phase. Every action in a step applies to the item the step iterates; to act on
-                different content, iterate a different collection.
-              </p>
+              <>
+                <p>
+                  Steps run in phase order (init → process → complete) and in row order within a
+                  phase. Every action in a step applies to the item the step iterates; to act on
+                  different content, iterate a different collection.
+                </p>
+                <p>
+                  <strong>Scoring stories with a prompt.</strong> Nothing scores by itself — an
+                  analysis produces the number and a Score Content action records it:
+                </p>
+                <ul>
+                  <li>
+                    On the <em>process</em> step, add an <strong>Analysis</strong> whose prompt asks
+                    for the score, and declare it under <strong>Returns</strong> — key{' '}
+                    <code>score</code>, type <code>int(1..10)</code>. The range is what keeps the
+                    model in bounds.
+                  </li>
+                  <li>
+                    Add a <strong>Score Content</strong> action: set <strong>Value</strong> to
+                    &lsquo;Analysis result&rsquo; and pick <code>&lt;analysis&gt;.score</code>, then
+                    name the <strong>Objective</strong> (e.g. <code>top-story</code>).
+                  </li>
+                  <li>
+                    On a <em>complete</em> step, add <strong>Select Top Scored</strong> with that
+                    same objective. Keep a fixed count with <strong>Take</strong>, or keep every
+                    story at or above a score with <strong>Min score</strong>.
+                  </li>
+                </ul>
+                <p>
+                  Select Top Scored never calls the LLM: it ranks the recorded scores highest first
+                  and breaks ties on the lowest content id. The run&apos;s Outcome tab lists every
+                  scored story and how many carried each score.
+                </p>
+              </>
             }
           />
         </Row>

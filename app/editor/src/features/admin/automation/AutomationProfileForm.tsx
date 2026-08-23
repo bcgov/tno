@@ -68,13 +68,13 @@ import {
   buildProfileForExport,
   buildProfileForSave,
   createDefaultSchedule,
-  createOption,
   findOptionByValue,
   formatRunTime,
   formatScheduleWeekDays,
   normalizeProfile,
   scheduleWeekDayOptions,
   toNumberOrUndefined,
+  toReferenceOption,
 } from './utils';
 import { AutomationDebugging } from './AutomationDebugging';
 import { SectionInfoButton } from './SectionInfoButton';
@@ -124,6 +124,20 @@ const AutomationProfileForm: React.FC = () => {
   );
   // What the run detail modal shows: the outcome summary or the decision log.
   const [runDetailView, setRunDetailView] = React.useState<'outcome' | 'log'>('outcome');
+
+  // The outcome's report/notification rows carry only an id; the designer already holds the names
+  // for its pickers, so they are resolved here rather than fetched again.
+  const reportNames = React.useMemo(
+    () => Object.fromEntries(reportOptions.map((option) => [`${option.value}`, `${option.label}`])),
+    [reportOptions],
+  );
+  const notificationNames = React.useMemo(
+    () =>
+      Object.fromEntries(
+        notificationOptions.map((option) => [`${option.value}`, `${option.label}`]),
+      ),
+    [notificationOptions],
+  );
 
   const profileId = Number(id);
   const hub = useApiHub();
@@ -420,28 +434,26 @@ const AutomationProfileForm: React.FC = () => {
   React.useEffect(() => {
     if (!llms.length) {
       getLLMs().then((values) => {
-        setLLMOptions(values.map((value) => createOption(value.name, value.id)));
+        setLLMOptions(values.map(toReferenceOption));
       });
     } else {
-      setLLMOptions(llms.map((value) => createOption(value.name, value.id)));
+      setLLMOptions(llms.map(toReferenceOption));
     }
   }, [getLLMs, llms]);
 
   React.useEffect(() => {
-    setActionOptions(actions.map((value) => createOption(value.name, value.id)));
+    setActionOptions(actions.map(toReferenceOption));
   }, [actions]);
 
   React.useEffect(() => {
     findAllReportsHeadersOnly()
       .then((reports) => {
-        setReportOptions(reports.map((report) => createOption(report.name, report.id)));
+        setReportOptions(reports.map(toReferenceOption));
       })
       .catch(() => {});
     findNotifications()
       .then((notifications) => {
-        setNotificationOptions(
-          notifications.map((notification) => createOption(notification.name, notification.id)),
-        );
+        setNotificationOptions(notifications.map(toReferenceOption));
       })
       .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -480,7 +492,7 @@ const AutomationProfileForm: React.FC = () => {
   }, [refreshFilters]);
 
   React.useEffect(() => {
-    setFilterOptions(filters.map((value) => createOption(value.name, value.id)));
+    setFilterOptions(filters.map(toReferenceOption));
   }, [filters]);
 
   const handleSubmit = async (values: IAutomationProfileModel) => {
@@ -1077,7 +1089,13 @@ const AutomationProfileForm: React.FC = () => {
                 hide={closeRunDetail}
                 type="custom"
                 component={
-                  <div className="rule-modal-content run-detail-content">
+                  <div
+                    className={`rule-modal-content run-detail-content${
+                      runDetailView === 'log' && !!parseRunSummary(runDiff?.run?.summary)
+                        ? ' run-detail-log-view'
+                        : ''
+                    }`}
+                  >
                     <div className="run-detail-summary">
                       <div>
                         <label>Status:</label> <span>{String(runDetail?.status ?? '-')}</span>
@@ -1128,7 +1146,11 @@ const AutomationProfileForm: React.FC = () => {
                             </button>
                           </div>
                           <Show visible={runDetailView === 'outcome'}>
-                            <RunOutcome summary={runSummary} />
+                            <RunOutcome
+                              summary={runSummary}
+                              reportNames={reportNames}
+                              notificationNames={notificationNames}
+                            />
                           </Show>
                           <Show visible={runDetailView === 'log' && !!runDetail}>
                             <RunLogViewer

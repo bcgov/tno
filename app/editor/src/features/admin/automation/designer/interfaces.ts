@@ -126,6 +126,8 @@ export interface IAutomationAction {
   prompt?: IAutomationPrompt | null;
   objective?: string | null;
   take?: number | null;
+  /** Select Top Scored: keep every item scoring at or above this value. */
+  minScore?: number | null;
   contentAction?: number | null;
   report?: number | null;
   notification?: number | null;
@@ -229,6 +231,64 @@ export interface IAutomationRunSummaryModel {
   differences: { contentRef: string; onlyA: string[]; onlyB: string[] }[];
 }
 
+/** One item and the score a Score Content action recorded for it. */
+export interface IAutomationScoredItemModel {
+  contentRef: string;
+  score: number;
+  headline?: string | null;
+  step?: string | null;
+}
+
+/** Every score recorded under one objective, with the distribution of those scores. */
+export interface IAutomationScoreObjectiveModel {
+  objective: string;
+  steps: string[];
+  items: IAutomationScoredItemModel[];
+  /** Score → how many items carry it (JSON object keys are the scores). */
+  distribution: Record<string, number>;
+  /** Items whose value was not an integer and so were never scored. */
+  unscored: number;
+}
+
+/** One Select Top Scored action's outcome: the ranking rule, what it kept, what it chose from. */
+export interface IAutomationSelectionModel {
+  objective: string;
+  step?: string | null;
+  action?: string | null;
+  /** The ranking rule applied — no LLM is involved. */
+  sortedBy: string;
+  /** What was kept, in words ('the top 10', 'every item scoring 7 or higher'). Absent on runs
+   *  recorded before the score threshold existed. */
+  rule?: string | null;
+  /** The count cap, or null when only a score threshold applied. */
+  take?: number | null;
+  /** The score threshold, or null when a fixed count was taken. */
+  minScore?: number | null;
+  candidates: number;
+  /** How many candidates met the threshold before the count cap. Absent on older runs. */
+  qualified?: number | null;
+  into?: string | null;
+  contentAction?: string | null;
+  selected: IAutomationScoredItemModel[];
+  distribution: Record<string, number>;
+  /** Ranked keys that no longer resolved to an item and were dropped. */
+  unresolved: string[];
+}
+
+/** One item a save action wrote, naming the fields the write carried. */
+export interface IAutomationSaveModel {
+  contentRef: string;
+  step?: string | null;
+  action?: string | null;
+  collection?: string | null;
+  headline?: string | null;
+  fields: string[];
+  /** 'saved', 'created', 'would-save' (dry run) or 'failed'. */
+  outcome: string;
+  indexed: boolean;
+  error?: string | null;
+}
+
 export interface IAutomationVariantSummaryModel {
   steps: {
     name: string;
@@ -253,6 +313,12 @@ export interface IAutomationVariantSummaryModel {
   collections: Record<string, number>;
   excluded: { contentRef: string; reason: string; step?: string | null }[];
   draftIds: Record<string, number>;
+  /** Score Content results by objective. Absent on runs recorded before scoring was summarized. */
+  scores?: IAutomationScoreObjectiveModel[] | null;
+  /** Select Top Scored results. Absent on runs recorded before selections were summarized. */
+  selections?: IAutomationSelectionModel[] | null;
+  /** Save Collection / Save Content Now results. Absent on runs recorded before saves were summarized. */
+  saves?: IAutomationSaveModel[] | null;
   llmCalls: number;
   promptTokens: number;
   completionTokens: number;

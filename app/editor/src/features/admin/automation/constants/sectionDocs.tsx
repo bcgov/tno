@@ -140,11 +140,12 @@ export const sectionDocs = {
           </li>
           <li>
             <code>{`{objective}`}</code> is replaced with the action&apos;s Objective (Score Content
-            and Select Top Content actions). Score actions record a per-story score for the
-            objective; the matching Select Top Content action (usually on an <em>end</em> step)
-            receives the top scored stories at <code>{`{candidates:<objective>}`}</code> (contentId,
-            score, headline, source, summary) and applies its Content Action to the ids it selects,
-            capped by Max Calls.
+            actions). A Score Content action records a per-story score for the objective. The
+            matching Select Top Scored action (usually on an <em>end</em> step) uses no LLM at all:
+            it ranks every recorded score highest first, breaks ties on the lowest content id, and
+            keeps the first <em>Take</em> stories — adding them to a collection and/or stamping a
+            Content Action on each. The run outcome and decision log name the stories it selected
+            and report how many stories carried each score.
           </li>
           <li>
             For large multiline values (rewritten text, HTML, XML) wrap <code>{`{value}`}</code>{' '}

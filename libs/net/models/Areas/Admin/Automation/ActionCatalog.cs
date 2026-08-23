@@ -219,18 +219,19 @@ public static class ActionCatalog
             Description: "Asks the LLM whether the current item duplicates any candidate in the 'against' collection, and records the answer for later actions to route on: '<action name>.isDuplicate' (true/false) and '<action name>.matchedId' (the matched candidate's id). The action decides nothing itself - gate later actions with Runs when = Condition and an Analysis answer of '<action name>.isDuplicate' (e.g. add duplicates to a collection or Exclude From Run; use Not for the unique items). 'mode' compares one candidate per call (iterate, default) or 'batchSize' candidates per call (batch); 'maxComparisons' caps how many candidates are examined; 'remember' persists confirmed duplicates as content_link records so later runs skip the LLM for already-linked items; 'prompt' overrides the comparison prompt."),
         new ActionDescriptor("score", "Score Content", "content", true, false, false, _process, new[]
         {
-            new FieldSpec("objective", "string", true),
-            new FieldSpec("value", "valueSource", true, "An integer score."),
+            new FieldSpec("objective", "string", true, "Names the score, e.g. 'top-story'. Use the same name on the Select Top Scored action that consumes it."),
+            new FieldSpec("value", "valueSource", true, "Where the integer score comes from - normally an analysis result, '<analysis name>.<key>'."),
         },
-            Description: "Records an integer score for the current item under the named 'objective'. 'value' supplies the score, usually from an analysis; a later select-top action ranks by it."),
+            Description: "Records an integer score for the current item under the named 'objective' - the number a later Select Top Scored action ranks by. This action does not call the LLM itself; it stores whatever 'value' resolves to. TO SCORE STORIES WITH A PROMPT: (1) add an Analysis to this step whose prompt asks for the score and whose Returns declares the key and range, e.g. key 'score' of type 'int(1..10)'; (2) set this action's Value to 'Analysis result / content field' and pick '<analysis name>.score'; (3) name the Objective and use that same name on a Select Top Scored action in a later (complete) step. The analysis runs once per item, only when an action consumes it. An answer that is not a whole number is logged as skipped and the item stays unscored, so the Returns range is what keeps the model in bounds. Rescoring an item replaces its earlier score, and the run outcome lists every scored story with its score plus how many stories carried each score."),
         new ActionDescriptor("select-top", "Select Top Scored", "distribute", false, true, false, _once, new[]
         {
-            new FieldSpec("objective", "string", true),
-            new FieldSpec("take", "int", true),
+            new FieldSpec("objective", "string", true, "The objective whose scores are ranked - the same name a Score Content action recorded."),
+            new FieldSpec("take", "int", false, "Keep this many items. Required unless 'minScore' is set; set both to cap how many qualifying items are kept."),
+            new FieldSpec("minScore", "int", false, "Keep every item scoring at or above this value, however many that is. Leave empty to select a fixed count with 'take' instead."),
             new FieldSpec("into", "collection", false, "Collection the selected items are written to."),
             new FieldSpec("contentAction", "contentAction", false, "Content action stamped on each selected item."),
         },
-            Description: "Ranks every item scored under 'objective' and keeps the best 'take'. 'into' writes the selected items to a collection; 'contentAction' stamps an editorial flag on each."),
+            Description: "Selects items from the scores a Score Content action recorded under 'objective'. No LLM is involved - it ranks the recorded scores highest first and breaks ties on the lowest content id, so the same scores always select the same items. Choose how many to keep: 'take' keeps a fixed count (the top 10); 'minScore' keeps every item scoring at or above a threshold, so a day with more good stories yields more selections; setting both keeps the qualifying items up to the 'take' cap. 'into' writes the selected items to a collection; 'contentAction' stamps an editorial flag on each. The run outcome and decision log name the selected items and report how many items carried each score."),
         new ActionDescriptor("report.run", "Run Report", "distribute", false, true, false, _once, new[]
         {
             new FieldSpec("report", "report", true),
