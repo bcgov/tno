@@ -106,6 +106,13 @@ public static class AutomationDefinitionValidator
                 errors.Add(new($"{stepPath}.source", "An init step runs once and cannot declare a source."));
 
             // Analyses.
+            // Every draft the step creates, wherever it is created: an analysis runs at the
+            // position of the action that consumes it, not at a position of its own, so a target
+            // is judged against the step as a whole rather than against what precedes it.
+            var stepDrafts = step.Actions
+                .Where(a => a.Type == "content.create" && !string.IsNullOrWhiteSpace(a.As))
+                .Select(a => a.As!)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
             var analyses = new Dictionary<string, AnalysisDefinition>(StringComparer.OrdinalIgnoreCase);
             for (var a = 0; a < step.Analyses.Count; a++)
             {
@@ -120,6 +127,13 @@ public static class AutomationDefinitionValidator
                 var analysisPromptText = $"{analysis.Prompt.Text} {analysis.Prompt.Override} " +
                     (analysis.Prompt.Ref != null && definition.Prompts.TryGetValue(analysis.Prompt.Ref, out var libraryEntry) ? libraryEntry.Text : "");
                 ValidatePromptTokens(analysisPromptText, $"{path}.prompt", allowCandidates: false, errors);
+
+                if (!string.IsNullOrWhiteSpace(analysis.Target) && !stepDrafts.Contains(analysis.Target!))
+                    errors.Add(new($"{path}.target", $"Draft '{analysis.Target}' is not created by a content.create action in this step."));
+                // A '{target...}' token with nothing to read renders as nothing, which looks like
+                // the model ignored the instruction rather than like a missing setting.
+                else if (string.IsNullOrWhiteSpace(analysis.Target) && _targetToken.IsMatch(analysisPromptText))
+                    errors.Add(new($"{path}.target", "The prompt uses a '{target}' token but the analysis has no target, so the token renders as nothing. Set the target to the draft it should read.", "warning"));
 
                 if (!analysis.Raw && analysis.Returns.Count == 0)
                     errors.Add(new($"{path}.returns", "A structured analysis must declare at least one return key (or set raw)."));
@@ -292,6 +306,9 @@ public static class AutomationDefinitionValidator
         }
     }
 
+    private static readonly System.Text.RegularExpressions.Regex _targetToken =
+        new(@"\{target(\.[^}]*)?\}", System.Text.RegularExpressions.RegexOptions.Compiled);
+
     private static readonly System.Text.RegularExpressions.Regex _promptToken =
         new(@"\{(?<name>[a-zA-Z][a-zA-Z0-9_-]*)(?<rest>[.:][^}]*)?\}", System.Text.RegularExpressions.RegexOptions.Compiled);
 
@@ -302,7 +319,7 @@ public static class AutomationDefinitionValidator
     private static void ValidatePromptTokens(string? text, string path, bool allowCandidates, List<ValidationError> errors)
     {
         if (string.IsNullOrWhiteSpace(text)) return;
-        var known = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "content", "lookup", "collection", "value" };
+        var known = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "content", "target", "lookup", "collection", "value" };
         if (allowCandidates) { known.Add("candidate"); known.Add("candidates"); }
         var unknown = _promptToken.Matches(text!)
             .Select(m => m.Groups["name"].Value)

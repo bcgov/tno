@@ -27,7 +27,9 @@ public static class ValueResolver
         if (source.Literal.HasValue)
             return ElementToString(source.Literal.Value);
         if (!string.IsNullOrWhiteSpace(source.Template))
-            return prompts.Substitute(source.Template!, null) is var text && target != null
+            // The target goes in so '{target.field}' resolves in an action template exactly as
+            // '{content.field}' does here - both read the entry the action acts on.
+            return prompts.Substitute(source.Template!, null, target) is var text && target != null
                 ? SubstituteFields(text, target)
                 : text;
         return null;

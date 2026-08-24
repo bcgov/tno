@@ -303,6 +303,7 @@ export const PromptLibrary: React.FC<IPromptLibraryProps> = ({ definition, onCha
                 )
               }
               showCandidates
+              showTarget
             />
           </div>
         }

@@ -316,6 +316,16 @@ export const CONTENT_TOKENS: { token: string; hint: string }[] = [
   { token: '{content.topics}', hint: 'JSON array of {"name","score"} topic objects' },
 ];
 
+/** Insertable target tokens: the same fields as the content tokens, but read from the draft an
+ * analysis names as its target rather than from the item the iteration started from. Derived from
+ * CONTENT_TOKENS so the two lists cannot drift apart. */
+export const TARGET_TOKENS: { token: string; hint: string }[] = CONTENT_TOKENS.map(
+  ({ token, hint }) => ({
+    token: token.replace('{content', '{target'),
+    hint: `${hint} — read from the targeted draft`,
+  }),
+);
+
 /** The working-copy property fields conditions can test, derived from the content token list so
  * the dropdown and the prompt tokens stay one surface. */
 export const contentTokenFieldOptions: IOptionItem[] = CONTENT_TOKENS.filter(({ token }) =>
