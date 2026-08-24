@@ -10,6 +10,9 @@ namespace TNO.Services.Automation.Engine;
 /// PromptBuilder class, resolves prompt text (library reference + override or inline text) and
 /// substitutes runtime tokens:
 /// - {content} and {content.field} - the subject's working copy (deltas folded in);
+/// - {target} and {target.field} - the working copy of the draft an analysis names as its
+///   target, so a prompt can read what earlier actions built on the copy rather than on the
+///   item the iteration started from (nothing when the analysis declares no target);
 /// - {lookup:name} / {lookup:name[col,col]} - reference data from the run's lookup bundle,
 ///   enabled records only, stable order, size-guarded (so prompts stop pasting tag lists);
 /// - {collection:$run.name} / {collection:$run.name[field,field]} - a collection's digests.
@@ -27,6 +30,7 @@ public class PromptBuilder
     private static readonly Regex _lookupToken = new(@"\{lookup:(?<name>[a-zA-Z]+)(\[(?<cols>[^\]]+)\])?\}", RegexOptions.Compiled);
     private static readonly Regex _collectionToken = new(@"\{collection:(?<name>\$run\.[a-zA-Z0-9_-]+)(\[(?<cols>[^\]]+)\])?\}", RegexOptions.Compiled);
     private static readonly Regex _contentFieldToken = new(@"\{content\.(?<field>[a-zA-Z.]+)\}", RegexOptions.Compiled);
+    private static readonly Regex _targetFieldToken = new(@"\{target\.(?<field>[a-zA-Z.]+)\}", RegexOptions.Compiled);
 
     private readonly AutomationDefinition _definition;
     private readonly LookupModel? _lookups;
@@ -69,12 +73,21 @@ public class PromptBuilder
     /// <summary>
     /// Substitute runtime tokens into resolved prompt text for the specified subject.
     /// When the text carries no {content} token and a subject exists, the working copy is
-    /// appended as a '## News Story' section so the model always sees the item.
+    /// appended as a '## News Story' section so the model always sees the item. The optional
+    /// target is a second working copy (a draft the analysis names) read by the {target} tokens;
+    /// it never triggers the appended section - the target is only ever placed explicitly.
     /// </summary>
-    public string Substitute(string text, ContentEntry? subject, bool appendSubject = true)
+    public string Substitute(string text, ContentEntry? subject, ContentEntry? target = null, bool appendSubject = true)
     {
         var result = _lookupToken.Replace(text, match => RenderLookup(match.Groups["name"].Value, SplitColumns(match)));
         result = _collectionToken.Replace(result, match => RenderCollection(match.Groups["name"].Value, SplitColumns(match)));
+
+        // The field tokens go first so '{target}' cannot swallow the '{target.field}' ones. With
+        // no target (none declared, or the draft does not exist yet) they resolve to nothing
+        // rather than reaching the model as literal text.
+        result = _targetFieldToken.Replace(result, match => target?.GetField(match.Groups["field"].Value) ?? "");
+        if (result.Contains("{target}"))
+            result = result.Replace("{target}", target?.ToWorkingJson(_jsonOptions) ?? "");
 
         if (subject != null)
         {

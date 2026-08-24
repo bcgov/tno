@@ -651,9 +651,21 @@ public class AutomationEngine
         }
 
         var subject = scope.Subject;
+        // '{target...}' reads the draft the analysis names, so a prompt can describe the copy the
+        // step's actions are building instead of only the item the iteration started from. An
+        // unresolved draft is logged, never silent: the tokens then render as nothing.
+        ContentEntry? target = null;
+        if (!string.IsNullOrWhiteSpace(analysis.Target))
+        {
+            target = scope.ResolveTarget(analysis.Target);
+            if (target == null)
+                env.Log.LogDecision(step.Name, name, "analysis", subject is { Kind: "existing" } ? subject.Id : (long?)null, Outcomes.Info,
+                    $"Draft '{analysis.Target}' does not exist yet, so the analysis's {{target...}} tokens are empty. It is created by a content.create action - make sure that action runs before whatever consumes this analysis.");
+        }
         var text = env.Prompts.Resolve(analysis.Prompt);
-        // The first message of an exchange carries the working copy; later chained turns already have it.
-        text = messages.Count == 0 ? env.Prompts.Substitute(text, subject) : env.Prompts.Substitute(text, null);
+        // The first message of an exchange carries the working copy; later chained turns already
+        // have it, so they substitute the tokens without re-appending the story.
+        text = env.Prompts.Substitute(text, subject, target, appendSubject: messages.Count == 0);
         if (!analysis.Raw && analysis.Returns.Count > 0)
         {
             var spec = string.Join("\n", analysis.Returns.Select(kv => $"- \"{kv.Key}\": {kv.Value}"));
