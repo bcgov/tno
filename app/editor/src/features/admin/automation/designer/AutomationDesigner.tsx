@@ -211,7 +211,8 @@ export const AutomationDesigner: React.FC<IAutomationDesignerProps> = ({
     update({ ...definition, steps });
   };
 
-  /** Drafts declared by content.create actions before the given index (modal draft pickers). */
+  /** Drafts declared by content.create actions before the given index, or every draft the step
+   * declares when the index is null (the analysis target picker, which has no action position). */
   const draftNamesBefore = (step: IAutomationStep, index: number | null): string[] =>
     step.actions
       .slice(0, index ?? step.actions.length)
@@ -291,6 +292,15 @@ export const AutomationDesigner: React.FC<IAutomationDesignerProps> = ({
                   Select Top Scored never calls the LLM: it ranks the recorded scores highest first
                   and breaks ties on the lowest content id. The run&apos;s Outcome tab lists every
                   scored story and how many carried each score.
+                </p>
+                <p>
+                  <strong>Analysing a draft.</strong> When a step creates a copy with{' '}
+                  <strong>New Content</strong> and its actions target that draft, an analysis still
+                  reads the item the iteration started from — <code>{'{content.tags}'}</code> is the
+                  original&apos;s tags, not the ones an earlier action just put on the copy. Set the
+                  analysis&apos;s <strong>Target</strong> to that draft and read it with{' '}
+                  <code>{'{target.tags}'}</code>; <code>{'{content...}'}</code> keeps meaning the
+                  original.
                 </p>
               </>
             }
@@ -478,6 +488,7 @@ export const AutomationDesigner: React.FC<IAutomationDesignerProps> = ({
                                       <span className="automation-gc-name">Analysis</span>
                                       <span className="automation-gc-source">Prompt</span>
                                       <span className="automation-gc-sm">Chain</span>
+                                      <span className="automation-gc-sm">Target</span>
                                       <span className="automation-gc-sm">LLM Override</span>
                                       <span className="automation-gc-sm">Returns</span>
                                       <span className="automation-gc-actions">
@@ -541,6 +552,18 @@ export const AutomationDesigner: React.FC<IAutomationDesignerProps> = ({
                                         </span>
                                         <span className="automation-gc-sm">
                                           {analysis.chain ?? (
+                                            <span className="automation-muted">—</span>
+                                          )}
+                                        </span>
+                                        <span
+                                          className="automation-gc-sm"
+                                          title={
+                                            analysis.target
+                                              ? `'{target...}' tokens read ${analysis.target}`
+                                              : undefined
+                                          }
+                                        >
+                                          {analysis.target?.replace(/^\$item\./, '') ?? (
                                             <span className="automation-muted">—</span>
                                           )}
                                         </span>
@@ -926,6 +949,11 @@ export const AutomationDesigner: React.FC<IAutomationDesignerProps> = ({
                     ? definition.steps[analysisModal.stepIndex].analyses
                         .slice(0, analysisModal.index ?? undefined)
                         .map((analysis) => analysis.name)
+                    : []
+                }
+                draftNames={
+                  analysisModal
+                    ? draftNamesBefore(definition.steps[analysisModal.stepIndex], null)
                     : []
                 }
                 promptNames={promptNames}

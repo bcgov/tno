@@ -67,6 +67,51 @@ public class AutomationDefinitionValidatorTest
         Assert.Empty(errors.Where(e => e.Severity == "error"));
     }
 
+    /// <summary>An analysis target must name a draft the step actually creates.</summary>
+    [Fact]
+    public void AnalysisTargetWithoutMatchingDraft_IsAnError()
+    {
+        var definition = ValidDefinition();
+        definition.Steps[1].Analyses[0].Target = "$item.copy";
+        var errors = AutomationDefinitionValidator.Validate(definition);
+        Assert.Contains(errors, e => e.Path == "steps[1].analyses[0].target" && e.Severity == "error");
+    }
+
+    /// <summary>A draft created anywhere in the step is a valid target: the analysis runs where the
+    /// action consuming it runs, not at a position of its own.</summary>
+    [Fact]
+    public void AnalysisTargetNamingAStepDraft_IsValid()
+    {
+        var definition = ValidDefinition();
+        definition.Steps[1].Actions.Insert(0, new ActionDefinition { Type = "content.create", As = "$item.copy", CopyFrom = "$item" });
+        definition.Steps[1].Analyses[0].Target = "$item.copy";
+        var errors = AutomationDefinitionValidator.Validate(definition);
+        Assert.Empty(errors.Where(e => e.Severity == "error"));
+    }
+
+    /// <summary>A '{target}' token with no target renders as nothing, which reads like the model
+    /// ignored the instruction rather than like a missing setting.</summary>
+    [Fact]
+    public void TargetTokenWithoutATarget_IsAWarning()
+    {
+        var definition = ValidDefinition();
+        definition.Prompts["rules"] = new PromptEntry { Text = "Review the story. {target.tags}" };
+        var errors = AutomationDefinitionValidator.Validate(definition);
+        Assert.Contains(errors, e => e.Path == "steps[1].analyses[0].target" && e.Severity == "warning");
+    }
+
+    /// <summary>'{target...}' is a recognized token, so it must not be reported as a typo.</summary>
+    [Fact]
+    public void TargetTokenWithATarget_IsNotReported()
+    {
+        var definition = ValidDefinition();
+        definition.Prompts["rules"] = new PromptEntry { Text = "Review the story. {target.tags}" };
+        definition.Steps[1].Actions.Insert(0, new ActionDefinition { Type = "content.create", As = "$item.copy", CopyFrom = "$item" });
+        definition.Steps[1].Analyses[0].Target = "$item.copy";
+        var errors = AutomationDefinitionValidator.Validate(definition);
+        Assert.DoesNotContain(errors, e => e.Message.Contains("target"));
+    }
+
     [Fact]
     public void UnknownActionType_IsAnError()
     {

@@ -27,6 +27,15 @@ public class AnalysisDefinition
     public string? Chain { get; set; }
 
     /// <summary>
+    /// get/set - The draft ('$item.&lt;name&gt;', created by a content.create action in this step)
+    /// the prompt's '{target}' / '{target.field}' tokens read, so an analysis can describe the copy
+    /// the step's actions are building rather than only the item the iteration started from.
+    /// '{content}' / '{content.field}' always read that original item, target or not; with no
+    /// target set the '{target...}' tokens resolve to nothing.
+    /// </summary>
+    public string? Target { get; set; }
+
+    /// <summary>
     /// get/set - The declared result shape: key -> type spec. Supported specs: 'string',
     /// 'string?', 'string[]', 'bool', 'int', 'int(min..max)'. The engine requests structured
     /// JSON and validates the response against these keys.

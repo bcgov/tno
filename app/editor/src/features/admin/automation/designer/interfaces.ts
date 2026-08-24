@@ -49,6 +49,9 @@ export interface IAutomationAnalysis {
   prompt: IAutomationPrompt;
   /** Continue an earlier analysis as a conversation (the model sees the earlier exchange). */
   chain?: string | null;
+  /** The draft ('$item.<name>', created by a content.create action in this step) the prompt's
+   * '{target}' tokens read; '{content}' always reads the item the iteration started from. */
+  target?: string | null;
   /** Result shape: key -> type spec ('string', 'string?', 'string[]', 'bool', 'int', 'int(a..b)'). */
   returns: Record<string, string>;
   /** Raw mode: keep the response as text; actions gate on it with confirmation statements. */

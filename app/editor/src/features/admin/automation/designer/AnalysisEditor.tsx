@@ -22,6 +22,8 @@ export interface IAnalysisEditorProps {
   analysis: IAutomationAnalysis;
   /** Names of analyses declared earlier in the step (valid chain targets). */
   earlierNames: string[];
+  /** Drafts the step's content.create actions declare (valid '{target}' sources). */
+  draftNames: string[];
   promptNames: string[];
   llmOptions: IOptionItem[];
   onChange: (analysis: IAutomationAnalysis) => void;
@@ -39,6 +41,7 @@ const RETURN_TYPES = ['string', 'string?', 'string[]', 'bool', 'int', 'int(-5..5
 export const AnalysisEditor: React.FC<IAnalysisEditorProps> = ({
   analysis,
   earlierNames,
+  draftNames,
   promptNames,
   llmOptions,
   onChange,
@@ -51,6 +54,12 @@ export const AnalysisEditor: React.FC<IAnalysisEditorProps> = ({
   const chainOptions = [
     createOption('(none)', ''),
     ...earlierNames.map((name) => createOption(name, name)),
+  ];
+  // The draft an analysis reads through '{target...}'. Every draft the step creates is offered:
+  // an analysis runs where the action consuming it runs, not at a position of its own.
+  const targetOptions = [
+    createOption('(none)', ''),
+    ...draftNames.map((name) => createOption(name.replace(/^\$item\./, ''), name)),
   ];
   const llmSelectOptions = [createOption('step default', ''), ...llmOptions];
   const returnEntries = Object.entries(analysis.returns ?? {});
@@ -95,6 +104,21 @@ export const AnalysisEditor: React.FC<IAnalysisEditorProps> = ({
         />
       </Row>
       <Row gap="1rem" alignItems="flex-end" nowrap>
+        <Show visible={draftNames.length > 0}>
+          <Select
+            name="analysis-target"
+            label="Target"
+            tooltip="The draft this analysis's '{target...}' tokens read, so the prompt can see what earlier actions put on the copy. '{content...}' always reads the item the iteration started from."
+            width={fitSelectWidth(['(none)', ...draftNames])}
+            isClearable={false}
+            options={targetOptions}
+            value={findOptionByValue(targetOptions, analysis.target ?? '')}
+            onChange={(newValue) => {
+              const option = newValue as IOptionItem;
+              set({ target: option?.value ? `${option.value}` : null });
+            }}
+          />
+        </Show>
         <Select
           name="analysis-llm"
           label="LLM Override"
@@ -114,6 +138,14 @@ export const AnalysisEditor: React.FC<IAnalysisEditorProps> = ({
           />
         </div>
       </Row>
+      <Show visible={!!analysis.target}>
+        <p className="automation-field-help">
+          <code>{'{target}'}</code> and <code>{'{target.field}'}</code> read{' '}
+          <code>{analysis.target}</code> — the copy this step&apos;s actions are building, including
+          the changes they have already made to it. <code>{'{content}'}</code> and{' '}
+          <code>{'{content.field}'}</code> keep reading the item the iteration started from.
+        </p>
+      </Show>
       <Show visible={!analysis.prompt?.ref}>
         <TextArea
           name="analysis-prompt-text"
@@ -136,6 +168,7 @@ export const AnalysisEditor: React.FC<IAnalysisEditorProps> = ({
         </div>
         <PromptTokens
           editorRef={overrideRef}
+          showTarget={draftNames.length > 0}
           onAppend={(token) =>
             set({
               prompt: {
