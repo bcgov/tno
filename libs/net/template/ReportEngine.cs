@@ -733,16 +733,21 @@ public class ReportEngine : IReportEngine
     /// <summary>
     /// Generate a dictionary contain the report minimized content items within each section.
     /// This is used by the AI summary.
+    /// Each content item includes its 'id' and a ready-made 'url' so the prompt can link to the
+    /// story without assembling (or inventing) the address itself.
     /// </summary>
     /// <param name="sectionContent"></param>
+    /// <param name="viewContentUrl"></param>
     /// <returns></returns>
-    private static Dictionary<string, object> GenerateAIReportContentData(Dictionary<string, ReportSectionModel> sectionContent)
+    private static Dictionary<string, object> GenerateAIReportContentData(Dictionary<string, ReportSectionModel> sectionContent, Uri? viewContentUrl)
     {
         var contentList = new Dictionary<string, object>();
         foreach (var section in sectionContent.Where(sc => sc.Value.Content.Any()))
         {
             var sectionContentJson = section.Value.Content.Select(c => new
             {
+                id = c.Id,
+                url = viewContentUrl != null ? $"{viewContentUrl}{c.Id}" : null,
                 headline = c.Headline,
                 text = !String.IsNullOrWhiteSpace(c.Body) ? c.Body : c.Summary,
                 byline = c.Byline,
@@ -794,14 +799,14 @@ public class ReportEngine : IReportEngine
                 if (previousReportContent != null && previousReportContent.Count > 0)
                 {
                     reportContentSection.AppendLine("## Previous Report Data");
-                    var previousReportData = GenerateAIReportContentData(previousReportContent);
+                    var previousReportData = GenerateAIReportContentData(previousReportContent, this.TemplateOptions.ViewContentUrl);
                     reportContentSection.AppendLine($"```json\n{JsonSerializer.Serialize(previousReportData, serializer)}\n```");
                 }
             }
 
             // Generate a system prompt that includes the current report content.
             reportContentSection.AppendLine("## Current Report Data");
-            var currentReportData = GenerateAIReportContentData(sectionContent);
+            var currentReportData = GenerateAIReportContentData(sectionContent, this.TemplateOptions.ViewContentUrl);
             reportContentSection.AppendLine($"```json\n{JsonSerializer.Serialize(currentReportData, serializer)}\n```");
 
             // Generate AI results.
