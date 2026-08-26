@@ -68,7 +68,7 @@ const reportWith = (settings: Record<string, unknown>) =>
     id: 1,
     name: 'Report',
     sections: [{ name: 'ai', isEnabled: true, settings: { label: 'AI', ...settings } }],
-  }) as any;
+  } as any);
 
 /** Surfaces the live values so assertions can read what the section wrote. */
 const Values = () => {
