@@ -11,7 +11,7 @@ export interface IReportSectionSettingsModel {
   removeDuplicateTitles3Days: boolean;
   overrideExcludeHistorical: boolean;
   inTableOfContents?: boolean;
-  includePreviousReport?: boolean;
+  includePreviousReports?: number;
   hideEmpty: boolean;
   groupBy: string;
   sortBy: string;
@@ -30,4 +30,6 @@ export interface IReportSectionSettingsModel {
   choiceIndex?: number;
   choiceQty?: number;
   temperature?: number;
+  /** Render the failure detail into the section body when an AI request fails. */
+  showErrorDetails?: boolean;
 }

@@ -91,6 +91,10 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
     {
         var entity = (Entities.Report)this;
         entity.Settings = JsonSerializer.SerializeToDocument(this.Settings, options);
+        // A subscriber never edits the report's template - only the editor app may do that, from its
+        // report form or the template admin page. Severing it here means a subscriber's save can
+        // never reach ReportService, which writes an attached template in full.
+        entity.Template = null;
         entity.Sections.ForEach(s =>
         {
             var section = this.Sections.FirstOrDefault(us => us.Name == s.Name) ?? throw new InvalidOperationException("Unable to find matching section");

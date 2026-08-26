@@ -73,6 +73,23 @@ public class AutomationRunLogService : BaseService<AutomationRunLog, long>, IAut
     }
 
     /// <summary>
+    /// Find the most recent run of the profile that recorded a log entry for the content item.
+    /// Debugging an outcome needs the run that produced it - the profile's latest run frequently
+    /// never saw the item, and its trace holds none of the prompts the answer depends on.
+    /// </summary>
+    /// <param name="profileId"></param>
+    /// <param name="contentId"></param>
+    /// <returns></returns>
+    public long? FindLatestRunForContent(int profileId, long contentId)
+    {
+        return this.Context.AutomationRunLogs.AsNoTracking()
+            .Where(l => l.ContentId == contentId && l.AutomationRun!.AutomationProfileId == profileId)
+            .OrderByDescending(l => l.AutomationRunId)
+            .Select(l => (long?)l.AutomationRunId)
+            .FirstOrDefault();
+    }
+
+    /// <summary>
     /// Insert a batch of run log entries.
     /// </summary>
     public int AddRange(IEnumerable<AutomationRunLog> logs)
