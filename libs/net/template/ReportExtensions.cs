@@ -13,6 +13,13 @@ public static partial class ReportExtensions
     #region Variables
     [GeneratedRegex("<img[^>]*>")]
     private static partial Regex StripHtmlImagesRegex();
+
+    /// <summary>
+    /// The file extensions the API will serve to an anonymous request
+    /// (StorageOptions.AllowAnonymousDownloadFileTypes). A template that links to anything else
+    /// renders a broken image in every subscriber's email and logs an error per request.
+    /// </summary>
+    private static readonly string[] _anonymousImageExtensions = { ".png", ".jpg", ".jpeg", ".svg", ".tiff", ".gif", ".webp" };
     #endregion
 
     #region Methods
@@ -38,6 +45,33 @@ public static partial class ReportExtensions
     {
         var now = DateTime.Now;
         return now.AddHours(GetUtcOffset(now, timezoneId));
+    }
+
+    /// <summary>
+    /// Get the anonymous download URL for the content's image file, or an empty string when it has
+    /// no file or that file is not an image an anonymous request may download.
+    /// A report section shows images for whatever content it holds, and an audio/video item carries
+    /// a file reference too - so linking to the file without checking it produces an &lt;img&gt; pointing
+    /// at an .mp4, which the API refuses. Templates call this instead of building the URL themselves.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="subscriberAppUrl">The subscriber app's base URL, ending in a slash.</param>
+    /// <returns>The download URL, or an empty string when there is no image to show.</returns>
+    public static string GetImageUrl(this ContentModel content, string? subscriberAppUrl)
+    {
+        if (string.IsNullOrWhiteSpace(subscriberAppUrl)) return "";
+
+        var file = content.FileReferences.FirstOrDefault();
+        if (file == null || string.IsNullOrWhiteSpace(file.Path)) return "";
+
+        var extension = Path.GetExtension(file.Path);
+        var isImage = !string.IsNullOrEmpty(extension)
+            ? _anonymousImageExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase)
+            // A file recorded without an extension is judged by its MIME type instead.
+            : file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
+        if (!isImage) return "";
+
+        return $"{subscriberAppUrl}api/subscriber/contents/download?path={file.Path}";
     }
 
     /// <summary>
