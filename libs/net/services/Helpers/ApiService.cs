@@ -926,6 +926,21 @@ public class ApiService : IApiService
     }
 
     /// <summary>
+    /// Get the previous instances for the specified report 'reportId'.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="ownerId"></param>
+    /// <param name="qty"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.Report.ReportInstanceModel[]> GetPreviousReportInstancesAsync(int reportId, int? ownerId, int qty)
+    {
+        var queryParams = new List<string> { $"qty={qty}" };
+        if (ownerId.HasValue) queryParams.Add($"ownerId={ownerId}");
+        var url = this.Options.ApiUrl.Append($"services/reports/{reportId}/previous-instances?{string.Join("&", queryParams)}");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.Report.ReportInstanceModel[]>(url)) ?? Array.Empty<API.Areas.Services.Models.Report.ReportInstanceModel>();
+    }
+
+    /// <summary>
     /// Get the LLM for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>

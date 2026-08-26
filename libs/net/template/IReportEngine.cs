@@ -69,7 +69,7 @@ public interface IReportEngine
         API.Areas.Services.Models.ReportInstance.ReportInstanceModel? reportInstance,
         Dictionary<string, ReportSectionModel> sectionContent,
         Func<int, int?, Task<Dictionary<string, ReportSectionModel>>> getLinkedReport,
-        Func<int, int?, int?, int, Task<Dictionary<string, ReportSectionModel>>> getPreviousReport,
+        Func<int, int?, int?, int, Task<IEnumerable<PreviousReportModel>>> getPreviousReport,
         Func<int, Task<API.Areas.Services.Models.LLM.LLMModel?>> getLLMAsync,
         string? uploadPath = null,
         bool viewOnWebOnly = false,

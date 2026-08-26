@@ -38,7 +38,7 @@ public interface IReportHelper
     /// <param name="ownerId"></param>
     /// <param name="qty"></param>
     /// <returns></returns>
-    Task<Dictionary<string, ReportSectionModel>> GetPreviousReportsAsync(int reportId, int? instanceId, int? ownerId = null, int qty = 1);
+    Task<IEnumerable<PreviousReportModel>> GetPreviousReportsAsync(int reportId, int? instanceId, int? ownerId = null, int qty = 1);
 
     /// <summary>
     /// Get the content from the previous instance of the specified 'id' and 'ownerId'.

@@ -180,6 +180,25 @@ public class ReportController : ControllerBase
     }
 
     /// <summary>
+    /// Get the previous instances for the specified report 'id'.
+    /// An AI section comparing a report against its history needs every instance it asked for, not
+    /// only the most recent one.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="ownerId"></param>
+    /// <param name="qty"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/previous-instances")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ReportInstanceModel[]), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult GetPreviousInstances(int id, int? ownerId, int qty = 1)
+    {
+        var instances = _service.GetPreviousReportInstances(id, null, ownerId, true, qty) ?? Array.Empty<Entities.ReportInstance>();
+        return new JsonResult(instances.Select(instance => new ReportInstanceModel(instance, _serializerOptions)).ToArray());
+    }
+
+    /// <summary>
     /// Clears all content from folders within this report.
     /// </summary>
     /// <param name="id"></param>

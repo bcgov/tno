@@ -110,17 +110,19 @@ public class ReportHelper : IReportHelper
     /// <param name="ownerId"></param>
     /// <param name="qty"></param>
     /// <returns></returns>
-    public Task<Dictionary<string, ReportSectionModel>> GetPreviousReportsAsync(int reportId, int? instanceId, int? ownerId = null, int qty = 1)
+    public Task<IEnumerable<PreviousReportModel>> GetPreviousReportsAsync(int reportId, int? instanceId, int? ownerId = null, int qty = 1)
     {
         var report = _reportService.FindById(reportId) ?? throw new NoContentException($"Report does not exist: ${reportId}");
-        var instance = _reportService.GetPreviousReportInstances(reportId, instanceId, ownerId, true, qty)?.FirstOrDefault();
-        var sections = report.Sections.ToDictionary(s => s.Name, s =>
-        {
-            var content = instance?.ContentManyToMany.Where(c => c.Content != null && c.SectionName == s.Name).ToArray() ?? Array.Empty<Entities.ReportInstanceContent>();
-            var section = new ReportSectionModel(s, content, _serializerOptions);
-            return section;
-        });
-        return Task.FromResult(sections);
+        var instances = _reportService.GetPreviousReportInstances(reportId, instanceId, ownerId, true, qty) ?? Array.Empty<Entities.ReportInstance>();
+        var previous = instances.Select(instance => new PreviousReportModel(
+            instance.Id,
+            instance.PublishedOn,
+            report.Sections.ToDictionary(s => s.Name, s =>
+            {
+                var content = instance.ContentManyToMany.Where(c => c.Content != null && c.SectionName == s.Name).ToArray();
+                return new ReportSectionModel(s, content, _serializerOptions);
+            }))).ToArray();
+        return Task.FromResult<IEnumerable<PreviousReportModel>>(previous);
     }
 
     /// <summary>
