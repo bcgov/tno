@@ -36,6 +36,7 @@ public class ReportSectionSettingsModel
     public int? ChoiceIndex { get; set; }
     public int? ChoiceQty { get; set; }
     public float? Temperature { get; set; }
+    public bool ShowErrorDetails { get; set; }
     #endregion
 
     #region Constructors
@@ -72,6 +73,7 @@ public class ReportSectionSettingsModel
         this.ChoiceIndex = settings.GetDictionaryJsonValue<int?>("choiceIndex", null, options)!;
         this.ChoiceQty = settings.GetDictionaryJsonValue<int?>("choiceQty", null, options)!;
         this.Temperature = settings.GetDictionaryJsonValue<float?>("temperature", null, options)!;
+        this.ShowErrorDetails = settings.GetDictionaryJsonValue("showErrorDetails", false, options)!;
     }
 
     public ReportSectionSettingsModel(JsonDocument settings, JsonSerializerOptions options)
@@ -105,6 +107,7 @@ public class ReportSectionSettingsModel
         this.ChoiceIndex = settings.GetElementValue<int?>("choiceIndex", null, options)!;
         this.ChoiceQty = settings.GetElementValue<int?>("choiceQty", null, options)!;
         this.Temperature = settings.GetElementValue<float?>("temperature", null, options)!;
+        this.ShowErrorDetails = settings.GetElementValue("showErrorDetails", false, options)!;
     }
     #endregion
 }
