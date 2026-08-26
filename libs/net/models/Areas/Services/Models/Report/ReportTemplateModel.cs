@@ -27,6 +27,11 @@ public class ReportTemplateModel : BaseTypeWithAuditColumnsModel<int>
     public string Body { get; set; } = "";
 
     /// <summary>
+    /// get/set - Whether this report template is public to all users.
+    /// </summary>
+    public bool IsPublic { get; set; } = false;
+
+    /// <summary>
     /// get/set - The settings for this report.
     /// </summary>
     public ReportTemplateSettingsModel Settings { get; set; } = new();
@@ -53,6 +58,7 @@ public class ReportTemplateModel : BaseTypeWithAuditColumnsModel<int>
         this.ReportType = entity.ReportType;
         this.Subject = entity.Subject;
         this.Body = entity.Body;
+        this.IsPublic = entity.IsPublic;
         this.Settings = JsonSerializer.Deserialize<ReportTemplateSettingsModel>(entity.Settings, options) ?? new();
 
         if (entity.ChartTemplates.Any())
@@ -84,6 +90,7 @@ public class ReportTemplateModel : BaseTypeWithAuditColumnsModel<int>
         {
             Description = model.Description,
             IsEnabled = model.IsEnabled,
+            IsPublic = model.IsPublic,
             SortOrder = model.SortOrder,
             Settings = JsonSerializer.SerializeToDocument(model.Settings),
             Version = model.Version ?? 0

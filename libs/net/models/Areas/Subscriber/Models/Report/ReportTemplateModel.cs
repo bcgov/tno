@@ -58,6 +58,7 @@ public class ReportTemplateModel : BaseTypeWithAuditColumnsModel<int>
         this.ReportType = entity.ReportType;
         this.Subject = entity.Subject;
         this.Body = entity.Body;
+        this.IsPublic = entity.IsPublic;
         this.Settings = JsonSerializer.Deserialize<ReportTemplateSettingsModel>(entity.Settings, options) ?? new();
 
         if (entity.ChartTemplates.Any())
@@ -68,35 +69,7 @@ public class ReportTemplateModel : BaseTypeWithAuditColumnsModel<int>
     #endregion
 
     #region Methods
-    /// <summary>
-    /// Creates a new instance of a Report object.
-    /// </summary>
-    /// <returns></returns>
-    public Entities.ReportTemplate ToEntity(JsonSerializerOptions options)
-    {
-        var entity = (Entities.ReportTemplate)this;
-        entity.Settings = JsonSerializer.SerializeToDocument(this.Settings, options);
-        return entity;
-    }
-
-    /// <summary>
-    /// Explicit conversion to entity.
-    /// </summary>
-    /// <param name="model"></param>
-    public static explicit operator Entities.ReportTemplate(ReportTemplateModel model)
-    {
-        var entity = new Entities.ReportTemplate(model.Id, model.Name, model.ReportType, model.Subject, model.Body)
-        {
-            Description = model.Description,
-            IsEnabled = model.IsEnabled,
-            IsPublic = model.IsPublic,
-            SortOrder = model.SortOrder,
-            Settings = JsonSerializer.SerializeToDocument(model.Settings),
-            Version = model.Version ?? 0
-        };
-        entity.ChartTemplatesManyToMany.AddRange(model.ChartTemplates.Select(ct => new Entities.ReportTemplateChartTemplate(entity.Id, ct.Id)));
-
-        return entity;
-    }
+    // This model is read-only by design: the subscriber app may display a report's template but
+    // never edit it, so there is deliberately no conversion back to an entity here.
     #endregion
 }
