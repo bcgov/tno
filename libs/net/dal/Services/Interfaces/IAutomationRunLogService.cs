@@ -20,6 +20,16 @@ public interface IAutomationRunLogService : IBaseService<AutomationRunLog, long>
     IEnumerable<(string StepName, string Outcome, int Count)> CountByRun(long runId);
 
     /// <summary>
+    /// Find the most recent run of the profile that recorded a log entry for the content item.
+    /// The debug assistant explains an outcome from the run that produced it, which is often not
+    /// the profile's most recent run.
+    /// </summary>
+    /// <param name="profileId"></param>
+    /// <param name="contentId"></param>
+    /// <returns>The run identifier, or null when no run touched the item.</returns>
+    long? FindLatestRunForContent(int profileId, long contentId);
+
+    /// <summary>
     /// Insert a batch of run log entries.
     /// </summary>
     /// <param name="logs"></param>
