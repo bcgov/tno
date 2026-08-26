@@ -1,4 +1,9 @@
-@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
+DO $$
+BEGIN
+
+-- Update custom report with latest template.
+UPDATE public."report_template" SET
+    "body" = '@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
 @using System
 @using System.Linq
 @using TNO.Entities
@@ -196,7 +201,6 @@
 
           var containImage = body.Contains("<img");
           var filePath = content.FileReferences.FirstOrDefault()?.Path;
-          var imageUrl = content.GetImageUrl(subscriberAppUrl);
           var hasImageToDisplay = ((!string.IsNullOrEmpty(content.ImageContent) || !string.IsNullOrEmpty(filePath)) && section.Value.Settings.ShowImage) || containImage;
 
           /**
@@ -266,9 +270,10 @@
               var src = $"data:{content.ContentType};base64," + content.ImageContent;
               <div><img src="@src" alt="@content.FileReferences.FirstOrDefault()?.FileName" /></div>
             }
-            else if (!string.IsNullOrEmpty(imageUrl) && section.Value.Settings.ShowImage)
+            else if (!string.IsNullOrEmpty(filePath) && section.Value.Settings.ShowImage)
             {
-              <div><img src="@(imageUrl)" alt="@content.Headline" /></div>
+              var apiFileUrl = subscriberAppUrl + "api/subscriber/contents/download?path=" + filePath;
+              <div><img src="@(apiFileUrl)" alt="@content.Headline" /></div>
             }
           }
           @if (Settings.Content.ShowLinkToStory && !isPrivate)
@@ -312,7 +317,7 @@
           @for (var i = 0; i < sectionContent.Length; i++)
           {
             var content = sectionContent[i];
-            var imageUrl = content.GetImageUrl(subscriberAppUrl);
+            var filePath = content.FileReferences.FirstOrDefault()?.Path;
 
             if (!string.IsNullOrEmpty(content.ImageContent))
             {
@@ -320,9 +325,10 @@
               var fileName = content.FileReferences.FirstOrDefault()?.FileName ?? content.Id.ToString();
               <img style="height:min-content" src="@src" alt="@fileName" />
             }
-            else if (!string.IsNullOrEmpty(imageUrl))
+            else if (!string.IsNullOrEmpty(filePath))
             {
-              <img style="height:min-content" src="@(imageUrl)" alt="@content.Headline" />
+              var apiFileUrl = subscriberAppUrl + "api/subscriber/contents/download?path=" + filePath;
+              <img style="height:min-content" src="@(apiFileUrl)" alt="@content.Headline" />
             }
           }
         </div>
@@ -332,7 +338,7 @@
         for (var i = 0; i < sectionContent.Length; i++)
         {
           var content = sectionContent[i];
-          var imageUrl = content.GetImageUrl(subscriberAppUrl);
+          var filePath = content.FileReferences.FirstOrDefault()?.Path;
 
           if (!string.IsNullOrEmpty(content.ImageContent))
           {
@@ -340,9 +346,10 @@
             var fileName = content.FileReferences.FirstOrDefault()?.FileName ?? content.Id.ToString();
             <div><img style="height:min-content" src="@src" alt="@fileName" /></div>
           }
-          else if (!string.IsNullOrEmpty(imageUrl))
+          else if (!string.IsNullOrEmpty(filePath))
           {
-            <div><img style="height:min-content" src="@(imageUrl)" alt="@content.Headline" /></div>
+            var apiFileUrl = subscriberAppUrl + "api/subscriber/contents/download?path=" + filePath;
+            <div><img style="height:min-content" src="@(apiFileUrl)" alt="@content.Headline" /></div>
           }
         }
       }
@@ -407,3 +414,7 @@
     </p>
   </div>
 </div>
+'
+WHERE "name" = 'Custom Report';
+
+END $$;

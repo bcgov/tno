@@ -417,18 +417,18 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <param name="ownerId"></param>
     /// <param name="qty"></param>
     /// <returns></returns>
-    public async Task<Dictionary<string, ReportSectionModel>> GetPreviousReportsAsync(int reportId, int? instanceId, int? ownerId = null, int qty = 1)
+    public async Task<IEnumerable<PreviousReportModel>> GetPreviousReportsAsync(int reportId, int? instanceId, int? ownerId = null, int qty = 1)
     {
-        var instance = await this.Api.GetPreviousReportInstancesAsync(reportId, ownerId, qty);
-        if (instance == null) return [];
+        var instances = await this.Api.GetPreviousReportInstancesAsync(reportId, ownerId, qty);
 
-        var sections = instance.Report?.Sections.ToDictionary(section => section.Name, section =>
-        {
-            var content = instance.Content.Where(c => c.SectionName == section.Name && c.Content != null).Select(c => new ContentModel(c.Content!, c.SortOrder, c.SectionName, section.Settings.Label));
-            return new ReportSectionModel(section, content);
-        }) ?? [];
-
-        return sections;
+        return instances.Select(instance => new PreviousReportModel(
+            instance.Id,
+            instance.PublishedOn,
+            instance.Report?.Sections.ToDictionary(section => section.Name, section =>
+            {
+                var content = instance.Content.Where(c => c.SectionName == section.Name && c.Content != null).Select(c => new ContentModel(c.Content!, c.SortOrder, c.SectionName, section.Settings.Label));
+                return new ReportSectionModel(section, content);
+            }) ?? [])).ToArray();
     }
 
     /// <summary>

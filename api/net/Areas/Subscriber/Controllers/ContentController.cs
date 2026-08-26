@@ -55,6 +55,7 @@ public class ContentController : ControllerBase
     private readonly KafkaOptions _kafkaOptions;
     private readonly IImpersonationHelper _impersonate;
     private readonly JsonSerializerOptions _serializerOptions;
+    private readonly ILogger<ContentController> _logger;
 
     #endregion
 
@@ -74,6 +75,7 @@ public class ContentController : ControllerBase
     /// <param name="kafkaOptions"></param>
     /// <param name="serializerOptions"></param>
     /// <param name="s3StorageService"></param>
+    /// <param name="logger"></param>
     public ContentController(
         IContentService contentService,
         IFileReferenceService fileReferenceService,
@@ -86,7 +88,8 @@ public class ContentController : ControllerBase
         INotificationService notificationService,
         IOptions<KafkaOptions> kafkaOptions,
         IOptions<JsonSerializerOptions> serializerOptions,
-        IS3StorageService s3StorageService)
+        IS3StorageService s3StorageService,
+        ILogger<ContentController> logger)
     {
         _contentService = contentService;
         _fileReferenceService = fileReferenceService;
@@ -100,6 +103,7 @@ public class ContentController : ControllerBase
         _kafkaOptions = kafkaOptions.Value;
         _serializerOptions = serializerOptions.Value;
         _s3StorageService = s3StorageService;
+        _logger = logger;
     }
     #endregion
 
@@ -191,6 +195,10 @@ public class ContentController : ControllerBase
     /// Download the specified file.
     /// Only allow configured file types to be freely downloaded.
     /// This endpoint provides images for emails primarily.
+    /// A request for anything else is answered with 404 rather than an exception: the endpoint is
+    /// anonymous and linked from emails, so a disallowed type and a stale path are both routine and
+    /// would otherwise log a stack trace per request. 404 also declines to tell an anonymous caller
+    /// whether the path exists.
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
@@ -198,16 +206,24 @@ public class ContentController : ControllerBase
     [HttpGet("download")]
     [Produces("application/octet-stream")]
     [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
     [SwaggerOperation(Tags = new[] { "Content" })]
     public IActionResult AnonymousDownloadFile(string path)
     {
         var ext = Path.GetExtension(path).TrimStart('.');
-        if (!_storageOptions.AllowAnonymousDownloadFileTypes.Any(value => String.Equals(value, ext, StringComparison.OrdinalIgnoreCase))) throw new InvalidOperationException("Unable to download file.");
+        if (!_storageOptions.AllowAnonymousDownloadFileTypes.Any(value => String.Equals(value, ext, StringComparison.OrdinalIgnoreCase)))
+        {
+            _logger.LogDebug("Anonymous download refused for file type '{ext}': {path}", ext, path);
+            return NotFound();
+        }
 
         path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
         var safePath = Path.Combine(_storageOptions.GetUploadPath(), path);
-        if (!safePath.FileExists() && !safePath.DirectoryExists()) throw new InvalidOperationException($"File/folder does not exist: '{path}'");
+        if (!safePath.FileExists() && !safePath.DirectoryExists())
+        {
+            _logger.LogDebug("Anonymous download requested a file that does not exist: {path}", path);
+            return NotFound();
+        }
 
         var info = new ItemModel(safePath, true);
         var stream = System.IO.File.OpenRead(safePath);

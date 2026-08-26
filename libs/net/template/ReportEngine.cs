@@ -396,7 +396,7 @@ public class ReportEngine : IReportEngine
         API.Areas.Services.Models.ReportInstance.ReportInstanceModel? reportInstance,
         Dictionary<string, ReportSectionModel> sectionContent,
         Func<int, int?, Task<Dictionary<string, ReportSectionModel>>> getReportAsync,
-        Func<int, int?, int?, int, Task<Dictionary<string, ReportSectionModel>>> getPreviousReportsAsync,
+        Func<int, int?, int?, int, Task<IEnumerable<PreviousReportModel>>> getPreviousReportsAsync,
         Func<int, Task<API.Areas.Services.Models.LLM.LLMModel?>> getLLMAsync,
         string? pathToFiles = null,
         bool viewOnWebOnly = false,
@@ -733,36 +733,52 @@ public class ReportEngine : IReportEngine
     /// <summary>
     /// Generate a dictionary contain the report minimized content items within each section.
     /// This is used by the AI summary.
-    /// Each content item includes its 'id' and a ready-made 'url' so the prompt can link to the
-    /// story without assembling (or inventing) the address itself.
     /// </summary>
     /// <param name="sectionContent"></param>
-    /// <param name="viewContentUrl"></param>
     /// <returns></returns>
-    private static Dictionary<string, object> GenerateAIReportContentData(Dictionary<string, ReportSectionModel> sectionContent, Uri? viewContentUrl)
+    private static Dictionary<string, object> GenerateAIReportContentData(Dictionary<string, ReportSectionModel> sectionContent)
     {
         var contentList = new Dictionary<string, object>();
         foreach (var section in sectionContent.Where(sc => sc.Value.Content.Any()))
         {
             var sectionContentJson = section.Value.Content.Select(c => new
             {
-                id = c.Id,
-                url = viewContentUrl != null ? $"{viewContentUrl}{c.Id}" : null,
                 headline = c.Headline,
-                text = !String.IsNullOrWhiteSpace(c.Body) ? c.Body : c.Summary,
-                byline = c.Byline,
                 source = c.Source?.Name ?? c.OtherSource,
                 publishedOn = c.PublishedOn,
-                mediaType = c.MediaType?.Name,
-                series = c.Series?.Name ?? c.OtherSeries,
                 sentiment = c.TonePools.FirstOrDefault()?.Value,
                 tags = c.Tags.Select(t => t.Code).ToArray(),
-                actions = c.Actions.Select(a => a.Name),
+                body = !String.IsNullOrWhiteSpace(c.Body) ? c.Body : c.Summary,
+                byline = c.Byline,
+                columnist = c.Contributor?.Name,
             });
             contentList.Add(section.Value.Settings.Label, sectionContentJson);
         }
         return contentList;
     }
+
+    /// <summary>
+    /// The most of a provider's response body to copy into a log entry. The body carries the reason
+    /// a request was rejected, which is short; a successful payload is not logged at all.
+    /// </summary>
+    private const int MaxLoggedResponseChars = 4000;
+
+    /// <summary>
+    /// The most of a provider's response body to render into a report section when the section asks
+    /// for failure detail. Shorter than the logged copy - it is being read in an email, not queried.
+    /// </summary>
+    private const int MaxDisplayedResponseChars = 1500;
+
+    /// <summary>
+    /// Cap a value for logging, marking the truncation rather than applying it silently.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="maxChars"></param>
+    /// <returns></returns>
+    private static string? Truncate(string? value, int maxChars)
+        => value == null || value.Length <= maxChars
+            ? value
+            : $"{value[..maxChars]}...[truncated, {value.Length - maxChars} more character(s)]";
 
     /// <summary>
     /// Generate the AI sections of the report.
@@ -776,7 +792,7 @@ public class ReportEngine : IReportEngine
     private async Task GenerateReportAISectionsAsync(
         API.Areas.Services.Models.Report.ReportModel report,
         Dictionary<string, ReportSectionModel> sectionContent,
-        Func<int, int?, int?, int, Task<Dictionary<string, ReportSectionModel>>> getPreviousReportsAsync,
+        Func<int, int?, int?, int, Task<IEnumerable<PreviousReportModel>>> getPreviousReportsAsync,
         Func<int, Task<API.Areas.Services.Models.LLM.LLMModel?>> getLLMAsync,
         CancellationToken? cancellationToken = null)
     {
@@ -791,22 +807,28 @@ public class ReportEngine : IReportEngine
             };
             var reportContentSection = new StringBuilder();
 
+            // Each prior instance is prepared as its own message rather than merged into one block,
+            // so the model can attribute a story to the instance it came from and read them in
+            // order. This changes how the data is presented, not how much of it there is - the
+            // model's context limit applies to the whole conversation.
+            var previousReportBlocks = new List<string>();
             var includesPreviousReports = report.Sections.Where(s => s.SectionType == Entities.ReportSectionType.AI && s.Settings.IncludePreviousReports.HasValue && s.Settings.IncludePreviousReports > 0).Max(s => s.Settings.IncludePreviousReports) ?? 0;
             if (includesPreviousReports > 0)
             {
-                // Generate a system prompt that includes the previous report content.
-                var previousReportContent = await getPreviousReportsAsync(report.Id, null, report.OwnerId, includesPreviousReports);
-                if (previousReportContent != null && previousReportContent.Count > 0)
+                var previousReports = await getPreviousReportsAsync(report.Id, null, report.OwnerId, includesPreviousReports);
+                // Oldest first, so the sequence the model reads runs forward in time.
+                foreach (var previous in (previousReports ?? Array.Empty<PreviousReportModel>()).OrderBy(p => p.PublishedOn ?? DateTime.MinValue))
                 {
-                    reportContentSection.AppendLine("## Previous Report Data");
-                    var previousReportData = GenerateAIReportContentData(previousReportContent, this.TemplateOptions.ViewContentUrl);
-                    reportContentSection.AppendLine($"```json\n{JsonSerializer.Serialize(previousReportData, serializer)}\n```");
+                    if (!previous.Sections.Any(section => section.Value.Content.Any())) continue;
+                    var previousReportData = GenerateAIReportContentData(previous.Sections);
+                    var published = previous.PublishedOn.HasValue ? $", published {previous.PublishedOn:yyyy-MM-dd}" : "";
+                    previousReportBlocks.Add($"## Previous Report Data (instance {previous.InstanceId}{published})\n```json\n{JsonSerializer.Serialize(previousReportData, serializer)}\n```");
                 }
             }
 
             // Generate a system prompt that includes the current report content.
             reportContentSection.AppendLine("## Current Report Data");
-            var currentReportData = GenerateAIReportContentData(sectionContent, this.TemplateOptions.ViewContentUrl);
+            var currentReportData = GenerateAIReportContentData(sectionContent);
             reportContentSection.AppendLine($"```json\n{JsonSerializer.Serialize(currentReportData, serializer)}\n```");
 
             // Generate AI results.
@@ -866,36 +888,95 @@ public class ReportEngine : IReportEngine
                 else if (!String.IsNullOrWhiteSpace(deploymentName))
                 {
                     this.Logger.LogDebug("Starting AI summary for section {Section}", section.Settings.Label);
+
+                    // Held as locals so the request's shape can be reported when it fails. The sizes
+                    // explain most failures - a context-length rejection, a prompt edited to nothing,
+                    // a report content block grown by includePreviousReports - and they say it
+                    // without putting third-party article text in the log.
+                    var systemPromptText = systemPrompt ?? "";
+                    var reportContentText = reportContentSection.ToString();
+                    var userPromptText = userPrompt.ToString();
+
+                    // System prompt, then one message per prior instance oldest-first, then the
+                    // current report and the instruction last so it sits closest to the answer.
+                    var messages = new List<object>
+                    {
+                        new
+                        {
+                            role = "system",
+                            content = new object[] { new { type = "text", text = systemPromptText } },
+                        },
+                    };
+                    messages.AddRange(previousReportBlocks.Select(block => new
+                    {
+                        role = "user",
+                        content = new object[] { new { type = "text", text = block } },
+                    }));
+                    messages.Add(new
+                    {
+                        role = "user",
+                        content = new object[]
+                        {
+                            new { type = "text", text = reportContentText },
+                            new { type = "text", text = userPromptText },
+                        },
+                    });
+
                     var requestBody = new
                     {
                         model = deploymentName,
                         temperature = temperature,
                         n = resultCount,
-                        messages = new object[]
-                        {
-                                new
-                                {
-                                    role = "system",
-                                    content = new object[] { new { type = "text", text = systemPrompt }},
-                                },
-                                new
-                                {
-                                    role = "user",
-                                    content = new object[]
-                                    {
-                                        new { type = "text", text = reportContentSection.ToString() },
-                                        new { type = "text", text = userPrompt.ToString() },
-                                    }
-                                }
-                        }
+                        messages = messages.ToArray(),
                     };
                     var jsonBody = JsonSerializer.Serialize(requestBody, serializer);
                     var requestMessage = new HttpRequestMessage(HttpMethod.Post, projectEndpoint);
                     requestMessage.Headers.Add("api-key", apiKey);
                     requestMessage.Content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
 
+                    // Everything known about the attempt, so one log entry answers which report,
+                    // which section, which LLM, how big the request was, and what came back. The
+                    // api-key is deliberately absent. When the section asks for it, the same detail
+                    // is written into the section body - an editor debugging a prompt should not
+                    // need log access to see why it failed.
+                    void ReportAIFailure(LogLevel level, Exception? ex, string reason, HttpResponseMessage? failed, string? responseBody)
+                    {
+                        if (settings.ShowErrorDetails)
+                            sectionData.Data = String.Join('\n', new[]
+                            {
+                                $"AI section failed: {reason}",
+                                $"LLM: '{llm?.Name}' (deployment '{deploymentName}')",
+                                failed != null ? $"Status: {(int)failed.StatusCode} {failed.StatusCode}" : "Status: no response was received",
+                                $"Request: {jsonBody.Length} bytes, {previousReportBlocks.Count} previous instance(s)",
+                                ex != null ? $"Error: {ex.Message}" : null,
+                                !String.IsNullOrWhiteSpace(responseBody) ? $"Response: {Truncate(responseBody, MaxDisplayedResponseChars)}" : null,
+                            }.Where(line => line != null)!);
+
+                        this.Logger.Log(level, ex,
+                            "Failed to generate AI response: {Reason} Report:{ReportId} '{ReportName}', section:{SectionId} '{SectionName}' (label '{SectionLabel}'), LLM:{LLMId} '{LLMName}', deployment:'{DeploymentName}', endpoint:'{Endpoint}', status:{StatusCode}, retryAfter:'{RetryAfter}', requestBytes:{RequestBytes}, systemPromptChars:{SystemPromptChars}, reportContentChars:{ReportContentChars}, userPromptChars:{UserPromptChars}, previousInstances:{PreviousInstances}, previousInstanceChars:{PreviousInstanceChars}, choiceQty:{ChoiceQty}, temperature:{Temperature}, response:{ResponseBody}",
+                            reason, report.Id, report.Name, section.Id, section.Name, settings.Label,
+                            llm?.Id, llm?.Name, deploymentName, projectEndpoint,
+                            failed?.StatusCode is HttpStatusCode status ? (int)status : (int?)null,
+                            failed?.Headers.RetryAfter?.ToString(),
+                            jsonBody.Length, systemPromptText.Length, reportContentText.Length, userPromptText.Length,
+                            previousReportBlocks.Count, previousReportBlocks.Sum(block => block.Length),
+                            resultCount, temperature, Truncate(responseBody, MaxLoggedResponseChars));
+                    }
+
                     this.Logger.LogDebug("HTTP request made: {method}:{uri}", requestMessage.Method, requestMessage.RequestUri);
-                    var response = await this.HttpClient.Client.SendAsync(requestMessage);
+
+                    HttpResponseMessage response;
+                    try
+                    {
+                        response = await this.HttpClient.Client.SendAsync(requestMessage);
+                    }
+                    catch (Exception ex)
+                    {
+                        // A timeout or transport failure still ends the whole report, but it must not
+                        // end it without saying which section and which endpoint it was talking to.
+                        ReportAIFailure(LogLevel.Error, ex, "no response was received.", null, null);
+                        throw;
+                    }
 
                     if (response.IsSuccessStatusCode)
                     {
@@ -919,16 +1000,32 @@ public class ReportEngine : IReportEngine
                                 if (choice != null)
                                 {
                                     sectionData.Data = choice.Message.Content;
+                                    this.Logger.LogDebug(
+                                        "AI summary generated for section {SectionId} '{SectionName}': finishReason:'{FinishReason}', promptTokens:{PromptTokens}, completionTokens:{CompletionTokens}, chars:{Chars}",
+                                        section.Id, section.Name, choice.FinishReason,
+                                        responseData.Usage?.PromptTokens, responseData.Usage?.CompletionTokens,
+                                        choice.Message.Content?.Length ?? 0);
+                                }
+                                else
+                                {
+                                    // A 200 carrying no choice leaves the section blank in the
+                                    // delivered report; without this it does so silently.
+                                    ReportAIFailure(LogLevel.Warning, null, "the response carried no choice, so the section is empty.", response, responseJson);
                                 }
                             }
+                        }
+                        else
+                        {
+                            ReportAIFailure(LogLevel.Warning, null, "the response could not be deserialized, so the section is empty.", response, responseJson);
                         }
                     }
                     else
                     {
                         var responseJson = await response.Content.ReadAsStringAsync();
                         var ex = new HttpClientRequestException(response);
-                        this.Logger.LogError(ex, "Failed to generate AI response for report: {ReportId} and section: {SectionId}.", report.Id, section.Settings.Label);
-                        // sectionData.Data = $"{ex.GetAllMessages()}\n{responseJson}";
+                        // The body is where the provider states the cause - a content filter, an
+                        // exceeded context length, an unknown deployment, an exhausted quota.
+                        ReportAIFailure(LogLevel.Error, ex, "the request was rejected.", response, responseJson);
                     }
                 }
                 else

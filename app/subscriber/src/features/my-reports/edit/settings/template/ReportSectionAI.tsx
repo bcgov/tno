@@ -14,7 +14,6 @@ import {
   FormikWysiwyg,
   getSortableOptions,
   ILLMModel,
-  IOptionItem,
   OptionItem,
   Row,
   Select,
@@ -34,21 +33,51 @@ export const ReportSectionAI = React.forwardRef<HTMLDivElement, IReportSectionAI
     const [{ llms }, { getLLMs }] = useLookup();
 
     const isAdmin = userInfo?.roles.includes(Claim.administrator);
-    const defaultLLMId = values.sections[index].settings.llmId;
+    const selectedLLMId = values.sections[index].settings.llmId;
 
-    const [llm, setLLM] = React.useState<ILLMModel>();
-    const [llmOptions, setLLMOptions] = React.useState<IOptionItem[]>(
-      getSortableOptions(isAdmin ? llms : llms.filter((m) => m.isPublic)),
+    // Derived from the lookup rather than copied into state on mount: the lookup is shared, so it
+    // can arrive after this section rendered, and a copy taken too early leaves the field with no
+    // options and nothing selected.
+    const availableLLMs = React.useMemo(
+      () => (isAdmin ? llms : llms.filter((m) => m.isPublic)),
+      [isAdmin, llms],
+    );
+    const llmOptions = React.useMemo(() => getSortableOptions(availableLLMs), [availableLLMs]);
+    const llm = React.useMemo(
+      () => llms.find((m) => m.id === selectedLLMId) ?? availableLLMs.at(0),
+      [availableLLMs, llms, selectedLLMId],
+    );
+
+    /**
+     * Record the model on the section along with the parameters that belong to it. The update is
+     * built from the current values rather than a captured copy: writing back a whole snapshot taken
+     * when the effect last ran reverts whatever else was edited in the meantime.
+     */
+    const applyLLM = React.useCallback(
+      (llm?: ILLMModel) => {
+        setValues((values) => ({
+          ...values,
+          sections: values.sections.map((section, i) =>
+            i !== index
+              ? section
+              : {
+                  ...section,
+                  settings: {
+                    ...section.settings,
+                    llmId: llm?.id,
+                    temperature: llm?.minTemperature,
+                    userPrompt: llm?.userPrompt,
+                  },
+                },
+          ),
+        }));
+      },
+      [index, setValues],
     );
 
     React.useEffect(
       () => {
-        if (userInfo && !llms.length) {
-          getLLMs().then((llms) => {
-            const llmValues = isAdmin ? llms : llms.filter((m) => m.isPublic);
-            setLLMOptions(getSortableOptions(llmValues));
-          });
-        }
+        if (userInfo && !llms.length) getLLMs().catch(() => {});
       },
       // do not want to trigger on loading change, will cause infinite loop
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -56,24 +85,13 @@ export const ReportSectionAI = React.forwardRef<HTMLDivElement, IReportSectionAI
     );
 
     React.useEffect(() => {
-      const defaultLLM =
-        llms.find((m) => m.id === defaultLLMId) ?? (llms.length > 0 ? llms[0] : undefined);
-      // Compare by ID so a new array reference from Redux doesn't re-trigger effect 2.
-      setLLM((prev) => (prev?.id === defaultLLM?.id ? prev : defaultLLM));
-    }, [defaultLLMId, llms]);
-
-    React.useEffect(() => {
-      if (llm === undefined) return;
-      const newValues = { ...values };
-      console.error('What does this do?', llm);
-      if (llm.id && llm.id !== newValues.sections[index].settings.llmId) {
-        newValues.sections[index].settings.llmId = llm.id;
-        newValues.sections[index].settings.temperature = llm.minTemperature;
-        newValues.sections[index].settings.userPrompt = llm.userPrompt;
-      }
-      setValues(newValues);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [llm, setValues]);
+      // Give a section with no model the default one, but only once the lookup has loaded - writing
+      // before then clears the saved selection, and the section comes back holding whichever model
+      // happens to sort first. A section that already holds this model keeps its own temperature and
+      // prompt; they are only reset when the model actually changes.
+      if (!llm || selectedLLMId === llm.id) return;
+      applyLLM(llm);
+    }, [applyLLM, llm, selectedLLMId]);
 
     return (
       <>
@@ -90,9 +108,8 @@ export const ReportSectionAI = React.forwardRef<HTMLDivElement, IReportSectionAI
               options={llmOptions}
               value={llmOptions.find((c) => c.value === llm?.id) ?? ''}
               onChange={(e) => {
-                const o = e as OptionItem;
-                const llm = llms.find((m) => m.id === o?.value);
-                setLLM(llm);
+                const option = e as OptionItem;
+                applyLLM(availableLLMs.find((m) => m.id === option?.value));
               }}
             ></Select>
             {userInfo?.roles.includes(Claim.administrator) && (
@@ -145,6 +162,15 @@ export const ReportSectionAI = React.forwardRef<HTMLDivElement, IReportSectionAI
         <Row>
           <FormikCheckbox name={`sections.${index}.isEnabled`} label="Section is visible" />
         </Row>
+        <Checkbox
+          name={`sections.${index}.settings.showErrorDetails`}
+          label="Show error details in this section when the AI request fails"
+          tooltip="Renders the failure reason, status and provider response into the section body instead of leaving it empty. Turn off once the prompt is working - recipients see whatever the section holds."
+          checked={!!values.sections[index].settings.showErrorDetails}
+          onChange={(e) => {
+            setFieldValue(`sections.${index}.settings.showErrorDetails`, e.target.checked);
+          }}
+        />
         <Checkbox
           name={`sections.${index}.settings.inTableOfContents`}
           label="Include in Table of Contents"

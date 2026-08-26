@@ -38,9 +38,10 @@ const isCollapsible = (text: string) =>
 /**
  * Debugging section for the automation profile form. Lets the user pick a content item and ask the
  * profile's LLM why it was (or was not) acted upon, then continue the conversation with follow-up
- * questions. The full generated first prompt appears as the first message in the history. Each
- * message can be expanded/collapsed; long messages are collapsed by default. "Start new chat" resets
- * the conversation to pick a different content item.
+ * questions. The API composes the first message from the profile's configuration and the complete
+ * decision trace the run recorded for the item - every prompt it sent and every response it received
+ * - so it appears here as a long first message, collapsed by default like any other. "Start new
+ * chat" resets the conversation to pick a different content item.
  */
 export const AutomationDebugging: React.FC<IAutomationDebuggingProps> = ({ profileId }) => {
   const [, api] = useAutomationProfiles();
@@ -175,17 +176,21 @@ export const AutomationDebugging: React.FC<IAutomationDebuggingProps> = ({ profi
   return (
     <Col className="debugging-section" gap="1rem">
       <p>
-        Ask the profile&apos;s LLM about the most recent run. The first message sent (shown in the
-        history) combines your question with how the profile works, its configuration, and the
-        run&apos;s outcome — plus a specific content item when you pick one below; follow-up
-        questions continue the same conversation.
+        Ask the profile&apos;s LLM why it decided what it did. The first message sent (shown in the
+        history) carries the profile&apos;s full configuration and prompt library and, when you pick
+        a content item below, every decision the run recorded for it — the exact prompt sent for
+        each analysis, the exact response that came back, each condition and confirmation gate, and
+        the changes applied. All of that is sent as quoted data rather than as instructions. Without
+        a content item the question is answered against the run as a whole. Follow-up questions
+        continue the same conversation.
       </p>
 
       {/* 1. Find the content item (first turn only). */}
       <Show visible={!hasConversation && !isAsking}>
         <Col gap="0.5rem">
           <label>
-            Find content by id or headline (optional — focuses the question on one item)
+            Find content by id or headline (optional — sends that item&apos;s full decision trace
+            from the run that processed it)
           </label>
           <Row gap="0.5rem" alignItems="center">
             <Text
