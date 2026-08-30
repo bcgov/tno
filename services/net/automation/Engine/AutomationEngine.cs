@@ -1044,13 +1044,22 @@ public class AutomationEngine
                             $"Content action '{ContentActionName(action.ContentAction.Value, env.Lookups)}' is disabled; nothing was applied to {target.Key}.");
                         break;
                     }
+                    // An action that records a value ('Commentary' keeps a timeout in days) is
+                    // meaningless stamped with 'true', so a missing value skips the stamp loudly
+                    // rather than writing a value the editor cannot read back.
+                    var stampValue = ResolveContentActionValue(action.ContentAction.Value, value, env.Lookups);
+                    if (stampValue == null)
+                    {
+                        env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Skipped,
+                            $"Content action '{ContentActionName(action.ContentAction.Value, env.Lookups)}' stores a value and none was configured; nothing was applied to {target.Key}.");
+                        break;
+                    }
                     lock (target.Deltas)
                     {
-                        if (!target.Deltas.ContentActionIds.Contains(action.ContentAction.Value))
-                            target.Deltas.ContentActionIds.Add(action.ContentAction.Value);
+                        target.Deltas.ContentActions[action.ContentAction.Value] = stampValue;
                     }
-                    RecordChange("add-action", target, ContentActionName(action.ContentAction.Value, env.Lookups), action.ContentAction.Value.ToString());
-                    LogExecuted($"Applied content action '{ContentActionName(action.ContentAction.Value, env.Lookups)}' to {target.Key}.");
+                    RecordChange("add-action", target, ContentActionName(action.ContentAction.Value, env.Lookups), stampValue);
+                    LogExecuted($"Applied content action '{ContentActionName(action.ContentAction.Value, env.Lookups)}' = '{stampValue}' to {target.Key}.");
                     break;
                 }
             case "content.publish":
@@ -1283,18 +1292,26 @@ public class AutomationEngine
                     if (action.ContentAction.HasValue && !stampAction)
                         env.Log.LogDecision(step.Name, actionName, action.Type, null, Outcomes.Skipped,
                             $"Content action '{contentActionName}' is disabled; the selected items were not stamped with it.");
+                    // Every selected item is stamped with the same value: the selection runs after
+                    // the per-item analyses, so a literal is what normally resolves here.
+                    var selectionStampValue = stampAction ? ResolveContentActionValue(action.ContentAction!.Value, value, env.Lookups) : null;
+                    if (stampAction && selectionStampValue == null)
+                    {
+                        stampAction = false;
+                        env.Log.LogDecision(step.Name, actionName, action.Type, null, Outcomes.Skipped,
+                            $"Content action '{contentActionName}' stores a value and none was configured; the selected items were not stamped with it.");
+                    }
                     var rank = 0;
                     foreach (var (entry, entryScore) in selected)
                     {
                         rank++;
-                        if (action.ContentAction.HasValue)
+                        if (stampAction)
                         {
                             lock (entry.Deltas)
                             {
-                                if (!entry.Deltas.ContentActionIds.Contains(action.ContentAction.Value))
-                                    entry.Deltas.ContentActionIds.Add(action.ContentAction.Value);
+                                entry.Deltas.ContentActions[action.ContentAction!.Value] = selectionStampValue!;
                             }
-                            RecordChange("add-action", entry, contentActionName, action.ContentAction.Value.ToString());
+                            RecordChange("add-action", entry, contentActionName, selectionStampValue);
                         }
                         if (!string.IsNullOrWhiteSpace(action.Into))
                         {
@@ -1414,6 +1431,21 @@ public class AutomationEngine
     /// </summary>
     private static string ContentActionName(int id, LookupModel? lookups)
         => lookups?.Actions.FirstOrDefault(a => a.Id == id)?.Name ?? $"action {id}";
+
+    /// <summary>
+    /// The value a content action stamp stores. A yes/no action stores 'true' unless the action's
+    /// configured value resolves to a boolean; an action that records a value (a Commentary
+    /// timeout, say) stores whatever resolved, falling back to the action's own default value.
+    /// Null means there is nothing worth stamping - the caller skips the stamp and says why.
+    /// </summary>
+    private static string? ResolveContentActionValue(int id, string? resolved, LookupModel? lookups)
+    {
+        var definition = lookups?.Actions.FirstOrDefault(a => a.Id == id);
+        if (definition == null || definition.ValueType == Entities.ValueType.Boolean)
+            return bool.TryParse(resolved?.Trim(), out var flag) ? (flag ? "true" : "false") : "true";
+        if (!string.IsNullOrWhiteSpace(resolved)) return resolved!.Trim();
+        return !string.IsNullOrWhiteSpace(definition.DefaultValue) ? definition.DefaultValue : null;
+    }
 
     /// <summary>
     /// Whether a content action may still be applied. A profile keeps the id it was authored with,
@@ -1702,7 +1734,7 @@ public class AutomationEngine
                 if (entry.Deltas.Tags.Count > 0) parts.Add($"{entry.Deltas.Tags.Count} tag(s)");
                 if (entry.Deltas.Sentiment.HasValue) parts.Add("sentiment");
                 if (entry.Deltas.ContributorId.HasValue) parts.Add("contributor");
-                if (entry.Deltas.ContentActionIds.Count > 0) parts.Add($"{entry.Deltas.ContentActionIds.Count} content action(s)");
+                if (entry.Deltas.ContentActions.Count > 0) parts.Add($"{entry.Deltas.ContentActions.Count} content action(s)");
                 if (entry.Deltas.Status != null) parts.Add(entry.Deltas.Status);
                 pending = parts.Count > 0 ? string.Join("; ", parts) : "changes";
             }
@@ -1852,15 +1884,19 @@ public class AutomationEngine
                 tonePools.Add(new ContentTonePoolModel { Id = _options.DefaultTonePoolId, ContentId = content.Id, Value = entry.Deltas.Sentiment.Value });
                 content.TonePools = tonePools;
             }
-            foreach (var actionId in entry.Deltas.ContentActionIds.Distinct())
+            foreach (var (actionId, actionValue) in entry.Deltas.ContentActions)
             {
                 // Defence in depth: the request sites already refuse a disabled action, so a
                 // delta reaching here disabled means it was disabled mid-run. Never write it.
                 var definition = env.Lookups?.Actions.FirstOrDefault(a => a.Id == actionId && a.IsEnabled);
                 if (definition == null) continue;
-                var value = definition.ValueType == Entities.ValueType.Boolean
-                    ? "true"
-                    : (!string.IsNullOrWhiteSpace(definition.DefaultValue) ? definition.DefaultValue : "true");
+                // The stamping action resolved the value; the fallbacks only cover a delta that
+                // somehow arrived without one.
+                var value = !string.IsNullOrWhiteSpace(actionValue)
+                    ? actionValue
+                    : (definition.ValueType == Entities.ValueType.Boolean
+                        ? "true"
+                        : (!string.IsNullOrWhiteSpace(definition.DefaultValue) ? definition.DefaultValue : "true"));
                 var actions = content.Actions.ToList();
                 var existing = actions.FirstOrDefault(a => a.Id == actionId);
                 if (existing != null) existing.Value = value;
@@ -1882,7 +1918,7 @@ public class AutomationEngine
         deltas.Sentiment = null;
         deltas.ContributorId = null;
         deltas.ContributorName = null;
-        deltas.ContentActionIds.Clear();
+        deltas.ContentActions.Clear();
         deltas.Status = null;
     }
 
@@ -2028,8 +2064,8 @@ public class AutomationEngine
                 written.Add($"sentiment ({entry.Deltas.Sentiment.Value})");
             if (entry.Deltas.ContributorId.HasValue)
                 written.Add($"contributor ({entry.Deltas.ContributorName ?? entry.Deltas.ContributorId.Value.ToString()})");
-            if (entry.Deltas.ContentActionIds.Count > 0)
-                written.Add($"actions ({string.Join(", ", entry.Deltas.ContentActionIds.Distinct().Select(id => ContentActionName(id, lookups)))})");
+            if (entry.Deltas.ContentActions.Count > 0)
+                written.Add($"actions ({string.Join(", ", entry.Deltas.ContentActions.Keys.Select(id => ContentActionName(id, lookups)))})");
             if (entry.Deltas.Status != null)
                 written.Add($"status ({entry.Deltas.Status})");
         }
