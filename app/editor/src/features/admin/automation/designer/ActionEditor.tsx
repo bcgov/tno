@@ -1,8 +1,18 @@
 import React from 'react';
-import { Checkbox, Col, type IOptionItem, Row, Select, Show, Text } from 'tno-core';
+import {
+  Checkbox,
+  Col,
+  type IActionModel,
+  type IOptionItem,
+  Row,
+  Select,
+  Show,
+  Text,
+  ValueType,
+} from 'tno-core';
 
 import { contentFieldOptionItems } from '../constants';
-import { createOption, findOptionByValue, toNumberOrUndefined } from '../utils';
+import { createOption, findOptionByValue, hasValueSource, toNumberOrUndefined } from '../utils';
 import { ComboBox } from './ComboBox';
 import { ConditionBuilder } from './ConditionBuilder';
 import { contentTokenFieldOptions, copyFieldOptions, fitSelectWidth } from './constants';
@@ -14,6 +24,7 @@ import {
   type IAutomationActionDescriptor,
   type IAutomationAnalysis,
   type IAutomationFieldSpec,
+  type IAutomationValueSource,
 } from './interfaces';
 import { ScopedNameField } from './ScopedNameField';
 import { kindHelp, ValueSourceEditor } from './ValueSourceEditor';
@@ -39,6 +50,24 @@ const getGate = (action: IAutomationAction, dedupeRefs: string[]): string => {
     return 'condition';
   }
   return 'always';
+};
+
+/** A boolean stamp's stored value; unset means 'true' - the flag is applied. */
+const isStampChecked = (value?: IAutomationValueSource | null): boolean => {
+  const literal = value?.literal;
+  if (literal === undefined || literal === null) return true;
+  return `${literal}`.trim().toLowerCase() !== 'false';
+};
+
+/**
+ * The value a newly picked content action starts with: a yes/no flag is stamped on, and an
+ * action that records a value starts from its own configured default.
+ */
+const initialStampValue = (picked?: IActionModel): IAutomationValueSource => {
+  if (!picked || picked.valueType === ValueType.Boolean) return { literal: true };
+  const fallback = picked.defaultValue?.trim() ?? '';
+  const numeric = fallback !== '' && !Number.isNaN(Number(fallback)) ? Number(fallback) : fallback;
+  return { literal: numeric };
 };
 
 const truncateToText = (truncate?: Record<string, number> | null): string =>
@@ -74,6 +103,8 @@ export interface IActionEditorProps {
   reportOptions: IOptionItem[];
   notificationOptions: IOptionItem[];
   actionOptions: IOptionItem[];
+  /** The content actions themselves; the stamped value's control follows their value type. */
+  contentActions: IActionModel[];
   promptNames: string[];
   onChange: (action: IAutomationAction) => void;
 }
@@ -96,6 +127,7 @@ export const ActionEditor: React.FC<IActionEditorProps> = ({
   reportOptions,
   notificationOptions,
   actionOptions,
+  contentActions,
   promptNames,
   onChange,
 }) => {
@@ -215,11 +247,63 @@ export const ActionEditor: React.FC<IActionEditorProps> = ({
             width="20rem"
             options={actionOptions}
             value={findOptionByValue(actionOptions, action.contentAction) ?? ''}
-            onChange={(newValue) =>
-              set({ contentAction: toNumberOrUndefined(newValue as IOptionItem) })
-            }
+            onChange={(newValue) => {
+              const contentAction = toNumberOrUndefined(newValue as IOptionItem);
+              // What the stamp stores depends on which flag it is, so a different flag starts
+              // from that flag's own default rather than keeping the previous one's value.
+              if (contentAction === action.contentAction) {
+                set({ contentAction });
+                return;
+              }
+              set({
+                contentAction,
+                value: contentAction
+                  ? initialStampValue(contentActions.find((a) => a.id === contentAction))
+                  : null,
+              });
+            }}
           />
         );
+      case 'contentActionValue': {
+        // The control is the picked flag's: nothing to configure until one is picked.
+        if (!action.contentAction) return null;
+        const picked = contentActions.find((a) => a.id === action.contentAction);
+        if (!picked || picked.valueType === ValueType.Boolean)
+          return (
+            <div key={key} className="frm-in">
+              <label>Value</label>
+              <div className="checkbox-inline">
+                <Checkbox
+                  name={key}
+                  label="Stamp as checked"
+                  checked={isStampChecked(action.value)}
+                  onChange={(e) => set({ value: { literal: e.target.checked } })}
+                />
+              </div>
+              <p className="automation-field-help">
+                {"Unchecked stores 'false', which shows the flag as cleared on the item."}
+              </p>
+            </div>
+          );
+        const missing = !hasValueSource(action.value);
+        return (
+          <div key={key} className="automation-field-wide frm-in">
+            <label className="required">{picked.valueLabel?.trim() || 'Value'}</label>
+            <ValueSourceEditor
+              name={key}
+              value={action.value}
+              fromSuggestions={valueRefs}
+              onChange={(value) => set({ value })}
+            />
+            <p className={`automation-field-help${missing ? ' automation-field-error' : ''}`}>
+              {`'${picked.name}' records a ${picked.valueType.toLowerCase()} value` +
+                (missing
+                  ? ' - it needs one to stamp, and the profile will not save without it.'
+                  : '.')}
+            </p>
+          </div>
+        );
+      }
       case 'contentField':
         return (
           <Select

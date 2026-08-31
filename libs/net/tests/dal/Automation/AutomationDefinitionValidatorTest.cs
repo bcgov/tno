@@ -296,6 +296,39 @@ public class AutomationDefinitionValidatorTest
         Assert.DoesNotContain(errors, e => e.Severity == "warning" && e.Message.Contains("[GO]"));
     }
 
+    /// <summary>
+    /// A content action that records a value ('Commentary' keeps a timeout) is meaningless stamped
+    /// without one - but only the database knows which actions those are, so the finding depends
+    /// on the caller supplying the lookups.
+    /// </summary>
+    [Fact]
+    public void ContentActionStoringAValue_WithoutAValue_IsAnError()
+    {
+        var contentActions = new[]
+        {
+            new ContentActionSpec(4, "Top Story", TNO.Entities.ValueType.Boolean),
+            new ContentActionSpec(7, "Commentary", TNO.Entities.ValueType.String),
+        };
+        var definition = ValidDefinition();
+        definition.Steps[1].Actions.Add(new ActionDefinition { Type = "content.action", ContentAction = 7 });
+        Assert.Contains(AutomationDefinitionValidator.Validate(definition, contentActions),
+            e => e.Severity == "error" && e.Message.Contains("Commentary"));
+
+        // Without the lookups the value type is unknowable, so the check does not run at all.
+        Assert.DoesNotContain(AutomationDefinitionValidator.Validate(definition),
+            e => e.Message.Contains("Commentary"));
+
+        // A yes/no action needs no value, and a value satisfies the one that does.
+        definition.Steps[1].Actions[^1].Value = new ValueSource { Literal = System.Text.Json.JsonDocument.Parse("3").RootElement };
+        definition.Steps[1].Actions.Add(new ActionDefinition { Type = "content.action", ContentAction = 4 });
+        Assert.Empty(AutomationDefinitionValidator.Validate(definition, contentActions).Where(e => e.Severity == "error"));
+
+        // An empty literal is the editor's 'not filled in yet' shape, not a value.
+        definition.Steps[1].Actions[^2].Value = new ValueSource { Literal = System.Text.Json.JsonDocument.Parse("\"\"").RootElement };
+        Assert.Contains(AutomationDefinitionValidator.Validate(definition, contentActions),
+            e => e.Severity == "error" && e.Message.Contains("Commentary"));
+    }
+
     [Fact]
     public void DefinitionRoundTrip_PreservesShape()
     {

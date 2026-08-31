@@ -30,6 +30,7 @@ describe('ActionEditor dedupe gates', () => {
           reportOptions={[]}
           notificationOptions={[]}
           actionOptions={[]}
+          contentActions={[]}
           promptNames={[]}
           onChange={() => {}}
         />

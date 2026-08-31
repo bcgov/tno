@@ -30,7 +30,9 @@ public record ActionDescriptor(
 /// FieldSpec record, one configuration field of an action type.
 /// Kind drives the editor control: 'filter', 'collection', 'string', 'int', 'bool', 'condition',
 /// 'valueSource', 'valueMap', 'fields', 'truncateMap', 'contentField', 'report', 'notification',
-/// 'contentAction', 'item', 'draft', or 'enum:a|b|c'.
+/// 'contentAction', 'contentActionValue', 'item', 'draft', or 'enum:a|b|c'.
+/// 'contentActionValue' is a value source whose control follows the picked content action's own
+/// value type: a true/false toggle for a boolean action, the full value source for the rest.
 /// </summary>
 /// <param name="Name">The ActionDefinition property (camelCase, as serialized).</param>
 /// <param name="Kind">The field kind.</param>
@@ -173,9 +175,10 @@ public static class ActionCatalog
         new ActionDescriptor("content.action", "Apply Content Action", "content", true, true, false, _process, new[]
         {
             new FieldSpec("contentAction", "contentAction", true),
+            new FieldSpec("value", "contentActionValue", false, "What the action stores. A yes/no action stores true or false; an action that records a value (Commentary's timeout in days, for example) needs that value."),
             new FieldSpec("target", "draft", false, "A draft created by an earlier Create Content action in this step; leave empty for the original item."),
         },
-            Description: "Stamps a content action (editorial flag) on the item. 'contentAction' picks the flag; 'target' stamps a draft (a new content item produced by an earlier Create Content action in this step) instead. The item must already exist in the database."),
+            Description: "Stamps a content action (editorial flag) on the item. 'contentAction' picks the flag and 'value' supplies what it stores: a yes/no action stores true or false, while an action that records a value (Commentary's timeout in days, for example) takes it from an analysis result, a literal, or a template - such an action stamps nothing when no value resolves. 'target' stamps a draft (a new content item produced by an earlier Create Content action in this step) instead. The item must already exist in the database."),
         new ActionDescriptor("content.publish", "Publish Content", "content", true, false, false, _process, new[]
         {
             new FieldSpec("target", "draft", false, "A draft created by an earlier Create Content action in this step; leave empty for the original item."),
@@ -230,8 +233,9 @@ public static class ActionCatalog
             new FieldSpec("minScore", "int", false, "Keep every item scoring at or above this value, however many that is. Leave empty to select a fixed count with 'take' instead."),
             new FieldSpec("into", "collection", false, "Collection the selected items are written to."),
             new FieldSpec("contentAction", "contentAction", false, "Content action stamped on each selected item."),
+            new FieldSpec("value", "contentActionValue", false, "What the stamped content action stores. A yes/no action stores true or false; an action that records a value (Commentary's timeout in days, for example) needs that value."),
         },
-            Description: "Selects items from the scores a Score Content action recorded under 'objective'. No LLM is involved - it ranks the recorded scores highest first and breaks ties on the lowest content id, so the same scores always select the same items. Choose how many to keep: 'take' keeps a fixed count (the top 10); 'minScore' keeps every item scoring at or above a threshold, so a day with more good stories yields more selections; setting both keeps the qualifying items up to the 'take' cap. 'into' writes the selected items to a collection; 'contentAction' stamps an editorial flag on each. The run outcome and decision log name the selected items and report how many items carried each score."),
+            Description: "Selects items from the scores a Score Content action recorded under 'objective'. No LLM is involved - it ranks the recorded scores highest first and breaks ties on the lowest content id, so the same scores always select the same items. Choose how many to keep: 'take' keeps a fixed count (the top 10); 'minScore' keeps every item scoring at or above a threshold, so a day with more good stories yields more selections; setting both keeps the qualifying items up to the 'take' cap. 'into' writes the selected items to a collection; 'contentAction' stamps an editorial flag on each and 'value' supplies what that flag stores (true/false for a yes/no action, otherwise the value it records - a literal is the usual choice here, since the selection runs after the per-item analyses). The run outcome and decision log name the selected items and report how many items carried each score."),
         new ActionDescriptor("report.run", "Run Report", "distribute", false, true, false, _once, new[]
         {
             new FieldSpec("report", "report", true),

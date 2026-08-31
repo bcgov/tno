@@ -10,6 +10,16 @@ namespace TNO.API.Areas.Admin.Models.Automation;
 public record ValidationError(string Path, string Message, string Severity = "error");
 
 /// <summary>
+/// ContentActionSpec record, the part of a content action a definition can be validated against.
+/// The catalog knows a field holds a content action id; only the database knows what that action
+/// stores, so the caller supplies these when it can reach the lookups.
+/// </summary>
+/// <param name="Id">The action id a definition references.</param>
+/// <param name="Name">Display name, for the finding's message.</param>
+/// <param name="ValueType">What the action stores.</param>
+public record ContentActionSpec(int Id, string Name, TNO.Entities.ValueType ValueType);
+
+/// <summary>
 /// AutomationDefinitionValidator class, validates a definition document against the action
 /// catalog and its own internal references, so configuration errors surface at save rather than
 /// in a run.
@@ -21,10 +31,13 @@ public static class AutomationDefinitionValidator
     /// warnings block.
     /// </summary>
     /// <param name="definition"></param>
+    /// <param name="contentActions">The content actions the definition may reference; when supplied,
+    /// an action that stores a value is checked for one. Omitted, those checks are skipped.</param>
     /// <returns></returns>
-    public static List<ValidationError> Validate(AutomationDefinition definition)
+    public static List<ValidationError> Validate(AutomationDefinition definition, IEnumerable<ContentActionSpec>? contentActions = null)
     {
         var errors = new List<ValidationError>();
+        var contentActionsById = contentActions?.GroupBy(a => a.Id).ToDictionary(g => g.Key, g => g.First());
 
         if (definition.Steps.Count == 0)
             errors.Add(new("steps", "The definition has no steps."));
@@ -173,6 +186,16 @@ public static class AutomationDefinitionValidator
                     if (!HasField(action, field.Name))
                         errors.Add(new($"{path}.{field.Name}", $"Action '{action.Type}' requires '{field.Name}'."));
                 }
+
+                // A content action that stores a value needs one; without it the stamp is
+                // meaningless (a Commentary timeout of 'true' is not a number of days).
+                if (contentActionsById != null
+                    && descriptor.Fields.Any(f => f.Kind == "contentActionValue")
+                    && action.ContentAction.HasValue
+                    && contentActionsById.TryGetValue(action.ContentAction.Value, out var contentAction)
+                    && contentAction.ValueType != TNO.Entities.ValueType.Boolean
+                    && !HasValueSource(action.Value))
+                    errors.Add(new($"{path}.value", $"Content action '{contentAction.Name}' stores a {contentAction.ValueType.ToString().ToLower()} value; give the action a value to stamp."));
 
                 // Collection references.
                 foreach (var (name, value) in CollectionRefs(action))
@@ -351,6 +374,28 @@ public static class AutomationDefinitionValidator
             errors.Add(new(path, "A condition requires a leaf (field/op), a combinator (all/any/not), or an analysis gate (from)."));
         else if (shapes > 1)
             errors.Add(new(path, "A condition must be exactly one shape: a leaf, a combinator, or an analysis gate."));
+    }
+
+    /// <summary>
+    /// Whether a value source actually supplies something. An empty literal, a blank reference,
+    /// or a blank template is the editor's 'not filled in yet' shape, not a value.
+    /// </summary>
+    private static bool HasValueSource(ValueSource? value)
+    {
+        if (value == null) return false;
+        if (!string.IsNullOrWhiteSpace(value.From)) return true;
+        if (!string.IsNullOrWhiteSpace(value.Template)) return true;
+        if (value.Literal.HasValue)
+        {
+            var literal = value.Literal.Value;
+            return literal.ValueKind switch
+            {
+                System.Text.Json.JsonValueKind.String => !string.IsNullOrWhiteSpace(literal.GetString()),
+                System.Text.Json.JsonValueKind.Null or System.Text.Json.JsonValueKind.Undefined => false,
+                _ => true,
+            };
+        }
+        return false;
     }
 
     private static bool HasField(ActionDefinition action, string name) => name switch

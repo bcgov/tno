@@ -1419,6 +1419,14 @@ export const AutomationModalStyles = createGlobalStyle`
     font-size: 0.8rem;
     color: #667085;
   }
+  .automation-field-help.automation-field-error {
+    color: #912018;
+  }
+  /* Hand-rolled labels mark a required field the way tno-core's own fields do. */
+  .automation-action-fields label.required::after {
+    content: ' *';
+    color: #912018;
+  }
   .automation-badge {
     display: inline-block;
     padding: 0.05rem 0.5rem;
