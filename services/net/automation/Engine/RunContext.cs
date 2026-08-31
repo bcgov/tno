@@ -117,10 +117,12 @@ public class Deltas
     public int? Sentiment { get; set; }
     public int? ContributorId { get; set; }
     public string? ContributorName { get; set; }
-    public List<int> ContentActionIds { get; } = new();
+    /// <summary>get - Content actions to stamp: action id -> the value it stores ('true' for a
+    /// yes/no action). A second stamp of the same action replaces the earlier value.</summary>
+    public Dictionary<int, string> ContentActions { get; } = new();
     /// <summary>'publish' or 'unpublish'; null when no status change is pending.</summary>
     public string? Status { get; set; }
-    public bool Dirty => Fields.Count > 0 || Tags.Count > 0 || Sentiment.HasValue || ContributorId.HasValue || ContentActionIds.Count > 0 || Status != null;
+    public bool Dirty => Fields.Count > 0 || Tags.Count > 0 || Sentiment.HasValue || ContributorId.HasValue || ContentActions.Count > 0 || Status != null;
 }
 
 /// <summary>

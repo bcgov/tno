@@ -68,6 +68,7 @@ import {
   buildProfileForExport,
   buildProfileForSave,
   createDefaultSchedule,
+  findMissingContentActionValues,
   findOptionByValue,
   formatRunTime,
   formatScheduleWeekDays,
@@ -497,6 +498,19 @@ const AutomationProfileForm: React.FC = () => {
 
   const handleSubmit = async (values: IAutomationProfileModel) => {
     try {
+      // A content action that records a value is meaningless stamped without one, and the
+      // engine skips such a stamp at run time - so it is caught here, not discovered in a run.
+      const missingValues = findMissingContentActionValues(
+        parseDefinition(values.definition),
+        actionDescriptors,
+        actions,
+      );
+      if (missingValues.length > 0) {
+        toast.error(
+          `Set the value each content action stores before saving: ${missingValues.join('; ')}.`,
+        );
+        return;
+      }
       const profileToSave = buildProfileForSave(values);
 
       const originalId = values.id;
@@ -882,6 +896,7 @@ const AutomationProfileForm: React.FC = () => {
                         reportOptions={reportOptions}
                         notificationOptions={notificationOptions}
                         actionOptions={actionOptions}
+                        contentActions={actions}
                         onValidate={async (definition) =>
                           api.validateProfile({ ...values, definition })
                         }

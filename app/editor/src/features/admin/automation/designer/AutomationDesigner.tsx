@@ -11,7 +11,17 @@ import {
   FaTrash,
 } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import { Button, ButtonVariant, Col, type IOptionItem, Modal, Row, Show, TextArea } from 'tno-core';
+import {
+  Button,
+  ButtonVariant,
+  Col,
+  type IActionModel,
+  type IOptionItem,
+  Modal,
+  Row,
+  Show,
+  TextArea,
+} from 'tno-core';
 
 import { SectionInfoButton } from '../SectionInfoButton';
 import { StrictModeDroppable } from '../StrictModeDroppable';
@@ -46,6 +56,8 @@ export interface IAutomationDesignerProps {
   reportOptions: IOptionItem[];
   notificationOptions: IOptionItem[];
   actionOptions: IOptionItem[];
+  /** The content actions themselves; a stamp's value control follows their value type. */
+  contentActions: IActionModel[];
   /** Validate the current definition against the catalog (server-side). */
   onValidate?: (definition: string) => Promise<IAutomationValidationError[]>;
 }
@@ -87,6 +99,7 @@ export const AutomationDesigner: React.FC<IAutomationDesignerProps> = ({
   reportOptions,
   notificationOptions,
   actionOptions,
+  contentActions,
   onValidate,
 }) => {
   const definition = React.useMemo(() => parseDefinition(value), [value]);
@@ -1041,6 +1054,7 @@ export const AutomationDesigner: React.FC<IAutomationDesignerProps> = ({
                 reportOptions={reportOptions}
                 notificationOptions={notificationOptions}
                 actionOptions={actionOptions}
+                contentActions={contentActions}
                 promptNames={promptNames}
                 onChange={(draft) =>
                   setActionModal((state) => (state ? { ...state, draft } : state))

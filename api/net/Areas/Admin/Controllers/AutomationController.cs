@@ -37,6 +37,7 @@ public class AutomationController : ControllerBase
     private readonly IAutomationRunLogService _runLogService;
     private readonly ILLMService _llmService;
     private readonly IContentService _contentService;
+    private readonly IActionService _actionService;
     private readonly IEventScheduleService _eventScheduleService;
     private readonly System.Net.Http.IHttpClientFactory _httpClientFactory;
     private readonly System.Text.Json.JsonSerializerOptions _serializerOptions;
@@ -54,6 +55,7 @@ public class AutomationController : ControllerBase
     /// <param name="runLogService"></param>
     /// <param name="llmService"></param>
     /// <param name="contentService"></param>
+    /// <param name="actionService"></param>
     /// <param name="eventScheduleService"></param>
     /// <param name="httpClientFactory"></param>
     /// <param name="serializerOptions"></param>
@@ -66,6 +68,7 @@ public class AutomationController : ControllerBase
         IAutomationRunLogService runLogService,
         ILLMService llmService,
         IContentService contentService,
+        IActionService actionService,
         IEventScheduleService eventScheduleService,
         System.Net.Http.IHttpClientFactory httpClientFactory,
         IOptions<System.Text.Json.JsonSerializerOptions> serializerOptions,
@@ -78,6 +81,7 @@ public class AutomationController : ControllerBase
         _runLogService = runLogService;
         _llmService = llmService;
         _contentService = contentService;
+        _actionService = actionService;
         _eventScheduleService = eventScheduleService;
         _httpClientFactory = httpClientFactory;
         _serializerOptions = serializerOptions.Value;
@@ -1122,7 +1126,7 @@ public class AutomationController : ControllerBase
             try
             {
                 var candidate = AutomationDefinition.Parse(request!.CompareDefinition!);
-                var candidateErrors = AutomationDefinitionValidator.Validate(candidate).Where(e => e.Severity == "error").ToArray();
+                var candidateErrors = AutomationDefinitionValidator.Validate(candidate, GetContentActionSpecs()).Where(e => e.Severity == "error").ToArray();
                 if (candidateErrors.Length > 0) return BadRequest(new { errors = candidateErrors });
                 compareDefinition = System.Text.Json.JsonDocument.Parse(request.CompareDefinition!);
             }
@@ -1397,7 +1401,7 @@ public class AutomationController : ControllerBase
         try
         {
             var definition = AutomationDefinition.Parse(model.Definition!);
-            return new JsonResult(AutomationDefinitionValidator.Validate(definition));
+            return new JsonResult(AutomationDefinitionValidator.Validate(definition, GetContentActionSpecs()));
         }
         catch (System.Text.Json.JsonException ex)
         {
@@ -1675,6 +1679,13 @@ public class AutomationController : ControllerBase
         }
         sb.AppendLine();
     }
+
+    /// <summary>
+    /// The content actions a definition may reference, with what each one stores. The catalog
+    /// only knows a field holds an action id; the value type lives in the database.
+    /// </summary>
+    private IEnumerable<ContentActionSpec> GetContentActionSpecs()
+        => _actionService.FindAll().Select(a => new ContentActionSpec(a.Id, a.Name, a.ValueType)).ToArray();
 
     /// <summary>
     /// Validate a profile definition at save. Only malformed JSON blocks the save - a
