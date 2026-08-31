@@ -733,24 +733,32 @@ public class ReportEngine : IReportEngine
     /// <summary>
     /// Generate a dictionary contain the report minimized content items within each section.
     /// This is used by the AI summary.
+    /// Each content item includes its 'id' and a ready-made 'url' so the prompt can link to the
+    /// story without assembling (or inventing) the address itself.
     /// </summary>
     /// <param name="sectionContent"></param>
+    /// <param name="viewContentUrl"></param>
     /// <returns></returns>
-    private static Dictionary<string, object> GenerateAIReportContentData(Dictionary<string, ReportSectionModel> sectionContent)
+    private static Dictionary<string, object> GenerateAIReportContentData(Dictionary<string, ReportSectionModel> sectionContent, Uri? viewContentUrl)
     {
         var contentList = new Dictionary<string, object>();
         foreach (var section in sectionContent.Where(sc => sc.Value.Content.Any()))
         {
             var sectionContentJson = section.Value.Content.Select(c => new
             {
+                id = c.Id,
+                url = viewContentUrl != null ? $"{viewContentUrl}{c.Id}" : null,
                 headline = c.Headline,
-                source = c.Source?.Name ?? c.OtherSource,
-                publishedOn = c.PublishedOn,
-                sentiment = c.TonePools.FirstOrDefault()?.Value,
-                tags = c.Tags.Select(t => t.Code).ToArray(),
-                body = !String.IsNullOrWhiteSpace(c.Body) ? c.Body : c.Summary,
+                text = !String.IsNullOrWhiteSpace(c.Body) ? c.Body : c.Summary,
                 byline = c.Byline,
                 columnist = c.Contributor?.Name,
+                source = c.Source?.Name ?? c.OtherSource,
+                publishedOn = c.PublishedOn,
+                mediaType = c.MediaType?.Name,
+                series = c.Series?.Name ?? c.OtherSeries,
+                sentiment = c.TonePools.FirstOrDefault()?.Value,
+                tags = c.Tags.Select(t => t.Code).ToArray(),
+                actions = c.Actions.Select(a => a.Name),
             });
             contentList.Add(section.Value.Settings.Label, sectionContentJson);
         }
@@ -820,7 +828,7 @@ public class ReportEngine : IReportEngine
                 foreach (var previous in (previousReports ?? Array.Empty<PreviousReportModel>()).OrderBy(p => p.PublishedOn ?? DateTime.MinValue))
                 {
                     if (!previous.Sections.Any(section => section.Value.Content.Any())) continue;
-                    var previousReportData = GenerateAIReportContentData(previous.Sections);
+                    var previousReportData = GenerateAIReportContentData(previous.Sections, this.TemplateOptions.ViewContentUrl);
                     var published = previous.PublishedOn.HasValue ? $", published {previous.PublishedOn:yyyy-MM-dd}" : "";
                     previousReportBlocks.Add($"## Previous Report Data (instance {previous.InstanceId}{published})\n```json\n{JsonSerializer.Serialize(previousReportData, serializer)}\n```");
                 }
@@ -828,7 +836,7 @@ public class ReportEngine : IReportEngine
 
             // Generate a system prompt that includes the current report content.
             reportContentSection.AppendLine("## Current Report Data");
-            var currentReportData = GenerateAIReportContentData(sectionContent);
+            var currentReportData = GenerateAIReportContentData(sectionContent, this.TemplateOptions.ViewContentUrl);
             reportContentSection.AppendLine($"```json\n{JsonSerializer.Serialize(currentReportData, serializer)}\n```");
 
             // Generate AI results.
