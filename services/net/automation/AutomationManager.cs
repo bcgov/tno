@@ -1,17 +1,9 @@
-using Confluent.Kafka;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
-using AdminAutomationProfileModel = TNO.API.Areas.Admin.Models.Automation.AutomationProfileModel;
-using AdminAutomationRunModel = TNO.API.Areas.Admin.Models.Automation.AutomationRunModel;
-using AdminAutomationRunStatus = TNO.API.Areas.Admin.Models.Automation.AutomationRunStatus;
-using ContentModel = TNO.API.Areas.Services.Models.Content.ContentModel;
-using ContentActionModel = TNO.API.Areas.Services.Models.Content.ContentActionModel;
-using ContentTagModel = TNO.API.Areas.Services.Models.Content.ContentTagModel;
-using ContentTonePoolModel = TNO.API.Areas.Services.Models.Content.ContentTonePoolModel;
-using LLMModel = TNO.API.Areas.Services.Models.LLM.LLMModel;
+using Confluent.Kafka;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using TNO.AI;
 using TNO.AI.Models;
 using TNO.Ches;
@@ -21,6 +13,14 @@ using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Services.Automation.Config;
 using TNO.Services.Managers;
+using AdminAutomationProfileModel = TNO.API.Areas.Admin.Models.Automation.AutomationProfileModel;
+using AdminAutomationRunModel = TNO.API.Areas.Admin.Models.Automation.AutomationRunModel;
+using AdminAutomationRunStatus = TNO.API.Areas.Admin.Models.Automation.AutomationRunStatus;
+using ContentActionModel = TNO.API.Areas.Services.Models.Content.ContentActionModel;
+using ContentModel = TNO.API.Areas.Services.Models.Content.ContentModel;
+using ContentTagModel = TNO.API.Areas.Services.Models.Content.ContentTagModel;
+using ContentTonePoolModel = TNO.API.Areas.Services.Models.Content.ContentTonePoolModel;
+using LLMModel = TNO.API.Areas.Services.Models.LLM.LLMModel;
 
 namespace TNO.Services.Automation;
 
@@ -393,6 +393,7 @@ public class AutomationManager : ServiceManager<AutomationOptions>
             run.Status = AdminAutomationRunStatus.Failed;
             run.CompletedOn = DateTime.UtcNow;
             run.Note = $"Run failed: {ex.Message}";
+            await this.SendErrorEmailAsync($"Automation run {run.Id} failed", ex);
         }
 
         // Persist status/note/completion first, then the (potentially very large) summary through
