@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace TNO.Elastic;
 
@@ -32,5 +32,13 @@ public static partial class RegexSettings
 
     [GeneratedRegex(@"\b\w+:/(\\/|[^/])*/")]
     public static partial Regex RemoveFieldedSearchRegex();
+
+    /// <summary>
+    /// An html tag or comment. Keyword marking is applied to the text between these and never
+    /// inside one - a mark written into an attribute value corrupts it, and an inline base64
+    /// image 'src' is a long enough run of letters that a short keyword lands in one regularly.
+    /// </summary>
+    [GeneratedRegex(@"(<!--.*?-->|</?[a-zA-Z][^>]*>)", RegexOptions.Singleline)]
+    public static partial Regex HtmlTagRegex();
     #endregion
 }
