@@ -1,11 +1,8 @@
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.AI;
-using TNO.AI.Models;
 using TNO.Ches;
 using TNO.Ches.Configuration;
 using TNO.Elastic;
@@ -13,14 +10,8 @@ using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Services.Automation.Config;
 using TNO.Services.Managers;
-using AdminAutomationProfileModel = TNO.API.Areas.Admin.Models.Automation.AutomationProfileModel;
 using AdminAutomationRunModel = TNO.API.Areas.Admin.Models.Automation.AutomationRunModel;
 using AdminAutomationRunStatus = TNO.API.Areas.Admin.Models.Automation.AutomationRunStatus;
-using ContentActionModel = TNO.API.Areas.Services.Models.Content.ContentActionModel;
-using ContentModel = TNO.API.Areas.Services.Models.Content.ContentModel;
-using ContentTagModel = TNO.API.Areas.Services.Models.Content.ContentTagModel;
-using ContentTonePoolModel = TNO.API.Areas.Services.Models.Content.ContentTonePoolModel;
-using LLMModel = TNO.API.Areas.Services.Models.LLM.LLMModel;
 
 namespace TNO.Services.Automation;
 
