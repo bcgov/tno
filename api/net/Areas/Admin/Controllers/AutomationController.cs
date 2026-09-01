@@ -1422,6 +1422,7 @@ public class AutomationController : ControllerBase
     /// <param name="search"></param>
     /// <param name="page"></param>
     /// <param name="qty"></param>
+    /// <param name="direction"></param>
     /// <returns></returns>
     [HttpGet("runs/{runId}/logs")]
     [Produces(MediaTypeNames.Application.Json)]

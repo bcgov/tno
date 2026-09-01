@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 
 namespace TNO.Elastic;
@@ -17,6 +17,7 @@ public static class StringExtensions
     static readonly Regex RemoveSimpleKeywords = RegexSettings.RemoveSimpleKeywordsRegex();
     static readonly Regex RemoveAdvancedKeywords = RegexSettings.RemoveAdvancedKeywordsRegex();
     static readonly Regex RemoveFieldedSearch = RegexSettings.RemoveFieldedSearchRegex();
+    static readonly Regex HtmlTag = RegexSettings.HtmlTagRegex();
     #endregion
 
     #region Methods
@@ -172,24 +173,44 @@ public static class StringExtensions
     {
         const string highlightStyle = "background-color:#fff59e;color:inherit;";
         var values = String.Join("|", keywords.Where(v => !String.IsNullOrWhiteSpace(v)));
-        return Regex.Replace(text, $@"\b({values})", match =>
+        if (String.IsNullOrEmpty(text) || String.IsNullOrEmpty(values)) return text;
+
+        string MarkText(string value)
         {
-            var values = new List<string>();
-            for (var i = 0; i < match.Groups.Count; i++)
+            if (String.IsNullOrEmpty(value)) return value;
+            return Regex.Replace(value, $@"\b({values})", match =>
             {
-                values.Add(match.Groups[i].Value);
-            }
-            // Not clear why each match results in multiple groups even when only a single value is found.
-            values = values.Distinct().Where(v => !String.IsNullOrWhiteSpace(v)).ToList();
-            var result = String.Join("", values);
-            if (values.Count != 0)
-            {
-                if (!String.IsNullOrWhiteSpace(tagName) && !markRawTag && tagName.Equals("mark", StringComparison.OrdinalIgnoreCase))
-                    return $"<span style=\"{highlightStyle}\">{result}</span>";
-                return $"<{tagName}>{result}</{tagName}>";
-            }
-            return result;
-        }, RegexOptions.IgnoreCase);
+                var values = new List<string>();
+                for (var i = 0; i < match.Groups.Count; i++)
+                {
+                    values.Add(match.Groups[i].Value);
+                }
+                // Not clear why each match results in multiple groups even when only a single value is found.
+                values = values.Distinct().Where(v => !String.IsNullOrWhiteSpace(v)).ToList();
+                var result = String.Join("", values);
+                if (values.Count != 0)
+                {
+                    if (!String.IsNullOrWhiteSpace(tagName) && !markRawTag && tagName.Equals("mark", StringComparison.OrdinalIgnoreCase))
+                        return $"<span style=\"{highlightStyle}\">{result}</span>";
+                    return $"<{tagName}>{result}</{tagName}>";
+                }
+                return result;
+            }, RegexOptions.IgnoreCase);
+        }
+
+        // Only the readable text between tags is marked. A keyword that lands inside a tag would
+        // be rewritten into the markup itself - splitting an 'href', or an inline base64 image
+        // 'src', into an unusable value.
+        var marked = new StringBuilder(text.Length);
+        var index = 0;
+        foreach (Match tag in HtmlTag.Matches(text))
+        {
+            marked.Append(MarkText(text[index..tag.Index]));
+            marked.Append(tag.Value);
+            index = tag.Index + tag.Length;
+        }
+        marked.Append(MarkText(text[index..]));
+        return marked.ToString();
     }
     #endregion
 }
