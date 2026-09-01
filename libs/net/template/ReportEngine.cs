@@ -1,9 +1,10 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.IO.Compression;
 using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using System.Xml;
 using CsvHelper.Configuration;
 using Microsoft.Extensions.Logging;
@@ -22,8 +23,24 @@ namespace TNO.TemplateEngine;
 /// <summary>
 /// ReportEngine class, provides a centralize collection of methods to generate reports and charts.
 /// </summary>
-public class ReportEngine : IReportEngine
+public partial class ReportEngine : IReportEngine
 {
+    #region Variables
+    /// <summary>
+    /// An &lt;img&gt; tag whose 'src' is an inline base64 data URI. The payload is worth hundreds of
+    /// kilobytes of prompt and carries nothing the model can read, so the whole tag is dropped.
+    /// </summary>
+    [GeneratedRegex("<img\\b[^>]*?\\bsrc\\s*=\\s*(?:\"\\s*data:[^\"]*?;base64,[^\"]*\"|'\\s*data:[^']*?;base64,[^']*')[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Singleline)]
+    private static partial Regex Base64ImageTagRegex();
+
+    /// <summary>
+    /// Any inline base64 payload the tag pattern does not cover - an unquoted 'src', a CSS
+    /// url(), a markdown image. Only the payload is dropped, so the surrounding markup still
+    /// tells the model an image was there.
+    /// </summary>
+    [GeneratedRegex("data:[\\w.+-]+/[\\w.+-]+;base64,[A-Za-z0-9+/=]+", RegexOptions.IgnoreCase)]
+    private static partial Regex Base64DataUriRegex();
+    #endregion
 
     #region Properties
     /// <summary>
@@ -731,6 +748,22 @@ public class ReportEngine : IReportEngine
     }
 
     /// <summary>
+    /// Strip inline base64 images out of 'html'.
+    /// An article body can carry an image as a data URI, which is megabytes of characters the
+    /// model cannot see and which crowds out the text it is being asked to summarize - and can
+    /// push the request past the deployment's context limit on its own.
+    /// </summary>
+    /// <param name="html"></param>
+    /// <returns>The html without any inline base64 image data.</returns>
+    public static string? RemoveBase64Images(string? html)
+    {
+        if (String.IsNullOrEmpty(html)) return html;
+
+        var result = Base64ImageTagRegex().Replace(html, "");
+        return Base64DataUriRegex().Replace(result, "");
+    }
+
+    /// <summary>
     /// Generate a dictionary contain the report minimized content items within each section.
     /// This is used by the AI summary.
     /// Each content item includes its 'id' and a ready-made 'url' so the prompt can link to the
@@ -749,7 +782,7 @@ public class ReportEngine : IReportEngine
                 id = c.Id,
                 url = viewContentUrl != null ? $"{viewContentUrl}{c.Id}" : null,
                 headline = c.Headline,
-                text = !String.IsNullOrWhiteSpace(c.Body) ? c.Body : c.Summary,
+                text = RemoveBase64Images(!String.IsNullOrWhiteSpace(c.Body) ? c.Body : c.Summary),
                 byline = c.Byline,
                 columnist = c.Contributor?.Name,
                 source = c.Source?.Name ?? c.OtherSource,

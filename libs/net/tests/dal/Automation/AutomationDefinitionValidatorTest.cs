@@ -42,7 +42,7 @@ public class AutomationDefinitionValidatorTest
     public void ValidDefinition_HasNoErrors()
     {
         var errors = AutomationDefinitionValidator.Validate(ValidDefinition());
-        Assert.Empty(errors.Where(e => e.Severity == "error"));
+        Assert.DoesNotContain(errors, e => e.Severity == "error");
     }
 
     /// <summary>A select-top action must say how much to keep: a count, a score threshold, or both.</summary>
@@ -64,7 +64,7 @@ public class AutomationDefinitionValidatorTest
         definition.Steps[1].Actions.Add(new ActionDefinition { Type = "score", Objective = "top-story", Value = new ValueSource { From = "triage.sentiment" } });
         definition.Steps[2].Actions.Add(new ActionDefinition { Type = "select-top", Objective = "top-story", MinScore = 7 });
         var errors = AutomationDefinitionValidator.Validate(definition);
-        Assert.Empty(errors.Where(e => e.Severity == "error"));
+        Assert.DoesNotContain(errors, e => e.Severity == "error");
     }
 
     /// <summary>An analysis target must name a draft the step actually creates.</summary>
@@ -86,7 +86,7 @@ public class AutomationDefinitionValidatorTest
         definition.Steps[1].Actions.Insert(0, new ActionDefinition { Type = "content.create", As = "$item.copy", CopyFrom = "$item" });
         definition.Steps[1].Analyses[0].Target = "$item.copy";
         var errors = AutomationDefinitionValidator.Validate(definition);
-        Assert.Empty(errors.Where(e => e.Severity == "error"));
+        Assert.DoesNotContain(errors, e => e.Severity == "error");
     }
 
     /// <summary>A '{target}' token with no target renders as nothing, which reads like the model
@@ -249,7 +249,7 @@ public class AutomationDefinitionValidatorTest
         definition.Steps[2].Source = new SourceDefinition { From = "collection", Collection = "$run.inbox" };
         definition.Steps[2].Actions.Add(new ActionDefinition { Type = "content.publish" });
         var errors = AutomationDefinitionValidator.Validate(definition);
-        Assert.Empty(errors.Where(e => e.Severity == "error"));
+        Assert.DoesNotContain(errors, e => e.Severity == "error");
     }
 
     [Fact]
@@ -321,7 +321,7 @@ public class AutomationDefinitionValidatorTest
         // A yes/no action needs no value, and a value satisfies the one that does.
         definition.Steps[1].Actions[^1].Value = new ValueSource { Literal = System.Text.Json.JsonDocument.Parse("3").RootElement };
         definition.Steps[1].Actions.Add(new ActionDefinition { Type = "content.action", ContentAction = 4 });
-        Assert.Empty(AutomationDefinitionValidator.Validate(definition, contentActions).Where(e => e.Severity == "error"));
+        Assert.DoesNotContain(AutomationDefinitionValidator.Validate(definition, contentActions), e => e.Severity == "error");
 
         // An empty literal is the editor's 'not filled in yet' shape, not a value.
         definition.Steps[1].Actions[^2].Value = new ValueSource { Literal = System.Text.Json.JsonDocument.Parse("\"\"").RootElement };
@@ -337,7 +337,7 @@ public class AutomationDefinitionValidatorTest
         Assert.Equal(definition.Steps.Count, reparsed.Steps.Count);
         Assert.Equal("triage", reparsed.Steps[1].Analyses[0].Name);
         Assert.Equal(100, reparsed.Steps[1].Actions[0].When!.Value!.Value.GetInt32());
-        Assert.Empty(AutomationDefinitionValidator.Validate(reparsed).Where(e => e.Severity == "error"));
+        Assert.DoesNotContain(AutomationDefinitionValidator.Validate(reparsed), static e => e.Severity == "error");
     }
     #endregion
 }
