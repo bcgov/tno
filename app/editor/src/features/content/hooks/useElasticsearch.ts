@@ -59,8 +59,12 @@ export const useElasticsearch = () => {
         if (type == null || !term) return undefined;
         const defaultOperator = 'and';
         switch (type) {
-          case AdvancedSearchKeys.Id:
-            return generateTerm('id', Number(term));
+          case AdvancedSearchKeys.Id: {
+            // The term is free text until it is parsed - a value that is not a number would
+            // otherwise reach Elasticsearch as null and fail the search.
+            const value = Number(term);
+            return Number.isNaN(value) ? undefined : generateTerm('id', value);
+          }
           case AdvancedSearchKeys.Headline:
             return generateSimpleQueryString(['headline^5'], term, {
               default_operator: defaultOperator,
@@ -81,8 +85,12 @@ export const useElasticsearch = () => {
             return generateSimpleQueryString(['byline', 'content.contributor.name'], term, {
               default_operator: defaultOperator,
             });
-          case AdvancedSearchKeys.Source:
-            return generateTerm('sourceId', Number(term));
+          case AdvancedSearchKeys.Source: {
+            // A search term left over from another field type (the id list is a select, but a
+            // stored filter or a query parameter can carry anything) is not a source id.
+            const value = Number(term);
+            return Number.isNaN(value) ? undefined : generateTerm('sourceId', value);
+          }
           case AdvancedSearchKeys.Series: {
             const sanitized = typeof term === 'string' ? term.trim() : term;
             if (sanitized === '' || sanitized === undefined || sanitized === null) return undefined;
