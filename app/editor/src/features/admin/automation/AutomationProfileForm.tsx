@@ -1,4 +1,5 @@
 /* eslint-disable simple-import-sort/imports */
+import { type AxiosError } from 'axios';
 import { FormikForm } from 'components/formik';
 import moment from 'moment';
 import React from 'react';
@@ -63,6 +64,7 @@ import {
   collectFilterIds,
   collectLlmIds,
   remapDefinition,
+  type IAutomationValidationError,
 } from './designer';
 import {
   buildProfileForExport,
@@ -119,6 +121,8 @@ const AutomationProfileForm: React.FC = () => {
   const { toggle: toggleRunDetailModal, isShowing: isRunDetailModalShowing } = useModal();
   // The run pending deletion; also drives the confirmation modal's visibility.
   const [runDeleteState, setRunDeleteState] = React.useState<IAutomationRunModel | null>(null);
+  // The errors that blocked the last save attempt; also drives that modal's visibility.
+  const [saveErrors, setSaveErrors] = React.useState<IAutomationValidationError[] | null>(null);
   // The action catalog (fetched once); the designer renders action forms from it.
   const [actionDescriptors, setActionDescriptors] = React.useState<IAutomationActionDescriptor[]>(
     [],
@@ -513,6 +517,17 @@ const AutomationProfileForm: React.FC = () => {
       }
       const profileToSave = buildProfileForSave(values);
 
+      // A definition with errors is one the automation service refuses to run, so it is not
+      // stored. Surfacing the errors here is the difference between fixing them now and
+      // discovering them when the scheduled run fails. Warnings do not block the save - they
+      // stay in the designer's findings panel.
+      const findings = await api.validateProfile(profileToSave);
+      const blocking = findings.filter((finding) => finding.severity === 'error');
+      if (blocking.length > 0) {
+        setSaveErrors(blocking);
+        return;
+      }
+
       const originalId = values.id;
       const result = !values.id
         ? await api.addProfile(profileToSave)
@@ -520,8 +535,15 @@ const AutomationProfileForm: React.FC = () => {
       setProfile(normalizeProfile(result));
       toast.success(`${result.name} has successfully been saved.`);
       if (!originalId) navigate(`/admin/automations/${result.id}`);
-    } catch {
-      toast.error('Unable to save automation profile.');
+    } catch (error) {
+      // The API applies the same rule, so a save can still be rejected (a stale page, another
+      // client). Show its findings in the same modal rather than a generic failure toast.
+      const data = (error as AxiosError)?.response?.data as
+        | { errors?: IAutomationValidationError[] }
+        | undefined;
+      const rejected = Array.isArray(data?.errors) ? data!.errors! : [];
+      if (rejected.length > 0) setSaveErrors(rejected);
+      else toast.error('Unable to save automation profile.');
     }
   };
 
@@ -1221,6 +1243,37 @@ const AutomationProfileForm: React.FC = () => {
                     closeRunDelete();
                   }
                 }}
+              />
+              <Modal
+                headerText="This automation cannot be saved"
+                isShowing={!!saveErrors}
+                hide={() => setSaveErrors(null)}
+                type="custom"
+                component={
+                  <div className="rule-modal-content save-errors-content">
+                    <p>
+                      {`The definition has ${saveErrors?.length ?? 0} error${
+                        (saveErrors?.length ?? 0) === 1 ? '' : 's'
+                      }. The automation service refuses to run a definition with errors, so it has not been saved. Correct the following and save again.`}
+                    </p>
+                    <Col className="automation-findings" gap="0.25rem">
+                      {(saveErrors ?? []).map((finding, index) => (
+                        <Row key={index} gap="0.5rem" alignItems="baseline">
+                          <span className="automation-badge automation-badge-danger">error</span>
+                          <code>{finding.path}</code>
+                          <span>{finding.message}</span>
+                        </Row>
+                      ))}
+                    </Col>
+                  </div>
+                }
+                customButtons={
+                  <Row justifyContent="flex-end" width="100%">
+                    <Button variant={ButtonVariant.secondary} onClick={() => setSaveErrors(null)}>
+                      Close
+                    </Button>
+                  </Row>
+                }
               />
             </div>
           );

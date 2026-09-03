@@ -1689,16 +1689,21 @@ public class AutomationController : ControllerBase
         => _actionService.FindAll().Select(a => new ContentActionSpec(a.Id, a.Name, a.ValueType)).ToArray();
 
     /// <summary>
-    /// Validate a profile definition at save. Only malformed JSON blocks the save - a
-    /// work-in-progress definition with validation errors persists as a draft (the findings
-    /// panel and the run-time guard in the automation service cover invalid definitions).
+    /// Validate a profile definition at save. A definition that cannot run is not stored:
+    /// malformed JSON and any 'error' severity finding both block the save, so a saved profile
+    /// is always one the automation service will accept. Warnings do not block - they surface
+    /// in the designer's findings panel.
     /// </summary>
     private IActionResult? ValidateDefinition(AutomationProfileModel model)
     {
         if (model.SchemaVersion < 2 || string.IsNullOrWhiteSpace(model.Definition)) return null;
         try
         {
-            AutomationDefinition.Parse(model.Definition!);
+            var definition = AutomationDefinition.Parse(model.Definition!);
+            var errors = AutomationDefinitionValidator.Validate(definition, GetContentActionSpecs())
+                .Where(e => e.Severity == "error")
+                .ToArray();
+            if (errors.Length > 0) return BadRequest(new { errors });
             return null;
         }
         catch (System.Text.Json.JsonException ex)
