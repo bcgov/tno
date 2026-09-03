@@ -1,4 +1,4 @@
-using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using TNO.API.Areas.Admin.Models.Automation;
@@ -13,8 +13,8 @@ namespace TNO.Services.Automation.Engine;
 /// - {target} and {target.field} - the working copy of the draft an analysis names as its
 ///   target, so a prompt can read what earlier actions built on the copy rather than on the
 ///   item the iteration started from (nothing when the analysis declares no target);
-/// - {lookup:name} / {lookup:name[col,col]} - reference data from the run's lookup bundle,
-///   enabled records only, stable order, size-guarded (so prompts stop pasting tag lists);
+/// - {lookup:name} / {lookup:name[col,col]} - reference data from the run's lookup bundle as
+///   JSON, enabled records only, stable order, size-guarded (so prompts stop pasting tag lists);
 /// - {collection:$run.name} / {collection:$run.name[field,field]} - a collection's digests.
 /// Lookup blocks belong in shared prompt text: they are identical for every item, so providers
 /// can prefix-cache them across hundreds of calls.
@@ -26,6 +26,17 @@ public class PromptBuilder
 
     /// <summary>Items rendered per collection injection before truncation.</summary>
     private const int MaxCollectionItems = 200;
+
+    /// <summary>
+    /// Lookup blocks are indented so a description that runs to a paragraph stays readable in the
+    /// prompt and in the run log, and are written with the relaxed encoder so accented text and
+    /// punctuation reach the model as themselves rather than as escape sequences.
+    /// </summary>
+    private static readonly JsonSerializerOptions _lookupJsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        WriteIndented = true,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+    };
 
     private static readonly Regex _lookupToken = new(@"\{lookup:(?<name>[a-zA-Z]+)(\[(?<cols>[^\]]+)\])?\}", RegexOptions.Compiled);
     private static readonly Regex _collectionToken = new(@"\{collection:(?<name>\$run\.[a-zA-Z0-9_-]+)(\[(?<cols>[^\]]+)\])?\}", RegexOptions.Compiled);
@@ -110,8 +121,11 @@ public class PromptBuilder
     }
 
     /// <summary>
-    /// Render a lookup list: enabled records only, sorted for a stable (cacheable) prompt prefix.
-    /// The same lookup bundle validates responses, so prompt and validation cannot disagree.
+    /// Render a lookup list as JSON: enabled records only, sorted for a stable (cacheable) prompt
+    /// prefix. JSON rather than a line per record because a description is prompt text in its own
+    /// right - it can carry newlines, quotes and punctuation that a delimited line would split on,
+    /// silently merging or splitting records. The same lookup bundle validates responses, so
+    /// prompt and validation cannot disagree.
     /// </summary>
     private string RenderLookup(string name, string[]? columns)
     {
@@ -130,30 +144,39 @@ public class PromptBuilder
         var list = rows.ToList();
         if (list.Count == 0) return $"(lookup '{name}' has no enabled records)";
 
-        var sb = new StringBuilder();
-        foreach (var row in list.Take(MaxLookupRows))
+        var records = list.Take(MaxLookupRows).Select(row =>
         {
+            var record = new Dictionary<string, string>();
             if (columns == null)
             {
-                sb.Append(row.Code);
-                if (!string.Equals(row.Code, row.Name, StringComparison.Ordinal)) sb.Append(" | ").Append(row.Name);
-                if (!string.IsNullOrWhiteSpace(row.Description)) sb.Append(" — ").Append(row.Description);
+                record["code"] = row.Code;
+                // Lists keyed by name (contributors, media types, actions, topics) repeat the name
+                // as the code - one field is all the model has to answer with.
+                if (!string.Equals(row.Code, row.Name, StringComparison.Ordinal)) record["name"] = row.Name;
+                if (!string.IsNullOrWhiteSpace(row.Description)) record["description"] = row.Description;
             }
             else
             {
-                var parts = columns.Select(c => c.ToLowerInvariant() switch
+                foreach (var column in columns)
                 {
-                    "code" => row.Code,
-                    "name" => row.Name,
-                    "description" => row.Description,
-                    _ => "",
-                });
-                sb.Append(string.Join(" | ", parts));
+                    var key = column.ToLowerInvariant();
+                    var value = key switch
+                    {
+                        "code" => row.Code,
+                        "name" => row.Name,
+                        "description" => row.Description,
+                        _ => null,
+                    };
+                    if (value != null) record[key] = value;
+                }
             }
-            sb.AppendLine();
-        }
-        if (list.Count > MaxLookupRows) sb.AppendLine($"…[{list.Count - MaxLookupRows} more entries truncated]");
-        return sb.ToString().TrimEnd();
+            return record;
+        }).ToList();
+
+        var json = JsonSerializer.Serialize(records, _lookupJsonOptions);
+        return list.Count > MaxLookupRows
+            ? $"{json}\n…[{list.Count - MaxLookupRows} more entries truncated]"
+            : json;
     }
 
     private string RenderCollection(string name, string[]? fields)

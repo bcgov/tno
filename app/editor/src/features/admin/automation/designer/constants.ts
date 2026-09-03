@@ -272,15 +272,25 @@ export const collectCollectionNames = (definition: IAutomationDefinition): strin
   return Array.from(names).sort();
 };
 
-/** Insertable data tokens: replaced at prompt composition with consistent, readable values from
- * the run's lookup bundle. Hints render as hover titles (the token's rendered form). */
+/** Insertable data tokens: replaced at prompt composition with the enabled records from the run's
+ * lookup bundle, rendered as JSON so a description that runs to a paragraph cannot break the
+ * structure. `{lookup:tags[code,description]}` selects the fields. Hints render as hover titles. */
 export const LOOKUP_TOKENS: { token: string; hint: string }[] = [
-  { token: '{lookup:tags}', hint: 'Enabled tags: CODE | Name — Description, one per line' },
-  { token: '{lookup:contributors}', hint: 'Enabled contributors/columnists by name' },
-  { token: '{lookup:sources}', hint: 'Enabled sources: CODE | Name — Description' },
-  { token: '{lookup:mediaTypes}', hint: 'Enabled media types by name' },
-  { token: '{lookup:actions}', hint: 'Enabled content actions by name' },
-  { token: '{lookup:topics}', hint: 'Enabled topics by name' },
+  { token: '{lookup:tags}', hint: 'Enabled tags as JSON: code, name, description' },
+  {
+    token: '{lookup:contributors}',
+    hint: 'Enabled contributors/columnists as JSON: code (the name), description',
+  },
+  { token: '{lookup:sources}', hint: 'Enabled sources as JSON: code, name, description' },
+  {
+    token: '{lookup:mediaTypes}',
+    hint: 'Enabled media types as JSON: code (the name), description',
+  },
+  {
+    token: '{lookup:actions}',
+    hint: 'Enabled content actions as JSON: code (the name), description',
+  },
+  { token: '{lookup:topics}', hint: 'Enabled topics as JSON: code (the name), description' },
 ];
 
 /** Insertable content tokens: replaced with the item's working copy (deltas folded in). */

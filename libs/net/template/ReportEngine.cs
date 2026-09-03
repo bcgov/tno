@@ -768,11 +768,17 @@ public partial class ReportEngine : IReportEngine
     /// This is used by the AI summary.
     /// Each content item includes its 'id' and a ready-made 'url' so the prompt can link to the
     /// story without assembling (or inventing) the address itself.
+    /// A story the current report body renders also includes an 'anchor' - the report template
+    /// gives the first rendering of a story an anchor named for the content id, so the prompt can
+    /// link into the report body itself. A story only listed as a headline has nothing to anchor
+    /// to, and a story from a previous report is not in this body at all, so neither gets an
+    /// anchor.
     /// </summary>
     /// <param name="sectionContent"></param>
     /// <param name="viewContentUrl"></param>
+    /// <param name="includeAnchors"></param>
     /// <returns></returns>
-    private static Dictionary<string, object> GenerateAIReportContentData(Dictionary<string, ReportSectionModel> sectionContent, Uri? viewContentUrl)
+    private static Dictionary<string, object> GenerateAIReportContentData(Dictionary<string, ReportSectionModel> sectionContent, Uri? viewContentUrl, bool includeAnchors)
     {
         var contentList = new Dictionary<string, object>();
         foreach (var section in sectionContent.Where(sc => sc.Value.Content.Any()))
@@ -780,6 +786,7 @@ public partial class ReportEngine : IReportEngine
             var sectionContentJson = section.Value.Content.Select(c => new
             {
                 id = c.Id,
+                anchor = includeAnchors && IsAnchoredInReport(section.Value, c) ? $"#{ContentAnchorPrefix}{c.Id}" : null,
                 url = viewContentUrl != null ? $"{viewContentUrl}{c.Id}" : null,
                 headline = c.Headline,
                 text = RemoveBase64Images(!String.IsNullOrWhiteSpace(c.Body) ? c.Body : c.Summary),
@@ -796,6 +803,33 @@ public partial class ReportEngine : IReportEngine
             contentList.Add(section.Value.Settings.Label, sectionContentJson);
         }
         return contentList;
+    }
+
+    /// <summary>
+    /// The anchor the report template gives the first rendering of a story - 'item-' followed by
+    /// the content id (see the report template's story loop, which also anchors every rendering as
+    /// 'item-{section id}-{content id}' so the table of contents reaches the copy in its own
+    /// section). An AI section links into the report body with it, so the two have to agree.
+    /// </summary>
+    private const string ContentAnchorPrefix = "item-";
+
+    /// <summary>
+    /// Whether the report body renders 'content' as a story in 'section', which is what carries the
+    /// anchor. Mirrors the report template's story loop: a section showing only headlines links out
+    /// to the story rather than anchoring it, and an image-only section renders an item only when
+    /// that item has an image to show.
+    /// </summary>
+    /// <param name="section"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    private static bool IsAnchoredInReport(ReportSectionModel section, TNO.TemplateEngine.Models.ContentModel content)
+    {
+        if (section.SectionType != Entities.ReportSectionType.Content) return false;
+        if (section.Settings.ShowFullStory) return true;
+        return section.Settings.ShowImage
+            && (!String.IsNullOrEmpty(content.ImageContent)
+                || !String.IsNullOrEmpty(content.FileReferences.FirstOrDefault()?.Path)
+                || content.Body.Contains("<img"));
     }
 
     /// <summary>
@@ -861,7 +895,7 @@ public partial class ReportEngine : IReportEngine
                 foreach (var previous in (previousReports ?? Array.Empty<PreviousReportModel>()).OrderBy(p => p.PublishedOn ?? DateTime.MinValue))
                 {
                     if (!previous.Sections.Any(section => section.Value.Content.Any())) continue;
-                    var previousReportData = GenerateAIReportContentData(previous.Sections, this.TemplateOptions.ViewContentUrl);
+                    var previousReportData = GenerateAIReportContentData(previous.Sections, this.TemplateOptions.ViewContentUrl, false);
                     var published = previous.PublishedOn.HasValue ? $", published {previous.PublishedOn:yyyy-MM-dd}" : "";
                     previousReportBlocks.Add($"## Previous Report Data (instance {previous.InstanceId}{published})\n```json\n{JsonSerializer.Serialize(previousReportData, serializer)}\n```");
                 }
@@ -869,7 +903,7 @@ public partial class ReportEngine : IReportEngine
 
             // Generate a system prompt that includes the current report content.
             reportContentSection.AppendLine("## Current Report Data");
-            var currentReportData = GenerateAIReportContentData(sectionContent, this.TemplateOptions.ViewContentUrl);
+            var currentReportData = GenerateAIReportContentData(sectionContent, this.TemplateOptions.ViewContentUrl, true);
             reportContentSection.AppendLine($"```json\n{JsonSerializer.Serialize(currentReportData, serializer)}\n```");
 
             // Generate AI results.

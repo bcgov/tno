@@ -1,5 +1,7 @@
 import { CellCheckbox, CellEllipsis, type ITableHookColumn, type ITagModel } from 'tno-core';
 
+/** Column widths are ratios only - the list pins Code and the trailing columns to a fixed
+ * size and caps Name in `../styled/TagList.tsx`, which is where the layout is maintained. */
 export const columns: Array<ITableHookColumn<ITagModel>> = [
   {
     label: 'Code',
