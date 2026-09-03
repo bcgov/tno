@@ -490,12 +490,46 @@ namespace TNO.Core.Http
             // If the error handle is not provided, or if it returns false throw an error.
             if ((onError?.Invoke(response) ?? false) == false)
             {
-                var error = new HttpClientRequestException(response);
+                // The body is the only part of a failed response that says what the remote
+                // service objected to - Elasticsearch answers a rejected query with a 400 whose
+                // reason is in the body alone. Without it a caller is left with method, status
+                // and URL, which name the request but never the problem.
+                var body = await ReadErrorBodyAsync(response);
+                var error = String.IsNullOrWhiteSpace(body)
+                    ? new HttpClientRequestException(response)
+                    : new HttpClientRequestException(response, $"HTTP Request failed [{response.RequestMessage?.Method}]:[{response.StatusCode}]:{response.RequestMessage?.RequestUri}:{body}");
                 _logger.LogError(error, "{message}", error.Message);
                 throw error;
             }
 
             return default;
+        }
+
+        /// <summary>The most of a failed response body to carry into the exception and the log.</summary>
+        private const int MaxErrorBodyChars = 4000;
+
+        /// <summary>
+        /// Read the body of a failed response, capped and marked when it is cut short. Reading it
+        /// cannot be allowed to replace the original failure, so a body that cannot be read is
+        /// reported as nothing rather than thrown.
+        /// </summary>
+        /// <param name="response"></param>
+        /// <returns></returns>
+        private async Task<string?> ReadErrorBodyAsync(HttpResponseMessage response)
+        {
+            try
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                if (String.IsNullOrWhiteSpace(body)) return null;
+                return body.Length <= MaxErrorBodyChars
+                    ? body
+                    : $"{body[..MaxErrorBodyChars]}...[truncated, {body.Length - MaxErrorBodyChars} more character(s)]";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogDebug(ex, "Failed to read the body of an unsuccessful response.");
+                return null;
+            }
         }
 
         /// <summary>
