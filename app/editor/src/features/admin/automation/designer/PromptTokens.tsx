@@ -66,11 +66,12 @@ export const PromptTokens: React.FC<IPromptTokensProps> = ({
         <code>{'{candidates}'}</code> inserts the compared stories and{' '}
         <code>{'{candidate.*}'}</code> single fields (iterate mode); the prompt must place them
         itself — see default-dedupe for the layout. <code>{'{lookup:*}'}</code> inserts reference
-        lists (identical for every item). Analyses only: a prompt with no content tokens at all gets
-        the story appended as a final '## News Story' section; any <code>{'{content...}'}</code>{' '}
-        token disables that. When an analysis names a Target draft, <code>{'{target.*}'}</code>{' '}
-        reads that draft instead — including what earlier actions in the step have already put on it
-        — while <code>{'{content.*}'}</code> keeps meaning the item the iteration started from.
+        lists as JSON (identical for every item). Analyses only: a prompt with no content tokens at
+        all gets the story appended as a final '## News Story' section; any{' '}
+        <code>{'{content...}'}</code> token disables that. When an analysis names a Target draft,{' '}
+        <code>{'{target.*}'}</code> reads that draft instead — including what earlier actions in the
+        step have already put on it — while <code>{'{content.*}'}</code> keeps meaning the item the
+        iteration started from.
       </p>
       {group('Lookups', LOOKUP_TOKENS)}
       {group('Content (the item being processed)', CONTENT_TOKENS)}

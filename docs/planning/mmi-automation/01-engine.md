@@ -107,7 +107,7 @@ once per item:
 | ----- | ------- |
 | `{content}` | The item's full working copy as JSON |
 | `{content.<field>}` | One working-copy field (any digest field; `story` = summary, or body when empty) |
-| `{lookup:tags}` etc. | Reference lists (tags, contributors, sources, mediaTypes, actions, topics), identical for every item |
+| `{lookup:tags}` etc. | Reference lists as JSON — code, name, description of the enabled records (tags, contributors, sources, mediaTypes, actions, topics); `[code,description]` selects fields. Identical for every item |
 | `{candidates}` | Detect Duplicate only: the compared stories digest (batch mode) |
 | `{candidate.<field>}` | Detect Duplicate only: one field of the single candidate (iterate mode) |
 

@@ -1,6 +1,10 @@
-@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
+DO $$
+BEGIN
+
+-- Update custom report with latest template.
+UPDATE public."report_template" SET
+    "body" = '@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
 @using System
-@using System.Collections.Generic
 @using System.Linq
 @using TNO.Entities
 @using TNO.TemplateEngine
@@ -37,35 +41,8 @@
 }
 @if (!ViewOnWebOnly)
 {
-  // Stories are anchored by their content id rather than by their position, so a link
-  // resolves wherever the story sits in the report.  The same story can appear in more
-  // than one section, so each rendering of it is anchored as {section id}-{content id}
-  // and the table of contents, the back link and previous/next use that - a reader
-  // clicking a story in one section lands on that section's copy of it.
-  // The first rendering also carries the plain {content id} anchor, which is the one an
-  // AI section links to.
-  // Walk the sections first to collect the order the stories are rendered in, which is
-  // what previous/next navigate.
-  var renderedItems = new List<string>();
-  foreach (var storySection in Sections.Where(s => s.Value.IsEnabled
-    && s.Value.SectionType == ReportSectionType.Content
-    && (s.Value.Settings.ShowFullStory || s.Value.Settings.ShowImage)))
-  {
-    foreach (var storyContent in storySection.Value.Content)
-    {
-      // Mirrors the render condition below: an image-only section renders an item
-      // only when it actually has an image to show.
-      var hasStoryImage = storySection.Value.Settings.ShowImage
-        && (!String.IsNullOrEmpty(storyContent.ImageContent)
-          || !String.IsNullOrEmpty(storyContent.FileReferences.FirstOrDefault()?.Path)
-          || ReportExtensions.GetBody(storyContent, Model).Contains("<img"));
-      if (storySection.Value.Settings.ShowFullStory || hasStoryImage)
-      {
-        renderedItems.Add($"{storySection.Value.Id}-{storyContent.Id}");
-      }
-    }
-  }
-  var storyAnchors = new HashSet<long>();
+  var contentCount = 0;
+  var allContent = Content.ToArray();
   var startChartGroup = -1;
   var endChartGroup = false;
   for (var index = 0; index < Sections.Count(); index++)
@@ -114,6 +91,7 @@
     @if (section.Value.SectionType == ReportSectionType.TableOfContents)
     {
       @* TABLE OF CONTENTS SECTION *@
+      var tocCount = 0;
       @foreach (var tableSection in Sections.Where(s => new [] {ReportSectionType.Content, ReportSectionType.Gallery, ReportSectionType.Text, ReportSectionType.Image}.Contains(s.Value.SectionType)))
       {
         if ((!tableSection.Value.Settings.InTableOfContents.HasValue || tableSection.Value.Settings.InTableOfContents.Value)
@@ -132,9 +110,10 @@
                  var summary = ReportExtensions.GetSummaryWithExternalStory(content, Model);
 
                   <div style="vertical-align:center; margin-bottom:4px ;">
-                    <a id="toc-item-@(tableSection.Value.Id)-@content.Id" name="toc-item-@(tableSection.Value.Id)-@content.Id"></a>
-                    @ReportExtensions.GetFullHeadline(content, Model, utcOffset, true, $"#item-{tableSection.Value.Id}-{content.Id}", "", true) @summary
+                    <a id="toc-item-@tocCount" name="toc-item-@tocCount"></a>
+                    @ReportExtensions.GetFullHeadline(content, Model, utcOffset, true, $"#item-{tocCount}", "", true) @summary
                   </div>
+                  tocCount++;
                 }
               </div>
             }
@@ -149,6 +128,7 @@
     else if (section.Value.SectionType == ReportSectionType.Content)
     {
       @* STORY CONTENT SECTION *@
+      var positionInTOC = 0;
       if (section.Value.Settings.ShowHeadlines)
       {
         if (section.Value.Settings.GroupBy != "")
@@ -162,9 +142,11 @@
                 @foreach(long contentId in contentGroup.Value)
                 {
                   var content = sectionContent.FirstOrDefault(c => c.Id == contentId);
+                  var headlineLink = contentCount + positionInTOC;
+                  positionInTOC++;
                   if (section.Value.Settings.ShowFullStory)
                   {
-                    <li>@ReportExtensions.GetFullHeadline(content, Model, utcOffset, true, $"#item-{section.Value.Id}-{contentId}", "", true)</li>
+                    <li>@ReportExtensions.GetFullHeadline(content, Model, utcOffset, true, $"#item-{headlineLink}", "", true)</li>
                   }
                   else
                   {
@@ -180,9 +162,11 @@
           <ul style="margin:0; margin-left: 15px; padding:0;">
             @foreach (var content in sectionContent)
             {
+              var headlineLink= contentCount + positionInTOC;
+              positionInTOC++;
               @if (section.Value.Settings.ShowFullStory)
               {
-                <li>@ReportExtensions.GetFullHeadline(content, Model, utcOffset, true, $"#item-{section.Value.Id}-{content.Id}", "", true)</li>
+                <li>@ReportExtensions.GetFullHeadline(content, Model, utcOffset, true, $"#item-{headlineLink}", "", true)</li>
               }
               else
               {
@@ -204,12 +188,11 @@
           var headline = ReportExtensions.GetHeadline(content, Model);
           var body = ReportExtensions.GetBody(content, Model);
           var byline= ReportExtensions.GetByline(content, Model);
-          var itemAnchor = $"{section.Value.Id}-{content.Id}";
-          var renderPosition = renderedItems.IndexOf(itemAnchor);
-          var hasPrev = renderPosition > 0;
-          var prev = hasPrev ? renderedItems[renderPosition - 1] : "";
-          var hasNext = renderPosition >= 0 && (renderPosition + 1) < renderedItems.Count;
-          var next = hasNext ? renderedItems[renderPosition + 1] : "";
+          var hasPrev = contentCount > 0;
+          var prev = hasPrev ? contentCount - 1 : 0;
+          var hasNext = (contentCount  + 1) < allContent.Length;
+          var next = hasNext ? contentCount + 1 : 0;
+          var itemPosition = contentCount;
           var sourceUrl = ReportExtensions.GetSourceUrl(content, Model);
           var isPrivate = ReportExtensions.IsPrivate(content, Model);
           if (!section.Value.Settings.ShowImage) {
@@ -230,12 +213,9 @@
           {
             continue;
           }
+          contentCount++;
           <div style="display: flex; align-items: center;">
-            <a id="item-@itemAnchor" name="item-@itemAnchor"></a>
-            @if (storyAnchors.Add(content.Id))
-            {
-              <a id="item-@content.Id" name="item-@content.Id"></a>
-            }
+            <a id="item-@itemPosition" name="item-@itemPosition"></a>
           </div>
           <div class="story_separator" style="margin:20px 0 4px 0;" >
             <hr />
@@ -250,7 +230,7 @@
 
               <td align="right">
                 <span style="border: 1px solid #ccc; padding:4px 6px; text-transform: uppercase;">
-                  <span><a style="text-decoration:none; color: #6750a4; " href="#toc-item-@itemAnchor">Back</a></span>
+                  <span><a style="text-decoration:none; color: #6750a4; " href="#toc-item-@itemPosition">Back</a></span>
                   <span> | <a style="text-decoration:none; color: #6750a4; " href="#top">top</a></span>
                   @if (hasPrev )
                   {
@@ -314,7 +294,7 @@
             </div>
           }
           <div style="text-align: right; margin-top: 20px;">
-            <a href="#item-@itemAnchor" style="background-color:#6750A4; color:#FFFFFF; padding:5px 10px; text-decoration:none; border-radius:5px;">To Article Top</a>
+            <a href="#item-@itemPosition" style="background-color:#6750A4; color:#FFFFFF; padding:5px 10px; text-decoration:none; border-radius:5px;">To Article Top</a>
           </div>
 
         }
@@ -432,3 +412,7 @@
     </p>
   </div>
 </div>
+'
+WHERE "name" = 'Custom Report';
+
+END $$;
