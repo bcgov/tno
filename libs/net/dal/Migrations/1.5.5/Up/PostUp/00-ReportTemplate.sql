@@ -1,4 +1,9 @@
-@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
+DO $$
+BEGIN
+
+-- Update custom report with latest template.
+UPDATE public."report_template" SET
+    "body" = '@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
 @using System
 @using System.Collections.Generic
 @using System.Linq
@@ -41,7 +46,7 @@
   // resolves wherever the story sits in the report.  The same story can appear in more
   // than one section, so each rendering of it is anchored as {section id}-{content id}
   // and the table of contents, the back link and previous/next use that - a reader
-  // clicking a story in one section lands on that section's copy of it.
+  // clicking a story in one section lands on that section''s copy of it.
   // The first rendering also carries the plain {content id} anchor, which is the one an
   // AI section links to.
   // Walk the sections first to collect the order the stories are rendered in, which is
@@ -432,3 +437,7 @@
     </p>
   </div>
 </div>
+'
+WHERE "name" = 'Custom Report';
+
+END $$;
