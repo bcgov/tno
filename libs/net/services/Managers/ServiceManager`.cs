@@ -122,7 +122,9 @@ public abstract class ServiceManager<TOption> : IServiceManager
                 }
                 else
                 {
-                    this.Logger.LogDebug("No email addresses configured to receive errors");
+                    // Warning, not debug: SendEmailOnFailure is on, so the operator expects an
+                    // email - an empty address list means the alert was silently dropped.
+                    this.Logger.LogWarning("No email addresses configured to receive {emailToType} emails; '{subject}' was not sent.", emailToType, subject);
                 }
             }
             catch (ChesException ex)

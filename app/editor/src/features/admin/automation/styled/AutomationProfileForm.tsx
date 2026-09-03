@@ -2034,6 +2034,47 @@ export const AutomationModalStyles = createGlobalStyle`
     color: #667085;
   }
 
+  /* The save-blocked modal: an explanatory line above the list of errors that stopped the save.
+     A long definition can produce many, so the list is the part that scrolls. */
+  .save-errors-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-height: 0;
+  }
+
+  .save-errors-content > p {
+    margin: 0;
+  }
+
+  .save-errors-content .automation-findings {
+    max-height: 45vh;
+    overflow-y: auto;
+    border: 1px solid #fda29b;
+    border-radius: 0.35rem;
+    padding: 0.5rem;
+    background: #fffbfa;
+  }
+
+  /* A long message wraps instead of pushing the modal wider. */
+  .save-errors-content .automation-findings code {
+    font-size: 0.8rem;
+    word-break: break-word;
+  }
+
+  .save-errors-content .automation-badge {
+    display: inline-block;
+    padding: 0.05rem 0.5rem;
+    border-radius: 0.75rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .save-errors-content .automation-badge-danger {
+    background: #fee4e2;
+    color: #912018;
+  }
+
   .run-detail-content .automation-explain-panel {
     border-top: 1px solid #e4e7ec;
     padding-top: 0.5rem;

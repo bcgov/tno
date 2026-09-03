@@ -38,4 +38,7 @@ data:
   AZURE_AI_TENANT_ID: ""
   AZURE_AI_CLIENT_ID: ""
   CHES_EMAIL_ENABLED: "true"
-  CHES_EMAIL_AUTHORIZED: "false"
+  # Must be true for the service to email real recipients. With it false and no
+  # Ches:OverrideTo, a headless service has no recipient at all and the failure
+  # email is silently dropped.
+  CHES_EMAIL_AUTHORIZED: "true"
