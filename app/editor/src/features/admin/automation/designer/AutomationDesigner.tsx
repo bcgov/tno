@@ -33,6 +33,7 @@ import {
   createDefaultAction,
   createDefaultStep,
   parseDefinition,
+  priorActionRefs,
   serializeDefinition,
 } from './constants';
 import {
@@ -1033,6 +1034,18 @@ export const AutomationDesigner: React.FC<IAutomationDesignerProps> = ({
                             .filter((a) => a.type === 'dedupe')
                             .map((a) => `${a.name || 'dedupe'}.isDuplicate`),
                         ),
+                      )
+                    : []
+                }
+                actionRefs={
+                  // An outcome is published as the step runs, so only the actions ahead of this
+                  // one - and only those running in the same pass - have one to read.
+                  actionModal
+                    ? priorActionRefs(
+                        definition.steps[actionModal.stepIndex],
+                        actionModal.index,
+                        actionModal.draft.type,
+                        descriptors,
                       )
                     : []
                 }

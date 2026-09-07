@@ -80,6 +80,15 @@ export interface IAutomationCondition {
   from?: string | null;
 }
 
+/** An action a later action in the same step can gate on. Every action publishes its outcome
+ * under its own name once it has been gated and dispatched. */
+export interface IAutomationActionRef {
+  /** The name the outcome is published under: the action's name, or its type when unnamed. */
+  name: string;
+  /** What the picker shows — the action's name, or its catalog label when unnamed. */
+  label: string;
+}
+
 /** Where an action's value comes from — a fixed source, never an expression. */
 export interface IAutomationValueSource {
   /** 'analysisName.key' or 'content.field'. */

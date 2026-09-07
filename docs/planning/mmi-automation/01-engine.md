@@ -123,12 +123,48 @@ Whether an action runs is decided by one of:
 - **Always run.**
 - **An LLM confirmation** — `confirm: "[PUBLISH CONTENT]"` matched against a named analysis's
   response; `{value}` compiles to a capture group for value-bearing confirmations.
-- **A condition** — a declarative object over analysis results and working-copy fields:
-  `from` (a boolean result such as a dedupe's `name.isDuplicate`), `field`/`op`/`value`, combined
-  with `all`, `any`, `not`. List values escape literal commas as `\,` and backslashes as `\\`;
-  quotes are taken literally.
+- **A condition** — a declarative object over analysis results, action outcomes, and working-copy
+  fields: `from` (a result reference, read as a boolean on its own or compared when paired with
+  `op`/`value`), `field`/`op`/`value`, combined with `all`, `any`, `not`. List values escape
+  literal commas as `\,` and backslashes as `\\`; quotes are taken literally.
 
 A failing condition sends no prompt — that is where most saved runtime comes from.
+
+### Action outcomes
+
+Every action publishes what it did into the item scope under its own name, in the same store
+analyses and dedupe verdicts use, so the actions **after it in the same step** can route on it:
+
+| Reference | Value |
+| --- | --- |
+| `<action name>.outcome` | `executed`, `skipped`, `failed`, `condition-failed`, or `not-confirmed` |
+| `<action name>.executed` | The handler ran and did its work |
+| `<action name>.skipped` | It ran but had nothing to act on (no target, no value, nothing matched) |
+| `<action name>.failed` | It threw |
+| `<action name>.blocked` | Its own condition or confirmation stopped it — either of the two gate outcomes above; compare `.outcome` to tell them apart |
+
+`outcome` is the value; the four booleans are derived from it, so exactly one of them is true
+whenever the action ran. `skipped` means the action's turn came and it had nothing to act on (no
+target, no resolved value, nothing matched, a disabled content action, a non-numeric score) — never
+that a gate stopped it. `executed` means the handler did its work, not that anything was written:
+content changes are deltas until a save action runs, and a Detect Duplicate that found nothing is
+still `executed` (its verdict is `isDuplicate`).
+
+The name is the action's `name`, or its `type` when it has none (`content.publish.executed`);
+references resolve by the longest known name, so a type with dots in it works. An action that
+never ran — disabled, or after an `abort` — publishes nothing at all, so its reference resolves to
+nothing: every positive gate on it fails, and a negated one (`notEquals`, or `not`) passes.
+Results share one namespace with analyses; the validator warns when an action's name shadows an
+analysis, when a reference names a key the action does not publish, and when the reference names a
+later or disabled action.
+
+The editor exposes this as **Runs when = Prior action outcome**: pick an earlier action and what it
+did. It stores the general shape — `{ "from": "Publish Content.outcome", "op": "equals", "value":
+"executed" }` — so the same comparison is available by hand, on any reference, for any operator:
+
+```json
+{ "type": "abort", "name": "Stop", "when": { "from": "Publish Content.outcome", "op": "equals", "value": "executed" } }
+```
 
 Where an action needs a value, it comes from a fixed set of sources: an analysis result or
 working-copy field (`{ "from": "extract.byline" }`), a literal, or a token template
@@ -168,7 +204,8 @@ Highlights by category:
   both directions) so re-runs skip the LLM for known pairs; the `/contents/:id` page lists these
   links behind the headline's duplicates icon.
 - **flow** — `exclude` (drop the item from the rest of the run; changes already made are kept),
-  `abort` (stop the remaining actions of this step for this item).
+  `abort` (stop the remaining actions of this step for this item — usually gated on an earlier
+  action's outcome, see **Action outcomes**).
 - **distribute** — `report.run` and `notification.run` publish a report/notification by id.
   Note: profile **import does not remap these ids** — review them after importing into another
   environment.

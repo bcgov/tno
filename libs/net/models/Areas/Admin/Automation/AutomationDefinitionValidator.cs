@@ -160,8 +160,15 @@ public static class AutomationDefinitionValidator
             // Analysis + confirmation-statement pairs already used, to flag accidental copies:
             // two actions sharing a marker against the same response both fire on it.
             var confirmations = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            // Dedupe actions publish '<name>.isDuplicate' results later actions may reference.
-            var dedupeResults = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            // Every action publishes its outcome under its own name for the actions after it to
+            // gate on; dedupe adds its verdict keys to the same result.
+            var actionResults = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+            // A disabled action never runs and so publishes nothing; a gate on its outcome is dead.
+            var disabledActions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            // An iterating step runs its per-item actions once per item and its once-natured ones
+            // (select-top, report.run, the set operations) after iteration, in a scope of their
+            // own - so the two groups cannot see each other's outcomes.
+            var perItemActions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             for (var i = 0; i < step.Actions.Count; i++)
             {
                 var action = step.Actions[i];
@@ -215,14 +222,31 @@ public static class AutomationDefinitionValidator
                     && !string.IsNullOrWhiteSpace(action.Into))
                     draftCollections.Add(action.Into!);
 
-                // Analysis references from gates and value sources.
+                // Result references from gates and value sources: an analysis on this step, or an
+                // earlier action's outcome.
                 foreach (var (refPath, reference) in AnalysisRefs(action))
                 {
-                    var name = reference.Split('.', 2)[0];
-                    if (name.Equals("content", StringComparison.OrdinalIgnoreCase)) continue;
+                    var name = ResolveRefName(reference, analyses.Keys, actionResults.Keys);
+                    if (name == null)
+                    {
+                        var head = reference.Split('.', 2)[0];
+                        if (head.Equals("content", StringComparison.OrdinalIgnoreCase)) continue;
+                        errors.Add(new($"{path}.{refPath}", $"'{head}' is neither an analysis declared on this step nor an earlier action in it. An action publishes its outcome to the actions after it as '<action name>.executed' (a yes/no gate) and '<action name>.outcome' (one of: {string.Join(", ", ActionResults.OutcomeValues)})."));
+                        continue;
+                    }
                     if (analyses.ContainsKey(name)) consumedAnalyses.Add(name);
-                    else if (!dedupeResults.Contains(name))
-                        errors.Add(new($"{path}.{refPath}", $"Analysis '{name}' is not declared on this step (and no earlier Detect Duplicate action publishes it)."));
+                    else
+                    {
+                        // A mistyped key ('publish.excuted') resolves to nothing at runtime and the
+                        // gate silently fails, so name the keys the action actually publishes.
+                        var key = reference[(name.Length + 1)..];
+                        if (disabledActions.Contains(name))
+                            errors.Add(new($"{path}.{refPath}", $"Action '{name}' is disabled, so it publishes no outcome: a gate on what it did never passes, and a 'did not run' gate always does.", "warning"));
+                        if (iterates && perItemActions.Contains(name) != descriptor.Phases.Contains(AutomationPhases.Process))
+                            errors.Add(new($"{path}.{refPath}", $"Action '{name}' and this action do not run together: this step runs its per-item actions once per item and its once-per-step actions afterwards, so neither sees the other's outcome.", "warning"));
+                        if (!actionResults[name].Contains(key))
+                            errors.Add(new($"{path}.{refPath}", $"Action '{name}' does not publish '{key}'; it publishes: {string.Join(", ", actionResults[name].OrderBy(k => k, StringComparer.OrdinalIgnoreCase))}.", "warning"));
+                    }
                 }
                 // Objectives are recorded by score actions and consumed by select-top.
                 if (action.Type == "score" && !string.IsNullOrWhiteSpace(action.Objective))
@@ -236,7 +260,6 @@ public static class AutomationDefinitionValidator
 
                 if (action.Type == "dedupe")
                 {
-                    dedupeResults.Add(action.Name ?? "dedupe");
                     // The prompt is exactly what is sent, so it must place the data itself.
                     var effective = $"{action.Prompt?.Text} {action.Prompt?.Override} " +
                         (action.Prompt?.Ref != null && definition.Prompts.TryGetValue(action.Prompt.Ref, out var entry) ? entry.Text : "");
@@ -295,6 +318,19 @@ public static class AutomationDefinitionValidator
                     && !action.Item!.Equals("$item", StringComparison.OrdinalIgnoreCase)
                     && !drafts.Contains(action.Item!))
                     errors.Add(new($"{path}.item", $"Item '{action.Item}' is neither '$item' nor a draft created earlier in this step."));
+
+                // Registered last: an action's outcome is visible to the actions after it, never to
+                // itself. Results share the analysis namespace, so a clash would overwrite one.
+                var resultName = action.Name ?? action.Type;
+                if (analyses.ContainsKey(resultName))
+                    errors.Add(new($"{path}.name", $"Action '{resultName}' has the same name as an analysis on this step; the action's outcome overwrites that analysis result. Rename one of them.", "warning"));
+                if (!actionResults.TryGetValue(resultName, out var publishes))
+                    actionResults[resultName] = publishes = new HashSet<string>(ActionResults.Keys, StringComparer.OrdinalIgnoreCase);
+                if (action.Type == "dedupe") { publishes.Add("isDuplicate"); publishes.Add("matchedId"); }
+                if (descriptor.Phases.Contains(AutomationPhases.Process)) perItemActions.Add(resultName);
+                // Two actions can share a name; one of them being enabled is enough to publish.
+                if (action.IsEnabled) disabledActions.Remove(resultName);
+                else disabledActions.Add(resultName);
             }
 
             // Unconsumed analyses never run (they are lazy); surface as warnings.
@@ -359,8 +395,17 @@ public static class AutomationDefinitionValidator
         if (condition.All is { Count: > 0 }) { shapes++; for (var i = 0; i < condition.All.Count; i++) ValidateCondition(condition.All[i], $"{path}.all[{i}]", errors); }
         if (condition.Any is { Count: > 0 }) { shapes++; for (var i = 0; i < condition.Any.Count; i++) ValidateCondition(condition.Any[i], $"{path}.any[{i}]", errors); }
         if (condition.Not != null) { shapes++; ValidateCondition(condition.Not, $"{path}.not", errors); }
-        if (!string.IsNullOrWhiteSpace(condition.From)) shapes++;
-        if (!string.IsNullOrWhiteSpace(condition.Field) || !string.IsNullOrWhiteSpace(condition.Op))
+        if (!string.IsNullOrWhiteSpace(condition.From))
+        {
+            // A reference gate reads its result as a boolean on its own, or compares it when an
+            // operator is given - the field belongs to a leaf, never to a reference.
+            shapes++;
+            if (!string.IsNullOrWhiteSpace(condition.Field))
+                errors.Add(new($"{path}.field", "A result gate compares what 'from' references; it cannot also name a working-copy field."));
+            if (!string.IsNullOrWhiteSpace(condition.Op) && !ConditionOps.All.Contains(condition.Op))
+                errors.Add(new($"{path}.op", $"Operator '{condition.Op}' is not one of: {string.Join(", ", ConditionOps.All)}."));
+        }
+        else if (!string.IsNullOrWhiteSpace(condition.Field) || !string.IsNullOrWhiteSpace(condition.Op))
         {
             shapes++;
             if (string.IsNullOrWhiteSpace(condition.Field))
@@ -371,9 +416,30 @@ public static class AutomationDefinitionValidator
                 errors.Add(new($"{path}.op", $"Operator '{condition.Op}' is not one of: {string.Join(", ", ConditionOps.All)}."));
         }
         if (shapes == 0)
-            errors.Add(new(path, "A condition requires a leaf (field/op), a combinator (all/any/not), or an analysis gate (from)."));
+            errors.Add(new(path, "A condition requires a leaf (field/op), a combinator (all/any/not), or a result gate (from)."));
         else if (shapes > 1)
-            errors.Add(new(path, "A condition must be exactly one shape: a leaf, a combinator, or an analysis gate."));
+            errors.Add(new(path, "A condition must be exactly one shape: a leaf, a combinator, or a result gate."));
+    }
+
+    /// <summary>
+    /// Resolve which result a 'name.key' reference names. A result name can itself contain dots
+    /// (an action that was never named publishes under its type, 'content.publish'), so the
+    /// longest declared name wins; null when nothing declares it.
+    /// </summary>
+    /// <param name="reference"></param>
+    /// <param name="analyses">Analysis names declared on the step.</param>
+    /// <param name="actions">Names earlier actions in the step publish under.</param>
+    /// <returns></returns>
+    private static string? ResolveRefName(string reference, IEnumerable<string> analyses, IEnumerable<string> actions)
+    {
+        string? match = null;
+        foreach (var name in analyses.Concat(actions))
+        {
+            if (reference.Length <= name.Length + 1
+                || !reference.StartsWith($"{name}.", StringComparison.OrdinalIgnoreCase)) continue;
+            if (match == null || name.Length > match.Length) match = name;
+        }
+        return match;
     }
 
     /// <summary>

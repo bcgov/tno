@@ -15,8 +15,12 @@ const shapeOptions: IOptionItem[] = [
   createOption('All of…', 'all'),
   createOption('Any of…', 'any'),
   createOption('Not…', 'not'),
-  createOption('Analysis answer', 'from'),
+  createOption('Analysis answer / action outcome', 'from'),
 ];
+
+/** How a reference is read: on its own it is the boolean answer, with an operator it is compared
+ * exactly as a field test compares a field. */
+const referenceOpOptions: IOptionItem[] = [createOption('is true', ''), ...conditionOpOptions];
 
 const getShape = (condition: IAutomationCondition): ConditionShape => {
   if (condition.all) return 'all';
@@ -80,7 +84,8 @@ export interface IConditionBuilderProps {
 
 /**
  * Recursive editor for a declarative condition: a field test, a combinator (all/any/not), or a
- * boolean analysis answer. There is no expression language — only these shapes.
+ * reference — an analysis answer or an earlier action's outcome, read as a boolean or compared
+ * with an operator. There is no expression language — only these shapes.
  */
 export const ConditionBuilder: React.FC<IConditionBuilderProps> = ({
   value,
@@ -166,8 +171,32 @@ export const ConditionBuilder: React.FC<IConditionBuilderProps> = ({
             width="14rem"
             suggestions={fromSuggestions}
             value={value.from ?? ''}
-            onChange={(from) => onChange({ from })}
+            onChange={(from) => onChange({ ...value, from })}
           />
+          <Select
+            name={`condition-from-op-${depth}`}
+            width="10rem"
+            isClearable={false}
+            options={referenceOpOptions}
+            value={findOptionByValue(referenceOpOptions, value.op ?? '')}
+            onChange={(newValue) => {
+              const option = newValue as IOptionItem;
+              const op = `${option?.value ?? ''}`;
+              // No operator is the boolean reading, and it carries no value to compare.
+              onChange(op ? { ...value, op } : { from: value.from });
+            }}
+          />
+          <Show visible={!!value.op && !VALUELESS_OPS.includes(value.op ?? '')}>
+            <DraftText
+              name={`condition-from-value-${depth}`}
+              placeholder={
+                LIST_OPS.includes(value.op ?? '') ? 'comma-separated (\\, escapes)' : 'value'
+              }
+              canonical={valueToText(value.value)}
+              width="10rem"
+              onText={(text) => onChange({ ...value, value: textToValue(text, value.op) })}
+            />
+          </Show>
         </Show>
       </Row>
       <Show visible={shape === 'all' || shape === 'any'}>

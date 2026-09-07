@@ -7,7 +7,9 @@ namespace TNO.API.Areas.Admin.Models.Automation;
 /// One of three shapes:
 /// - a leaf: { field, op, value } evaluated against the item's working copy;
 /// - a combinator: { all: [...] }, { any: [...] }, or { not: {...} };
-/// - an analysis-result gate: { from: "analysisName.key" } (a boolean the LLM answered).
+/// - a result gate: { from: "analysisName.key" } (a boolean the LLM answered, or an action
+///   outcome such as "publish.executed"), optionally with { op, value } to compare the
+///   referenced value instead of reading it as a boolean.
 /// A failing condition prevents any prompt associated with the action from being sent.
 /// There is no expression language - only these shapes.
 /// </summary>
@@ -45,7 +47,10 @@ public class ConditionDefinition
     public ConditionDefinition? Not { get; set; }
 
     /// <summary>
-    /// get/set - An analysis-result gate: 'analysisName.key' naming a boolean the LLM answered.
+    /// get/set - A result reference: 'analysisName.key' naming a boolean the LLM answered, or
+    /// '&lt;action name&gt;.executed'/'&lt;action name&gt;.outcome' naming what an earlier action in the
+    /// same step did. On its own it reads as a boolean gate; paired with <see cref="Op"/> (and
+    /// <see cref="Value"/>) the referenced value is compared exactly as a leaf compares a field.
     /// </summary>
     public string? From { get; set; }
     #endregion

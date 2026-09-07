@@ -522,6 +522,8 @@ public class AutomationEngine
     /// Execute one step instance: evaluate each action's gates (property conditions first - a
     /// failing condition costs no LLM call), run consumed analyses lazily, and dispatch confirmed
     /// actions. Action failures are isolated; 'abort'/'exclude' stop the remaining actions.
+    /// Every action publishes what it did under its own name, so a later action in the same step
+    /// can gate on it.
     /// </summary>
     private async Task ExecuteStepInstanceAsync(StepDefinition step, ItemScope scope, RunEnvironment env, StepSummary stepSummary)
     {
@@ -533,76 +535,110 @@ public class AutomationEngine
         {
             if (scope.Aborted || scope.Excluded) break;
             var actionName = action.Name ?? action.Type;
+            string outcome;
             try
             {
-                if (!ActionCatalog.Types.TryGetValue(action.Type, out var descriptor))
-                {
-                    env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Skipped, $"Action type '{action.Type}' is not registered.");
-                    continue;
-                }
-                if (descriptor.RequiresSubject && subject == null)
-                {
-                    env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Skipped, "The action requires an iterated item and the step has none.");
-                    continue;
-                }
-
-                // Gate 1: property condition / analysis-result gate. Evaluated before any prompt
-                // is sent - this is where most of the saved runtime comes from.
-                if (action.When != null)
-                {
-                    var target = scope.ResolveTarget(action.Target) ?? subject;
-                    // Result references can sit anywhere in the condition tree (not/all/any, not
-                    // just the top level); every one needs its analysis triggered and the boolean
-                    // resolver supplied, or the gate reads nothing and fails/passes wrongly.
-                    var references = new List<string>();
-                    CollectFromRefs(action.When, references);
-                    foreach (var reference in references)
-                        await EnsureAnalysisForReferenceAsync(step, reference, scope, env, stepSummary);
-                    var result = references.Count > 0
-                        ? ConditionEvaluator.Evaluate(action.When, f => target?.GetField(f), reference => ValueResolver.ResolveBool(reference, scope))
-                        : ConditionEvaluator.Evaluate(action.When, f => target?.GetField(f));
-                    if (!result.Passed)
-                    {
-                        env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.ConditionFailed, result.Detail);
-                        continue;
-                    }
-                    env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.ConditionPassed, result.Detail);
-                }
-
-                // Gate 2: confirmation statement against a raw analysis response ({value} capture).
-                string? captured = null;
-                if (!string.IsNullOrWhiteSpace(action.Confirm))
-                {
-                    var analysisName = action.Analysis ?? (step.Analyses.Count == 1 ? step.Analyses[0].Name : null);
-                    if (analysisName == null)
-                    {
-                        env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Skipped, "Confirm requires a named analysis.");
-                        continue;
-                    }
-                    var response = await EnsureAnalysisAsync(step, analysisName, scope, env, stepSummary) ?? "";
-                    var matcher = new ConfirmationMatcher(action.Confirm, action.Field, action.Objective);
-                    if (!matcher.IsValid)
-                    {
-                        env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Skipped, "Invalid confirmation statement.");
-                        continue;
-                    }
-                    if (!matcher.TryMatch(response, out captured))
-                    {
-                        env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.NotConfirmed,
-                            string.IsNullOrWhiteSpace(response) ? "No confirmation; the response was empty (no criteria met)." : "The confirmation statement was not found in the response.");
-                        continue;
-                    }
-                    env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Confirmed, $"Confirmed by analysis '{analysisName}'{(captured != null ? $" with value '{Truncate(captured, 200)}'" : "")}.");
-                }
-
-                await ExecuteActionAsync(step, action, descriptor, scope, captured, env, stepSummary);
+                outcome = await ExecuteGatedActionAsync(step, action, scope, env, stepSummary, actionName, contentId);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Action '{action}' ({type}) in step '{step}' failed; skipping it.", actionName, action.Type, step.Name);
                 env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Failed, $"Action failed: {ex.Message}");
+                outcome = Outcomes.Failed;
             }
+            StoreActionResult(scope, actionName, outcome);
         }
+    }
+
+    /// <summary>
+    /// Gate one action and dispatch it, returning what it did: 'executed', 'skipped' (it ran but
+    /// could not act), 'condition-failed' / 'not-confirmed' (a gate stopped it), or 'failed'.
+    /// The caller publishes that outcome for later actions to route on.
+    /// </summary>
+    private async Task<string> ExecuteGatedActionAsync(StepDefinition step, ActionDefinition action, ItemScope scope, RunEnvironment env, StepSummary stepSummary, string actionName, long? contentId)
+    {
+        var subject = scope.Subject;
+        if (!ActionCatalog.Types.TryGetValue(action.Type, out var descriptor))
+        {
+            env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Skipped, $"Action type '{action.Type}' is not registered.");
+            return Outcomes.Skipped;
+        }
+        if (descriptor.RequiresSubject && subject == null)
+        {
+            env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Skipped, "The action requires an iterated item and the step has none.");
+            return Outcomes.Skipped;
+        }
+
+        // Gate 1: property condition / result gate. Evaluated before any prompt is sent - this is
+        // where most of the saved runtime comes from.
+        if (action.When != null)
+        {
+            var target = scope.ResolveTarget(action.Target) ?? subject;
+            // Result references can sit anywhere in the condition tree (not/all/any, not
+            // just the top level); every one needs its analysis triggered and the resolvers
+            // supplied, or the gate reads nothing and fails/passes wrongly.
+            var references = new List<string>();
+            CollectFromRefs(action.When, references);
+            foreach (var reference in references)
+                await EnsureAnalysisForReferenceAsync(step, reference, scope, env, stepSummary);
+            var result = ConditionEvaluator.Evaluate(action.When, f => target?.GetField(f),
+                reference => ValueResolver.ResolveBool(reference, scope),
+                reference => ValueResolver.ResolveFrom(reference, scope, target));
+            if (!result.Passed)
+            {
+                env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.ConditionFailed, result.Detail);
+                return Outcomes.ConditionFailed;
+            }
+            env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.ConditionPassed, result.Detail);
+        }
+
+        // Gate 2: confirmation statement against a raw analysis response ({value} capture).
+        string? captured = null;
+        if (!string.IsNullOrWhiteSpace(action.Confirm))
+        {
+            var analysisName = action.Analysis ?? (step.Analyses.Count == 1 ? step.Analyses[0].Name : null);
+            if (analysisName == null)
+            {
+                env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Skipped, "Confirm requires a named analysis.");
+                return Outcomes.Skipped;
+            }
+            var response = await EnsureAnalysisAsync(step, analysisName, scope, env, stepSummary) ?? "";
+            var matcher = new ConfirmationMatcher(action.Confirm, action.Field, action.Objective);
+            if (!matcher.IsValid)
+            {
+                env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Skipped, "Invalid confirmation statement.");
+                return Outcomes.Skipped;
+            }
+            if (!matcher.TryMatch(response, out captured))
+            {
+                env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.NotConfirmed,
+                    string.IsNullOrWhiteSpace(response) ? "No confirmation; the response was empty (no criteria met)." : "The confirmation statement was not found in the response.");
+                return Outcomes.NotConfirmed;
+            }
+            env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Confirmed, $"Confirmed by analysis '{analysisName}'{(captured != null ? $" with value '{Truncate(captured, 200)}'" : "")}.");
+        }
+
+        return await ExecuteActionAsync(step, action, descriptor, scope, captured, env, stepSummary);
+    }
+
+    /// <summary>
+    /// Publish an action's outcome into the item scope under the action's name, in the same store
+    /// analyses and dedupe verdicts use - so a later action reads '&lt;name&gt;.executed' as a boolean
+    /// gate or compares '&lt;name&gt;.outcome' to a specific value, and a value source reads it like any
+    /// other answer. Keys an action already published (a dedupe verdict) are kept.
+    /// </summary>
+    private static void StoreActionResult(ItemScope scope, string name, string outcome)
+    {
+        var values = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
+        if (scope.Structured.TryGetValue(name, out var existing) && existing.RootElement.ValueKind == JsonValueKind.Object)
+            foreach (var property in existing.RootElement.EnumerateObject())
+                values[property.Name] = property.Value;
+        values[ActionResults.Outcome] = outcome;
+        values[ActionResults.Executed] = outcome == Outcomes.Executed;
+        values[ActionResults.Skipped] = outcome == Outcomes.Skipped;
+        values[ActionResults.Failed] = outcome == Outcomes.Failed;
+        values[ActionResults.Blocked] = outcome is Outcomes.ConditionFailed or Outcomes.NotConfirmed;
+        scope.Structured[name] = JsonDocument.Parse(JsonSerializer.Serialize(values, _jsonOptions));
     }
 
     /// <summary>
@@ -751,14 +787,20 @@ public class AutomationEngine
 
     #region Action handlers
     /// <summary>
-    /// Dispatch one gated action to its handler.
+    /// Dispatch one gated action to its handler and report what it did: 'executed' when the
+    /// handler acted, 'skipped' when it ran but had nothing it could act on (no target, no value,
+    /// nothing matched), 'failed' when the work it attempted failed. The caller publishes this so
+    /// a later action in the step can gate on it.
     /// </summary>
-    private async Task ExecuteActionAsync(StepDefinition step, ActionDefinition action, ActionDescriptor descriptor, ItemScope scope, string? captured, RunEnvironment env, StepSummary stepSummary)
+    private async Task<string> ExecuteActionAsync(StepDefinition step, ActionDefinition action, ActionDescriptor descriptor, ItemScope scope, string? captured, RunEnvironment env, StepSummary stepSummary)
     {
         var actionName = action.Name ?? action.Type;
         var subject = scope.Subject;
         var target = scope.ResolveTarget(action.Target);
         var contentId = subject is { Kind: "existing" } ? subject.Id : (long?)null;
+        // Handlers that fall out without doing their work say so here; reaching the end unchanged
+        // means the handler acted.
+        var outcome = Outcomes.Executed;
 
         // Value sources consume analyses too - run them lazily before resolving, exactly like
         // the when/confirm gates do, so action order never decides whether a result exists.
@@ -827,6 +869,7 @@ public class AutomationEngine
                     if (item == null)
                     {
                         env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Skipped, $"Item '{action.Item ?? "$item"}' could not be resolved.");
+                        outcome = Outcomes.Skipped;
                         break;
                     }
                     lock (env.Context.Sync)
@@ -912,7 +955,7 @@ public class AutomationEngine
                 }
             case "collection.copy":
                 {
-                    if (string.IsNullOrWhiteSpace(action.FromCollection) || string.IsNullOrWhiteSpace(action.Into)) break;
+                    if (string.IsNullOrWhiteSpace(action.FromCollection) || string.IsNullOrWhiteSpace(action.Into)) { outcome = Outcomes.Skipped; break; }
                     lock (env.Context.Sync)
                     {
                         var from = env.Context.GetCollection(action.FromCollection!);
@@ -931,7 +974,7 @@ public class AutomationEngine
                 }
             case "content.update":
                 {
-                    if (target == null || string.IsNullOrWhiteSpace(action.Field) || string.IsNullOrWhiteSpace(value)) break;
+                    if (target == null || string.IsNullOrWhiteSpace(action.Field) || string.IsNullOrWhiteSpace(value)) { outcome = Outcomes.Skipped; break; }
                     lock (target.Deltas) target.Deltas.Fields[action.Field!] = value.Trim();
                     RecordChange("update-field", target, action.Field, value);
                     LogExecuted($"Set {action.Field} on {target.Key}.", $"{{\"value\":{JsonSerializer.Serialize(Truncate(value, 500))}}}");
@@ -939,7 +982,7 @@ public class AutomationEngine
                 }
             case "content.tags":
                 {
-                    if (target == null || string.IsNullOrWhiteSpace(value)) break;
+                    if (target == null || string.IsNullOrWhiteSpace(value)) { outcome = Outcomes.Skipped; break; }
                     // Only ENABLED tags that exist (matched by code or name) can be added - exactly
                     // the data the {lookup:tags} token renders, so the prompt's vocabulary and this
                     // validation cannot disagree. A disabled tag is reported, never applied.
@@ -979,6 +1022,7 @@ public class AutomationEngine
                     if (target == null || !int.TryParse((value ?? "").Trim(), out var sentiment))
                     {
                         env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Skipped, $"Sentiment value '{value}' is not a number.");
+                        outcome = Outcomes.Skipped;
                         break;
                     }
                     lock (target.Deltas) target.Deltas.Sentiment = Math.Clamp(sentiment, -5, 5);
@@ -988,7 +1032,7 @@ public class AutomationEngine
                 }
             case "content.contributor":
                 {
-                    if (target == null || string.IsNullOrWhiteSpace(value)) break;
+                    if (target == null || string.IsNullOrWhiteSpace(value)) { outcome = Outcomes.Skipped; break; }
                     var contributorName = value.Trim();
                     var contributor = FindContributor(contributorName, env.Lookups);
                     if (contributor == null && env.Context.CreatedContributors.TryGetValue(contributorName, out var runCreated))
@@ -1015,12 +1059,14 @@ public class AutomationEngine
                         {
                             _logger.LogWarning(ex, "Failed to create contributor '{name}'.", contributorName);
                             env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Failed, $"Failed to create contributor '{Truncate(contributorName, 100)}': {ex.Message}");
+                            outcome = Outcomes.Failed;
                             break;
                         }
                     }
                     if (contributor == null)
                     {
                         env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Skipped, $"No contributor matched '{Truncate(contributorName, 100)}'.");
+                        outcome = Outcomes.Skipped;
                         break;
                     }
                     lock (target.Deltas)
@@ -1034,7 +1080,7 @@ public class AutomationEngine
                 }
             case "content.action":
                 {
-                    if (target == null || !action.ContentAction.HasValue) break;
+                    if (target == null || !action.ContentAction.HasValue) { outcome = Outcomes.Skipped; break; }
                     // A content action disabled since the profile was authored must not keep being
                     // stamped on every run. Checked here, where the log can say why, rather than
                     // silently at flush.
@@ -1042,6 +1088,7 @@ public class AutomationEngine
                     {
                         env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Skipped,
                             $"Content action '{ContentActionName(action.ContentAction.Value, env.Lookups)}' is disabled; nothing was applied to {target.Key}.");
+                        outcome = Outcomes.Skipped;
                         break;
                     }
                     // An action that records a value ('Commentary' keeps a timeout in days) is
@@ -1052,6 +1099,7 @@ public class AutomationEngine
                     {
                         env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Skipped,
                             $"Content action '{ContentActionName(action.ContentAction.Value, env.Lookups)}' stores a value and none was configured; nothing was applied to {target.Key}.");
+                        outcome = Outcomes.Skipped;
                         break;
                     }
                     lock (target.Deltas)
@@ -1065,7 +1113,7 @@ public class AutomationEngine
             case "content.publish":
             case "content.unpublish":
                 {
-                    if (target == null) break;
+                    if (target == null) { outcome = Outcomes.Skipped; break; }
                     var status = action.Type == "content.publish" ? "publish" : "unpublish";
                     lock (target.Deltas) target.Deltas.Status = status;
                     RecordChange(status, target);
@@ -1125,7 +1173,7 @@ public class AutomationEngine
                 }
             case "collection.save":
                 {
-                    if (string.IsNullOrWhiteSpace(action.FromCollection)) break;
+                    if (string.IsNullOrWhiteSpace(action.FromCollection)) { outcome = Outcomes.Skipped; break; }
                     List<ContentEntry> items;
                     lock (env.Context.Sync) items = env.Context.GetCollection(action.FromCollection!).ToList();
                     // Only items with something to write: dirty deltas or unsaved drafts.
@@ -1178,7 +1226,7 @@ public class AutomationEngine
             case "content.save":
                 {
                     var saveTarget = target ?? subject;
-                    if (saveTarget == null) break;
+                    if (saveTarget == null) { outcome = Outcomes.Skipped; break; }
                     var index = action.Index ?? true;
                     var pending = DescribeDeltas(saveTarget, env.Lookups);
                     if (env.IsDryRun)
@@ -1193,7 +1241,7 @@ public class AutomationEngine
                 }
             case "exclude":
                 {
-                    if (subject == null) break;
+                    if (subject == null) { outcome = Outcomes.Skipped; break; }
                     var reason = action.Reason ?? "excluded by configuration";
                     lock (env.Context.Sync) env.Context.Excluded[subject.Key] = reason;
                     lock (env.Summary.Excluded) env.Summary.Excluded.Add(new ExclusionSummary { ContentRef = subject.Kind == "draft" ? subject.TempKey ?? "" : subject.Id.ToString(), Reason = reason, Step = step.Name });
@@ -1212,17 +1260,18 @@ public class AutomationEngine
                 }
             case "dedupe":
                 {
-                    if (subject == null) break;
+                    if (subject == null) { outcome = Outcomes.Skipped; break; }
                     await DetectDuplicateAsync(step, action, scope, env, stepSummary);
                     break;
                 }
             case "score":
                 {
-                    if (subject == null || string.IsNullOrWhiteSpace(action.Objective)) break;
+                    if (subject == null || string.IsNullOrWhiteSpace(action.Objective)) { outcome = Outcomes.Skipped; break; }
                     if (!int.TryParse((value ?? "").Trim(), out var score))
                     {
                         RecordUnscored(env, action.Objective!, step.Name);
                         env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Skipped, $"Score value '{value}' is not a number; {EntryLabel(subject)} was not scored for '{action.Objective}'.");
+                        outcome = Outcomes.Skipped;
                         break;
                     }
                     lock (env.Context.Sync)
@@ -1384,7 +1433,7 @@ public class AutomationEngine
                 }
             case "report.run":
                 {
-                    if (!action.Report.HasValue) break;
+                    if (!action.Report.HasValue) { outcome = Outcomes.Skipped; break; }
                     var usingNote = action.Using != null ? $" using {action.Using}" : "";
                     if (env.IsDryRun)
                     {
@@ -1399,7 +1448,7 @@ public class AutomationEngine
                 }
             case "notification.run":
                 {
-                    if (!action.Notification.HasValue) break;
+                    if (!action.Notification.HasValue) { outcome = Outcomes.Skipped; break; }
                     var usingNote = action.Using != null ? $" using {action.Using}" : "";
                     if (env.IsDryRun)
                     {
@@ -1414,8 +1463,10 @@ public class AutomationEngine
                 }
             default:
                 env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Skipped, $"Action type '{action.Type}' is not implemented.");
+                outcome = Outcomes.Skipped;
                 break;
         }
+        return outcome;
     }
 
     private static ContentEntry? ResolveItem(string? item, ItemScope scope)
