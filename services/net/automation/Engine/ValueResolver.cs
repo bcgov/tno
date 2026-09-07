@@ -4,9 +4,9 @@ using TNO.API.Areas.Admin.Models.Automation;
 namespace TNO.Services.Automation.Engine;
 
 /// <summary>
-/// ValueResolver class, resolves an action's value from its fixed source: an analysis result
-/// ('name.key'), a working-copy field ('content.field'), a literal, or a token template.
-/// There is no expression language - only these sources.
+/// ValueResolver class, resolves an action's value from its fixed source: an analysis result or
+/// an earlier action's outcome ('name.key'), a working-copy field ('content.field'), a literal,
+/// or a token template. There is no expression language - only these sources.
 /// </summary>
 public static class ValueResolver
 {
@@ -36,13 +36,12 @@ public static class ValueResolver
     }
 
     /// <summary>
-    /// Resolve an 'analysisName.key' or 'content.field' reference.
+    /// Resolve an 'analysisName.key', '&lt;action name&gt;.key' or 'content.field' reference.
     /// </summary>
     public static string? ResolveFrom(string reference, ItemScope scope, ContentEntry? target)
     {
-        var parts = reference.Split('.', 2);
-        if (parts.Length != 2) return null;
-        var (name, key) = (parts[0], parts[1]);
+        if (SplitReference(reference, scope) is not { } split) return null;
+        var (name, key) = split;
 
         if (name.Equals("content", StringComparison.OrdinalIgnoreCase))
             return target?.GetField(key);
@@ -59,15 +58,16 @@ public static class ValueResolver
     }
 
     /// <summary>
-    /// Resolve a boolean analysis gate ('analysisName.key'); null when unavailable or not boolean.
+    /// Resolve a boolean gate ('analysisName.key' or '&lt;action name&gt;.executed'); null when
+    /// unavailable or not boolean.
     /// </summary>
     public static bool? ResolveBool(string reference, ItemScope scope)
     {
-        var parts = reference.Split('.', 2);
-        if (parts.Length != 2) return null;
-        if (!scope.Structured.TryGetValue(parts[0], out var document)
+        if (SplitReference(reference, scope) is not { } split) return null;
+        var (name, key) = split;
+        if (!scope.Structured.TryGetValue(name, out var document)
             || document.RootElement.ValueKind != JsonValueKind.Object
-            || !TryGetPropertyIgnoreCase(document.RootElement, parts[1], out var element))
+            || !TryGetPropertyIgnoreCase(document.RootElement, key, out var element))
             return null;
         return element.ValueKind switch
         {
@@ -76,6 +76,25 @@ public static class ValueResolver
             JsonValueKind.String => bool.TryParse(element.GetString(), out var parsed) ? parsed : null,
             _ => null,
         };
+    }
+
+    /// <summary>
+    /// Split a 'name.key' reference. A result name can itself contain dots - an action that was
+    /// never named publishes under its type ('content.publish.executed') - so the longest name the
+    /// scope actually holds wins, and only then does the first dot decide.
+    /// </summary>
+    private static (string Name, string Key)? SplitReference(string reference, ItemScope scope)
+    {
+        string? match = null;
+        foreach (var name in scope.Structured.Keys.Concat(scope.Raw.Keys))
+        {
+            if (reference.Length <= name.Length + 1
+                || !reference.StartsWith($"{name}.", StringComparison.OrdinalIgnoreCase)) continue;
+            if (match == null || name.Length > match.Length) match = name;
+        }
+        if (match != null) return (match, reference[(match.Length + 1)..]);
+        var parts = reference.Split('.', 2);
+        return parts.Length == 2 ? (parts[0], parts[1]) : null;
     }
 
     private static bool TryGetPropertyIgnoreCase(JsonElement element, string name, out JsonElement value)

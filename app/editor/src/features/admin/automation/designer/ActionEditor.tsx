@@ -15,13 +15,20 @@ import { contentFieldOptionItems } from '../constants';
 import { createOption, findOptionByValue, hasValueSource, toNumberOrUndefined } from '../utils';
 import { ComboBox } from './ComboBox';
 import { ConditionBuilder } from './ConditionBuilder';
-import { contentTokenFieldOptions, copyFieldOptions, fitSelectWidth } from './constants';
+import {
+  ACTION_RESULT_KEYS,
+  actionOutcomeOptions,
+  contentTokenFieldOptions,
+  copyFieldOptions,
+  fitSelectWidth,
+} from './constants';
 import { DraftText } from './DraftText';
 import { FieldsPicker } from './FieldsPicker';
 import { FilterField } from './FilterField';
 import {
   type IAutomationAction,
   type IAutomationActionDescriptor,
+  type IAutomationActionRef,
   type IAutomationAnalysis,
   type IAutomationFieldSpec,
   type IAutomationValueSource,
@@ -35,18 +42,40 @@ const fieldLabel = (label: string): string => label.replace(/^./, (c) => c.toUpp
 const gateOptions: IOptionItem[] = [
   createOption('Always run', 'always'),
   createOption('Condition', 'condition'),
+  createOption('Prior action outcome', 'prior'),
   createOption('LLM confirmation statement', 'confirm'),
 ];
 
+/** The prior-action gate a condition expresses, or null when it is any other shape:
+ * when = {from: '<action>.outcome', op: 'equals'|'notEquals', value: '<outcome>'}. */
+const getPriorGate = (
+  action: IAutomationAction,
+  actionRefs: IAutomationActionRef[],
+): { name: string; outcome: string } | null => {
+  const { from, op, value } = action.when ?? {};
+  if (from == null || !op) return null;
+  const match = actionRefs.find(
+    (ref) => `${ref.name}.outcome`.toLowerCase() === from.toLowerCase(),
+  );
+  if (!match) return null;
+  const outcome = `${value ?? ''}`;
+  return { name: match.name, outcome: op === 'notEquals' ? `!${outcome}` : outcome };
+};
+
 /** The gate, with dedupe-result shapes recognised so the friendly options display as chosen:
  * when = {from: 'name.isDuplicate'} -> dupe:<ref>; when = {not: {from: ...}} -> unique:<ref>. */
-const getGate = (action: IAutomationAction, dedupeRefs: string[]): string => {
+const getGate = (
+  action: IAutomationAction,
+  dedupeRefs: string[],
+  actionRefs: IAutomationActionRef[],
+): string => {
   if (action.confirm) return 'confirm';
   if (action.when) {
     if (action.when.from != null && dedupeRefs.includes(action.when.from))
       return `dupe:${action.when.from}`;
     const notFrom = action.when.not?.from;
     if (notFrom != null && dedupeRefs.includes(notFrom)) return `unique:${notFrom}`;
+    if (getPriorGate(action, actionRefs)) return 'prior';
     return 'condition';
   }
   return 'always';
@@ -94,6 +123,8 @@ export interface IActionEditorProps {
   analyses: IAutomationAnalysis[];
   /** '<name>.isDuplicate' references published by the step's Detect Duplicate actions. */
   dedupeRefs?: string[];
+  /** The actions ahead of this one in the step, whose outcomes it can gate on. */
+  actionRefs?: IAutomationActionRef[];
   /** Objectives recorded by score actions anywhere in the definition (for select-top). */
   objectiveNames?: string[];
   collectionNames: string[];
@@ -120,6 +151,7 @@ export const ActionEditor: React.FC<IActionEditorProps> = ({
   phase,
   analyses,
   dedupeRefs = [],
+  actionRefs = [],
   objectiveNames = [],
   collectionNames,
   draftNames,
@@ -173,6 +205,12 @@ export const ActionEditor: React.FC<IActionEditorProps> = ({
   const promptOptions = promptNames.map((name) => createOption(name, name));
   // Everything a value source can read: declared analysis keys, dedupe results, and the
   // working-copy fields.
+  // Every action publishes its outcome under its own name, so the actions ahead of this one are
+  // readable exactly like an analysis answer.
+  const actionResultRefs = actionRefs.flatMap((ref) =>
+    ACTION_RESULT_KEYS.map((key) => `${ref.name}.${key}`),
+  );
+  const actionRefOptions = actionRefs.map((ref) => createOption(ref.label, ref.name));
   const valueRefs = [
     ...analyses
       .filter((analysis) => !analysis.raw)
@@ -180,11 +218,13 @@ export const ActionEditor: React.FC<IActionEditorProps> = ({
         Object.keys(analysis.returns ?? {}).map((key) => `${analysis.name}.${key}`),
       ),
     ...dedupeRefs.flatMap((ref) => [ref, ref.replace(/\.isDuplicate$/, '.matchedId')]),
+    ...actionResultRefs,
     ...contentTokenFieldOptions.map((option) => `content.${option.value}`),
   ];
   const subjectOption = createOption('original item', '$item');
   const draftOptions = draftNames.map((name) => createOption(name.replace(/^\$item\./, ''), name));
-  const gate = getGate(action, dedupeRefs);
+  const gate = getGate(action, dedupeRefs, actionRefs);
+  const priorGate = getPriorGate(action, actionRefs);
   // Every Detect Duplicate in the step contributes ready-made routing gates, so the connection
   // between the detector and the routed action is a visible choice, not a recipe.
   const dedupeGateOptions = dedupeRefs.flatMap((ref) => {
@@ -194,9 +234,27 @@ export const ActionEditor: React.FC<IActionEditorProps> = ({
       createOption(`'${dedupeName}' found no duplicate`, `unique:${ref}`),
     ];
   });
-  const allGateOptions = [...gateOptions, ...dedupeGateOptions];
+  // Nothing to pick from until an earlier action exists, so the option is hidden rather than dead.
+  const allGateOptions = [
+    ...gateOptions.filter((option) => option.value !== 'prior' || actionRefs.length > 0),
+    ...dedupeGateOptions,
+  ];
 
   const set = (values: Partial<IAutomationAction>) => onChange({ ...action, ...values });
+
+  /** Build the condition a prior-action gate stores; a leading '!' negates the comparison. */
+  const setPriorGate = (name: string, outcome: string) => {
+    const negated = outcome.startsWith('!');
+    set({
+      when: {
+        from: `${name}.outcome`,
+        op: negated ? 'notEquals' : 'equals',
+        value: negated ? outcome.slice(1) : outcome,
+      },
+      confirm: null,
+      analysis: null,
+    });
+  };
 
   const renderField = (field: IAutomationFieldSpec) => {
     const key = `action-${field.name}`;
@@ -764,6 +822,11 @@ export const ActionEditor: React.FC<IActionEditorProps> = ({
                   analysis: null,
                 });
                 break;
+              case 'prior':
+                // Starts on the nearest earlier action having run - the common case, and the
+                // shape the two pickers below then edit.
+                setPriorGate(actionRefs[actionRefs.length - 1]?.name ?? '', 'executed');
+                break;
               case 'confirm':
                 set({ when: null, confirm: '[CONFIRMED]', analysis: analysisNames[0] ?? null });
                 break;
@@ -796,12 +859,54 @@ export const ActionEditor: React.FC<IActionEditorProps> = ({
           />
         </Row>
       </Show>
+      <Show visible={gate === 'prior'}>
+        <Row gap="1rem" alignItems="flex-end" nowrap>
+          <Select
+            name="action-prior"
+            label="Prior action"
+            required
+            width={fitSelectWidth(
+              actionRefOptions.map((option) => `${option.label}`),
+              '',
+              4,
+              24,
+            )}
+            isClearable={false}
+            options={actionRefOptions}
+            value={findOptionByValue(actionRefOptions, priorGate?.name) ?? ''}
+            onChange={(newValue) => {
+              const option = newValue as IOptionItem;
+              if (option?.value) setPriorGate(`${option.value}`, priorGate?.outcome ?? 'executed');
+            }}
+          />
+          <Select
+            name="action-prior-outcome"
+            label="Outcome"
+            required
+            width="18rem"
+            isClearable={false}
+            options={actionOutcomeOptions}
+            value={findOptionByValue(actionOutcomeOptions, priorGate?.outcome) ?? ''}
+            onChange={(newValue) => {
+              const option = newValue as IOptionItem;
+              if (option?.value) setPriorGate(priorGate?.name ?? '', `${option.value}`);
+            }}
+          />
+        </Row>
+        <p className="automation-config-hint">
+          {'What the earlier action in this step did. Ran means its handler did its work - not ' +
+            'that anything was written, which happens at save. Ran but did nothing means its ' +
+            'turn came and it had nothing to act on: no target, no value, or nothing matched. ' +
+            'An action that never ran at all - disabled, or stopped before its turn - publishes ' +
+            'no outcome, so every option here fails to match it except did not run.'}
+        </p>
+      </Show>
       <Show visible={gate === 'condition'}>
         <div className="frm-in">
           <label>Condition</label>
           <ConditionBuilder
             value={action.when ?? { field: '', op: 'equals', value: '' }}
-            fromSuggestions={[...analysisBoolRefs, ...dedupeRefs]}
+            fromSuggestions={[...analysisBoolRefs, ...dedupeRefs, ...actionResultRefs]}
             onChange={(when) => set({ when })}
           />
           <p className="automation-config-hint">

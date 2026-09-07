@@ -14,9 +14,10 @@ public record ConditionResult(bool Passed, string Detail);
 
 /// <summary>
 /// ConditionEvaluator class, evaluates declarative property conditions against an item's
-/// working copy. Pure - the caller supplies a field resolver and (optionally) an analysis-result
-/// resolver for 'from' gates. Field comparisons are case-insensitive; numeric operators coerce
-/// both sides with invariant culture.
+/// working copy. Pure - the caller supplies a field resolver and (optionally) the resolvers for
+/// 'from' references: a boolean one for a bare reference and a string one for a reference paired
+/// with an operator. Field comparisons are case-insensitive; numeric operators coerce both sides
+/// with invariant culture.
 /// </summary>
 public static class ConditionEvaluator
 {
@@ -25,15 +26,16 @@ public static class ConditionEvaluator
     /// </summary>
     /// <param name="condition"></param>
     /// <param name="field">Resolves a working-copy field to its current string value (null when absent).</param>
-    /// <param name="from">Resolves an 'analysisName.key' reference to a boolean analysis result (null when unavailable).</param>
+    /// <param name="from">Resolves a 'name.key' reference to a boolean result (null when unavailable).</param>
+    /// <param name="reference">Resolves a 'name.key' reference to its string value, for a reference paired with an operator (null when unavailable).</param>
     /// <returns></returns>
-    public static ConditionResult Evaluate(ConditionDefinition condition, Func<string, string?> field, Func<string, bool?>? from = null)
+    public static ConditionResult Evaluate(ConditionDefinition condition, Func<string, string?> field, Func<string, bool?>? from = null, Func<string, string?>? reference = null)
     {
         if (condition.All is { Count: > 0 })
         {
             foreach (var child in condition.All)
             {
-                var result = Evaluate(child, field, from);
+                var result = Evaluate(child, field, from, reference);
                 if (!result.Passed) return new(false, $"all: failed at [{result.Detail}]");
             }
             return new(true, "all: passed");
@@ -43,7 +45,7 @@ public static class ConditionEvaluator
             var details = new List<string>();
             foreach (var child in condition.Any)
             {
-                var result = Evaluate(child, field, from);
+                var result = Evaluate(child, field, from, reference);
                 if (result.Passed) return new(true, $"any: passed at [{result.Detail}]");
                 details.Add(result.Detail);
             }
@@ -51,11 +53,17 @@ public static class ConditionEvaluator
         }
         if (condition.Not != null)
         {
-            var result = Evaluate(condition.Not, field, from);
+            var result = Evaluate(condition.Not, field, from, reference);
             return new(!result.Passed, $"not: [{result.Detail}]");
         }
         if (!string.IsNullOrWhiteSpace(condition.From))
         {
+            // A reference paired with an operator compares the referenced value the same way a leaf
+            // compares a field - that is how an earlier action's outcome ('publish.outcome') or a
+            // non-boolean analysis key is tested for a specific value. Without an operator the
+            // reference stays the boolean gate it has always been.
+            if (!string.IsNullOrWhiteSpace(condition.Op))
+                return EvaluateLeaf(condition.From!, condition.Op!, condition.Value, reference?.Invoke(condition.From!));
             var answer = from?.Invoke(condition.From);
             return answer == null
                 ? new(false, $"from {condition.From}: no boolean result available")

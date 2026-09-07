@@ -95,6 +95,62 @@ public class ConditionEvaluatorTest
         Assert.Contains("no boolean result", result.Detail);
     }
 
+    /// <summary>
+    /// A reference paired with an operator compares the referenced value - how an action gates on
+    /// what an earlier action in its step did.
+    /// </summary>
+    [Fact]
+    public void From_WithOperator_ComparesTheReferencedValue()
+    {
+        var condition = new ConditionDefinition { From = "Publish Content.outcome", Op = "equals", Value = Json("\"executed\"") };
+        var outcomes = new Dictionary<string, string> { ["Publish Content.outcome"] = "executed" };
+        Assert.True(ConditionEvaluator.Evaluate(condition, Fields(), null, r => outcomes.GetValueOrDefault(r)).Passed);
+
+        outcomes["Publish Content.outcome"] = "skipped";
+        var failed = ConditionEvaluator.Evaluate(condition, Fields(), null, r => outcomes.GetValueOrDefault(r));
+        Assert.False(failed.Passed);
+        Assert.Contains("Publish Content.outcome", failed.Detail);
+    }
+
+    /// <summary>
+    /// An action that never ran at all - disabled, or stopped before its turn - publishes nothing,
+    /// so its reference resolves to null. Every positive gate on it fails; a negated one passes,
+    /// which is what makes the editor's 'did not run' option cover the never-reached case too.
+    /// </summary>
+    [Fact]
+    public void UnresolvedReference_FailsPositiveGates_AndPassesNegatedOnes()
+    {
+        Func<string, string?> unresolved = _ => null;
+        var ran = new ConditionDefinition { From = "Publish Content.outcome", Op = "equals", Value = Json("\"executed\"") };
+        var didNotRun = new ConditionDefinition { From = "Publish Content.outcome", Op = "notEquals", Value = Json("\"executed\"") };
+        var boolGate = new ConditionDefinition { From = "Publish Content.executed" };
+        var notBoolGate = new ConditionDefinition { Not = new ConditionDefinition { From = "Publish Content.executed" } };
+
+        Assert.False(ConditionEvaluator.Evaluate(ran, Fields(), null, unresolved).Passed);
+        Assert.True(ConditionEvaluator.Evaluate(didNotRun, Fields(), null, unresolved).Passed);
+        Assert.False(ConditionEvaluator.Evaluate(boolGate, Fields(), _ => null, unresolved).Passed);
+        Assert.True(ConditionEvaluator.Evaluate(notBoolGate, Fields(), _ => null, unresolved).Passed);
+    }
+
+    /// <summary>'Did not run' covers every outcome that is not 'executed', blocked ones included.</summary>
+    [Fact]
+    public void DidNotRunGate_MatchesEveryNonExecutedOutcome()
+    {
+        var didNotRun = new ConditionDefinition { From = "Publish Content.outcome", Op = "notEquals", Value = Json("\"executed\"") };
+        foreach (var outcome in new[] { Outcomes.Skipped, Outcomes.Failed, Outcomes.ConditionFailed, Outcomes.NotConfirmed })
+            Assert.True(ConditionEvaluator.Evaluate(didNotRun, Fields(), null, _ => outcome).Passed, outcome);
+        Assert.False(ConditionEvaluator.Evaluate(didNotRun, Fields(), null, _ => Outcomes.Executed).Passed);
+    }
+
+    /// <summary>Without an operator a reference is still read as the boolean it always was.</summary>
+    [Fact]
+    public void From_WithoutOperator_StaysTheBooleanGate()
+    {
+        var condition = new ConditionDefinition { From = "Publish Content.executed" };
+        Assert.True(ConditionEvaluator.Evaluate(condition, Fields(), _ => true, _ => "never read").Passed);
+        Assert.False(ConditionEvaluator.Evaluate(condition, Fields(), _ => false, _ => "never read").Passed);
+    }
+
     [Fact]
     public void HasTag_MatchesTokenList()
     {

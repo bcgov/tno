@@ -209,7 +209,7 @@ public static class ActionCatalog
         },
             Description: "Removes the current item from the rest of the run - later steps skip it, but changes already made are kept and written. 'reason' is recorded in the run log."),
         new ActionDescriptor("abort", "Stop Remaining Actions", "flow", true, false, false, _process, System.Array.Empty<FieldSpec>(),
-            Description: "Stops the remaining actions of this step for the current item; later steps still see the item."),
+            Description: "Stops the remaining actions of this step for the current item; later steps still see the item. Gate it with Runs when = Prior action outcome to stop only when an earlier action in this step did (or did not) do its work - for example stop the rest once Publish Content executed."),
         new ActionDescriptor("dedupe", "Detect Duplicate", "flow", true, false, true, _process, new[]
         {
             new FieldSpec("against", "collection", true, "The collection of candidates to compare with."),

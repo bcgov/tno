@@ -35,6 +35,30 @@ public class AutomationDefinitionValidatorTest
       ]
     }
     """);
+
+    /// <summary>A step whose Stop Remaining Actions routes on what the publish action did.</summary>
+    private static AutomationDefinition OutcomeGateDefinition() => AutomationDefinition.Parse("""
+    {
+      "prompts": { "rules": "Review the story." },
+      "steps": [
+        {
+          "name": "Load", "phase": "init",
+          "actions": [ { "type": "search", "filter": 11, "into": "$run.inbox" } ]
+        },
+        {
+          "name": "Process", "phase": "process",
+          "source": { "from": "collection", "collection": "$run.inbox" },
+          "analyses": [
+            { "name": "triage", "prompt": { "ref": "rules" }, "returns": { "publish": "bool" } }
+          ],
+          "actions": [
+            { "type": "content.publish", "name": "Publish Content", "when": { "from": "triage.publish" } },
+            { "type": "abort", "name": "Stop", "when": { "from": "Publish Content.outcome", "op": "equals", "value": "executed" } }
+          ]
+        }
+      ]
+    }
+    """);
     #endregion
 
     #region Tests
@@ -218,12 +242,89 @@ public class AutomationDefinitionValidatorTest
         var definition = ValidDefinition();
         definition.Steps[1].Actions[0].When = new ConditionDefinition
         {
+            All = new List<ConditionDefinition> { new() { Field = "body", Op = "isEmpty" } },
+            From = "triage.publish",
+        };
+        var errors = AutomationDefinitionValidator.Validate(definition);
+        Assert.Contains(errors, e => e.Message.Contains("exactly one shape"));
+    }
+
+    /// <summary>A reference gate compares what 'from' names; a field belongs to a leaf.</summary>
+    [Fact]
+    public void ReferenceGateWithAField_IsAnError()
+    {
+        var definition = ValidDefinition();
+        definition.Steps[1].Actions[0].When = new ConditionDefinition
+        {
             Field = "body",
             Op = "isEmpty",
             From = "triage.publish",
         };
         var errors = AutomationDefinitionValidator.Validate(definition);
-        Assert.Contains(errors, e => e.Message.Contains("exactly one shape"));
+        Assert.Contains(errors, e => e.Severity == "error" && e.Message.Contains("working-copy field"));
+    }
+
+    /// <summary>
+    /// The gating this feature exists for: a later action routes on what an earlier action in the
+    /// same step did, by comparing its published outcome.
+    /// </summary>
+    [Fact]
+    public void PriorActionOutcomeGate_IsValid()
+    {
+        var errors = AutomationDefinitionValidator.Validate(OutcomeGateDefinition());
+        Assert.DoesNotContain(errors, e => e.Severity == "error");
+    }
+
+    /// <summary>An outcome is published as the step runs, so only earlier actions have one.</summary>
+    [Fact]
+    public void GateOnALaterAction_IsAnError()
+    {
+        var definition = OutcomeGateDefinition();
+        var actions = definition.Steps[1].Actions;
+        (actions[0], actions[1]) = (actions[1], actions[0]);
+        var errors = AutomationDefinitionValidator.Validate(definition);
+        Assert.Contains(errors, e => e.Severity == "error" && e.Message.Contains("'Publish Content'"));
+    }
+
+    /// <summary>A mistyped key resolves to nothing at runtime, so the gate would silently fail.</summary>
+    [Fact]
+    public void UnknownActionResultKey_IsAWarning()
+    {
+        var definition = OutcomeGateDefinition();
+        definition.Steps[1].Actions[1].When!.From = "Publish Content.excuted";
+        var errors = AutomationDefinitionValidator.Validate(definition);
+        Assert.Contains(errors, e => e.Severity == "warning" && e.Message.Contains("does not publish 'excuted'"));
+    }
+
+    /// <summary>A disabled action never runs, so nothing can route on its outcome.</summary>
+    [Fact]
+    public void GateOnADisabledAction_IsAWarning()
+    {
+        var definition = OutcomeGateDefinition();
+        definition.Steps[1].Actions[0].IsEnabled = false;
+        var errors = AutomationDefinitionValidator.Validate(definition);
+        Assert.Contains(errors, e => e.Severity == "warning" && e.Message.Contains("is disabled"));
+    }
+
+    /// <summary>An action that was never named publishes under its type, dots and all.</summary>
+    [Fact]
+    public void UnnamedActionOutcome_ResolvesByItsType()
+    {
+        var definition = OutcomeGateDefinition();
+        definition.Steps[1].Actions[0].Name = null;
+        definition.Steps[1].Actions[1].When!.From = "content.publish.outcome";
+        var errors = AutomationDefinitionValidator.Validate(definition);
+        Assert.DoesNotContain(errors, e => e.Severity == "error");
+    }
+
+    /// <summary>Results share one namespace, so a clash silently overwrites the analysis answer.</summary>
+    [Fact]
+    public void ActionNamedAfterAnAnalysis_IsAWarning()
+    {
+        var definition = OutcomeGateDefinition();
+        definition.Steps[1].Actions[0].Name = "triage";
+        var errors = AutomationDefinitionValidator.Validate(definition);
+        Assert.Contains(errors, e => e.Severity == "warning" && e.Message.Contains("same name as an analysis"));
     }
 
     [Fact]

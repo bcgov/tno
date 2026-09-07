@@ -3,6 +3,8 @@ import { type IOptionItem } from 'tno-core';
 import { createOption } from '../utils';
 import {
   type IAutomationAction,
+  type IAutomationActionDescriptor,
+  type IAutomationActionRef,
   type IAutomationDefinition,
   type IAutomationPromptEntry,
   type IAutomationStep,
@@ -67,6 +69,20 @@ export const conditionOpOptions: IOptionItem[] = [
   createOption('has action', 'hasAction'),
   createOption('status is', 'statusIs'),
 ];
+
+/** What an earlier action in the same step published. The gate compares '<action name>.outcome'
+ * to one of these; a leading '!' negates it (compared with notEquals instead of equals). */
+export const actionOutcomeOptions: IOptionItem[] = [
+  createOption('ran', 'executed'),
+  createOption('did not run', '!executed'),
+  createOption('ran but did nothing', 'skipped'),
+  createOption('was stopped by its own condition', 'condition-failed'),
+  createOption('was not confirmed', 'not-confirmed'),
+  createOption('failed', 'failed'),
+];
+
+/** The keys every action publishes for later actions to read. */
+export const ACTION_RESULT_KEYS = ['outcome', 'executed', 'skipped', 'failed', 'blocked'];
 
 /** Operators whose value is a list (rendered/parsed as comma-separated text). */
 export const LIST_OPS = ['in', 'notIn'];
@@ -373,4 +389,35 @@ export const outcomeBadgeClass = (outcome: string): string => {
     default:
       return 'automation-badge';
   }
+};
+
+/**
+ * The actions whose outcome the action at `index` can gate on: the enabled ones ahead of it in
+ * the same step that run in the same pass. An iterating step runs its per-item actions once per
+ * item and its once-per-step actions afterwards, in a scope of their own, so the two groups never
+ * see each other's outcomes. Unnamed actions publish under their type, and identical names
+ * collapse to one entry (the last to run wins at runtime).
+ */
+export const priorActionRefs = (
+  step: IAutomationStep,
+  index: number | null | undefined,
+  type: string,
+  descriptors: IAutomationActionDescriptor[],
+): IAutomationActionRef[] => {
+  const perItem = (actionType: string) =>
+    descriptors.find((d) => d.type === actionType)?.phases.includes('process') ?? true;
+  const iterates = step.phase !== 'init' && !!step.source;
+  return step.actions
+    .slice(0, index ?? step.actions.length)
+    .filter(
+      (action) =>
+        action.isEnabled && !!action.type && (!iterates || perItem(action.type) === perItem(type)),
+    )
+    .map((action) => ({
+      name: action.name || action.type,
+      label: action.name || descriptors.find((d) => d.type === action.type)?.label || action.type,
+    }))
+    .filter(
+      (ref, position, refs) => refs.findIndex((other) => other.name === ref.name) === position,
+    );
 };
