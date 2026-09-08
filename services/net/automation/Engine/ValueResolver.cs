@@ -58,7 +58,7 @@ public static class ValueResolver
     }
 
     /// <summary>
-    /// Resolve a boolean gate ('analysisName.key' or '&lt;action name&gt;.executed'); null when
+    /// Resolve a boolean gate ('analysisName.key' or '&lt;action name&gt;.ran'); null when
     /// unavailable or not boolean.
     /// </summary>
     public static bool? ResolveBool(string reference, ItemScope scope)
@@ -80,7 +80,7 @@ public static class ValueResolver
 
     /// <summary>
     /// Split a 'name.key' reference. A result name can itself contain dots - an action that was
-    /// never named publishes under its type ('content.publish.executed') - so the longest name the
+    /// never named publishes under its type ('content.publish.ran') - so the longest name the
     /// scope actually holds wins, and only then does the first dot decide.
     /// </summary>
     private static (string Name, string Key)? SplitReference(string reference, ItemScope scope)

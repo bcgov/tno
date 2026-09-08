@@ -536,9 +536,10 @@ public class AutomationEngine
             if (scope.Aborted || scope.Excluded) break;
             var actionName = action.Name ?? action.Type;
             string outcome;
+            string? value = null;
             try
             {
-                outcome = await ExecuteGatedActionAsync(step, action, scope, env, stepSummary, actionName, contentId);
+                (outcome, value) = await ExecuteGatedActionAsync(step, action, scope, env, stepSummary, actionName, contentId);
             }
             catch (Exception ex)
             {
@@ -546,27 +547,27 @@ public class AutomationEngine
                 env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Failed, $"Action failed: {ex.Message}");
                 outcome = Outcomes.Failed;
             }
-            StoreActionResult(scope, actionName, outcome);
+            StoreActionResult(scope, actionName, outcome, value);
         }
     }
 
     /// <summary>
-    /// Gate one action and dispatch it, returning what it did: 'executed', 'skipped' (it ran but
-    /// could not act), 'condition-failed' / 'not-confirmed' (a gate stopped it), or 'failed'.
-    /// The caller publishes that outcome for later actions to route on.
+    /// Gate one action and dispatch it, returning what it did - 'executed', 'skipped' (it ran but
+    /// could not act), 'condition-failed' / 'not-confirmed' (a gate stopped it), or 'failed' - and
+    /// the value it produced, if any. The caller publishes both for later actions to route on.
     /// </summary>
-    private async Task<string> ExecuteGatedActionAsync(StepDefinition step, ActionDefinition action, ItemScope scope, RunEnvironment env, StepSummary stepSummary, string actionName, long? contentId)
+    private async Task<(string Outcome, string? Value)> ExecuteGatedActionAsync(StepDefinition step, ActionDefinition action, ItemScope scope, RunEnvironment env, StepSummary stepSummary, string actionName, long? contentId)
     {
         var subject = scope.Subject;
         if (!ActionCatalog.Types.TryGetValue(action.Type, out var descriptor))
         {
             env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Skipped, $"Action type '{action.Type}' is not registered.");
-            return Outcomes.Skipped;
+            return (Outcomes.Skipped, null);
         }
         if (descriptor.RequiresSubject && subject == null)
         {
             env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Skipped, "The action requires an iterated item and the step has none.");
-            return Outcomes.Skipped;
+            return (Outcomes.Skipped, null);
         }
 
         // Gate 1: property condition / result gate. Evaluated before any prompt is sent - this is
@@ -587,7 +588,7 @@ public class AutomationEngine
             if (!result.Passed)
             {
                 env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.ConditionFailed, result.Detail);
-                return Outcomes.ConditionFailed;
+                return (Outcomes.ConditionFailed, null);
             }
             env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.ConditionPassed, result.Detail);
         }
@@ -600,20 +601,20 @@ public class AutomationEngine
             if (analysisName == null)
             {
                 env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Skipped, "Confirm requires a named analysis.");
-                return Outcomes.Skipped;
+                return (Outcomes.Skipped, null);
             }
             var response = await EnsureAnalysisAsync(step, analysisName, scope, env, stepSummary) ?? "";
             var matcher = new ConfirmationMatcher(action.Confirm, action.Field, action.Objective);
             if (!matcher.IsValid)
             {
                 env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Skipped, "Invalid confirmation statement.");
-                return Outcomes.Skipped;
+                return (Outcomes.Skipped, null);
             }
             if (!matcher.TryMatch(response, out captured))
             {
                 env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.NotConfirmed,
                     string.IsNullOrWhiteSpace(response) ? "No confirmation; the response was empty (no criteria met)." : "The confirmation statement was not found in the response.");
-                return Outcomes.NotConfirmed;
+                return (Outcomes.NotConfirmed, null);
             }
             env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Confirmed, $"Confirmed by analysis '{analysisName}'{(captured != null ? $" with value '{Truncate(captured, 200)}'" : "")}.");
         }
@@ -622,22 +623,21 @@ public class AutomationEngine
     }
 
     /// <summary>
-    /// Publish an action's outcome into the item scope under the action's name, in the same store
-    /// analyses and dedupe verdicts use - so a later action reads '&lt;name&gt;.executed' as a boolean
-    /// gate or compares '&lt;name&gt;.outcome' to a specific value, and a value source reads it like any
-    /// other answer. Keys an action already published (a dedupe verdict) are kept.
+    /// Publish what an action did into the item scope under the action's name, in the same store
+    /// analyses and dedupe verdicts use - so a later action reads '&lt;name&gt;.ran' or
+    /// '&lt;name&gt;.failed' as a boolean gate, compares '&lt;name&gt;.value' with an operator, and a
+    /// value source reads it like any other answer. Keys an action already published (a dedupe
+    /// verdict) are kept.
     /// </summary>
-    private static void StoreActionResult(ItemScope scope, string name, string outcome)
+    private static void StoreActionResult(ItemScope scope, string name, string outcome, string? value)
     {
         var values = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
         if (scope.Structured.TryGetValue(name, out var existing) && existing.RootElement.ValueKind == JsonValueKind.Object)
             foreach (var property in existing.RootElement.EnumerateObject())
                 values[property.Name] = property.Value;
-        values[ActionResults.Outcome] = outcome;
-        values[ActionResults.Executed] = outcome == Outcomes.Executed;
-        values[ActionResults.Skipped] = outcome == Outcomes.Skipped;
+        values[ActionResults.Ran] = outcome == Outcomes.Executed;
         values[ActionResults.Failed] = outcome == Outcomes.Failed;
-        values[ActionResults.Blocked] = outcome is Outcomes.ConditionFailed or Outcomes.NotConfirmed;
+        values[ActionResults.Value] = value;
         scope.Structured[name] = JsonDocument.Parse(JsonSerializer.Serialize(values, _jsonOptions));
     }
 
@@ -787,20 +787,22 @@ public class AutomationEngine
 
     #region Action handlers
     /// <summary>
-    /// Dispatch one gated action to its handler and report what it did: 'executed' when the
+    /// Dispatch one gated action to its handler and report what it did - 'executed' when the
     /// handler acted, 'skipped' when it ran but had nothing it could act on (no target, no value,
-    /// nothing matched), 'failed' when the work it attempted failed. The caller publishes this so
-    /// a later action in the step can gate on it.
+    /// nothing matched), 'failed' when the work it attempted failed - together with the value it
+    /// produced: what a content action wrote, a score, a dedupe's match, a collection's count.
+    /// The caller publishes both so a later action in the step can gate on them.
     /// </summary>
-    private async Task<string> ExecuteActionAsync(StepDefinition step, ActionDefinition action, ActionDescriptor descriptor, ItemScope scope, string? captured, RunEnvironment env, StepSummary stepSummary)
+    private async Task<(string Outcome, string? Value)> ExecuteActionAsync(StepDefinition step, ActionDefinition action, ActionDescriptor descriptor, ItemScope scope, string? captured, RunEnvironment env, StepSummary stepSummary)
     {
         var actionName = action.Name ?? action.Type;
         var subject = scope.Subject;
         var target = scope.ResolveTarget(action.Target);
         var contentId = subject is { Kind: "existing" } ? subject.Id : (long?)null;
         // Handlers that fall out without doing their work say so here; reaching the end unchanged
-        // means the handler acted.
+        // means the handler acted. What it produced, when it produced something, goes in result.
         var outcome = Outcomes.Executed;
+        string? result = null;
 
         // Value sources consume analyses too - run them lazily before resolving, exactly like
         // the when/confirm gates do, so action order never decides whether a result exists.
@@ -852,6 +854,7 @@ public class AutomationEngine
                         foreach (var entry in entries)
                             if (!collection.Contains(entry)) collection.Add(entry);
                     }
+                    result = entries.Count.ToString();
                     LogExecuted($"Fetched {entries.Count} item(s) into {action.Into}.");
                     break;
                 }
@@ -875,11 +878,15 @@ public class AutomationEngine
                     lock (env.Context.Sync)
                     {
                         if (action.Type != "collection.add" && env.Context.Collections.TryGetValue(action.FromCollection ?? "", out var from))
+                        {
                             from.RemoveAll(e => e.Key == item.Key);
+                            result = from.Count.ToString();
+                        }
                         if (action.Type != "collection.remove" && !string.IsNullOrWhiteSpace(action.Into))
                         {
                             var into = env.Context.GetCollection(action.Into!);
                             if (!into.Any(e => e.Key == item.Key)) into.Add(item);
+                            result = into.Count.ToString();
                         }
                     }
                     LogExecuted($"{action.Type} {item.Key}{(action.FromCollection != null ? $" from {action.FromCollection}" : "")}{(action.Into != null ? $" into {action.Into}" : "")}.");
@@ -892,6 +899,7 @@ public class AutomationEngine
                     {
                         var list = env.Context.GetCollection(action.FromCollection!);
                         removed = list.RemoveAll(e => !ConditionEvaluator.Evaluate(action.Where!, e.GetField).Passed);
+                        result = list.Count.ToString();
                     }
                     LogExecuted($"Filtered {action.FromCollection}; removed {removed} item(s).");
                     break;
@@ -906,6 +914,7 @@ public class AutomationEngine
                             : list.OrderBy(e => e.GetField(action.By!) ?? "", StringComparer.OrdinalIgnoreCase).ToList();
                         list.Clear();
                         list.AddRange(sorted);
+                        result = list.Count.ToString();
                     }
                     LogExecuted($"Sorted {action.FromCollection} by {action.By} {(action.Direction ?? "asc")}.");
                     break;
@@ -916,6 +925,7 @@ public class AutomationEngine
                     {
                         var list = env.Context.GetCollection(action.FromCollection!);
                         if (list.Count > action.Count!.Value) list.RemoveRange(action.Count.Value, list.Count - action.Count.Value);
+                        result = list.Count.ToString();
                     }
                     LogExecuted($"Kept the first {action.Count} item(s) of {action.FromCollection}.");
                     break;
@@ -928,6 +938,7 @@ public class AutomationEngine
                         var list = env.Context.GetCollection(action.FromCollection!);
                         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                         removed = list.RemoveAll(e => !seen.Add(e.GetField(action.By!) ?? e.Key));
+                        result = list.Count.ToString();
                     }
                     LogExecuted($"Removed {removed} duplicate item(s) from {action.FromCollection} by {action.By}.");
                     break;
@@ -942,13 +953,14 @@ public class AutomationEngine
                         var with = env.Context.GetCollection(action.With!).Select(e => e.Key).ToHashSet();
                         var into = env.Context.GetCollection(action.Into!);
                         into.Clear();
-                        IEnumerable<ContentEntry> result = action.Type switch
+                        IEnumerable<ContentEntry> combined = action.Type switch
                         {
                             "collection.union" => from.Concat(env.Context.GetCollection(action.With!)).DistinctBy(e => e.Key),
                             "collection.except" => from.Where(e => !with.Contains(e.Key)),
                             _ => from.Where(e => with.Contains(e.Key)),
                         };
-                        into.AddRange(result);
+                        into.AddRange(combined);
+                        result = into.Count.ToString();
                         LogExecuted($"{action.Type} of {action.FromCollection} and {action.With} into {action.Into} ({into.Count} item(s)).");
                     }
                     break;
@@ -968,6 +980,7 @@ public class AutomationEngine
                             into.Add(entry);
                             added++;
                         }
+                        result = into.Count.ToString();
                         LogExecuted($"Copied {added} of {from.Count} item(s) from {action.FromCollection} into {action.Into} ({from.Count - added} already present); {action.Into} now has {into.Count}.");
                     }
                     break;
@@ -976,6 +989,7 @@ public class AutomationEngine
                 {
                     if (target == null || string.IsNullOrWhiteSpace(action.Field) || string.IsNullOrWhiteSpace(value)) { outcome = Outcomes.Skipped; break; }
                     lock (target.Deltas) target.Deltas.Fields[action.Field!] = value.Trim();
+                    result = value.Trim();
                     RecordChange("update-field", target, action.Field, value);
                     LogExecuted($"Set {action.Field} on {target.Key}.", $"{{\"value\":{JsonSerializer.Serialize(Truncate(value, 500))}}}");
                     break;
@@ -1006,6 +1020,7 @@ public class AutomationEngine
                         added.Add(match.Code);
                     }
                     if (added.Count > 0) RecordChange("add-tags", target, null, string.Join(",", added));
+                    result = added.Count > 0 ? string.Join(",", added) : null;
                     LogExecuted(
                         $"Added {added.Count} tag(s) to {target.Key}"
                         + (added.Count > 0 ? $": {string.Join(", ", added)}" : "")
@@ -1026,6 +1041,7 @@ public class AutomationEngine
                         break;
                     }
                     lock (target.Deltas) target.Deltas.Sentiment = Math.Clamp(sentiment, -5, 5);
+                    result = Math.Clamp(sentiment, -5, 5).ToString();
                     RecordChange("add-sentiment", target, null, sentiment.ToString());
                     LogExecuted($"Set sentiment {Math.Clamp(sentiment, -5, 5)} on {target.Key}.");
                     break;
@@ -1042,6 +1058,7 @@ public class AutomationEngine
                         if (env.IsDryRun)
                         {
                             RecordChange("select-columnist", target, null, contributorName);
+                            result = contributorName;
                             env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Executed, $"Dry run: contributor '{Truncate(contributorName, 100)}' would be created and selected.");
                             break;
                         }
@@ -1074,6 +1091,7 @@ public class AutomationEngine
                         target.Deltas.ContributorId = contributor.Value.Id;
                         target.Deltas.ContributorName = contributor.Value.Name;
                     }
+                    result = contributor.Value.Name;
                     RecordChange("select-columnist", target, null, contributor.Value.Name);
                     LogExecuted($"Set contributor '{contributor.Value.Name}' on {target.Key}.");
                     break;
@@ -1106,6 +1124,7 @@ public class AutomationEngine
                     {
                         target.Deltas.ContentActions[action.ContentAction.Value] = stampValue;
                     }
+                    result = stampValue;
                     RecordChange("add-action", target, ContentActionName(action.ContentAction.Value, env.Lookups), stampValue);
                     LogExecuted($"Applied content action '{ContentActionName(action.ContentAction.Value, env.Lookups)}' = '{stampValue}' to {target.Key}.");
                     break;
@@ -1116,6 +1135,7 @@ public class AutomationEngine
                     if (target == null) { outcome = Outcomes.Skipped; break; }
                     var status = action.Type == "content.publish" ? "publish" : "unpublish";
                     lock (target.Deltas) target.Deltas.Status = status;
+                    result = status;
                     RecordChange(status, target);
                     LogExecuted($"Marked {target.Key} for {status}.");
                     break;
@@ -1217,6 +1237,7 @@ public class AutomationEngine
                                 $"Save failed for {EntryLabel(entry)}; {DescribeWrite(entry, pending)} was not written: {ex.Message}");
                         }
                     }
+                    result = saved.ToString();
                     LogExecuted(
                         $"Saved {saved} of {items.Count} item(s) from {action.FromCollection} ({items.Count - toSave.Count} unchanged)."
                         + (fieldTally.Count > 0 ? $" Fields written: {string.Join(", ", fieldTally.OrderByDescending(f => f.Value).ThenBy(f => f.Key, StringComparer.OrdinalIgnoreCase).Select(f => $"{f.Key} ({f.Value})"))}." : ""),
@@ -1229,6 +1250,7 @@ public class AutomationEngine
                     if (saveTarget == null) { outcome = Outcomes.Skipped; break; }
                     var index = action.Index ?? true;
                     var pending = DescribeDeltas(saveTarget, env.Lookups);
+                    result = pending.Count.ToString();
                     if (env.IsDryRun)
                     {
                         RecordSave(env, saveTarget, step.Name, actionName, null, pending, "would-save", index, null);
@@ -1261,7 +1283,7 @@ public class AutomationEngine
             case "dedupe":
                 {
                     if (subject == null) { outcome = Outcomes.Skipped; break; }
-                    await DetectDuplicateAsync(step, action, scope, env, stepSummary);
+                    result = await DetectDuplicateAsync(step, action, scope, env, stepSummary);
                     break;
                 }
             case "score":
@@ -1283,6 +1305,7 @@ public class AutomationEngine
                         }
                         scores[subject.Key] = score;
                     }
+                    result = score.ToString();
                     RecordScore(env, action.Objective!, step.Name, subject, score);
                     // Name the story, the score, and the objective on every entry: filtering the log
                     // by content id must answer 'what score did this item get, and why'.
@@ -1378,6 +1401,7 @@ public class AutomationEngine
                             + $"{(stampAction ? $"; stamped '{contentActionName}'" : "")}.",
                             JsonSerializer.Serialize(new { objective, rank, score = entryScore, contentRef = EntryRef(entry), into = action.Into, contentAction = stampAction ? contentActionName : null }, _jsonOptions));
                     }
+                    result = selected.Count.ToString();
                     var sortedBy = "score descending, then content id ascending (no LLM - the recorded scores are ranked)";
                     var rule = minScore.HasValue
                         ? $"every item scoring {minScore} or higher{(take.HasValue ? $", capped at {take}" : "")}"
@@ -1434,6 +1458,7 @@ public class AutomationEngine
             case "report.run":
                 {
                     if (!action.Report.HasValue) { outcome = Outcomes.Skipped; break; }
+                    result = action.Report.Value.ToString();
                     var usingNote = action.Using != null ? $" using {action.Using}" : "";
                     if (env.IsDryRun)
                     {
@@ -1449,6 +1474,7 @@ public class AutomationEngine
             case "notification.run":
                 {
                     if (!action.Notification.HasValue) { outcome = Outcomes.Skipped; break; }
+                    result = action.Notification.Value.ToString();
                     var usingNote = action.Using != null ? $" using {action.Using}" : "";
                     if (env.IsDryRun)
                     {
@@ -1466,7 +1492,7 @@ public class AutomationEngine
                 outcome = Outcomes.Skipped;
                 break;
         }
-        return outcome;
+        return (outcome, result);
     }
 
     private static ContentEntry? ResolveItem(string? item, ItemScope scope)
@@ -1548,7 +1574,7 @@ public class AutomationEngine
     /// Compare the subject against a collection's candidates in iterate mode (one prompt per
     /// candidate) or batch mode (one prompt per chunk, the response naming the matched id).
     /// </summary>
-    private async Task DetectDuplicateAsync(StepDefinition step, ActionDefinition action, ItemScope scope, RunEnvironment env, StepSummary stepSummary)
+    private async Task<string?> DetectDuplicateAsync(StepDefinition step, ActionDefinition action, ItemScope scope, RunEnvironment env, StepSummary stepSummary)
     {
         var subject = scope.Subject!;
         var actionName = action.Name ?? action.Type;
@@ -1573,7 +1599,7 @@ public class AutomationEngine
                     });
                     StoreDedupeResult(scope, actionName, true, matched);
                     env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Confirmed, $"Known duplicate of {matched} (content link); no comparison sent.");
-                    return;
+                    return matched;
                 }
             }
             catch (Exception ex)
@@ -1593,7 +1619,7 @@ public class AutomationEngine
         {
             StoreDedupeResult(scope, actionName, false, null);
             env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.Skipped, $"No candidates in {action.Against}; recorded {actionName}.isDuplicate = false.");
-            return;
+            return null;
         }
         if (action.MaxComparisons is > 0 && candidates.Count > action.MaxComparisons.Value)
         {
@@ -1715,11 +1741,12 @@ public class AutomationEngine
                     _logger.LogWarning(ex, "Failed to record the duplicate content link {id} -> {matched}.", subject.Id, matchedRef);
                 }
             }
-            return;
+            return matchedRef;
         }
 
         StoreDedupeResult(scope, actionName, false, null);
         env.Log.LogDecision(step.Name, actionName, action.Type, contentId, Outcomes.NotConfirmed, $"No duplicate found among {candidates.Count} candidate(s); recorded {actionName}.isDuplicate = false.");
+        return null;
     }
 
     /// <summary>
