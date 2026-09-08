@@ -137,33 +137,31 @@ analyses and dedupe verdicts use, so the actions **after it in the same step** c
 
 | Reference | Value |
 | --- | --- |
-| `<action name>.outcome` | `executed`, `skipped`, `failed`, `condition-failed`, or `not-confirmed` |
-| `<action name>.executed` | The handler ran and did its work |
-| `<action name>.skipped` | It ran but had nothing to act on (no target, no value, nothing matched) |
-| `<action name>.failed` | It threw |
-| `<action name>.blocked` | Its own condition or confirmation stopped it — either of the two gate outcomes above; compare `.outcome` to tell them apart |
+| `<action name>.ran` | `true` when its condition and confirmation passed and the handler did its work; `false` when a gate stopped it, it had nothing to act on (no target, no resolved value, nothing matched), or it failed |
+| `<action name>.failed` | `true` when it threw or the work it attempted failed |
+| `<action name>.value` | What it produced, or nothing: the value a content action wrote (`content.update`, `content.tags`, `content.sentiment`, `content.contributor`, `content.action`), `publish`/`unpublish`, a score, the matched content id for `dedupe`, the count a `search` or collection action ended with, the number of items `collection.save` wrote or fields `content.save` wrote, the number `select-top` selected, the report or notification id it published |
 
-`outcome` is the value; the four booleans are derived from it, so exactly one of them is true
-whenever the action ran. `skipped` means the action's turn came and it had nothing to act on (no
-target, no resolved value, nothing matched, a disabled content action, a non-numeric score) — never
-that a gate stopped it. `executed` means the handler did its work, not that anything was written:
-content changes are deltas until a save action runs, and a Detect Duplicate that found nothing is
-still `executed` (its verdict is `isDuplicate`).
+`ran` and `failed` are yes/no and gate on their own; `value` is compared with an operator. `ran`
+means the handler did its work, not that anything was written: content changes are deltas until a
+save action runs, and a Detect Duplicate that found nothing still `ran` (its verdict is
+`isDuplicate`, and its `value` is the matched id when it found one).
 
-The name is the action's `name`, or its `type` when it has none (`content.publish.executed`);
+The name is the action's `name`, or its `type` when it has none (`content.publish.ran`);
 references resolve by the longest known name, so a type with dots in it works. An action that
 never ran — disabled, or after an `abort` — publishes nothing at all, so its reference resolves to
 nothing: every positive gate on it fails, and a negated one (`notEquals`, or `not`) passes.
 Results share one namespace with analyses; the validator warns when an action's name shadows an
-analysis, when a reference names a key the action does not publish, and when the reference names a
-later or disabled action.
+analysis, when a reference names a key the action does not publish, when the reference names a
+later or disabled action, and when a gate reads `value` bare — it is not yes/no, so on its own the
+gate never passes (and inside `not` always does).
 
-The editor exposes this as **Runs when = Prior action outcome**: pick an earlier action and what it
-did. It stores the general shape — `{ "from": "Publish Content.outcome", "op": "equals", "value":
-"executed" }` — so the same comparison is available by hand, on any reference, for any operator:
+The editor exposes this as **Runs when = Prior action outcome**: pick an earlier action and one of
+*ran*, *did not run*, *failed*, or *outcome value* with a comparison. Those are ordinary conditions,
+so the same gates are available by hand in the condition builder:
 
 ```json
-{ "type": "abort", "name": "Stop", "when": { "from": "Publish Content.outcome", "op": "equals", "value": "executed" } }
+{ "type": "abort", "name": "Stop", "when": { "not": { "from": "Publish Content.ran" } } }
+{ "type": "abort", "name": "Stop", "when": { "from": "Score.value", "op": "lessThan", "value": 5 } }
 ```
 
 Where an action needs a value, it comes from a fixed set of sources: an analysis result or

@@ -59,7 +59,7 @@ public static class ConditionEvaluator
         if (!string.IsNullOrWhiteSpace(condition.From))
         {
             // A reference paired with an operator compares the referenced value the same way a leaf
-            // compares a field - that is how an earlier action's outcome ('publish.outcome') or a
+            // compares a field - that is how an earlier action's product ('publish.value') or a
             // non-boolean analysis key is tested for a specific value. Without an operator the
             // reference stays the boolean gate it has always been.
             if (!string.IsNullOrWhiteSpace(condition.Op))

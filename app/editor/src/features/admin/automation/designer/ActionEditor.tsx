@@ -14,13 +14,16 @@ import {
 import { contentFieldOptionItems } from '../constants';
 import { createOption, findOptionByValue, hasValueSource, toNumberOrUndefined } from '../utils';
 import { ComboBox } from './ComboBox';
-import { ConditionBuilder } from './ConditionBuilder';
+import { ConditionBuilder, textToValue, valueToText } from './ConditionBuilder';
 import {
   ACTION_RESULT_KEYS,
-  actionOutcomeOptions,
+  conditionOpOptions,
   contentTokenFieldOptions,
   copyFieldOptions,
   fitSelectWidth,
+  LIST_OPS,
+  priorActionOptions,
+  VALUELESS_OPS,
 } from './constants';
 import { DraftText } from './DraftText';
 import { FieldsPicker } from './FieldsPicker';
@@ -30,6 +33,7 @@ import {
   type IAutomationActionDescriptor,
   type IAutomationActionRef,
   type IAutomationAnalysis,
+  type IAutomationCondition,
   type IAutomationFieldSpec,
   type IAutomationValueSource,
 } from './interfaces';
@@ -46,20 +50,50 @@ const gateOptions: IOptionItem[] = [
   createOption('LLM confirmation statement', 'confirm'),
 ];
 
+/** A prior-action gate as the pickers edit it: which earlier action, what about it (one of
+ * priorActionOptions), and for 'value' the comparison. */
+interface IPriorGate {
+  name: string;
+  outcome: string;
+  op?: string;
+  value?: unknown;
+}
+
+/** Split '<action>.<key>' against the earlier actions, longest name first (an unnamed action is
+ * addressed by its type, dots included). */
+const splitActionRef = (
+  from: string,
+  actionRefs: IAutomationActionRef[],
+): { name: string; key: string } | null => {
+  const lower = from.toLowerCase();
+  const match = [...actionRefs]
+    .sort((a, b) => b.name.length - a.name.length)
+    .find((ref) => lower.startsWith(`${ref.name.toLowerCase()}.`));
+  return match ? { name: match.name, key: from.slice(match.name.length + 1).toLowerCase() } : null;
+};
+
 /** The prior-action gate a condition expresses, or null when it is any other shape:
- * when = {from: '<action>.outcome', op: 'equals'|'notEquals', value: '<outcome>'}. */
+ * {from: '<action>.ran'} is ran, {not: {from: '<action>.ran'}} is did not run,
+ * {from: '<action>.failed'} is failed, and {from: '<action>.value', op, value} compares what the
+ * action produced. */
 const getPriorGate = (
   action: IAutomationAction,
   actionRefs: IAutomationActionRef[],
-): { name: string; outcome: string } | null => {
-  const { from, op, value } = action.when ?? {};
-  if (from == null || !op) return null;
-  const match = actionRefs.find(
-    (ref) => `${ref.name}.outcome`.toLowerCase() === from.toLowerCase(),
-  );
-  if (!match) return null;
-  const outcome = `${value ?? ''}`;
-  return { name: match.name, outcome: op === 'notEquals' ? `!${outcome}` : outcome };
+): IPriorGate | null => {
+  const when = action.when;
+  if (!when) return null;
+  if (when.not?.from != null && !when.not.op) {
+    const ref = splitActionRef(when.not.from, actionRefs);
+    return ref?.key === 'ran' ? { name: ref.name, outcome: '!ran' } : null;
+  }
+  if (when.from == null) return null;
+  const ref = splitActionRef(when.from, actionRefs);
+  if (!ref) return null;
+  if (!when.op)
+    return ref.key === 'ran' || ref.key === 'failed' ? { name: ref.name, outcome: ref.key } : null;
+  return ref.key === 'value'
+    ? { name: ref.name, outcome: 'value', op: when.op, value: when.value }
+    : null;
 };
 
 /** The gate, with dedupe-result shapes recognised so the friendly options display as chosen:
@@ -242,18 +276,16 @@ export const ActionEditor: React.FC<IActionEditorProps> = ({
 
   const set = (values: Partial<IAutomationAction>) => onChange({ ...action, ...values });
 
-  /** Build the condition a prior-action gate stores; a leading '!' negates the comparison. */
-  const setPriorGate = (name: string, outcome: string) => {
-    const negated = outcome.startsWith('!');
-    set({
-      when: {
-        from: `${name}.outcome`,
-        op: negated ? 'notEquals' : 'equals',
-        value: negated ? outcome.slice(1) : outcome,
-      },
-      confirm: null,
-      analysis: null,
-    });
+  /** Build the condition a prior-action gate stores: ran/failed read the action's yes/no key,
+   * '!ran' wraps it in not, and 'value' compares what the action produced. */
+  const setPriorGate = (gate: IPriorGate) => {
+    const when: IAutomationCondition =
+      gate.outcome === '!ran'
+        ? { not: { from: `${gate.name}.ran` } }
+        : gate.outcome === 'value'
+        ? { from: `${gate.name}.value`, op: gate.op ?? 'equals', value: gate.value ?? '' }
+        : { from: `${gate.name}.${gate.outcome}` };
+    set({ when, confirm: null, analysis: null });
   };
 
   const renderField = (field: IAutomationFieldSpec) => {
@@ -824,8 +856,11 @@ export const ActionEditor: React.FC<IActionEditorProps> = ({
                 break;
               case 'prior':
                 // Starts on the nearest earlier action having run - the common case, and the
-                // shape the two pickers below then edit.
-                setPriorGate(actionRefs[actionRefs.length - 1]?.name ?? '', 'executed');
+                // shape the pickers below then edit.
+                setPriorGate({
+                  name: actionRefs[actionRefs.length - 1]?.name ?? '',
+                  outcome: 'ran',
+                });
                 break;
               case 'confirm':
                 set({ when: null, confirm: '[CONFIRMED]', analysis: analysisNames[0] ?? null });
@@ -876,29 +911,60 @@ export const ActionEditor: React.FC<IActionEditorProps> = ({
             value={findOptionByValue(actionRefOptions, priorGate?.name) ?? ''}
             onChange={(newValue) => {
               const option = newValue as IOptionItem;
-              if (option?.value) setPriorGate(`${option.value}`, priorGate?.outcome ?? 'executed');
+              if (option?.value)
+                setPriorGate({ ...(priorGate ?? { outcome: 'ran' }), name: `${option.value}` });
             }}
           />
           <Select
             name="action-prior-outcome"
             label="Outcome"
             required
-            width="18rem"
+            width="12rem"
             isClearable={false}
-            options={actionOutcomeOptions}
-            value={findOptionByValue(actionOutcomeOptions, priorGate?.outcome) ?? ''}
+            options={priorActionOptions}
+            value={findOptionByValue(priorActionOptions, priorGate?.outcome) ?? ''}
             onChange={(newValue) => {
               const option = newValue as IOptionItem;
-              if (option?.value) setPriorGate(priorGate?.name ?? '', `${option.value}`);
+              if (option?.value)
+                setPriorGate({ ...(priorGate ?? { name: '' }), outcome: `${option.value}` });
             }}
           />
+          <Show visible={priorGate?.outcome === 'value'}>
+            <Select
+              name="action-prior-op"
+              label="Comparison"
+              width="10rem"
+              isClearable={false}
+              options={conditionOpOptions}
+              value={findOptionByValue(conditionOpOptions, priorGate?.op ?? 'equals')}
+              onChange={(newValue) => {
+                const option = newValue as IOptionItem;
+                if (priorGate) setPriorGate({ ...priorGate, op: `${option?.value ?? 'equals'}` });
+              }}
+            />
+            <Show visible={!VALUELESS_OPS.includes(priorGate?.op ?? '')}>
+              <DraftText
+                name="action-prior-value"
+                label="Value"
+                placeholder={
+                  LIST_OPS.includes(priorGate?.op ?? '') ? 'comma-separated (\\, escapes)' : 'value'
+                }
+                canonical={valueToText(priorGate?.value)}
+                width="10rem"
+                onText={(text) => {
+                  if (priorGate)
+                    setPriorGate({ ...priorGate, value: textToValue(text, priorGate.op) });
+                }}
+              />
+            </Show>
+          </Show>
         </Row>
         <p className="automation-config-hint">
-          {'What the earlier action in this step did. Ran means its handler did its work - not ' +
-            'that anything was written, which happens at save. Ran but did nothing means its ' +
-            'turn came and it had nothing to act on: no target, no value, or nothing matched. ' +
-            'An action that never ran at all - disabled, or stopped before its turn - publishes ' +
-            'no outcome, so every option here fails to match it except did not run.'}
+          {'Ran: the earlier action passed its own condition and did its work. Did not run: its ' +
+            'condition stopped it, it had nothing to act on, it failed, or it was disabled. ' +
+            'Failed: it hit an error. Outcome value: compare what it produced - the value a ' +
+            'content action wrote, a score, the id Detect Duplicate matched, the count a ' +
+            'collection or search action ended with.'}
         </p>
       </Show>
       <Show visible={gate === 'condition'}>

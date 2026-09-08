@@ -3,45 +3,50 @@ namespace TNO.API.Areas.Admin.Models.Automation;
 /// <summary>
 /// ActionResults class, the result every action publishes into the item scope under its own name
 /// once it has been gated and dispatched. A later action in the same step reads it exactly like an
-/// analysis answer: '&lt;action name&gt;.executed' as a boolean gate, or '&lt;action name&gt;.outcome'
-/// compared to a specific value. An action that never ran (disabled, or after an abort) publishes
-/// nothing, so a reference to it resolves to nothing and its gate fails.
+/// analysis answer: '&lt;action name&gt;.ran' or '&lt;action name&gt;.failed' as a boolean gate, or
+/// '&lt;action name&gt;.value' compared with an operator. An action that never ran (disabled, or
+/// after an abort) publishes nothing, so a reference to it resolves to nothing: a positive gate on
+/// it fails and a negated one passes.
 /// </summary>
 public static class ActionResults
 {
     #region Keys
-    /// <summary>The action's outcome, one of <see cref="OutcomeValues"/>.</summary>
-    public const string Outcome = "outcome";
+    /// <summary>
+    /// True when the action did its work: its condition and confirmation passed and the handler
+    /// acted. False when a gate stopped it, when its turn came and it had nothing to act on (no
+    /// target, no resolved value, nothing matched), or when it failed.
+    /// </summary>
+    public const string Ran = "ran";
 
-    /// <summary>True when the action's handler ran and did its work.</summary>
-    public const string Executed = "executed";
-
-    /// <summary>True when the handler ran but could not act (nothing matched, no value, disabled record).</summary>
-    public const string Skipped = "skipped";
-
-    /// <summary>True when the action threw.</summary>
+    /// <summary>True when the action threw or the work it attempted failed.</summary>
     public const string Failed = "failed";
 
-    /// <summary>True when a gate - the condition or the confirmation statement - stopped the action.</summary>
-    public const string Blocked = "blocked";
+    /// <summary>
+    /// What the action produced, when it produced something: the value a content action wrote,
+    /// a score, a dedupe's matched content id, the count a collection or search action ended with.
+    /// Null when the action produced nothing or did not run.
+    /// </summary>
+    public const string Value = "value";
 
     /// <summary>Every key an action publishes.</summary>
-    public static readonly string[] Keys = { Outcome, Executed, Skipped, Failed, Blocked };
+    public static readonly string[] Keys = { Ran, Failed, Value };
 
-    /// <summary>The values '&lt;action name&gt;.outcome' can carry.</summary>
-    public static readonly string[] OutcomeValues =
-    {
-        Outcomes.Executed, Outcomes.Skipped, Outcomes.Failed, Outcomes.ConditionFailed, Outcomes.NotConfirmed,
-    };
+    /// <summary>The keys that read as a yes/no gate on their own; the rest need an operator.</summary>
+    public static readonly string[] BooleanKeys = { Ran, Failed };
     #endregion
 
     #region Methods
     /// <summary>
-    /// Whether the reference names one of this result's keys ('publish.executed' against the
+    /// Whether the reference names one of this result's keys ('publish.ran' against the
     /// action name 'publish').
     /// </summary>
     /// <param name="key"></param>
     /// <returns></returns>
     public static bool IsKey(string key) => Keys.Contains(key, StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Whether the key reads as a yes/no gate without an operator.</summary>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    public static bool IsBooleanKey(string key) => BooleanKeys.Contains(key, StringComparer.OrdinalIgnoreCase);
     #endregion
 }

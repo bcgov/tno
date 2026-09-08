@@ -56,7 +56,7 @@ const splitEscaped = (text: string): string[] => {
 
 /** Render a condition value for editing: lists join with commas (escaping literal commas and
  * backslashes so the text round-trips), scalars stringify. */
-const valueToText = (value: unknown): string => {
+export const valueToText = (value: unknown): string => {
   if (value === undefined || value === null) return '';
   if (Array.isArray(value))
     return value.map((item) => `${item}`.replace(/\\/g, '\\\\').replace(/,/g, '\\,')).join(', ');
@@ -65,7 +65,7 @@ const valueToText = (value: unknown): string => {
 
 /** Parse edited text back to a condition value: lists split on unescaped commas, numbers stay
  * numbers. */
-const textToValue = (text: string, op?: string | null): unknown => {
+export const textToValue = (text: string, op?: string | null): unknown => {
   const trimmed = text.trim();
   if (LIST_OPS.includes(op ?? '')) return splitEscaped(trimmed);
   if (trimmed !== '' && !Number.isNaN(Number(trimmed))) return Number(trimmed);

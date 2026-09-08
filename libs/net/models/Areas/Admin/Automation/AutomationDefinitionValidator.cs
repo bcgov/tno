@@ -160,10 +160,10 @@ public static class AutomationDefinitionValidator
             // Analysis + confirmation-statement pairs already used, to flag accidental copies:
             // two actions sharing a marker against the same response both fire on it.
             var confirmations = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            // Every action publishes its outcome under its own name for the actions after it to
-            // gate on; dedupe adds its verdict keys to the same result.
+            // Every action publishes ran/failed/value under its own name for the actions after
+            // it to gate on; dedupe adds its verdict keys to the same result.
             var actionResults = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
-            // A disabled action never runs and so publishes nothing; a gate on its outcome is dead.
+            // A disabled action never runs and so publishes nothing; a gate on what it did is dead.
             var disabledActions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             // An iterating step runs its per-item actions once per item and its once-natured ones
             // (select-top, report.run, the set operations) after iteration, in a scope of their
@@ -224,14 +224,14 @@ public static class AutomationDefinitionValidator
 
                 // Result references from gates and value sources: an analysis on this step, or an
                 // earlier action's outcome.
-                foreach (var (refPath, reference) in AnalysisRefs(action))
+                foreach (var (refPath, reference, bare) in AnalysisRefs(action))
                 {
                     var name = ResolveRefName(reference, analyses.Keys, actionResults.Keys);
                     if (name == null)
                     {
                         var head = reference.Split('.', 2)[0];
                         if (head.Equals("content", StringComparison.OrdinalIgnoreCase)) continue;
-                        errors.Add(new($"{path}.{refPath}", $"'{head}' is neither an analysis declared on this step nor an earlier action in it. An action publishes its outcome to the actions after it as '<action name>.executed' (a yes/no gate) and '<action name>.outcome' (one of: {string.Join(", ", ActionResults.OutcomeValues)})."));
+                        errors.Add(new($"{path}.{refPath}", $"'{head}' is neither an analysis declared on this step nor an earlier action in it. An action publishes what it did to the actions after it as '<action name>.ran' and '<action name>.failed' (yes/no gates) and '<action name>.value' (what it produced, compared with an operator)."));
                         continue;
                     }
                     if (analyses.ContainsKey(name)) consumedAnalyses.Add(name);
@@ -241,11 +241,16 @@ public static class AutomationDefinitionValidator
                         // gate silently fails, so name the keys the action actually publishes.
                         var key = reference[(name.Length + 1)..];
                         if (disabledActions.Contains(name))
-                            errors.Add(new($"{path}.{refPath}", $"Action '{name}' is disabled, so it publishes no outcome: a gate on what it did never passes, and a 'did not run' gate always does.", "warning"));
+                            errors.Add(new($"{path}.{refPath}", $"Action '{name}' is disabled, so it publishes nothing: a gate on it having run or failed never passes, and a 'did not run' gate always does.", "warning"));
                         if (iterates && perItemActions.Contains(name) != descriptor.Phases.Contains(AutomationPhases.Process))
                             errors.Add(new($"{path}.{refPath}", $"Action '{name}' and this action do not run together: this step runs its per-item actions once per item and its once-per-step actions afterwards, so neither sees the other's outcome.", "warning"));
                         if (!actionResults[name].Contains(key))
                             errors.Add(new($"{path}.{refPath}", $"Action '{name}' does not publish '{key}'; it publishes: {string.Join(", ", actionResults[name].OrderBy(k => k, StringComparer.OrdinalIgnoreCase))}.", "warning"));
+                        // A gate without an operator reads its reference as yes/no. 'value' (and
+                        // a dedupe's 'matchedId') is not, so the read resolves to nothing and the
+                        // gate always fails - or, wrapped in 'not', always passes.
+                        else if (bare && !ActionResults.IsBooleanKey(key) && !key.Equals("isDuplicate", StringComparison.OrdinalIgnoreCase))
+                            errors.Add(new($"{path}.{refPath}", $"'{name}.{key}' is not a yes/no answer, so on its own this gate never passes (and always passes inside 'not'). Compare it with an operator - for example 'not equals' a value - or gate on '{name}.ran' instead.", "warning"));
                     }
                 }
                 // Objectives are recorded by score actions and consumed by select-top.
@@ -496,19 +501,23 @@ public static class AutomationDefinitionValidator
         yield return ("using", action.Using);
     }
 
-    private static IEnumerable<(string Path, string Reference)> AnalysisRefs(ActionDefinition action)
+    /// <summary>
+    /// Every result reference an action reads, with whether it is read bare - a gate without an
+    /// operator, which resolves the reference as a yes/no answer. Value sources are never bare.
+    /// </summary>
+    private static IEnumerable<(string Path, string Reference, bool Bare)> AnalysisRefs(ActionDefinition action)
     {
-        if (!string.IsNullOrWhiteSpace(action.Value?.From)) yield return ("value.from", action.Value!.From!);
+        if (!string.IsNullOrWhiteSpace(action.Value?.From)) yield return ("value.from", action.Value!.From!, false);
         foreach (var reference in ConditionRefs(action.When, "when")) yield return reference;
         if (action.Set != null)
             foreach (var (key, source) in action.Set.Where(kv => !string.IsNullOrWhiteSpace(kv.Value.From)))
-                yield return ($"set.{key}.from", source.From!);
+                yield return ($"set.{key}.from", source.From!, false);
     }
 
-    private static IEnumerable<(string Path, string Reference)> ConditionRefs(ConditionDefinition? condition, string path)
+    private static IEnumerable<(string Path, string Reference, bool Bare)> ConditionRefs(ConditionDefinition? condition, string path)
     {
         if (condition == null) yield break;
-        if (!string.IsNullOrWhiteSpace(condition.From)) yield return ($"{path}.from", condition.From!);
+        if (!string.IsNullOrWhiteSpace(condition.From)) yield return ($"{path}.from", condition.From!, string.IsNullOrWhiteSpace(condition.Op));
         if (condition.All != null)
             for (var i = 0; i < condition.All.Count; i++)
                 foreach (var reference in ConditionRefs(condition.All[i], $"{path}.all[{i}]")) yield return reference;

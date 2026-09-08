@@ -53,7 +53,7 @@ public class AutomationDefinitionValidatorTest
           ],
           "actions": [
             { "type": "content.publish", "name": "Publish Content", "when": { "from": "triage.publish" } },
-            { "type": "abort", "name": "Stop", "when": { "from": "Publish Content.outcome", "op": "equals", "value": "executed" } }
+            { "type": "abort", "name": "Stop", "when": { "not": { "from": "Publish Content.ran" } } }
           ]
         }
       ]
@@ -266,7 +266,7 @@ public class AutomationDefinitionValidatorTest
 
     /// <summary>
     /// The gating this feature exists for: a later action routes on what an earlier action in the
-    /// same step did, by comparing its published outcome.
+    /// same step did - here, stop for every item Publish Content did not publish.
     /// </summary>
     [Fact]
     public void PriorActionOutcomeGate_IsValid()
@@ -291,9 +291,28 @@ public class AutomationDefinitionValidatorTest
     public void UnknownActionResultKey_IsAWarning()
     {
         var definition = OutcomeGateDefinition();
-        definition.Steps[1].Actions[1].When!.From = "Publish Content.excuted";
+        definition.Steps[1].Actions[1].When!.Not!.From = "Publish Content.rna";
         var errors = AutomationDefinitionValidator.Validate(definition);
-        Assert.Contains(errors, e => e.Severity == "warning" && e.Message.Contains("does not publish 'excuted'"));
+        Assert.Contains(errors, e => e.Severity == "warning" && e.Message.Contains("does not publish 'rna'"));
+    }
+
+    /// <summary>
+    /// A bare reference reads as yes/no. 'value' is what the action produced, not yes/no, so on
+    /// its own the gate never passes - and inside 'not' it always does. That is the trap the
+    /// validator names.
+    /// </summary>
+    [Fact]
+    public void BareGateOnActionValue_IsAWarning()
+    {
+        var definition = OutcomeGateDefinition();
+        definition.Steps[1].Actions[1].When!.Not!.From = "Publish Content.value";
+        var errors = AutomationDefinitionValidator.Validate(definition);
+        Assert.Contains(errors, e => e.Severity == "warning" && e.Message.Contains("is not a yes/no answer"));
+
+        // Compared with an operator it is fine.
+        definition.Steps[1].Actions[1].When = new ConditionDefinition { From = "Publish Content.value", Op = "notEquals", Value = System.Text.Json.JsonSerializer.SerializeToElement("publish") };
+        errors = AutomationDefinitionValidator.Validate(definition);
+        Assert.DoesNotContain(errors, e => e.Message.Contains("is not a yes/no answer"));
     }
 
     /// <summary>A disabled action never runs, so nothing can route on its outcome.</summary>
@@ -312,7 +331,7 @@ public class AutomationDefinitionValidatorTest
     {
         var definition = OutcomeGateDefinition();
         definition.Steps[1].Actions[0].Name = null;
-        definition.Steps[1].Actions[1].When!.From = "content.publish.outcome";
+        definition.Steps[1].Actions[1].When!.Not!.From = "content.publish.ran";
         var errors = AutomationDefinitionValidator.Validate(definition);
         Assert.DoesNotContain(errors, e => e.Severity == "error");
     }

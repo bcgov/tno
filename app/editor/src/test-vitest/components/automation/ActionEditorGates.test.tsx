@@ -91,26 +91,48 @@ describe('ActionEditor prior action gates', () => {
     });
   };
 
-  it('gates on an earlier action and stores the outcome comparison', () => {
+  it('gates on an earlier action having run', () => {
     const onChange = vi.fn();
     renderEditor({ type: 'abort', isEnabled: true }, onChange);
     openSelect('sel-action-gate');
     fireEvent.click(screen.getByText('Prior action outcome'));
     expect(onChange).toHaveBeenCalledWith(
-      expect.objectContaining({
-        when: { from: 'Publish Content.outcome', op: 'equals', value: 'executed' },
-      }),
+      expect.objectContaining({ when: { from: 'Publish Content.ran' } }),
     );
   });
 
-  it('reads a stored outcome comparison back as the prior action gate', () => {
+  it('reads a negated ran gate back as did not run', () => {
     renderEditor({
       type: 'abort',
       isEnabled: true,
-      when: { from: 'Publish Content.outcome', op: 'notEquals', value: 'executed' },
+      when: { not: { from: 'Publish Content.ran' } },
     });
     expect(document.querySelector('[id="sel-action-prior"]')).not.toBeNull();
     expect(screen.getByText('did not run')).toBeInTheDocument();
+  });
+
+  it('reads a value comparison back with its operator and value', () => {
+    renderEditor({
+      type: 'abort',
+      isEnabled: true,
+      when: { from: 'Publish Content.value', op: 'notEquals', value: 'publish' },
+    });
+    expect(screen.getByText('outcome value…')).toBeInTheDocument();
+    expect(screen.getByText('not equals')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('publish')).toBeInTheDocument();
+  });
+
+  it('stores did not run as a negated ran gate', () => {
+    const onChange = vi.fn();
+    renderEditor(
+      { type: 'abort', isEnabled: true, when: { from: 'Publish Content.ran' } },
+      onChange,
+    );
+    openSelect('sel-action-prior-outcome');
+    fireEvent.click(screen.getByText('did not run'));
+    expect(onChange).toHaveBeenCalledWith(
+      expect.objectContaining({ when: { not: { from: 'Publish Content.ran' } } }),
+    );
   });
 
   it('offers no prior action gate when nothing runs before it', () => {

@@ -70,19 +70,19 @@ export const conditionOpOptions: IOptionItem[] = [
   createOption('status is', 'statusIs'),
 ];
 
-/** What an earlier action in the same step published. The gate compares '<action name>.outcome'
- * to one of these; a leading '!' negates it (compared with notEquals instead of equals). */
-export const actionOutcomeOptions: IOptionItem[] = [
-  createOption('ran', 'executed'),
-  createOption('did not run', '!executed'),
-  createOption('ran but did nothing', 'skipped'),
-  createOption('was stopped by its own condition', 'condition-failed'),
-  createOption('was not confirmed', 'not-confirmed'),
+/** What an earlier action in the same step did, as the Prior action outcome gate offers it.
+ * 'ran' and 'failed' read the action's yes/no keys, '!ran' negates 'ran', and 'value' compares
+ * what the action produced with an operator the user picks. */
+export const priorActionOptions: IOptionItem[] = [
+  createOption('ran', 'ran'),
+  createOption('did not run', '!ran'),
   createOption('failed', 'failed'),
+  createOption('outcome value…', 'value'),
 ];
 
-/** The keys every action publishes for later actions to read. */
-export const ACTION_RESULT_KEYS = ['outcome', 'executed', 'skipped', 'failed', 'blocked'];
+/** The keys every action publishes for later actions to read: ran and failed are yes/no, value
+ * is what the action produced (compare it with an operator). */
+export const ACTION_RESULT_KEYS = ['ran', 'failed', 'value'];
 
 /** Operators whose value is a list (rendered/parsed as comma-separated text). */
 export const LIST_OPS = ['in', 'notIn'];
