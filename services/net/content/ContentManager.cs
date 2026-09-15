@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Confluent.Kafka;
 using Microsoft.Extensions.Caching.Memory;
@@ -49,6 +50,20 @@ public class ContentManager : ServiceManager<ContentOptions>
         { SettingsListCacheKey, "setting" }
     };
     private const int LocalCacheExpirationMinutes = 30;
+
+    /// <summary>
+    /// How long the locally cached value for each key is served without asking the API again.
+    /// Must remain less than 'LocalCacheExpirationMinutes' so a 'NotModified' response always finds the cached value.
+    /// </summary>
+    private static readonly Dictionary<string, TimeSpan> _localCacheTimeToLive = new()
+    {
+        { SourceCodeListCacheKey, TimeSpan.FromMinutes(15) },
+        { LookupListCacheKey, TimeSpan.FromMinutes(15) },
+        { SettingsListCacheKey, TimeSpan.FromMinutes(15) },
+        { IngestServicesListCacheKey, TimeSpan.FromMinutes(5) }
+    };
+
+    private readonly ConcurrentDictionary<string, DateTime> _localCacheFreshUntil = new(StringComparer.OrdinalIgnoreCase);
 
     #endregion
 
@@ -307,6 +322,16 @@ public class ContentManager : ServiceManager<ContentOptions>
     }
 
     /// <summary>
+    /// Serialize the content so the stored version can be compared with the version built from the message.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    private static string SerializeContent(ContentModel content)
+    {
+        return JsonSerializer.Serialize(content);
+    }
+
+    /// <summary>
     /// Clean up HTML issues in the text.
     /// </summary>
     /// <param name="text"></param>
@@ -388,6 +413,36 @@ public class ContentManager : ServiceManager<ContentOptions>
     }
 
     /// <summary>
+    /// Remove the local etag cache value so the next request fetches the full payload.
+    /// </summary>
+    /// <param name="keyName"></param>
+    private void RemoveEtagLocalCache(string keyName)
+    {
+        var etagKey = GetETagKey(keyName);
+        if (!string.IsNullOrEmpty(etagKey)) _cachedEtags.TryRemove(etagKey, out _);
+    }
+
+    /// <summary>
+    /// Determine whether the locally cached value for the specified key is still within its time to live.
+    /// </summary>
+    /// <param name="keyName"></param>
+    /// <returns></returns>
+    private bool IsLocalCacheFresh(string keyName)
+    {
+        return _localCacheFreshUntil.TryGetValue(keyName, out var freshUntil) && DateTime.UtcNow < freshUntil;
+    }
+
+    /// <summary>
+    /// Restart the time to live for the specified key.
+    /// </summary>
+    /// <param name="keyName"></param>
+    private void UpdateLocalCacheFreshUntil(string keyName)
+    {
+        if (!_localCacheTimeToLive.TryGetValue(keyName, out var timeToLive)) return;
+        _localCacheFreshUntil[keyName] = DateTime.UtcNow.Add(timeToLive);
+    }
+
+    /// <summary>
     /// Get ingest service by topic.
     /// </summary>
     /// <param name="topic"></param>
@@ -431,6 +486,11 @@ public class ContentManager : ServiceManager<ContentOptions>
     {
         T? dataList;
         HttpResponseMessage? response = null;
+
+        // Within the time to live the cached value is served without asking the API, which keeps the
+        // per-message cost of importing content off both this service and the API.
+        if (IsLocalCacheFresh(keyName) && _memoryCache.TryGetValue(keyName, out dataList)) return dataList;
+
         var localEtagValue = GetEtagLocalCacheValue(keyName);
         if (!string.IsNullOrEmpty(localEtagValue) && _memoryCache.TryGetValue(keyName, out dataList))
         {
@@ -478,10 +538,19 @@ public class ContentManager : ServiceManager<ContentOptions>
             var etag = this.Api.GetResponseEtag(response);
             UpdateEtagLocalCache(keyName, etag);
             _memoryCache.Set(keyName, dataList, TimeSpan.FromMinutes(LocalCacheExpirationMinutes));
+            UpdateLocalCacheFreshUntil(keyName);
+        }
+        else if (_memoryCache.TryGetValue(keyName, out dataList))
+        {
+            // Nothing changed (or the request failed), so extend the cached value rather than fetching it again.
+            _memoryCache.Set(keyName, dataList, TimeSpan.FromMinutes(LocalCacheExpirationMinutes));
+            UpdateLocalCacheFreshUntil(keyName);
         }
         else
         {
-            _memoryCache.TryGetValue(keyName, out dataList);
+            // The etag was sent but the cached value is gone, so the next request has to fetch the full payload.
+            RemoveEtagLocalCache(keyName);
+            _localCacheFreshUntil.TryRemove(keyName, out _);
         }
         return dataList;
     }
@@ -549,6 +618,9 @@ public class ContentManager : ServiceManager<ContentOptions>
             }
 
             if (content?.SourceUrl.Length > 1000) this.Logger.LogWarning("Content.SourceUrl is greater than maximum length. UID={uid}", content.Uid);
+
+            // Capture the stored content before it is modified so an unchanged story can skip the update below.
+            var storedContent = content != null ? SerializeContent(content) : null;
 
             content ??= new ContentModel();
             content.Uid = model.Uid;
@@ -675,8 +747,16 @@ public class ContentManager : ServiceManager<ContentOptions>
             }
             else if (updateContent)
             {
-                content = await this.Api.UpdateContentAsync(content, true) ?? throw new InvalidOperationException($"Updating content failed {content.OtherSource}:{content.Uid}");
-                this.Logger.LogInformation("Content Updated.  Content ID: {id}, Pub: {published}", content.Id, content.PublishedOn);
+                // A source that republishes an unchanged story would otherwise cost a full update and re-index.
+                if (storedContent != null && storedContent == SerializeContent(content))
+                {
+                    this.Logger.LogInformation("Content is unchanged, skipping update.  Content ID: {id}, Pub: {published}", content.Id, content.PublishedOn);
+                }
+                else
+                {
+                    content = await this.Api.UpdateContentAsync(content, true) ?? throw new InvalidOperationException($"Updating content failed {content.OtherSource}:{content.Uid}");
+                    this.Logger.LogInformation("Content Updated.  Content ID: {id}, Pub: {published}", content.Id, content.PublishedOn);
+                }
             }
 
             var isUploadSuccess = true;
