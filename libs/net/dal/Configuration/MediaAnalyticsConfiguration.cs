@@ -16,7 +16,7 @@ public class MediaAnalyticsConfiguration : BaseTypeConfiguration<MediaAnalytics,
         builder.Property(m => m.TotalViews);
         builder.Property(m => m.AverageViews);
         builder.Property(m => m.MaleViewers);
-        
+
         builder.Property(m => m.AgeGroup1);
         builder.Property(m => m.AgeGroup1Label).HasMaxLength(250);
         builder.Property(m => m.AgeGroup2);
@@ -43,12 +43,12 @@ public class MediaAnalyticsConfiguration : BaseTypeConfiguration<MediaAnalytics,
         builder.Property(m => m.WatchTime3Label).HasMaxLength(250);
         builder.Property(m => m.WatchTime4);
         builder.Property(m => m.WatchTime4Label).HasMaxLength(250);
-        
+
         builder.HasOne(m => m.Source).WithMany().HasForeignKey(m => m.SourceId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(m => m.MediaType).WithMany().HasForeignKey(m => m.MediaTypeId).OnDelete(DeleteBehavior.Cascade);
         builder.HasIndex(m => new { m.PublishedOn, m.SourceId, m.MediaTypeId })
            .IsUnique();
-                
+
         base.Configure(builder);
     }
 }

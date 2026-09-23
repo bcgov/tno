@@ -310,29 +310,49 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// <exception cref="NoContentException"></exception>
     public override Report Update(Report entity)
     {
+        return Update(entity, true);
+    }
+
+    /// <summary>
+    /// Update the report in the database.
+    /// When 'updateSubscribers' is true, subscribers absent from 'entity' are unsubscribed (IsSubscribed = false).
+    /// A subscription row is never deleted by this method, so a client holding a stale subscriber list cannot remove
+    /// subscriptions that were added elsewhere.
+    /// When 'updateSubscribers' is false, subscribers in 'entity' are ignored entirely.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="updateSubscribers"></param>
+    /// <returns></returns>
+    /// <exception cref="NoContentException"></exception>
+    public Report Update(Report entity, bool updateSubscribers)
+    {
         var original = FindById(entity.Id) ?? throw new NoContentException("Entity does not exist");
 
-        // Add/Update/Delete report subscribers.
-        var originalSubscribers = original.SubscribersManyToMany.ToArray();
-        originalSubscribers.Except(entity.SubscribersManyToMany).ForEach(s =>
+        if (updateSubscribers)
         {
-            this.Context.Entry(s).State = EntityState.Deleted;
-        });
-        entity.SubscribersManyToMany.ForEach(s =>
-        {
-            var originalSubscriber = originalSubscribers.FirstOrDefault(rs => rs.UserId == s.UserId);
-            if (originalSubscriber == null)
-                original.SubscribersManyToMany.Add(s);
-            else
+            // Add/Update report subscribers.  Never delete a subscription, unsubscribe instead.
+            var originalSubscribers = original.SubscribersManyToMany.ToArray();
+            originalSubscribers.Except(entity.SubscribersManyToMany).ForEach(s =>
             {
-                if (originalSubscriber.IsSubscribed != s.IsSubscribed)
-                    originalSubscriber.IsSubscribed = s.IsSubscribed;
-                if (originalSubscriber.Format != s.Format)
-                    originalSubscriber.Format = s.Format;
-                if (originalSubscriber.SendTo != s.SendTo)
-                    originalSubscriber.SendTo = s.SendTo;
-            }
-        });
+                if (s.IsSubscribed)
+                    s.IsSubscribed = false;
+            });
+            entity.SubscribersManyToMany.ForEach(s =>
+            {
+                var originalSubscriber = originalSubscribers.FirstOrDefault(rs => rs.UserId == s.UserId);
+                if (originalSubscriber == null)
+                    original.SubscribersManyToMany.Add(new UserReport(s.UserId, original.Id, s.IsSubscribed, s.Format, s.SendTo));
+                else
+                {
+                    if (originalSubscriber.IsSubscribed != s.IsSubscribed)
+                        originalSubscriber.IsSubscribed = s.IsSubscribed;
+                    if (originalSubscriber.Format != s.Format)
+                        originalSubscriber.Format = s.Format;
+                    if (originalSubscriber.SendTo != s.SendTo)
+                        originalSubscriber.SendTo = s.SendTo;
+                }
+            });
+        }
 
         var originalEvents = original.Events.ToArray();
         originalEvents.Except(entity.Events).ForEach(reportEvent =>
@@ -490,6 +510,46 @@ public class ReportService : BaseService<Report, int>, IReportService
         this.Context.ResetVersion(original);
 
         return base.Update(original);
+    }
+
+    /// <summary>
+    /// Add or update only the specified 'subscribers' of the report and save to the database.
+    /// Subscriptions not included in 'subscribers' are left untouched, which makes this safe to call with a partial list.
+    /// Subscriptions are never deleted; unsubscribing sets 'IsSubscribed' to false.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="subscribers"></param>
+    /// <returns></returns>
+    /// <exception cref="NoContentException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
+    public Report UpdateSubscribersAndSave(int reportId, IEnumerable<UserReport> subscribers)
+    {
+        var original = FindById(reportId) ?? throw new NoContentException("Entity does not exist");
+        var changes = subscribers.GroupBy(s => s.UserId).Select(g => g.Last()).ToArray();
+
+        var userIds = changes.Select(s => s.UserId).ToArray();
+        var existingUserIds = this.Context.Users.Where(u => userIds.Contains(u.Id)).Select(u => u.Id).ToArray();
+        var missingUserIds = userIds.Except(existingUserIds).ToArray();
+        if (missingUserIds.Length > 0) throw new InvalidOperationException($"User does not exist: {String.Join(", ", missingUserIds)}");
+
+        changes.ForEach(s =>
+        {
+            var originalSubscriber = original.SubscribersManyToMany.FirstOrDefault(rs => rs.UserId == s.UserId);
+            if (originalSubscriber == null)
+                original.SubscribersManyToMany.Add(new UserReport(s.UserId, original.Id, s.IsSubscribed, s.Format, s.SendTo));
+            else
+            {
+                if (originalSubscriber.IsSubscribed != s.IsSubscribed)
+                    originalSubscriber.IsSubscribed = s.IsSubscribed;
+                if (originalSubscriber.Format != s.Format)
+                    originalSubscriber.Format = s.Format;
+                if (originalSubscriber.SendTo != s.SendTo)
+                    originalSubscriber.SendTo = s.SendTo;
+            }
+        });
+
+        this.CommitTransaction();
+        return FindById(reportId)!;
     }
 
     /// <summary>

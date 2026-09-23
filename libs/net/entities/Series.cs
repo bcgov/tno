@@ -94,7 +94,7 @@ public class Series : BaseType<int>
     {
         this.SourceId = sourceId;
     }
-    
+
     /// <summary>
     /// Creates a new instance of a Series object, initializes with specified parameters.
     /// </summary>

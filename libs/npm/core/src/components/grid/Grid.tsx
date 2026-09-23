@@ -1,11 +1,11 @@
 import React from 'react';
 
+import { Loading } from '../loading/Loading';
+import { Show } from '../show/Show';
 import { SortDirection } from './constants';
 import { GridPager } from './GridPager';
 import { SortAction } from './SortAction';
 import * as styled from './styled';
-import { Show } from '../show/Show';
-import { Loading } from '../loading/Loading';
 
 export interface IGridHeaderColumnProps {
   name?: string;
@@ -98,7 +98,7 @@ export const Grid = <T,>({
         </div>
         <div className="grid-table">
           <Show visible={isLoading}>
-              <Loading className="grid-loading"/>
+            <Loading className="grid-loading" />
           </Show>
           {items?.map((item, rowIndex) =>
             renderColumns(item, rowIndex).map((column, columnIndex) => {

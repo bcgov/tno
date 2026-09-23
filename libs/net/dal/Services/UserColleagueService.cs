@@ -53,8 +53,8 @@ public class UserColleagueService : BaseService<UserColleague, int>, IUserCollea
         var userColleague = FindColleagueByKey(userId, colleagueId);
         if (userColleague != null)
         {
-          base.DeleteAndSave(userColleague);
-          return userColleague;
+            base.DeleteAndSave(userColleague);
+            return userColleague;
         }
         return null;
     }

@@ -7,16 +7,16 @@ namespace TNO.Entities;
 ///MediaAnalytics class, provides a DB model to manage an evening overview instance section.
 /// </summary>
 [Table("media_analytics")]
-public class MediaAnalytics:BaseType<int>
+public class MediaAnalytics : BaseType<int>
 {
     #region Properties
     /// <summary>
     /// get/set - Primary key.
     /// </summary>
     [Key]
-   
+
     [Column("published_on")]
-    public DateTime PublishedOn  { get; set; }
+    public DateTime PublishedOn { get; set; }
 
     /// <summary>
     /// get/set - The source of the story.
@@ -27,9 +27,9 @@ public class MediaAnalytics:BaseType<int>
     /// get/set - The foreign key to the content.
     /// </summary>
     [Column("source_id")]
-    public int SourceId  { get; set; }
+    public int SourceId { get; set; }
 
-     /// <summary>
+    /// <summary>
     /// get/set - The media type this content will be placed in.
     /// </summary>
     public virtual MediaType? MediaType { get; set; }
@@ -38,13 +38,13 @@ public class MediaAnalytics:BaseType<int>
     /// get/set - The foreign key to the content.
     /// </summary>
     [Column("media_type_id")]
-    public int MediaTypeId  { get; set; }
+    public int MediaTypeId { get; set; }
 
     /// <summary>
     /// get/set - get the unique total count.
     /// </summary>
     [Column("unique_views")]
-    public int UniqueViews  { get; set; }
+    public int UniqueViews { get; set; }
 
     /// <summary>
     /// get/set - get the total count.
@@ -76,7 +76,7 @@ public class MediaAnalytics:BaseType<int>
     [Column("age_group1_label")]
     public string AgeGroup1Label { get; set; } = "";
 
-     /// <summary>
+    /// <summary>
     /// get/set - get the total percentage of agegroup2.
     /// </summary>
     [Column("age_group2")]
@@ -124,7 +124,7 @@ public class MediaAnalytics:BaseType<int>
     [Column("page_views1_label")]
     public string PageViews1Label { get; set; } = "";
 
-     /// <summary>
+    /// <summary>
     /// get/set - get the total percentage of pageview2.
     /// </summary>
     [Column("page_views2")]
@@ -136,7 +136,7 @@ public class MediaAnalytics:BaseType<int>
     [Column("page_views2_label")]
     public string Page_Views2_Label { get; set; } = "";
 
-     /// <summary>
+    /// <summary>
     /// get/set - get the total percentage of pageview3.
     /// </summary>
     [Column("page_views3")]
@@ -196,7 +196,7 @@ public class MediaAnalytics:BaseType<int>
     [Column("watch_time3_label")]
     public string WatchTime3Label { get; set; } = "";
 
-     /// <summary>
+    /// <summary>
     /// get/set - get the total percentage of WatchTime4.
     /// </summary>
     [Column("watch_time4")]
@@ -208,7 +208,7 @@ public class MediaAnalytics:BaseType<int>
     [Column("watch_time4_label")]
     public string WatchTime4Label { get; set; } = "";
 
-    
+
 
 }
 #endregion

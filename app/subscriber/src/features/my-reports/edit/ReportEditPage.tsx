@@ -32,7 +32,10 @@ export const ReportEditPage = () => {
   const [{ userInfo }] = useApp();
   const { id, path1, path2 } = useParams();
   const [{ myReports }, { storeReportOutput }] = useProfileStore();
-  const [, { generateReport, getReport, addReport, updateReport, findMyReports }] = useReports();
+  const [
+    ,
+    { generateReport, getReport, addReport, updateReport, updateReportSubscribers, findMyReports },
+  ] = useReports();
   const [{ getReportInstance }] = useReportInstances();
   const hub = useApiHub();
   const navigate = useNavigate();
@@ -229,7 +232,23 @@ export const ReportEditPage = () => {
               content: sortContent(sanitizedValues.instances[0].content, true),
             };
           }
-          const report = originalId
+          if (originalId) {
+            // Only save subscribers that were actually changed on the subscribers form.
+            // Subscriptions absent from this list are left untouched by the API.
+            const changedSubscribers = sanitizedValues.subscribers.filter((subscriber) => {
+              const original = report.subscribers.find((s) => s.userId === subscriber.userId);
+              return (
+                !original ||
+                original.isSubscribed !== subscriber.isSubscribed ||
+                original.format !== subscriber.format ||
+                original.sendTo !== subscriber.sendTo
+              );
+            });
+            if (changedSubscribers.length)
+              await updateReportSubscribers(originalId, changedSubscribers);
+          }
+
+          const result = originalId
             ? await updateReport(
                 sanitizedValues,
                 instance &&
@@ -257,13 +276,13 @@ export const ReportEditPage = () => {
           storeReportOutput(undefined); // Clear the preview
 
           if (!originalId) {
-            navigate(`/reports/${report.id}${path1 ? `/${path1}` : ''}${path2 ? `/${path2}` : ''}`);
-            toast.success(`Successfully created '${report.name}'.`);
+            navigate(`/reports/${result.id}${path1 ? `/${path1}` : ''}${path2 ? `/${path2}` : ''}`);
+            toast.success(`Successfully created '${result.name}'.`);
           } else {
             setReport(
               toForm({
-                ...report,
-                sections: report.sections.map((section, index) => {
+                ...result,
+                sections: result.sections.map((section, index) => {
                   const originalSection =
                     originalReportSections.length > index
                       ? originalReportSections[index]
@@ -272,7 +291,7 @@ export const ReportEditPage = () => {
                 }),
               }),
             );
-            toast.success(`Successfully updated '${report.name}'.`);
+            toast.success(`Successfully updated '${result.name}'.`);
           }
         }
       } catch (ex) {
@@ -286,8 +305,10 @@ export const ReportEditPage = () => {
       navigate,
       path1,
       path2,
+      report.subscribers,
       storeReportOutput,
       updateReport,
+      updateReportSubscribers,
       userInfo?.id,
     ],
   );

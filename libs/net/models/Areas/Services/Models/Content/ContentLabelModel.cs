@@ -38,10 +38,11 @@ public class ContentLabelModel : AuditColumnsModel
     /// <summary>
     /// Creates a new instance of an ContentLabelModel.
     /// </summary>
-    public ContentLabelModel(string key, string value) {
+    public ContentLabelModel(string key, string value)
+    {
         Key = key;
         Value = value;
-     }
+    }
 
     /// <summary>
     /// Creates a new instance of an ContentLabelModel, initializes with specified parameter.

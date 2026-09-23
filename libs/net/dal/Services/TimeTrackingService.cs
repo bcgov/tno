@@ -27,27 +27,27 @@ public class TimeTrackingService : BaseService<TimeTracking, object[]>, ITimeTra
             .Include(tt => tt.User)
             .Where(tt => tt.CreatedOn >= from && tt.CreatedOn <= to);
     }
-    
+
     public IEnumerable<CBRAReportTotalExcerpts> GetTotalExcerpts(DateTime from, DateTime to)
     {
         return this.Context.GetCbraReportTotalExcerpts(DateOnly.FromDateTime(from), DateOnly.FromDateTime(to)).ToArray();
     }
-    
+
     public IEnumerable<CBRAReportStaffSummary> GetStaffSummary(DateTime from, DateTime to)
     {
         return this.Context.GetCbraReportStaffSummary(DateOnly.FromDateTime(from), DateOnly.FromDateTime(to)).ToArray();
-    }    
-    
+    }
+
     public IEnumerable<CBRAReportTotalsByProgram> GetTotalsByProgram(DateTime from, DateTime to)
     {
         return this.Context.GetCbraReportTotalsByProgram(DateOnly.FromDateTime(from), DateOnly.FromDateTime(to)).ToArray();
-    } 
-    
+    }
+
     public IEnumerable<CBRAReportTotalsByBroadcaster> GetTotalsByBroadcaster(DateTime from, DateTime to)
     {
         return this.Context.GetCbraReportTotalsByBroadcaster(DateOnly.FromDateTime(from), DateOnly.FromDateTime(to)).ToArray();
     }
-    
+
     public IEnumerable<CBRAReportTotalEntries> GetTotalEntries(DateTime from, DateTime to)
     {
         return this.Context.GetCbraReportTotalEntries(DateOnly.FromDateTime(from), DateOnly.FromDateTime(to)).ToArray();

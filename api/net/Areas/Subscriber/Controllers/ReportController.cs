@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
+using TNO.API.Areas.Helpers;
 using TNO.API.Areas.Subscriber.Models.Report;
 using TNO.API.Config;
 using TNO.API.Helpers;
@@ -54,6 +55,7 @@ public class ReportController : ControllerBase
     private readonly ISettingService _settingService;
     private readonly ChesOptions _chesOptions;
     private readonly IChesService _ches;
+    private readonly WatchSubscriptionChange _watch;
     #endregion
 
     #region Constructors
@@ -89,7 +91,8 @@ public class ReportController : ControllerBase
         ILogger<ReportController> logger,
         ISettingService settingService,
         IOptions<ChesOptions> chesOptions,
-        IChesService ches
+        IChesService ches,
+        WatchSubscriptionChange watch
         )
     {
         _reportService = reportService;
@@ -106,7 +109,7 @@ public class ReportController : ControllerBase
         _settingService = settingService;
         _chesOptions = chesOptions.Value;
         _ches = ches;
-
+        _watch = watch;
     }
     #endregion
 
@@ -266,6 +269,7 @@ public class ReportController : ControllerBase
 
     /// <summary>
     /// Update report for the specified 'id'.
+    /// Subscribers submitted with the report are ignored; use the subscribers endpoint to change them.
     /// </summary>
     /// <param name="model"></param>
     /// <param name="updateInstances"></param>
@@ -280,7 +284,9 @@ public class ReportController : ControllerBase
         var user = _impersonate.GetCurrentUser();
         var result = _reportService.FindById(model.Id) ?? throw new NoContentException("Report does not exist");
         if (result?.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to update this report");
-        result = _reportService.Update(model.ToEntity(_serializerOptions));
+        // The report form is often saved with a stale snapshot of subscribers (i.e. content edits).
+        // Subscribers are only changed through the dedicated subscribers endpoint.
+        result = _reportService.Update(model.ToEntity(_serializerOptions), false);
         var instanceModel = model.Instances.FirstOrDefault();
         Entities.ReportInstance? instance = null;
         if (updateInstances && instanceModel != null)
@@ -310,6 +316,34 @@ public class ReportController : ControllerBase
                     await _kafkaProducer.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content.Content) })));
             }
         }
+        return new JsonResult(new ReportModel(report, _serializerOptions));
+    }
+
+    /// <summary>
+    /// Add or update the specified 'subscribers' of the report for the specified 'id'.
+    /// Only the submitted subscribers are changed; any subscription not included is left untouched.
+    /// A subscription is never deleted, submit 'isSubscribed=false' to unsubscribe a user.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="subscribers"></param>
+    /// <returns></returns>
+    [HttpPut("{id}/subscribers")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public async Task<IActionResult> UpdateSubscribersAsync(int id, [FromBody] UserReportModel[] subscribers)
+    {
+        var user = _impersonate.GetCurrentUser();
+        var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
+        if (report.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to update this report");
+
+        var changes = subscribers.Select(s => new UserReport(s.UserId, id, s.IsSubscribed, s.Format, s.SendTo)).ToArray();
+        var watched = new Entities.Report(report.Id, report.Name, report.TemplateId, report.OwnerId);
+        watched.SubscribersManyToMany.AddRange(changes);
+        await _watch.AlertReportSubscriptionChangedAsync(watched, user, "API Subscriber Report Controller Update Subscribers endpoint.", missingIsRemoved: false);
+
+        report = _reportService.UpdateSubscribersAndSave(id, changes);
         return new JsonResult(new ReportModel(report, _serializerOptions));
     }
 

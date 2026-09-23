@@ -44,6 +44,28 @@ public interface IReportService : IBaseService<Report, int>
     Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentWithElasticsearchAsync(ReportInstance reportInstance, ReportSection section, int? requestorId);
 
     /// <summary>
+    /// Update the report in the context.
+    /// When 'updateSubscribers' is false the submitted subscribers are ignored and existing subscriptions are left untouched.
+    /// When true, subscribers absent from the submitted list are unsubscribed (never deleted).
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="updateSubscribers"></param>
+    /// <returns></returns>
+    Report Update(Report entity, bool updateSubscribers);
+
+    /// <summary>
+    /// Add or update only the specified 'subscribers' of the report and save to the database.
+    /// Subscriptions not included in 'subscribers' are left untouched.
+    /// Subscriptions are never deleted; unsubscribing sets 'IsSubscribed' to false.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="subscribers"></param>
+    /// <returns></returns>
+    /// <exception cref="NoContentException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
+    Report UpdateSubscribersAndSave(int reportId, IEnumerable<UserReport> subscribers);
+
+    /// <summary>
     /// Get reports based on the filter for the dashboard.
     /// </summary>
     /// <param name="filter"></param>

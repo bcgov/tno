@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaX } from 'react-icons/fa6';
+
 import { IStateProps, IWysiwygProps, Wysiwyg } from './Wysiwyg';
 
 interface IExpandWysiwygProps extends IWysiwygProps {

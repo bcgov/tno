@@ -22,7 +22,7 @@ namespace TNO.DAL.Migrations
                 table: "ingest_service");
 
             migrationBuilder.RenameTable(
-                name:"ingest_service",
+                name: "ingest_service",
                 newName: "ingest_state");
 
             migrationBuilder.AddColumn<string>(
@@ -65,7 +65,7 @@ namespace TNO.DAL.Migrations
                 table: "ingest_state");
 
             migrationBuilder.RenameTable(
-                name:"ingest_state",
+                name: "ingest_state",
                 newName: "ingest_service");
 
             migrationBuilder.AddPrimaryKey(
