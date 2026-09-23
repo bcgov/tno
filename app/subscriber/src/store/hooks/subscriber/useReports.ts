@@ -14,7 +14,6 @@ import {
 } from 'tno-core';
 
 import { IReportContentMutationModel } from './interfaces/IReportContentMutationModel';
-import { useApiSubscriberReportSubscribers } from './useApiSubscriberReportSubscribers';
 import { mergeReportWithContentMutation } from './utils/reportContentMutationHelpers';
 
 interface IReportController {
@@ -41,7 +40,6 @@ interface IReportController {
 
 export const useReports = (): [IProfileState, IReportController] => {
   const api = useApiSubscriberReports();
-  const subscribersApi = useApiSubscriberReportSubscribers();
   const dispatch = useAjaxWrapper();
   const [state, { storeMyReports, storeReportContent }] = useProfileStore();
 
@@ -167,7 +165,7 @@ export const useReports = (): [IProfileState, IReportController] => {
       },
       updateReportSubscribers: async (id: number, subscribers: IUserReportModel[]) => {
         const response = await dispatch<IReportModel>('update-report-subscribers', () =>
-          subscribersApi.updateReportSubscribers(id, subscribers),
+          api.updateReportSubscribers(id, subscribers),
         );
         if (response.status === 200 && response.data) {
           storeMyReports((reports) =>
@@ -283,7 +281,7 @@ export const useReports = (): [IProfileState, IReportController] => {
         return response.data;
       },
     }),
-    [api, subscribersApi, dispatch, storeMyReports, storeReportContent],
+    [api, dispatch, storeMyReports, storeReportContent],
   );
 
   return [state, controller];
