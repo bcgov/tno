@@ -57,7 +57,7 @@ public class ContributorModel : AuditColumnsModel
     /// get/set - Whether the contributor is associated with the press gallery.
     /// </summary>
     public bool IsPress { get; set; }
-    
+
     #endregion
 
     #region Constructors

@@ -175,7 +175,7 @@ public class UserModel : AuditColumnsModel
         this.Organizations = entity.OrganizationsManyToMany.Where(o => o.Organization != null).Select(o => new OrganizationModel(o.Organization!));
         if (entity.Organizations.Any())
             this.Organizations = entity.Organizations.Select(o => new OrganizationModel(o));
-        this.Reports = entity.ReportSubscriptionsManyToMany.Where(r => r.Report != null).Select(r => new ReportModel(r.Report!));
+        this.Reports = entity.ReportSubscriptionsManyToMany.Where(r => r.Report != null && r.IsSubscribed).Select(r => new ReportModel(r.Report!));
         if (entity.Reports.Any())
             this.Reports = entity.Reports.Select(r => new ReportModel(r));
         this.Folders = entity.Folders.Select(f => new FolderModel(f, serializerOptions ?? JsonSerializerOptions.Default));

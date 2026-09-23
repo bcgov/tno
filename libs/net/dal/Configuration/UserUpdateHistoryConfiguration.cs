@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TNO.Entities;
 
 namespace TNO.DAL.Configuration;
+
 public class UserUpdateHistoryConfiguration : AuditColumnsConfiguration<UserUpdateHistory>
 {
     public override void Configure(EntityTypeBuilder<UserUpdateHistory> builder)

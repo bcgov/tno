@@ -299,7 +299,7 @@ public class TopicScoreRule : AuditColumns, IEquatable<TopicScoreRule>
     {
         if (ReferenceEquals(other, null))
             return false;
- 
+
         if (ReferenceEquals(this, other))
             return true;
 

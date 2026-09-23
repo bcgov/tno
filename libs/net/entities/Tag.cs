@@ -16,7 +16,7 @@ public class Tag : BaseType<int>
     /// </summary>
     [Column("code")]
     public string Code { get; set; }
-    
+
     /// <summary>
     /// get - List of content with this tag.
     /// </summary>
@@ -29,7 +29,8 @@ public class Tag : BaseType<int>
     #endregion
 
     #region Constructors
-    protected Tag(string code) { 
+    protected Tag(string code)
+    {
         this.Code = code;
     }
 

@@ -276,10 +276,13 @@ public class UserService : BaseService<User, int>, IUserService
         });
 
         // update ReportSubscriptionsManyToMany
+        // A subscription is never deleted.  A report absent from the submitted list is unsubscribed instead,
+        // and a report present in the list is (re)subscribed.
         var originalReports = this.Context.UserReports.Where(umt => umt.UserId == entity.Id).ToArray();
         originalReports.Except(entity.ReportSubscriptionsManyToMany).ForEach((org) =>
         {
-            this.Context.Entry(org).State = EntityState.Deleted;
+            if (org.IsSubscribed)
+                org.IsSubscribed = false;
         });
         entity.ReportSubscriptionsManyToMany.ForEach((org) =>
         {
@@ -288,6 +291,10 @@ public class UserService : BaseService<User, int>, IUserService
             {
                 org.UserId = original.Id;
                 this.Context.Entry(org).State = EntityState.Added;
+            }
+            else if (!originalReport.IsSubscribed)
+            {
+                originalReport.IsSubscribed = true;
             }
         });
 

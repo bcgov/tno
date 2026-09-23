@@ -9,7 +9,7 @@ using TNO.Models.Filters;
 
 namespace TNO.DAL.Services;
 
-public class MediaAnalyticsService : BaseService<MediaAnalytics, int>,IMediaAnalyticsService
+public class MediaAnalyticsService : BaseService<MediaAnalytics, int>, IMediaAnalyticsService
 {
     #region Properties
     #endregion
@@ -30,7 +30,7 @@ public class MediaAnalyticsService : BaseService<MediaAnalytics, int>,IMediaAnal
         var query = this.Context.MediaAnalyticsInfo
             .Include(c => c.MediaTypeId)
             .Include(c => c.SourceId)
-            
+
             .AsQueryable();
 
         var predicate = PredicateBuilder.New<MediaAnalytics>(true);
@@ -39,7 +39,7 @@ public class MediaAnalyticsService : BaseService<MediaAnalytics, int>,IMediaAnal
             query = query.Where(c => c.MediaTypeId == filter.MediaTypeId);
         if (filter.SourceId.HasValue)
             query = query.Where(c => c.SourceId == filter.SourceId);
-       
+
 
         query = query.Where(predicate);
         var total = query.Count();

@@ -5,7 +5,8 @@ using TNO.Entities;
 
 namespace TNO.DAL.Services;
 
-public class QuoteService : BaseService<Quote, long>, IQuoteService {
+public class QuoteService : BaseService<Quote, long>, IQuoteService
+{
 
     #region Constructors
     public QuoteService(
@@ -32,7 +33,7 @@ public class QuoteService : BaseService<Quote, long>, IQuoteService {
             this.Context.Update(quote);
 
         if (commitTransaction) this.Context.CommitTransaction();
-        
+
         return quote;
     }
 
@@ -45,12 +46,13 @@ public class QuoteService : BaseService<Quote, long>, IQuoteService {
     public IEnumerable<Quote> Attach(IEnumerable<Quote> quotes)
     {
         List<Quote> returnVal = new List<Quote>();
-        foreach(var quote in quotes) {
+        foreach (var quote in quotes)
+        {
             returnVal.Add(Attach(quote, false));
         }
 
         this.Context.CommitTransaction();
-        
+
         return returnVal;
     }
 

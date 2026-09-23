@@ -4,7 +4,7 @@ namespace TNO.DAL.Extensions;
 
 public static class TonePoolExtensions
 {
-    
+
     /// <summary>
     /// Update the context entity state so that it and related entities are added to the database.
     /// </summary>

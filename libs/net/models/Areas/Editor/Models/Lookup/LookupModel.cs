@@ -92,7 +92,7 @@ public class LookupModel
     /// get/set - An array of holidays for the current year.
     /// </summary>
     public IEnumerable<HolidayModel> Holidays { get; set; } = Array.Empty<HolidayModel>();
-    
+
     /// <summary>
     /// get/set - An array of all organizations.
     /// </summary>

@@ -149,7 +149,7 @@ public class S3StorageService : IS3StorageService
             return null;
         }
     }
-    
+
     /// <summary>
     /// Test the network connection to S3.
     /// </summary>

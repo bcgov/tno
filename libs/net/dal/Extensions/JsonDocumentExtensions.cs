@@ -102,7 +102,7 @@ public static class JsonDocumentExtensions
             }
             else
             {
-                
+
                 json.Add("query", JsonNode.Parse($"{{ \"bool\": {{ \"must\": [ {jShouldQuery.ToJsonString()} ] }}}}"));
             }
         }

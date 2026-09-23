@@ -54,7 +54,7 @@ public class UserModel
     /// <summary>
     /// get/set - Account type
     /// </summary>
-    public Entities.UserAccountType AccountType {get; set;}
+    public Entities.UserAccountType AccountType { get; set; }
     #endregion
 
     #region Constructors

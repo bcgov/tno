@@ -49,6 +49,11 @@ export const ReportEditSubscribersForm = () => {
   const sendToOptions = getEnumStringOptions(EmailSendToName, { splitOnCapital: false });
   const [selectedSubscribers, setSelectedSubscribers] = React.useState<number[]>([]);
   const [, { RequestToSubscribe, RequestToUnsubscribe }] = useReports();
+  // Unsubscribed rows are kept in the form so an unsubscribe is saved explicitly, but they are not shown.
+  const activeSubscribers = React.useMemo(
+    () => values.subscribers.filter((s) => s.isSubscribed),
+    [values.subscribers],
+  );
   const fetchUsersByEmail = async (email: string): Promise<IUserModel[]> => {
     try {
       const response = await findUsers({ email });
@@ -63,6 +68,10 @@ export const ReportEditSubscribersForm = () => {
     async (email: string) => {
       const users = await fetchUsersByEmail(email);
       if (users.length) {
+        // A user who was previously unsubscribed is resubscribed rather than duplicated.
+        const existing = values.subscribers.map((s) =>
+          users.some((user) => user.id === s.userId) ? { ...s, isSubscribed: true } : s,
+        );
         const subscribers = users
           .filter((user) => !values.subscribers.some((s) => s.userId === user.id))
           .map((user) => ({
@@ -74,7 +83,7 @@ export const ReportEditSubscribersForm = () => {
             sendTo: EmailSendToName.To,
             version: 0,
           }));
-        setFieldValue('subscribers', [...values.subscribers, ...subscribers]);
+        setFieldValue('subscribers', [...existing, ...subscribers]);
       } else {
         toast.warning(`No users found for the specified email "${email}".`);
       }
@@ -92,7 +101,7 @@ export const ReportEditSubscribersForm = () => {
       }
       if (users.length) {
         const user = users[0];
-        const isSubscribed = values.subscribers.some((s) => s.userId === user.id);
+        const isSubscribed = values.subscribers.some((s) => s.userId === user.id && s.isSubscribed);
 
         setModalContent({
           headerText: isSubscribed ? 'Confirm Unsubscribe' : 'Confirm Subscribe',
@@ -135,15 +144,15 @@ export const ReportEditSubscribersForm = () => {
     );
   };
   const handleSelectAllSubscribers = () => {
-    if (selectedSubscribers.length === values.subscribers.length) {
+    if (selectedSubscribers.length === activeSubscribers.length) {
       setSelectedSubscribers([]);
     } else {
-      setSelectedSubscribers(values.subscribers.map((subscriber) => subscriber.userId));
+      setSelectedSubscribers(activeSubscribers.map((subscriber) => subscriber.userId));
     }
   };
 
   const handleCopySelected = async () => {
-    const selectedSubscribersData = values.subscribers.filter((subscriber) =>
+    const selectedSubscribersData = activeSubscribers.filter((subscriber) =>
       selectedSubscribers.includes(subscriber.userId),
     );
 
@@ -276,9 +285,7 @@ export const ReportEditSubscribersForm = () => {
               <div className="subscriber-title">Current Subscribers</div>
               <div className="report-exporter-container">
                 <div
-                  className={`subscriber-exporter ${
-                    values?.subscribers?.length === 0 ? 'empty' : ''
-                  }`}
+                  className={`subscriber-exporter ${activeSubscribers.length === 0 ? 'empty' : ''}`}
                 >
                   <ReportSubscriberExporter />
                 </div>
@@ -296,7 +303,7 @@ export const ReportEditSubscribersForm = () => {
             )}
 
             <Grid
-              items={values.subscribers.filter((s) => s.isSubscribed)}
+              items={activeSubscribers}
               renderHeader={() => {
                 return [
                   {
@@ -304,8 +311,8 @@ export const ReportEditSubscribersForm = () => {
                     label: (
                       <Checkbox
                         checked={
-                          selectedSubscribers.length === values.subscribers.length &&
-                          values.subscribers.length > 0
+                          selectedSubscribers.length === activeSubscribers.length &&
+                          activeSubscribers.length > 0
                         }
                         onChange={handleSelectAllSubscribers}
                       />
@@ -378,9 +385,12 @@ export const ReportEditSubscribersForm = () => {
                     <Action
                       icon={<FaTrash />}
                       onClick={() =>
+                        // Unsubscribe rather than remove, so the change is saved explicitly.
                         setFieldValue(
                           'subscribers',
-                          values.subscribers.filter((s) => s.userId !== row.userId),
+                          values.subscribers.map((s) =>
+                            s.userId === row.userId ? { ...s, isSubscribed: false } : s,
+                          ),
                         )
                       }
                     />

@@ -90,7 +90,7 @@ public class Source : BaseType<int>
     /// </summary>
     [Column("configuration")]
     public JsonDocument Configuration { get; set; } = JsonDocument.Parse("{}");
-    
+
     /// <summary>
     /// get/set - is CBRA source or not.
     /// </summary>

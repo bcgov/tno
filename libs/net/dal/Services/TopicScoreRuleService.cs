@@ -26,10 +26,12 @@ public class TopicScoreRuleService : BaseService<TopicScoreRule, int>, ITopicSco
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    public override TopicScoreRule Update(TopicScoreRule entity) {
+    public override TopicScoreRule Update(TopicScoreRule entity)
+    {
         var original = FindById(entity.Id) ?? throw new NoContentException("Entity does not exist");
 
-        if (!original.Equals(entity)) {
+        if (!original.Equals(entity))
+        {
             logger.LogDebug($"Entity {entity.Id} unchanged, no need to update.");
             return base.Update(entity);
         }

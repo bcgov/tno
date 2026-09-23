@@ -10,7 +10,7 @@ public class MediaAnalyticsFilter : PageFilter
     /// </summary>
     public int? SourceId { get; set; }
     public int? MediaTypeId { get; set; }
-    
+
     #endregion
 
     #region Constructors
@@ -21,10 +21,10 @@ public class MediaAnalyticsFilter : PageFilter
         var filter = new Dictionary<string, StringValues>(queryParams, StringComparer.OrdinalIgnoreCase);
 
         this.SourceId = filter.GetIntNullValue(nameof(this.SourceId));
-        
+
         this.MediaTypeId = filter.GetIntNullValue(nameof(this.MediaTypeId));
-       
-        
+
+
     }
     #endregion
 }

@@ -31,8 +31,8 @@ public class QuoteModel : AuditColumnsModel
     /// <summary>
     /// get/set - Is this a relevant quote, one that adds value to content.
     /// </summary>
-    public bool IsRelevant  { get; set; } = true;
-    
+    public bool IsRelevant { get; set; } = true;
+
     #endregion
 
     #region Constructors

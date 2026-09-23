@@ -90,7 +90,7 @@ public class AggregationsConverter : JsonConverter<Dictionary<string, Aggregatio
 
     private static AggregationSumModel ParseAggregationSumModel(ref Utf8JsonReader reader)
     {
-        var dto = new AggregationSumModel {  };
+        var dto = new AggregationSumModel { };
 
         while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
         {
@@ -137,7 +137,9 @@ public class AggregationsConverter : JsonConverter<Dictionary<string, Aggregatio
                         if (propName.Equals(PropNameAggSum))
                         {
                             bucket.AggregationSum = ParseAggregationSumModel(ref reader);
-                        } else {
+                        }
+                        else
+                        {
                             bucket.ChildAggregation = ParseAggregationModel(ref reader, propName);
                         }
                         break;

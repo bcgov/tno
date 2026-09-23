@@ -12,6 +12,7 @@ import {
   IReportModel,
   IReportResultModel,
   IUserModel,
+  IUserReportModel,
   useApi,
 } from '../..';
 
@@ -101,10 +102,11 @@ export const useApiSubscriberReports = (
       );
     },
     addContentToReport: (reportId: number, content: IReportInstanceContentModel[]) => {
-      return api.post<IReportInstanceContentModel[], AxiosResponse<IReportContentMutationModel>, any>(
-        `/subscriber/reports/${reportId}/content/fast`,
-        content,
-      );
+      return api.post<
+        IReportInstanceContentModel[],
+        AxiosResponse<IReportContentMutationModel>,
+        any
+      >(`/subscriber/reports/${reportId}/content/fast`, content);
     },
     getAllContentInMyReports: () => {
       return api.get<never, AxiosResponse<{ [reportId: number]: number[] }>, any>(
@@ -119,6 +121,17 @@ export const useApiSubscriberReports = (
     RequestToUnsubscribe: (reportId: number, applicantEmail: string) => {
       return api.post<never, AxiosResponse<any>, any>(
         `/subscriber/reports/${reportId}/unsubscription?applicantEmail=${applicantEmail}`,
+      );
+    },
+    /**
+     * Add or update only the specified subscribers of the report.
+     * Subscriptions not included are left untouched, so send only what changed.
+     * A subscription is never deleted; send `isSubscribed: false` to unsubscribe.
+     */
+    updateReportSubscribers: (reportId: number, subscribers: IUserReportModel[]) => {
+      return api.put<IUserReportModel[], AxiosResponse<IReportModel>, any>(
+        `/subscriber/reports/${reportId}/subscribers`,
+        subscribers,
       );
     },
   }).current;
