@@ -101,10 +101,11 @@ export const useApiSubscriberReports = (
       );
     },
     addContentToReport: (reportId: number, content: IReportInstanceContentModel[]) => {
-      return api.post<IReportInstanceContentModel[], AxiosResponse<IReportContentMutationModel>, any>(
-        `/subscriber/reports/${reportId}/content/fast`,
-        content,
-      );
+      return api.post<
+        IReportInstanceContentModel[],
+        AxiosResponse<IReportContentMutationModel>,
+        any
+      >(`/subscriber/reports/${reportId}/content/fast`, content);
     },
     getAllContentInMyReports: () => {
       return api.get<never, AxiosResponse<{ [reportId: number]: number[] }>, any>(

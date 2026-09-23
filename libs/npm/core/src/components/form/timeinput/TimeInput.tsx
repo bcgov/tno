@@ -1,11 +1,11 @@
 import React, { InputHTMLAttributes } from 'react';
 import MaskedInputBase, { MaskedInputProps } from 'react-text-mask';
 
-const MaskedInput = MaskedInputBase as unknown as React.ComponentClass<MaskedInputProps>;
-
 import { Error } from '../../form';
 import { Show } from '../../show';
 import * as styled from './styled';
+
+const MaskedInput = MaskedInputBase as unknown as React.ComponentClass<MaskedInputProps>;
 
 export interface ITimeInputProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, 'children' | 'dangerouslySetInnerHTML'> {

@@ -3,11 +3,11 @@ import 'react-datepicker/dist/react-datepicker.css';
 import React from 'react';
 import DatePickerBase, { ReactDatePickerProps } from 'react-datepicker';
 
-const DatePicker = DatePickerBase as unknown as React.ComponentClass<ReactDatePickerProps>;
-
 import { Error, FieldSize } from '../../form';
 import { SelectDateVariant } from '.';
 import * as styled from './styled';
+
+const DatePicker = DatePickerBase as unknown as React.ComponentClass<ReactDatePickerProps>;
 
 export interface ISelectDateProps {
   /**
