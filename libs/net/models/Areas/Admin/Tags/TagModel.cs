@@ -12,7 +12,7 @@ public class TagModel : AuditColumnsModel
     /// get/set - The primary key of the type model.
     /// </summary>
     public int Id { get; set; }
-    
+
     /// <summary>
     /// get/set - Unique name to identify the entity.
     /// </summary>
@@ -43,7 +43,7 @@ public class TagModel : AuditColumnsModel
     /// <summary>
     /// Creates a new instance of an TagModel.
     /// </summary>
-    public TagModel() {}
+    public TagModel() { }
 
     /// <summary>
     /// Creates a new instance of an TagModel, initializes with specified parameter.

@@ -5,7 +5,8 @@ using TNO.Elastic.Models.Converters;
 
 namespace TNO.Elastic.Models;
 
-public class AggregationModel {
+public class AggregationModel
+{
     #region Properties
     public string Name { get; set; } = "";
     public long? DocCountErrorUpperBound { get; set; }

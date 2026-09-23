@@ -114,7 +114,7 @@ public class SourceModel : BaseTypeWithAuditColumnsModel<int>
         this.AutoTranscribe = entity.AutoTranscribe;
         this.DisableTranscribe = entity.DisableTranscribe;
         this.UseInTopics = entity.UseInTopics;
-        this.Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Configuration, options) ?? new Dictionary<string, object>();        
+        this.Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Configuration, options) ?? new Dictionary<string, object>();
         this.IsCBRASource = entity.IsCBRASource;
 
         this.Metrics = entity.MetricsManyToMany.Select(m => new SourceMetricModel(m));

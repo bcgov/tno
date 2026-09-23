@@ -3,6 +3,7 @@ using Serilog.Core;
 using Serilog.Events;
 
 namespace TNO.Services.Logging;
+
 public class CustomLevelEnricher : ILogEventEnricher
 {
     private const string PropertyName = "CustomLevel";

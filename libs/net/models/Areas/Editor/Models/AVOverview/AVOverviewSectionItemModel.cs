@@ -68,7 +68,7 @@ public class AVOverviewSectionItemModel : AuditColumnsModel
         this.Summary = entity.Summary;
         this.ContentId = entity.ContentId;
         this.SortOrder = entity.SortOrder;
-        
+
         if (entity.Content != null)
             this.Content = new ContentModel(entity.Content);
     }

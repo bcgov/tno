@@ -32,7 +32,7 @@ namespace TNO.DAL.Migrations
                 name: "PK_product",
                 table: "product");
 
-            migrationBuilder.RenameTable("product","public","media_type","public");
+            migrationBuilder.RenameTable("product", "public", "media_type", "public");
 
             migrationBuilder.AddPrimaryKey(
                 name: "PK_media_type",
@@ -127,7 +127,7 @@ namespace TNO.DAL.Migrations
                 name: "PK_media_type",
                 table: "media_type");
 
-            migrationBuilder.RenameTable("media_type","public","product","public");
+            migrationBuilder.RenameTable("media_type", "public", "product", "public");
 
             migrationBuilder.AddPrimaryKey(
                 name: "PK_product",

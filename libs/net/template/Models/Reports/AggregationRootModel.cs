@@ -1,7 +1,8 @@
 
 namespace TNO.TemplateEngine.Models.Reports;
 
-public class AggregationRootModel {
+public class AggregationRootModel
+{
     #region Properties
     public string Name { get; set; } = "";
     public long DocCount { get; set; } = 0;

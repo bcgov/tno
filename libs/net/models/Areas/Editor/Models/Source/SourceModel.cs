@@ -88,7 +88,7 @@ public class SourceModel
     /// get/set -
     /// </summary>
     public Dictionary<string, object> Configuration { get; set; } = new Dictionary<string, object>();
-    
+
     /// <summary>
     /// get/set -
     /// </summary>

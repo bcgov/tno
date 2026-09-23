@@ -38,7 +38,7 @@ public class TimeTrackingModel : AuditColumnsModel
     /// <summary>
     /// Creates a new instance of an TimeTrackingModel.
     /// </summary>
-    public TimeTrackingModel() {}
+    public TimeTrackingModel() { }
 
     /// <summary>
     /// Creates a new instance of an TimeTrackingModel, initializes with specified parameter.

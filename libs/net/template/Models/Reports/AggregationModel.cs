@@ -1,6 +1,7 @@
 namespace TNO.TemplateEngine.Models.Reports;
 
-public class AggregationModel {
+public class AggregationModel
+{
     #region Properties
     public string? Name { get; set; }
     public long? DocCountErrorUpperBound { get; set; }

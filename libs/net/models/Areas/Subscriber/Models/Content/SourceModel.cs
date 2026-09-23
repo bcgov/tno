@@ -87,7 +87,7 @@ public class SourceModel : BaseTypeModel<int>
         this.AutoTranscribe = entity.AutoTranscribe;
         this.DisableTranscribe = entity.DisableTranscribe;
         this.UseInTopics = entity.UseInTopics;
-        this.Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Configuration) ?? new Dictionary<string, object>();     
+        this.Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Configuration) ?? new Dictionary<string, object>();
         this.IsCBRASource = entity.IsCBRASource;
     }
     #endregion
@@ -111,7 +111,7 @@ public class SourceModel : BaseTypeModel<int>
             AutoTranscribe = model.AutoTranscribe,
             DisableTranscribe = model.DisableTranscribe,
             UseInTopics = model.UseInTopics,
-            Configuration = JsonSerializer.SerializeToDocument(model.Configuration),       
+            Configuration = JsonSerializer.SerializeToDocument(model.Configuration),
             IsCBRASource = model.IsCBRASource
         };
     }
