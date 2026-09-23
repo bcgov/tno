@@ -8,11 +8,13 @@ import {
   IReportModel,
   IReportResultModel,
   IUserModel,
+  IUserReportModel,
   sortable,
   useApiSubscriberReports,
 } from 'tno-core';
 
 import { IReportContentMutationModel } from './interfaces/IReportContentMutationModel';
+import { useApiSubscriberReportSubscribers } from './useApiSubscriberReportSubscribers';
 import { mergeReportWithContentMutation } from './utils/reportContentMutationHelpers';
 
 interface IReportController {
@@ -23,6 +25,7 @@ interface IReportController {
   findInstancesForReportId: (id: number, ownerId?: number) => Promise<IReportInstanceModel[]>;
   addReport: (model: IReportModel) => Promise<IReportModel>;
   updateReport: (model: IReportModel, updateInstances?: boolean) => Promise<IReportModel>;
+  updateReportSubscribers: (id: number, subscribers: IUserReportModel[]) => Promise<IReportModel>;
   deleteReport: (model: IReportModel) => Promise<IReportModel>;
   previewReport: (id: number) => Promise<IReportResultModel>;
   generateReport: (id: number, regenerate?: boolean) => Promise<IReportModel>;
@@ -38,6 +41,7 @@ interface IReportController {
 
 export const useReports = (): [IProfileState, IReportController] => {
   const api = useApiSubscriberReports();
+  const subscribersApi = useApiSubscriberReportSubscribers();
   const dispatch = useAjaxWrapper();
   const [state, { storeMyReports, storeReportContent }] = useProfileStore();
 
@@ -134,8 +138,10 @@ export const useReports = (): [IProfileState, IReportController] => {
         return response.data;
       },
       updateReport: async (model: IReportModel, updateInstances: boolean | undefined) => {
+        // Subscribers are managed through 'updateReportSubscribers'.  The API ignores them here,
+        // which stops a stale form snapshot from unsubscribing users who were added elsewhere.
         const response = await dispatch<IReportModel>('update-report', () =>
-          api.updateReport(model, updateInstances),
+          api.updateReport({ ...model, subscribers: [] }, updateInstances),
         );
         if (response.status === 200) {
           storeMyReports((reports) => {
@@ -156,6 +162,19 @@ export const useReports = (): [IProfileState, IReportController] => {
               : reports[model.id] ?? [];
             return result;
           });
+        }
+        return response.data;
+      },
+      updateReportSubscribers: async (id: number, subscribers: IUserReportModel[]) => {
+        const response = await dispatch<IReportModel>('update-report-subscribers', () =>
+          subscribersApi.updateReportSubscribers(id, subscribers),
+        );
+        if (response.status === 200 && response.data) {
+          storeMyReports((reports) =>
+            reports.map((r) =>
+              r.id === id ? { ...r, subscribers: response.data.subscribers } : r,
+            ),
+          );
         }
         return response.data;
       },
@@ -264,7 +283,7 @@ export const useReports = (): [IProfileState, IReportController] => {
         return response.data;
       },
     }),
-    [api, dispatch, storeMyReports, storeReportContent],
+    [api, subscribersApi, dispatch, storeMyReports, storeReportContent],
   );
 
   return [state, controller];

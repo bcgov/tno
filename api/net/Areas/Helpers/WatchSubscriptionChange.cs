@@ -349,11 +349,11 @@ public class WatchSubscriptionChange
     /// <param name="identity"></param>
     /// <param name="traceInformation"></param>
     /// <returns></returns>
-    public async Task AlertReportSubscriptionChangedAsync(Entities.Report report, ClaimsPrincipal identity, string traceInformation)
+    public async Task AlertReportSubscriptionChangedAsync(Entities.Report report, ClaimsPrincipal identity, string traceInformation, bool missingIsRemoved = true)
     {
         var username = identity.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var requestor = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
-        await AlertReportSubscriptionChangedAsync(report, $"The user who made these changes: {requestor.Email} {requestor.FirstName} {requestor.LastName}", traceInformation);
+        await AlertReportSubscriptionChangedAsync(report, $"The user who made these changes: {requestor.Email} {requestor.FirstName} {requestor.LastName}", traceInformation, missingIsRemoved);
     }
 
     /// <summary>
@@ -364,9 +364,9 @@ public class WatchSubscriptionChange
     /// <param name="requestor"></param>
     /// <param name="traceInformation"></param>
     /// <returns></returns>
-    public async Task AlertReportSubscriptionChangedAsync(Entities.Report report, Entities.User requestor, string traceInformation)
+    public async Task AlertReportSubscriptionChangedAsync(Entities.Report report, Entities.User requestor, string traceInformation, bool missingIsRemoved = true)
     {
-        await AlertReportSubscriptionChangedAsync(report, $"The user who made these changes: {requestor.Email} {requestor.FirstName} {requestor.LastName}", traceInformation);
+        await AlertReportSubscriptionChangedAsync(report, $"The user who made these changes: {requestor.Email} {requestor.FirstName} {requestor.LastName}", traceInformation, missingIsRemoved);
     }
 
     /// <summary>
@@ -377,11 +377,11 @@ public class WatchSubscriptionChange
     /// <param name="changeSource">The source of the change, generally the user who made the change.</param>
     /// <param name="traceInformation"></param>
     /// <returns></returns>
-    public async Task AlertReportSubscriptionChangedAsync(Entities.Report report, string changeSource, string traceInformation)
+    public async Task AlertReportSubscriptionChangedAsync(Entities.Report report, string changeSource, string traceInformation, bool missingIsRemoved = true)
     {
         if (!this.Options.IsEnabled) return;
 
-        var changes = IdentifyReportSubscriptionChange(report);
+        var changes = IdentifyReportSubscriptionChange(report, missingIsRemoved);
         if (changes.Length > 0)
         {
             var email = GenerateEmail(changes, changeSource, traceInformation);
@@ -605,7 +605,7 @@ public class WatchSubscriptionChange
     /// <param name="report"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public SubscriptionChange[] IdentifyReportSubscriptionChange(Entities.Report report)
+    public SubscriptionChange[] IdentifyReportSubscriptionChange(Entities.Report report, bool missingIsRemoved = true)
     {
         var currentReport = _reportService.FindById(
             report.Id,
@@ -621,6 +621,8 @@ public class WatchSubscriptionChange
             var found = report.SubscribersManyToMany.FirstOrDefault(r => r.UserId == sub.UserId);
             if (found == null)
             {
+                // A partial subscriber list leaves absent subscriptions untouched.
+                if (!missingIsRemoved) continue;
                 _logger.LogWarning("User report subscription removed.  User Email: {Email} ReportID: {ReportId} {Report} ", sub.User?.Email, sub.ReportId, report.Name);
                 changes.Add(new SubscriptionChange(
                     SubscriptionChangeType.ReportRemoved,

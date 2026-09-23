@@ -13,28 +13,30 @@ export const ReportSubscriberExporter: React.FC = () => {
 
   const fetchEmails = React.useCallback(async () => {
     const allEmails = await Promise.all(
-      values.subscribers.map(async (sub) => {
-        if (sub.accountType === UserAccountTypeName.Distribution) {
-          // Fetch emails related to a distribution list.
-          const users = await getDistributionListById(sub.userId);
-          return users.map((user: { username: string; email: string; displayName: string }) => ({
-            username: user.username,
-            email: user.email,
-            format: sub.format,
-            displayName: user.displayName,
-          }));
-        } else {
-          // Regular subscriber
-          return [
-            {
-              username: sub.username,
-              email: sub.email,
+      values.subscribers
+        .filter((sub) => sub.isSubscribed)
+        .map(async (sub) => {
+          if (sub.accountType === UserAccountTypeName.Distribution) {
+            // Fetch emails related to a distribution list.
+            const users = await getDistributionListById(sub.userId);
+            return users.map((user: { username: string; email: string; displayName: string }) => ({
+              username: user.username,
+              email: user.email,
               format: sub.format,
-              displayName: sub.displayName,
-            },
-          ];
-        }
-      }),
+              displayName: user.displayName,
+            }));
+          } else {
+            // Regular subscriber
+            return [
+              {
+                username: sub.username,
+                email: sub.email,
+                format: sub.format,
+                displayName: sub.displayName,
+              },
+            ];
+          }
+        }),
     );
 
     const flattenedEmails = allEmails.flat();
