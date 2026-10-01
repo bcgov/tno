@@ -123,11 +123,11 @@ spec:
                   key: KAFKA_BOOTSTRAP_SERVERS
 
             # Notification Service Configuration
-            - name: Service__MaxFailLimit
+            - name: Service__MaxFailureLimit
               valueFrom:
                 configMapKeyRef:
                   name: scheduler-service
-                  key: MAX_FAIL_LIMIT
+                  key: MAX_FAILURE_LIMIT
             - name: Service__EventTypes
               valueFrom:
                 configMapKeyRef:

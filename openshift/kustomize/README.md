@@ -72,7 +72,6 @@ oc kustomize services/filemonitor/overlays/test | oc create -f -
 oc kustomize services/content/overlays/test | oc create -f -
 oc kustomize services/indexing/overlays/test | oc create -f -
 oc kustomize services/transcription/overlays/test | oc create -f -
-oc kustomize services/nlp/overlays/test | oc create -f -
 ```
 
 Deploy the tools below.

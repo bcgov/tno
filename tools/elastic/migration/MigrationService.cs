@@ -129,6 +129,7 @@ public class MigrationService
         await CreateMigrationIndexAsync(cancellationToken);
         var response = await _elasticClient.SearchAsync<MigrationVersion>(sd => sd
             .Index(_options.MigrationIndex)
+            .Size(1000)
             , cancellationToken);
 
         if (!response.IsValid)
@@ -145,6 +146,42 @@ public class MigrationService
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
+    /// <summary>
+    /// A cluster with no migration history must be empty, or be given a baseline: running the
+    /// first migrations against indexes that already exist would fail or replace them.
+    /// </summary>
+    /// <param name="types"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>The current version after the baseline ("" for an empty cluster).</returns>
+    private async Task<string> ApplyBaselineAsync(Type[] types, CancellationToken cancellationToken)
+    {
+        var existing = new List<string>();
+        foreach (var name in new[] { _options.ContentIndex, _options.PublishedIndex }.Where(n => !String.IsNullOrWhiteSpace(n)))
+        {
+            var exists = await _elasticClient.Indices.ExistsAsync(Indices.Index(name), null, cancellationToken);
+            if (exists.Exists) existing.Add(name);
+        }
+
+        if (String.IsNullOrWhiteSpace(_options.BaselineVersion))
+        {
+            if (existing.Count == 0) return "";
+            throw new InvalidOperationException(
+                $"The cluster has indexes ({String.Join(", ", existing)}) but no migration history in '{_options.MigrationIndex}'. " +
+                "Set Elastic__BaselineVersion to the version the cluster should be treated as already at (e.g. 1.0.10); nothing was changed.");
+        }
+
+        var baselineIndex = Array.FindIndex(types, t => t.GetCustomAttribute<MigrationAttribute>()?.Id == _options.BaselineVersion);
+        if (baselineIndex == -1) throw new InvalidOperationException($"Baseline migration does not exist '{_options.BaselineVersion}'.");
+        foreach (var type in types.Take(baselineIndex + 1))
+        {
+            var version = type.GetCustomAttribute<MigrationAttribute>()!.Id;
+            var response = await _elasticClient.IndexAsync(new MigrationVersion(version, "baseline"), i => i.Index(_options.MigrationIndex).Id(version).Refresh(Refresh.WaitFor), cancellationToken);
+            if (!response.IsValid) throw response.OriginalException;
+        }
+        _logger.LogWarning("Recorded baseline migration version '{version}'; earlier migrations were not run.", _options.BaselineVersion);
+        return _options.BaselineVersion;
+    }
+
     private long GenerateVersionKey(string value)
     {
         var values = value.Split(".");
@@ -166,6 +203,8 @@ public class MigrationService
     {
         var currentVersion = await GetCurrentMigrationVersionAsync(cancellationToken);
         var types = Assembly.GetExecutingAssembly().GetMigrationTypes().OrderBy(t => GenerateVersionKey(t.GetCustomAttribute<MigrationAttribute>()?.Id ?? "")).ToArray();
+        if (String.IsNullOrWhiteSpace(currentVersion))
+            currentVersion = await ApplyBaselineAsync(types, cancellationToken);
         var currentIndex = Array.FindIndex(types, 0, types.Length, t => t.GetCustomAttribute<MigrationAttribute>()?.Id == currentVersion);
         var requestedIndex = Array.FindIndex(types, 0, types.Length, t => t.GetCustomAttribute<MigrationAttribute>()?.Id == _options.MigrationVersion);
 

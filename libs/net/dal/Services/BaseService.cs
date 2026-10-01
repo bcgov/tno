@@ -52,6 +52,30 @@ public abstract class BaseService : IBaseService
     }
 
     /// <summary>
+    /// Request indexing of saved content, recorded by the next save.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="action"></param>
+    /// <param name="requestorId"></param>
+    /// <param name="reason"></param>
+    public void RequestIndex(long contentId, Entities.IndexRequestAction? action = null, int? requestorId = null, string reason = TNOContext.IndexReasonLifecycle)
+    {
+        this.Context.RequestIndex(contentId, action, reason, requestorId);
+    }
+
+    /// <summary>
+    /// Request indexing of content being added or changed, recorded by the next save.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="action"></param>
+    /// <param name="requestorId"></param>
+    /// <param name="reason"></param>
+    public void RequestIndex(Entities.Content content, Entities.IndexRequestAction? action = null, int? requestorId = null, string reason = TNOContext.IndexReasonLifecycle)
+    {
+        this.Context.RequestIndex(content, action ?? TNOContext.GetIndexAction(content.Status), reason, requestorId);
+    }
+
+    /// <summary>
     /// Stops tracking all currently tracked entities.
     /// Microsoft.EntityFrameworkCore.DbContext is designed to have a short lifetime where a new instance is created for each unit-of-work. This manner means all tracked entities are discarded when the context is disposed at the end of each unit-of-work. However, clearing all tracked entities using this method may be useful in situations where creating a new context instance is not practical.
     /// This method should always be preferred over detaching every tracked entity. Detaching entities is a slow process that may have side effects. This method is much more efficient at clearing all tracked entities from the context.

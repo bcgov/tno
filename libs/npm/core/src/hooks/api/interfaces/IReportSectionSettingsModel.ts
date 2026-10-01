@@ -32,4 +32,10 @@ export interface IReportSectionSettingsModel {
   temperature?: number;
   /** Render the failure detail into the section body when an AI request fails. */
   showErrorDetails?: boolean;
+  /** Which content feeds an AI section: 'Report' (every content section) or 'Sections'. */
+  aiScope?: 'Report' | 'Sections';
+  /** The content sections (by name) that feed an AI section scoped to sections. */
+  sourceSections?: string[];
+  /** What an AI section produces: 'FreeText' (default) or 'TopicSummary'. */
+  aiOutputMode?: 'FreeText' | 'TopicSummary';
 }

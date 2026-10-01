@@ -12,8 +12,8 @@ class DetectDeployChangesTests(unittest.TestCase):
         self.assertTrue(result["deploy_services"])
         self.assertTrue(result["deploy_frontend"])
         self.assertTrue(result["run_db_migration"])
-        self.assertEqual(len(result["build_matrix"]["include"]), 21)
-        self.assertEqual(len(result["service_matrix"]["include"]), 18)
+        self.assertEqual(len(result["build_matrix"]["include"]), 20)
+        self.assertEqual(len(result["service_matrix"]["include"]), 17)
         self.assertEqual(len(result["frontend_matrix"]["include"]), 2)
 
     def test_editor_change_only_builds_and_deploys_editor(self):

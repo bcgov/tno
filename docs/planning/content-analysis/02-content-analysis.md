@@ -100,7 +100,7 @@ In one transaction, acceptance:
 1. stores the analysis;
 2. applies allowed population (below);
 3. increments `Version` when editorial fields changed;
-4. records the index request (after commit until Phase 3's outbox exists).
+4. records the index request, which the API sends to Kafka after commit.
 
 After commit it sends a hub `ContentUpdated` message with reason `analysis`, and the editor form
 merges populated fields and the new version the way it handles `quotes` today
@@ -136,11 +136,10 @@ Unmatched tag and contributor suggestions stay in the analysis record.
 
 The staff-managed `Topic` list is important to users, so population is controlled:
 
-- global switch (`TopicPopulationEnabled`), off by default;
-- mode (`TopicPopulationMode`): assign existing active topics only, or allow creating topics;
-- each assigned topic is scored by the topic score rules, like any other calculated score.
-
-Both settings live on the topics admin page. Topic population depends on the
+- the Content-Analysis service assigns topics only when it runs its `Topics` process;
+- mode (`TopicPopulationMode`, on the topics admin page): assign existing active topics only, or
+  allow creating topics;
+- each assigned topic is scored by the topic score rules, like any other calculated score. Topic population depends on the
 [topic scoring refactor](05-topic-scoring.md), which must ship first.
 
 Extracted topics that match no staff topic are kept in a versioned analysis topic registry with
@@ -175,15 +174,15 @@ the indexing service's index names differ.
   `isApproved`, and publication status so the existing source and media-type exclusions apply and
   unapproved transcripts never reach subscriber output. Documents are removed or replaced with
   their content.
-- Retrieve complete evidence sets with PIT and `search_after`, and enumerate topic buckets with
-  composite aggregation paging.
+- Retrieve complete evidence sets with PIT and `search_after`. Stories are grouped by the topic on
+  each evidence document, so no topic aggregation is needed.
+- The evidence index is written on every cluster.
 
 ## Replacing Quote Extraction and NLP
 
 1. Fix the quotes endpoint to send an index request (ships immediately, independent of the rest).
-2. Run Content-Analysis in shadow mode — analysis stored and compared, no population.
-3. Disable the Quote Extraction writer, then enable population.
-4. Remove `services/net/extract-quotes` and its deployment.
+2. Remove `services/net/extract-quotes` and its deployment. Content-Analysis extracts and applies
+   quotes when its service is configured to run the `Quotes` process.
 5. Retire `services/net/nlp` (not deployed today): the service, its `nlp` topic, the editor NLP
    work-order request, and its OpenShift folder.
 
@@ -196,8 +195,9 @@ the indexing service's index names differ.
   current data.
 - Human edits, clears, and automation values survive population.
 - An open editor form merges populated fields without a conflict on its next save.
-- Topic controls: switch, mode, and scores from topic score rules.
+- Processes: only the configured processes run, and only their results are applied.
+- Topic controls: mode, and scores from topic score rules.
 - Long articles, transcripts, empty text, invalid output, ambiguous entities, and quote evidence.
 - Unapproved transcripts are neither analyzed nor exposed through the evidence index.
-- Shadow comparison against Quote Extraction output; quality evaluation against a reviewed corpus.
+- Quality evaluation against a reviewed corpus.
 - Duplicate alert rate on analysis re-index (see [accepted risks](README.md#accepted-risks)).

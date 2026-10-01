@@ -24,11 +24,8 @@ declare -A REPLICAS=(
   [charts-api_dev]=1       [charts-api_test]=2      [charts-api_prod]=3
 
   # ML / media services
-  [corenlp_dev]=0          [corenlp_test]=0         [corenlp_prod]=0
-  [nlp-service_dev]=0      [nlp-service_test]=0     [nlp-service_prod]=0
   [ffmpeg-service_dev]=1   [ffmpeg-service_test]=2  [ffmpeg-service_prod]=6
   [transcription-service_dev]=1 [transcription-service_test]=2 [transcription-service_prod]=6
-  [extract-quotes-service_dev]=1 [extract-quotes-service_test]=2 [extract-quotes-service_prod]=6
   [auto-clipper-service_dev]=1 [auto-clipper-service_test]=2 [auto-clipper-service_prod]=6
 
   # Kafka consumers
@@ -47,6 +44,7 @@ declare -A REPLICAS=(
   [image-service_dev]=1      [image-service_test]=1      [image-service_prod]=1
   [ches-retry-service_dev]=1 [ches-retry-service_test]=1 [ches-retry-service_prod]=1
   [automation-service_dev]=1 [automation-service_test]=1 [automation-service_prod]=1
+  [content-analysis-service_dev]=1 [content-analysis-service_test]=1 [content-analysis-service_prod]=1
 )
 
 replicas() {
@@ -78,11 +76,8 @@ scale nginx            $(replicas nginx $env)            deployment $env
 scale editor           $(replicas editor $env)           deployment $env
 scale subscriber       $(replicas subscriber $env)       deployment $env
 scale charts-api       $(replicas charts-api $env)       deployment $env
-scale corenlp          $(replicas corenlp $env)          deployment $env
-scale nlp-service      $(replicas nlp-service $env)      deployment $env
 scale ffmpeg-service   $(replicas ffmpeg-service $env)   deployment $env
 scale transcription-service   $(replicas transcription-service $env)   deployment $env
-scale extract-quotes-service  $(replicas extract-quotes-service $env)  deployment $env
 scale auto-clipper-service    $(replicas auto-clipper-service $env)    deployment $env
 scale nginx-editor     $(replicas nginx-editor $env)     deployment $env
 scale nginx-subscriber $(replicas nginx-subscriber $env) deployment $env
@@ -105,5 +100,6 @@ scale syndication-service $(replicas syndication-service $env) deployment $env
 scale image-service      $(replicas image-service $env)      deployment $env
 scale ches-retry-service $(replicas ches-retry-service $env) deployment $env
 scale automation-service $(replicas automation-service $env) deployment $env
+scale content-analysis-service $(replicas content-analysis-service $env) deployment $env
 
 # scale kowl 1 deployment $env

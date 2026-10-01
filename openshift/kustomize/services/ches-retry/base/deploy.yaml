@@ -100,11 +100,11 @@ spec:
                   key: KEYCLOAK_CLIENT_SECRET
 
             # Service Configuration
-            - name: Service__MaxFailLimit
+            - name: Service__MaxFailureLimit
               valueFrom:
                 configMapKeyRef:
                   name: ches-retry-service
-                  key: MAX_FAIL_LIMIT
+                  key: MAX_FAILURE_LIMIT
 
             # CHES Configuration
             - name: CHES__From

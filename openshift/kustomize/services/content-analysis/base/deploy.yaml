@@ -1,0 +1,231 @@
+---
+# How the app will be deployed to the pod.
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: content-analysis-service
+  namespace: default
+  annotations:
+    description: Defines how to deploy content-analysis-service
+    created-by: jeremy.foster
+  labels:
+    name: content-analysis-service
+    part-of: tno
+    version: 1.0.0
+    component: content-analysis-service
+    managed-by: kustomize
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: content-analysis-service
+      part-of: tno
+      component: content-analysis-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      name: content-analysis-service
+      labels:
+        name: content-analysis-service
+        part-of: tno
+        component: content-analysis-service
+    spec:
+      imagePullSecrets:
+        - name: acr-secret
+      containers:
+        - name: content-analysis-service
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/content-analysis-service:dev
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 768Mi
+          env:
+            # .NET Configuration
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+
+            - name: Logging__LogLevel__TNO
+              value: Information
+
+            # Common Service Configuration
+            - name: Service__ApiUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: API_HOST_URL
+            - name: Service__EmailTo
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: EMAIL_FAILURE_TO
+            - name: Service__MaxFailureLimit
+              valueFrom:
+                configMapKeyRef:
+                  name: content-analysis-service
+                  key: MAX_FAILURE_LIMIT
+            - name: Service__SendEmailOnFailure
+              valueFrom:
+                configMapKeyRef:
+                  name: content-analysis-service
+                  key: SEND_EMAIL_ON_FAILURE
+
+            # Authentication Configuration
+            - name: Auth__Keycloak__Authority
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUTHORITY
+            - name: Auth__Keycloak__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUDIENCE
+            - name: Auth__Keycloak__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak
+                  key: KEYCLOAK_CLIENT_SECRET
+
+            # Kafka Configuration
+            - name: Kafka__Admin__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: content-analysis-service
+                  key: KAFKA_CLIENT_ID
+            - name: Kafka__Admin__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+
+            - name: Kafka__Consumer__GroupId
+              valueFrom:
+                configMapKeyRef:
+                  name: content-analysis-service
+                  key: KAFKA_CLIENT_ID
+            - name: Kafka__Consumer__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+
+            # Content-Analysis Service Configuration
+            - name: Service__Topics
+              valueFrom:
+                configMapKeyRef:
+                  name: content-analysis-service
+                  key: TOPICS
+            - name: Service__TimeZone
+              valueFrom:
+                configMapKeyRef:
+                  name: content-analysis-service
+                  key: TIME_ZONE
+            - name: Service__MaxConcurrency
+              valueFrom:
+                configMapKeyRef:
+                  name: content-analysis-service
+                  key: MAX_CONCURRENCY
+            - name: Service__Processes
+              valueFrom:
+                configMapKeyRef:
+                  name: content-analysis-service
+                  key: PROCESSES
+            - name: Service__PollIntervalSeconds
+              valueFrom:
+                configMapKeyRef:
+                  name: content-analysis-service
+                  key: POLL_INTERVAL_SECONDS
+            - name: Service__SettingsRefreshSeconds
+              valueFrom:
+                configMapKeyRef:
+                  name: content-analysis-service
+                  key: SETTINGS_REFRESH_SECONDS
+            - name: Service__BackfillShare
+              valueFrom:
+                configMapKeyRef:
+                  name: content-analysis-service
+                  key: BACKFILL_SHARE
+            - name: Service__LLMRequestTimeoutSeconds
+              valueFrom:
+                configMapKeyRef:
+                  name: content-analysis-service
+                  key: LLM_REQUEST_TIMEOUT_SECONDS
+            - name: Service__LLMRequestAttempts
+              valueFrom:
+                configMapKeyRef:
+                  name: content-analysis-service
+                  key: LLM_REQUEST_ATTEMPTS
+
+            # CHES Configuration
+            - name: CHES__From
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_FROM
+            - name: CHES__EmailEnabled
+              valueFrom:
+                configMapKeyRef:
+                  name: content-analysis-service
+                  key: CHES_EMAIL_ENABLED
+            - name: CHES__EmailAuthorized
+              valueFrom:
+                configMapKeyRef:
+                  name: content-analysis-service
+                  key: CHES_EMAIL_AUTHORIZED
+            - name: CHES__AuthUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_AUTH_URL
+            - name: CHES__HostUri
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_HOST_URI
+            - name: CHES__Username
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: USERNAME
+            - name: CHES__Password
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: PASSWORD
+          livenessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30

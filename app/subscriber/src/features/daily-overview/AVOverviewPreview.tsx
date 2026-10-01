@@ -3,7 +3,7 @@ import parse from 'html-react-parser';
 import moment from 'moment';
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useAVOverviewInstances, useContent } from 'store/hooks';
+import { useAVOverviewInstances, useContent, useLookup } from 'store/hooks';
 import { Col, IReportResultModel, Loader, Show } from 'tno-core';
 
 import * as styled from './styled';
@@ -18,12 +18,20 @@ const AVOverviewPreview: React.FC = () => {
   const [params] = useSearchParams();
   const dateUrlParam = params.get('date');
   const [{ findAVOverview, viewAVOverview }] = useAVOverviewInstances();
+  const [{ settings }] = useLookup();
   const [date, setDate] = React.useState<string>();
 
   const [isLoading, setIsLoading] = React.useState(true);
   const [preview, setPreview] = React.useState<IReportResultModel | undefined>();
   const [isPublished, setIsPublished] = React.useState(false);
   const [reactElements, setReactElements] = React.useState<string | JSX.Element | JSX.Element[]>();
+
+  // Evening overviews older than the report retention have been purged.
+  const retentionDays = Number(settings.find((s) => s.name === 'ReportRetentionDays')?.value ?? 0);
+  const isPurged =
+    retentionDays > 0 &&
+    !!date &&
+    moment(date).isBefore(moment().startOf('day').subtract(retentionDays, 'days'));
 
   const clear = () => {
     setIsLoading(true);
@@ -148,8 +156,11 @@ const AVOverviewPreview: React.FC = () => {
           </Col>
         </Show>
       </Show>
-      <Show visible={!isPublished || !reactElements}>
+      <Show visible={(!isPublished || !reactElements) && !isPurged}>
         No report has been published yet. Please check back later.
+      </Show>
+      <Show visible={(!isPublished || !reactElements) && isPurged}>
+        {`Evening overviews are kept for ${retentionDays} days, and this date is no longer available.`}
       </Show>
     </styled.AVOverviewPreview>
   );

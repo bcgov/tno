@@ -32,6 +32,30 @@ public class LLMModel : BaseTypeModel<int>
     /// get/set - This model can be used by everyone.
     /// </summary>
     public bool IsPublic { get; set; }
+    /// <summary>
+    /// get/set - The tokens the model reads and writes in one request.
+    /// </summary>
+    public int? ContextWindow { get; set; }
+
+    /// <summary>
+    /// get/set - The most tokens reserved for a response.
+    /// </summary>
+    public int? MaxOutputTokens { get; set; }
+
+    /// <summary>
+    /// get/set - How tokens are counted: 'Heuristic', 'o200k_base', or 'cl100k_base'.
+    /// </summary>
+    public string? TokenEstimation { get; set; }
+
+    /// <summary>
+    /// get/set - Requests allowed per minute; null is unlimited.
+    /// </summary>
+    public int? RequestsPerMinute { get; set; }
+
+    /// <summary>
+    /// get/set - Tokens allowed per minute; null is unlimited.
+    /// </summary>
+    public int? TokensPerMinute { get; set; }
     #endregion
 
     #region Constructors
@@ -51,6 +75,11 @@ public class LLMModel : BaseTypeModel<int>
         this.SystemPrompt = entity.SystemPrompt;
         this.UserPrompt = entity.UserPrompt;
         this.IsPublic = entity.IsPublic;
+        this.ContextWindow = entity.ContextWindow;
+        this.MaxOutputTokens = entity.MaxOutputTokens;
+        this.TokenEstimation = entity.TokenEstimation;
+        this.RequestsPerMinute = entity.RequestsPerMinute;
+        this.TokensPerMinute = entity.TokensPerMinute;
     }
     #endregion
 }

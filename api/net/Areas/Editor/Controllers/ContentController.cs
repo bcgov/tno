@@ -52,12 +52,10 @@ public class ContentController : ControllerBase
     private readonly IWorkOrderHelper _workOrderHelper;
     private readonly IUserService _userService;
     private readonly IActionService _actionService;
-    private readonly ISourceService _sourceService;
     private readonly StorageOptions _storageOptions;
     private readonly IConnectionHelper _connection;
-    private readonly ITopicScoreHelper _topicScoreHelper;
+    private readonly ITopicScoreService _topicScoreService;
     private readonly IKafkaMessenger _kafkaMessenger;
-    private readonly KafkaOptions _kafkaOptions;
     private readonly KafkaHubConfig _kafkaHubOptions;
     private readonly JsonSerializerOptions _serializerOptions;
     private readonly ILogger _logger;
@@ -75,12 +73,10 @@ public class ContentController : ControllerBase
     /// <param name="workOrderHelper"></param>
     /// <param name="userService"></param>
     /// <param name="actionService"></param>
-    /// <param name="sourceService"></param>
     /// <param name="connection"></param>
-    /// <param name="topicScoreHelper"></param>
+    /// <param name="topicScoreService"></param>
     /// <param name="storageOptions"></param>
     /// <param name="kafkaMessenger"></param>
-    /// <param name="kafkaOptions"></param>
     /// <param name="kafkaHubOptions"></param>
     /// <param name="elasticOptions"></param>
     /// <param name="serializerOptions"></param>
@@ -93,13 +89,11 @@ public class ContentController : ControllerBase
         IWorkOrderHelper workOrderHelper,
         IUserService userService,
         IActionService actionService,
-        ISourceService sourceService,
         IConnectionHelper connection,
-        ITopicScoreHelper topicScoreHelper,
+        ITopicScoreService topicScoreService,
         IOptions<StorageOptions> storageOptions,
         IOptions<ElasticOptions> elasticOptions,
         IKafkaMessenger kafkaMessenger,
-        IOptions<KafkaOptions> kafkaOptions,
         IOptions<KafkaHubConfig> kafkaHubOptions,
         IOptions<JsonSerializerOptions> serializerOptions,
         ILogger<ContentController> logger,
@@ -111,12 +105,10 @@ public class ContentController : ControllerBase
         _workOrderHelper = workOrderHelper;
         _userService = userService;
         _actionService = actionService;
-        _sourceService = sourceService;
         _storageOptions = storageOptions.Value;
         _connection = connection;
-        _topicScoreHelper = topicScoreHelper;
+        _topicScoreService = topicScoreService;
         _kafkaMessenger = kafkaMessenger;
-        _kafkaOptions = kafkaOptions.Value;
         _kafkaHubOptions = kafkaHubOptions.Value;
         _elasticOptions = elasticOptions.Value;
         _serializerOptions = serializerOptions.Value;
@@ -219,27 +211,14 @@ public class ContentController : ControllerBase
         if (!newContent.PostedOn.HasValue)
             newContent.PostedOn = DateTime.UtcNow;
 
-        // only assign a default score to content which has a source relevant to Event of the Day
-        if (newContent.SourceId.HasValue)
-        {
-            var source = _sourceService.FindById(newContent.SourceId.Value);
-            if (source != null && source.UseInTopics)
-                _topicScoreHelper.SetContentScore(newContent);
-        }
+        // Scores are calculated when the content is saved; the editor never sets them here.
+        _topicScoreService.PrepareNewContentTopics(newContent, false);
 
+        // The index request is recorded in the same transaction as the content.
+        _contentService.RequestIndex(newContent, newContent.Status == ContentStatus.Publish || newContent.Status == ContentStatus.Published ? IndexRequestAction.Publish : IndexRequestAction.Index, user.Id);
         var content = _contentService.AddAndSave(newContent);
 
         await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentAdded, new[] { new ContentMessageModel(content) })));
-
-        if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
-        {
-            if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)
-                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user.Id, IndexAction.Publish));
-            else
-                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user.Id, IndexAction.Index));
-        }
-        else
-            _logger.LogWarning("Kafka indexing topic not configured.");
 
         if (_workOrderHelper.ShouldAutoTranscribe(content.Id)) await _workOrderHelper.RequestTranscriptionAsync(content.Id);
 
@@ -267,30 +246,11 @@ public class ContentController : ControllerBase
         if (!updateContent.PostedOn.HasValue)
             updateContent.PostedOn = DateTime.UtcNow;
 
-        // Only assign a value if the score has not been set.
-        if (updateContent.SourceId.HasValue && model.Topics.Any(t => !t.Score.HasValue))
-        {
-            var source = _sourceService.FindById(updateContent.SourceId.Value);
-            if (source != null && source.UseInTopics)
-                _topicScoreHelper.SetContentScore(updateContent);
-        }
-
+        // If a request is submitted to unpublish we do it regardless of the current state of the content.
+        _contentService.RequestIndex(updateContent, requestorId: user.Id);
         var content = _contentService.UpdateAndSave(updateContent);
 
         await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content) })));
-
-        if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
-        {
-            // If a request is submitted to unpublish we do it regardless of the current state of the content.
-            if (content.Status == ContentStatus.Unpublish)
-                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user.Id, IndexAction.Unpublish));
-            else if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)
-                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user.Id, IndexAction.Publish));
-            else
-                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user.Id, IndexAction.Index));
-        }
-        else
-            _logger.LogWarning("Kafka indexing topic not configured.");
 
         if (_workOrderHelper.ShouldAutoTranscribe(content.Id)) await _workOrderHelper.RequestTranscriptionAsync(content.Id);
 
@@ -315,23 +275,53 @@ public class ContentController : ControllerBase
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
 
-        var updatedTopics = _contentService.AddOrUpdateContentTopics(id, topics.ToList().ConvertAll(x => x.ToEntity(id)));
+        // The index action follows the content's saved status.
+        _contentService.RequestIndex(id, requestorId: user.Id);
+        var updatedTopics = _contentService.AddOrUpdateContentTopics(id, topics.ToList().ConvertAll(x => x.ToEntity(id)), GetCalculatedTopicScore(id));
 
         var updatedContent = _contentService.FindById(id) ?? throw new NoContentException("Failed to find content");
 
         await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(updatedContent) })));
 
-        if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
-        {
-            if (updatedContent.Status == ContentStatus.Publish || updatedContent.Status == ContentStatus.Published)
-                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(updatedContent.Id, user.Id, IndexAction.Publish));
-            else
-                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(updatedContent.Id, user.Id, IndexAction.Index));
-        }
-        else
-            _logger.LogWarning("Kafka indexing topic not configured.");
-
         return new JsonResult(updatedTopics.ToList().ConvertAll(x => new ContentTopicModel(x)));
+    }
+
+    /// <summary>
+    /// Clear the score override of a content topic, so its score is recalculated from the topic
+    /// score rules.
+    /// </summary>
+    /// <param name="id">The content.</param>
+    /// <param name="topicId">The topic.</param>
+    /// <returns></returns>
+    [HttpPut("{id}/topics/{topicId}/reset")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<ContentTopicModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public async Task<IActionResult> ResetTopicScoreAsync(long id, int topicId)
+    {
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+
+        _topicScoreService.RequestIndex(id, requestorId: user.Id);
+        _topicScoreService.ResetOverride(id, topicId);
+        var updatedContent = _contentService.FindById(id) ?? throw new NoContentException("Failed to find content");
+
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(updatedContent) })));
+
+        return new JsonResult(updatedContent.TopicsManyToMany.Select(x => new ContentTopicModel(x)));
+    }
+
+    /// <summary>
+    /// The score the topic score rules give the content, or null when it is not scored.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <returns></returns>
+    private int? GetCalculatedTopicScore(long contentId)
+    {
+        if (!_topicScoreService.IsEligible(contentId)) return null;
+        var input = _topicScoreService.GetInput(contentId);
+        return input == null ? null : _topicScoreService.Calculate(input).Score;
     }
 
     /// <summary>
@@ -418,30 +408,25 @@ public class ContentController : ControllerBase
             if (update.Count > countBefore) update[^1].OwnerId ??= user.Id;
         }
 
-        // Save all changes in a single transaction.
+        foreach (var content in update)
+        {
+            // If a request is submitted to unpublish we do it regardless of the current state of the content.
+            if (content.Status == ContentStatus.Unpublish)
+                _contentService.RequestIndex(content, IndexRequestAction.Unpublish, user.Id);
+
+            // Any request to publish, or if content is already published, we will republish.
+            if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)
+                _contentService.RequestIndex(content, IndexRequestAction.Publish, user.Id);
+
+            // Always index the content.
+            _contentService.RequestIndex(content, IndexRequestAction.Index, user.Id);
+        }
+
+        // Save all changes and their index requests in a single transaction.
         _contentService.CommitTransaction();
 
-        if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
-        {
-            foreach (var content in update)
-            {
-                await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content) })));
-
-                // If a request is submitted to unpublish we do it regardless of the current state of the content.
-                if (content.Status == ContentStatus.Unpublish)
-                    await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user.Id, IndexAction.Unpublish));
-
-                // Any request to publish, or if content is already published, we will republish.
-                if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)
-                    await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user.Id, IndexAction.Publish));
-
-                // Always index the content.
-                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user.Id, IndexAction.Index));
-
-            }
-        }
-        else
-            _logger.LogWarning("Kafka indexing topic not configured.");
+        foreach (var content in update)
+            await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.ContentUpdated, new[] { new ContentMessageModel(content) })));
 
         return new JsonResult(update.Select(c => new ContentModel(c)).ToArray());
     }
@@ -459,17 +444,11 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> DeleteAsync([FromBody] ContentModel model)
     {
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+
+        _contentService.RequestIndex(model.Id, IndexRequestAction.Delete, user.Id);
         _contentService.DeleteAndSave((Content)model);
-
-        if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
-        {
-            var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-            var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
-
-            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(model.Id, user.Id, IndexAction.Delete));
-        }
-        else
-            _logger.LogWarning("Kafka indexing topic not configured.");
 
         return new JsonResult(model);
     }
@@ -489,17 +468,11 @@ public class ContentController : ControllerBase
     {
         if (model.Status != ContentStatus.Published) model.Status = ContentStatus.Publish;
         model.PostedOn = DateTime.UtcNow;
-        var content = _contentService.UpdateAndSave((Content)model);
-
-        if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
-        {
-            var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-            var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
-
-            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user.Id, IndexAction.Publish));
-        }
-        else
-            _logger.LogWarning("Kafka indexing topic not configured.");
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var updateContent = (Content)model;
+        _contentService.RequestIndex(updateContent, IndexRequestAction.Publish, user.Id);
+        var content = _contentService.UpdateAndSave(updateContent);
 
         if (_workOrderHelper.ShouldAutoTranscribe(content.Id)) await _workOrderHelper.RequestTranscriptionAsync(content.Id);
 
@@ -517,20 +490,15 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> UnpublishAsync([FromBody] ContentModel model)
+    public IActionResult UnpublishAsync([FromBody] ContentModel model)
     {
-        var content = _contentService.UpdateAndSave((Content)model);
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var updateContent = (Content)model;
+        // Content saved in any other status is not unpublished (the request fails after the save, as before).
+        if (updateContent.Status == ContentStatus.Published) _contentService.RequestIndex(updateContent, IndexRequestAction.Unpublish, user.Id);
+        var content = _contentService.UpdateAndSave(updateContent);
         if (!new[] { ContentStatus.Published }.Contains(content.Status)) throw new InvalidOperationException("Content is an invalid status, and cannot be unpublished.");
-
-        if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
-        {
-            var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-            var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
-
-            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user.Id, IndexAction.Unpublish));
-        }
-        else
-            _logger.LogWarning("Kafka indexing topic not configured.");
 
         return new JsonResult(new ContentModel(content));
     }
@@ -560,6 +528,10 @@ public class ContentController : ControllerBase
         // If the content has a file reference, then update it.  Otherwise, add one.
         content.Version = version; // TODO: Handle concurrency before uploading the file as it will result in an orphaned file.
 
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        _fileReferenceService.RequestIndex(content, content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published ? IndexRequestAction.Publish : IndexRequestAction.Index, user.Id);
+
         // save file reference
         var updatedFileReference = content.FileReferences.Any()
             ? await _fileReferenceService.UploadAsync(content, file, _storageOptions.GetUploadPath())
@@ -584,20 +556,7 @@ public class ContentController : ControllerBase
             }
         }
 
-        var updatedContent = new ContentModel(content);
-        if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
-        {
-            var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-            var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
-            if (updatedContent.Status == ContentStatus.Publish || updatedContent.Status == ContentStatus.Published)
-                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(updatedContent.Id, user.Id, IndexAction.Publish));
-            else
-                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(updatedContent.Id, user.Id, IndexAction.Index));
-        }
-        else
-            _logger.LogWarning("Kafka indexing topic not configured.");
-
-        return new JsonResult(updatedContent);
+        return new JsonResult(new ContentModel(content));
     }
 
     /// <summary>
@@ -673,6 +632,10 @@ public class ContentController : ControllerBase
         path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
         var content = _contentService.FindById(contentId) ?? throw new NoContentException("Entity does not exist");
         content.Version = version;
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        // Recorded by the file reference save, in its transaction.
+        _fileReferenceService.RequestIndex(content, content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published ? IndexRequestAction.Publish : IndexRequestAction.Index, user.Id);
 
         var dataLocation = _connection.GetDataLocation(locationId);
         if (dataLocation?.Connection?.ConnectionType == ConnectionType.LocalVolume)
@@ -691,18 +654,6 @@ public class ContentController : ControllerBase
             if (_workOrderHelper.ShouldAutoTranscribe(content.Id)) await _workOrderHelper.RequestTranscriptionAsync(content.Id);
 
             var updatedContent = new ContentModel(content);
-
-            if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
-            {
-                var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-                var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
-                if (updatedContent.Status == ContentStatus.Publish || updatedContent.Status == ContentStatus.Published)
-                    await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(updatedContent.Id, user.Id, IndexAction.Publish));
-                else
-                    await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(updatedContent.Id, user.Id, IndexAction.Index));
-            }
-            else
-                _logger.LogWarning("Kafka indexing topic not configured.");
             return new JsonResult(updatedContent);
         }
         else if (dataLocation?.Connection == null)
@@ -718,18 +669,6 @@ public class ContentController : ControllerBase
             if (_workOrderHelper.ShouldAutoTranscribe(content.Id)) await _workOrderHelper.RequestTranscriptionAsync(content.Id);
 
             var updatedContent = new ContentModel(content);
-
-            if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
-            {
-                var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-                var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
-                if (updatedContent.Status == ContentStatus.Publish || updatedContent.Status == ContentStatus.Published)
-                    await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(updatedContent.Id, user.Id, IndexAction.Publish));
-                else
-                    await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(updatedContent.Id, user.Id, IndexAction.Index));
-            }
-            else
-                _logger.LogWarning("Kafka indexing topic not configured.");
 
             return new JsonResult(updatedContent);
         }

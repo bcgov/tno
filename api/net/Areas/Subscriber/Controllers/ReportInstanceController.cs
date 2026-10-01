@@ -185,11 +185,14 @@ public class ReportInstanceController : ControllerBase
     [AllowAnonymous]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ReportResultModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> ViewAsync(int id, bool regenerate = false)
     {
-        var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException("Report does not exist");
+        // A report instance that no longer exists (e.g. purged by history retention) is not found.
+        var instance = _reportInstanceService.FindById(id);
+        if (instance == null) return NoContent();
 
         if (regenerate || String.IsNullOrWhiteSpace(instance.Body))
         {

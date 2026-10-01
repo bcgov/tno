@@ -37,6 +37,23 @@ public class ReportSectionSettingsModel
     public int? ChoiceQty { get; set; }
     public float? Temperature { get; set; }
     public bool ShowErrorDetails { get; set; }
+
+    /// <summary>
+    /// get/set - Which content feeds an AI section: 'Report' (every content section, the behaviour
+    /// of sections saved before scopes existed) or 'Sections' (the SourceSections).
+    /// </summary>
+    public string? AIScope { get; set; }
+
+    /// <summary>
+    /// get/set - The content sections (by name) that feed an AI section scoped to sections.
+    /// </summary>
+    public string[] SourceSections { get; set; } = Array.Empty<string>();
+
+    /// <summary>
+    /// get/set - What an AI section produces: 'FreeText' (default) or 'TopicSummary' (headings
+    /// with bullet statements and source lists).
+    /// </summary>
+    public string? AIOutputMode { get; set; }
     #endregion
 
     #region Constructors
@@ -74,6 +91,9 @@ public class ReportSectionSettingsModel
         this.ChoiceQty = settings.GetDictionaryJsonValue<int?>("choiceQty", null, options)!;
         this.Temperature = settings.GetDictionaryJsonValue<float?>("temperature", null, options)!;
         this.ShowErrorDetails = settings.GetDictionaryJsonValue("showErrorDetails", false, options)!;
+        this.AIScope = settings.GetDictionaryJsonValue<string?>("aiScope", null, options)!;
+        this.SourceSections = settings.GetDictionaryJsonValue("sourceSections", Array.Empty<string>(), options)!;
+        this.AIOutputMode = settings.GetDictionaryJsonValue<string?>("aiOutputMode", null, options)!;
     }
 
     public ReportSectionSettingsModel(JsonDocument settings, JsonSerializerOptions options)
@@ -108,6 +128,9 @@ public class ReportSectionSettingsModel
         this.ChoiceQty = settings.GetElementValue<int?>("choiceQty", null, options)!;
         this.Temperature = settings.GetElementValue<float?>("temperature", null, options)!;
         this.ShowErrorDetails = settings.GetElementValue("showErrorDetails", false, options)!;
+        this.AIScope = settings.GetElementValue<string?>("aiScope", null, options)!;
+        this.SourceSections = settings.GetElementValue("sourceSections", Array.Empty<string>(), options)!;
+        this.AIOutputMode = settings.GetElementValue<string?>("aiOutputMode", null, options)!;
     }
     #endregion
 }

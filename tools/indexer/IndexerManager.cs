@@ -22,6 +22,7 @@ public class IndexerManager : ServiceManager<IndexerOptions>
 {
     #region Variables
     private readonly IContentService _contentService;
+    private readonly IContentAnalysisService _analysisService;
     private readonly JsonSerializerOptions _serializationOptions;
     #endregion
 
@@ -40,6 +41,7 @@ public class IndexerManager : ServiceManager<IndexerOptions>
     #region Constructors
     public IndexerManager(
         IContentService contentService,
+        IContentAnalysisService analysisService,
         IApiService api,
         IChesService chesService,
         IOptions<ElasticOptions> elasticOptions,
@@ -50,6 +52,7 @@ public class IndexerManager : ServiceManager<IndexerOptions>
         : base(api, chesService, chesOptions, options, logger)
     {
         _contentService = contentService;
+        _analysisService = analysisService;
         _serializationOptions = serializationOptions.Value;
         this.ElasticOptions = elasticOptions.Value;
         var connect = new ElasticsearchClientSettings(this.ElasticOptions.Url);
@@ -153,17 +156,28 @@ public class IndexerManager : ServiceManager<IndexerOptions>
                 Operations = new List<IBulkOperation>(),
             };
 
+            var bulkRequestEvidence = new BulkRequest(this.ElasticOptions.EvidenceIndex)
+            {
+                Operations = new List<IBulkOperation>(),
+            };
+            var analyses = _analysisService.FindCurrent(results.Items.Select(c => c.Id).ToArray());
+
             foreach (var content in results.Items)
             {
                 var contentModel = new ContentModel(content, _serializationOptions);
-                if (!content.IsApproved && content.ContentType == ContentType.AudioVideo) content.Body = "";
+                if (analyses.TryGetValue(content.Id, out var analysis))
+                    contentModel.Analysis = new ContentAnalysisSummaryModel(analysis, _serializationOptions);
 
+                // Versioned by projection revision so a reindex never overwrites a newer document.
                 if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)
                 {
                     contentModel.Status = ContentStatus.Published;
-                    var indexPublishedOperation = new BulkIndexOperation<ContentModel>(contentModel)
+                    // An unapproved transcript is never published.
+                    var indexPublishedOperation = new BulkIndexOperation<ContentModel>(contentModel.ToPublishedDocument())
                     {
                         Id = content.Id,
+                        VersionType = VersionType.ExternalGte,
+                        Version = content.ProjectionRevision,
                     };
                     bulkRequestPublishedContent.Operations.Add(indexPublishedOperation);
                 }
@@ -171,35 +185,57 @@ public class IndexerManager : ServiceManager<IndexerOptions>
                 var indexOperation = new BulkIndexOperation<ContentModel>(contentModel)
                 {
                     Id = content.Id,
+                    VersionType = VersionType.ExternalGte,
+                    Version = content.ProjectionRevision,
                 };
                 bulkRequestAllContent.Operations.Add(indexOperation);
+
+                // Report evidence follows the content's current analysis.
+                if (!String.IsNullOrWhiteSpace(this.ElasticOptions.EvidenceIndex) && contentModel.Analysis != null)
+                    bulkRequestEvidence.Operations.Add(new BulkIndexOperation<ContentEvidenceModel>(new ContentEvidenceModel(contentModel, contentModel.Analysis))
+                    {
+                        Id = content.Id,
+                        VersionType = VersionType.ExternalGte,
+                        Version = content.ProjectionRevision,
+                    });
             }
 
             // Index all content to cloud
             if (bulkRequestAllContent.Operations.Count > 0)
             {
                 var allResponse = await this.Client.BulkAsync(bulkRequestAllContent);
-                if (!allResponse.IsValidResponse)
+                if (!IsSuccess(allResponse))
                 {
                     success = false;
                     this.State.RecordFailure();
                     this.Logger.LogError("Failed to index all content.  Error: {error}", allResponse.DebugInformation);
-                    foreach (var item in allResponse.ItemsWithErrors)
+                    foreach (var item in allResponse.ItemsWithErrors.Where(i => i.Status != 409))
                     {
                         this.Logger.LogError("Error for document: {id}: {error}", item.Id, item.Error?.Reason);
                     }
                 }
             }
 
+            if (bulkRequestEvidence.Operations.Count > 0)
+            {
+                var evidenceResponse = await this.Client.BulkAsync(bulkRequestEvidence);
+                if (!IsSuccess(evidenceResponse))
+                {
+                    success = false;
+                    this.State.RecordFailure();
+                    this.Logger.LogError("Failed to index evidence.  Error: {error}", evidenceResponse.DebugInformation);
+                }
+            }
+
             if (bulkRequestPublishedContent.Operations.Count > 0)
             {
                 var publishedResponse = await this.Client.BulkAsync(bulkRequestPublishedContent);
-                if (!publishedResponse.IsValidResponse)
+                if (!IsSuccess(publishedResponse))
                 {
                     success = false;
                     this.State.RecordFailure();
                     this.Logger.LogError("Failed to index published content.  Error: {error}", publishedResponse.DebugInformation);
-                    foreach (var item in publishedResponse.ItemsWithErrors)
+                    foreach (var item in publishedResponse.ItemsWithErrors.Where(i => i.Status != 409))
                     {
                         this.Logger.LogError("Error for document: {id}: {error}", item.Id, item.Error?.Reason);
                     }
@@ -229,6 +265,20 @@ public class IndexerManager : ServiceManager<IndexerOptions>
 
         // This will stop the main processing loop.
         return false;
+    }
+
+    /// <summary>
+    /// A bulk request succeeded when every item was written or was already at a newer revision
+    /// (a 409 version conflict means a newer document is indexed, which is the desired outcome).
+    /// </summary>
+    /// <param name="response"></param>
+    /// <returns></returns>
+    private static bool IsSuccess(BulkResponse response)
+    {
+        if (response.IsValidResponse) return true;
+        return response.ApiCallDetails?.HasSuccessfulStatusCode == true
+            && response.Items.Count > 0
+            && response.ItemsWithErrors.All(i => i.Status == 409);
     }
     #endregion
 }

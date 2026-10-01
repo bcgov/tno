@@ -3,6 +3,7 @@ import { IContentModel } from '.';
 export interface IFolderContentModel {
   sortOrder: number;
   contentId: number;
-  maxTopicScore?: number;
+  /** The score the topic score rules give the content; an editor can choose up to it. */
+  calculatedTopicScore?: number;
   content?: IContentModel;
 }

@@ -172,6 +172,9 @@ export const Menu: React.FC = () => {
                 <NavDropdown.Item as={Link} to="/admin/automations">
                   <FaCogs /> Automations
                 </NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/admin/content-analysis">
+                  <FaCogs /> Content Analysis
+                </NavDropdown.Item>
               </MenuDropdown>
             </Nav>
           </Navbar.Collapse>

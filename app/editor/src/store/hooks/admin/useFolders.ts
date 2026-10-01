@@ -11,7 +11,10 @@ import {
 interface IFolderController {
   findFolders: (filter: IFolderFilter) => Promise<IFolderModel[]>;
   getFolder: (id: number, includeContent: boolean) => Promise<IFolderModel>;
-  getContentInFolder: (id: number, includeMaxTopicScore: boolean) => Promise<IFolderContentModel[]>;
+  getContentInFolder: (
+    id: number,
+    includeCalculatedTopicScore: boolean,
+  ) => Promise<IFolderContentModel[]>;
   addFolder: (model: IFolderModel) => Promise<IFolderModel>;
   updateFolder: (model: IFolderModel) => Promise<IFolderModel>;
   deleteFolder: (model: IFolderModel) => Promise<IFolderModel>;
@@ -48,10 +51,10 @@ export const useFolders = (): [IAdminState & { initialized: boolean }, IFolderCo
         );
         return response.data;
       },
-      getContentInFolder: async (id: number, includeMaxTopicScore: boolean = false) => {
+      getContentInFolder: async (id: number, includeCalculatedTopicScore: boolean = false) => {
         const response = await dispatch<IFolderContentModel[]>(
           'get-folder-content',
-          async () => await api.getContentInFolder(id, includeMaxTopicScore),
+          async () => await api.getContentInFolder(id, includeCalculatedTopicScore),
         );
         return response.data;
       },

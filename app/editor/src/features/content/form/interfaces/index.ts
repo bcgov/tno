@@ -1,3 +1,4 @@
+export * from './IContentAnalysisDetailsModel';
 export * from './IContentForm';
 export * from './IGroupedTopicOptions';
 export * from './ITopicOptionItem';

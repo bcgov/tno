@@ -16,6 +16,7 @@ public class LLMConfiguration : BaseTypeConfiguration<LLM, int>
         builder.Property(m => m.UserPrompt).IsRequired().HasColumnType("text");
         builder.Property(m => m.ApiKey).HasMaxLength(500);
         builder.Property(m => m.ProjectEndpoint).HasMaxLength(1000);
+        builder.Property(m => m.TokenEstimation).HasMaxLength(50);
 
         builder.HasIndex(m => m.Name, "IX_ai_model").IsUnique();
         builder.HasIndex(m => new { m.IsPublic }, "IX_ai_model_search");

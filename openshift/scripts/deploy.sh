@@ -625,11 +625,8 @@ podsNginxSubscriber=$(getPods nginx-subscriber deployment $env)
 podsCharts=$(getPods charts-api deployment $env)
 podsApi=$(getPods api statefulset $env)
 podsApiServices=$(getPods api-services deployment $env)
-podsCorenlp=$(getPods corenlp deployment $env)
-podsNLP=$(getPods nlp-service deployment $env)
 podsFFmpeg=$(getPods ffmpeg-service deployment $env)
 podsTranscription=$(getPods transcription-service deployment $env)
-podsExtractQuotes=$(getPods extract-quotes-service deployment $env)
 
 # Kafka Consumers - Stateless (8 services)
 podsFolderCollection=$(getPods folder-collection-service deployment $env)
@@ -644,6 +641,7 @@ podsReporting=$(getPods reporting-service deployment $env)
 podsChesRetry=$(getPods ches-retry-service deployment $env)
 podsAutoClipper=$(getPods auto-clipper-service deployment $env)
 podsAutomation=$(getPods automation-service deployment $env)
+podsContentAnalysis=$(getPods content-analysis-service deployment $env)
 
 # Kafka Consumers - Single-Instance (4 services)
 podsScheduler=$(getPods scheduler-service deployment $env)
@@ -663,11 +661,8 @@ acr_tag editor
 acr_tag subscriber
 acr_tag charts-api
 acr_tag api
-acr_tag corenlp
-acr_tag nlp-service
 acr_tag ffmpeg-service
 acr_tag transcription-service
-acr_tag extract-quotes-service
 
 # Kafka Consumers (Stateless)
 acr_tag folder-collection-service
@@ -679,6 +674,7 @@ acr_tag reporting-service
 acr_tag ches-retry-service
 acr_tag auto-clipper-service
 acr_tag automation-service
+acr_tag content-analysis-service
 
 # Kafka Producers (Single-Instance)
 acr_tag scheduler-service
@@ -706,11 +702,8 @@ scale subscriber $podsSubscriber deployment $env
 scale nginx-editor $podsNginxEditor deployment $env
 scale nginx-subscriber $podsNginxSubscriber deployment $env
 scale charts-api $podsCharts deployment $env
-scale corenlp $podsCorenlp deployment $env
-scale nlp-service $podsNLP deployment $env
 scale ffmpeg-service $podsFFmpeg deployment $env
 scale transcription-service $podsTranscription deployment $env
-scale extract-quotes-service $podsExtractQuotes deployment $env
 
 # Kafka Consumers
 scale folder-collection-service $podsFolderCollection deployment $env
@@ -725,6 +718,7 @@ scale reporting-service $podsReporting deployment $env
 scale ches-retry-service $podsChesRetry deployment $env
 scale auto-clipper-service $podsAutoClipper deployment $env
 scale automation-service $podsAutomation deployment $env
+scale content-analysis-service $podsContentAnalysis deployment $env
 
 # Kafka Producers (Single-Instance)
 scale scheduler-service $podsScheduler deployment $env

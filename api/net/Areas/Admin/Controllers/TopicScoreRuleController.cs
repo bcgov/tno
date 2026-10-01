@@ -56,32 +56,6 @@ public class TopicScoreRuleController : ControllerBase
     }
 
     /// <summary>
-    /// Update all rules specified.
-    /// </summary>
-    /// <param name="models"></param>
-    /// <returns></returns>
-    [HttpPut]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(TopicScoreRuleModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "TopicScoreRule" })]
-    public IActionResult Update([FromBody] TopicScoreRuleModel[] models)
-    {
-        foreach (var rule in models)
-        {
-            var entity = (TopicScoreRule)rule;
-            if (rule.Remove == true)
-                _service.Delete(entity);
-            else if (rule.Id == 0)
-                _service.Add(entity);
-            else
-                _service.Update(entity);
-        }
-        _service.CommitTransaction();
-        return new JsonResult(_service.FindAll().Select(ds => new TopicScoreRuleModel(ds)));
-    }
-
-    /// <summary>
     /// Find rule for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
@@ -141,6 +115,7 @@ public class TopicScoreRuleController : ControllerBase
     [SwaggerOperation(Tags = new[] { "TopicScoreRule" })]
     public IActionResult Delete([FromBody] TopicScoreRuleModel model)
     {
+        if (model.Id == 0) throw new ArgumentException("The rule has not been saved.");
         _service.DeleteAndSave((TopicScoreRule)model);
         return new JsonResult(model);
     }

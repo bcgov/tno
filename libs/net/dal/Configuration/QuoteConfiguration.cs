@@ -15,7 +15,10 @@ public class QuoteConfiguration : AuditColumnsConfiguration<Quote>
         builder.Property(m => m.Byline).IsRequired().HasMaxLength(500);
         builder.Property(m => m.Statement).IsRequired().HasColumnType("text");
 
+        builder.Property(m => m.Owner).IsRequired().HasDefaultValue(FieldOwner.Human);
+
         builder.HasOne(m => m.Content).WithMany(m => m.Quotes).HasForeignKey(m => m.ContentId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne<ContentAnalysis>().WithMany().HasForeignKey(m => m.AnalysisId).OnDelete(DeleteBehavior.SetNull);
 
         builder.HasIndex(m => m.Statement, "IX_statement");
 

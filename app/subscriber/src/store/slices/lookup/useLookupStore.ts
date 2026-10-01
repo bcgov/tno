@@ -21,7 +21,6 @@ import {
   ITagModel,
   ITonePoolModel,
   ITopicModel,
-  ITopicScoreRuleModel,
   IUserModel,
 } from 'tno-core';
 
@@ -39,7 +38,6 @@ import {
   storeMetrics,
   storeMinisters,
   storeRoles,
-  storeRules,
   storeSeries,
   storeSettings,
   storeSettingsFrontPageImagesMediaTypeId,
@@ -71,7 +69,6 @@ export interface ILookupStore {
   storeHolidays: (users: IHolidayModel[]) => void;
   storeLLMs: (ministers: ILLMModel[]) => void;
   storeMinisters: (ministers: IMinisterModel[]) => void;
-  storeTopicScoreRules: (topicScores: ITopicScoreRuleModel[]) => void;
   storeIngestTypes: (ingestTypes: IIngestTypeModel[]) => void;
   storeRoles: (roles: IRoleModel[]) => void;
   storeMetrics: (metrics: IMetricModel[]) => void;
@@ -102,9 +99,6 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
       },
       storeTopics: (topics: ITopicModel[]) => {
         dispatch(storeTopics(topics));
-      },
-      storeTopicScoreRules: (rules: ITopicScoreRuleModel[]) => {
-        dispatch(storeRules(rules));
       },
       storeMediaTypes: (mediaTypes: IMediaTypeModel[]) => {
         dispatch(storeMediaTypes(mediaTypes));

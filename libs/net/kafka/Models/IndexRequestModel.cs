@@ -22,6 +22,17 @@ public class IndexRequestModel
     /// get/set - Foreign key to user who requested the index.
     /// </summary>
     public int? RequestorId { get; set; }
+
+    /// <summary>
+    /// get/set - The content's projection revision when the request was recorded. The indexer
+    /// versions documents with the revision of the content it fetches, so this is informational.
+    /// </summary>
+    public long? ProjectionRevision { get; set; }
+
+    /// <summary>
+    /// get/set - Why the content is indexed ('lifecycle', 'analysis'); recorded for metrics.
+    /// </summary>
+    public string? Reason { get; set; }
     #endregion
 
     #region Constructors

@@ -18,6 +18,13 @@ public class Topic : BaseType<int>
     public TopicType TopicType { get; set; }
 
     /// <summary>
+    /// get/set - A topic the system relies on (the "Not Applicable" topic). Identify it by this flag
+    /// rather than by its ID or name.
+    /// </summary>
+    [Column("is_system")]
+    public bool IsSystem { get; set; }
+
+    /// <summary>
     /// get - List of content linked to this topic.
     /// </summary>
     public virtual List<Content> Contents { get; } = new List<Content>();

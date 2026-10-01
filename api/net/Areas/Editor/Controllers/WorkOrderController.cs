@@ -171,29 +171,6 @@ public class WorkOrderController : ControllerBase
     }
 
     /// <summary>
-    /// Request a Natural Language Processing for the content for the specified 'contentId'.
-    /// Publish message to kafka to request a NLP.
-    /// </summary>
-    /// <param name="contentId"></param>
-    /// <returns></returns>
-    [HttpPost("nlp/{contentId}")]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(WorkOrderMessageModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "WorkOrder" })]
-    public async Task<IActionResult> RequestNLPAsync(long contentId)
-    {
-        var workOrder = await _workOrderHelper.RequestNLPAsync(contentId, true);
-        if (workOrder.Status != WorkOrderStatus.Submitted)
-            return new JsonResult(new WorkOrderMessageModel(workOrder, _serializerOptions))
-            {
-                StatusCode = (int)HttpStatusCode.AlreadyReported
-            };
-
-        return new JsonResult(new WorkOrderMessageModel(workOrder, _serializerOptions));
-    }
-
-    /// <summary>
     /// Make a work order request for a remote file so that it can be copied to a volume local to the API.
     /// </summary>
     /// <param name="locationId"></param>

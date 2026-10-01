@@ -29,6 +29,17 @@ public class IndexingOptions : ServiceOptions
     ///           Useful for indexing to separate cluster.
     /// </summary>
     public bool IndexOnly { get; set; }
+
+    /// <summary>
+    /// get/set - Attempts made for each Elasticsearch write before the failure is logged and the
+    /// request moves on.
+    /// </summary>
+    public int IndexRetryLimit { get; set; } = 3;
+
+    /// <summary>
+    /// get/set - Milliseconds to wait before retrying a failed write, multiplied by the attempt number.
+    /// </summary>
+    public int IndexRetryDelayMs { get; set; } = 1000;
     #endregion
 
     #region Methods

@@ -47,6 +47,7 @@ import {
 import { isWorkOrderStatus } from '../utils';
 import { ContentFormSchema } from '../validation';
 import {
+  ContentAnalysisForm,
   ContentClipForm,
   ContentLabelsForm,
   ContentNavigation,
@@ -95,7 +96,6 @@ const ContentForm: React.FC<IContentFormProps> = ({
     handleUnpublish,
     handleTranscribe,
     handleAutoClip,
-    handleNLP,
     goToNext,
     file,
     fileReference,
@@ -115,7 +115,6 @@ const ContentForm: React.FC<IContentFormProps> = ({
   const { isShowing: showDeleteModal, toggle: toggleDelete } = useModal();
   const { isShowing: showTranscribeModal, toggle: toggleTranscribe } = useModal();
   const { isShowing: showAutoClipModal, toggle: toggleAutoClip } = useModal();
-  const { isShowing: showNLPModal, toggle: toggleNLP } = useModal();
 
   const refForm = React.useRef<HTMLDivElement>(null);
 
@@ -851,6 +850,15 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                 }}
                                 active={active === 'quotes'}
                               />
+                              <Show visible={!!props.values.id}>
+                                <Tab
+                                  label="Analysis"
+                                  onClick={() => {
+                                    setActive('analysis');
+                                  }}
+                                  active={active === 'analysis'}
+                                />
+                              </Show>
                               <Show
                                 visible={props.values.contentType === ContentTypeName.AudioVideo}
                               >
@@ -914,6 +922,9 @@ const ContentForm: React.FC<IContentFormProps> = ({
                           </Show>
                           <Show visible={active === 'quotes'}>
                             <ContentQuotesForm />
+                          </Show>
+                          <Show visible={active === 'analysis'}>
+                            <ContentAnalysisForm />
                           </Show>
                           <Show visible={active === 'transcript'}>
                             <ContentTranscriptForm setParsedTags={setParsedTags} />
@@ -1218,21 +1229,6 @@ const ContentForm: React.FC<IContentFormProps> = ({
                         await handleAutoClip(props.values, props);
                       } finally {
                         toggleAutoClip();
-                      }
-                    }}
-                  />
-                  <Modal
-                    headerText="Confirm NLP Request"
-                    body="Content has already been Natural Language Processed, do you want to process again?"
-                    isShowing={showNLPModal}
-                    hide={toggleNLP}
-                    type="default"
-                    confirmText="Yes, process"
-                    onConfirm={async () => {
-                      try {
-                        await handleNLP(props.values, props);
-                      } finally {
-                        toggleNLP();
                       }
                     }}
                   />

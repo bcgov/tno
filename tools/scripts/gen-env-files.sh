@@ -70,15 +70,12 @@ INDEXING_PORT=$portIndexing
 IMAGE_PORT=$portImage
 TRANSCRIPTION_PORT=$portTranscription
 AUTO_CLIPPER_PORT=$portAutoClipper
-NLP_PORT=$portNlp
-CORENLP_PORT=$portCoreNlp
 NOTIFICATION_PORT=$portNotification
 REPORTING_PORT=$portReporting
 FOLDER_COLLECTION_PORT=$portFolderCollection
 FFMPEG_PORT=$portFFmpeg
 SCHEDULER_PORT=$portScheduler
 EVENTHANDER_PORT=$portEventHandler
-EXTRACT_QUOTES_PORT=$portExtractQuotes
 
 #############################
 # Kafka Configuration
@@ -602,32 +599,6 @@ Kafka__BootstrapServers=broker:29092" >> ./services/net/indexing/.env
     echo "./services/net/indexing/.env created"
 fi
 
-## NLP Service
-if test -f "./services/net/nlp/.env"; then
-    echo "./services/net/nlp/.env exists"
-else
-echo \
-"ASPNETCORE_ENVIRONMENT=Development
-ASPNETCORE_URLS=http://+:8081
-
-Auth__Keycloak__Authority=http://keycloak:8080
-Auth__Keycloak__Audience=mmi-service-account
-Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
-
-Service__ApiUrl=http://api:8080/api
-
-CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
-CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
-CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
-CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
-CHES__EmailAuthorized=true
-# CHES__OverrideTo=
-
-Kafka__BootstrapServers=broker:29092" >> ./services/net/nlp/.env
-    echo "./services/net/nlp/.env created"
-fi
-
 ## Notification Service
 if test -f "./services/net/notification/.env"; then
     echo "./services/net/notification/.env exists"
@@ -811,6 +782,36 @@ AzureAI__ClientSecret={AZURE CLIENT SECRET}" >> ./services/net/automation/.env
     echo "./services/net/automation/.env created"
 fi
 
+## Content Analysis Service
+if test -f "./services/net/content-analysis/.env"; then
+    echo "./services/net/content-analysis/.env exists"
+else
+echo \
+"# Local
+ASPNETCORE_ENVIRONMENT=Development
+ASPNETCORE_URLS=http://+:8081
+
+###########################################
+# Local
+###########################################
+Auth__Keycloak__Authority=http://keycloak:8080
+Auth__Keycloak__Audience=mmi-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
+Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
+
+Service__ApiUrl=http://api:8080/api
+
+Kafka__Admin__BootstrapServers=broker:29092
+Kafka__Consumer__BootstrapServers=broker:29092
+
+CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
+CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__OverrideTo={CHANGE THIS TO YOUR EMAIL ADDRESS}" >> ./services/net/content-analysis/.env
+    echo "./services/net/content-analysis/.env created"
+fi
+
 ## FFmpeg Service
 if test -f "./services/net/ffmpeg/.env"; then
     echo "./services/net/ffmpeg/.env exists"
@@ -856,51 +857,6 @@ CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
 CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
 CHES__OverrideTo={CHANGE THIS TO YOUR EMAIL ADDRESS}" >> ./services/net/event-handler/.env
     echo "./services/net/event-handler/.env created"
-fi
-
-## Extract Quotes Service
-if test -f "./services/net/extract-quotes/.env"; then
-    echo "./services/net/extract-quotes/.env exists"
-else
-echo \
-"ASPNETCORE_ENVIRONMENT=Development
-ASPNETCORE_URLS=http://+:8081
-
-Auth__Keycloak__Authority=http://keycloak:8080
-Auth__Keycloak__Audience=mmi-service-account
-Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
-
-Service__ApiUrl=http://api:8080/api
-Service__CoreNLPApiUrl=http://corenlp:9000
-Service__ExtractQuotesOnIndex=false
-Service__ExtractQuotesOnPublish=true
-
-Kafka__BootstrapServers=broker:29092
-
-CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
-CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
-CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
-CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
-CHES__OverrideTo={CHANGE THIS TO YOUR EMAIL ADDRESS}
-
-# LLM settings
-Service__UseLLM=true
-Service__PrimaryApiKeys={YOUR_GOOGLE_API_KEY_1};{YOUR_GOOGLE_API_KEY_2};{YOUR_GOOGLE_API_KEY_3}
-Service__PrimaryModelName=gemini-2.0-flash-lite
-Service__PrimaryApiUrl=https://generativelanguage.googleapis.com/v1beta/openai/chat/completions
-
-Service__FallbackApiKeys={YOUR_MISTRAL_API_KEY_1};{YOUR_MISTRAL_API_KEY_2}
-Service__FallbackModelName=mistral-large-latest
-Service__FallbackApiUrl=https://api.mistral.ai/v1/chat/completions
-
-# Rate limit setting (requests per minute)
-Service__MaxRequestsPerMinute=30
-
-# Retry settings
-Service__RetryLimit=1
-Service__RetryDelayMS=1000" >> ./services/net/extract-quotes/.env
-    echo "./services/net/extract-quotes/.env created"
 fi
 
 ## Upload Service

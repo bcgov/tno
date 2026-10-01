@@ -34,7 +34,7 @@ const EventOfTheDayList: React.FC = () => {
   const [, { findAllTopics, updateTopic, addTopic }] = useTopics();
   const [{ getReport, publishReport }] = useReports();
   const { getContentInFolder } = useFolders();
-  const [, { updateContentTopics }] = useContent();
+  const [, { updateContentTopics, resetContentTopicScore }] = useContent();
   const { toggle, isShowing } = useModal();
 
   const [eventOfTheDayFolderId, setEventOfTheDayFolderId] = React.useState(0);
@@ -64,7 +64,7 @@ const EventOfTheDayList: React.FC = () => {
       const firstItemSourceSortOrder = a.content?.source?.sortOrder ?? 99999;
       const firstItemPage = a.content?.page ?? 'ZZZ';
       const secondItemSourceSortOrder = b.content?.source?.sortOrder ?? 99999;
-      const secondItemPage = a.content?.page ?? 'ZZZ';
+      const secondItemPage = b.content?.page ?? 'ZZZ';
       if (firstItemSourceSortOrder === secondItemSourceSortOrder) {
         // Page is only important when Source.SortOrder are the same
         return firstItemPage.localeCompare(secondItemPage);
@@ -96,17 +96,33 @@ const EventOfTheDayList: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventOfTheDayFolderId]);
 
+  /** Replace the topics of one row without mutating the others. */
+  const storeTopics = (contentId: number, topics: IContentTopicModel[]) => {
+    setItems((items) =>
+      items.map((item) =>
+        item.contentId === contentId && item.content
+          ? { ...item, content: { ...item.content, topics } }
+          : item,
+      ),
+    );
+  };
+
   const handleSubmit = async (values: IFolderContentModel) => {
     try {
       const result: IContentTopicModel[] = await updateContentTopics(
         values.contentId,
         values.content!.topics,
       );
+      storeTopics(values.contentId, result);
+    } catch {
+      // Ignore error as it's handled globally.
+    }
+  };
 
-      const index = items.findIndex((el) => el.contentId === values.contentId);
-      const results = [...items];
-      results[index].content!.topics = result;
-      setItems(results);
+  const handleReset = async (values: IFolderContentModel, topic: IContentTopicModel) => {
+    try {
+      const result = await resetContentTopicScore(values.contentId, topic.id);
+      storeTopics(values.contentId, result);
     } catch {
       // Ignore error as it's handled globally.
     }
@@ -114,33 +130,30 @@ const EventOfTheDayList: React.FC = () => {
 
   const handleAddOrUpdate = async (values: ITopicModel) => {
     try {
-      let results: ITopicModel[] = [];
+      // The small form only adds topics.
+      if (values.id !== 0) return;
+
       // need case insensitive string compare here or we will end up with variations on names
       const topicNameMatch = allTopics.find(
         (x) => x.name.toUpperCase() === values.name.toUpperCase(),
       );
 
-      if (values.id === 0) {
-        if (!topicNameMatch) {
-          const result = await addTopic(values);
-          results = [...allTopics, result];
-          toast.success(`Topic with name [${values.name}] has been added.`);
-        } else {
-          if (topicNameMatch.isEnabled) {
-            toast.warn(`Topic with name [${values.name}] already exists.`);
-            return;
-          } else {
-            const result = await updateTopic({
-              ...topicNameMatch,
-              isEnabled: values.isEnabled,
-              topicType: values.topicType,
-            });
-            results = [...allTopics, result];
-            toast.success(`Topic with name [${values.name}] has been added.`);
-          }
-        }
+      if (!topicNameMatch) {
+        const result = await addTopic(values);
+        setAllTopics((topics) => [...topics, result]);
+        toast.success(`Topic with name [${values.name}] has been added.`);
+      } else if (topicNameMatch.isEnabled) {
+        toast.warn(`Topic with name [${values.name}] already exists.`);
+      } else {
+        // Re-enable the disabled topic of the same name rather than adding a duplicate.
+        const result = await updateTopic({
+          ...topicNameMatch,
+          isEnabled: values.isEnabled,
+          topicType: values.topicType,
+        });
+        setAllTopics((topics) => topics.map((t) => (t.id === result.id ? result : t)));
+        toast.success(`Topic with name [${values.name}] has been added.`);
       }
-      setAllTopics(results);
     } catch {
       // Ignore error as it's handled globally.
     }
@@ -194,7 +207,7 @@ const EventOfTheDayList: React.FC = () => {
         <FlexboxTable
           rowId="contentId"
           data={items}
-          columns={useColumns(allTopics, handleSubmit)}
+          columns={useColumns(allTopics, handleSubmit, handleReset)}
           groupBy={(item) => {
             if (item.original.content?.series?.name) return item.original.content?.series?.name;
             else if (item.original.content?.source?.name) {

@@ -1,7 +1,8 @@
 # Content Analysis and Scalable Report AI
 
-Status: **Proposed** — no application changes implemented. Revised 2026-09-30 after verifying the
-original plan against the code and confirming the decisions below.
+Status: **Implemented** on the `content-analysis` branch (2026-09-30), not yet released. See
+[IMPLEMENTATION.md](IMPLEMENTATION.md) for what was built, deviations, deployment order, and open
+questions.
 
 ## Goals
 
@@ -46,8 +47,8 @@ Phase 4 extends analysis coverage to historical content.
 | Eligibility | All content is analyzed; administrators configure excluded media types and sources. |
 | Triggering | A quiet period per content ID (default 2 minutes) after the last input change; only the latest input is analyzed. |
 | Work queue | A database job table is the source of truth (priority, lease, fencing token). Kafka messages only wake workers. |
-| Populated fields | Summary, Tags, Contributor, Quotes, and Topics — only when empty and not cleared by a human. Topics have their own controls. |
-| Topics | Staff-managed `Topic` list. Controlled by a global switch and a mode: use existing active topics only, or allow creating topics. Scores come from the topic score rules, refactored in [05-topic-scoring.md](05-topic-scoring.md). Unmatched extracted topics go to an analysis topic registry. |
+| Populated fields | Summary, Tags, Contributor, Quotes, and Topics — only when empty and not cleared by a human, and only for the processes the Content-Analysis service is configured to run. |
+| Topics | Staff-managed `Topic` list. Assigned when the service runs its `Topics` process, with a mode: use existing active topics only, or allow creating topics. Scores come from the topic score rules, refactored in [05-topic-scoring.md](05-topic-scoring.md). Unmatched extracted topics go to an analysis topic registry. |
 | Analysis retention | Analysis records last as long as their content. |
 | History retention | Report history purged after 90 days and notification history after 30, per [06-history-retention.md](06-history-retention.md). |
 | Existing values at migration | Every populated value is human-owned. |
@@ -87,9 +88,8 @@ Verified against the code; these are the constraints each phase starts from.
 ```mermaid
 flowchart TD
     U[Content added or updated] --> A[API / DAL transaction]
-    A --> D[(Content, analysis jobs, index outbox)]
-    D --> O[Outbox dispatcher]
-    O --> IQ[Kafka index topic]
+    A --> D[(Content, analysis jobs)]
+    A -->|after commit| IQ[Kafka index topic]
     D -. wake-up .-> AQ[Kafka analysis topic]
     AQ --> CA[Content-Analysis service]
     CA -->|claim / input / submit via API| A
@@ -107,9 +107,9 @@ flowchart TD
     M --> OUT[Render and send]
 ```
 
-- Analysis jobs are written in the same transaction as the content change, so analysis needs no
-  outbox. Only index requests use the outbox (Phase 3; until then they are published after commit
-  as today).
+- Analysis jobs are written in the same transaction as the content change. Index requests are
+  sent to Kafka once it commits, before the API responds; if Kafka does not accept them the
+  request fails.
 - Reporting reads whatever analysis exists. It never creates jobs, waits, or requests backfills.
 
 ## Configuration
@@ -123,11 +123,11 @@ All values are configuration; the defaults are proposals to confirm before rollo
 | Analysis quiet period | 2 minutes | 2 |
 | Transient retry attempts before a job fails | 5 | 2 |
 | Excluded media types / sources | none | 2 |
-| Topic population enabled | off | 2 |
+| Content-Analysis processes | Metadata, Summary, Quotes, Tags, Contributor, Topics (service configuration) | 2 |
 | Topic population mode | existing active topics only | 2 |
-| Index outbox retention for dispatched rows | to confirm | 3 |
+| API Kafka producer message timeout | 10 seconds | 3 |
 | `index.gc_deletes` | to confirm (longer than the longest redelivery delay) | 3 |
-| Reconciliation lag threshold | to confirm | 3 |
+| Indexing write attempts | 3 | 3 |
 | Backfill share of provider throughput | 20% | 4 |
 | Source default topic score | none (0) | Topic scoring |
 | `ReportRetentionDays` | 90 | Retention |
@@ -147,7 +147,7 @@ All values are configuration; the defaults are proposals to confirm before rollo
 
 - **Duplicate alerts on analysis re-index.** The indexer sends a `notify` message on every index.
   Notifications with the `Updated` or `Republished` resend option can therefore fire again when
-  analysis finishes after publication. Phase 2 measures this during shadow validation; if it
+  analysis finishes after publication. Phase 2 measures this once analysis runs; if it
   occurs, revisit by honouring an index `Reason` in the indexer.
 - **Report duration.** Bounded synthesis of large reports takes longer than one request, and the
   reporting service handles one report at a time. Phase 1 measures generation time and sets

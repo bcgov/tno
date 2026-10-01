@@ -209,6 +209,5 @@ Below is a list of all the additional services and utilities.
 | content       | 40025 | Kafka Consumer to create content for Editors                   |
 | indexing      | 40026 | Kafka Consumer to index content for search                     |
 | transcription | 40027 | Kafka Consumer/Producer to transcribe audio/video content      |
-| nlp           | 40028 | Kafka Consumer/Producer to perform Natural Language Processing |
 
 To see the Swagger Document, use this link after setting up your local environment: http://localhost:40010/api-docs/index.html

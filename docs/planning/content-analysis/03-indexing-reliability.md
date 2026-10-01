@@ -1,7 +1,7 @@
 # Phase 3 — Indexing Reliability
 
-Make index requests transactional and Elasticsearch writes ordered, so a crash, Kafka failure, or
-redelivery can neither lose an update nor let an older projection replace a newer one.
+Make Kafka failures visible and Elasticsearch writes ordered, so a redelivered or out-of-order
+request can never let an older projection replace a newer one.
 
 ## Current behavior
 
@@ -13,20 +13,18 @@ redelivery can neither lose an update nor let an older projection replace a newe
   (consumer group `IndexingCloud`, index names `content` and `published_content`).
 - `tools/indexer` and the Elasticsearch migration tool also write documents.
 
-## Index outbox
+## Index requests
 
-Add `content_index_outbox`: content ID, index action (`Index`, `Publish`, `Unpublish`, `Delete`),
-projection revision, reason (`lifecycle`, `analysis`), requestor, created and dispatched times.
-
-- Every place that publishes an index request today inserts an outbox row in the same transaction
-  instead. Paths that do not index today keep not indexing, except the bug fixes below.
-- Content gains a `projection_revision` column, incremented with each outbox insert.
-- A dispatcher in the API (background service, `FOR UPDATE SKIP LOCKED`, safe across replicas)
-  publishes rows to the `index` topic keyed by content ID and marks them dispatched after the Kafka
-  acknowledgement. Dispatched rows are pruned after a retention period.
+- Every place that publishes an index request today still does, in the same API request as the
+  change. Paths that do not index today keep not indexing, except the bug fixes below.
+- Content gains a `projection_revision` column, incremented in the same transaction as the change
+  each index request follows.
+- The API sends the requests to the `index` topic, keyed by content ID, once the transaction
+  commits and before it responds. When Kafka does not accept them the request fails (HTTP 500):
+  Kafka being down means the system is down. The API's producer gives up after
+  `Kafka:Producer:MessageTimeoutMs` (10 seconds) rather than Kafka's 5-minute default.
+- There is no queue of unsent requests and no background dispatcher.
 - Hub (SignalR) messages stay post-commit and best effort.
-- Analysis jobs need no outbox: they are already written in the content transaction
-  ([Phase 2](02-content-analysis.md#triggering)).
 
 `IndexRequestModel` gains `ProjectionRevision` and `Reason`. The indexer's side effects
 (notifications, folder forwarding) are unchanged for every reason; `Reason` is recorded for metrics.
@@ -43,11 +41,11 @@ projection revision, reason (`lifecycle`, `analysis`), requestor, created and di
 - Enable versioning only on indexes rebuilt from the database by an Elasticsearch migration, so no
   document carries an internal version. Run it on both clusters.
 
-## Reconciliation
+## Failed writes
 
-- The indexer records the projection revision it indexed, per index target, through the API.
-- A periodic job re-queues content whose indexed revision has lagged its projection revision
-  beyond a threshold. It only repairs missed work; it never becomes an archive-wide re-index.
+The indexing service retries each Elasticsearch write a configured number of times
+(`Service:IndexRetryLimit`, default 3) and logs a write that still fails. A separate service that
+checks and repairs missed writes is out of scope.
 
 ## Mutation paths that do not index today
 
@@ -75,8 +73,8 @@ Unchanged by this phase unless listed under bug fixes; recorded so the behavior 
 
 ## Tests
 
-- A crash between commit and dispatch still indexes the change.
+- A request whose index requests Kafka does not accept fails; a rolled-back change sends none.
 - Redelivered and out-of-order index messages cannot regress or resurrect a document.
 - Both clusters (on-prem and Elastic Cloud index names) receive ordered writes.
-- Reconciliation repairs a dropped Elasticsearch write.
+- A failed Elasticsearch write is retried, then logged.
 - Subscriber delete removes the document; `tools/indexer` never publishes an unapproved transcript.

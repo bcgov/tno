@@ -16,7 +16,7 @@ metadata:
     managed-by: kustomize
 data:
   KAFKA_CLIENT_ID: Transcription
-  MAX_FAIL_LIMIT: "5"
+  MAX_FAILURE_LIMIT: "5"
   TOPICS: transcribe
   VOLUME_PATH: /data
   NOTIFICATION_TOPIC: ""

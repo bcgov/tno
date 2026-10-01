@@ -5,6 +5,7 @@ import { useSettings } from 'store/hooks/admin';
 import { Col, FlexboxTable, IconButton, type ISettingModel, Row } from 'tno-core';
 
 import { columns } from './constants';
+import { HistoryRetentionPanel } from './HistoryRetentionPanel';
 import { SettingFilter } from './SettingFilter';
 import * as styled from './styled';
 
@@ -40,6 +41,7 @@ const SettingList: React.FC = () => {
             }}
           />
         </Row>
+        <HistoryRetentionPanel settings={settings} />
         <SettingFilter
           onFilterChange={(filter) => {
             if (filter && filter.length) {

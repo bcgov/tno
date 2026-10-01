@@ -29,16 +29,6 @@ patches:
         value: dev
   - target:
       kind: BuildConfig
-      name: nlp-service.dev
-    patch: |-
-      - op: replace
-        path: /spec/source/git/uri
-        value: https://github.com/bcgov/tno.git
-      - op: replace
-        path: /spec/source/git/ref
-        value: dev
-  - target:
-      kind: BuildConfig
       name: indexing-service.dev
     patch: |-
       - op: replace

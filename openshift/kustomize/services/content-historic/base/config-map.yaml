@@ -16,7 +16,7 @@ metadata:
     managed-by: kustomize
 data:
   KAFKA_CLIENT_ID: ContentHistoric-TNO
-  MAX_FAIL_LIMIT: "5"
+  MAX_FAILURE_LIMIT: "5"
   CONTENT_TOPICS_OVERRIDE: "TNO-HISTORIC"
   CHES_EMAIL_ENABLED: "true"
   CHES_EMAIL_AUTHORIZED: "true"

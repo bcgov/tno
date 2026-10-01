@@ -36,5 +36,10 @@ public class ElasticOptions
     /// get/set - The name of the Elasticsearch index for published content.
     /// </summary>
     public string PublishedIndex { get; set; } = "content";
+
+    /// <summary>
+    /// get/set - The evidence index: one document per analyzed content item, for report synthesis.
+    /// </summary>
+    public string EvidenceIndex { get; set; } = "content_evidence";
     #endregion
 }

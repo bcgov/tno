@@ -27,7 +27,6 @@ import {
   type ISystemMessageModel,
   type ITagModel,
   type ITopicModel,
-  type ITopicScoreRuleModel,
   type IUserFilter,
   type IUserModel,
   type IWorkOrderModel,
@@ -70,7 +69,6 @@ export interface IAdminState {
   reportSubscriberFilter: IUserFilter;
   reports: IReportModel[];
   reportTemplates: IReportTemplateModel[];
-  rules: ITopicScoreRuleModel[];
   seriesFilter: string;
   series: ISeriesModel[];
   sourceFilter: string;

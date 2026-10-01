@@ -2,6 +2,7 @@ export * from './ReportContentOptions';
 export * from './ReportHeadlineOptions';
 export * from './ReportOptions';
 export * from './ReportSectionAI';
+export * from './ReportSectionAIInput';
 export * from './ReportSectionContent';
 export * from './ReportSectionData';
 export * from './ReportSectionGallery';

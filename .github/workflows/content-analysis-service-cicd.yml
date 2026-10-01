@@ -1,0 +1,46 @@
+name: Content-Analysis Service CI/CD
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [dev, master]
+    paths:
+      - services/net/content-analysis/**
+      - libs/net/**
+      - openshift/kustomize/services/content-analysis/**
+      - .github/workflows/content-analysis-service-cicd.yml
+  push:
+    branches: [dev, master, content-analysis-service]
+    paths:
+      - services/net/content-analysis/**
+      - libs/net/**
+      - openshift/kustomize/services/content-analysis/**
+      - .github/workflows/content-analysis-service-cicd.yml
+
+concurrency:
+  group: content-analysis-service-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  pipeline:
+    uses: ./.github/workflows/_reusable-dotnet-cicd.yml
+    with:
+      image_name: content-analysis-service
+      csproj_path: services/net/content-analysis/TNO.Services.ContentAnalysis.csproj
+      dockerfile: services/net/content-analysis/Dockerfile
+      component: content-analysis-service
+      deployment_name: content-analysis-service
+      kustomize_dev_path: openshift/kustomize/services/content-analysis/overlays/dev
+      kustomize_test_path: openshift/kustomize/services/content-analysis/overlays/test
+      dev_branch: content-analysis-service
+      rollout_timeout: '180s'
+      continue_on_error_verify: true
+      health_check_method: exec_curl
+    secrets:
+      OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+      ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}

@@ -11,7 +11,7 @@ namespace TNO.Entities;
 /// The table will support multiple rules which can contradict one another.
 /// To resolve some of these contradictions the SortOrder will control which rule wins (first found).
 /// </summary>
-[Cache("topic_score_rules", "lookups")]
+[Cache("topic_score_rules")]
 [Table("topic_score_rule")]
 public class TopicScoreRule : AuditColumns, IEquatable<TopicScoreRule>
 {
@@ -303,11 +303,15 @@ public class TopicScoreRule : AuditColumns, IEquatable<TopicScoreRule>
         if (ReferenceEquals(this, other))
             return true;
 
+        // Every persisted rule value takes part, so a change to any of them is saved.
         return this.SourceId.Equals(other.SourceId)
-            && ((this.Section == null && other.Section == null) || ((this.Section != null && other.Section != null) && (this.Section.Equals(other.Section))))
-            && ((this.PageMin == null && other.PageMin == null) || ((this.PageMin != null && other.PageMin != null) && (this.PageMin.Equals(other.PageMin))))
-            && ((this.PageMax == null && other.PageMax == null) || ((this.PageMax != null && other.PageMax != null) && (this.PageMax.Equals(other.PageMax))))
+            && this.SeriesId.Equals(other.SeriesId)
+            && String.Equals(this.Section, other.Section)
+            && String.Equals(this.PageMin, other.PageMin)
+            && String.Equals(this.PageMax, other.PageMax)
             && this.HasImage.Equals(other.HasImage)
+            && this.TimeMin.Equals(other.TimeMin)
+            && this.TimeMax.Equals(other.TimeMax)
             && this.CharacterMin.Equals(other.CharacterMin)
             && this.CharacterMax.Equals(other.CharacterMax)
             && this.Score.Equals(other.Score)

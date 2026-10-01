@@ -12,6 +12,7 @@ import {
   FieldSize,
   FormikCheckbox,
   FormikDatePicker,
+  FormikSelect,
   FormikText,
   FormikTextArea,
   FormikWysiwyg,
@@ -19,20 +20,40 @@ import {
   type ILLMModel,
   LabelPosition,
   Modal,
+  OptionItem,
   Row,
   Show,
   useModal,
 } from 'tno-core';
-import { object, string } from 'yup';
+import { number, object, string } from 'yup';
 
 import { defaultLLM } from './constants';
 import * as styled from './styled';
 
 const LLMSchema = object({
   name: string().required('Name is required'),
+  contextWindow: number().optional().integer().positive('Must be greater than 0'),
+  maxOutputTokens: number()
+    .optional()
+    .integer()
+    .positive('Must be greater than 0')
+    .test('less-than-context', 'Must be less than the context window', function (value) {
+      const contextWindow = this.parent.contextWindow;
+      return value === undefined || contextWindow === undefined || value < contextWindow;
+    }),
+  requestsPerMinute: number().optional().integer().min(0),
+  tokensPerMinute: number().optional().integer().min(0),
   deploymentName: string().required('Deployment Name is required'),
   systemPrompt: string().required('Default System Prompt is required'),
 });
+
+const tokenEstimationOptions = [
+  new OptionItem('Heuristic (characters ÷ 4)', 'Heuristic'),
+  new OptionItem('o200k_base (GPT-4o, GPT-4.1, GPT-5, o-series)', 'o200k_base'),
+  new OptionItem('cl100k_base (GPT-4, GPT-3.5)', 'cl100k_base'),
+];
+
+const toOptionalNumber = (value: string) => (value.trim() === '' ? undefined : Number(value));
 
 const toOptionalString = (val?: string) =>
   !val || val.trim() === '' || val === '<p><br></p>' ? undefined : val;
@@ -144,6 +165,67 @@ const LLMForm: React.FC = () => {
                     }
                   />
                 </Row>
+              </Row>
+              <p className="limits-hint">
+                Report AI sections and Content-Analysis budget every request from these limits. A
+                direct-model LLM needs a context window and a maximum output.
+              </p>
+              <Row gap="1rem">
+                <FormikText
+                  width={FieldSize.Small}
+                  name="contextWindow"
+                  label="Context Window (tokens)"
+                  type="number"
+                  min={1}
+                  tooltip="The tokens the model reads and writes in one request"
+                  onChange={(e) => setFieldValue('contextWindow', toOptionalNumber(e.target.value))}
+                />
+                <FormikText
+                  width={FieldSize.Small}
+                  name="maxOutputTokens"
+                  label="Max Output (tokens)"
+                  type="number"
+                  min={1}
+                  tooltip="The most tokens reserved for a response"
+                  onChange={(e) =>
+                    setFieldValue('maxOutputTokens', toOptionalNumber(e.target.value))
+                  }
+                />
+                <FormikSelect
+                  width={FieldSize.Big}
+                  name="tokenEstimation"
+                  label="Token Estimation"
+                  tooltip="How tokens are counted for this model"
+                  options={tokenEstimationOptions}
+                  value={tokenEstimationOptions.find((o) => o.value === values.tokenEstimation)}
+                  onChange={(o) =>
+                    setFieldValue('tokenEstimation', (o as OptionItem)?.value ?? undefined)
+                  }
+                />
+              </Row>
+              <Row gap="1rem">
+                <FormikText
+                  width={FieldSize.Small}
+                  name="requestsPerMinute"
+                  label="Requests / Minute"
+                  type="number"
+                  min={0}
+                  tooltip="Leave empty for no limit"
+                  onChange={(e) =>
+                    setFieldValue('requestsPerMinute', toOptionalNumber(e.target.value))
+                  }
+                />
+                <FormikText
+                  width={FieldSize.Small}
+                  name="tokensPerMinute"
+                  label="Tokens / Minute"
+                  type="number"
+                  min={0}
+                  tooltip="Leave empty for no limit"
+                  onChange={(e) =>
+                    setFieldValue('tokensPerMinute', toOptionalNumber(e.target.value))
+                  }
+                />
               </Row>
               <FormikText width={FieldSize.Large} name="agentName" label="Agent Name" />
               <FormikText

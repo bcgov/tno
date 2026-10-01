@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using TNO.DAL.Extensions;
 
 namespace TNO.DAL.Services;
 
@@ -27,6 +28,20 @@ public class SettingService : BaseService<Entities.Setting, int>, ISettingServic
     {
         return this.Context.Settings
             .FirstOrDefault(c => c.Name.ToLower() == name.ToLower());
+    }
+
+    public Entities.Setting SetValue(string name, string value, string description = "")
+    {
+        var setting = FindByName(name);
+        if (setting == null)
+        {
+            setting = new Entities.Setting(name, value) { Description = description };
+            this.Context.Settings.Add(setting);
+        }
+        else setting.Value = value;
+        this.Context.UpdateCache<Entities.Setting>();
+        this.Context.CommitTransaction();
+        return setting;
     }
     #endregion
 }

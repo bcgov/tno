@@ -1,1 +1,1 @@
-export * from './TopicScoreRuleList';
+export { default as TopicScoreAdmin } from './TopicScoreAdmin';

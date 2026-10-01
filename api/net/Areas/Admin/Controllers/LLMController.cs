@@ -88,6 +88,7 @@ public class LLMController : ControllerBase
     [SwaggerOperation(Tags = new[] { "LLM" })]
     public IActionResult Add([FromBody] LLMModel model)
     {
+        ValidateLimits(model);
         var result = _service.AddAndSave(model.ToEntity());
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new LLMModel(result));
     }
@@ -104,6 +105,7 @@ public class LLMController : ControllerBase
     [SwaggerOperation(Tags = new[] { "LLM" })]
     public IActionResult Update([FromBody] LLMModel model)
     {
+        ValidateLimits(model);
         var result = _service.UpdateAndSave(model.ToEntity());
         return new JsonResult(new LLMModel(result));
     }
@@ -122,6 +124,27 @@ public class LLMController : ControllerBase
     {
         _service.DeleteAndSave(model.ToEntity());
         return new JsonResult(model);
+    }
+    #endregion
+
+    #region Methods
+    /// <summary>
+    /// Validate the token and rate limits a direct-model LLM needs for bounded requests.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <exception cref="ArgumentException"></exception>
+    private static void ValidateLimits(LLMModel model)
+    {
+        var errors = new List<string>();
+        if (model.ContextWindow <= 0) errors.Add("The context window must be greater than 0.");
+        if (model.MaxOutputTokens <= 0) errors.Add("The maximum output tokens must be greater than 0.");
+        if (model.ContextWindow.HasValue && model.MaxOutputTokens.HasValue && model.MaxOutputTokens >= model.ContextWindow)
+            errors.Add("The maximum output tokens must be less than the context window.");
+        if (!String.IsNullOrWhiteSpace(model.TokenEstimation) && !TNO.AI.Tokens.TokenEstimator.IsSupported(model.TokenEstimation))
+            errors.Add($"The token estimation must be one of: {String.Join(", ", TNO.AI.Tokens.TokenEstimationStrategy.All)}.");
+        if (model.RequestsPerMinute < 0) errors.Add("Requests per minute cannot be negative.");
+        if (model.TokensPerMinute < 0) errors.Add("Tokens per minute cannot be negative.");
+        if (errors.Count > 0) throw new ArgumentException(String.Join(" ", errors));
     }
     #endregion
 }

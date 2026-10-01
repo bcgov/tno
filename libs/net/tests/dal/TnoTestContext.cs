@@ -180,6 +180,17 @@ public class TnoTestContext : TNOContext
             .HasConversion(
                 v => JsonDocumentToString(v),
                 v => JsonDocument.Parse(v, new JsonDocumentOptions()));
+
+        // Every other JsonDocument property (e.g. content analysis results) is stored as a string.
+        foreach (var property in modelBuilder.Model.GetEntityTypes()
+            .SelectMany(t => t.GetProperties())
+            .Where(p => p.ClrType == typeof(JsonDocument) && p.GetValueConverter() == null)
+            .ToArray())
+        {
+            property.SetValueConverter(new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<JsonDocument, string>(
+                v => JsonDocumentToString(v),
+                v => JsonDocument.Parse(v, new JsonDocumentOptions())));
+        }
     }
 
     /// <summary>

@@ -88,6 +88,13 @@ spec:
             - name: Logging__LogLevel__TNO
               value: Information
 
+            # History retention keeps notification history the notification service can still alert on.
+            - name: API__NotificationPublishedBeforeOffset
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-service
+                  key: IGNORE_CONTENT_PUBLISHED_BEFORE_OFFSET
+                  optional: true
             - name: Storage__UploadPath
               value: /mnt/data
             - name: Storage__CapturePath

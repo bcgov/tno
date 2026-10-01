@@ -78,7 +78,8 @@ public abstract class TNOMigration : Migration
 
                         if (item.Status == Entities.ContentStatus.Published)
                         {
-                            var publishedRequest = new IndexRequest<ContentModel>(model, $"{builder.MigrationOptions.PublishedIndex}_v{this.Version}", model.Id);
+                            // An unapproved transcript is never published.
+                            var publishedRequest = new IndexRequest<ContentModel>(model.ToPublishedDocument(), $"{builder.MigrationOptions.PublishedIndex}_v{this.Version}", model.Id);
                             response = await builder.IndexingClient.IndexAsync(publishedRequest, cancellationToken);
                             if (!response.IsValidResponse)
                             {

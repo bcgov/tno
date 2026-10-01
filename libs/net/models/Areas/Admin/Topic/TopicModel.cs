@@ -38,6 +38,11 @@ public class TopicModel : AuditColumnsModel
     /// get/set - The type of topic (issue, proactive).
     /// </summary>
     public TopicType TopicType { get; set; }
+
+    /// <summary>
+    /// get/set - A topic the system relies on (the "Not Applicable" topic).
+    /// </summary>
+    public bool IsSystem { get; set; }
     #endregion
 
     #region Constructors
@@ -58,6 +63,7 @@ public class TopicModel : AuditColumnsModel
         this.SortOrder = entity.SortOrder;
         this.IsEnabled = entity.IsEnabled;
         this.TopicType = entity.TopicType;
+        this.IsSystem = entity.IsSystem;
     }
     #endregion
 
@@ -75,6 +81,7 @@ public class TopicModel : AuditColumnsModel
             Description = model.Description,
             IsEnabled = model.IsEnabled,
             SortOrder = model.SortOrder,
+            IsSystem = model.IsSystem,
             Version = model.Version ?? 0,
         };
         return entity;

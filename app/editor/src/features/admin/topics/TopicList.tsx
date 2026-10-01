@@ -10,6 +10,7 @@ import { useColumns } from './hooks';
 import * as styled from './styled';
 import { TopicFilter } from './TopicFilter';
 import { TopicFormSmall } from './TopicFormSmall';
+import { TopicPopulationPanel } from './TopicPopulationPanel';
 
 /**
  * Provides a list of all topics.
@@ -30,10 +31,10 @@ const TopicList: React.FC = () => {
       setLoading(true);
       findAllTopics()
         .then((data) => {
-          setAllTopics(data.filter((t) => t.id !== 1));
+          setAllTopics(data.filter((t) => !t.isSystem));
           setFilteredTopics(
             data
-              .filter((t) => t.id !== 1 && t.isEnabled)
+              .filter((t) => !t.isSystem && t.isEnabled)
               .sort(function (a, b) {
                 // sort by Topic Type then Topic Name
                 return b.topicType.localeCompare(a.topicType) || a.name.localeCompare(b.name);
@@ -128,6 +129,7 @@ const TopicList: React.FC = () => {
     <styled.TopicList>
       <FormPage>
         <p className="list-title">Update Topics List (Event of the Day)</p>
+        <TopicPopulationPanel />
         <TopicFormSmall onAddOrUpdate={handleSubmit}></TopicFormSmall>
         <TopicFilter
           onFilterChange={(filter) => {

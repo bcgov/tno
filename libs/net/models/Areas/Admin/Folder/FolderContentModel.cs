@@ -17,9 +17,9 @@ public class FolderContentModel
     public int SortOrder { get; set; }
 
     /// <summary>
-    /// get/set - The maximum score this piece of content can be assigned.
+    /// get/set - The score the topic score rules give this content; an editor can choose a score up to it.
     /// </summary>
-    public int? MaxTopicScore { get; set; }
+    public int? CalculatedTopicScore { get; set; }
 
     /// <summary>
     /// get/set - The content.

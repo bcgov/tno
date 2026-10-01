@@ -19,7 +19,6 @@ import {
   ITagModel,
   ITonePoolModel,
   ITopicModel,
-  ITopicScoreRuleModel,
   IUserModel,
 } from 'tno-core';
 
@@ -46,6 +45,5 @@ export interface ILookupState {
   dataLocations: IDataLocationModel[];
   systemMessages: ISystemMessageModel[];
   settings: ISettingModel[];
-  rules: ITopicScoreRuleModel[];
   frontPageImagesMediaTypeId?: number;
 }

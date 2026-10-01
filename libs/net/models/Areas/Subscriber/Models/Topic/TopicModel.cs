@@ -13,6 +13,11 @@ public class TopicModel : BaseTypeModel<int>
     /// get/set - The type of topic (issue, proactive).
     /// </summary>
     public TopicType TopicType { get; set; }
+
+    /// <summary>
+    /// get/set - A topic the system relies on (the "Not Applicable" topic).
+    /// </summary>
+    public bool IsSystem { get; set; }
     #endregion
 
     #region Constructors
@@ -28,6 +33,7 @@ public class TopicModel : BaseTypeModel<int>
     public TopicModel(Entities.Topic entity) : base(entity)
     {
         this.TopicType = entity.TopicType;
+        this.IsSystem = entity.IsSystem;
     }
     #endregion
 }

@@ -88,8 +88,11 @@ const SystemMessageForm = lazy(
 const TagList = lazy(async () => await import('features/admin/tags/TagList'));
 const TagsForm = lazy(async () => await import('features/admin/tags/TagsForm'));
 const TopicList = lazy(async () => await import('features/admin/topics/TopicList'));
-const TopicScoreRuleList = lazy(
-  async () => await import('features/admin/topic-score-rules/TopicScoreRuleList'),
+const ContentAnalysisAdmin = lazy(
+  async () => await import('features/admin/content-analysis/ContentAnalysisAdmin'),
+);
+const TopicScoreAdmin = lazy(
+  async () => await import('features/admin/topic-score-rules/TopicScoreAdmin'),
 );
 const UserForm = lazy(async () => await import('features/admin/users/UserForm'));
 const UserList = lazy(async () => await import('features/admin/users/UserList'));
@@ -111,7 +114,7 @@ export const AdminRouter: React.FC = () => {
         <Route path="topics" element={<TopicList />} />
         <Route path="topics/:id" element={<TopicList />} />
 
-        <Route path="topic-scores" element={<TopicScoreRuleList />} />
+        <Route path="topic-scores" element={<TopicScoreAdmin />} />
 
         <Route path="tags" element={<TagList />} />
         <Route path="tags/:id" element={<TagsForm />} />
@@ -139,6 +142,7 @@ export const AdminRouter: React.FC = () => {
         <Route path="actions/:id" element={<ActionForm />} />
 
         <Route path="automations" element={<AutomationProfileList />} />
+        <Route path="content-analysis" element={<ContentAnalysisAdmin />} />
         <Route path="automations/:id" element={<AutomationProfileForm />} />
 
         <Route path="licences" element={<LicenseList />} />

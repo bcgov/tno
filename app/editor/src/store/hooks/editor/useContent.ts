@@ -30,6 +30,7 @@ interface IContentController {
   updateContent: (content: IContentModel) => Promise<IContentModel>;
   updateContentList: (content: IContentListModel) => Promise<IContentModel[]>;
   updateContentTopics: (id: number, topics?: IContentTopicModel[]) => Promise<IContentTopicModel[]>;
+  resetContentTopicScore: (id: number, topicId: number) => Promise<IContentTopicModel[]>;
   deleteContent: (content: IContentModel) => Promise<IContentModel>;
   publishContent: (content: IContentModel) => Promise<IContentModel>;
   unpublishContent: (content: IContentModel) => Promise<IContentModel>;
@@ -101,6 +102,14 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
         const response = await dispatch(
           'update-content-topics',
           async () => await api.updateContentTopics(id, topics ?? []),
+          'content',
+        );
+        return response.data as IContentTopicModel[];
+      },
+      resetContentTopicScore: async (id: number, topicId: number) => {
+        const response = await dispatch(
+          'reset-content-topic-score',
+          async () => await api.resetContentTopicScore(id, topicId),
           'content',
         );
         return response.data as IContentTopicModel[];

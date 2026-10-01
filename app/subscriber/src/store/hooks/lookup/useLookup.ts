@@ -23,7 +23,6 @@ import {
   ITagModel,
   ITonePoolModel,
   ITopicModel,
-  ITopicScoreRuleModel,
   IUserModel,
   StorageKeys,
   useApiSubscriberCache,
@@ -97,7 +96,6 @@ export const useLookup = (): [ILookupState, ILookupController] => {
                 ministers: getFromLocalStorage<IMinisterModel[]>(StorageKeys.Ministers, []),
                 tags: getFromLocalStorage<ITagModel[]>(StorageKeys.Tags, []),
                 tonePools: getFromLocalStorage<ITonePoolModel[]>(StorageKeys.TonePools, []),
-                rules: getFromLocalStorage<ITopicScoreRuleModel[]>(StorageKeys.Rules, []),
                 ingestTypes: getFromLocalStorage<IIngestTypeModel[]>(StorageKeys.IngestTypes, []),
                 roles: getFromLocalStorage<IRoleModel[]>(StorageKeys.Roles, []),
                 organizations: getFromLocalStorage<IOrganizationModel[]>(StorageKeys.Roles, []),
@@ -124,7 +122,6 @@ export const useLookup = (): [ILookupState, ILookupController] => {
               };
               store.storeActions(lookups.actions);
               store.storeTopics(lookups.topics);
-              store.storeTopicScoreRules(lookups.rules);
               store.storeMediaTypes(lookups.mediaTypes);
               store.storeSources(lookups.sources);
               store.storeLicenses(lookups.licenses);

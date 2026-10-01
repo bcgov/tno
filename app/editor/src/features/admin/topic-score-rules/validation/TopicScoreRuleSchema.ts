@@ -1,59 +1,70 @@
 import * as yup from 'yup';
 
+import { maxPageLength } from '../utils/page';
+
+const optionalWholeNumber = yup
+  .number()
+  .transform((value, original) => (original === '' ? undefined : value))
+  .integer('Must be a whole number')
+  .min(0, 'Must be 0 or more')
+  .typeError('Must be a number')
+  .optional();
+
+const time = yup
+  .string()
+  .optional()
+  .test(
+    'time',
+    'Use HH:MM:SS',
+    (value) => !value || /^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(value),
+  );
+
+/** Validation for the rule drawer. Time ranges may wrap midnight, so only pages and characters are ordered. */
 export const TopicScoreRuleSchema = yup.object().shape({
-  id: yup.number().required().min(0),
   sourceId: yup.number().positive('Required').integer().required('Required'),
-  section: yup.string().optional(),
-  pageMin: yup.string().optional(),
-  pageMax: yup
+  pagePrefix: yup
     .string()
     .optional()
-    .when('pageMin', (pageMin: string[], schema: any) => {
-      return schema.test({
-        test: (pageMax: string) => {
-          const riPageMin = pageMin[0] !== undefined ? pageMin[0].search(/\d*$/) : undefined;
-          const riPageMax = pageMax !== undefined ? pageMax.search(/\d*$/) : undefined;
-          const rPageMin =
-            riPageMin !== undefined ? Number(pageMin[0]?.slice(riPageMin)) : undefined;
-          const rPageMax = riPageMax !== undefined ? Number(pageMax?.slice(riPageMax)) : undefined;
-          return rPageMin === undefined || rPageMax === undefined || rPageMin <= rPageMax;
-        },
-        message: 'Make greater',
-      });
+    .matches(/^[a-zA-Z]*$/, 'Letters only'),
+  pageMin: optionalWholeNumber.test(
+    'page-length',
+    `Prefix and number must be at most ${maxPageLength} characters`,
+    function (value) {
+      return (
+        value === undefined || `${this.parent.pagePrefix ?? ''}${value}`.length <= maxPageLength
+      );
+    },
+  ),
+  pageMax: optionalWholeNumber
+    .test(
+      'page-length',
+      `Prefix and number must be at most ${maxPageLength} characters`,
+      function (value) {
+        return (
+          value === undefined || `${this.parent.pagePrefix ?? ''}${value}`.length <= maxPageLength
+        );
+      },
+    )
+    .test('page-order', 'Must not be less than the minimum', function (value) {
+      const min = this.parent.pageMin;
+      return value === undefined || min === '' || min === undefined || Number(min) <= value;
     }),
-  hasImage: yup.boolean().optional(),
-  characterMin: yup.number().optional().typeError('Invalid number'),
-  characterMax: yup
+  timeMin: time,
+  timeMax: time,
+  characterMin: optionalWholeNumber,
+  characterMax: optionalWholeNumber.test(
+    'character-order',
+    'Must not be less than the minimum',
+    function (value) {
+      const min = this.parent.characterMin;
+      return value === undefined || min === '' || min === undefined || Number(min) <= value;
+    },
+  ),
+  score: yup
     .number()
-    .optional()
-    .typeError('Invalid number')
-    .when('characterMin', (characterMin: number[], schema: any) => {
-      return schema.test({
-        test: (characterMax: number) => {
-          return (
-            characterMin[0] === undefined ||
-            characterMax === undefined ||
-            characterMin[0] <= characterMax
-          );
-        },
-        message: 'Make greater',
-      });
-    }),
-  timeMin: yup.string().optional().length(8, 'Invalid format'),
-  timeMax: yup
-    .string()
-    .optional()
-    .length(8, 'Invalid format')
-    .when('timeMin', (timeMin: string[], schema: any) => {
-      return schema.test({
-        test: (timeMax: string) => {
-          const min = Date.parse(`01/01/1900 ${timeMin[0]}`);
-          const max = Date.parse(`01/01/1900 ${timeMax}`);
-          return timeMin[0] === undefined || timeMax === undefined || min <= max;
-        },
-        message: 'Make greater',
-      });
-    }),
-  score: yup.number().required().min(0).typeError('Invalid number'),
-  sortOrder: yup.number().required().min(0).typeError('Invalid number'),
+    .transform((value, original) => (original === '' ? undefined : value))
+    .required('Required')
+    .integer('Must be a whole number')
+    .min(0, 'Must be 0 or more')
+    .typeError('Must be a number'),
 });

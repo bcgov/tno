@@ -36,6 +36,24 @@ public class ContentTopic : AuditColumns, IEquatable<ContentTopic>
     /// </summary>
     [Column("score")]
     public int Score { get; set; }
+
+    /// <summary>
+    /// get/set - Foreign key to the topic score rule that produced the score. Null when the source
+    /// default applied, no rule matched, or the score is overridden.
+    /// </summary>
+    [Column("score_rule_id")]
+    public int? ScoreRuleId { get; set; }
+
+    /// <summary>
+    /// get/set - The topic score rule that produced the score.
+    /// </summary>
+    public virtual TopicScoreRule? ScoreRule { get; set; }
+
+    /// <summary>
+    /// get/set - The score was set by an editor or arrived with ingest, so it is never recalculated.
+    /// </summary>
+    [Column("is_score_overridden")]
+    public bool IsScoreOverridden { get; set; }
     #endregion
 
     #region Constructors

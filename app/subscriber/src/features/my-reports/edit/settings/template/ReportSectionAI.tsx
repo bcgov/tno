@@ -21,6 +21,7 @@ import {
 } from 'tno-core';
 
 import { useReportEditContext } from '../../ReportEditContext';
+import { ReportSectionAIInput } from './ReportSectionAIInput';
 
 export interface IReportSectionAIProps {
   index: number;
@@ -162,6 +163,11 @@ export const ReportSectionAI = React.forwardRef<HTMLDivElement, IReportSectionAI
         <Row>
           <FormikCheckbox name={`sections.${index}.isEnabled`} label="Section is visible" />
         </Row>
+        <ReportSectionAIInput
+          settings={values.sections[index].settings}
+          sections={values.sections}
+          onChange={(name, value) => setFieldValue(`sections.${index}.settings.${name}`, value)}
+        />
         <Checkbox
           name={`sections.${index}.settings.showErrorDetails`}
           label="Show error details in this section when the AI request fails"

@@ -1,0 +1,40 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: content-analysis-service
+  namespace: default
+  annotations:
+    description: Content-Analysis service configuration settings
+    created-by: jeremy.foster
+  labels:
+    name: content-analysis-service
+    part-of: tno
+    version: 1.0.0
+    component: content-analysis-service
+    managed-by: kustomize
+data:
+  KAFKA_CLIENT_ID: ContentAnalysis
+  MAX_FAILURE_LIMIT: "5"
+  # Kafka topic that wakes the workers (the job table is polled regardless).
+  TOPICS: analysis
+  TIME_ZONE: Pacific Standard Time
+  # Processes this service runs; each applies its result to the content's empty field.
+  # Any of: Metadata, Summary, Quotes, Tags, Contributor, Topics. Empty runs nothing.
+  PROCESSES: Metadata,Summary,Quotes,Tags,Contributor,Topics
+  # Content items analyzed at once by this instance.
+  MAX_CONCURRENCY: "4"
+  # Seconds between polls of the job table when no wake message arrives.
+  POLL_INTERVAL_SECONDS: "30"
+  # Seconds between refreshes of the runtime settings (LLM, exclusions).
+  SETTINGS_REFRESH_SECONDS: "60"
+  # Share of the LLM's rate limits and of this instance's concurrency backfill may use.
+  BACKFILL_SHARE: "0.2"
+  LLM_REQUEST_TIMEOUT_SECONDS: "300"
+  LLM_REQUEST_ATTEMPTS: "3"
+  SEND_EMAIL_ON_FAILURE: "true"
+  CHES_EMAIL_ENABLED: "true"
+  # Must be true for the service to email real recipients. With it false and no
+  # Ches:OverrideTo, a headless service has no recipient at all and the failure
+  # email is silently dropped.
+  CHES_EMAIL_AUTHORIZED: "true"

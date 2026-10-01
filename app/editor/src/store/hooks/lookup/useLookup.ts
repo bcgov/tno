@@ -25,7 +25,6 @@ import {
   type ITagModel,
   type ITonePoolModel,
   type ITopicModel,
-  type ITopicScoreRuleModel,
   type IUserModel,
   saveToLocalStorage,
   StorageKeys,
@@ -47,7 +46,6 @@ import {
   useApiEditorTags,
   useApiEditorTonePools,
   useApiEditorTopics,
-  useApiEditorTopicScoreRules,
   useApiEditorUsers,
   useApiSubscriberLLMs,
 } from 'tno-core';
@@ -61,7 +59,6 @@ export interface ILookupController {
   getSourceActions: (refresh?: boolean) => Promise<ISourceActionModel[]>;
   getMetrics: (refresh?: boolean) => Promise<IMetricModel[]>;
   getTopics: (refresh?: boolean) => Promise<ITopicModel[]>;
-  getTopicScoreRules: (refresh?: boolean) => Promise<ITopicScoreRuleModel[]>;
   getMediaTypes: (refresh?: boolean) => Promise<IMediaTypeModel[]>;
   getLicenses: (refresh?: boolean) => Promise<ILicenseModel[]>;
   getIngestTypes: (refresh?: boolean) => Promise<IIngestTypeModel[]>;
@@ -85,7 +82,6 @@ export const useLookup = (): [ILookupState, ILookupController] => {
   const lookups = useApiEditorLookups();
   const actions = useApiEditorActions();
   const topics = useApiEditorTopics();
-  const rules = useApiEditorTopicScoreRules();
   const mediaTypes = useApiEditorMediaTypes();
   const sources = useApiEditorSources();
   const licenses = useApiEditorLicenses();
@@ -119,7 +115,6 @@ export const useLookup = (): [ILookupState, ILookupController] => {
             if (results) {
               saveToLocalStorage(StorageKeys.Actions, results.actions, store.storeActions);
               saveToLocalStorage(StorageKeys.Topics, results.topics, store.storeTopics);
-              saveToLocalStorage(StorageKeys.Rules, results.rules, store.storeTopicScoreRules);
               saveToLocalStorage(StorageKeys.MediaTypes, results.mediaTypes, store.storeMediaTypes);
               saveToLocalStorage(StorageKeys.Sources, results.sources, store.storeSources);
               saveToLocalStorage(
@@ -162,7 +157,6 @@ export const useLookup = (): [ILookupState, ILookupController] => {
               const lookups = {
                 actions: getFromLocalStorage<IActionModel[]>(StorageKeys.Actions, []),
                 topics: getFromLocalStorage<ITopicModel[]>(StorageKeys.Topics, []),
-                rules: getFromLocalStorage<ITopicScoreRuleModel[]>(StorageKeys.Rules, []),
                 mediaTypes: getFromLocalStorage<IMediaTypeModel[]>(StorageKeys.MediaTypes, []),
                 sources: getFromLocalStorage<ISourceModel[]>(StorageKeys.Sources, []),
                 ingestTypes: getFromLocalStorage<IIngestTypeModel[]>(StorageKeys.IngestTypes, []),
@@ -196,7 +190,6 @@ export const useLookup = (): [ILookupState, ILookupController] => {
               };
               store.storeActions(lookups.actions);
               store.storeTopics(lookups.topics);
-              store.storeTopicScoreRules(lookups.rules);
               store.storeMediaTypes(lookups.mediaTypes);
               store.storeSources(lookups.sources);
               store.storeIngestTypes(lookups.ingestTypes);
@@ -244,20 +237,6 @@ export const useLookup = (): [ILookupState, ILookupController] => {
             const values = results ?? [];
             store.storeTopics(values);
             if (refresh) saveToLocalStorage(StorageKeys.Topics, values, store.storeTopics);
-            return values;
-          },
-          true,
-          'lookup',
-        );
-      },
-      getTopicScoreRules: async () => {
-        return await fetchIfNoneMatch<ITopicScoreRuleModel[]>(
-          StorageKeys.Rules,
-          dispatch,
-          async (etag) => await rules.getTopicScoreRules(etag),
-          (results) => {
-            const values = results ?? [];
-            store.storeTopicScoreRules(values);
             return values;
           },
           true,
@@ -501,7 +480,6 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       lookups,
       actions,
       topics,
-      rules,
       mediaTypes,
       sources,
       licenses,
