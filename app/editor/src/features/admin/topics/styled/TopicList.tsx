@@ -3,17 +3,6 @@ import styled from 'styled-components';
 export const TopicList = styled.div`
   display: flex;
 
-  .topic-population {
-    margin: 0.5rem 0 1rem 0;
-    padding: 0.5rem;
-    border: 1px solid ${(props) => props.theme.css.lightVariantColor};
-    border-radius: 0.25rem;
-
-    .hint {
-      font-size: 0.9rem;
-    }
-  }
-
   .filter-bar {
     display: flex;
     align-items: center;

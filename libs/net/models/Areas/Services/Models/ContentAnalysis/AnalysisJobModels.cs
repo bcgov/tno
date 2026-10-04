@@ -110,6 +110,9 @@ public class AnalysisFailureModel : AnalysisLeaseModel
 
     /// <summary>get/set - A transient failure is retried with backoff; a permanent one fails the job.</summary>
     public bool IsTransient { get; set; } = true;
+
+    /// <summary>get/set - Whether the failure counts as an attempt. One that does not (the LLM is misconfigured, not the content at fault) returns the job to the queue as it was.</summary>
+    public bool IsAttempt { get; set; } = true;
 }
 
 /// <summary>

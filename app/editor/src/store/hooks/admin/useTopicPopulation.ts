@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { type ITopicPopulationSettingsModel } from 'features/admin/topics/interfaces';
+import { type ITopicPopulationSettingsModel } from 'features/admin/content-analysis/interfaces';
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
 import { useApi } from 'tno-core';

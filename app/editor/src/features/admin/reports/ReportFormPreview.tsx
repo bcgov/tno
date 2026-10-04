@@ -1,8 +1,17 @@
 import { type AxiosError } from 'axios';
 import React from 'react';
 import { toast } from 'react-toastify';
+import { useApp } from 'store/hooks';
 import { useReports } from 'store/hooks/admin';
-import { Button, ButtonVariant, Col, type IReportModel, Row, Text } from 'tno-core';
+import {
+  Button,
+  ButtonVariant,
+  Col,
+  type IReportModel,
+  ReportPreviewStatus,
+  Row,
+  Text,
+} from 'tno-core';
 
 import { useReportTemplateContext } from './ReportTemplateContext';
 
@@ -17,6 +26,8 @@ export const ReportFormPreview: React.FC<IReportFormPreviewProps> = () => {
   const [, { sendReport, previewReport }] = useReports();
 
   const [sendTo, setSendTo] = React.useState('');
+  const [{ requests }] = useApp();
+  const isPreviewing = requests.some((r) => r.url === 'preview-report');
 
   const handleSend = async (values: IReportModel, to: string) => {
     try {
@@ -63,8 +74,9 @@ export const ReportFormPreview: React.FC<IReportFormPreviewProps> = () => {
           <Row gap="1rem">
             <Button
               variant={ButtonVariant.success}
+              disabled={isPreviewing}
               onClick={async () => {
-                await handlePreviewReport(values);
+                if (!isPreviewing) await handlePreviewReport(values);
               }}
             >
               Generate Preview
@@ -104,6 +116,7 @@ export const ReportFormPreview: React.FC<IReportFormPreviewProps> = () => {
           </Col>
         )}
       </Row>
+      <ReportPreviewStatus isRequesting={isPreviewing} sections={preview?.aiSections} />
       <Col className="preview-report">
         <div
           className="preview-subject"

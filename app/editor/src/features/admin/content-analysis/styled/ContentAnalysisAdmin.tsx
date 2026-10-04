@@ -18,7 +18,6 @@ export const ContentAnalysisAdmin = styled.div`
   }
 
   .panel {
-    border-top: 1px solid ${(props) => props.theme.css.lightVariantColor};
     padding: 1rem 0;
   }
 
@@ -26,6 +25,16 @@ export const ContentAnalysisAdmin = styled.div`
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
+  }
+
+  // Fields beside buttons: drop the form padding so they share a bottom edge.
+  .field-row .frm-in {
+    padding-bottom: 0;
+  }
+
+  .jobs {
+    max-height: 50vh;
+    overflow-y: auto;
   }
 
   .job,

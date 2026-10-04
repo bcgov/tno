@@ -335,19 +335,27 @@ RETURNING j.id AS ""Value""";
     {
         var job = FindClaimed(failure);
         if (job == null) return null;
-        job.Attempts++;
         job.LastError = failure.Error.Length > 4000 ? failure.Error[..4000] : failure.Error;
         job.LeaseExpiresOn = null;
-        if (!failure.IsTransient || job.Attempts >= Math.Max(1, _options.MaxAttempts))
+        if (!failure.IsAttempt)
         {
-            job.Status = AnalysisJobStatus.Failed;
+            // The content is not at fault; it waits in the queue without losing an attempt.
+            job.Status = AnalysisJobStatus.Pending;
         }
         else
         {
-            // Exponential backoff with jitter, capped at an hour.
-            var delay = Math.Min(3600, 30 * Math.Pow(2, job.Attempts - 1)) + Random.Shared.Next(0, 30);
-            job.Status = AnalysisJobStatus.Pending;
-            job.NextAttemptOn = DateTime.UtcNow.AddSeconds(delay);
+            job.Attempts++;
+            if (!failure.IsTransient || job.Attempts >= Math.Max(1, _options.MaxAttempts))
+            {
+                job.Status = AnalysisJobStatus.Failed;
+            }
+            else
+            {
+                // Exponential backoff with jitter, capped at an hour.
+                var delay = Math.Min(3600, 30 * Math.Pow(2, job.Attempts - 1)) + Random.Shared.Next(0, 30);
+                job.Status = AnalysisJobStatus.Pending;
+                job.NextAttemptOn = DateTime.UtcNow.AddSeconds(delay);
+            }
         }
         this.Context.CommitTransaction();
         return job;

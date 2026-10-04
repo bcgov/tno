@@ -15,6 +15,7 @@ export * from './menu';
 export * from './modal';
 export * from './navbar';
 export * from './overlay';
+export * from './report-preview-status';
 export * from './section';
 export * from './sentiment';
 export * from './sentiment-slider';

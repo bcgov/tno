@@ -18,7 +18,7 @@ migration and **one** Elasticsearch migration.
 
 | Document | Built |
 | --- | --- |
-| 01 Report synthesis | `TNO.AI` tokens, chunker, synthesizer; `ReportAISectionGenerator`; `report_ai_result` store (API + reporting service); LLM limits in the admin form; AI scope / source sections / output mode on AI sections (editor and subscriber). Analyzed stories contribute evidence (summary, facts, entities, quotes) and are grouped by topic. |
+| 01 Report synthesis | `TNO.AI` tokens, chunker, synthesizer; `ReportAISectionGenerator`; `report_ai_result` store (API + reporting service); LLM limits in the admin form; AI scope / source sections / output mode on AI sections (editor and subscriber). Analyzed stories contribute evidence (summary, facts, entities, quotes), ordered by topic so related stories share a request. |
 | 02 Content analysis | `services/net/content-analysis` running the processes it is configured for; DAL job queue, ownership, population, topic registry; services/editor/admin endpoints; editor Analysis tab; `/admin/content-analysis`. Quote Extraction and NLP services removed. |
 | 03 Indexing reliability | Projection revisions incremented in the save's transaction; index requests sent to Kafka by the API before it responds (a Kafka failure fails the request); versioned writes with retries in the indexing service, `tools/indexer`, and the migration tool; subscriber delete, `tools/indexer` transcript leak, and `MaxFailLimit` fixed. No reconciliation (out of scope). |
 | 04 Backfill | `AnalysisBackfillService`, admin endpoints and panel. |
@@ -62,8 +62,12 @@ migration and **one** Elasticsearch migration.
   analysis of unapproved AudioVideo content; every published-index writer uses it. Report synthesis
   ignores evidence that is not approved.
 - **Evidence index** is written on every cluster (on-prem and Elastic Cloud).
-- **No topic aggregation.** Synthesis groups by the topic carried on each evidence document.
-  Evidence sets are read with PIT and `search_after` (`ReportEvidenceService`).
+- **One pass over every story.** Synthesis reads all of a section's stories together, ordered by the
+  topic on each evidence document so related stories share a request; topic-summary headings come
+  from the findings. Synthesizing each topic on its own sent a request per story (a 1,000-story
+  report: 606 requests, 19 minutes; now 28 requests, under a minute). Map and reduce requests are
+  capped at `MaxBatchInputTokens` and run `MaxConcurrentRequests` at a time. Evidence sets are read
+  with PIT and `search_after` (`ReportEvidenceService`).
 - **Retention setting disabled** (`is_enabled = false`) or `0` disables that purge.
 
 ## Configuration
@@ -72,7 +76,7 @@ migration and **one** Elasticsearch migration.
 | --- | --- | --- |
 | API | `Kafka:Producer:MessageTimeoutMs` | 10000 (fail fast when Kafka is down) |
 | API | `API:NotificationPublishedBeforeOffset` | from the notification service config map (optional) |
-| API / reporting | `Reporting:Synthesis:*` | margin 10%, depth 8, 4 concurrent, 3 attempts, 900s claim, 300s timeout |
+| API / reporting | `Reporting:Synthesis:*` | margin 10%, depth 8, 8 concurrent, 16,000 input / 8,000 output tokens per map or reduce request, 3 attempts, 900s claim, 300s timeout |
 | DAL (API) | `ContentAnalysis:QuietPeriodSeconds`, `MaxAttempts`, `LeaseSeconds`, priorities | 120, 5, 600, 100 / 10 |
 | DAL (API) | `TopicScore:TimeZone` | `Pacific Standard Time` |
 | Indexing service | `Elastic:EvidenceIndex`, `Service:IndexRetryLimit`, `Service:IndexRetryDelayMs` | `content_evidence`, 3, 1000 |

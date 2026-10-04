@@ -9,7 +9,7 @@ public static class SynthesisPrompts
     /// <summary>
     /// The version of the prompts and pipeline. Changing it invalidates stored results.
     /// </summary>
-    public const string PipelineVersion = "1";
+    public const string PipelineVersion = "3";
 
     /// <summary>
     /// The shape every map and reduce step returns.

@@ -52,6 +52,18 @@ public class ReportAISectionGeneratorTest
         }
     }
 
+    /// <summary>
+    /// A store whose result for every manifest is fixed, and that no generator can claim.
+    /// </summary>
+    private class FixedStore : IReportAIResultStore
+    {
+        private readonly ReportAIResultModel _result;
+        public FixedStore(ReportAIResultModel result) { _result = result; }
+        public Task<ReportAIResultModel?> FindAsync(string hash, CancellationToken cancellationToken = default) => Task.FromResult<ReportAIResultModel?>(_result);
+        public Task<ReportAIResultModel?> TryClaimAsync(ReportAIResultClaimModel claim, CancellationToken cancellationToken = default) => Task.FromResult<ReportAIResultModel?>(null);
+        public Task CompleteAsync(long id, ReportAIResultCompletionModel completion, CancellationToken cancellationToken = default) => Task.CompletedTask;
+    }
+
     private static ContentModel Story(long id, string body) => new() { Id = id, Headline = $"Headline {id}", Body = body };
 
     private static ReportSectionModel ContentSection(string name, int sortOrder, params ContentModel[] content) => new()
@@ -223,5 +235,70 @@ public class ReportAISectionGeneratorTest
         await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm());
 
         store.Results.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task PreviewLeavesAMissingSectionPending()
+    {
+        var store = new MemoryStore();
+        var client = new FakeLlmClient(8000);
+        var (report, section) = Report(new ReportSectionSettingsModel() { Label = "Summary", UserPrompt = "Summarize" });
+        var sections = new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(1, "Budget news.")) };
+
+        var result = await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm(), AISectionWait.NoWait);
+
+        result.Status.Should().Be(AISectionStatus.NotStarted);
+        result.Output.Should().BeNull();
+        client.Requests.Should().BeEmpty("a preview never generates");
+        store.Results.Should().BeEmpty("a preview never claims");
+    }
+
+    [Fact]
+    public async Task PreviewShowsAStoredResult()
+    {
+        var store = new MemoryStore();
+        var client = new FakeLlmClient(8000);
+        var (report, section) = Report(new ReportSectionSettingsModel() { Label = "Summary", UserPrompt = "Summarize" });
+        var sections = new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(1, "Budget news.")) };
+
+        var prepared = await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm(), AISectionWait.Prepare);
+        var requests = client.Requests.Count;
+        var preview = await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm(), AISectionWait.NoWait);
+
+        prepared.Status.Should().Be(AISectionStatus.Ready);
+        preview.Status.Should().Be(AISectionStatus.Ready);
+        preview.Output.Should().Be(prepared.Output);
+        client.Requests.Count.Should().Be(requests);
+    }
+
+    [Fact]
+    public async Task AnotherGeneratorsWorkIsNotWaitedFor()
+    {
+        var claimExpiresOn = DateTime.UtcNow.AddMinutes(5);
+        var store = new FixedStore(new ReportAIResultModel() { Id = 1, Status = ReportAIResultStatus.Pending, ClaimExpiresOn = claimExpiresOn });
+        var client = new FakeLlmClient(8000);
+        var (report, section) = Report(new ReportSectionSettingsModel() { Label = "Summary", UserPrompt = "Summarize" });
+        var sections = new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(1, "Budget news.")) };
+
+        var preview = await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm(), AISectionWait.NoWait);
+        var prepare = await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm(), AISectionWait.Prepare);
+
+        preview.Status.Should().Be(AISectionStatus.Generating);
+        preview.ClaimExpiresOn.Should().Be(claimExpiresOn, "the preview checks again when the claim lapses");
+        prepare.Status.Should().Be(AISectionStatus.Generating);
+        client.Requests.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task PreviewShowsAStoredFailureRatherThanQueueingItAgain()
+    {
+        var store = new FixedStore(new ReportAIResultModel() { Id = 1, Status = ReportAIResultStatus.Failed, Error = "The model refused." });
+        var (report, section) = Report(new ReportSectionSettingsModel() { Label = "Summary", UserPrompt = "Summarize" });
+        var sections = new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(1, "Budget news.")) };
+
+        var preview = await Generator(store, new FakeLlmClient(8000)).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm(), AISectionWait.NoWait);
+
+        preview.Status.Should().Be(AISectionStatus.Failed);
+        preview.Error.Should().Be("The model refused.");
     }
 }

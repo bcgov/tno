@@ -6,7 +6,7 @@ export enum TopicPopulationModeName {
   AllowCreate = 'AllowCreate',
 }
 
-/** The topic population settings on the topics admin page. */
+/** The topic population settings on the Content-Analysis admin page. */
 export interface ITopicPopulationSettingsModel {
   mode: TopicPopulationModeName;
 }

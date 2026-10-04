@@ -102,7 +102,7 @@ export const BackfillPanel: React.FC = () => {
         Analyze stories that already exist. The range starts on the first day and ends before the
         second, in your time zone ({timeZone}).
       </p>
-      <Row gap="1rem" alignItems="flex-end">
+      <Row gap="1rem" alignItems="flex-end" className="field-row">
         <Text
           name="backfillStartOn"
           label="From"

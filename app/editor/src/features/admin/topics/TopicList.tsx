@@ -10,7 +10,6 @@ import { useColumns } from './hooks';
 import * as styled from './styled';
 import { TopicFilter } from './TopicFilter';
 import { TopicFormSmall } from './TopicFormSmall';
-import { TopicPopulationPanel } from './TopicPopulationPanel';
 
 /**
  * Provides a list of all topics.
@@ -129,7 +128,6 @@ const TopicList: React.FC = () => {
     <styled.TopicList>
       <FormPage>
         <p className="list-title">Update Topics List (Event of the Day)</p>
-        <TopicPopulationPanel />
         <TopicFormSmall onAddOrUpdate={handleSubmit}></TopicFormSmall>
         <TopicFilter
           onFilterChange={(filter) => {

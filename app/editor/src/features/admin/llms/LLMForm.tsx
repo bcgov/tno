@@ -44,7 +44,6 @@ const LLMSchema = object({
   requestsPerMinute: number().optional().integer().min(0),
   tokensPerMinute: number().optional().integer().min(0),
   deploymentName: string().required('Deployment Name is required'),
-  systemPrompt: string().required('Default System Prompt is required'),
 });
 
 const tokenEstimationOptions = [
@@ -85,6 +84,8 @@ const LLMForm: React.FC = () => {
         ...values,
         apiKey: toOptionalString(values.apiKey),
         projectEndpoint: toOptionalString(values.projectEndpoint),
+        // An empty editor still saves, as the column does not allow null.
+        systemPrompt: toOptionalString(values.systemPrompt) ?? '',
       };
       const result = !llm.id ? await api.addLLM(payload) : await api.updateLLM(payload);
       setLLM(result);

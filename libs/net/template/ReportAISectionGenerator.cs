@@ -69,33 +69,35 @@ public class ReportAISectionGenerator
     /// <param name="sectionContent">Every section of the report with its content.</param>
     /// <param name="previousReports">Previous instances, oldest first (already limited to this section's count).</param>
     /// <param name="llm">The section's LLM.</param>
+    /// <param name="wait">Whether to generate a missing section, and wait for another generator's.</param>
     /// <param name="cancellationToken"></param>
-    /// <returns>The section output, or an error when the section cannot be generated.</returns>
-    public async Task<(string? Output, string? Error)> GenerateAsync(
+    /// <returns>The section output, an error when the section cannot be generated, its status, and when the claim of the generator holding it expires.</returns>
+    public async Task<(string? Output, string? Error, AISectionStatus Status, DateTime? ClaimExpiresOn)> GenerateAsync(
         API.Areas.Services.Models.Report.ReportModel report,
         long? reportInstanceId,
         API.Areas.Services.Models.Report.ReportSectionModel section,
         Dictionary<string, ReportSectionModel> sectionContent,
         IReadOnlyList<PreviousReportModel> previousReports,
         API.Areas.Services.Models.LLM.LLMModel llm,
+        AISectionWait wait = AISectionWait.Wait,
         CancellationToken cancellationToken = default)
     {
         var settings = section.Settings;
         if (llm.ProjectEndpoint == null || String.IsNullOrWhiteSpace(llm.DeploymentName))
-            return (null, "The LLM configuration requires a project endpoint and a deployment name.");
+            return (null, "The LLM configuration requires a project endpoint and a deployment name.", AISectionStatus.Failed, null);
         var limits = new LlmLimits(llm.ContextWindow ?? 0, llm.MaxOutputTokens ?? 0, llm.TokenEstimation, llm.RequestsPerMinute, llm.TokensPerMinute);
         if (!limits.IsValid)
-            return (null, $"The LLM '{llm.Name}' has no context window or maximum output tokens configured, so AI sections cannot use it.");
+            return (null, $"The LLM '{llm.Name}' has no context window or maximum output tokens configured, so AI sections cannot use it.", AISectionStatus.Failed, null);
         var apiKey = llm.ApiKey;
         if (String.IsNullOrWhiteSpace(apiKey))
-            return (null, $"The LLM '{llm.Name}' has no API key configured.");
+            return (null, $"The LLM '{llm.Name}' has no API key configured.", AISectionStatus.Failed, null);
 
         var mode = String.Equals(settings.AIOutputMode, nameof(SynthesisOutputMode.TopicSummary), StringComparison.OrdinalIgnoreCase)
             ? SynthesisOutputMode.TopicSummary
             : SynthesisOutputMode.FreeText;
         var sources = GetSourceSections(report, section, sectionContent);
         if (sources == null)
-            return (null, "Choose the content sections that feed this AI section.");
+            return (null, "Choose the content sections that feed this AI section.", AISectionStatus.Failed, null);
 
         var stories = BuildStories(sources, _options.ViewContentUrl, true);
         var history = previousReports
@@ -127,7 +129,18 @@ public class ReportAISectionGenerator
             if (existing?.Status == Entities.ReportAIResultStatus.Completed)
             {
                 _logger.LogDebug("Reusing AI result {id} for report {reportId} section {sectionId}", existing.Id, report.Id, section.Id);
-                return (existing.Output, null);
+                return (existing.Output, null, AISectionStatus.Ready, null);
+            }
+
+            // A preview never generates; it shows the section once a generator has stored it. A failure
+            // is shown rather than queued again, so a failing section cannot loop; a send retries it.
+            if (wait == AISectionWait.NoWait)
+            {
+                if (existing?.Status == Entities.ReportAIResultStatus.Failed)
+                    return (null, existing.Error ?? "The AI section failed to generate.", AISectionStatus.Failed, null);
+                return existing?.Status == Entities.ReportAIResultStatus.Pending && existing.ClaimExpiresOn > DateTime.UtcNow
+                    ? (null, null, AISectionStatus.Generating, existing.ClaimExpiresOn)
+                    : (null, null, AISectionStatus.NotStarted, null);
             }
 
             var claim = await _store.TryClaimAsync(new ReportAIResultClaimModel()
@@ -141,11 +154,18 @@ public class ReportAISectionGenerator
                 LeaseSeconds = _options.Synthesis.ClaimLeaseSeconds,
             }, cancellationToken);
 
-            if (claim != null) return await SynthesizeAsync(claim.Id, request, cancellationToken);
+            if (claim != null)
+            {
+                var (output, error) = await SynthesizeAsync(claim.Id, request, cancellationToken);
+                return (output, error, error == null ? AISectionStatus.Ready : AISectionStatus.Failed, null);
+            }
+
+            // Background preparation leaves a section another generator holds to that generator.
+            if (wait == AISectionWait.Prepare) return (null, null, AISectionStatus.Generating, null);
 
             // Another preview, view, or send is generating this manifest; wait for its result.
             if (DateTime.UtcNow > deadline)
-                return (null, "Another request is still generating this AI section.");
+                return (null, "Another request is still generating this AI section.", AISectionStatus.Failed, null);
             await Task.Delay(PollInterval, cancellationToken);
         }
     }

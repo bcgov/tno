@@ -81,6 +81,12 @@ public class ReportRequestModel
     /// get/set - Whether to resend to subscribers even if already sent.
     /// </summary>
     public bool Resend { get; set; } = false;
+
+    /// <summary>
+    /// get/set - Only generate and store the report instance's missing AI sections, then notify the
+    /// requestor. Nothing is sent and the instance is not changed.
+    /// </summary>
+    public bool PrepareAISections { get; set; } = false;
     #endregion
 
     #region Constructors

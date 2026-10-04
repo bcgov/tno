@@ -210,4 +210,35 @@ public class ContentAnalyzerTest
         result.SuggestedContributor.Should().Be("Jane Doe");
         client.Requests.Should().BeEmpty();
     }
+
+    [Fact]
+    public async Task MissingLimitsAreAConfigurationError()
+    {
+        var client = new ScriptedLlmClient();
+        var analyzer = new ContentAnalyzer(client, new AnalyzerOptions(), NullLogger.Instance);
+
+        var act = () => analyzer.AnalyzeAsync(Input(Story), Endpoint, new LlmLimits(0, 0, null, null, null), Array.Empty<AnalyzerTag>());
+
+        var ex = (await act.Should().ThrowAsync<LlmConfigurationException>()).Which;
+        LlmConfigurationException.IsConfigurationError(ex).Should().BeTrue();
+        client.Requests.Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData(System.Net.HttpStatusCode.Unauthorized, true)]
+    [InlineData(System.Net.HttpStatusCode.Forbidden, true)]
+    [InlineData(System.Net.HttpStatusCode.NotFound, true)]
+    [InlineData(System.Net.HttpStatusCode.TooManyRequests, false)]
+    [InlineData(System.Net.HttpStatusCode.InternalServerError, false)]
+    public void ProviderRejectionsOfTheKeyOrDeploymentAreConfigurationErrors(System.Net.HttpStatusCode status, bool expected)
+    {
+        LlmConfigurationException.IsConfigurationError(new HttpRequestException("LLM request failed", null, status)).Should().Be(expected);
+    }
+
+    [Fact]
+    public void ContentFailuresAreNotConfigurationErrors()
+    {
+        LlmConfigurationException.IsConfigurationError(new LlmContextLengthException("too long")).Should().BeFalse();
+        LlmConfigurationException.IsConfigurationError(new InvalidOperationException("The text cannot be split further.")).Should().BeFalse();
+    }
 }

@@ -75,9 +75,6 @@ export const Menu: React.FC = () => {
                   <MenuDropdownItem claim={Claim.administrator} to="/admin/folders">
                     <FaFolder /> Folders
                   </MenuDropdownItem>
-                  <MenuDropdownItem claim={Claim.administrator} to="/admin/llms">
-                    <FaBrain /> AI LLM Configuration
-                  </MenuDropdownItem>
                   {isAdmin && <NavDropdown.Divider />}
                   <MenuDropdownItem to="/reports/event-of-the-day">
                     <FaSun /> Event of the Day
@@ -174,6 +171,9 @@ export const Menu: React.FC = () => {
                 </NavDropdown.Item>
                 <NavDropdown.Item as={Link} to="/admin/content-analysis">
                   <FaCogs /> Content Analysis
+                </NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/admin/llms">
+                  <FaBrain /> AI LLM Configuration
                 </NavDropdown.Item>
               </MenuDropdown>
             </Nav>

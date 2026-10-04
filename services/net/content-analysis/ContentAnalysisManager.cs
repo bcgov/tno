@@ -40,7 +40,6 @@ public class ContentAnalysisManager : ServiceManager<ContentAnalysisOptions>
     private IReadOnlyList<AnalyzerTag> _tags = Array.Empty<AnalyzerTag>();
     private DateTime _settingsRefreshedOn = DateTime.MinValue;
     private readonly AnalysisProcess _processes;
-    private bool _warnedNoLlm;
     #endregion
 
     #region Constructors
@@ -102,8 +101,19 @@ public class ContentAnalysisManager : ServiceManager<ContentAnalysisOptions>
                 {
                     ListenForWakeMessages();
                     await RefreshSettingsAsync();
-                    if (_processes != AnalysisProcess.None && HasRequiredLlm()) await ProcessAvailableJobsAsync();
+                    if (_processes != AnalysisProcess.None)
+                    {
+                        ValidateLlm();
+                        await ProcessAvailableJobsAsync();
+                    }
                     this.State.ResetFailures();
+                }
+                catch (Exception ex) when (LlmConfigurationException.IsConfigurationError(ex))
+                {
+                    // No job is failed for it; the service retries, then sleeps until the LLM is fixed.
+                    var failures = this.State.RecordFailure();
+                    this.Logger.LogError(ex, "Content-Analysis LLM is misconfigured. This is failure [{failures}] out of [{max}] before the service sleeps.", failures, this.State.MaxFailureLimit);
+                    await this.SendErrorEmailAsync("Content-Analysis LLM is misconfigured", ex);
                 }
                 catch (Exception ex)
                 {
@@ -118,18 +128,27 @@ public class ContentAnalysisManager : ServiceManager<ContentAnalysisOptions>
     }
 
     /// <summary>
-    /// Whether the LLM the configured processes need is configured. Without it no jobs are claimed,
+    /// Ensure the LLM the configured processes need is configured. Without it no jobs are claimed,
     /// so they wait rather than fail.
     /// </summary>
-    private bool HasRequiredLlm()
+    /// <exception cref="LlmConfigurationException">The LLM is missing, or lacks an endpoint, key, deployment, or limits.</exception>
+    private void ValidateLlm()
     {
         const AnalysisProcess modelProcesses = AnalysisProcess.Metadata | AnalysisProcess.Summary | AnalysisProcess.Quotes | AnalysisProcess.Tags | AnalysisProcess.Topics;
-        if ((_processes & modelProcesses) == AnalysisProcess.None) return true;
-        if (_llm?.ProjectEndpoint != null && !String.IsNullOrWhiteSpace(_llm.ApiKey) && !String.IsNullOrWhiteSpace(_llm.DeploymentName)) return true;
-        if (!_warnedNoLlm) this.Logger.LogWarning("Content-Analysis has no LLM configured (ContentAnalysisLLMId), or it has no endpoint, key, or deployment; jobs wait until one is.");
-        _warnedNoLlm = true;
-        return false;
+        if ((_processes & modelProcesses) == AnalysisProcess.None) return;
+        if (_llm?.ProjectEndpoint == null || String.IsNullOrWhiteSpace(_llm.ApiKey) || String.IsNullOrWhiteSpace(_llm.DeploymentName))
+            throw new LlmConfigurationException("Content-Analysis has no LLM configured (ContentAnalysisLLMId), or it has no endpoint, key, or deployment.");
+        if (!GetLimits(_llm).IsValid)
+            throw new LlmConfigurationException($"The LLM '{_llm.Name}' has no context window or output limit configured, or its output limit is not less than its context window.");
     }
+
+    /// <summary>
+    /// The LLM's request limits.
+    /// </summary>
+    /// <param name="llm"></param>
+    /// <returns></returns>
+    private static LlmLimits GetLimits(API.Areas.Services.Models.LLM.LLMModel? llm) =>
+        llm != null ? new LlmLimits(llm.ContextWindow ?? 0, llm.MaxOutputTokens ?? 0, llm.TokenEstimation, llm.RequestsPerMinute, llm.TokensPerMinute) : new LlmLimits(0, 0, null, null, null);
 
     /// <summary>
     /// Subscribe to the wake topic, when it exists.
@@ -262,9 +281,8 @@ public class ContentAnalysisManager : ServiceManager<ContentAnalysisOptions>
 
             // Only the model-based processes need the LLM.
             var llm = _llm;
-            if (analyzerOptions.UsesModel && (llm?.ProjectEndpoint == null || String.IsNullOrWhiteSpace(llm.ApiKey) || String.IsNullOrWhiteSpace(llm.DeploymentName)))
-                throw new InvalidOperationException("Content-Analysis has no LLM configured (ContentAnalysisLLMId), or it has no endpoint, key, or deployment.");
-            var limits = llm != null ? new LlmLimits(llm.ContextWindow ?? 0, llm.MaxOutputTokens ?? 0, llm.TokenEstimation, llm.RequestsPerMinute, llm.TokensPerMinute) : new LlmLimits(0, 0, null, null, null);
+            if (analyzerOptions.UsesModel) ValidateLlm();
+            var limits = GetLimits(llm);
             var endpoint = new LlmEndpoint(llm?.ProjectEndpoint ?? new Uri("http://localhost"), llm?.ApiKey ?? "", llm?.DeploymentName ?? "");
             var isBackfill = job.Reason == AnalysisJobReason.Backfill;
 
@@ -286,9 +304,17 @@ public class ContentAnalysisManager : ServiceManager<ContentAnalysisOptions>
         {
             this.Logger.LogWarning("Analysis job {jobId} lost its claim and was abandoned", job.Id);
         }
+        catch (Exception ex) when (LlmConfigurationException.IsConfigurationError(ex))
+        {
+            // The content is not at fault: return the job without counting an attempt, and fail the
+            // cycle so the service retries, then sleeps.
+            this.Logger.LogWarning("Analysis job {jobId} for content {contentId} was returned to the queue: {error}", job.Id, job.ContentId, ex.Message);
+            await this.Api.FailAnalysisAsync(new AnalysisFailureModel() { JobId = job.Id, FencingToken = job.FencingToken, Error = ex.Message, IsAttempt = false });
+            throw;
+        }
         catch (Exception ex)
         {
-            // Configuration problems and input that cannot be split are permanent; the rest retry.
+            // Input that cannot be split is permanent; the rest retry.
             var isTransient = ex is not InvalidOperationException;
             this.Logger.LogError(ex, "Analysis job {jobId} for content {contentId} failed", job.Id, job.ContentId);
             await this.Api.FailAnalysisAsync(new AnalysisFailureModel() { JobId = job.Id, FencingToken = job.FencingToken, Error = ex.Message, IsTransient = isTransient });

@@ -84,7 +84,8 @@ public class ReportInstanceController : ControllerBase
                 !report.IsPublic) throw new NotAuthorizedException("Not authorized to preview this report"); // Report is not public
             instance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(id));
             var model = new Services.Models.ReportInstance.ReportInstanceModel(instance, _serializerOptions);
-            var result = await _reportHelper.GenerateReportAsync(model, false, false);
+            // AI sections are not waited for; the user is notified when they are ready.
+            var result = await _reportHelper.PreviewReportInstanceAsync(model, user.Id, false);
             return new JsonResult(result);
         }
 

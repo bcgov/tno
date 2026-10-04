@@ -177,7 +177,10 @@ export const ReportEditPage = () => {
     // TODO: This can blow away a users' changes.
     try {
       if (message.reportId === report.id) {
-        if (message.message === 'status') {
+        if (message.message === 'ai-sections') {
+          // The preview refreshes itself when its AI sections are ready.
+          return;
+        } else if (message.message === 'status') {
           setReport({
             ...report,
             instances: report.instances.map((i) =>

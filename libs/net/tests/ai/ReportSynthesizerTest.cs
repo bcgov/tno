@@ -152,15 +152,34 @@ public class ReportSynthesizerTest
     }
 
     [Fact]
-    public async Task GroupsBecomeHeadings()
+    public async Task StoriesOfDifferentTopicsShareRequests()
     {
         var client = new FakeLlmClient(8000);
-        var stories = Stories(2, group: "Health").Concat(Stories(2, group: "Transit").Select(s => s with { ContentId = s.ContentId + 10 })).ToList();
+        // Every story has its own analysis topic, as most do in a large report.
+        var stories = Stories(100).Select(s => s with { Group = $"Topic {s.ContentId}" }).ToList();
 
         var result = await Synthesizer(client).SynthesizeAsync(Request(stories, SynthesisOutputMode.TopicSummary));
 
-        result.Output.Should().Contain("<h3>Health</h3>");
-        result.Output.Should().Contain("<h3>Transit</h3>");
+        result.IsSuccess.Should().BeTrue(result.Error);
+        result.Usage.StoriesProcessed.Should().Be(100);
+        client.MapHandles.Count.Should().BeLessThan(10, "stories are batched across topics, not sent one topic at a time");
+        result.Output.Should().Contain("<h3>");
+    }
+
+    [Fact]
+    public async Task BatchesAreCappedBelowTheContextWindow()
+    {
+        var limits = Limits(128000, 16000);
+        var client = new FakeLlmClient(limits.ContextWindow);
+        var synthesizer = new ReportSynthesizer(client, new SynthesisOptions() { MaxBatchInputTokens = 2000, MaxBatchOutputTokens = 500 }, NullLogger.Instance);
+
+        var result = await synthesizer.SynthesizeAsync(Request(Stories(300), limits: limits));
+
+        result.IsSuccess.Should().BeTrue(result.Error);
+        result.Usage.StoriesProcessed.Should().Be(300);
+        var map = client.Requests.Where(r => r[0].Content.Contains("You read a batch")).ToArray();
+        map.Length.Should().BeGreaterThan(1);
+        client.MapHandles.Should().OnlyContain(h => h.Length < 40, "each request holds at most 2,000 input tokens of stories");
     }
 
     [Fact]

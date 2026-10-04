@@ -12,10 +12,10 @@ namespace TNO.AI.Synthesis;
 /// <summary>
 /// ReportSynthesizer class, synthesizes an AI report section from every included story through
 /// bounded, token-budgeted requests:
-/// 1. stories are sent in batches that fit the input allowance (a story too large for one request
-///    is split into parts, never truncated), and each batch returns findings citing evidence handles;
-/// 2. findings are reduced recursively within each group until they fit one request (at most
-///    MaxReductionDepth rounds);
+/// 1. stories, ordered by topic so related stories share a request, are sent in batches of at most
+///    MaxBatchInputTokens (a story too large for one request is split into parts, never truncated),
+///    and each batch returns findings citing evidence handles;
+/// 2. findings are reduced recursively until they fit one request (at most MaxReductionDepth rounds);
 /// 3. the output is assembled: topic summaries in application code, free text by one final request
 ///    whose input is itself bounded.
 /// A request the provider rejects as too long, or whose output is truncated, is split and retried.
@@ -81,31 +81,33 @@ public partial class ReportSynthesizer
             {
                 var instance = request.History[i];
                 var stories = instance.Stories.Select((story, n) => (Handle: $"P{i + 1}-{n + 1}", Story: story)).ToArray();
-                var (mapped, _) = await MapAsync(run, instructions, stories, cancellationToken);
-                history.Add((instance.Label, await ReduceAsync(run, instructions, mapped, historyShare, false, cancellationToken)));
+                var (previous, _) = await MapAsync(run, instructions, stories, cancellationToken);
+                history.Add((instance.Label, await ReduceAsync(run, instructions, previous, historyShare, false, cancellationToken)));
             }
 
-            // Stories are grouped (by topic from Phase 2; the whole section before) and reduced
-            // within their group.
-            var groups = new List<(string Group, IReadOnlyList<Finding> Findings)>();
-            foreach (var group in request.Stories.Select((story, i) => (Handle: $"S{i + 1}", Story: story)).GroupBy(s => s.Story.Group ?? ""))
-            {
-                var (mapped, batches) = await MapAsync(run, instructions, group.ToArray(), cancellationToken);
-                // Findings from a single batch are already consolidated.
-                var consolidate = request.Mode == SynthesisOutputMode.TopicSummary && batches > 1;
-                groups.Add((group.Key, await ReduceAsync(run, instructions, mapped, run.ReduceAllowance(instructions), consolidate, cancellationToken)));
-            }
+            // Every story is read in one pass. Stories are ordered by their analysis topic so related
+            // stories share a request; mapping each topic on its own sent a request per story when
+            // nearly every story had its own topic.
+            var current = request.Stories
+                .Select((story, i) => (Handle: $"S{i + 1}", Story: story))
+                .OrderBy(s => String.IsNullOrWhiteSpace(s.Story.Group) ? 1 : 0)
+                .ThenBy(s => s.Story.Group?.Trim() ?? "", StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+            var (mapped, batches) = await MapAsync(run, instructions, current, cancellationToken);
+            // Findings from a single batch are already consolidated.
+            var consolidate = request.Mode == SynthesisOutputMode.TopicSummary && batches > 1;
+            var findings = await ReduceAsync(run, instructions, mapped, run.ReduceAllowance(instructions), consolidate, cancellationToken);
 
             string output;
             IReadOnlyList<Finding> final;
             if (request.Mode == SynthesisOutputMode.TopicSummary)
             {
-                final = groups.SelectMany(g => g.Findings.Select(f => String.IsNullOrWhiteSpace(g.Group) ? f : f with { Topic = g.Group })).ToArray();
-                output = RenderTopicSummary(run, groups);
+                final = findings;
+                output = RenderTopicSummary(run, findings);
             }
             else
             {
-                (output, final) = await WriteFreeTextAsync(run, instructions, groups.SelectMany(g => g.Findings).ToList(), history, cancellationToken);
+                (output, final) = await WriteFreeTextAsync(run, instructions, findings, history, cancellationToken);
             }
 
             return new SynthesisResult(true, output, null, final, run.Sources.Values.ToArray(), run.Usage());
@@ -138,7 +140,7 @@ public partial class ReportSynthesizer
     {
         if (stories.Count == 0) return (new List<Finding>(), 0);
         var system = SynthesisPrompts.Map(instructions);
-        var allowance = run.InputAllowance(system);
+        var allowance = run.BatchAllowance(system);
         if (allowance < 64) throw new SynthesisException("The section instructions leave no room for stories within the model's context window.");
 
         var items = new List<Item>();
@@ -182,6 +184,7 @@ public partial class ReportSynthesizer
     {
         var system = SynthesisPrompts.Reduce(instructions);
         var requestAllowance = run.InputAllowance(system);
+        var batchAllowance = run.BatchAllowance(system);
         var target = Math.Min(allowance, requestAllowance);
         var consolidated = !consolidate;
 
@@ -200,12 +203,13 @@ public partial class ReportSynthesizer
                 var line = FormatFinding(f, $"F{i + 1}");
                 return new Item(line, run.Estimator.Count(line), $"F{i + 1}", f.Sources, null, null);
             }).ToList();
-            var batches = Pack(items, requestAllowance);
-            var results = await RunAllAsync(run, batches, batch => ProcessAsync(run, system, batch, false, requestAllowance, cancellationToken), cancellationToken);
+            var batches = Pack(items, batchAllowance);
+            var results = await RunAllAsync(run, batches, batch => ProcessAsync(run, system, batch, false, batchAllowance, cancellationToken), cancellationToken);
             var reduced = results.SelectMany(r => r).ToList();
 
             // A single batch is a consolidation of every finding.
             if (batches.Count == 1) consolidated = true;
+            _logger.LogDebug("Synthesis reduce round {depth}: {findings} finding(s) in {batches} request(s) became {reduced}", depth, findings.Count, batches.Count, reduced.Count);
             findings = reduced;
         }
     }
@@ -245,7 +249,7 @@ public partial class ReportSynthesizer
         string? problem;
         try
         {
-            var result = await SendAsync(run, new[] { ("system", system), ("user", input) }, true, null, null, cancellationToken);
+            var result = await SendAsync(run, new[] { ("system", system), ("user", input) }, true, null, null, run.BatchOutputTokens, cancellationToken);
             if (!result.IsTruncated)
             {
                 var findings = ParseFindings(result.Content, handles);
@@ -297,18 +301,18 @@ public partial class ReportSynthesizer
     /// <summary>
     /// Send one request within the deployment's rate limits, recording its size and usage.
     /// </summary>
-    private async Task<LlmResult> SendAsync(Run run, IReadOnlyList<(string Role, string Content)> messages, bool jsonMode, float? temperature, int? choiceCount, CancellationToken cancellationToken)
+    private async Task<LlmResult> SendAsync(Run run, IReadOnlyList<(string Role, string Content)> messages, bool jsonMode, float? temperature, int? choiceCount, int maxOutputTokens, CancellationToken cancellationToken)
     {
         var tokens = messages.Sum(m => run.Estimator.Count(m.Content)) + LlmLimits.RequestOverheadTokens + LlmLimits.MessageOverheadTokens * messages.Count;
         run.RecordRequestSize(tokens);
         var limits = run.Request.Limits;
-        await LlmRateLimiter.WaitAsync(LlmRateLimiter.GetKey(run.Request.Endpoint), limits.RequestsPerMinute, limits.TokensPerMinute, tokens + limits.MaxOutputTokens, cancellationToken);
+        await LlmRateLimiter.WaitAsync(LlmRateLimiter.GetKey(run.Request.Endpoint), limits.RequestsPerMinute, limits.TokensPerMinute, tokens + maxOutputTokens, cancellationToken);
         var result = await _client.InvokeAsync(
             run.Request.Endpoint,
             messages,
             jsonMode,
             _options.RequestAttempts,
-            new LlmRequestOptions(limits.MaxOutputTokens, temperature, choiceCount),
+            new LlmRequestOptions(maxOutputTokens, temperature, choiceCount),
             cancellationToken);
         run.RecordUsage(result);
         return result;
@@ -351,7 +355,7 @@ public partial class ReportSynthesizer
             {
                 try
                 {
-                    var result = await SendAsync(run, messages, false, request.Temperature, request.ChoiceCount, cancellationToken);
+                    var result = await SendAsync(run, messages, false, request.Temperature, request.ChoiceCount, request.Limits.MaxOutputTokens, cancellationToken);
                     if (!result.IsTruncated) return (Sanitize(LinkCitations(run, SelectChoice(result, request.ChoiceIndex))), findings);
                     problem = "the section output was truncated at the output limit";
                 }
@@ -401,6 +405,8 @@ public partial class ReportSynthesizer
                 .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .Where(run.Sources.ContainsKey)
                 .Select(handle => SourceLink(run.Sources[handle]))
+                // Stories with the same headline and link (e.g. wire updates) are listed once.
+                .Distinct()
                 .ToArray();
             return links.Length == 0 ? "" : $" ({String.Join("; ", links)})";
         });
@@ -409,10 +415,10 @@ public partial class ReportSynthesizer
     /// <summary>
     /// Headings with bullet statements and source lists, built from recorded provenance.
     /// </summary>
-    private static string RenderTopicSummary(Run run, IReadOnlyList<(string Group, IReadOnlyList<Finding> Findings)> groups)
+    private static string RenderTopicSummary(Run run, IReadOnlyList<Finding> findings)
     {
-        var sections = groups
-            .SelectMany(g => g.Findings.Select(f => (Heading: String.IsNullOrWhiteSpace(g.Group) ? f.Topic : g.Group, Finding: f)))
+        var sections = findings
+            .Select(f => (Heading: f.Topic, Finding: f))
             .GroupBy(x => String.IsNullOrWhiteSpace(x.Heading) ? "Other" : x.Heading.Trim(), StringComparer.OrdinalIgnoreCase);
 
         var html = new StringBuilder("<div class=\"ai-topic-summary\">");
@@ -576,6 +582,18 @@ public partial class ReportSynthesizer
         public int InputAllowance(string system) => this.Request.Limits.GetInputAllowance(this.Estimator.Count(system), 2, _options.SafetyMarginPercent);
 
         public int ReduceAllowance(string instructions) => InputAllowance(SynthesisPrompts.Reduce(instructions));
+
+        /// <summary>
+        /// Input tokens for one map or reduce request: the request allowance, capped by MaxBatchInputTokens.
+        /// </summary>
+        public int BatchAllowance(string system)
+            => _options.MaxBatchInputTokens > 0 ? Math.Min(InputAllowance(system), _options.MaxBatchInputTokens) : InputAllowance(system);
+
+        /// <summary>
+        /// Output tokens for one map or reduce request.
+        /// </summary>
+        public int BatchOutputTokens
+            => _options.MaxBatchOutputTokens > 0 ? Math.Min(this.Request.Limits.MaxOutputTokens, _options.MaxBatchOutputTokens) : this.Request.Limits.MaxOutputTokens;
 
         public int FinalAllowance(string instructions)
             => this.Request.Limits.GetInputAllowance(

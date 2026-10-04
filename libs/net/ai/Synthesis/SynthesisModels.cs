@@ -82,7 +82,19 @@ public class SynthesisOptions
     /// <summary>
     /// get/set - The most requests in flight at once for one section.
     /// </summary>
-    public int MaxConcurrentRequests { get; set; } = 4;
+    public int MaxConcurrentRequests { get; set; } = 8;
+
+    /// <summary>
+    /// get/set - The most input tokens in one map or reduce request. Smaller requests return sooner
+    /// and run in parallel; the model's context window still applies when it is smaller.
+    /// </summary>
+    public int MaxBatchInputTokens { get; set; } = 16000;
+
+    /// <summary>
+    /// get/set - The most output tokens one map or reduce request may return. A response that
+    /// reaches it is split and retried. The final free-text request uses the model's limit.
+    /// </summary>
+    public int MaxBatchOutputTokens { get; set; } = 8000;
 
     /// <summary>
     /// get/set - Attempts per request for throttling and transient failures.

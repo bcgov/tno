@@ -43,11 +43,12 @@ export const TopicPopulationPanel: React.FC = () => {
   };
 
   return (
-    <Col className="topic-population" gap="0.25rem">
-      <b>Automatic topics (Content-Analysis)</b>
-      <Row gap="1rem" alignItems="center">
+    <Col className="panel" gap="0.5rem">
+      <h2>Automatic topics</h2>
+      <Row gap="1rem" alignItems="flex-end" className="field-row">
         <Select
           name="topicPopulationMode"
+          label="Topic population"
           width="28ch"
           options={modeOptions}
           value={modeOptions.find((o) => o.value === values.mode)}
@@ -62,10 +63,10 @@ export const TopicPopulationPanel: React.FC = () => {
           Save
         </Button>
       </Row>
-      <span className="hint">
+      <p className="hint">
         Applies when the Content-Analysis service runs its Topics process. Only stories without
         topics are given one. Scores come from the topic score rules.
-      </span>
+      </p>
     </Col>
   );
 };

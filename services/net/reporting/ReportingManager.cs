@@ -340,7 +340,11 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 if (request.ReportInstanceId.HasValue)
                 {
                     var instance = await this.Api.GetReportInstanceAsync(request.ReportInstanceId.Value);
-                    if (instance != null)
+                    if (instance != null && request.PrepareAISections)
+                    {
+                        await PrepareAISectionsAsync(request, instance);
+                    }
+                    else if (instance != null)
                     {
                         await GenerateAndSendReportAsync(request, instance);
 
@@ -650,11 +654,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var sections = report.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s));
 
         var searchResults = !resending && !retry ? await this.Api.GetContentForReportInstanceIdAsync(instance.Id) : Array.Empty<API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel>();
-        var sectionContent = sections.ToDictionary(s => s.Name, section =>
-        {
-            section.Content = searchResults.Where(sr => sr.SectionName == section.Name && sr.Content != null).Select(ri => new ContentModel(ri.Content!, ri.SortOrder)).ToArray();
-            return section;
-        });
+        var sectionContent = GetSectionContent(sections, searchResults);
 
         if (!resending && !retry)
         {
@@ -670,6 +670,52 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         }
 
         await SendReportAsync(request, report, instance, sectionContent);
+    }
+
+    /// <summary>
+    /// Generate and store the report instance's missing AI sections for a preview, then notify the
+    /// requestor so the preview refreshes. Nothing is sent and the instance is not changed.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="instance"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    private async Task PrepareAISectionsAsync(ReportRequestModel request, API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance)
+    {
+        var report = instance.Report ?? throw new ArgumentException("Report instance must include the report model.");
+        try
+        {
+            var sections = report.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s));
+            var sectionContent = GetSectionContent(sections, await this.Api.GetContentForReportInstanceIdAsync(instance.Id));
+            await this.ReportEngine.PrepareReportAISectionsAsync(report, instance.Id, sectionContent, GetPreviousReportsAsync, GetLLMAsync);
+        }
+        finally
+        {
+            // The preview waits for this, so it is told even when preparation fails; it then shows each section's state.
+            if (request.RequestorId.HasValue)
+                await this.Api.NotifyReportAISectionsReadyAsync(instance.Id, request.RequestorId.Value);
+        }
+    }
+
+    /// <summary>
+    /// Link the instance's content with its section names.
+    /// </summary>
+    /// <param name="sections"></param>
+    /// <param name="instanceContent"></param>
+    /// <returns></returns>
+    private static Dictionary<string, ReportSectionModel> GetSectionContent(
+        IEnumerable<ReportSectionModel> sections,
+        IEnumerable<API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel> instanceContent)
+    {
+        return sections.ToDictionary(s => s.Name, section =>
+        {
+            // Ordered as the API orders it, so a preview and a send share the AI section results.
+            section.Content = instanceContent
+                .Where(sr => sr.SectionName == section.Name && sr.Content != null)
+                .OrderBy(ri => ri.SortOrder).ThenBy(ri => ri.ContentId)
+                .Select(ri => new ContentModel(ri.Content!, ri.SortOrder)).ToArray();
+            return section;
+        });
     }
 
     /// <summary>

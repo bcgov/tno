@@ -119,7 +119,7 @@ public partial class ContentAnalyzer
     /// <param name="beforeRequest">Called with each request's estimated tokens before it is sent (rate limiting).</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException">The LLM limits are not configured.</exception>
+    /// <exception cref="LlmConfigurationException">The LLM limits are not configured, or leave no room for content.</exception>
     public async Task<AnalyzerResult> AnalyzeAsync(
         AnalyzerInput input,
         LlmEndpoint endpoint,
@@ -133,13 +133,13 @@ public partial class ContentAnalyzer
         if (text.Trim().Length < _options.MinTextCharacters || !_options.UsesModel)
             return new AnalyzerResult() { IsMetadataOnly = text.Trim().Length < _options.MinTextCharacters, SuggestedContributor = contributor };
         if (!limits.IsValid)
-            throw new InvalidOperationException("The LLM has no context window or output limit configured.");
+            throw new LlmConfigurationException("The LLM has no context window or output limit configured.");
 
         var run = new Run(this, endpoint, limits, TokenEstimator.Create(limits.TokenEstimation), beforeRequest);
         var header = BuildHeader(input);
         var system = AnalysisPrompts.Extract;
         var chunkBudget = limits.GetInputAllowance(run.Estimator.Count(system), 2, _options.SafetyMarginPercent) - run.Estimator.Count(header) - 32;
-        if (chunkBudget < 64) throw new InvalidOperationException("The LLM's context window is too small to analyze content.");
+        if (chunkBudget < 64) throw new LlmConfigurationException("The LLM's context window is too small to analyze content.");
 
         var chunks = TextChunker.Split(text, chunkBudget, run.Estimator, Math.Min(_options.OverlapTokens, chunkBudget / 4));
         var extractions = new List<(TextChunk Chunk, JsonElement Json)>();

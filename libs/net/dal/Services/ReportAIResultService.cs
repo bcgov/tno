@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.API.Areas.Services.Models.ReportAIResult;
 using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
 using TNO.Entities;
 
 namespace TNO.DAL.Services;
@@ -87,19 +88,30 @@ RETURNING id AS ""Value""";
     /// <returns></returns>
     public ReportAIResult Complete(long id, ReportAIResultCompletionModel completion)
     {
-        var result = this.Context.ReportAIResults.FirstOrDefault(r => r.Id == id) ?? throw new NoContentException("AI result does not exist");
-        result.Status = completion.IsSuccess ? ReportAIResultStatus.Completed : ReportAIResultStatus.Failed;
-        result.Output = completion.IsSuccess ? completion.Output : "";
-        result.Error = completion.Error;
-        result.RequestCount = completion.RequestCount;
-        result.PromptTokens = completion.PromptTokens;
-        result.CompletionTokens = completion.CompletionTokens;
-        result.DurationMs = completion.DurationMs;
-        result.StoryCount = completion.StoryCount;
-        result.ReductionDepth = completion.ReductionDepth;
-        result.ClaimExpiresOn = null;
-        this.Context.CommitTransaction();
-        return result;
+        // One statement, like the claim. It is saved during report generation, when the request's
+        // context may track entities attached only to build the report; a SaveChanges would detect
+        // and try to save them too.
+        var status = completion.IsSuccess ? ReportAIResultStatus.Completed : ReportAIResultStatus.Failed;
+        var output = completion.IsSuccess ? completion.Output : "";
+        var username = this.Principal.GetUsername() ?? "";
+        var affected = this.Context.ReportAIResults
+            .Where(r => r.Id == id)
+            .ExecuteUpdate(setters => setters
+                .SetProperty(r => r.Status, status)
+                .SetProperty(r => r.Output, output)
+                .SetProperty(r => r.Error, completion.Error)
+                .SetProperty(r => r.RequestCount, completion.RequestCount)
+                .SetProperty(r => r.PromptTokens, completion.PromptTokens)
+                .SetProperty(r => r.CompletionTokens, completion.CompletionTokens)
+                .SetProperty(r => r.DurationMs, completion.DurationMs)
+                .SetProperty(r => r.StoryCount, completion.StoryCount)
+                .SetProperty(r => r.ReductionDepth, completion.ReductionDepth)
+                .SetProperty(r => r.ClaimExpiresOn, (DateTime?)null)
+                .SetProperty(r => r.UpdatedBy, username)
+                .SetProperty(r => r.UpdatedOn, DateTime.UtcNow)
+                .SetProperty(r => r.Version, r => r.Version + 1));
+        if (affected == 0) throw new NoContentException("AI result does not exist");
+        return this.Context.ReportAIResults.AsNoTracking().First(r => r.Id == id);
     }
     #endregion
 }

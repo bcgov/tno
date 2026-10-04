@@ -543,6 +543,14 @@ public interface IApiService
     Task<API.Areas.Services.Models.ReportInstance.ReportInstanceModel?> UpdateReportInstanceAsync(long instanceId, Entities.ReportStatus status);
 
     /// <summary>
+    /// Notify the user that the report instance's AI sections are ready.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    Task NotifyReportAISectionsReadyAsync(long instanceId, int userId);
+
+    /// <summary>
     /// Update the status of the specified report instance.
     /// </summary>
     /// <param name="instanceId"></param>

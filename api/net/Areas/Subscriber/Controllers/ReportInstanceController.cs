@@ -202,7 +202,8 @@ public class ReportInstanceController : ControllerBase
                 !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&  // User is not subscribed to the report
                 !report.IsPublic) throw new NotAuthorizedException("Not authorized to preview this report"); // Report is not public
             instance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(id));
-            var result = await _reportHelper.GenerateReportAsync(new Services.Models.ReportInstance.ReportInstanceModel(instance, _serializerOptions), false, true);
+            // AI sections are not waited for; the user is notified when they are ready.
+            var result = await _reportHelper.PreviewReportInstanceAsync(new Services.Models.ReportInstance.ReportInstanceModel(instance, _serializerOptions), user.Id);
             return new JsonResult(result);
         }
 

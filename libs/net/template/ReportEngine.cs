@@ -422,6 +422,7 @@ public partial class ReportEngine : IReportEngine
     /// <param name="pathToFiles"></param>
     /// <param name="viewOnWebOnly"></param>
     /// <param name="isPreview"></param>
+    /// <param name="aiWait">Whether to generate missing AI sections, or leave them pending.</param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     public async Task<string> GenerateReportBodyAsync(
@@ -433,7 +434,8 @@ public partial class ReportEngine : IReportEngine
         Func<int, Task<API.Areas.Services.Models.LLM.LLMModel?>> getLLMAsync,
         string? pathToFiles = null,
         bool viewOnWebOnly = false,
-        bool isPreview = false)
+        bool isPreview = false,
+        AISectionWait aiWait = AISectionWait.Wait)
     {
         if (report.Template == null) throw new InvalidOperationException("Report template is missing from model");
         if (report.Template.ReportType != Entities.ReportType.Content) throw new InvalidOperationException("The report does not use a evening overview template.");
@@ -449,7 +451,7 @@ public partial class ReportEngine : IReportEngine
             await GenerateReportImageSectionsAsync(report, sectionContent, pathToFiles);
 
             // Perform AI processes on the report.
-            await GenerateReportAISectionsAsync(report, reportInstance?.Id, sectionContent, getPreviousReportsAsync, getLLMAsync);
+            await GenerateReportAISectionsAsync(report, reportInstance?.Id, sectionContent, getPreviousReportsAsync, getLLMAsync, aiWait);
 
             // For each section that is JSON from 3rd party, fetch the JSON and save it.
             await GenerateReportDataSectionsAsync(report, sectionContent);
@@ -812,6 +814,33 @@ public partial class ReportEngine : IReportEngine
     private static HttpClient? _llmHttpClient;
 
     /// <summary>
+    /// The output of an AI section a preview is waiting for.
+    /// </summary>
+    public const string AISectionPendingMessage = "<p><em>This AI section is being generated. The preview will update when it is ready.</em></p>";
+
+    /// <summary>
+    /// Generate and store the report's missing AI sections, without the rest of the report. A section
+    /// another generator holds is left to it.
+    /// </summary>
+    /// <param name="report"></param>
+    /// <param name="reportInstanceId"></param>
+    /// <param name="sectionContent"></param>
+    /// <param name="getPreviousReportsAsync"></param>
+    /// <param name="getLLMAsync"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public Task PrepareReportAISectionsAsync(
+        API.Areas.Services.Models.Report.ReportModel report,
+        long? reportInstanceId,
+        Dictionary<string, ReportSectionModel> sectionContent,
+        Func<int, int?, int?, int, Task<IEnumerable<PreviousReportModel>>> getPreviousReportsAsync,
+        Func<int, Task<API.Areas.Services.Models.LLM.LLMModel?>> getLLMAsync,
+        CancellationToken cancellationToken = default)
+    {
+        return GenerateReportAISectionsAsync(report, reportInstanceId, sectionContent, getPreviousReportsAsync, getLLMAsync, AISectionWait.Prepare, cancellationToken);
+    }
+
+    /// <summary>
     /// Attach analysis evidence to content whose document did not carry it. Reports never wait for
     /// analysis: content without evidence is synthesized from its text.
     /// </summary>
@@ -845,6 +874,7 @@ public partial class ReportEngine : IReportEngine
     /// <param name="sectionContent"></param>
     /// <param name="getPreviousReportsAsync"></param>
     /// <param name="getLLMAsync"></param>
+    /// <param name="aiWait">Whether to generate missing sections, or leave them pending.</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     private async Task GenerateReportAISectionsAsync(
@@ -853,6 +883,7 @@ public partial class ReportEngine : IReportEngine
         Dictionary<string, ReportSectionModel> sectionContent,
         Func<int, int?, int?, int, Task<IEnumerable<PreviousReportModel>>> getPreviousReportsAsync,
         Func<int, Task<API.Areas.Services.Models.LLM.LLMModel?>> getLLMAsync,
+        AISectionWait aiWait = AISectionWait.Wait,
         CancellationToken? cancellationToken = null)
     {
         var aiSections = report.Sections.Where(s => s.SectionType == Entities.ReportSectionType.AI && s.IsEnabled).ToArray();
@@ -928,10 +959,18 @@ public partial class ReportEngine : IReportEngine
                 llm.DeploymentName = this.AzureOptions.AI.DefaultModelDeploymentName;
 
             var sectionPrevious = previousReports.TakeLast(Math.Max(0, settings.IncludePreviousReports ?? 0)).ToArray();
-            var (output, error) = await generator.GenerateAsync(report, reportInstanceId, section, sectionContent, sectionPrevious, llm, cancellationToken ?? CancellationToken.None);
-            if (error == null)
+            var (output, error, status, claimExpiresOn) = await generator.GenerateAsync(report, reportInstanceId, section, sectionContent, sectionPrevious, llm, aiWait, cancellationToken ?? CancellationToken.None);
+            sectionData.AIStatus = status;
+            sectionData.AIError = error;
+            sectionData.AIExpiresOn = claimExpiresOn;
+            if (status == AISectionStatus.Ready)
             {
                 sectionData.Data = output;
+                return;
+            }
+            if (status == AISectionStatus.NotStarted || status == AISectionStatus.Generating)
+            {
+                sectionData.Data = AISectionPendingMessage;
                 return;
             }
 

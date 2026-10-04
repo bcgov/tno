@@ -1070,6 +1070,18 @@ public class ApiService : IApiService
     }
 
     /// <summary>
+    /// Notify the user that the report instance's AI sections are ready.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    public async Task NotifyReportAISectionsReadyAsync(long instanceId, int userId)
+    {
+        var url = this.Options.ApiUrl.Append($"services/report/instances/{instanceId}/ai-sections/ready/{userId}");
+        await RetryRequestAsync(async () => await this.OpenClient.PostAsync(url));
+    }
+
+    /// <summary>
     /// Update the status of the specified report instance.
     /// </summary>
     /// <param name="instanceId"></param>

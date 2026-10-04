@@ -82,6 +82,22 @@ public interface IReportHelper
         bool isPreview = false);
 
     /// <summary>
+    /// Preview the report instance without waiting for its AI sections. A section without a stored
+    /// result shows that it is being generated, and the reporting service is asked to generate it;
+    /// the requestor is notified when it is ready.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="requestorId">The user to notify when the AI sections are ready.</param>
+    /// <param name="isPreview"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
+    Task<ReportResultModel> PreviewReportInstanceAsync(
+        Areas.Services.Models.ReportInstance.ReportInstanceModel model,
+        int requestorId,
+        bool isPreview = true);
+
+    /// <summary>
     /// Execute the report template to generate the subject and body.
     /// If the report sections contain charts it will also generate them and include them in the results.
     /// </summary>

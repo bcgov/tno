@@ -76,7 +76,7 @@ export const ContentAnalysisForm: React.FC = () => {
         </Button>
       </Row>
       <Show visible={!!analysis}>
-        <Col gap="0.75rem" className="analysis-body">
+        <Col gap="0.75rem" direction="column" nowrap className="analysis-body">
           <Show visible={!!analysis?.summary}>
             <section>
               <h3>Summary</h3>

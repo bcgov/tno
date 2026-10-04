@@ -88,6 +88,7 @@ export * from './IReportInstanceContentModel';
 export * from './IReportInstanceModel';
 export * from './IReportMessageModel';
 export * from './IReportModel';
+export * from './IReportAISectionStatusModel';
 export * from './IReportResultModel';
 export * from './IReportScheduleModel';
 export * from './IReportSectionChartTemplateModel';
