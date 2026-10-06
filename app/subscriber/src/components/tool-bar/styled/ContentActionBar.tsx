@@ -78,6 +78,14 @@ export const ContentActionBar = styled(Row)<{ viewingContent?: boolean }>`
       cursor: pointer;
     }
   }
+  .analysis-button {
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    align-items: center;
+  }
   .action {
     display: flex;
     svg {

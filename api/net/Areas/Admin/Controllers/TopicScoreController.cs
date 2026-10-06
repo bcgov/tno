@@ -96,6 +96,20 @@ public class TopicScoreController : ControllerBase
     }
 
     /// <summary>
+    /// Remove a source from topic scoring, preserving its source record, rules, and default score.
+    /// </summary>
+    /// <param name="sourceId"></param>
+    /// <returns></returns>
+    [HttpDelete("sources/{sourceId}")]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [SwaggerOperation(Tags = new[] { "TopicScore" })]
+    public IActionResult RemoveSource(int sourceId)
+    {
+        _scoreService.RemoveSource(sourceId);
+        return NoContent();
+    }
+
+    /// <summary>
     /// A source's rules in evaluation order.
     /// </summary>
     /// <param name="sourceId"></param>

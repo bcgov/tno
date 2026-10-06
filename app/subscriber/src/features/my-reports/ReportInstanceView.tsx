@@ -3,6 +3,7 @@ import { useApp, useReportInstances } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
 import { Col, Loading, NotFound, Show } from 'tno-core';
 
+import { ReportBody } from './ReportBody';
 import * as styled from './styled';
 
 export interface IReportInstanceViewProps {
@@ -55,10 +56,7 @@ export const ReportInstanceView: React.FC<IReportInstanceViewProps> = ({
           className="preview-subject"
           dangerouslySetInnerHTML={{ __html: reportOutput?.subject ?? '' }}
         ></div>
-        <div
-          className="preview-body"
-          dangerouslySetInnerHTML={{ __html: reportOutput?.body ?? '' }}
-        ></div>
+        <ReportBody html={reportOutput?.body ?? ''} />
       </Col>
     </styled.ReportInstanceView>
   );

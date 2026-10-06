@@ -49,7 +49,9 @@ export const RuleTester: React.FC<IRuleTesterProps> = ({ sources, selectedSource
   const sourceOptions = sources.map((s) => new OptionItem(s.name, s.id));
   const seriesOptions = [
     new OptionItem('None', ''),
-    ...series.filter((s) => s.sourceId === sourceId).map((s) => new OptionItem(s.name, s.id)),
+    ...series
+      .filter((s) => !s.sourceId || s.sourceId === sourceId)
+      .map((s) => new OptionItem(s.name, s.id)),
   ];
 
   const handleTest = async () => {

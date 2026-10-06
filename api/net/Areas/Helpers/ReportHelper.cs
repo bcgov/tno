@@ -12,6 +12,7 @@ using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.TemplateEngine;
 using TNO.TemplateEngine.Converters;
+using TNO.TemplateEngine.Config;
 using TNO.TemplateEngine.Models;
 using TNO.TemplateEngine.Models.Charts;
 using TNO.TemplateEngine.Models.Reports;
@@ -35,6 +36,7 @@ public class ReportHelper : IReportHelper
     private readonly JsonSerializerOptions _serializerOptions;
     private readonly IKafkaMessenger _kafkaMessenger;
     private readonly KafkaOptions _kafkaOptions;
+    private readonly TemplateOptions _templateOptions;
     #endregion
 
     #region Properties
@@ -54,6 +56,7 @@ public class ReportHelper : IReportHelper
     /// <param name="serializerOptions"></param>
     /// <param name="kafkaMessenger"></param>
     /// <param name="kafkaOptions"></param>
+    /// <param name="templateOptions"></param>
     public ReportHelper(
         IReportEngine reportEngine,
         IReportService reportService,
@@ -64,7 +67,8 @@ public class ReportHelper : IReportHelper
         IOptions<StorageOptions> storageOptions,
         IOptions<JsonSerializerOptions> serializerOptions,
         IKafkaMessenger kafkaMessenger,
-        IOptions<KafkaOptions> kafkaOptions)
+        IOptions<KafkaOptions> kafkaOptions,
+        IOptions<TemplateOptions> templateOptions)
     {
         _reportEngine = reportEngine;
         _reportService = reportService;
@@ -76,6 +80,7 @@ public class ReportHelper : IReportHelper
         _serializerOptions = serializerOptions.Value;
         _kafkaMessenger = kafkaMessenger;
         _kafkaOptions = kafkaOptions.Value;
+        _templateOptions = templateOptions.Value;
     }
     #endregion
 
@@ -228,6 +233,7 @@ public class ReportHelper : IReportHelper
             {
                 RequestorId = requestorId,
                 PrepareAISections = true,
+                AIViewContentUrl = _templateOptions.ViewContentUrl?.ToString() ?? "",
                 SendToSubscribers = false,
                 GenerateInstance = false,
             };

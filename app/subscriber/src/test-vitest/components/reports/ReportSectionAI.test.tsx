@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { Formik, useFormikContext } from 'formik';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
@@ -139,5 +139,90 @@ describe('ReportSectionAI (subscriber)', () => {
     await waitFor(() => expect(settings().llmId).toBe(1));
     expect(settings().temperature).toBe(0.1);
     expect(settings().userPrompt).toContain('alpha prompt');
+  });
+  it('always follows the prompt and shows saved input fields', async () => {
+    renderSection(
+      reportWith({ llmId: 1, aiOutputMode: 'TopicSummary', aiInputFields: ['headline'] }),
+    );
+    expect(screen.queryByText('Output format')).not.toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: 'Headline' })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: 'Quotes' })).not.toBeChecked();
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Quotes' }));
+    await waitFor(() => expect(settings().aiInputFields).toEqual(['headline', 'quotes']));
+  });
+
+  it('selects default fields for existing sections and can restore them', async () => {
+    renderSection(reportWith({ llmId: 1 }));
+    expect(screen.getByRole('checkbox', { name: 'Quotes' })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: 'Article text' })).not.toBeChecked();
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Article text' }));
+    await waitFor(() => expect(settings().aiInputFields).toContain('body'));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Quotes' }));
+    await waitFor(() => expect(settings().aiInputFields).not.toContain('quotes'));
+    fireEvent.click(screen.getByRole('button', { name: 'Restore default fields' }));
+    await waitFor(() => expect(settings().aiInputFields).toContain('quotes'));
+    expect(settings().aiInputFields).not.toContain('body');
+    expect(screen.getByRole('checkbox', { name: 'Article text' })).not.toBeChecked();
+  });
+
+  it('preserves an explicitly saved article text selection', () => {
+    renderSection(reportWith({ llmId: 1, aiInputFields: ['summary', 'body'] }));
+    expect(screen.getByRole('checkbox', { name: 'Article text' })).toBeChecked();
+  });
+
+  it('puts restore-default and schema help in the prompt editor toolbar', async () => {
+    renderSection(reportWith({ llmId: 1, userPrompt: 'My prompt' }));
+    const restore = screen.getByRole('button', { name: 'Use default user prompt' });
+    expect(restore.closest('.toolbar')).not.toBeNull();
+    expect(
+      screen.getByRole('button', { name: 'Prompt data and story links' }).closest('.toolbar'),
+    ).toBe(restore.closest('.toolbar'));
+    fireEvent.click(restore);
+    await waitFor(() => expect(settings().userPrompt).toContain('alpha prompt'));
+  });
+
+  it('hides the restore action when the model has no default prompt', () => {
+    lookup.set([{ ...LLMS[0], userPrompt: '<p><br></p>' }]);
+    renderSection(reportWith({ llmId: 1, userPrompt: 'My prompt' }));
+    expect(
+      screen.queryByRole('button', { name: 'Use default user prompt' }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Prompt data and story links' })).toBeInTheDocument();
+  });
+  it('opens schema help and restores the prompt while the editor is expanded', async () => {
+    const originalShow = HTMLDialogElement.prototype.showModal;
+    const originalClose = HTMLDialogElement.prototype.close;
+    HTMLDialogElement.prototype.showModal = function () {
+      this.open = true;
+    };
+    HTMLDialogElement.prototype.close = function () {
+      this.open = false;
+    };
+    try {
+      const { container } = renderSection(reportWith({ llmId: 1, userPrompt: 'My custom prompt' }));
+      const toolbar = screen
+        .getByRole('button', { name: 'Use default user prompt' })
+        .closest('.toolbar')!;
+      fireEvent.click(
+        within(toolbar as HTMLElement).getByRole('button', { name: 'Popout editor' }),
+      );
+      const expanded = container.querySelector('#expand-modal') as HTMLDialogElement;
+      await waitFor(() => expect(expanded.open).toBe(true));
+      fireEvent.click(within(expanded).getByRole('button', { name: 'Use default user prompt' }));
+      await waitFor(() =>
+        expect(expanded.querySelector('.ql-editor')).toHaveTextContent('alpha prompt'),
+      );
+      expect(settings().userPrompt).toContain('alpha prompt');
+      fireEvent.click(
+        within(expanded).getByRole('button', { name: 'Prompt data and story links' }),
+      );
+      const help = screen.getByRole('dialog', { name: 'Prompt data and story links' });
+      expect(within(help).getByText('/view/:id')).toBeInTheDocument();
+      fireEvent.click(within(help).getByRole('button', { name: 'Close' }));
+      expect(help).not.toHaveAttribute('open');
+    } finally {
+      HTMLDialogElement.prototype.showModal = originalShow;
+      HTMLDialogElement.prototype.close = originalClose;
+    }
   });
 });

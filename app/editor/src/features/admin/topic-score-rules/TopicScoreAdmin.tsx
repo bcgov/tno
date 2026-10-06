@@ -2,11 +2,13 @@ import { FormPage } from 'components/formpage';
 import React from 'react';
 import { toast } from 'react-toastify';
 import { useTopicScores } from 'store/hooks/admin';
-import { type ITopicScoreRuleModel } from 'tno-core';
+import { type ITopicScoreRuleModel, Show, Tab, Tabs } from 'tno-core';
 
+import { AddScoringSource } from './AddScoringSource';
 import { BulkRescore } from './BulkRescore';
 import { defaultTopicScoreRule } from './constants';
 import { type ITopicScoreRuleForm, type ITopicScoreSourceModel } from './interfaces';
+import { RemoveScoringSource } from './RemoveScoringSource';
 import { RuleDrawer } from './RuleDrawer';
 import { RulesPane } from './RulesPane';
 import { RuleTester } from './RuleTester';
@@ -21,6 +23,9 @@ import { toForm } from './utils';
  */
 const TopicScoreAdmin: React.FC = () => {
   const api = useTopicScores();
+  const [activeTab, setActiveTab] = React.useState<'scoring' | 'tester' | 'rescore'>('scoring');
+  const [addingSource, setAddingSource] = React.useState(false);
+  const [removingSource, setRemovingSource] = React.useState<ITopicScoreSourceModel>();
   const [sources, setSources] = React.useState<ITopicScoreSourceModel[]>([]);
   const [source, setSource] = React.useState<ITopicScoreSourceModel>();
   const [rules, setRules] = React.useState<ITopicScoreRuleModel[]>([]);
@@ -113,26 +118,93 @@ const TopicScoreAdmin: React.FC = () => {
           Day sums scores by topic. Each source's rules are checked in order and the first match
           sets the score.
         </p>
-        <div className="panes">
-          <SourcesPane
-            sources={sources}
-            selectedId={source?.id}
-            onSelect={setSource}
-            onDefaultScoreChange={handleDefaultScoreChange}
-          />
-          {source && (
-            <RulesPane
-              source={source}
-              rules={rules}
-              onAdd={() => setEditing(defaultTopicScoreRule(source.id))}
-              onEdit={(rule) => setEditing(toForm(rule))}
-              onReorder={handleReorder}
-            />
-          )}
-        </div>
-        <RuleTester sources={sources} selectedSourceId={source?.id} rules={rules} />
-        <BulkRescore sources={sources} />
+        <Tabs
+          className="topic-score-tabs"
+          tabs={
+            <>
+              <Tab
+                label="Topic Scoring"
+                active={activeTab === 'scoring'}
+                onClick={() => setActiveTab('scoring')}
+              />
+              <Tab
+                label="Rule Tester"
+                active={activeTab === 'tester'}
+                onClick={() => setActiveTab('tester')}
+              />
+              <Tab
+                label="Bulk Rescore"
+                active={activeTab === 'rescore'}
+                onClick={() => setActiveTab('rescore')}
+              />
+            </>
+          }
+        >
+          <section
+            className="tab-panel scoring-tab"
+            aria-label="Topic Scoring"
+            hidden={activeTab !== 'scoring'}
+          >
+            <div className="panes">
+              <SourcesPane
+                sources={sources}
+                selectedId={source?.id}
+                onSelect={setSource}
+                onAdd={() => setAddingSource(true)}
+                onRemove={setRemovingSource}
+                onDefaultScoreChange={handleDefaultScoreChange}
+              />
+              {source && (
+                <RulesPane
+                  source={source}
+                  rules={rules}
+                  onAdd={() => setEditing(defaultTopicScoreRule(source.id))}
+                  onEdit={(rule) => setEditing(toForm(rule))}
+                  onDelete={handleDelete}
+                  onReorder={handleReorder}
+                />
+              )}
+            </div>
+          </section>
+          <section className="tab-panel" aria-label="Rule Tester" hidden={activeTab !== 'tester'}>
+            <RuleTester sources={sources} selectedSourceId={source?.id} rules={rules} />
+          </section>
+          <section className="tab-panel" aria-label="Bulk Rescore" hidden={activeTab !== 'rescore'}>
+            <BulkRescore sources={sources} />
+          </section>
+        </Tabs>
       </FormPage>
+      {removingSource && (
+        <RemoveScoringSource
+          source={removingSource}
+          onClose={() => setRemovingSource(undefined)}
+          onRemove={async () => {
+            await api.removeSource(removingSource.id);
+            const updated = await api.findSources();
+            setSources(updated);
+            if (source?.id === removingSource.id) {
+              setRules([]);
+              setSections([]);
+              setEditing(undefined);
+              setSource(updated[0]);
+            }
+            setRemovingSource(undefined);
+            toast.success(`${removingSource.name} removed from topic scoring.`);
+          }}
+        />
+      )}
+      <Show visible={addingSource}>
+        <AddScoringSource
+          sources={sources}
+          onClose={() => setAddingSource(false)}
+          onAdded={async (id) => {
+            const updated = await api.findSources();
+            setSources(updated);
+            setSource(updated.find((s) => s.id === id));
+            setAddingSource(false);
+          }}
+        />
+      </Show>
       {source && editing && (
         <RuleDrawer
           source={source}

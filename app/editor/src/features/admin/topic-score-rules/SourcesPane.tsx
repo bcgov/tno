@@ -1,5 +1,6 @@
 import React from 'react';
-import { Text } from 'tno-core';
+import { FaTimes } from 'react-icons/fa';
+import { Button, ButtonVariant, IconButton, Row, Text } from 'tno-core';
 
 import { type ITopicScoreSourceModel } from './interfaces';
 
@@ -10,12 +11,16 @@ export interface ISourcesPaneProps {
   selectedId?: number;
   /** Select a source. */
   onSelect: (source: ITopicScoreSourceModel) => void;
+  /** Add a source to topic scoring. */
+  onAdd: () => void;
+  /** Remove a source from topic scoring. */
+  onRemove: (source: ITopicScoreSourceModel) => void;
   /** Save a source's default score. */
   onDefaultScoreChange: (source: ITopicScoreSourceModel) => Promise<void>;
 }
 
 /**
- * Lists the sources that use topics, with their rule count and inline-editable default score.
+ * Lists the sources that use topics, with their inline-editable default score and a removal action.
  * @param param0 Component properties.
  * @returns Component.
  */
@@ -23,6 +28,8 @@ export const SourcesPane: React.FC<ISourcesPaneProps> = ({
   sources,
   selectedId,
   onSelect,
+  onAdd,
+  onRemove,
   onDefaultScoreChange,
 }) => {
   const [filter, setFilter] = React.useState('');
@@ -49,6 +56,10 @@ export const SourcesPane: React.FC<ISourcesPaneProps> = ({
 
   return (
     <div className="sources-pane">
+      <Row className="sources-toolbar" alignItems="center" gap="0.5rem">
+        <h2>Sources</h2>
+        <IconButton iconType="plus" label="Add source" onClick={onAdd} />
+      </Row>
       <Text
         name="sourceFilter"
         placeholder="Filter by name or code"
@@ -57,8 +68,10 @@ export const SourcesPane: React.FC<ISourcesPaneProps> = ({
       />
       <div className="sources-header">
         <span>Source</span>
-        <span title="Rules">Rules</span>
-        <span title="Score when no rule matches">Default</span>
+        <span className="default-score-header" title="Score when no rule matches">
+          Default Score
+        </span>
+        <span />
       </div>
       <div className="sources-list">
         {items.map((source) => {
@@ -83,7 +96,6 @@ export const SourcesPane: React.FC<ISourcesPaneProps> = ({
                   </span>
                 )}
               </span>
-              <span className="rule-count">{source.ruleCount}</span>
               <div className="default-score" onClick={(e) => e.stopPropagation()}>
                 <Text
                   name={`defaultScore-${source.id}`}
@@ -102,6 +114,18 @@ export const SourcesPane: React.FC<ISourcesPaneProps> = ({
                   }}
                 />
               </div>
+              <Button
+                variant={ButtonVariant.link}
+                className="remove-source"
+                aria-label={`Remove ${source.name} from topic scoring`}
+                title={`Remove ${source.name} from topic scoring`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemove(source);
+                }}
+              >
+                <FaTimes aria-hidden="true" />
+              </Button>
             </div>
           );
         })}

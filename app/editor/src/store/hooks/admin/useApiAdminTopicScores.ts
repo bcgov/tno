@@ -25,6 +25,11 @@ export const useApiAdminTopicScores = () => {
         model,
       );
     },
+    removeSource: (sourceId: number) => {
+      return api.delete<never, AxiosResponse<void>, any>(
+        `/admin/topics/scores/sources/${sourceId}`,
+      );
+    },
     findRules: (sourceId: number) => {
       return api.get<never, AxiosResponse<ITopicScoreRuleModel[]>, any>(
         `/admin/topics/scores/sources/${sourceId}/rules`,

@@ -1,10 +1,13 @@
 using System.Security.Claims;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Config;
+using TNO.DAL.Extensions;
 using TNO.DAL.Models;
 using TNO.DAL.Scoring;
 using TNO.Entities;
@@ -18,6 +21,7 @@ public class TopicScoreService : BaseService, ITopicScoreService
 {
     #region Variables
     private const int BatchSize = 200;
+    private const string RemovedSourceSetting = "topicScoringRemoved";
     #endregion
 
     #region Properties
@@ -170,22 +174,36 @@ public class TopicScoreService : BaseService, ITopicScoreService
     }
 
     /// <summary>
-    /// Sources that use topics, with their rule count and default score.
+    /// Sources that use topics or have configured rules, excluding explicitly removed sources.
     /// </summary>
     /// <returns></returns>
     public IEnumerable<TopicScoreSourceSummary> FindSourceSummaries()
     {
         return this.Context.Sources.AsNoTracking()
-            .Where(s => s.UseInTopics || this.Context.Series.Any(ss => ss.SourceId == s.Id && ss.UseInTopics) || this.Context.TopicScoreRules.Any(r => r.SourceId == s.Id))
+            .Where(s => s.UseInTopics
+                || this.Context.Series.Any(ss => ss.SourceId == s.Id && ss.UseInTopics)
+                || this.Context.TopicScoreRules.Any(r => r.SourceId == s.Id))
             .OrderBy(s => s.SortOrder).ThenBy(s => s.Name)
-            .Select(s => new TopicScoreSourceSummary(
-                s.Id,
-                s.Code,
-                s.Name,
-                s.UseInTopics,
-                this.Context.Series.Any(ss => ss.SourceId == s.Id && ss.UseInTopics),
-                this.Context.TopicScoreRules.Count(r => r.SourceId == s.Id),
-                s.TopicDefaultScore))
+            .Select(s => new
+            {
+                s.Configuration,
+                Summary = new TopicScoreSourceSummary(
+                    s.Id,
+                    s.Code,
+                    s.Name,
+                    s.UseInTopics,
+                    this.Context.Series.Any(ss => ss.SourceId == s.Id && ss.UseInTopics),
+                    this.Context.TopicScoreRules.Count(r => r.SourceId == s.Id),
+                    s.TopicDefaultScore),
+            })
+            .AsEnumerable()
+            // Existing rules must remain manageable even when automatic scoring is disabled.
+            // Only an explicit removal hides them; enabling the source or a series adds them back.
+            .Where(s => s.Summary.UseInTopics || s.Summary.SeriesUseInTopics
+                || s.Configuration.RootElement.ValueKind != JsonValueKind.Object
+                || !s.Configuration.RootElement.TryGetProperty(RemovedSourceSetting, out var removed)
+                || removed.ValueKind != JsonValueKind.True)
+            .Select(s => s.Summary)
             .ToArray();
     }
 
@@ -230,6 +248,28 @@ public class TopicScoreService : BaseService, ITopicScoreService
         this.Context.CommitTransaction();
         return FindSourceSummaries().FirstOrDefault(s => s.Id == sourceId)
             ?? new TopicScoreSourceSummary(source.Id, source.Code, source.Name, source.UseInTopics, false, 0, source.TopicDefaultScore);
+    }
+
+    /// <summary>
+    /// Remove a source from topic scoring without deleting the source, its rules, or saved scores.
+    /// Record the explicit removal separately from source and series scoring eligibility.
+    /// </summary>
+    /// <param name="sourceId"></param>
+    public void RemoveSource(int sourceId)
+    {
+        var source = this.Context.Sources.FirstOrDefault(s => s.Id == sourceId)
+            ?? throw new NoContentException("Source does not exist");
+        var configuration = JsonObject.Create(source.Configuration.RootElement) ?? new JsonObject();
+        configuration[RemovedSourceSetting] = true;
+        source.Configuration = JsonSerializer.SerializeToDocument(configuration);
+        source.UseInTopics = false;
+        foreach (var series in this.Context.Series.Where(s => s.SourceId == sourceId && s.UseInTopics))
+            series.UseInTopics = false;
+        // Both entities share the lookups cache; invalidate each key once, including on a new database.
+        var cacheKeys = (typeof(Source).GetCacheKeys() ?? Array.Empty<string>())
+            .Concat(typeof(Series).GetCacheKeys() ?? Array.Empty<string>()).Distinct();
+        foreach (var key in cacheKeys) this.Context.UpdateCache(key);
+        this.Context.CommitTransaction();
     }
 
     /// <summary>

@@ -687,7 +687,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         {
             var sections = report.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s));
             var sectionContent = GetSectionContent(sections, await this.Api.GetContentForReportInstanceIdAsync(instance.Id));
-            await this.ReportEngine.PrepareReportAISectionsAsync(report, instance.Id, sectionContent, GetPreviousReportsAsync, GetLLMAsync);
+            await this.ReportEngine.PrepareReportAISectionsAsync(report, instance.Id, sectionContent, GetPreviousReportsAsync, GetLLMAsync,
+                viewContentUrlOverride: request.AIViewContentUrl);
         }
         finally
         {

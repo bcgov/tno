@@ -87,6 +87,7 @@ public interface IReportEngine
     /// <param name="getPreviousReport"></param>
     /// <param name="getLLMAsync"></param>
     /// <param name="cancellationToken"></param>
+    /// <param name="viewContentUrlOverride">Link settings supplied by the requesting preview.</param>
     /// <returns></returns>
     Task PrepareReportAISectionsAsync(
         API.Areas.Services.Models.Report.ReportModel report,
@@ -94,7 +95,8 @@ public interface IReportEngine
         Dictionary<string, ReportSectionModel> sectionContent,
         Func<int, int?, int?, int, Task<IEnumerable<PreviousReportModel>>> getPreviousReport,
         Func<int, Task<API.Areas.Services.Models.LLM.LLMModel?>> getLLMAsync,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default,
+        string? viewContentUrlOverride = null);
 
     /// <summary>
     /// Generate the output of the report with the Razor engine.

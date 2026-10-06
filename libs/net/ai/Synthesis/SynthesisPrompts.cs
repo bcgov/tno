@@ -9,7 +9,7 @@ public static class SynthesisPrompts
     /// <summary>
     /// The version of the prompts and pipeline. Changing it invalidates stored results.
     /// </summary>
-    public const string PipelineVersion = "3";
+    public const string PipelineVersion = "4";
 
     /// <summary>
     /// The shape every map and reduce step returns.
@@ -72,6 +72,8 @@ public static class SynthesisPrompts
     public const string FinalCitationRule = """
         The findings below were synthesized from the report's stories. Write the section from them,
         following the instructions. Cite the stories behind each point with their handles in square
-        brackets, e.g. [S3] or [S3][S7]; they are replaced with links. Do not invent handles or facts.
+        brackets, e.g. [S3] or [S3][S7]; they are replaced with links to the stories. Use these
+        handles even when the instructions ask for URLs or HTML links: URLs are not part of the
+        findings. Never construct a URL or wrap a handle in an HTML link. Do not invent handles or facts.
         """;
 }

@@ -52,6 +52,8 @@ const ComboBoxWrapper = styled.div<{ $width?: string }>`
 
 export interface IComboBoxProps {
   name: string;
+  /** Optional label, paired with the input. */
+  label?: string;
   /** The committed text value. */
   value: string;
   /** Suggested values shown in the dropdown; anything typed is also accepted. */
@@ -70,6 +72,7 @@ export interface IComboBoxProps {
  */
 export const ComboBox: React.FC<IComboBoxProps> = ({
   name,
+  label,
   value,
   suggestions,
   onChange,
@@ -78,14 +81,17 @@ export const ComboBox: React.FC<IComboBoxProps> = ({
   isClearable = false,
   'aria-label': ariaLabel,
 }) => {
+  const inputId = React.useId();
   const [inputValue, setInputValue] = React.useState('');
   const options: IComboOption[] = suggestions.map((text) => ({ label: text, value: text }));
   const selected: IComboOption | null = value ? { label: value, value } : null;
 
   return (
     <ComboBoxWrapper className="frm-in" $width={width}>
+      {label && <label htmlFor={inputId}>{label}</label>}
       <CreatableSelect<IComboOption, false>
         name={name}
+        inputId={inputId}
         aria-label={ariaLabel ?? placeholder}
         className="frm-select"
         classNamePrefix="rs"

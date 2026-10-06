@@ -33,6 +33,17 @@ public class ReportAISectionGenerator
     /// </summary>
     public const string ScopeSections = "Sections";
 
+    /// <summary>The allowed story fields. Keep aligned with the subscriber field picker.</summary>
+    public static IReadOnlyList<string> AllowedInputFields { get; } = Array.AsReadOnly(new[]
+    {
+        "headline", "source", "mediaType", "series", "publishedOn", "byline", "contributor",
+        "summary", "keyFacts", "entities", "quotes", "body",
+    });
+
+    /// <summary>Article text is opt-in, but remains a fallback when no summary is available.</summary>
+    public static IReadOnlyList<string> DefaultInputFields { get; } = Array.AsReadOnly(
+        AllowedInputFields.Where(f => f != "body").ToArray());
+
     private static readonly JsonSerializerOptions _manifestOptions = new(JsonSerializerDefaults.Web);
     private static readonly TimeSpan PollInterval = TimeSpan.FromSeconds(2);
 
@@ -71,6 +82,7 @@ public class ReportAISectionGenerator
     /// <param name="llm">The section's LLM.</param>
     /// <param name="wait">Whether to generate a missing section, and wait for another generator's.</param>
     /// <param name="cancellationToken"></param>
+    /// <param name="viewContentUrlOverride">The requesting preview's link URL; empty means no links, null uses local configuration.</param>
     /// <returns>The section output, an error when the section cannot be generated, its status, and when the claim of the generator holding it expires.</returns>
     public async Task<(string? Output, string? Error, AISectionStatus Status, DateTime? ClaimExpiresOn)> GenerateAsync(
         API.Areas.Services.Models.Report.ReportModel report,
@@ -80,7 +92,8 @@ public class ReportAISectionGenerator
         IReadOnlyList<PreviousReportModel> previousReports,
         API.Areas.Services.Models.LLM.LLMModel llm,
         AISectionWait wait = AISectionWait.Wait,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        string? viewContentUrlOverride = null)
     {
         var settings = section.Settings;
         if (llm.ProjectEndpoint == null || String.IsNullOrWhiteSpace(llm.DeploymentName))
@@ -92,18 +105,24 @@ public class ReportAISectionGenerator
         if (String.IsNullOrWhiteSpace(apiKey))
             return (null, $"The LLM '{llm.Name}' has no API key configured.", AISectionStatus.Failed, null);
 
-        var mode = String.Equals(settings.AIOutputMode, nameof(SynthesisOutputMode.TopicSummary), StringComparison.OrdinalIgnoreCase)
-            ? SynthesisOutputMode.TopicSummary
-            : SynthesisOutputMode.FreeText;
+        // Saved TopicSummary settings are legacy: every report section now follows its prompt.
+        var mode = SynthesisOutputMode.FreeText;
+        var fields = (settings.AIInputFields ?? DefaultInputFields.ToArray())
+            .Where(f => AllowedInputFields.Contains(f)).Distinct().OrderBy(f => f).ToArray();
+        if (fields.Length == 0)
+            return (null, "Choose at least one data field for this AI section.", AISectionStatus.Failed, null);
         var sources = GetSourceSections(report, section, sectionContent);
         if (sources == null)
             return (null, "Choose the content sections that feed this AI section.", AISectionStatus.Failed, null);
 
-        var stories = BuildStories(sources, _options.ViewContentUrl, true);
+        // Do not mutate shared options: concurrent preview jobs may have different link settings.
+        var viewContentUrl = viewContentUrlOverride == null ? _options.ViewContentUrl
+            : String.IsNullOrWhiteSpace(viewContentUrlOverride) ? null : new Uri(viewContentUrlOverride, UriKind.RelativeOrAbsolute);
+        var stories = BuildStories(sources, viewContentUrl, false, fields);
         var history = previousReports
             .Select(p => new SynthesisHistoricalInstance(
                 p.PublishedOn.HasValue ? $"Report of {p.PublishedOn:yyyy-MM-dd}" : $"Report instance {p.InstanceId}",
-                BuildStories(FilterSections(settings, p.Sections), _options.ViewContentUrl, false)))
+                BuildStories(FilterSections(settings, p.Sections), viewContentUrl, false, fields)))
             .ToArray();
 
         var request = new SynthesisRequest(
@@ -239,8 +258,9 @@ public class ReportAISectionGenerator
     /// <summary>
     /// Every story in the sections, once each, as synthesis input.
     /// </summary>
-    public static IReadOnlyList<SynthesisStory> BuildStories(IEnumerable<ReportSectionModel> sections, Uri? viewContentUrl, bool includeAnchors)
+    public static IReadOnlyList<SynthesisStory> BuildStories(IEnumerable<ReportSectionModel> sections, Uri? viewContentUrl, bool includeAnchors, IEnumerable<string>? inputFields = null)
     {
+        var fields = new HashSet<string>(inputFields ?? DefaultInputFields, StringComparer.Ordinal);
         var seen = new HashSet<long>();
         var stories = new List<SynthesisStory>();
         foreach (var section in sections)
@@ -249,9 +269,9 @@ public class ReportAISectionGenerator
             {
                 stories.Add(new SynthesisStory(
                     content.Id,
-                    content.Headline,
-                    BuildMetadata(content),
-                    BuildStoryText(content),
+                    fields.Contains("headline") ? content.Headline : "",
+                    BuildMetadata(content, fields),
+                    BuildStoryText(content, fields),
                     viewContentUrl != null ? $"{viewContentUrl}{content.Id}" : null,
                     includeAnchors && ReportEngine.IsAnchoredInReport(section, content) ? $"#{ReportEngine.ContentAnchorPrefix}{content.Id}" : null,
                     GetGroup(content),
@@ -264,50 +284,58 @@ public class ReportAISectionGenerator
     /// <summary>
     /// One line of metadata the model reads with the story.
     /// </summary>
-    private static string BuildMetadata(ContentModel content)
+    private static string BuildMetadata(ContentModel content, ISet<string> fields)
     {
-        var parts = new[]
+        var parts = new Dictionary<string, string?>
         {
-            content.Source?.Name ?? content.OtherSource,
-            content.MediaType?.Name,
-            content.Series?.Name ?? content.OtherSeries,
-            content.PublishedOn?.ToString("yyyy-MM-dd HH:mm 'UTC'"),
-            String.IsNullOrWhiteSpace(content.Byline) ? null : $"By {content.Byline}",
-            content.Contributor?.Name,
+            ["source"] = content.Source?.Name ?? content.OtherSource,
+            ["mediaType"] = content.MediaType?.Name,
+            ["series"] = content.Series?.Name ?? content.OtherSeries,
+            ["publishedOn"] = content.PublishedOn?.ToString("yyyy-MM-dd HH:mm 'UTC'"),
+            ["byline"] = content.Byline,
+            ["contributor"] = content.Contributor?.Name,
         };
-        return String.Join(" | ", parts.Where(p => !String.IsNullOrWhiteSpace(p)));
+        return String.Join(" | ", parts.Where(p => fields.Contains(p.Key) && !String.IsNullOrWhiteSpace(p.Value))
+            .Select(p => $"{p.Key}: {p.Value}"));
     }
 
     /// <summary>
-    /// The story's synthesis input: its analysis (summary, key facts, entities, and quotes) when it
-    /// has been analyzed, otherwise its full body as plain text, or its summary when it has no body.
+    /// The selected analysis fields with either article text or a summary, never both.
+    /// Article text takes priority when selected, and is a fallback when no summary is available.
     /// </summary>
-    private static string BuildStoryText(ContentModel content)
+    private static string BuildStoryText(ContentModel content, ISet<string> fields)
     {
         var evidence = content.Evidence;
+        var summary = !String.IsNullOrWhiteSpace(evidence?.Summary)
+            ? evidence.Summary.Trim() : content.Summary.HtmlToPlainText();
+        var body = fields.Contains("body") || String.IsNullOrWhiteSpace(summary)
+            ? ReportEngine.RemoveBase64Images(content.Body).HtmlToPlainText() : "";
+        var text = new StringBuilder(String.IsNullOrWhiteSpace(body) && fields.Contains("summary") ? summary : "");
         if (evidence != null && !String.IsNullOrWhiteSpace(evidence.Summary))
         {
-            var text = new StringBuilder(evidence.Summary.Trim());
             var facts = evidence.Facts.Where(f => !String.IsNullOrWhiteSpace(f)).ToArray();
-            if (facts.Length > 0)
+            if (fields.Contains("keyFacts") && facts.Length > 0)
             {
                 text.Append("\nKey facts:");
                 foreach (var fact in facts) text.Append("\n- ").Append(fact.Trim());
             }
             var entities = evidence.Entities.Where(e => !String.IsNullOrWhiteSpace(e)).Distinct().ToArray();
-            if (entities.Length > 0) text.Append("\nEntities: ").Append(String.Join("; ", entities));
+            if (fields.Contains("entities") && entities.Length > 0) text.Append("\nEntities: ").Append(String.Join("; ", entities));
             var quotes = evidence.Quotes.Where(q => !String.IsNullOrWhiteSpace(q.Statement)).ToArray();
-            if (quotes.Length > 0)
+            if (fields.Contains("quotes") && quotes.Length > 0)
             {
                 text.Append("\nQuotes:");
                 foreach (var quote in quotes)
                     text.Append("\n- \"").Append(quote.Statement.Trim()).Append('"').Append(String.IsNullOrWhiteSpace(quote.Speaker) ? "" : $" ({quote.Speaker.Trim()})");
             }
-            return text.ToString();
         }
 
-        var body = ReportEngine.RemoveBase64Images(content.Body).HtmlToPlainText();
-        return String.IsNullOrWhiteSpace(body) ? content.Summary.HtmlToPlainText() : body;
+        if (!String.IsNullOrWhiteSpace(body))
+        {
+            if (text.Length > 0) text.Append("\nArticle text:\n");
+            text.Append(body);
+        }
+        return text.ToString();
     }
 
     /// <summary>
@@ -342,17 +370,19 @@ public class ReportAISectionGenerator
                 settings.Label,
                 settings.AIScope,
                 settings.SourceSections,
-                settings.AIOutputMode,
+                outputMode = request.Mode.ToString(),
+                inputFields = (settings.AIInputFields ?? DefaultInputFields.ToArray())
+                    .Where(f => AllowedInputFields.Contains(f)).Distinct().OrderBy(f => f).ToArray(),
                 settings.Temperature,
                 settings.ChoiceQty,
                 settings.ChoiceIndex,
                 settings.IncludePreviousReports,
             },
-            stories = request.Stories.Select(s => new { s.ContentId, s.AnalysisId, s.Anchor, s.Group, input = Fingerprint(s) }),
+            stories = request.Stories.Select(s => new { s.ContentId, s.AnalysisId, s.Url, s.Anchor, s.Group, input = Fingerprint(s) }),
             history = previousReports.Select((p, i) => new
             {
                 p.InstanceId,
-                stories = request.History[i].Stories.Select(s => new { s.ContentId, s.AnalysisId, input = Fingerprint(s) }),
+                stories = request.History[i].Stories.Select(s => new { s.ContentId, s.AnalysisId, s.Url, input = Fingerprint(s) }),
             }),
         };
         return JsonSerializer.SerializeToDocument(manifest, _manifestOptions);

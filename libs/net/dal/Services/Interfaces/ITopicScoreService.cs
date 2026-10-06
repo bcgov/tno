@@ -87,6 +87,12 @@ public interface ITopicScoreService : IBaseService
     TopicScoreSourceSummary UpdateSourceDefaultScore(int sourceId, int? score);
 
     /// <summary>
+    /// Disable topic scoring for a source and its series, preserving its rules and default score.
+    /// </summary>
+    /// <param name="sourceId"></param>
+    void RemoveSource(int sourceId);
+
+    /// <summary>
     /// Clear the override on a content topic so its score is recalculated.
     /// </summary>
     /// <param name="contentId"></param>

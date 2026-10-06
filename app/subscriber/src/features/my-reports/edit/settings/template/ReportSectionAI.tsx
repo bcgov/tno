@@ -1,10 +1,7 @@
 import React from 'react';
-import { FaPaste } from 'react-icons/fa6';
 import { useLookup } from 'store/hooks';
 import { useAppStore } from 'store/slices';
 import {
-  Button,
-  ButtonVariant,
   Checkbox,
   Claim,
   Col,
@@ -21,6 +18,7 @@ import {
 } from 'tno-core';
 
 import { useReportEditContext } from '../../ReportEditContext';
+import { ReportPromptTools } from './ReportPromptTools';
 import { ReportSectionAIInput } from './ReportSectionAIInput';
 
 export interface IReportSectionAIProps {
@@ -140,26 +138,20 @@ export const ReportSectionAI = React.forwardRef<HTMLDivElement, IReportSectionAI
           </Row>
         </Row>
         <FormikWysiwyg name={`sections.${index}.description`} label="Description:" />
-        <Row>
-          <Col flex="1">
-            <FormikWysiwyg
-              name={`sections.${index}.settings.userPrompt`}
-              label="Prompt:"
-              placeholder="Create a concise summary within each section."
-            />
-          </Col>
-          <Col justifyContent="center">
-            <Button
-              variant={ButtonVariant.link}
-              title="Use default user prompt"
-              onClick={() =>
+        <FormikWysiwyg
+          name={`sections.${index}.settings.userPrompt`}
+          label="Prompt:"
+          placeholder="Create a concise summary within each section."
+          toolbarActions={
+            <ReportPromptTools
+              defaultPrompt={llm?.userPrompt}
+              inputFields={values.sections[index].settings.aiInputFields}
+              onUseDefault={() =>
                 setFieldValue(`sections.${index}.settings.userPrompt`, llm?.userPrompt)
               }
-            >
-              <FaPaste />
-            </Button>
-          </Col>
-        </Row>
+            />
+          }
+        />
         <Row>
           <FormikCheckbox name={`sections.${index}.isEnabled`} label="Section is visible" />
         </Row>

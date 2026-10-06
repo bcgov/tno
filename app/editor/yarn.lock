@@ -12390,7 +12390,7 @@ __metadata:
     sass-extract-loader: 1.1.0
     styled-components: 6.1.11
     stylis: 4.3.6
-    tno-core: 1.0.39
+    tno-core: ./tno-core-1.0.39.tgz
     typescript: "*"
     vitest: 3.2.6
     yup: 1.1.1
@@ -16976,9 +16976,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@npm:1.0.39":
+"tno-core@file:./tno-core-1.0.39.tgz::locator=mmi-editor-app%40workspace%3A.":
   version: 1.0.39
-  resolution: "tno-core@npm:1.0.39"
+  resolution: "tno-core@file:./tno-core-1.0.39.tgz::locator=mmi-editor-app%40workspace%3A."
   peerDependencies:
     "@elastic/elasticsearch": ^8.13.1
     "@fortawesome/free-solid-svg-icons": ^6.4.2
@@ -17011,7 +17011,7 @@ __metadata:
     styled-components: ^6.1.11
     stylis: ^4.3.2
     yup: ^1.1.1
-  checksum: 2e6fe3034ba8607f84a634307fbe42de884f49b54350cbf8e4d9efdc5c05bf7196ab4826c073ca87d7e29995ee9171665d29afeb885a123292e157a9663c1939
+  checksum: 9d89d374475fae9f0d21cbe0a8f64de21e5fc4893e95339a6748978629f2b70b492ed9088b3d88cbe3d98a7c00b3d99595e6de0a48f4c9baf4f2bc8bbf7c06a7
   languageName: node
   linkType: hard
 

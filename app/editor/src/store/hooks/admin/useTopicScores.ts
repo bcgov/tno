@@ -7,7 +7,7 @@ import {
   type ITopicScoreTestResultModel,
 } from 'features/admin/topic-score-rules/interfaces';
 import React from 'react';
-import { useAjaxWrapper } from 'store/hooks';
+import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { type ITopicScoreRuleModel } from 'tno-core';
 
 import { useApiAdminTopicScores } from './useApiAdminTopicScores';
@@ -15,6 +15,7 @@ import { useApiAdminTopicScores } from './useApiAdminTopicScores';
 export interface ITopicScoreController {
   findSources: () => Promise<ITopicScoreSourceModel[]>;
   updateSourceDefaultScore: (model: ITopicScoreSourceModel) => Promise<ITopicScoreSourceModel>;
+  removeSource: (sourceId: number) => Promise<void>;
   findRules: (sourceId: number) => Promise<ITopicScoreRuleModel[]>;
   findSections: (sourceId: number) => Promise<string[]>;
   reorderRules: (sourceId: number, ruleIds: number[]) => Promise<ITopicScoreRuleModel[]>;
@@ -35,6 +36,7 @@ export interface ITopicScoreController {
 export const useTopicScores = (): ITopicScoreController => {
   const api = useApiAdminTopicScores();
   const dispatch = useAjaxWrapper();
+  const [, lookup] = useLookup();
 
   return React.useMemo(
     () => ({
@@ -43,6 +45,10 @@ export const useTopicScores = (): ITopicScoreController => {
       updateSourceDefaultScore: async (model: ITopicScoreSourceModel) =>
         (await dispatch('update-topic-default-score', () => api.updateSourceDefaultScore(model)))
           .data,
+      removeSource: async (sourceId: number) => {
+        await dispatch('remove-topic-score-source', () => api.removeSource(sourceId));
+        await lookup.getLookups();
+      },
       findRules: async (sourceId: number) =>
         (await dispatch('find-topic-score-rules', () => api.findRules(sourceId))).data,
       findSections: async (sourceId: number) =>
@@ -76,6 +82,6 @@ export const useTopicScores = (): ITopicScoreController => {
         (await dispatch('find-topic-rescore-job', () => api.findRescoreJob(id), undefined, true))
           .data,
     }),
-    [api, dispatch],
+    [api, dispatch, lookup],
   );
 };

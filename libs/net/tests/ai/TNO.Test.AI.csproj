@@ -25,6 +25,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\ai\TNO.AI.csproj" />
     <ProjectReference Include="..\..\template\TNO.TemplateEngine.csproj" />
+    <ProjectReference Include="..\..\kafka\TNO.Kafka.csproj" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.3" />
   </ItemGroup>
 

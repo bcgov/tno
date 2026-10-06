@@ -1,13 +1,14 @@
 import { StrictModeDroppable } from 'features/admin/automation/StrictModeDroppable';
 import React from 'react';
 import { DragDropContext, Draggable, type DropResult } from 'react-beautiful-dnd';
-import { FaGripVertical } from 'react-icons/fa';
+import { FaEdit, FaGripVertical, FaTrash } from 'react-icons/fa';
 import { useLookup } from 'store/hooks';
 import {
   Button,
   ButtonVariant,
   IconButton,
   type ITopicScoreRuleModel,
+  Modal,
   OptionItem,
   Row,
   Select,
@@ -27,6 +28,8 @@ export interface IRulesPaneProps {
   onAdd: () => void;
   /** Edit a rule. */
   onEdit: (rule: ITopicScoreRuleModel) => void;
+  /** Delete a rule after confirmation. */
+  onDelete: (rule: ITopicScoreRuleModel) => Promise<void>;
   /** Save a new order. */
   onReorder: (rules: ITopicScoreRuleModel[]) => Promise<void>;
 }
@@ -45,18 +48,31 @@ export const RulesPane: React.FC<IRulesPaneProps> = ({
   rules,
   onAdd,
   onEdit,
+  onDelete,
   onReorder,
 }) => {
   const [{ series }] = useLookup();
   const [seriesFilter, setSeriesFilter] = React.useState<number | ''>('');
   const [sectionFilter, setSectionFilter] = React.useState('');
+  const [deleting, setDeleting] = React.useState<ITopicScoreRuleModel>();
+  const [saving, setSaving] = React.useState(false);
+
+  React.useEffect(() => {
+    setSeriesFilter('');
+    setSectionFilter('');
+    setDeleting(undefined);
+  }, [source.id]);
 
   const seriesName = (id?: number) => series.find((s) => s.id === id)?.name ?? '';
+  const seriesIds = new Set([
+    ...series.filter((s) => !s.sourceId || s.sourceId === source.id).map((s) => s.id),
+    ...rules.filter((r) => r.seriesId).map((r) => r.seriesId!),
+  ]);
   const seriesOptions = [
     new OptionItem('All series', ''),
-    ...Array.from(new Set(rules.filter((r) => r.seriesId).map((r) => r.seriesId!))).map(
-      (id) => new OptionItem(seriesName(id) || `${id}`, id),
-    ),
+    ...Array.from(seriesIds)
+      .sort((a, b) => (seriesName(a) || `${a}`).localeCompare(seriesName(b) || `${b}`))
+      .map((id) => new OptionItem(seriesName(id) || `${id}`, id)),
   ];
 
   const section = sectionFilter.trim().toLowerCase();
@@ -83,13 +99,16 @@ export const RulesPane: React.FC<IRulesPaneProps> = ({
           name="seriesFilter"
           label="Series"
           width="20ch"
+          menuPosition="fixed"
+          menuPlacement="auto"
           options={seriesOptions}
           value={seriesOptions.find((o) => o.value === seriesFilter)}
-          onChange={(o) => setSeriesFilter(((o as OptionItem)?.value as number) ?? '')}
+          onChange={(o) => setSeriesFilter(((o as OptionItem)?.value as number | '') ?? '')}
         />
         <Text
           name="sectionFilter"
           label="Section"
+          aria-label="Section"
           width="20ch"
           value={sectionFilter}
           onChange={(e) => setSectionFilter(e.target.value)}
@@ -149,9 +168,23 @@ export const RulesPane: React.FC<IRulesPaneProps> = ({
                         <span>{formatRange(rule.timeMin, rule.timeMax, true)}</span>
                         <span>{formatRange(rule.characterMin, rule.characterMax)}</span>
                         <span className="score">{rule.score}</span>
-                        <span>
-                          <Button variant={ButtonVariant.link} onClick={() => onEdit(rule)}>
-                            Edit
+                        <span className="rule-actions">
+                          <Button
+                            variant={ButtonVariant.link}
+                            title={`Edit rule ${rules.indexOf(rule) + 1}`}
+                            aria-label={`Edit rule ${rules.indexOf(rule) + 1}`}
+                            onClick={() => onEdit(rule)}
+                          >
+                            <FaEdit aria-hidden="true" />
+                          </Button>
+                          <Button
+                            variant={ButtonVariant.link}
+                            className="delete-rule"
+                            title={`Delete rule ${rules.indexOf(rule) + 1}`}
+                            aria-label={`Delete rule ${rules.indexOf(rule) + 1}`}
+                            onClick={() => setDeleting(rule)}
+                          >
+                            <FaTrash aria-hidden="true" />
                           </Button>
                         </span>
                       </div>
@@ -169,6 +202,46 @@ export const RulesPane: React.FC<IRulesPaneProps> = ({
           </div>
         </Show>
       </div>
+      <Modal
+        isShowing={!!deleting}
+        headerText="Delete scoring rule"
+        component={
+          <p>
+            Delete this rule for <strong>{source.name}</strong>? Future scoring will use the
+            remaining rules or the default score. Existing story scores are unchanged.
+          </p>
+        }
+        type="custom"
+        customButtons={
+          <>
+            <Button
+              variant={ButtonVariant.danger}
+              disabled={saving}
+              onClick={async () => {
+                if (!deleting || saving) return;
+                setSaving(true);
+                try {
+                  await onDelete(deleting);
+                  setDeleting(undefined);
+                } catch {
+                  // Errors are handled globally; keep the dialog open for retry.
+                } finally {
+                  setSaving(false);
+                }
+              }}
+            >
+              Delete rule
+            </Button>
+            <Button
+              variant={ButtonVariant.secondary}
+              disabled={saving}
+              onClick={() => setDeleting(undefined)}
+            >
+              Cancel
+            </Button>
+          </>
+        }
+      />
     </div>
   );
 };

@@ -440,8 +440,8 @@ public partial class ReportSynthesizer
 
     private static string SourceLink(SynthesisSource source)
     {
-        var headline = WebUtility.HtmlEncode(source.Headline);
-        return String.IsNullOrWhiteSpace(source.Link) ? headline : $"<a href=\"{WebUtility.HtmlEncode(source.Link)}\">{headline}</a>";
+        var headline = WebUtility.HtmlEncode(String.IsNullOrWhiteSpace(source.Headline) ? "View story" : source.Headline);
+        return String.IsNullOrWhiteSpace(source.Link) ? headline : $"<a href=\"{WebUtility.HtmlEncode(source.Link)}\" target=\"_blank\" rel=\"noopener noreferrer\">{headline}</a>";
     }
 
     private static readonly Lazy<Ganss.Xss.HtmlSanitizer> _sanitizer = new(() =>

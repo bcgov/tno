@@ -32,6 +32,8 @@ export interface IStateProps {
 }
 
 export interface IWysiwygProps {
+  /** Additional action buttons displayed in the editor toolbar. */
+  toolbarActions?: React.ReactNode;
   /** Input id attribute. */
   id?: string;
   /** the field name that is being used within the WYSIWYG */
@@ -71,12 +73,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = (props) => {
   const [toolBarNode, setToolBarNode] = React.useState();
 
   const quill = React.useRef<ReactQuill>(null);
-  // need to keep track of expanded state separately, issues persist with sharing while two instances of quill are open
   const [normalState, setNormalState] = React.useState<IStateProps>({
-    html: '',
-    text: '',
-  });
-  const [expandedState, setExpandedState] = React.useState<IStateProps>({
     html: '',
     text: '',
   });
@@ -170,11 +167,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = (props) => {
   };
 
   const handleClear = () => {
-    if (expand) {
-      setExpandedState({ text: '', html: '' });
-    } else {
-      setNormalState({ text: '', html: '' });
-    }
+    setNormalState({ text: '', html: '' });
   };
 
   const formatText = (text: string) => {
@@ -199,15 +192,6 @@ export const Wysiwyg: React.FC<IWysiwygProps> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.value]);
 
-  // sync expanded state with normal state
-  React.useEffect(() => {
-    if (!!expandedState.html) {
-      setNormalState((state) => ({ ...state, html: expandedState.html }));
-    }
-    // only want to update when expanded state changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expandedState.html, expandedState.text]);
-
   React.useEffect(() => {
     if (expand) {
       dialogRef.current?.showModal();
@@ -220,6 +204,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = (props) => {
     <styled.Wysiwyg viewRaw={showRaw} className={props.className}>
       {props.label && <label className={props.required ? 'required' : ''}>{props.label}</label>}
       <CustomToolbar
+        actions={props.toolbarActions}
         onClickRaw={onClickRaw}
         onChangeContentSelect={onChangeContentSelect}
         urlOptions={props.urlOptions}
@@ -269,8 +254,6 @@ export const Wysiwyg: React.FC<IWysiwygProps> = (props) => {
             expand={expand}
             className="expanded"
             setExpand={setExpand}
-            expandedState={expandedState}
-            setExpandedState={setExpandedState}
             placeholder={props.placeholder}
           />
         </dialog>

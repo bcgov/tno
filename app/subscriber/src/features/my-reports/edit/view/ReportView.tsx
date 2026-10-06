@@ -11,6 +11,7 @@ import {
   Row,
 } from 'tno-core';
 
+import { ReportBody } from '../../ReportBody';
 import { useReportEditContext } from '../ReportEditContext';
 import * as styled from './styled';
 
@@ -54,20 +55,16 @@ export const ReportView = () => {
     }
   });
 
-  // A generator that stops without finishing is caught when its claim lapses.
-  const expiresOn = aiSections
-    ?.filter((s) => s.status === AISectionStatusName.Generating && s.expiresOn)
-    .map((s) => new Date(s.expiresOn!).getTime())
-    .sort()[0];
+  // Completion notifications can be missed (or sent to another viewer). Recheck queued and
+  // running sections until they reach a terminal state, including when a claim expires.
+  const isWaitingForAI = aiSections?.some((section) =>
+    [AISectionStatusName.NotStarted, AISectionStatusName.Generating].includes(section.status),
+  );
   React.useEffect(() => {
-    if (!expiresOn || isLoading) return;
-    const timer = setTimeout(
-      () => handleViewReport(instanceId, !instance?.sentOn),
-      Math.max(0, expiresOn - Date.now()) + 5000,
-    );
+    if (!isWaitingForAI || isLoading || !instanceId) return;
+    const timer = setTimeout(() => handleViewReport(instanceId, !instance?.sentOn), 30000);
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expiresOn]);
+  }, [isWaitingForAI, isLoading, instanceId, instance?.sentOn, handleViewReport, aiSections]);
 
   return (
     <styled.ReportView className="report-edit-section">
@@ -84,10 +81,7 @@ export const ReportView = () => {
           className="preview-subject"
           dangerouslySetInnerHTML={{ __html: reportOutput?.subject ?? '' }}
         ></div>
-        <div
-          className="preview-body"
-          dangerouslySetInnerHTML={{ __html: reportOutput?.body ?? '' }}
-        ></div>
+        <ReportBody html={reportOutput?.body ?? ''} />
       </Col>
     </styled.ReportView>
   );

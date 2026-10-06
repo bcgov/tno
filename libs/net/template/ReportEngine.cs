@@ -828,6 +828,7 @@ public partial class ReportEngine : IReportEngine
     /// <param name="getPreviousReportsAsync"></param>
     /// <param name="getLLMAsync"></param>
     /// <param name="cancellationToken"></param>
+    /// <param name="viewContentUrlOverride">Link settings supplied by the requesting preview.</param>
     /// <returns></returns>
     public Task PrepareReportAISectionsAsync(
         API.Areas.Services.Models.Report.ReportModel report,
@@ -835,9 +836,10 @@ public partial class ReportEngine : IReportEngine
         Dictionary<string, ReportSectionModel> sectionContent,
         Func<int, int?, int?, int, Task<IEnumerable<PreviousReportModel>>> getPreviousReportsAsync,
         Func<int, Task<API.Areas.Services.Models.LLM.LLMModel?>> getLLMAsync,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        string? viewContentUrlOverride = null)
     {
-        return GenerateReportAISectionsAsync(report, reportInstanceId, sectionContent, getPreviousReportsAsync, getLLMAsync, AISectionWait.Prepare, cancellationToken);
+        return GenerateReportAISectionsAsync(report, reportInstanceId, sectionContent, getPreviousReportsAsync, getLLMAsync, AISectionWait.Prepare, cancellationToken, viewContentUrlOverride);
     }
 
     /// <summary>
@@ -876,6 +878,7 @@ public partial class ReportEngine : IReportEngine
     /// <param name="getLLMAsync"></param>
     /// <param name="aiWait">Whether to generate missing sections, or leave them pending.</param>
     /// <param name="cancellationToken"></param>
+    /// <param name="viewContentUrlOverride">Link settings supplied by the requesting preview.</param>
     /// <returns></returns>
     private async Task GenerateReportAISectionsAsync(
         API.Areas.Services.Models.Report.ReportModel report,
@@ -884,7 +887,8 @@ public partial class ReportEngine : IReportEngine
         Func<int, int?, int?, int, Task<IEnumerable<PreviousReportModel>>> getPreviousReportsAsync,
         Func<int, Task<API.Areas.Services.Models.LLM.LLMModel?>> getLLMAsync,
         AISectionWait aiWait = AISectionWait.Wait,
-        CancellationToken? cancellationToken = null)
+        CancellationToken? cancellationToken = null,
+        string? viewContentUrlOverride = null)
     {
         var aiSections = report.Sections.Where(s => s.SectionType == Entities.ReportSectionType.AI && s.IsEnabled).ToArray();
         if (aiSections.Length == 0) return;
@@ -959,7 +963,7 @@ public partial class ReportEngine : IReportEngine
                 llm.DeploymentName = this.AzureOptions.AI.DefaultModelDeploymentName;
 
             var sectionPrevious = previousReports.TakeLast(Math.Max(0, settings.IncludePreviousReports ?? 0)).ToArray();
-            var (output, error, status, claimExpiresOn) = await generator.GenerateAsync(report, reportInstanceId, section, sectionContent, sectionPrevious, llm, aiWait, cancellationToken ?? CancellationToken.None);
+            var (output, error, status, claimExpiresOn) = await generator.GenerateAsync(report, reportInstanceId, section, sectionContent, sectionPrevious, llm, aiWait, cancellationToken ?? CancellationToken.None, viewContentUrlOverride);
             sectionData.AIStatus = status;
             sectionData.AIError = error;
             sectionData.AIExpiresOn = claimExpiresOn;

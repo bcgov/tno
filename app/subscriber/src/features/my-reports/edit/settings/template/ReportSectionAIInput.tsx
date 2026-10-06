@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Checkbox,
   Col,
   type IReportSectionModel,
   type IReportSectionSettingsModel,
@@ -10,14 +11,11 @@ import {
   Show,
 } from 'tno-core';
 
+import { aiInputFields, defaultAIInputFields } from './aiInputFields';
+
 const scopeOptions = [
   new OptionItem('Every content section in the report', 'Report'),
   new OptionItem('Selected sections', 'Sections'),
-];
-
-const outputOptions = [
-  new OptionItem('Written from the prompt', 'FreeText'),
-  new OptionItem('Topic summary (headings, bullets, sources)', 'TopicSummary'),
 ];
 
 export interface IReportSectionAIInputProps {
@@ -40,6 +38,8 @@ export const ReportSectionAIInput: React.FC<IReportSectionAIInputProps> = ({
   sections,
   onChange,
 }) => {
+  const fieldId = React.useId();
+  const selectedFields = settings.aiInputFields ?? defaultAIInputFields;
   const scope = settings.aiScope ?? 'Report';
   const sectionOptions = sections
     .filter((s) => s.sectionType === ReportSectionTypeName.Content)
@@ -59,16 +59,6 @@ export const ReportSectionAIInput: React.FC<IReportSectionAIInputProps> = ({
           value={scopeOptions.find((o) => o.value === scope)}
           onChange={(o) => onChange('aiScope', (o as OptionItem)?.value ?? 'Report')}
         />
-        <Select
-          name="aiOutputMode"
-          label="Output"
-          tooltip="Written from the prompt, or a topic summary built from the stories with a source list for every statement."
-          width="36ch"
-          isClearable={false}
-          options={outputOptions}
-          value={outputOptions.find((o) => o.value === (settings.aiOutputMode ?? 'FreeText'))}
-          onChange={(o) => onChange('aiOutputMode', (o as OptionItem)?.value ?? 'FreeText')}
-        />
       </Row>
       <Show visible={scope === 'Sections'}>
         <Select
@@ -87,6 +77,43 @@ export const ReportSectionAIInput: React.FC<IReportSectionAIInputProps> = ({
           error={!selected.length ? 'Choose at least one section' : undefined}
         />
       </Show>
+      <fieldset>
+        <legend>Data fields sent to AI</legend>
+        <p>
+          Select only the fields needed by your prompt to reduce the amount of data sent. These
+          choices also apply to prior reports. Story references for links are always retained.
+          Article text takes priority over Summary when both are selected. If article text is empty,
+          the selected summary is used. When unselected, article text is still used if no summary is
+          available. Summary and article text are never sent together.
+        </p>
+        <Row gap="1rem">
+          {aiInputFields.map((field) => (
+            <Checkbox
+              key={field.value}
+              id={`${fieldId}-${field.value}`}
+              role="checkbox"
+              name={`aiInputFields-${field.value}`}
+              label={field.label}
+              tooltip={field.description}
+              checked={selectedFields.includes(field.value)}
+              onChange={(event) =>
+                onChange(
+                  'aiInputFields',
+                  event.target.checked
+                    ? [...selectedFields, field.value]
+                    : selectedFields.filter((value) => value !== field.value),
+                )
+              }
+            />
+          ))}
+        </Row>
+        <Show visible={!selectedFields.length}>
+          <p role="alert">Choose at least one data field before generating this section.</p>
+        </Show>
+        <button type="button" onClick={() => onChange('aiInputFields', [...defaultAIInputFields])}>
+          Restore default fields
+        </button>
+      </fieldset>
     </Col>
   );
 };

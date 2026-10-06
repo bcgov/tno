@@ -53,11 +53,11 @@ export const RuleDrawer: React.FC<IRuleDrawerProps> = ({
   const [{ series }] = useLookup();
   const { toggle, isShowing } = useModal();
 
-  // Only the source's own series can be chosen.
+  // Unassigned series are shared across sources, matching the content editor and API.
   const seriesOptions = [
     new OptionItem('Any', ''),
     ...series
-      .filter((s) => s.sourceId === source.id)
+      .filter((s) => !s.sourceId || s.sourceId === source.id)
       .sort((a, b) => a.name.localeCompare(b.name))
       .map((s) => new OptionItem(s.name, s.id)),
   ];
@@ -90,17 +90,18 @@ export const RuleDrawer: React.FC<IRuleDrawerProps> = ({
               value={seriesOptions.find((o) => o.value === values.seriesId)}
               onChange={(o) => setFieldValue('seriesId', (o as OptionItem)?.value ?? '')}
             />
-            <div className="frm-in">
-              <label htmlFor="section">Section</label>
+            <div className="section-field">
+              <ComboBox
+                name="section"
+                label="Section"
+                aria-label="Section"
+                placeholder="Any"
+                value={values.section}
+                suggestions={sections}
+                isClearable
+                onChange={(value) => setFieldValue('section', value)}
+              />
             </div>
-            <ComboBox
-              name="section"
-              aria-label="Section"
-              value={values.section}
-              suggestions={sections}
-              isClearable
-              onChange={(value) => setFieldValue('section', value)}
-            />
             <Row gap="0.5rem" alignItems="flex-start">
               <FormikText name="pagePrefix" label="Page prefix" width="8ch" maxLength={4} />
               <FormikText name="pageMin" label="Page from" width="8ch" type="number" min={0} />
@@ -109,7 +110,7 @@ export const RuleDrawer: React.FC<IRuleDrawerProps> = ({
             <FormikSelect
               name="hasImage"
               label="Image"
-              width="12ch"
+              width="18ch"
               options={imageOptions}
               value={imageOptions.find((o) => o.value === values.hasImage)}
               onChange={(o) => setFieldValue('hasImage', (o as OptionItem)?.value ?? '')}
@@ -118,10 +119,10 @@ export const RuleDrawer: React.FC<IRuleDrawerProps> = ({
               <FormikTimeInput
                 name="timeMin"
                 label="Time from"
-                width="10ch"
+                width="20ch"
                 placeholder="HH:MM:SS"
               />
-              <FormikTimeInput name="timeMax" label="Time to" width="10ch" placeholder="HH:MM:SS" />
+              <FormikTimeInput name="timeMax" label="Time to" width="20ch" placeholder="HH:MM:SS" />
             </Row>
             <Show visible={!!values.timeMin && !!values.timeMax && values.timeMin > values.timeMax}>
               <p className="hint">This range runs overnight, past midnight.</p>

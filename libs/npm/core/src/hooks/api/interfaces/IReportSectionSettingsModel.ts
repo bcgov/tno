@@ -38,4 +38,6 @@ export interface IReportSectionSettingsModel {
   sourceSections?: string[];
   /** What an AI section produces: 'FreeText' (default) or 'TopicSummary'. */
   aiOutputMode?: 'FreeText' | 'TopicSummary';
+  /** Story fields sent to AI; omitted uses the default field selection. */
+  aiInputFields?: string[];
 }

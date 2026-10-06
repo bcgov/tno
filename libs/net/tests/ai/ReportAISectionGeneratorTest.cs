@@ -222,6 +222,184 @@ public class ReportAISectionGeneratorTest
     }
 
     [Fact]
+    public void SelectedFieldsExcludeUnrequestedStoryData()
+    {
+        var story = Story(1, "Unselected body");
+        story.Byline = "Unselected byline";
+        story.OtherSource = "Selected source";
+        story.Evidence = new API.Areas.Services.Models.Content.ContentEvidenceModel()
+        {
+            AnalysisId = 42,
+            Summary = "Selected summary",
+            Facts = new[] { "Unselected fact" },
+            Entities = new[] { "Unselected entity" },
+            Quotes = new[] { new API.Areas.Services.Models.Content.AnalysisQuoteSummaryModel() { Statement = "Unselected quote" } },
+        };
+        var result = ReportAISectionGenerator.BuildStories(new[] { ContentSection("news", 0, story) },
+            new Uri("https://mmi.test/view/"), false, new[] { "summary", "source" }).Single();
+
+        result.Headline.Should().BeEmpty();
+        result.Metadata.Should().Be("source: Selected source");
+        result.Text.Should().Be("Selected summary");
+        result.Url.Should().Be("https://mmi.test/view/1");
+        result.Anchor.Should().BeNull();
+    }
+
+    [Fact]
+    public void ArticleTextIsOptInAndTakesPriorityOverSummary()
+    {
+        var story = Story(1, "Full body");
+        story.Summary = "Short summary";
+        var sections = new[] { ContentSection("news", 0, story) };
+        ReportAISectionGenerator.BuildStories(sections, null, false, new[] { "headline" }).Single().Text.Should().BeEmpty();
+        ReportAISectionGenerator.BuildStories(sections, null, false, new[] { "summary" }).Single().Text.Should().Be("Short summary");
+        ReportAISectionGenerator.BuildStories(sections, null, false, new[] { "body" }).Single().Text.Should().Be("Full body");
+        ReportAISectionGenerator.BuildStories(sections, null, false, new[] { "summary", "body" }).Single().Text.Should().Be("Full body");
+        ReportAISectionGenerator.DefaultInputFields.Should().NotContain("body");
+        ReportAISectionGenerator.BuildStories(sections, null, false).Single().Text.Should().Be("Short summary");
+        story.Evidence = new API.Areas.Services.Models.Content.ContentEvidenceModel() { Summary = "Analysis summary", Facts = new[] { "A fact" } };
+        ReportAISectionGenerator.BuildStories(sections, null, false, new[] { "body", "keyFacts" }).Single().Text.Should().Contain("A fact").And.Contain("Full body").And.NotContain("Analysis summary");
+        ReportAISectionGenerator.BuildStories(sections, null, false, new[] { "summary", "body" }).Single().Text.Should().Be("Full body");
+        ReportAISectionGenerator.BuildStories(sections, null, false, new[] { "headline" }).Single().Text.Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("<p> </p>")]
+    public void EmptyArticleTextUsesSelectedSummary(string body)
+    {
+        var story = Story(1, body);
+        story.Summary = "Story summary";
+        var sections = new[] { ContentSection("news", 0, story) };
+        ReportAISectionGenerator.BuildStories(sections, null, false, new[] { "summary", "body" }).Single().Text.Should().Be("Story summary");
+        story.Evidence = new API.Areas.Services.Models.Content.ContentEvidenceModel() { Summary = "Analysis summary" };
+        ReportAISectionGenerator.BuildStories(sections, null, false, new[] { "summary", "body" }).Single().Text.Should().Be("Analysis summary");
+        ReportAISectionGenerator.BuildStories(sections, null, false, new[] { "body" }).Single().Text.Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void MissingSummariesUseArticleTextEvenWhenUnselected(string? analysisSummary)
+    {
+        var story = Story(1, "<p>Fallback article</p>");
+        story.Summary = "<p> </p>";
+        if (analysisSummary != null)
+            story.Evidence = new API.Areas.Services.Models.Content.ContentEvidenceModel() { Summary = analysisSummary };
+        var sections = new[] { ContentSection("news", 0, story) };
+        ReportAISectionGenerator.BuildStories(sections, null, false).Single().Text.Should().Contain("Fallback article").And.NotContain("<p>");
+        ReportAISectionGenerator.BuildStories(sections, null, false, new[] { "headline" }).Single().Text.Should().Contain("Fallback article");
+        story.Body = "";
+        ReportAISectionGenerator.BuildStories(sections, null, false).Single().Text.Should().BeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public async Task LegacyTopicSummaryUsesThePromptAndLinksToTheViewPage()
+    {
+        var client = new FakeLlmClient(8000) { FinalOutput = "<p>Requested format [S1]</p>" };
+        var (report, section) = Report(new ReportSectionSettingsModel() { Label = "Summary", UserPrompt = "Use a paragraph", AIOutputMode = "TopicSummary", AIInputFields = new[] { "body" } });
+        var generator = new ReportAISectionGenerator(new MemoryStore(), client,
+            new TemplateOptions() { ViewContentUrl = new Uri("https://mmi.test/view/") }, NullLogger.Instance);
+        var contentSection = ContentSection("news", 0, Story(1, "Transit news."));
+        contentSection.Settings.ShowFullStory = true;
+
+        var result = await generator.GenerateAsync(report, 5, section,
+            new Dictionary<string, ReportSectionModel> { ["news"] = contentSection }, Array.Empty<PreviousReportModel>(), Llm());
+
+        result.Error.Should().BeNull();
+        result.Output.Should().Contain("Requested format").And.Contain("href=\"https://mmi.test/view/1\"").And.Contain("target=\"_blank\"").And.Contain("View story");
+        client.Requests.Should().Contain(r => r.Any(m => m.Content.Contains("Use a paragraph")));
+        String.Join("\n", client.Requests.SelectMany(r => r.Select(m => m.Content))).Should().NotContain("Headline 1");
+    }
+
+    [Fact]
+    public async Task EmptyOrUnknownFieldSelectionFailsBeforeCallingTheModel()
+    {
+        foreach (var fields in new[] { Array.Empty<string>(), new[] { "unknown" } })
+        {
+            var client = new FakeLlmClient(8000);
+            var (report, section) = Report(new ReportSectionSettingsModel() { AIInputFields = fields });
+            var result = await Generator(new MemoryStore(), client).GenerateAsync(report, 5, section,
+                new Dictionary<string, ReportSectionModel>(), Array.Empty<PreviousReportModel>(), Llm());
+            result.Error.Should().Contain("Choose at least one data field");
+            client.Requests.Should().BeEmpty();
+        }
+    }
+
+    [Fact]
+    public async Task ChangingFieldSelectionInvalidatesCachedOutput()
+    {
+        var store = new MemoryStore();
+        var client = new FakeLlmClient(8000);
+        var (report, section) = Report(new ReportSectionSettingsModel() { Label = "Summary", AIInputFields = new[] { "body" } });
+        var sections = new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(1, "Transit news.")) };
+        await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm());
+        section.Settings.AIInputFields = new[] { "body", "headline" };
+        await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm());
+        store.Results.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task FieldSelectionAlsoFiltersPriorReportContext()
+    {
+        var client = new FakeLlmClient(8000);
+        var (report, section) = Report(new ReportSectionSettingsModel() { Label = "Summary", AIInputFields = new[] { "summary" } });
+        var story = Story(1, "Excluded current body");
+        story.Summary = "Current summary";
+        var previous = Story(2, "Excluded historical body");
+        previous.Summary = "Historical summary";
+        var history = new[] { new PreviousReportModel(4, null, new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, previous) }) };
+        var result = await Generator(new MemoryStore(), client).GenerateAsync(report, 5, section,
+            new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, story) }, history, Llm());
+        result.Error.Should().BeNull();
+        var sent = String.Join("\n", client.Requests.SelectMany(r => r.Select(m => m.Content)));
+        sent.Should().Contain("Historical summary").And.Contain("Current summary")
+            .And.NotContain("Excluded").And.NotContain("Headline");
+    }
+
+    [Fact]
+    public async Task SelectingArticleTextAddsCurrentAndPriorBodiesAndInvalidatesCachedOutput()
+    {
+        var store = new MemoryStore();
+        var client = new FakeLlmClient(8000);
+        var (report, section) = Report(new ReportSectionSettingsModel() { Label = "Summary", AIInputFields = new[] { "summary" } });
+        var current = Story(1, "Full current article");
+        current.Evidence = new API.Areas.Services.Models.Content.ContentEvidenceModel() { Summary = "Current analysis summary" };
+        var previous = Story(2, "Full prior article");
+        previous.Evidence = new API.Areas.Services.Models.Content.ContentEvidenceModel() { Summary = "Prior analysis summary" };
+        var sections = new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, current) };
+        var history = new[] { new PreviousReportModel(4, null, new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, previous) }) };
+        var generator = Generator(store, client);
+        await generator.GenerateAsync(report, 5, section, sections, history, Llm());
+        String.Join("\n", client.Requests.SelectMany(r => r.Select(m => m.Content))).Should().NotContain("Full current article").And.NotContain("Full prior article");
+
+        section.Settings.AIInputFields = new[] { "summary", "body" };
+        var previousRequests = client.Requests.Count;
+        var result = await generator.GenerateAsync(report, 5, section, sections, history, Llm());
+        result.Error.Should().BeNull();
+        store.Results.Should().HaveCount(2);
+        String.Join("\n", client.Requests.Skip(previousRequests).SelectMany(r => r.Select(m => m.Content))).Should()
+            .Contain("Full current article").And.Contain("Full prior article")
+            .And.NotContain("Current analysis summary").And.NotContain("Prior analysis summary");
+    }
+
+    [Fact]
+    public void FieldSelectionSurvivesBothSettingsReaders()
+    {
+        var options = new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web);
+        using var json = System.Text.Json.JsonDocument.Parse("{\"aiInputFields\":[\"summary\",\"source\"]}");
+        new ReportSectionSettingsModel(json, options).AIInputFields.Should().Equal("summary", "source");
+        var dictionary = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(json.RootElement.GetRawText(), options)!;
+        new ReportSectionSettingsModel(dictionary, options).AIInputFields.Should().Equal("summary", "source");
+        using var missing = System.Text.Json.JsonDocument.Parse("{}");
+        new ReportSectionSettingsModel(missing, options).AIInputFields.Should().BeNull();
+        using var empty = System.Text.Json.JsonDocument.Parse("{\"aiInputFields\":[]}");
+        new ReportSectionSettingsModel(empty, options).AIInputFields.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task NewAnalysisRegenerates()
     {
         var store = new MemoryStore();
@@ -269,6 +447,49 @@ public class ReportAISectionGeneratorTest
         preview.Status.Should().Be(AISectionStatus.Ready);
         preview.Output.Should().Be(prepared.Output);
         client.Requests.Count.Should().Be(requests);
+    }
+
+    [Theory]
+    [InlineData("http://localhost:40081/view/")]
+    [InlineData("")]
+    public async Task PreviewAndWorkerShareCacheDespiteDifferentLinkConfiguration(string previewUrl)
+    {
+        var store = new MemoryStore();
+        var client = new FakeLlmClient(8000);
+        var (report, section) = Report(new ReportSectionSettingsModel() { Label = "Summary", UserPrompt = "Summarize" });
+        var sections = new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(1, "Budget news.")) };
+        var history = new[] { new PreviousReportModel(4, null, sections) };
+        var previewOptions = new TemplateOptions() { ViewContentUrl = previewUrl.Length == 0 ? null : new Uri(previewUrl) };
+        var workerOptions = new TemplateOptions() { ViewContentUrl = new Uri("https://dev.example.test/view/") };
+        var previewGenerator = new ReportAISectionGenerator(store, client, previewOptions, NullLogger.Instance);
+        var workerGenerator = new ReportAISectionGenerator(store, client, workerOptions, NullLogger.Instance);
+        var pending = await previewGenerator.GenerateAsync(report, 5, section, sections, history, Llm(), AISectionWait.NoWait);
+        pending.Status.Should().Be(AISectionStatus.NotStarted);
+
+        // Preserve even an empty URL across the Kafka message: it explicitly disables links.
+        var jsonOptions = new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web);
+        var message = new TNO.Kafka.Models.ReportRequestModel() { PrepareAISections = true, AIViewContentUrl = previewUrl };
+        var json = System.Text.Json.JsonSerializer.Serialize(message, jsonOptions);
+        var received = System.Text.Json.JsonSerializer.Deserialize<TNO.Kafka.Models.ReportRequestModel>(json, jsonOptions)!;
+        var prepared = await workerGenerator.GenerateAsync(report, 5, section, sections, history, Llm(), AISectionWait.Prepare,
+            viewContentUrlOverride: received.AIViewContentUrl);
+        prepared.Status.Should().Be(AISectionStatus.Ready);
+        var requests = client.Requests.Count;
+
+        // Completion notifications and repeated browser refreshes must find the prepared result.
+        for (var refresh = 0; refresh < 3; refresh++)
+        {
+            var preview = await previewGenerator.GenerateAsync(report, 5, section, sections, history, Llm(), AISectionWait.NoWait);
+            preview.Status.Should().Be(AISectionStatus.Ready);
+            preview.Output.Should().Be(prepared.Output);
+        }
+        client.Requests.Count.Should().Be(requests);
+        store.Results.Should().ContainSingle();
+        workerOptions.ViewContentUrl.Should().Be(new Uri("https://dev.example.test/view/"));
+
+        // Older jobs still use the worker configuration, and cannot reuse different links.
+        var workerPreview = await workerGenerator.GenerateAsync(report, 5, section, sections, history, Llm(), AISectionWait.NoWait);
+        workerPreview.Status.Should().Be(AISectionStatus.NotStarted);
     }
 
     [Fact]
