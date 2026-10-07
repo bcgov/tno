@@ -423,7 +423,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <returns></returns>
     public async Task<IEnumerable<PreviousReportModel>> GetPreviousReportsAsync(int reportId, int? instanceId, int? ownerId = null, int qty = 1)
     {
-        var instances = await this.Api.GetPreviousReportInstancesAsync(reportId, ownerId, qty);
+        var instances = await this.Api.GetPreviousReportInstancesAsync(reportId, ownerId, qty, instanceId);
 
         return instances.Select(instance => new PreviousReportModel(
             instance.Id,

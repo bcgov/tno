@@ -370,7 +370,7 @@ services:
       resources:
         limits:
           cpus: "0.25"
-          memory: 250M
+          memory: 2G
         reservations:
           cpus: "0.05"
           memory: 50M

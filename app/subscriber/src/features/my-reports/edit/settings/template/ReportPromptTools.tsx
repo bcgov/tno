@@ -34,6 +34,16 @@ const Help = styled.dialog`
   }
 `;
 
+const HelpButton = styled.button`
+  &&& {
+    width: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    white-space: nowrap;
+  }
+`;
+
 /** Actions shared by the inline and expanded prompt editor toolbars. */
 export const ReportPromptTools: React.FC<{
   defaultPrompt?: string;
@@ -60,14 +70,15 @@ export const ReportPromptTools: React.FC<{
           <FaPaste className="custom-icon" />
         </button>
       )}
-      <button
+      <HelpButton
         type="button"
         title="Prompt data and story links"
         aria-label="Prompt data and story links"
         onClick={() => dialog.current?.showModal()}
       >
         <FaCircleInfo className="custom-icon" />
-      </button>
+        <span>Prompt data</span>
+      </HelpButton>
       {createPortal(
         <Help ref={dialog} aria-label="Prompt data and story links">
           <h2>Prompt data and story links</h2>
@@ -113,23 +124,64 @@ export const ReportPromptTools: React.FC<{
             statement and the supporting source references, rather than the original story objects.
           </p>
           <pre>{`- Service begins in November. [S1]`}</pre>
-          <h3>Links that open the story</h3>
+          <h3>Link data sent to the final writing step</h3>
           <p>
-            Ask the AI to cite the supplied references, such as <code>[S1]</code>. The report
-            replaces them with links to the subscriber’s <code>/view/:id</code> page, opening in a
-            new tab. IDs and URLs are retained by the report service, so links still work when you
-            deselect the headline or other data fields.
+            Alongside the findings, the AI receives a <strong>Story link data</strong> JSON array.
+            Match a finding’s reference, such as <code>[S1]</code>, to the entry whose{' '}
+            <code>reference</code> is <code>S1</code>. Copy its <code>anchor</code> or{' '}
+            <code>url</code> exactly into <code>href</code>, depending on the destination you want.
+            Link data is provided regardless of the selected story fields.
           </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Property</th>
+                <th>Meaning</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <code>reference</code>
+                </td>
+                <td>The story reference used by a finding, without brackets.</td>
+              </tr>
+              <tr>
+                <td>
+                  <code>url</code>
+                </td>
+                <td>
+                  The subscriber story page URL, for example https://your-subscriber-site/view/123.
+                  May be null when no story page URL is configured.
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <code>anchor</code>
+                </td>
+                <td>
+                  A link within the current report, such as #item-123. Only available when the story
+                  is rendered in a visible report section. Null for hidden sections and
+                  headlines-only stories.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <pre>{`## Findings for this report\n- Service begins in November. [S1]\n- Council approved a second route. [S2]\n\n## Story link data\n[\n  { "reference": "S1", "url": "https://your-subscriber-site/view/123", "anchor": "#item-123" },\n  { "reference": "S2", "url": "https://your-subscriber-site/view/456", "anchor": null }\n]`}</pre>
           <p>
-            There is no <code>url</code> field in the model input. Do not ask the AI to construct
-            URLs or put source references inside HTML links. Prior-report context is provided
-            separately; its references are not links to current stories.
+            An <code>anchor</code> starting with <code>#</code> jumps to the story in the current
+            report. Omit <code>target="_blank"</code> for these links so they stay in the same tab.
+            A subscriber <code>/view/:id</code> URL can open in a new tab. Links to unknown URLs or
+            anchors are removed. Previous reports provide context; their stories are not link
+            targets in this report.
           </p>
-          <h3>Example prompt</h3>
-          <pre>
-            Write five bullet points about the main developments. End each point with the supplied
-            source references in square brackets, such as [S1] or [S1][S2]. Do not construct URLs.
-          </pre>
+          <h3>Example prompt: read within the report</h3>
+          <pre>{`Write a concise summary as HTML bullet points. Match each supporting story reference to the Story link data. End each story bullet with a <a href="{anchor}">read</a>, where {anchor} is that story's anchor field copied exactly. Never construct or invent a URL; omit the link if a story has no anchor field or its value is null or empty. Do not substitute url for anchor. Do not also add bracketed citations to a bullet that already has a read link.`}</pre>
+          <h3>Example prompt: view the story in a new tab</h3>
+          <pre>{`Write a concise summary as HTML bullet points. Match each supporting story reference to the Story link data. End each story bullet with a <a target="_blank" href="{url}">view</a>, where {url} is that story's url field copied exactly. Never construct or invent a URL; omit the link if a story has no url field or its value is null or empty. Do not substitute anchor for url. Do not also add bracketed citations to a bullet that already has a view link.`}</pre>
+          <h3>Example prompt: automatic story links</h3>
+          <pre>{`Write five bullet points about the main developments. End each point with supporting story references, such as [S1] or [S1][S2].`}</pre>
+          <p>The report replaces these references with story links automatically.</p>
           <button type="button" onClick={() => dialog.current?.close()}>
             Close
           </button>

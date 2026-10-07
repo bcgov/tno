@@ -933,11 +933,13 @@ public class ApiService : IApiService
     /// <param name="reportId"></param>
     /// <param name="ownerId"></param>
     /// <param name="qty"></param>
+    /// <param name="instanceId">Only include instances older than this instance.</param>
     /// <returns></returns>
-    public async Task<API.Areas.Services.Models.Report.ReportInstanceModel[]> GetPreviousReportInstancesAsync(int reportId, int? ownerId, int qty)
+    public async Task<API.Areas.Services.Models.Report.ReportInstanceModel[]> GetPreviousReportInstancesAsync(int reportId, int? ownerId, int qty, long? instanceId = null)
     {
         var queryParams = new List<string> { $"qty={qty}" };
         if (ownerId.HasValue) queryParams.Add($"ownerId={ownerId}");
+        if (instanceId.HasValue) queryParams.Add($"instanceId={instanceId}");
         var url = this.Options.ApiUrl.Append($"services/reports/{reportId}/previous-instances?{string.Join("&", queryParams)}");
         return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.Report.ReportInstanceModel[]>(url)) ?? Array.Empty<API.Areas.Services.Models.Report.ReportInstanceModel>();
     }

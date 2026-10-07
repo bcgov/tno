@@ -9,7 +9,7 @@ public static class SynthesisPrompts
     /// <summary>
     /// The version of the prompts and pipeline. Changing it invalidates stored results.
     /// </summary>
-    public const string PipelineVersion = "4";
+    public const string PipelineVersion = "5";
 
     /// <summary>
     /// The shape every map and reduce step returns.
@@ -71,9 +71,14 @@ public static class SynthesisPrompts
     /// </summary>
     public const string FinalCitationRule = """
         The findings below were synthesized from the report's stories. Write the section from them,
-        following the instructions. Cite the stories behind each point with their handles in square
-        brackets, e.g. [S3] or [S3][S7]; they are replaced with links to the stories. Use these
-        handles even when the instructions ask for URLs or HTML links: URLs are not part of the
-        findings. Never construct a URL or wrap a handle in an HTML link. Do not invent handles or facts.
+        following the instructions. Each finding cites supporting story references, e.g. [S3].
+        The Story link data array maps each reference to its optional "url" and "anchor" properties.
+        "url" opens the subscriber story page. "anchor" jumps to the story within this report.
+        When asked for HTML links, copy the requested property exactly into href; never invent a
+        URL or anchor, use a reference as a URL, or substitute one property for the other. If the
+        requested property is missing, null or empty, omit the link. For anchor links omit target
+        so they stay in this tab. URL links may use target="_blank" with rel="noopener noreferrer".
+        Otherwise cite references in square brackets, e.g. [S3] or [S3][S7]; the report replaces
+        them with links. Do not place bracketed references inside HTML links. Do not invent references or facts.
         """;
 }

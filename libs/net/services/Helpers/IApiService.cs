@@ -452,8 +452,9 @@ public interface IApiService
     /// <param name="reportId"></param>
     /// <param name="ownerId"></param>
     /// <param name="qty"></param>
+    /// <param name="instanceId">Only include instances older than this instance.</param>
     /// <returns></returns>
-    Task<API.Areas.Services.Models.Report.ReportInstanceModel[]> GetPreviousReportInstancesAsync(int reportId, int? ownerId, int qty);
+    Task<API.Areas.Services.Models.Report.ReportInstanceModel[]> GetPreviousReportInstancesAsync(int reportId, int? ownerId, int qty, long? instanceId = null);
 
     /// <summary>
     /// Get the LLM for the specified 'id'.

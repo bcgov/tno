@@ -126,8 +126,13 @@ public record Finding(string Topic, string Statement, IReadOnlyList<string> Sour
 /// <param name="Handle">The handle used in prompts ("S12").</param>
 /// <param name="ContentId">The content.</param>
 /// <param name="Headline">The headline.</param>
-/// <param name="Link">The anchor or URL.</param>
-public record SynthesisSource(string Handle, long ContentId, string Headline, string? Link);
+/// <param name="Url">The subscriber story page URL.</param>
+/// <param name="Anchor">The story's anchor within the current report, when rendered.</param>
+public record SynthesisSource(string Handle, long ContentId, string Headline, string? Url, string? Anchor = null)
+{
+    /// <summary>The preferred destination for automatic citations.</summary>
+    public string? Link => this.Anchor ?? this.Url;
+}
 
 /// <summary>
 /// SynthesisUsage record, what a synthesis cost.

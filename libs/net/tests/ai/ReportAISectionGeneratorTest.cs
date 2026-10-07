@@ -69,6 +69,7 @@ public class ReportAISectionGeneratorTest
     private static ReportSectionModel ContentSection(string name, int sortOrder, params ContentModel[] content) => new()
     {
         Name = name,
+        IsEnabled = true,
         SectionType = ReportSectionType.Content,
         SortOrder = sortOrder,
         Settings = new ReportSectionSettingsModel() { Label = name },
@@ -111,6 +112,39 @@ public class ReportAISectionGeneratorTest
 
         first.Error.Should().BeNull();
         second.Output.Should().Be(first.Output);
+        client.Requests.Count.Should().Be(requests);
+        store.Results.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task PreviewReusesWorkerResultWhenHistoryArrivesInDifferentOrder()
+    {
+        var store = new MemoryStore();
+        var client = new FakeLlmClient(8000);
+        var (report, section) = Report(new ReportSectionSettingsModel()
+        {
+            Label = "Summary", UserPrompt = "Summarize", IncludePreviousReports = 1,
+        });
+        var sections = new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(10, "Today's news.")) };
+        var first = Story(1, "Earlier budget news.");
+        first.SortOrder = 2;
+        var second = Story(2, "Earlier transit news.");
+        second.SortOrder = 1;
+        var third = Story(3, "Earlier health news.");
+        third.SortOrder = 1;
+        var date = DateTime.UtcNow.Date.AddDays(-1);
+        var workerHistory = new[] { new PreviousReportModel(4, date,
+            new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, second, third, first) }) };
+        var previewHistory = new[] { new PreviousReportModel(4, date,
+            new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, first, third, second) }) };
+
+        var generated = await Generator(store, client).GenerateAsync(report, 5, section, sections, workerHistory, Llm());
+        var requests = client.Requests.Count;
+        var preview = await Generator(store, client).GenerateAsync(report, 5, section, sections, previewHistory, Llm(), AISectionWait.NoWait);
+
+        generated.Status.Should().Be(AISectionStatus.Ready);
+        preview.Status.Should().Be(AISectionStatus.Ready);
+        preview.Output.Should().Be(generated.Output);
         client.Requests.Count.Should().Be(requests);
         store.Results.Should().ContainSingle();
     }
@@ -296,7 +330,7 @@ public class ReportAISectionGeneratorTest
     }
 
     [Fact]
-    public async Task LegacyTopicSummaryUsesThePromptAndLinksToTheViewPage()
+    public async Task LegacyTopicSummaryUsesThePromptAndLinksWithinTheReport()
     {
         var client = new FakeLlmClient(8000) { FinalOutput = "<p>Requested format [S1]</p>" };
         var (report, section) = Report(new ReportSectionSettingsModel() { Label = "Summary", UserPrompt = "Use a paragraph", AIOutputMode = "TopicSummary", AIInputFields = new[] { "body" } });
@@ -309,9 +343,28 @@ public class ReportAISectionGeneratorTest
             new Dictionary<string, ReportSectionModel> { ["news"] = contentSection }, Array.Empty<PreviousReportModel>(), Llm());
 
         result.Error.Should().BeNull();
-        result.Output.Should().Contain("Requested format").And.Contain("href=\"https://mmi.test/view/1\"").And.Contain("target=\"_blank\"").And.Contain("View story");
+        result.Output.Should().Contain("Requested format").And.Contain("href=\"#item-1\"").And.NotContain("target=").And.Contain("View story");
         client.Requests.Should().Contain(r => r.Any(m => m.Content.Contains("Use a paragraph")));
         String.Join("\n", client.Requests.SelectMany(r => r.Select(m => m.Content))).Should().NotContain("Headline 1");
+    }
+
+    [Fact]
+    public void LinksUseVisibleStoryBodiesEvenWhenAnotherSectionFirstSuppliesTheStory()
+    {
+        var story = Story(1, "Story body");
+        var headlines = ContentSection("headlines", 0, story);
+        var full = ContentSection("full", 1, story);
+        full.Settings.ShowFullStory = true;
+        var sections = new[] { headlines, full };
+        var url = new Uri("https://mmi.test/view/");
+        var result = ReportAISectionGenerator.BuildStories(sections, url, true).Single();
+        result.Anchor.Should().Be("#item-1");
+        result.Url.Should().Be("https://mmi.test/view/1");
+        ReportAISectionGenerator.BuildStories(new[] { headlines }, url, true, anchorSections: sections).Single().Anchor.Should().Be("#item-1");
+        full.IsEnabled = false;
+        ReportAISectionGenerator.BuildStories(sections, url, true).Single().Anchor.Should().BeNull();
+        full.IsEnabled = true;
+        ReportAISectionGenerator.BuildStories(sections, url, false).Single().Anchor.Should().BeNull();
     }
 
     [Fact]
@@ -521,5 +574,58 @@ public class ReportAISectionGeneratorTest
 
         preview.Status.Should().Be(AISectionStatus.Failed);
         preview.Error.Should().Be("The model refused.");
+    }
+
+    [Theory]
+    [InlineData(ReportAIResultStatus.Completed)]
+    [InlineData(ReportAIResultStatus.Failed)]
+    public async Task SendWaitsForAnotherGeneratorToSucceedOrFail(ReportAIResultStatus completion)
+    {
+        var stored = new ReportAIResultModel()
+        {
+            Id = 1,
+            Status = ReportAIResultStatus.Pending,
+            ClaimExpiresOn = DateTime.UtcNow.AddHours(1),
+        };
+        var store = new FixedStore(stored);
+        var client = new FakeLlmClient(8000);
+        var (report, section) = Report(new ReportSectionSettingsModel() { Label = "Summary" });
+        var sections = new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(1, "Budget news.")) };
+        using var cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+
+        var sending = Generator(store, client).GenerateAsync(report, 5, section, sections,
+            Array.Empty<PreviousReportModel>(), Llm(), AISectionWait.Wait, cancellation.Token);
+        sending.IsCompleted.Should().BeFalse("an unfinished section must hold the report back");
+
+        stored.Output = completion == ReportAIResultStatus.Completed ? "<p>Finished summary</p>" : "";
+        stored.Error = completion == ReportAIResultStatus.Failed ? "The model refused." : null;
+        stored.Status = completion;
+        var result = await sending;
+
+        result.Status.Should().Be(completion == ReportAIResultStatus.Completed ? AISectionStatus.Ready : AISectionStatus.Failed);
+        result.Error.Should().Be(stored.Error);
+        if (completion == ReportAIResultStatus.Completed) result.Output.Should().Be(stored.Output);
+        else result.Output.Should().BeNull();
+        client.Requests.Should().BeEmpty("a sender must accept the terminal result of the generation it waited for");
+    }
+
+    [Fact]
+    public async Task CancellingAWaitingSendDoesNotTurnPendingWorkIntoAnAIFailure()
+    {
+        var store = new FixedStore(new ReportAIResultModel()
+        {
+            Id = 1,
+            Status = ReportAIResultStatus.Pending,
+            ClaimExpiresOn = DateTime.UtcNow.AddHours(1),
+        });
+        var (report, section) = Report(new ReportSectionSettingsModel() { Label = "Summary" });
+        var sections = new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(1, "Budget news.")) };
+        using var cancellation = new CancellationTokenSource();
+        var sending = Generator(store, new FakeLlmClient(8000)).GenerateAsync(report, 5, section, sections,
+            Array.Empty<PreviousReportModel>(), Llm(), AISectionWait.Wait, cancellation.Token);
+        cancellation.Cancel();
+
+        var act = async () => await sending;
+        await act.Should().ThrowAsync<OperationCanceledException>();
     }
 }

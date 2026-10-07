@@ -896,7 +896,7 @@ public partial class ReportEngine : IReportEngine
         // Previous instances are fetched once, oldest first; each section takes its own count.
         var previousQty = aiSections.Max(s => s.Settings.IncludePreviousReports ?? 0);
         var previousReports = previousQty > 0
-            ? (await getPreviousReportsAsync(report.Id, null, report.OwnerId, previousQty) ?? Array.Empty<PreviousReportModel>())
+            ? (await getPreviousReportsAsync(report.Id, checked((int?)reportInstanceId), report.OwnerId, previousQty) ?? Array.Empty<PreviousReportModel>())
                 .Where(p => p.Sections.Any(section => section.Value.Content.Any()))
                 .OrderBy(p => p.PublishedOn ?? DateTime.MinValue)
                 .ToArray()
@@ -974,11 +974,13 @@ public partial class ReportEngine : IReportEngine
             }
             if (status == AISectionStatus.NotStarted || status == AISectionStatus.Generating)
             {
+                if (aiWait == AISectionWait.Wait)
+                    throw new InvalidOperationException($"AI section '{section.Name}' has not finished generating. The report cannot be sent yet.");
                 sectionData.Data = AISectionPendingMessage;
                 return;
             }
 
-            // The failure is recorded on the section; partial or unbounded output is never sent.
+            // A completed failure is allowed in a sent report; this setting controls its display.
             this.Logger.LogError("Failed to generate AI section. Report:{ReportId} '{ReportName}', section:{SectionId} '{SectionName}', LLM:{LLMId} '{LLMName}': {Error}",
                 report.Id, report.Name, section.Id, section.Name, llm.Id, llm.Name, error);
             sectionData.Data = settings.ShowErrorDetails ? $"AI section failed: {error}" : "";

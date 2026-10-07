@@ -177,6 +177,9 @@ describe('ReportSectionAI (subscriber)', () => {
     expect(
       screen.getByRole('button', { name: 'Prompt data and story links' }).closest('.toolbar'),
     ).toBe(restore.closest('.toolbar'));
+    expect(screen.getByRole('button', { name: 'Prompt data and story links' })).toHaveTextContent(
+      'Prompt data',
+    );
     fireEvent.click(restore);
     await waitFor(() => expect(settings().userPrompt).toContain('alpha prompt'));
   });
@@ -218,6 +221,18 @@ describe('ReportSectionAI (subscriber)', () => {
       );
       const help = screen.getByRole('dialog', { name: 'Prompt data and story links' });
       expect(within(help).getByText('/view/:id')).toBeInTheDocument();
+      expect(
+        within(help).getByRole('heading', { name: 'Link data sent to the final writing step' }),
+      ).toBeInTheDocument();
+      expect(
+        within(help).getByRole('heading', { name: 'Example prompt: view the story in a new tab' }),
+      ).toBeInTheDocument();
+      expect(help).toHaveTextContent('href="{url}"');
+      expect(help).toHaveTextContent('href="{anchor}"');
+      expect(
+        within(help).getByRole('heading', { name: 'Example prompt: read within the report' }),
+      ).toBeInTheDocument();
+      expect(help).toHaveTextContent('Never construct or invent a URL');
       fireEvent.click(within(help).getByRole('button', { name: 'Close' }));
       expect(help).not.toHaveAttribute('open');
     } finally {

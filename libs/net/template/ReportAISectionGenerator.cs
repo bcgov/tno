@@ -118,7 +118,7 @@ public class ReportAISectionGenerator
         // Do not mutate shared options: concurrent preview jobs may have different link settings.
         var viewContentUrl = viewContentUrlOverride == null ? _options.ViewContentUrl
             : String.IsNullOrWhiteSpace(viewContentUrlOverride) ? null : new Uri(viewContentUrlOverride, UriKind.RelativeOrAbsolute);
-        var stories = BuildStories(sources, viewContentUrl, false, fields);
+        var stories = BuildStories(sources, viewContentUrl, true, fields, sectionContent.Values);
         var history = previousReports
             .Select(p => new SynthesisHistoricalInstance(
                 p.PublishedOn.HasValue ? $"Report of {p.PublishedOn:yyyy-MM-dd}" : $"Report instance {p.InstanceId}",
@@ -141,15 +141,21 @@ public class ReportAISectionGenerator
         var manifest = BuildManifest(report, section, llm, request, previousReports);
         var hash = Hash(manifest);
 
-        var deadline = DateTime.UtcNow.AddSeconds(Math.Max(30, _options.Synthesis.ClaimLeaseSeconds) + 60);
+        var waitingForGenerator = false;
         while (true)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var existing = await _store.FindAsync(hash, cancellationToken);
             if (existing?.Status == Entities.ReportAIResultStatus.Completed)
             {
                 _logger.LogDebug("Reusing AI result {id} for report {reportId} section {sectionId}", existing.Id, report.Id, section.Id);
                 return (existing.Output, null, AISectionStatus.Ready, null);
             }
+
+            // A sender that joined an in-progress generation accepts its terminal failure too.
+            // Do not turn that completion into another generation attempt before delivery.
+            if (waitingForGenerator && existing?.Status == Entities.ReportAIResultStatus.Failed)
+                return (null, existing.Error ?? "The AI section failed to generate.", AISectionStatus.Failed, null);
 
             // A preview never generates; it shows the section once a generator has stored it. A failure
             // is shown rather than queued again, so a failing section cannot loop; a send retries it.
@@ -182,9 +188,9 @@ public class ReportAISectionGenerator
             // Background preparation leaves a section another generator holds to that generator.
             if (wait == AISectionWait.Prepare) return (null, null, AISectionStatus.Generating, null);
 
-            // Another preview, view, or send is generating this manifest; wait for its result.
-            if (DateTime.UtcNow > deadline)
-                return (null, "Another request is still generating this AI section.", AISectionStatus.Failed, null);
+            // A send must wait for a real result. Time spent waiting is not an AI failure and
+            // must never allow a pending section to be sent as blank/error output.
+            waitingForGenerator = true;
             await Task.Delay(PollInterval, cancellationToken);
         }
     }
@@ -258,14 +264,22 @@ public class ReportAISectionGenerator
     /// <summary>
     /// Every story in the sections, once each, as synthesis input.
     /// </summary>
-    public static IReadOnlyList<SynthesisStory> BuildStories(IEnumerable<ReportSectionModel> sections, Uri? viewContentUrl, bool includeAnchors, IEnumerable<string>? inputFields = null)
+    public static IReadOnlyList<SynthesisStory> BuildStories(IEnumerable<ReportSectionModel> sections, Uri? viewContentUrl, bool includeAnchors, IEnumerable<string>? inputFields = null, IEnumerable<ReportSectionModel>? anchorSections = null)
     {
         var fields = new HashSet<string>(inputFields ?? DefaultInputFields, StringComparer.Ordinal);
+        var sourceSections = sections.ToArray();
+        // A story may first appear in a headlines-only section and be rendered later in full.
+        var anchoredIds = includeAnchors
+            ? (anchorSections ?? sourceSections).Where(s => s.IsEnabled)
+                .SelectMany(s => s.Content.Where(c => ReportEngine.IsAnchoredInReport(s, c)).Select(c => c.Id)).ToHashSet()
+            : new HashSet<long>();
         var seen = new HashSet<long>();
         var stories = new List<SynthesisStory>();
-        foreach (var section in sections)
+        foreach (var section in sourceSections)
         {
-            foreach (var content in section.Content.Where(c => seen.Add(c.Id)))
+            // EF collection order and the service response order can differ, especially for
+            // historical reports. Use report order in both paths so their manifests match.
+            foreach (var content in section.Content.OrderBy(c => c.SortOrder).ThenBy(c => c.Id).Where(c => seen.Add(c.Id)))
             {
                 stories.Add(new SynthesisStory(
                     content.Id,
@@ -273,7 +287,7 @@ public class ReportAISectionGenerator
                     BuildMetadata(content, fields),
                     BuildStoryText(content, fields),
                     viewContentUrl != null ? $"{viewContentUrl}{content.Id}" : null,
-                    includeAnchors && ReportEngine.IsAnchoredInReport(section, content) ? $"#{ReportEngine.ContentAnchorPrefix}{content.Id}" : null,
+                    anchoredIds.Contains(content.Id) ? $"#{ReportEngine.ContentAnchorPrefix}{content.Id}" : null,
                     GetGroup(content),
                     content.Evidence?.AnalysisId));
             }

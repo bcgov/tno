@@ -3,6 +3,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using AngleSharp.Html.Parser;
 using Microsoft.Extensions.Logging;
 using TNO.AI.Text;
 using TNO.AI.Tokens;
@@ -344,7 +345,7 @@ public partial class ReportSynthesizer
 
         for (var round = 0; ; round++)
         {
-            var findingsText = String.Join("\n", findings.Select(FormatFinalFinding));
+            var findingsText = FormatFinalInput(run, findings);
             var findingsTokens = run.Estimator.Count(findingsText);
             var messages = new List<(string Role, string Content)> { ("system", system) };
             messages.AddRange(historyMessages);
@@ -356,7 +357,7 @@ public partial class ReportSynthesizer
                 try
                 {
                     var result = await SendAsync(run, messages, false, request.Temperature, request.ChoiceCount, request.Limits.MaxOutputTokens, cancellationToken);
-                    if (!result.IsTruncated) return (Sanitize(LinkCitations(run, SelectChoice(result, request.ChoiceIndex))), findings);
+                    if (!result.IsTruncated) return (ValidateStoryLinks(run, Sanitize(LinkCitations(run, SelectChoice(result, request.ChoiceIndex)))), findings);
                     problem = "the section output was truncated at the output limit";
                 }
                 catch (LlmContextLengthException)
@@ -441,7 +442,28 @@ public partial class ReportSynthesizer
     private static string SourceLink(SynthesisSource source)
     {
         var headline = WebUtility.HtmlEncode(String.IsNullOrWhiteSpace(source.Headline) ? "View story" : source.Headline);
-        return String.IsNullOrWhiteSpace(source.Link) ? headline : $"<a href=\"{WebUtility.HtmlEncode(source.Link)}\" target=\"_blank\" rel=\"noopener noreferrer\">{headline}</a>";
+        var target = source.Link?.StartsWith('#') == true ? "" : " target=\"_blank\" rel=\"noopener noreferrer\"";
+        return String.IsNullOrWhiteSpace(source.Link) ? headline : $"<a href=\"{WebUtility.HtmlEncode(source.Link)}\"{target}>{headline}</a>";
+    }
+
+    /// <summary>Keep only supplied story URLs, and keep report anchors in the current tab.</summary>
+    private static string ValidateStoryLinks(Run run, string html)
+    {
+        var allowed = run.Sources.Values.SelectMany(s => new[] { s.Url, s.Anchor })
+            .Where(l => !String.IsNullOrWhiteSpace(l)).ToHashSet(StringComparer.Ordinal);
+        using var document = new HtmlParser().ParseDocument(html);
+        foreach (var link in document.QuerySelectorAll("a"))
+        {
+            var href = link.GetAttribute("href");
+            if (href == null || !allowed.Contains(href))
+            {
+                link.Parent?.ReplaceChild(document.CreateTextNode(link.TextContent), link);
+                continue;
+            }
+            if (href.StartsWith('#')) link.RemoveAttribute("target");
+            else if (link.GetAttribute("target") == "_blank") link.SetAttribute("rel", "noopener noreferrer");
+        }
+        return document.Body?.InnerHtml ?? "";
     }
 
     private static readonly Lazy<Ganss.Xss.HtmlSanitizer> _sanitizer = new(() =>
@@ -476,6 +498,15 @@ public partial class ReportSynthesizer
     /// </summary>
     private static string FormatFinalFinding(Finding finding)
         => $"- {finding.Statement} {String.Concat(finding.Sources.Take(MaxFinalCitations).Select(h => $"[{h}]"))}";
+
+    /// <summary>Include the exact URLs for cited stories in the final request's token budget.</summary>
+    private static string FormatFinalInput(Run run, IReadOnlyList<Finding> findings)
+    {
+        var sources = findings.SelectMany(f => f.Sources.Take(MaxFinalCitations)).Distinct()
+            .Where(run.Sources.ContainsKey)
+            .Select(handle => new { reference = handle, url = run.Sources[handle].Url, anchor = run.Sources[handle].Anchor });
+        return $"{String.Join("\n", findings.Select(FormatFinalFinding))}\n\n## Story link data\n{JsonSerializer.Serialize(sources)}";
+    }
 
     /// <summary>
     /// Parse the findings a response returns. Handles not in the request are dropped, and so are
@@ -574,7 +605,7 @@ public partial class ReportSynthesizer
         public Dictionary<string, SynthesisSource> Sources { get; } = new();
 
         public void AddSource(string handle, SynthesisStory story)
-            => this.Sources[handle] = new SynthesisSource(handle, story.ContentId, story.Headline, story.Anchor ?? story.Url);
+            => this.Sources[handle] = new SynthesisSource(handle, story.ContentId, story.Headline, story.Url, story.Anchor);
 
         /// <summary>
         /// Input tokens available beside the specified system prompt, in a two-message request.

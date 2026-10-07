@@ -121,6 +121,33 @@ public class ReportSynthesizerTest
 
     #region Output
     [Fact]
+    public async Task FinalPromptSuppliesExactStoryUrlsAndRejectsInventedLinks()
+    {
+        var client = new FakeLlmClient(8000)
+        {
+            FinalOutput = "<ul><li>First <a target=\"_blank\" href=\"#item-1\">read</a> <a target=\"_blank\" href=\"https://mmi.test/view/1\">view</a></li><li>Second <a target=\"_blank\" href=\"https://mmi.test/view/2\">view</a> <a href=\"#item-2\">read</a></li><li>Third <a href=\"https://invented.test/3\">view</a></li></ul>",
+        };
+        var stories = new[]
+        {
+            new SynthesisStory(1, "First", "", "First story", "https://mmi.test/view/1", "#item-1"),
+            new SynthesisStory(2, "Second", "", "Second story", "https://mmi.test/view/2"),
+            new SynthesisStory(3, "Third", "", "Third story"),
+        };
+        var result = await Synthesizer(client).SynthesizeAsync(Request(stories));
+        result.IsSuccess.Should().BeTrue(result.Error);
+        var finalInput = client.Requests.Last()[^1].Content;
+        finalInput.Should().Contain("\"reference\":\"S1\",\"url\":\"https://mmi.test/view/1\",\"anchor\":\"#item-1\"")
+            .And.Contain("\"reference\":\"S2\",\"url\":\"https://mmi.test/view/2\",\"anchor\":null")
+            .And.Contain("\"reference\":\"S3\",\"url\":null,\"anchor\":null");
+        result.Output.Should().Contain("<a href=\"#item-1\">read</a>")
+            .And.Contain("href=\"https://mmi.test/view/1\"")
+            .And.Contain("href=\"https://mmi.test/view/2\"")
+            .And.Contain("rel=\"noopener noreferrer\"")
+            .And.NotContain("#item-2")
+            .And.NotContain("invented.test");
+    }
+
+    [Fact]
     public async Task FreeTextCitationsBecomeLinksAndHtmlIsSanitized()
     {
         var client = new FakeLlmClient(8000) { FinalOutput = "<script>alert(1)</script><p onclick=\"x()\">Budget [S2] and [S999]</p>" };

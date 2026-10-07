@@ -1027,6 +1027,9 @@ public class ReportService : BaseService<Report, int>, IReportService
     {
         var query = this.Context.ReportInstances
             .AsNoTracking()
+            // A sent report can contain megabytes of HTML. Joining it to every story repeats
+            // that body thousands of times; load the instances and their content separately.
+            .AsSplitQuery()
             .OrderByDescending(i => i.Id)
             .Where(i => i.ReportId == id
                 && i.SentOn != null);
@@ -1068,6 +1071,7 @@ public class ReportService : BaseService<Report, int>, IReportService
         var currentInstance = instanceId.HasValue ?
             this.Context.ReportInstances
                 .AsNoTracking()
+                .AsSplitQuery()
                 .Include(ri => ri.ContentManyToMany)
                     .ThenInclude(c => c.Content)
                 .Where(ri => ri.OwnerId == ownerId)
