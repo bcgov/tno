@@ -48,24 +48,11 @@ patches:
         value: dev
   - target:
       kind: BuildConfig
-      name: nlp-service.dev
-    patch: |-
-      - op: replace
-        path: /metadata/name
-        value: nlp-service.jmf
-      - op: replace
-        path: /spec/source/git/uri
-        value: https://github.com/fosol/tno.git
-      - op: replace
-        path: /spec/source/git/ref
-        value: dev
-  - target:
-      kind: BuildConfig
       name: transcription-service.dev
     patch: |-
       - op: replace
         path: /metadata/name
-        value: nlp-service.jmf
+        value: transcription-service.jmf
       - op: replace
         path: /spec/source/git/uri
         value: https://github.com/fosol/tno.git

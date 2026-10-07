@@ -80,6 +80,21 @@ public class ReportSectionModel : RazorEngineTemplateBase
     /// get/set - Raw data to display in the section.
     /// </summary>
     public string? Data { get; set; }
+
+    /// <summary>
+    /// get/set - The state of an AI section after generation; null for other sections.
+    /// </summary>
+    public AISectionStatus? AIStatus { get; set; }
+
+    /// <summary>
+    /// get/set - Why the AI section could not be generated.
+    /// </summary>
+    public string? AIError { get; set; }
+
+    /// <summary>
+    /// get/set - When the generator holding the AI section is considered to have stopped, if it has not stored a result.
+    /// </summary>
+    public DateTime? AIExpiresOn { get; set; }
     #endregion
 
     #region Constructors

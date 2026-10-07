@@ -20,7 +20,7 @@
 ## Related Speech/Media AI
 
 - `Microsoft.CognitiveServices.Speech` is used in `services/net/auto-clipper`.
-- Extract quotes service supports external LLM provider settings in env (primary/fallback models and URLs).
+- The content-analysis service (`services/net/content-analysis`) gets its LLM from the API (the LLM configured in the database); it has no provider settings of its own.
 
 ## Operational Guidance
 

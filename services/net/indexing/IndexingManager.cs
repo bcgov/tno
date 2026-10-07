@@ -288,21 +288,25 @@ public class IndexingManager : ServiceManager<IndexingOptions>
 
     /// <summary>
     /// Process the index update request.
+    /// Every write is versioned with the content's projection revision (external_gte), taken from the
+    /// content fetched now rather than from the message, so a redelivered or out-of-order request can
+    /// never replace a newer projection. A version conflict means a newer projection is already
+    /// indexed and counts as success.
     /// </summary>
-    /// <param name="request"></param>
+    /// <param name="result"></param>
     /// <returns></returns>
     private async Task ProcessIndexRequestAsync(ConsumeResult<string, IndexRequestModel> result)
     {
-        this.Logger.LogInformation("Indexing content from Topic: {Topic}, Content ID: {Key}", result.Topic, result.Message.Key);
         var model = result.Message.Value;
+        this.Logger.LogInformation("Indexing content from Topic: {Topic}, Content ID: {Key}, Action: {Action}, Reason: {Reason}", result.Topic, result.Message.Key, model.Action, model.Reason ?? "lifecycle");
 
         if (model.Action == IndexAction.Delete)
         {
-            await DeleteContentAsync(model.ContentId);
+            // The content no longer exists; its delete carries the next revision.
+            await DeleteContentAsync(model.ContentId, model.ProjectionRevision);
         }
         else
         {
-            // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
             var content = await this.Api.FindContentByIdAsync(result.Message.Value.ContentId);
             if (content != null)
             {
@@ -313,6 +317,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
 
                 // Update the unpublished content with the latest data and status.
                 await IndexContentAsync(result.Message.Value, content);
+                await IndexEvidenceAsync(content);
             }
             else
             {
@@ -324,28 +329,92 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     }
 
     /// <summary>
+    /// Make an Elasticsearch write, retrying up to the configured number of attempts. A version
+    /// conflict means a newer projection is already indexed and counts as success, as does deleting
+    /// a document that is not there. A write that still fails is logged and the request moves on.
+    /// </summary>
+    /// <param name="write"></param>
+    /// <param name="action">What the write does, for the log ("index", "publish", "delete").</param>
+    /// <param name="contentId"></param>
+    /// <param name="index"></param>
+    /// <param name="revision"></param>
+    /// <param name="missingIsSuccess"></param>
+    /// <returns>Whether the write succeeded, and whether a newer projection was already indexed.</returns>
+    private async Task<(bool IsWritten, bool IsNewerIndexed)> WriteAsync(
+        Func<Task<global::Elastic.Transport.Products.Elasticsearch.ElasticsearchResponse>> write,
+        string action,
+        long contentId,
+        string index,
+        long? revision,
+        bool missingIsSuccess = false)
+    {
+        var attempts = Math.Max(1, this.Options.IndexRetryLimit);
+        for (var attempt = 1; ; attempt++)
+        {
+            var response = await write();
+            var status = response.ApiCallDetails?.HttpStatusCode;
+            if (response.IsSuccess() || status == 409 || (missingIsSuccess && status == 404))
+                return (true, status == 409);
+
+            response.TryGetOriginalException(out Exception? ex);
+            if (attempt >= attempts)
+            {
+                this.Logger.LogError(ex, "Failed to {action} content after {attempts} attempt(s).  Content ID: {id}, Index: {index}, Revision: {revision}, Error: {error}",
+                    action, attempt, contentId, index, revision, response.ElasticsearchServerError?.Error?.Reason ?? ex?.Message);
+                return (false, false);
+            }
+            this.Logger.LogWarning(ex, "Failed to {action} content, retrying ({attempt} of {attempts}).  Content ID: {id}, Index: {index}", action, attempt, attempts, contentId, index);
+            await Task.Delay(Math.Max(0, this.Options.IndexRetryDelayMs) * attempt);
+        }
+    }
+
+    /// <summary>
     /// Send content to Elasticsearch unpublished index.
     /// </summary>
+    /// <param name="request"></param>
     /// <param name="content"></param>
     /// <returns></returns>
     private async Task IndexContentAsync(IndexRequestModel request, ContentModel content)
     {
-        var document = new IndexRequest<ContentModel>(content, this.ElasticOptions.ContentIndex, content.Id);
-        var response = await this.Client.IndexAsync(document);
-        if (response.IsSuccess())
+        var document = new IndexRequest<ContentModel>(content, this.ElasticOptions.ContentIndex, content.Id)
         {
-            this.Logger.LogInformation("Content indexed.  Content ID: {id}, Index: {index}, Version: {version}", content.Id, this.ElasticOptions.ContentIndex, content.Version);
+            VersionType = VersionType.ExternalGte,
+            Version = content.ProjectionRevision,
+        };
+        var (isWritten, isNewerIndexed) = await WriteAsync(async () => await this.Client.IndexAsync(document), "index", content.Id, this.ElasticOptions.ContentIndex, content.ProjectionRevision);
+        if (isWritten)
+        {
+            this.Logger.LogInformation("Content indexed.  Content ID: {id}, Index: {index}, Revision: {revision}{newer}", content.Id, this.ElasticOptions.ContentIndex, content.ProjectionRevision, isNewerIndexed ? " (a newer revision was already indexed)" : "");
 
             // Tell the API to inform users of published content.
             if (!this.Options.IndexOnly)
                 await SendNotifications(request, content);
         }
-        else
+    }
+
+    /// <summary>
+    /// Replace the content's evidence document with its current analysis, or remove it when the
+    /// content has none. Evidence carries source, media type, approval, and publication status so
+    /// report exclusions apply and unapproved transcripts never reach subscribers.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    private async Task IndexEvidenceAsync(ContentModel content)
+    {
+        if (String.IsNullOrWhiteSpace(this.ElasticOptions.EvidenceIndex)) return;
+        if (content.Analysis == null)
         {
-            // TODO: Need to find a way to inform the Editor it failed.  Send notification message to them.
-            if (response.TryGetOriginalException(out Exception? ex))
-                this.Logger.LogError(ex, "Content failed to index.  Content ID: {id}, Index: {index}", content.Id, this.ElasticOptions.ContentIndex);
+            await DeleteContentAsync(content.Id, this.ElasticOptions.EvidenceIndex, content.ProjectionRevision);
+            return;
         }
+
+        var evidence = new ContentEvidenceModel(content, content.Analysis);
+        var document = new IndexRequest<ContentEvidenceModel>(evidence, this.ElasticOptions.EvidenceIndex, content.Id)
+        {
+            VersionType = VersionType.ExternalGte,
+            Version = content.ProjectionRevision,
+        };
+        await WriteAsync(async () => await this.Client.IndexAsync(document), "index evidence of", content.Id, this.ElasticOptions.EvidenceIndex, content.ProjectionRevision);
     }
 
     /// <summary>
@@ -364,25 +433,22 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         {
             content.Status = ContentStatus.Published;
             if (!this.Options.IndexOnly)
+            {
+                var analysis = content.Analysis;
                 content = await this.Api.UpdateContentStatusAsync(content) ?? throw new InvalidOperationException($"Content failed to update. ID:{content.Id}");
+                content.Analysis ??= analysis;
+            }
         }
 
-        // Remove the transcript body if it hasn't been approved.
-        var body = content.Body;
-        if (!content.IsApproved && content.ContentType == ContentType.AudioVideo) content.Body = "";
-        var document = new IndexRequest<ContentModel>(content, this.ElasticOptions.PublishedIndex, content.Id);
-        var response = await this.Client.IndexAsync(document);
-        content.Body = body;
-        if (response.IsSuccess())
+        // An unapproved transcript is never published.
+        var document = new IndexRequest<ContentModel>(content.ToPublishedDocument(), this.ElasticOptions.PublishedIndex, content.Id)
         {
-            this.Logger.LogInformation("Content published.  Content ID: {id}, Index: {index}, Version: {version}", content.Id, this.ElasticOptions.PublishedIndex, content.Version);
-        }
-        else
-        {
-            // TODO: Need to find a way to inform the Editor it failed.  Send notification message to them.
-            if (response.TryGetOriginalException(out Exception? ex))
-                this.Logger.LogError(ex, "Content failed to publish.  Content ID: {id}, Index: {index}", content.Id, this.ElasticOptions.PublishedIndex);
-        }
+            VersionType = VersionType.ExternalGte,
+            Version = content.ProjectionRevision,
+        };
+        var (isWritten, isNewerIndexed) = await WriteAsync(async () => await this.Client.IndexAsync(document), "publish", content.Id, this.ElasticOptions.PublishedIndex, content.ProjectionRevision);
+        if (isWritten)
+            this.Logger.LogInformation("Content published.  Content ID: {id}, Index: {index}, Revision: {revision}{newer}", content.Id, this.ElasticOptions.PublishedIndex, content.ProjectionRevision, isNewerIndexed ? " (a newer revision was already indexed)" : "");
 
         return content;
     }
@@ -401,55 +467,50 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         {
             content.Status = ContentStatus.Unpublished;
             if (!this.Options.IndexOnly)
+            {
+                var analysis = content.Analysis;
                 content = await this.Api.UpdateContentStatusAsync(content) ?? throw new InvalidOperationException($"Content failed to update. ID:{content.Id}");
+                content.Analysis ??= analysis;
+            }
         }
 
-        var document = new DeleteRequest<ContentModel>(content, this.ElasticOptions.PublishedIndex, content.Id);
-        var response = await this.Client.DeleteAsync(document);
-        if (response.IsSuccess())
-        {
-            this.Logger.LogInformation("Content unpublished.  Content ID: {id}, Index: {index}, Version: {version}", content.Id, this.ElasticOptions.PublishedIndex, content.Version);
-        }
-        else
-        {
-            // TODO: Need to find a way to inform the Editor it failed.  Send notification message to them.
-            if (response.TryGetOriginalException(out Exception? ex))
-                this.Logger.LogError(ex, "Content failed to unpublish.  Content ID: {id}, Index: {index}", content.Id, this.ElasticOptions.PublishedIndex);
-        }
+        await DeleteContentAsync(content.Id, this.ElasticOptions.PublishedIndex, content.ProjectionRevision);
         return content;
     }
 
     /// <summary>
-    /// Remove content from both indexes.
+    /// Remove content from every index.
     /// </summary>
     /// <param name="contentId"></param>
+    /// <param name="revision">The revision of the delete; null deletes unversioned (a request recorded before versioning).</param>
     /// <returns></returns>
-    private async Task DeleteContentAsync(long contentId)
+    private async Task DeleteContentAsync(long contentId, long? revision)
     {
-        await DeleteContentAsync(contentId, this.ElasticOptions.PublishedIndex);
-        await DeleteContentAsync(contentId, this.ElasticOptions.ContentIndex);
+        await DeleteContentAsync(contentId, this.ElasticOptions.PublishedIndex, revision);
+        await DeleteContentAsync(contentId, this.ElasticOptions.ContentIndex, revision);
+        if (!String.IsNullOrWhiteSpace(this.ElasticOptions.EvidenceIndex))
+            await DeleteContentAsync(contentId, this.ElasticOptions.EvidenceIndex, revision);
     }
 
     /// <summary>
-    /// Remove the content from the specified index.
+    /// Remove the content from the specified index. A versioned delete never removes a newer
+    /// projection; index.gc_deletes keeps the delete's version so a late write cannot resurrect it.
     /// </summary>
     /// <param name="contentId"></param>
     /// <param name="index"></param>
+    /// <param name="revision"></param>
     /// <returns></returns>
-    private async Task DeleteContentAsync(long contentId, string index)
+    private async Task DeleteContentAsync(long contentId, string index, long? revision)
     {
-        var request = new DeleteRequest<ContentModel>(index, contentId);
-        var response = await this.Client.DeleteAsync(request);
-        if (response.IsSuccess())
+        var request = new DeleteRequest(index, contentId);
+        if (revision.HasValue)
         {
-            this.Logger.LogInformation("Content deleted.  Content ID: {id}, Index: {index}", contentId, index);
+            request.VersionType = VersionType.ExternalGte;
+            request.Version = revision.Value;
         }
-        else
-        {
-            // TODO: Need to find a way to inform the Editor it failed.  Send notification message to them.
-            if (response.TryGetOriginalException(out Exception? ex))
-                this.Logger.LogError(ex, "Content failed to delete.  Content ID: {id}, Index: {index}", contentId, index);
-        }
+        var (isWritten, _) = await WriteAsync(async () => await this.Client.DeleteAsync(request), "delete", contentId, index, revision, missingIsSuccess: true);
+        if (isWritten)
+            this.Logger.LogInformation("Content deleted.  Content ID: {id}, Index: {index}, Revision: {revision}", contentId, index, revision);
     }
 
     /// <summary>

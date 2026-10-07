@@ -3,12 +3,16 @@ using System.Text.Json;
 using Microsoft.Extensions.Options;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
+using TNO.API.Config;
 using TNO.DAL.Config;
 using TNO.DAL.Services;
 using TNO.Elastic;
 using TNO.Elastic.Models;
+using TNO.Kafka;
+using TNO.Kafka.Models;
 using TNO.TemplateEngine;
 using TNO.TemplateEngine.Converters;
+using TNO.TemplateEngine.Config;
 using TNO.TemplateEngine.Models;
 using TNO.TemplateEngine.Models.Charts;
 using TNO.TemplateEngine.Models.Reports;
@@ -30,6 +34,9 @@ public class ReportHelper : IReportHelper
     private readonly ElasticOptions _elasticOptions;
     private readonly StorageOptions _storageOptions;
     private readonly JsonSerializerOptions _serializerOptions;
+    private readonly IKafkaMessenger _kafkaMessenger;
+    private readonly KafkaOptions _kafkaOptions;
+    private readonly TemplateOptions _templateOptions;
     #endregion
 
     #region Properties
@@ -47,6 +54,9 @@ public class ReportHelper : IReportHelper
     /// <param name="elasticOptions"></param>
     /// <param name="storageOptions"></param>
     /// <param name="serializerOptions"></param>
+    /// <param name="kafkaMessenger"></param>
+    /// <param name="kafkaOptions"></param>
+    /// <param name="templateOptions"></param>
     public ReportHelper(
         IReportEngine reportEngine,
         IReportService reportService,
@@ -55,7 +65,10 @@ public class ReportHelper : IReportHelper
         IContentService contentService,
         IOptions<ElasticOptions> elasticOptions,
         IOptions<StorageOptions> storageOptions,
-        IOptions<JsonSerializerOptions> serializerOptions)
+        IOptions<JsonSerializerOptions> serializerOptions,
+        IKafkaMessenger kafkaMessenger,
+        IOptions<KafkaOptions> kafkaOptions,
+        IOptions<TemplateOptions> templateOptions)
     {
         _reportEngine = reportEngine;
         _reportService = reportService;
@@ -65,6 +78,9 @@ public class ReportHelper : IReportHelper
         _elasticOptions = elasticOptions.Value;
         _storageOptions = storageOptions.Value;
         _serializerOptions = serializerOptions.Value;
+        _kafkaMessenger = kafkaMessenger;
+        _kafkaOptions = kafkaOptions.Value;
+        _templateOptions = templateOptions.Value;
     }
     #endregion
 
@@ -187,21 +203,72 @@ public class ReportHelper : IReportHelper
         bool isPreview = false)
     {
         var reportModel = model.Report ?? throw new ArgumentException("Parameter 'model.Report' is required");
-        if (model.Report.Template == null) throw new ArgumentException("Parameter 'model.Report.Template' is required");
+        return await GenerateReportAsync(reportModel, model, GetInstanceSections(model), viewOnWebOnly, isPreview);
+    }
 
-        // Link each result with the section name.
-        var sections = reportModel.Sections.OrderBy(s => s.SortOrder).ToDictionary(section => section.Name, section =>
+    /// <summary>
+    /// Preview the report instance without waiting for its AI sections. A section without a stored
+    /// result shows that it is being generated, and the reporting service is asked to generate it;
+    /// the requestor is notified when it is ready.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="requestorId">The user to notify when the AI sections are ready.</param>
+    /// <param name="isPreview"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
+    public async Task<ReportResultModel> PreviewReportInstanceAsync(
+        Areas.Services.Models.ReportInstance.ReportInstanceModel model,
+        int requestorId,
+        bool isPreview = true)
+    {
+        var reportModel = model.Report ?? throw new ArgumentException("Parameter 'model.Report' is required");
+        var sections = GetInstanceSections(model);
+        var result = await GenerateReportAsync(reportModel, model, sections, false, isPreview, AISectionWait.NoWait);
+
+        // A section already being generated will notify when it is done.
+        if (sections.Values.Any(s => s.AIStatus == AISectionStatus.NotStarted))
+        {
+            var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, reportModel.Id, model.Id, JsonDocument.Parse("{}"))
+            {
+                RequestorId = requestorId,
+                PrepareAISections = true,
+                AIViewContentUrl = _templateOptions.ViewContentUrl?.ToString() ?? "",
+                SendToSubscribers = false,
+                GenerateInstance = false,
+            };
+            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{reportModel.Id}", request);
+        }
+        result.AISections = sections.Values
+            .Where(s => s.AIStatus.HasValue)
+            .OrderBy(s => s.SortOrder)
+            .Select(s => new ReportAISectionStatusModel(s))
+            .ToArray();
+        return result;
+    }
+
+    /// <summary>
+    /// Link the instance's content with its section names.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
+    private static Dictionary<string, ReportSectionModel> GetInstanceSections(Areas.Services.Models.ReportInstance.ReportInstanceModel model)
+    {
+        var reportModel = model.Report ?? throw new ArgumentException("Parameter 'model.Report' is required");
+        if (reportModel.Template == null) throw new ArgumentException("Parameter 'model.Report.Template' is required");
+
+        return reportModel.Sections.OrderBy(s => s.SortOrder).ToDictionary(section => section.Name, section =>
         {
             var content = model.Content
                     .Where(c => c.SectionName == section.Name)
-                    .OrderBy(c => c.SortOrder)
-                    .Select(c => new ContentModel(c.Content ?? throw new InvalidOperationException("Report instance model is missing content")))
+                    .OrderBy(c => c.SortOrder).ThenBy(c => c.ContentId)
+                    .Select(c => new ContentModel(c.Content ?? throw new InvalidOperationException("Report instance model is missing content"), c.SortOrder))
                     .ToArray();
 
             return new ReportSectionModel(section, content);
         });
-
-        return await GenerateReportAsync(reportModel, model, sections, viewOnWebOnly, isPreview);
     }
 
     /// <summary>
@@ -260,6 +327,7 @@ public class ReportHelper : IReportHelper
     /// <param name="sections"></param>
     /// <param name="viewOnWebOnly"></param>
     /// <param name="isPreview"></param>
+    /// <param name="aiWait">Whether to generate missing AI sections, or leave them pending.</param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     private async Task<ReportResultModel> GenerateReportAsync(
@@ -267,7 +335,8 @@ public class ReportHelper : IReportHelper
         Areas.Services.Models.ReportInstance.ReportInstanceModel? reportInstance,
         Dictionary<string, ReportSectionModel> sections,
         bool viewOnWebOnly = false,
-        bool isPreview = false)
+        bool isPreview = false,
+        AISectionWait aiWait = AISectionWait.Wait)
     {
         var subject = await _reportEngine.GenerateReportSubjectAsync(report, reportInstance, sections, viewOnWebOnly, isPreview);
         var body = await _reportEngine.GenerateReportBodyAsync(
@@ -279,7 +348,8 @@ public class ReportHelper : IReportHelper
             GetLLMAsync,
             _storageOptions.GetUploadPath(),
             viewOnWebOnly,
-            isPreview);
+            isPreview,
+            aiWait);
 
         return new ReportResultModel() { ReportId = report.Id, InstanceId = reportInstance?.Id, Subject = subject, Body = body };
     }

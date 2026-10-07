@@ -267,5 +267,26 @@ public class ReportInstanceController : ControllerBase
 
         return new JsonResult(new ReportInstanceModel(instance, _serializerOptions));
     }
+
+    /// <summary>
+    /// Notify the user that the report instance's AI sections are ready, so an open preview refreshes.
+    /// </summary>
+    /// <param name="id">The report instance id.</param>
+    /// <param name="userId">The user who requested the preview.</param>
+    /// <returns></returns>
+    [HttpPost("{id}/ai-sections/ready/{userId}")]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public async Task<IActionResult> AISectionsReadyAsync(long id, int userId)
+    {
+        var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException();
+        var user = _userService.FindById(userId) ?? throw new NoContentException();
+        await _kafkaMessenger.SendMessageAsync(
+            _kafkaHubOptions.HubTopic,
+            new KafkaHubMessage(HubEvent.SendUser, user.Username, new KafkaInvocationMessage(MessageTarget.ReportStatus, new[] { new ReportMessageModel(instance) { Message = "ai-sections" } }))
+        );
+        return Ok();
+    }
     #endregion
 }

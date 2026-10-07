@@ -68,6 +68,11 @@ export const useApiEditorContents = (
         topics,
       );
     },
+    resetContentTopicScore: (id: number, topicId: number) => {
+      return api.put<never, AxiosResponse<IContentTopicModel[]>, any>(
+        `/editor/contents/${id}/topics/${topicId}/reset`,
+      );
+    },
     deleteContent: (content: IContentModel) => {
       return api.delete<IContentModel, AxiosResponse<IContentModel>, any>(
         `/editor/contents/${content.id}`,

@@ -8,3 +8,4 @@ docker exec -i tno-broker bash -c "/bin/kafka-topics --delete --topic transcribe
 docker exec -i tno-broker bash -c "/bin/kafka-topics --delete --topic request-clips --bootstrap-server $bootstrap"
 docker exec -i tno-broker bash -c "/bin/kafka-topics --delete --topic ffmpeg --bootstrap-server $bootstrap"
 docker exec -i tno-broker bash -c "/bin/kafka-topics --delete --topic event-schedule --bootstrap-server $bootstrap"
+docker exec -i tno-broker bash -c "/bin/kafka-topics --delete --topic analysis --bootstrap-server $bootstrap"

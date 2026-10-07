@@ -4,12 +4,12 @@ import styled from 'styled-components';
 import { IRefreshButtonProps } from '../RefreshButton';
 
 export const RefreshButton = styled(Action)<IRefreshButtonProps>`
-  svg {
+  &:not([disabled]) svg {
     color: #04814d;
     &:hover {
       transform: rotate(-90deg);
     }
-    &:active:not([disabled]) * {
+    &:active * {
       color: #26e194;
     }
   }

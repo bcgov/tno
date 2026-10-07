@@ -1,1 +1,1 @@
-export * from './TopicScoreRuleList';
+export * from './TopicScoreAdmin';

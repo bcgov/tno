@@ -15,7 +15,7 @@ metadata:
     managed-by: kustomize
 data:
   KAFKA_CLIENT_ID: Automation
-  MAX_FAIL_LIMIT: "5"
+  MAX_FAILURE_LIMIT: "5"
   # Kafka topic the service consumes automation run requests from.
   TOPICS: automation
   TIME_ZONE: Pacific Standard Time

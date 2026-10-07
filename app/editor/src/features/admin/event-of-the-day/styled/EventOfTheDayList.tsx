@@ -49,6 +49,11 @@ export const EventOfTheDayList = styled.div`
   div.col-3 > div {
     width: 100%;
   }
+  .reset-score {
+    padding: 0 0.25rem;
+    min-height: auto;
+  }
+
   .score-select {
     width: 10ch;
   }

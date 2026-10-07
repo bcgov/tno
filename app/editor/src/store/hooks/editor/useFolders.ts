@@ -3,7 +3,10 @@ import { useAjaxWrapper } from 'store/hooks';
 import { type IFolderContentModel, useApiEditorFolders } from 'tno-core';
 
 interface IFolderController {
-  getContentInFolder: (id: number, includeMaxTopicScore: boolean) => Promise<IFolderContentModel[]>;
+  getContentInFolder: (
+    id: number,
+    includeCalculatedTopicScore: boolean,
+  ) => Promise<IFolderContentModel[]>;
 }
 
 export const useFolders = (): IFolderController => {
@@ -12,10 +15,10 @@ export const useFolders = (): IFolderController => {
 
   const controller = React.useMemo(
     () => ({
-      getContentInFolder: async (id: number, includeMaxTopicScore: boolean = false) => {
+      getContentInFolder: async (id: number, includeCalculatedTopicScore: boolean = false) => {
         const response = await dispatch<IFolderContentModel[]>(
           'get-folder-content',
-          async () => await api.getContentInFolder(id, includeMaxTopicScore),
+          async () => await api.getContentInFolder(id, includeCalculatedTopicScore),
         );
         return response.data;
       },

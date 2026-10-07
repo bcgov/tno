@@ -243,6 +243,16 @@ public class ContentModel : AuditColumnsModel
     /// get/set - An array of quotes.
     /// </summary>
     public IEnumerable<QuoteModel> Quotes { get; set; } = Array.Empty<QuoteModel>();
+
+    /// <summary>
+    /// get/set - Incremented with every index request; the version of the content's search documents.
+    /// </summary>
+    public long ProjectionRevision { get; set; }
+
+    /// <summary>
+    /// get/set - The content's current analysis, when it has one.
+    /// </summary>
+    public ContentAnalysisSummaryModel? Analysis { get; set; }
     #endregion
 
     #region Constructors
@@ -299,6 +309,7 @@ public class ContentModel : AuditColumnsModel
         this.Quotes = entity.Quotes.Select(e => new QuoteModel(e));
         this.UserNotifications = entity.UserNotifications.Select(un => new UserContentNotificationModel(un));
         this.Versions = entity.Versions;
+        this.ProjectionRevision = entity.ProjectionRevision;
     }
     #endregion
 
@@ -357,6 +368,25 @@ public class ContentModel : AuditColumnsModel
         content.MediaType = this.MediaType != null ? (Entities.MediaType)this.MediaType : null;
         content.Contributor = this.Contributor != null ? (Entities.Contributor)this.Contributor : null;
         return content;
+    }
+    #endregion
+
+    #region Methods
+    /// <summary>
+    /// The document for the published index. An audio/video transcript that has not been approved
+    /// is never published, nor is the analysis read from it; every writer of the published index
+    /// applies this same rule.
+    /// </summary>
+    /// <returns>A copy with the body and analysis removed when they must not be published.</returns>
+    public ContentModel ToPublishedDocument()
+    {
+        var document = (ContentModel)this.MemberwiseClone();
+        if (!document.IsApproved && document.ContentType == TNO.Entities.ContentType.AudioVideo)
+        {
+            document.Body = "";
+            document.Analysis = null;
+        }
+        return document;
     }
     #endregion
 }

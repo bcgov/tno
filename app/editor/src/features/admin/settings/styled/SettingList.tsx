@@ -7,6 +7,17 @@ export const SettingList = styled.div`
   display: flex;
   justify-content: center;
 
+  .history-retention {
+    margin: 0.5rem 0 1rem 0;
+    padding: 0.5rem;
+    border: 1px solid ${(props) => props.theme.css.lightVariantColor};
+    border-radius: 0.25rem;
+
+    .purge-counts {
+      margin-top: 0.5rem;
+    }
+  }
+
   .filter-bar {
     display: flex;
     align-items: center;

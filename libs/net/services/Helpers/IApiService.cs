@@ -207,8 +207,9 @@ public interface IApiService
     /// <param name="content"></param>
     /// <param name="index">Be careful this can result in a indexing loop.</param>
     /// <param name="requestorId">The user ID who is requesting the update.</param>
+    /// <param name="owner">Who set the editorial values ('automation'); a person when empty.</param>
     /// <returns></returns>
-    public Task<API.Areas.Services.Models.Content.ContentModel?> UpdateContentAsync(API.Areas.Services.Models.Content.ContentModel content, bool index = false, int? requestorId = null);
+    public Task<API.Areas.Services.Models.Content.ContentModel?> UpdateContentAsync(API.Areas.Services.Models.Content.ContentModel content, bool index = false, int? requestorId = null, string? owner = null);
 
     /// <summary>
     /// Make a request to the API to update the content status for the specified ContentModel.
@@ -451,8 +452,9 @@ public interface IApiService
     /// <param name="reportId"></param>
     /// <param name="ownerId"></param>
     /// <param name="qty"></param>
+    /// <param name="instanceId">Only include instances older than this instance.</param>
     /// <returns></returns>
-    Task<API.Areas.Services.Models.Report.ReportInstanceModel[]> GetPreviousReportInstancesAsync(int reportId, int? ownerId, int qty);
+    Task<API.Areas.Services.Models.Report.ReportInstanceModel[]> GetPreviousReportInstancesAsync(int reportId, int? ownerId, int qty, long? instanceId = null);
 
     /// <summary>
     /// Get the LLM for the specified 'id'.
@@ -540,6 +542,14 @@ public interface IApiService
     /// <param name="status"></param>
     /// <returns></returns>
     Task<API.Areas.Services.Models.ReportInstance.ReportInstanceModel?> UpdateReportInstanceAsync(long instanceId, Entities.ReportStatus status);
+
+    /// <summary>
+    /// Notify the user that the report instance's AI sections are ready.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    Task NotifyReportAISectionsReadyAsync(long instanceId, int userId);
 
     /// <summary>
     /// Update the status of the specified report instance.
@@ -643,6 +653,88 @@ public interface IApiService
     /// <param name="id"></param>
     /// <returns></returns>
     Task<HttpResponseMessage> RemoveContentFromFolder(int id);
+
+    /// <summary>
+    /// Purge report history older than the configured retention.
+    /// </summary>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.History.HistoryPurgeModel?> PurgeReportHistoryAsync();
+
+    /// <summary>
+    /// Purge notification history older than the configured retention.
+    /// </summary>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.History.HistoryPurgeModel?> PurgeNotificationHistoryAsync();
+
+    /// <summary>
+    /// Find the stored AI section result for the specified manifest hash.
+    /// </summary>
+    /// <param name="hash"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.ReportAIResult.ReportAIResultModel?> FindReportAIResultAsync(string hash);
+
+    /// <summary>
+    /// Claim the right to generate an AI section result.
+    /// </summary>
+    /// <param name="claim"></param>
+    /// <returns>The claimed result, or null when another generator holds it or it is complete.</returns>
+    Task<API.Areas.Services.Models.ReportAIResult.ReportAIResultModel?> ClaimReportAIResultAsync(API.Areas.Services.Models.ReportAIResult.ReportAIResultClaimModel claim);
+
+    /// <summary>
+    /// Record the outcome of a claimed AI section result.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="completion"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.ReportAIResult.ReportAIResultModel?> CompleteReportAIResultAsync(long id, API.Areas.Services.Models.ReportAIResult.ReportAIResultCompletionModel completion);
+
+    /// <summary>
+    /// Find the approved analysis evidence for the specified content, for report synthesis.
+    /// </summary>
+    /// <param name="contentIds"></param>
+    /// <returns></returns>
+    Task<IEnumerable<API.Areas.Services.Models.Content.ContentEvidenceModel>> FindReportEvidenceAsync(IEnumerable<long> contentIds);
+
+    /// <summary>
+    /// Get the Content-Analysis runtime settings (mode and LLM).
+    /// </summary>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.ContentAnalysis.ContentAnalysisSettingsModel?> GetContentAnalysisSettingsAsync();
+
+    /// <summary>
+    /// Claim due analysis jobs.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    Task<IEnumerable<API.Areas.Services.Models.ContentAnalysis.AnalysisJobModel>?> ClaimAnalysisJobsAsync(API.Areas.Services.Models.ContentAnalysis.AnalysisClaimRequestModel request);
+
+    /// <summary>
+    /// Extend an analysis claim's lease.
+    /// </summary>
+    /// <param name="lease"></param>
+    /// <returns>The job, or null when the claim is no longer valid.</returns>
+    Task<API.Areas.Services.Models.ContentAnalysis.AnalysisJobModel?> RenewAnalysisLeaseAsync(API.Areas.Services.Models.ContentAnalysis.AnalysisLeaseModel lease);
+
+    /// <summary>
+    /// Get the current input of claimed content.
+    /// </summary>
+    /// <param name="lease"></param>
+    /// <returns>The input, or null when the claim is no longer valid.</returns>
+    Task<API.Areas.Services.Models.ContentAnalysis.AnalysisInputModel?> GetAnalysisInputAsync(API.Areas.Services.Models.ContentAnalysis.AnalysisLeaseModel lease);
+
+    /// <summary>
+    /// Submit an analysis.
+    /// </summary>
+    /// <param name="result"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.ContentAnalysis.AnalysisSubmitResultModel?> SubmitAnalysisAsync(API.Areas.Services.Models.ContentAnalysis.AnalysisResultModel result);
+
+    /// <summary>
+    /// Record a failed analysis attempt.
+    /// </summary>
+    /// <param name="failure"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.ContentAnalysis.AnalysisJobModel?> FailAnalysisAsync(API.Areas.Services.Models.ContentAnalysis.AnalysisFailureModel failure);
 
     /// <summary>
     /// Get all folders with enabled filters

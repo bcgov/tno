@@ -18,14 +18,12 @@ import {
   ITagModel,
   ITonePoolModel,
   ITopicModel,
-  ITopicScoreRuleModel,
   IUserModel,
 } from '.';
 
 export interface ILookupModel {
   actions: IActionModel[];
   topics: ITopicModel[];
-  rules: ITopicScoreRuleModel[];
   mediaTypes: IMediaTypeModel[];
   sources: ISourceModel[];
   licenses: ILicenseModel[];

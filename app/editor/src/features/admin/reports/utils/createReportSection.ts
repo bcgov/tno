@@ -31,6 +31,9 @@ export const createReportSection = (
       sortBy: '',
       sortDirection: '',
       url: '',
+      // New AI sections read the sections chosen for them; existing sections keep the whole report.
+      aiScope: type === ReportSectionTypeName.AI ? 'Sections' : undefined,
+      sourceSections: type === ReportSectionTypeName.AI ? [] : undefined,
     },
   };
 };

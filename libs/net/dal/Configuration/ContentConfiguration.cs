@@ -28,6 +28,11 @@ public class ContentConfiguration : AuditColumnsConfiguration<Content>
         builder.Property(m => m.PublishedOn);
         builder.Property(m => m.IsHidden).IsRequired();
         builder.Property(m => m.IsApproved).IsRequired();
+        // Only the index outbox changes the revision (in SQL); entity saves never write it, so a
+        // model without it cannot reset it.
+        builder.Property(m => m.ProjectionRevision).IsRequired().HasDefaultValue(0L);
+        builder.Property(m => m.ProjectionRevision).Metadata.SetBeforeSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior.Ignore);
+        builder.Property(m => m.ProjectionRevision).Metadata.SetAfterSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior.Ignore);
         builder.Property(m => m.IsPrivate).IsRequired();
         builder.Property(m => m.SourceUrl).IsRequired().HasMaxLength(1000);
         builder.Property(m => m.Headline).IsRequired().HasMaxLength(500);

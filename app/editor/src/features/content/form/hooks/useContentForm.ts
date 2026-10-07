@@ -51,7 +51,7 @@ export const useContentForm = ({
       stream: getStream,
     },
   ] = useContent();
-  const [, { findWorkOrders, transcribe, autoClip, nlp, ffmpeg }] = useWorkOrders();
+  const [, { findWorkOrders, transcribe, autoClip, ffmpeg }] = useWorkOrders();
   const [{ series }, { getSeries }] = useLookupOptions();
   const [{ settings }] = useLookup();
 
@@ -166,7 +166,28 @@ export const useContentForm = ({
   const onContentUpdated = React.useCallback(
     async (message: IContentMessageModel) => {
       if (form.id === message.id) {
-        if (form.version !== message.version) {
+        if (message.reason === 'analysis') {
+          // Analysis only fills fields that were empty, so merge them into the open form (keeping
+          // anything the editor has typed) and take the new version, so the next save does not
+          // conflict.
+          getContent(form.id)
+            .then((values) => {
+              if (!values) return;
+              setForm((form) => ({
+                ...form,
+                version: values.version,
+                summary: form.summary ? form.summary : values.summary,
+                contributorId: form.contributorId ? form.contributorId : values.contributorId ?? '',
+                tags: form.tags.length ? form.tags : values.tags,
+                topics: form.topics.some((t) => !t.isSystem) ? form.topics : values.topics,
+                quotes: [
+                  ...form.quotes,
+                  ...values.quotes.filter((q) => !form.quotes.some((f) => f.id === q.id)),
+                ],
+              }));
+            })
+            .catch(() => {});
+        } else if (form.version !== message.version) {
           try {
             // TODO: Don't overwrite the user's edits.
             fetchContent(message.id);
@@ -392,28 +413,6 @@ export const useContentForm = ({
     [form.workOrders, handleSubmit, autoClip],
   );
 
-  const handleNLP = React.useCallback(
-    async (values: IContentForm, formikHelpers: FormikHelpers<IContentForm>) => {
-      try {
-        // TODO: Only save when required.
-        // Save before submitting request.
-        const content = await handleSubmit(values, formikHelpers);
-        const response = await nlp(toModel(values));
-        setForm({ ...content, workOrders: [response.data, ...form.workOrders] });
-
-        if (response.status === 200) toast.success('An NLP has been requested');
-        else if (response.status === 208) {
-          if (response.data.status === WorkOrderStatusName.Completed) {
-            toast.warn('Content has already been processed by NLP');
-          } else toast.warn('An active request for NLP already exists');
-        }
-      } catch {
-        // Ignore this failure it is handled by our global ajax requests.
-      }
-    },
-    [form.workOrders, handleSubmit, nlp],
-  );
-
   const handleFFmpeg = React.useCallback(
     async (values: IContentForm, formikHelpers: FormikHelpers<IContentForm>) => {
       try {
@@ -457,7 +456,6 @@ export const useContentForm = ({
     handleUnpublish,
     handleTranscribe,
     handleAutoClip,
-    handleNLP,
     handleFFmpeg,
     goToNext,
     file,

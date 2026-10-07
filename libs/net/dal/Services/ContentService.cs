@@ -653,37 +653,50 @@ public class ContentService : BaseService<Content, long>, IContentService
     /// </summary>
     /// <param name="topics">update the current topics with these</param>
     /// <returns></returns>
-    public IEnumerable<ContentTopic> AddOrUpdateContentTopics(long contentId, IEnumerable<ContentTopic> topics)
+    public IEnumerable<ContentTopic> AddOrUpdateContentTopics(long contentId, IEnumerable<ContentTopic> topics, int? calculatedScore)
     {
-        var currentTopics = this.Context.ContentTopics.Where(ca => ca.ContentId == contentId);
+        var incoming = topics.ToArray();
+        var currentTopics = this.Context.ContentTopics.Where(ca => ca.ContentId == contentId).ToArray();
 
         foreach (var topic in currentTopics)
         {
-            var matchingTopic = topics.FirstOrDefault((t) => t.TopicId == topic.TopicId);
+            var matchingTopic = incoming.FirstOrDefault((t) => t.TopicId == topic.TopicId);
             if (matchingTopic == null)
             {
                 // remove any topics no longer associated with the content
                 this.Context.Remove(topic);
+                continue;
             }
-            else if (topic.Score != matchingTopic.Score)
+
+            // Reject a change made against a stale copy of the topic.
+            this.Context.Entry(topic).OriginalValues[nameof(ContentTopic.Version)] = matchingTopic.Version;
+            if (topic.Score == matchingTopic.Score) continue;
+
+            if (calculatedScore.HasValue && matchingTopic.Score == calculatedScore)
             {
-                // update topic score
+                // Choosing the calculated score clears the override; the save recalculates it.
+                topic.IsScoreOverridden = false;
+                topic.Score = matchingTopic.Score;
+            }
+            else
+            {
+                topic.IsScoreOverridden = true;
+                topic.ScoreRuleId = null;
                 topic.Score = matchingTopic.Score;
             }
         }
 
-        foreach (var topic in topics)
+        foreach (var topic in incoming.Where(t => !currentTopics.Any(c => c.TopicId == t.TopicId)))
         {
-            if (!currentTopics.Any((t) => t.TopicId == topic.TopicId))
-            {
-                // add new topics
-                this.Context.Add(topic);
-            }
+            topic.ContentId = contentId;
+            topic.IsScoreOverridden = calculatedScore.HasValue ? topic.Score != calculatedScore : topic.Score > 0;
+            topic.ScoreRuleId = null;
+            this.Context.Add(topic);
         }
 
         this.CommitTransaction();
 
-        return this.Context.ContentTopics.Where(ca => ca.ContentId == contentId);
+        return this.Context.ContentTopics.AsNoTracking().Include(ct => ct.Topic).Where(ca => ca.ContentId == contentId).ToArray();
     }
     #endregion
 }

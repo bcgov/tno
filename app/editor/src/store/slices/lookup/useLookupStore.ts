@@ -21,7 +21,6 @@ import {
   type ITagModel,
   type ITonePoolModel,
   type ITopicModel,
-  type ITopicScoreRuleModel,
   type IUserModel,
 } from 'tno-core';
 
@@ -47,7 +46,6 @@ import {
   storeTags,
   storeTonePools,
   storeTopics,
-  storeTopicScoreRules,
   storeUsers,
   updateCache,
 } from '.';
@@ -59,7 +57,6 @@ export interface ILookupStore {
   updateCache: (cache: ICacheModel) => void;
   storeActions: (actions: IActionModel[]) => void;
   storeTopics: (topics: ITopicModel[]) => void;
-  storeTopicScoreRules: (rules: ITopicScoreRuleModel[]) => void;
   storeMediaTypes: (contentTypes: IMediaTypeModel[]) => void;
   storeSources: (sources: ISourceModel[]) => void;
   storeLicenses: (licenses: ILicenseModel[]) => void;
@@ -100,9 +97,6 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
       },
       storeTopics: (topics: ITopicModel[]) => {
         dispatch(storeTopics(topics));
-      },
-      storeTopicScoreRules: (rules: ITopicScoreRuleModel[]) => {
-        dispatch(storeTopicScoreRules(rules));
       },
       storeMediaTypes: (contentTypes: IMediaTypeModel[]) => {
         dispatch(storeMediaTypes(contentTypes));

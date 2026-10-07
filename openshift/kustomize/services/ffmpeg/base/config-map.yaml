@@ -16,7 +16,7 @@ metadata:
     managed-by: kustomize
 data:
   KAFKA_CLIENT_ID: FFmpeg
-  MAX_FAIL_LIMIT: "5"
+  MAX_FAILURE_LIMIT: "5"
   TOPICS: index
   VOLUME_PATH: /data
   CHES_EMAIL_ENABLED: "true"

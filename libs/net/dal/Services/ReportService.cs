@@ -1027,6 +1027,9 @@ public class ReportService : BaseService<Report, int>, IReportService
     {
         var query = this.Context.ReportInstances
             .AsNoTracking()
+            // A sent report can contain megabytes of HTML. Joining it to every story repeats
+            // that body thousands of times; load the instances and their content separately.
+            .AsSplitQuery()
             .OrderByDescending(i => i.Id)
             .Where(i => i.ReportId == id
                 && i.SentOn != null);
@@ -1068,6 +1071,7 @@ public class ReportService : BaseService<Report, int>, IReportService
         var currentInstance = instanceId.HasValue ?
             this.Context.ReportInstances
                 .AsNoTracking()
+                .AsSplitQuery()
                 .Include(ri => ri.ContentManyToMany)
                     .ThenInclude(c => c.Content)
                 .Where(ri => ri.OwnerId == ownerId)
@@ -1268,6 +1272,7 @@ public class ReportService : BaseService<Report, int>, IReportService
             }
         }
 
+        MarkSystemTopics(searchResults.Values);
         return searchResults;
     }
 
@@ -1464,7 +1469,20 @@ public class ReportService : BaseService<Report, int>, IReportService
             searchResults[section.Name] = content;
         }
 
+        MarkSystemTopics(searchResults.Values);
         return searchResults;
+    }
+
+    /// <summary>
+    /// Mark the system "Not Applicable" topic on search results by its topic ID, so report logic
+    /// never depends on the indexed document carrying the flag.
+    /// </summary>
+    /// <param name="results"></param>
+    private void MarkSystemTopics(IEnumerable<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>> results)
+    {
+        var systemTopicIds = this.Context.Topics.AsNoTracking().Where(t => t.IsSystem).Select(t => t.Id).ToHashSet();
+        foreach (var topic in results.SelectMany(r => r.Hits.Hits).SelectMany(h => h.Source.Topics))
+            topic.IsSystem = systemTopicIds.Contains(topic.Id);
     }
 
     private ISet<string> BuildTitleHistory(IEnumerable<ReportInstance> instances, TimeSpan window, ReportInstance? currentInstance = null)

@@ -22,11 +22,8 @@ scale subscriber 0 deployment $env
 scale nginx-editor 0 deployment $env
 scale nginx-subscriber 0 deployment $env
 scale charts-api 0 deployment $env
-scale corenlp 0 deployment $env
-scale nlp-service 0 deployment $env
 scale ffmpeg-service 0 deployment $env
 scale transcription-service 0 deployment $env
-scale extract-quotes-service 0 deployment $env
 
 # Kafka Consumers
 scale folder-collection-service 0 deployment $env
@@ -47,6 +44,7 @@ scale filemonitor-service 0 deployment $env
 scale syndication-service 0 deployment $env
 scale image-service 0 deployment $env
 scale automation-service 0 deployment $env
+scale content-analysis-service 0 deployment $env
 
 scale api-services 0 deployment $env
 scale api 0 statefulset $env

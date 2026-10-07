@@ -24,6 +24,8 @@ public class ReportInstanceConfiguration : AuditColumnsConfiguration<ReportInsta
         builder.HasMany(m => m.Content).WithMany(m => m.Reports).UsingEntity<ReportInstanceContent>();
 
         builder.HasIndex(m => new { m.PublishedOn, m.CreatedOn }, "IX_report_dates");
+        builder.HasIndex(m => m.SentOn, "IX_report_instance_sent_on");
+        builder.HasIndex(m => m.CreatedOn, "IX_report_instance_created_on");
 
         base.Configure(builder);
     }

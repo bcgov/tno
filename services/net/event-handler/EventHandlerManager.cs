@@ -252,6 +252,23 @@ public class EventHandlerManager : ServiceManager<EventHandlerOptions>
                     return await this.Api.UpdateEventScheduleAsync(eventSchedule, false);
                 });
             }
+            else if (eventSchedule.EventType == Entities.EventScheduleType.PurgeHistory)
+            {
+                // Each purge deletes in batches and returns its counts; one failing does not skip the other.
+                var reports = await this.Api.PurgeReportHistoryAsync();
+                this.Logger.LogInformation("Event schedule purged report history.  Key: {key}, Event ID: {eventId}, retention: {days} day(s), deleted: {counts}",
+                    result.Message.Key, request.EventScheduleId, reports?.RetentionDays, FormatCounts(reports));
+                var notifications = await this.Api.PurgeNotificationHistoryAsync();
+                this.Logger.LogInformation("Event schedule purged notification history.  Key: {key}, Event ID: {eventId}, retention: {days} day(s), deleted: {counts}",
+                    result.Message.Key, request.EventScheduleId, notifications?.RetentionDays, FormatCounts(notifications));
+
+                await this.Api.HandleConcurrencyAsync<API.Areas.Services.Models.EventSchedule.EventScheduleModel?>(async () =>
+                {
+                    eventSchedule = await this.Api.GetEventScheduleAsync(request.EventScheduleId) ?? throw new NoContentException($"Event schedule {eventSchedule.Id}:{eventSchedule.Name} does not exist.");
+                    eventSchedule.LastRanOn = DateTime.UtcNow;
+                    return await this.Api.UpdateEventScheduleAsync(eventSchedule, false);
+                });
+            }
             else
             {
                 this.Logger.LogWarning("Event schedule type not implemented. Key: {key}, Event ID: {eventId}", result.Message.Key, request.EventScheduleId);
@@ -261,6 +278,17 @@ public class EventHandlerManager : ServiceManager<EventHandlerOptions>
         {
             this.Logger.LogError("Event schedule does not exist for this message. Key: {key}, Event ID: {eventId}", result.Message.Key, request.EventScheduleId);
         }
+    }
+
+    /// <summary>
+    /// Format purge counts for the log.
+    /// </summary>
+    /// <param name="result"></param>
+    /// <returns></returns>
+    private static string FormatCounts(API.Areas.Services.Models.History.HistoryPurgeModel? result)
+    {
+        if (result == null || result.Tables.Count == 0) return "none";
+        return String.Join(", ", result.Tables.Select(t => $"{t.Key}={t.Value}"));
     }
     #endregion
 }

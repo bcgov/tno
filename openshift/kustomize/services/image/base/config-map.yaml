@@ -15,7 +15,7 @@ metadata:
     component: image-service
     managed-by: kustomize
 data:
-  MAX_FAIL_LIMIT: "5"
+  MAX_FAILURE_LIMIT: "5"
   VOLUME_PATH: /data
   KEY_PATH: ../keys
   TOPICS: ""

@@ -172,9 +172,7 @@ export portFile=40024
 export portContent=40025
 export portIndexing=40026
 export portTranscription=40027
-export portNlp=40028
 export portAutoClipper=40029
-export portCoreNlp=40038
 export portNotification=40030
 export portReporting=40031
 export portContentMigration=40032
@@ -182,7 +180,6 @@ export portFolderCollection=40033
 export portFFmpeg=40034
 export portScheduler=40035
 export portEventHandler=40036
-export portExtractQuotes=40037
 
 export portKafkaBrokerAdvertisedHost=40101
 export portKafkaBrokerAdvertisedExternal=40102

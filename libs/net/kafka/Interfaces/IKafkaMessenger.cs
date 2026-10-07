@@ -58,14 +58,6 @@ public interface IKafkaMessenger
     /// <param name="topic"></param>
     /// <param name="request"></param>
     /// <returns></returns>
-    public Task<DeliveryResult<string, NlpRequestModel>?> SendMessageAsync(string topic, NlpRequestModel request);
-
-    /// <summary>
-    /// Send a message to Kafka.
-    /// </summary>
-    /// <param name="topic"></param>
-    /// <param name="request"></param>
-    /// <returns></returns>
     public Task<DeliveryResult<string, FileRequestModel>?> SendMessageAsync(string topic, FileRequestModel request);
 
     /// <summary>

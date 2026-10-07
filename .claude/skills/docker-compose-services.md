@@ -21,12 +21,12 @@ the `make-commands` skill for the full rule.
 ## Service Names
 
 - `docker-compose.yml` — `database`, `keycloak`, `elastic`, `api`, `charts`, `editor`,
-  `subscriber`, `nginx`, `ssh`, `corenlp`, `oracle`, `oracleclient`, `autoheal`, `indexer`,
+  `subscriber`, `nginx`, `ssh`, `oracle`, `oracleclient`, `autoheal`, `indexer`,
   `backup-service`
 - `db/kafka/docker-compose.yml` — `broker`, `kowl`
 - `services/docker-compose.yml` — `syndication`, `fileupload`, `image`, `filemonitor`, `content`,
-  `contentmigration`, `indexing`, `transcription`, `auto-clipper`, `nlp`, `notification`,
-  `reporting`, `folder-collection`, `automation`, `extract-quotes`, `ffmpeg`, `scheduler`,
+  `contentmigration`, `indexing`, `transcription`, `auto-clipper`, `notification`,
+  `reporting`, `folder-collection`, `automation`, `content-analysis`, `ffmpeg`, `scheduler`,
   `event-handler`, `elasticsearch-mcp`
 
 Regenerate the list rather than trusting this one to stay current:

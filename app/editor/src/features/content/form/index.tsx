@@ -1,5 +1,6 @@
 export * from './components';
 export * from './ContentActions';
+export * from './ContentAnalysisForm';
 export * from './ContentClipForm';
 export * from './ContentForm';
 export * from './ContentLabelsForm';

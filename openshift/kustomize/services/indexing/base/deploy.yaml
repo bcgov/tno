@@ -154,11 +154,11 @@ spec:
                   key: PUBLISHED_INDEX
 
             # Indexing Service Configuration
-            - name: Service__MaxFailLimit
+            - name: Service__MaxFailureLimit
               valueFrom:
                 configMapKeyRef:
                   name: indexing-service
-                  key: MAX_FAIL_LIMIT
+                  key: MAX_FAILURE_LIMIT
             - name: Service__Topics
               valueFrom:
                 configMapKeyRef:
@@ -212,6 +212,18 @@ spec:
                 secretKeyRef:
                   name: ches
                   key: PASSWORD
+
+            # Index Reliability Configuration
+            - name: Elastic__EvidenceIndex
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service
+                  key: EVIDENCE_INDEX
+            - name: Service__IndexRetryLimit
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service
+                  key: INDEX_RETRY_LIMIT
           livenessProbe:
             httpGet:
               path: "/health"

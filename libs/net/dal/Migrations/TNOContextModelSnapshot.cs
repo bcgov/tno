@@ -567,6 +567,293 @@ namespace TNO.DAL.Migrations
                     b.ToTable("action");
                 });
 
+            modelBuilder.Entity("TNO.Entities.AnalysisBackfill", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("AlreadyCurrent")
+                        .HasColumnType("integer")
+                        .HasColumnName("already_current");
+
+                    b.Property<long>("CheckpointContentId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("checkpoint_content_id");
+
+                    b.Property<DateTime?>("CompletedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_on");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<int>("DateField")
+                        .HasColumnType("integer")
+                        .HasColumnName("date_field");
+
+                    b.Property<DateTime>("EndOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("end_on");
+
+                    b.Property<string>("Error")
+                        .HasColumnType("text")
+                        .HasColumnName("error");
+
+                    b.Property<DateTime>("HighWaterMark")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("high_water_mark");
+
+                    b.Property<int>("Mode")
+                        .HasColumnType("integer")
+                        .HasColumnName("mode");
+
+                    b.Property<int>("Scheduled")
+                        .HasColumnType("integer")
+                        .HasColumnName("scheduled");
+
+                    b.Property<DateTime>("StartOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("start_on");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<string>("TimeZone")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("time_zone");
+
+                    b.Property<int>("Total")
+                        .HasColumnType("integer")
+                        .HasColumnName("total");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex(new[] { "Status", "CreatedOn" }, "IX_analysis_backfill_status");
+
+                    b.ToTable("analysis_backfill");
+                });
+
+            modelBuilder.Entity("TNO.Entities.AnalysisJob", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("integer")
+                        .HasColumnName("attempts");
+
+                    b.Property<long?>("BackfillId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("backfill_id");
+
+                    b.Property<string>("ClaimedBy")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("claimed_by");
+
+                    b.Property<DateTime?>("CompletedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_on");
+
+                    b.Property<long>("ContentId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("content_id");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<DateTime>("DueOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("due_on");
+
+                    b.Property<long>("FencingToken")
+                        .HasColumnType("bigint")
+                        .HasColumnName("fencing_token");
+
+                    b.Property<string>("InputHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("input_hash");
+
+                    b.Property<string>("LastError")
+                        .HasColumnType("text")
+                        .HasColumnName("last_error");
+
+                    b.Property<DateTime?>("LeaseExpiresOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("lease_expires_on");
+
+                    b.Property<DateTime?>("NextAttemptOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("next_attempt_on");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer")
+                        .HasColumnName("priority");
+
+                    b.Property<int>("Reason")
+                        .HasColumnType("integer")
+                        .HasColumnName("reason");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex(new[] { "BackfillId" }, "IX_analysis_job_backfill_id");
+
+                    b.HasIndex(new[] { "ContentId" }, "IX_analysis_job_content_id")
+                        .IsUnique();
+
+                    b.HasIndex(new[] { "Status", "Priority", "DueOn" }, "IX_analysis_job_queue");
+
+                    b.ToTable("analysis_job");
+                });
+
+            modelBuilder.Entity("TNO.Entities.AnalysisTopic", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.PrimitiveCollection<string[]>("Aliases")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("aliases");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("key");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("label");
+
+                    b.Property<int>("RegistryVersion")
+                        .HasColumnType("integer")
+                        .HasColumnName("registry_version");
+
+                    b.Property<int?>("TopicId")
+                        .HasColumnType("integer")
+                        .HasColumnName("topic_id");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TopicId");
+
+                    b.HasIndex(new[] { "Key" }, "IX_analysis_topic_key")
+                        .IsUnique();
+
+                    b.ToTable("analysis_topic");
+                });
+
             modelBuilder.Entity("TNO.Entities.AutomationProfile", b =>
                 {
                     b.Property<int>("Id")
@@ -1334,6 +1621,12 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("posted_on");
 
+                    b.Property<long>("ProjectionRevision")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasDefaultValue(0L)
+                        .HasColumnName("projection_revision");
+
                     b.Property<DateTime?>("PublishedOn")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("published_on");
@@ -1484,6 +1777,243 @@ namespace TNO.DAL.Migrations
                     b.HasIndex("ActionId");
 
                     b.ToTable("content_action");
+                });
+
+            modelBuilder.Entity("TNO.Entities.ContentAnalysis", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int?>("AnalysisTopicId")
+                        .HasColumnType("integer")
+                        .HasColumnName("analysis_topic_id");
+
+                    b.Property<DateTime>("AnalyzedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("analyzed_on");
+
+                    b.Property<int>("CompletionTokens")
+                        .HasColumnType("integer")
+                        .HasColumnName("completion_tokens");
+
+                    b.Property<long>("ContentId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("content_id");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<JsonDocument>("Entities")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("entities");
+
+                    b.Property<JsonDocument>("Events")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("events");
+
+                    b.Property<string>("InputHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("input_hash");
+
+                    b.Property<bool>("IsCurrent")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_current");
+
+                    b.Property<bool>("IsMetadataOnly")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_metadata_only");
+
+                    b.Property<JsonDocument>("KeyFacts")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("key_facts");
+
+                    b.Property<int?>("LLMId")
+                        .HasColumnType("integer")
+                        .HasColumnName("llm_id");
+
+                    b.Property<string>("Model")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("model");
+
+                    b.Property<string>("NormalizationVersion")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("normalization_version");
+
+                    b.Property<JsonDocument>("Places")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("places");
+
+                    b.Property<string>("PrimaryTopic")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("primary_topic");
+
+                    b.Property<int>("PromptTokens")
+                        .HasColumnType("integer")
+                        .HasColumnName("prompt_tokens");
+
+                    b.Property<string>("PromptVersion")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("prompt_version");
+
+                    b.Property<JsonDocument>("Quotes")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("quotes");
+
+                    b.Property<string>("SchemaVersion")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("schema_version");
+
+                    b.Property<string>("SuggestedContributor")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("suggested_contributor");
+
+                    b.Property<JsonDocument>("SuggestedTags")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("suggested_tags");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("summary");
+
+                    b.Property<JsonDocument>("Topics")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("topics");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<JsonDocument>("Validation")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("validation");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AnalysisTopicId");
+
+                    b.HasIndex("LLMId");
+
+                    b.HasIndex(new[] { "ContentId", "IsCurrent" }, "IX_content_analysis_current");
+
+                    b.HasIndex(new[] { "ContentId", "InputHash" }, "IX_content_analysis_input")
+                        .IsUnique();
+
+                    b.ToTable("content_analysis");
+                });
+
+            modelBuilder.Entity("TNO.Entities.ContentFieldOwnership", b =>
+                {
+                    b.Property<long>("ContentId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("content_id");
+
+                    b.Property<string>("Field")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("field");
+
+                    b.Property<string>("ValueKey")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("value_key");
+
+                    b.Property<long?>("AnalysisId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("analysis_id");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<bool>("IsCleared")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_cleared");
+
+                    b.Property<int>("Owner")
+                        .HasColumnType("integer")
+                        .HasColumnName("owner");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("ContentId", "Field", "ValueKey");
+
+                    b.HasIndex("AnalysisId");
+
+                    b.ToTable("content_field_ownership");
                 });
 
             modelBuilder.Entity("TNO.Entities.ContentLabel", b =>
@@ -1861,9 +2391,19 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("created_on")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
+                    b.Property<bool>("IsScoreOverridden")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_score_overridden");
+
                     b.Property<int>("Score")
                         .HasColumnType("integer")
                         .HasColumnName("score");
+
+                    b.Property<int?>("ScoreRuleId")
+                        .HasColumnType("integer")
+                        .HasColumnName("score_rule_id");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
@@ -1886,9 +2426,14 @@ namespace TNO.DAL.Migrations
 
                     b.HasKey("ContentId", "TopicId");
 
+                    b.HasIndex("ScoreRuleId");
+
                     b.HasIndex("TopicId");
 
-                    b.ToTable("content_topic");
+                    b.ToTable("content_topic", t =>
+                        {
+                            t.HasCheckConstraint("CK_content_topic_score", "\"score\" >= 0");
+                        });
                 });
 
             modelBuilder.Entity("TNO.Entities.ContentTypeAction", b =>
@@ -2955,6 +3500,10 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("api_key");
 
+                    b.Property<int?>("ContextWindow")
+                        .HasColumnType("integer")
+                        .HasColumnName("context_window");
+
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -2991,6 +3540,10 @@ namespace TNO.DAL.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("is_public");
 
+                    b.Property<int?>("MaxOutputTokens")
+                        .HasColumnType("integer")
+                        .HasColumnName("max_output_tokens");
+
                     b.Property<float?>("MaxTemperature")
                         .HasColumnType("real")
                         .HasColumnName("max_temperature");
@@ -3010,6 +3563,10 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("character varying(1000)")
                         .HasColumnName("project_endpoint");
 
+                    b.Property<int?>("RequestsPerMinute")
+                        .HasColumnType("integer")
+                        .HasColumnName("requests_per_minute");
+
                     b.Property<int>("SortOrder")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
@@ -3020,6 +3577,15 @@ namespace TNO.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("system_prompt");
+
+                    b.Property<string>("TokenEstimation")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("token_estimation");
+
+                    b.Property<int?>("TokensPerMinute")
+                        .HasColumnType("integer")
+                        .HasColumnName("tokens_per_minute");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
@@ -3821,6 +4387,8 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("Status", "SentOn");
 
+                    b.HasIndex(new[] { "SentOn" }, "IX_notification_instance_sent_on");
+
                     b.ToTable("notification_instance");
                 });
 
@@ -4094,6 +4662,10 @@ namespace TNO.DAL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<long?>("AnalysisId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("analysis_id");
+
                     b.Property<string>("Byline")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -4120,6 +4692,20 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_relevant");
 
+                    b.Property<int>("Owner")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("owner");
+
+                    b.Property<int?>("SourceLength")
+                        .HasColumnType("integer")
+                        .HasColumnName("source_length");
+
+                    b.Property<int?>("SourceStart")
+                        .HasColumnType("integer")
+                        .HasColumnName("source_start");
+
                     b.Property<string>("Statement")
                         .IsRequired()
                         .HasColumnType("text")
@@ -4145,6 +4731,8 @@ namespace TNO.DAL.Migrations
                         .HasDefaultValueSql("0");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AnalysisId");
 
                     b.HasIndex("ContentId");
 
@@ -4248,6 +4836,132 @@ namespace TNO.DAL.Migrations
                     b.ToTable("report");
                 });
 
+            modelBuilder.Entity("TNO.Entities.ReportAIResult", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime?>("ClaimExpiresOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("claim_expires_on");
+
+                    b.Property<int>("CompletionTokens")
+                        .HasColumnType("integer")
+                        .HasColumnName("completion_tokens");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("DurationMs")
+                        .HasColumnType("bigint")
+                        .HasColumnName("duration_ms");
+
+                    b.Property<string>("Error")
+                        .HasColumnType("text")
+                        .HasColumnName("error");
+
+                    b.Property<string>("Hash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("hash");
+
+                    b.Property<JsonDocument>("Manifest")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("manifest");
+
+                    b.Property<string>("Output")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("output");
+
+                    b.Property<string>("PipelineVersion")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("pipeline_version");
+
+                    b.Property<int>("PromptTokens")
+                        .HasColumnType("integer")
+                        .HasColumnName("prompt_tokens");
+
+                    b.Property<int>("ReductionDepth")
+                        .HasColumnType("integer")
+                        .HasColumnName("reduction_depth");
+
+                    b.Property<int>("ReportId")
+                        .HasColumnType("integer")
+                        .HasColumnName("report_id");
+
+                    b.Property<long?>("ReportInstanceId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("report_instance_id");
+
+                    b.Property<int>("ReportSectionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("report_section_id");
+
+                    b.Property<int>("RequestCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("request_count");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<int>("StoryCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("story_count");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReportId");
+
+                    b.HasIndex("ReportInstanceId");
+
+                    b.HasIndex("ReportSectionId");
+
+                    b.HasIndex(new[] { "CreatedOn" }, "IX_report_ai_result_created_on");
+
+                    b.HasIndex(new[] { "Hash" }, "IX_report_ai_result_hash")
+                        .IsUnique();
+
+                    b.ToTable("report_ai_result");
+                });
+
             modelBuilder.Entity("TNO.Entities.ReportInstance", b =>
                 {
                     b.Property<long>("Id")
@@ -4332,6 +5046,10 @@ namespace TNO.DAL.Migrations
                     b.HasIndex("ReportId");
 
                     b.HasIndex(new[] { "PublishedOn", "CreatedOn" }, "IX_report_dates");
+
+                    b.HasIndex(new[] { "CreatedOn" }, "IX_report_instance_created_on");
+
+                    b.HasIndex(new[] { "SentOn" }, "IX_report_instance_sent_on");
 
                     b.ToTable("report_instance");
                 });
@@ -5211,6 +5929,10 @@ namespace TNO.DAL.Migrations
                         .HasDefaultValue(0)
                         .HasColumnName("sort_order");
 
+                    b.Property<int?>("TopicDefaultScore")
+                        .HasColumnType("integer")
+                        .HasColumnName("topic_default_score");
+
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -5691,6 +6413,12 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_enabled");
 
+                    b.Property<bool>("IsSystem")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_system");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -5734,6 +6462,98 @@ namespace TNO.DAL.Migrations
                         .IsUnique();
 
                     b.ToTable("topic");
+                });
+
+            modelBuilder.Entity("TNO.Entities.TopicRescoreJob", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("Changed")
+                        .HasColumnType("integer")
+                        .HasColumnName("changed");
+
+                    b.Property<DateTime?>("CompletedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_on");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<DateTime>("EndOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("end_on");
+
+                    b.Property<string>("Error")
+                        .HasColumnType("text")
+                        .HasColumnName("error");
+
+                    b.Property<int>("Failed")
+                        .HasColumnType("integer")
+                        .HasColumnName("failed");
+
+                    b.Property<int>("Processed")
+                        .HasColumnType("integer")
+                        .HasColumnName("processed");
+
+                    b.PrimitiveCollection<int[]>("SourceIds")
+                        .IsRequired()
+                        .HasColumnType("integer[]")
+                        .HasColumnName("source_ids");
+
+                    b.Property<DateTime>("StartOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("start_on");
+
+                    b.Property<DateTime?>("StartedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("started_on");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<int>("Total")
+                        .HasColumnType("integer")
+                        .HasColumnName("total");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex(new[] { "Status", "CreatedOn" }, "IX_topic_rescore_job_status");
+
+                    b.ToTable("topic_rescore_job");
                 });
 
             modelBuilder.Entity("TNO.Entities.TopicScoreRule", b =>
@@ -6932,6 +7752,34 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Section");
                 });
 
+            modelBuilder.Entity("TNO.Entities.AnalysisJob", b =>
+                {
+                    b.HasOne("TNO.Entities.AnalysisBackfill", "Backfill")
+                        .WithMany()
+                        .HasForeignKey("BackfillId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("TNO.Entities.Content", "Content")
+                        .WithMany()
+                        .HasForeignKey("ContentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Backfill");
+
+                    b.Navigation("Content");
+                });
+
+            modelBuilder.Entity("TNO.Entities.AnalysisTopic", b =>
+                {
+                    b.HasOne("TNO.Entities.Topic", "Topic")
+                        .WithMany()
+                        .HasForeignKey("TopicId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Topic");
+                });
+
             modelBuilder.Entity("TNO.Entities.AutomationProfile", b =>
                 {
                     b.HasOne("TNO.Entities.LLM", "LLM")
@@ -7034,6 +7882,45 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Content");
                 });
 
+            modelBuilder.Entity("TNO.Entities.ContentAnalysis", b =>
+                {
+                    b.HasOne("TNO.Entities.AnalysisTopic", "AnalysisTopic")
+                        .WithMany()
+                        .HasForeignKey("AnalysisTopicId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("TNO.Entities.Content", "Content")
+                        .WithMany()
+                        .HasForeignKey("ContentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TNO.Entities.LLM", null)
+                        .WithMany()
+                        .HasForeignKey("LLMId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("AnalysisTopic");
+
+                    b.Navigation("Content");
+                });
+
+            modelBuilder.Entity("TNO.Entities.ContentFieldOwnership", b =>
+                {
+                    b.HasOne("TNO.Entities.ContentAnalysis", null)
+                        .WithMany()
+                        .HasForeignKey("AnalysisId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("TNO.Entities.Content", "Content")
+                        .WithMany()
+                        .HasForeignKey("ContentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Content");
+                });
+
             modelBuilder.Entity("TNO.Entities.ContentLabel", b =>
                 {
                     b.HasOne("TNO.Entities.Content", "Content")
@@ -7121,6 +8008,11 @@ namespace TNO.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("TNO.Entities.TopicScoreRule", "ScoreRule")
+                        .WithMany()
+                        .HasForeignKey("ScoreRuleId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("TNO.Entities.Topic", "Topic")
                         .WithMany("ContentsManyToMany")
                         .HasForeignKey("TopicId")
@@ -7128,6 +8020,8 @@ namespace TNO.DAL.Migrations
                         .IsRequired();
 
                     b.Navigation("Content");
+
+                    b.Navigation("ScoreRule");
 
                     b.Navigation("Topic");
                 });
@@ -7440,6 +8334,11 @@ namespace TNO.DAL.Migrations
 
             modelBuilder.Entity("TNO.Entities.Quote", b =>
                 {
+                    b.HasOne("TNO.Entities.ContentAnalysis", null)
+                        .WithMany()
+                        .HasForeignKey("AnalysisId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("TNO.Entities.Content", "Content")
                         .WithMany("Quotes")
                         .HasForeignKey("ContentId")
@@ -7465,6 +8364,32 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Owner");
 
                     b.Navigation("Template");
+                });
+
+            modelBuilder.Entity("TNO.Entities.ReportAIResult", b =>
+                {
+                    b.HasOne("TNO.Entities.Report", "Report")
+                        .WithMany()
+                        .HasForeignKey("ReportId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TNO.Entities.ReportInstance", "ReportInstance")
+                        .WithMany()
+                        .HasForeignKey("ReportInstanceId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TNO.Entities.ReportSection", "ReportSection")
+                        .WithMany()
+                        .HasForeignKey("ReportSectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Report");
+
+                    b.Navigation("ReportInstance");
+
+                    b.Navigation("ReportSection");
                 });
 
             modelBuilder.Entity("TNO.Entities.ReportInstance", b =>

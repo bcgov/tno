@@ -3,6 +3,8 @@ import React from 'react';
 import { FaRegClipboard } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import {
+  Button,
+  ButtonVariant,
   CellDate,
   CellEllipsis,
   type IContentTopicModel,
@@ -16,9 +18,6 @@ import {
   Spinner,
 } from 'tno-core';
 
-// item with id of 1 is the magic [Not Applicable] topic
-const topicIdNotApplicable = 1;
-
 const maxTopicScore: number = 200;
 // create an array with values 0-maxScore
 const possibleScores = Array.from(Array(maxTopicScore + 1).keys()).map(
@@ -28,70 +27,71 @@ const possibleScores = Array.from(Array(maxTopicScore + 1).keys()).map(
 export const useColumns = (
   topics: ITopicModel[],
   handleSubmit: (values: IFolderContentModel) => Promise<void>,
+  handleReset: (values: IFolderContentModel, topic: IContentTopicModel) => Promise<void>,
 ): Array<ITableHookColumn<IFolderContentModel>> => {
   const [isContentUpdating, setIsContentUpdating] = React.useState<number[]>([]);
+
+  // The system [Not Applicable] topic is identified by its flag, not by its id or name.
+  const topicIdNotApplicable = topics.find((t) => t.isSystem)?.id;
+
   const toggleContentUpdatingStatus = (contentId: number) => {
-    setIsContentUpdating((state) => {
-      let returnVal: number[];
-      if (state.findIndex((el: number) => el === contentId) > -1) {
-        returnVal = state.filter((el) => el !== contentId);
-      } else {
-        returnVal = [...state, contentId];
-      }
-      return returnVal;
-    });
+    setIsContentUpdating((state) =>
+      state.includes(contentId) ? state.filter((el) => el !== contentId) : [...state, contentId],
+    );
   };
-  const isRowContentUpdating = (contentId: number) => {
-    return isContentUpdating.findIndex((el: number) => el === contentId) > -1;
+  const isRowContentUpdating = (contentId: number) => isContentUpdating.includes(contentId);
+
+  /** Submit a copy of the row with the specified topics, never mutating the table data. */
+  const submitTopics = async (
+    cell: ITableInternalCell<IFolderContentModel>,
+    topics: IContentTopicModel[],
+  ) => {
+    if (!cell.original.content) return;
+    const updatedFolderContent: IFolderContentModel = {
+      ...cell.original,
+      content: { ...cell.original.content, topics },
+    };
+    toggleContentUpdatingStatus(cell.original.contentId);
+    try {
+      await handleSubmit(updatedFolderContent);
+    } finally {
+      toggleContentUpdatingStatus(cell.original.contentId);
+    }
   };
 
   const handleTopicChange = async (
-    topic: ITopicModel,
+    topic: ITopicModel | undefined,
     cell: ITableInternalCell<IFolderContentModel>,
   ) => {
-    if (
-      cell.original.content &&
-      ((topic && cell.original.content.topics.length === 0) ||
-        (!topic && cell.original.content.topics.length > 0) ||
-        topic?.id !== cell.original.content?.topics[0].id)
-    ) {
-      const updatedFolderContent = {
-        ...cell.original,
-      } as IFolderContentModel;
-      updatedFolderContent.content!.topics = [
-        {
-          ...(topic as IContentTopicModel),
-          // if the original topic was "Not Applicable", it may be because no topic was set
-          // this logic below avoids a reference to an empty array
-          score:
-            topic.id === topicIdNotApplicable
-              ? 0
-              : cell.original.content.topics.length === 0
-              ? 0
-              : cell.original.content.topics[0].score,
-        },
-      ];
-      toggleContentUpdatingStatus(cell.original.contentId);
-      await handleSubmit(updatedFolderContent).then(() => {
-        toggleContentUpdatingStatus(cell.original.contentId);
-      });
-    }
+    const current = cell.original.content?.topics[0];
+    if (!cell.original.content || !topic || topic.id === current?.id) return;
+
+    // An editor's chosen score follows the story to its new topic; otherwise the new topic takes
+    // the calculated score, which the API stores as calculated rather than as an override.
+    const score = current?.isScoreOverridden
+      ? current.score
+      : cell.original.calculatedTopicScore ?? current?.score ?? 0;
+    await submitTopics(cell, [{ ...(topic as IContentTopicModel), score }]);
   };
 
   const handleScoreChange = async (
     newValue: any,
     cell: ITableInternalCell<IFolderContentModel>,
   ) => {
-    if (cell.original.content) {
-      const newScore = (newValue as OptionItem).value;
-      const updatedFolderContent = {
-        ...cell.original,
-      } as IFolderContentModel;
-      updatedFolderContent.content!.topics[0].score = newScore ? +newScore : 0;
+    const current = cell.original.content?.topics[0];
+    if (!current) return;
+    const newScore = (newValue as OptionItem).value;
+    await submitTopics(cell, [{ ...current, score: newScore ? +newScore : 0 }]);
+  };
+
+  const handleResetScore = async (cell: ITableInternalCell<IFolderContentModel>) => {
+    const current = cell.original.content?.topics[0];
+    if (!current) return;
+    toggleContentUpdatingStatus(cell.original.contentId);
+    try {
+      await handleReset(cell.original, current);
+    } finally {
       toggleContentUpdatingStatus(cell.original.contentId);
-      await handleSubmit(updatedFolderContent).then(() => {
-        toggleContentUpdatingStatus(cell.original.contentId);
-      });
     }
   };
 
@@ -170,13 +170,9 @@ export const useColumns = (
               (isRowContentUpdating(cell.original.contentId) ? 'lock-control' : '')
             }
             filteredTopics={topics}
-            value={
-              cell.original.content!.topics.length > 0
-                ? cell.original.content!.topics[0].id
-                : topicIdNotApplicable
-            }
-            handleTopicChange={async (e: any) => {
-              await handleTopicChange(e, cell);
+            value={cell.original.content!.topics[0]?.id ?? topicIdNotApplicable}
+            handleTopicChange={async (topic) => {
+              await handleTopicChange(topic, cell);
             }}
           />
         );
@@ -185,16 +181,18 @@ export const useColumns = (
     {
       label: 'Score',
       accessor: 'name',
-      width: 0.6,
+      width: 0.8,
       cell: (cell) => {
+        const topic = cell.original.content!.topics[0];
+        const calculated = cell.original.calculatedTopicScore;
         return (
           <>
             <Select
               name="score"
               isDisabled={
                 isRowContentUpdating(cell.original.contentId) ||
-                (cell.original.content!.topics.length > 0 &&
-                  cell.original.content!.topics[0].id === topicIdNotApplicable)
+                !topic ||
+                topic.id === topicIdNotApplicable
               }
               isClearable={false}
               clearValue={''}
@@ -203,36 +201,40 @@ export const useColumns = (
                 (isRowContentUpdating(cell.original.contentId) ? 'lock-control' : '')
               }
               options={possibleScores.filter(
-                // remove this filter if the editor needs to be able to override to any value they want
-                (s) => s.value <= (cell.original.maxTopicScore ?? maxTopicScore),
+                // An editor can choose any score up to the calculated one.
+                (s) => s.value <= (calculated ?? maxTopicScore),
               )}
-              value={possibleScores?.find(
-                (o) =>
-                  o.value ===
-                  (cell.original.content!.topics.length > 0
-                    ? cell.original.content!.topics[0].score
-                    : 0),
-              )}
+              value={possibleScores.find((o) => o.value === (topic?.score ?? 0))}
               onChange={(newValue) => {
                 handleScoreChange(newValue, cell);
               }}
             />
             <div className="maxScore">
               &nbsp;&le;&nbsp;
-              <Show visible={cell.original.maxTopicScore !== undefined}>
-                <dfn
-                  title="max score as calculated by matched rule"
-                  className="score-max-hint-text"
-                >
-                  {cell.original.maxTopicScore}
-                </dfn>
-              </Show>
-              <Show visible={cell.original.maxTopicScore === undefined}>
-                <dfn title="no rule match" className="score-max-no-rule-match">
-                  {maxTopicScore}
-                </dfn>
-              </Show>
+              <dfn
+                title={
+                  calculated !== undefined
+                    ? 'score calculated by the topic score rules'
+                    : 'not scored by the topic score rules'
+                }
+                className={
+                  calculated !== undefined ? 'score-max-hint-text' : 'score-max-no-rule-match'
+                }
+              >
+                {calculated ?? maxTopicScore}
+              </dfn>
             </div>
+            <Show visible={!!topic?.isScoreOverridden}>
+              <Button
+                variant={ButtonVariant.link}
+                className="reset-score"
+                title="Clear the override and use the calculated score"
+                disabled={isRowContentUpdating(cell.original.contentId)}
+                onClick={() => handleResetScore(cell)}
+              >
+                Reset
+              </Button>
+            </Show>
           </>
         );
       },

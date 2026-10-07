@@ -4,12 +4,12 @@ kind: Kustomization
 
 resources:
   - automation.yaml
+  - content-analysis.yaml
   - content.yaml
   - contentmigration.yaml
   - filemonitor.yaml
   - image.yaml
   - indexing.yaml
-  - nlp.yaml
   - syndication.yaml
   - transcription.yaml
   - folder-collection.yaml

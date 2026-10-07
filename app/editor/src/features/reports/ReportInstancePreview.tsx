@@ -1,16 +1,20 @@
 import React from 'react';
 import { FaPaperPlane } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
-import { useApp, useReportInstances, useReports, useSettings } from 'store/hooks';
+import { useApiHub, useApp, useReportInstances, useReports, useSettings } from 'store/hooks';
 import { useUsers } from 'store/hooks/admin';
 import {
+  AISectionStatusName,
   Button,
   ButtonVariant,
   Col,
   getDistinct,
+  type IReportMessageModel,
   type IReportModel,
   type IReportResultModel,
   Loading,
+  MessageTargetKey,
+  ReportPreviewStatus,
   Show,
   UserAccountTypeName,
 } from 'tno-core';
@@ -32,9 +36,15 @@ const ReportInstancePreview: React.FC = () => {
 
   console.error('ReportInstancePreview ');
 
+  const hub = useApiHub();
+  const isRequesting = React.useRef(false);
+
   const handlePreviewReport = React.useCallback(
     async (instanceId: number) => {
+      // Only one preview request runs at a time.
+      if (isRequesting.current) return;
       try {
+        isRequesting.current = true;
         setIsLoading(true);
         const response = await viewReportInstance(instanceId);
         const report = await getReport(response.reportId);
@@ -42,11 +52,33 @@ const ReportInstancePreview: React.FC = () => {
         setReport(report);
       } catch {
       } finally {
+        isRequesting.current = false;
         setIsLoading(false);
       }
     },
     [getReport, viewReportInstance],
   );
+
+  // AI sections are generated in the background; refresh the preview when they are ready.
+  hub.useHubEffect(MessageTargetKey.ReportStatus, async (message: IReportMessageModel) => {
+    if (message.message === 'ai-sections' && message.id === instanceId) {
+      await handlePreviewReport(instanceId);
+    }
+  });
+
+  // A generator that stops without finishing is caught when its claim lapses.
+  const expiresOn = view?.aiSections
+    ?.filter((s) => s.status === AISectionStatusName.Generating && s.expiresOn)
+    .map((s) => new Date(s.expiresOn!).getTime())
+    .sort()[0];
+  React.useEffect(() => {
+    if (!expiresOn) return;
+    const timer = setTimeout(
+      () => handlePreviewReport(instanceId),
+      Math.max(0, expiresOn - Date.now()) + 5000,
+    );
+    return () => clearTimeout(timer);
+  }, [expiresOn, handlePreviewReport, instanceId]);
 
   const prepareEmail = React.useCallback(
     async (to: string, report: IReportModel, email: IReportResultModel) => {
@@ -93,10 +125,15 @@ const ReportInstancePreview: React.FC = () => {
 
   return (
     <styled.ReportPreview>
-      <Show visible={isLoading}>
+      <Show visible={isLoading && !view}>
         <Loading />
       </Show>
-      <Show visible={!isLoading}>
+      <ReportPreviewStatus
+        className="preview-status"
+        isRequesting={isLoading}
+        sections={view?.aiSections}
+      />
+      <Show visible={!!view}>
         <Col className="preview-report">
           <div className="preview-subject">
             <div dangerouslySetInnerHTML={{ __html: view?.subject ?? '' }}></div>

@@ -27,6 +27,11 @@ public class ContentTopicModel
     /// get/set - The type of topic (issue, proactive).
     /// </summary>
     public TopicType TopicType { get; set; }
+
+    /// <summary>
+    /// get/set - Whether the topic is the system "Not Applicable" topic.
+    /// </summary>
+    public bool IsSystem { get; set; }
     #endregion
 
     #region Constructors
@@ -44,6 +49,7 @@ public class ContentTopicModel
         this.Id = entity.TopicId;
         this.Name = entity.Topic?.Name ?? "";
         this.TopicType = entity.Topic?.TopicType ?? TopicType.Issues;
+        this.IsSystem = entity.Topic?.IsSystem ?? false;
         this.Score = entity.Score;
     }
 
@@ -56,6 +62,7 @@ public class ContentTopicModel
         this.Id = model.Id;
         this.Name = model.Name ?? "";
         this.TopicType = model.TopicType;
+        this.IsSystem = model.IsSystem;
         this.Score = model.Score;
     }
     #endregion

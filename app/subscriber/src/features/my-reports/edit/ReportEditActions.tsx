@@ -12,9 +12,9 @@ import {
   FaTrash,
 } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
-import { useReportInstances } from 'store/hooks';
+import { useApp, useReportInstances } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Col, ReportStatusName, Show, useModal } from 'tno-core';
+import { Col, isAISectionPending, ReportStatusName, Show, useModal } from 'tno-core';
 
 import {
   ReportContentMenuOption,
@@ -51,13 +51,18 @@ export const ReportEditActions = ({
   const { values, isSubmitting, submitForm, setValues, active, setSubmitting } =
     useReportEditContext();
   const [{ viewReportInstance }] = useReportInstances();
-  const [, { storeReportOutput }] = useProfileStore();
+  const [{ reportOutput }, { storeReportOutput }] = useProfileStore();
+  const [{ requests }] = useApp();
   const navigate = useNavigate();
   const { toggle: toggleRemove, isShowing: isShowingRemove } = useModal();
 
   const [clearContent, setClearContent] = React.useState(false);
 
   const instance = values.instances.length ? values.instances[0] : undefined;
+  // Only one preview request runs at a time, including AI sections still being generated for it.
+  const isPreviewing =
+    requests.some((r) => r.group.includes('view-report')) ||
+    (reportOutput?.instanceId === instance?.id && isAISectionPending(reportOutput?.aiSections));
 
   const handleRemoveContent = React.useCallback(() => {
     setSubmitting(true);
@@ -118,7 +123,9 @@ export const ReportEditActions = ({
           <RefreshButton
             icon={<FaArrowsRotate />}
             label="Refresh Preview"
-            onClick={() => instance && handleViewReport(instance.id, true)}
+            disabled={isPreviewing}
+            title={isPreviewing ? 'The preview is being generated' : 'Refresh the preview'}
+            onClick={() => !isPreviewing && instance && handleViewReport(instance.id, true)}
           />
         </Col>
       </Show>

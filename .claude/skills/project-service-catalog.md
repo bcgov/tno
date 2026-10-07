@@ -22,11 +22,10 @@
 - `indexing`: search indexing worker. Run `make up n=indexing`; build `dotnet build services/net/indexing/`; depends on `api`, `broker`, `elastic`.
 - `transcription`: speech transcription worker. Run `make up n=transcription`; build `dotnet build services/net/transcription/`; depends on `api`, `broker`, volume `tno-api-data`.
 - `auto-clipper`: clipping + AI/speech flow. Run `make up n=auto-clipper`; build `dotnet build services/net/auto-clipper/`; depends on `api`, `broker`, volume `tno-api-data`.
-- `nlp`: NLP processing worker. Run `make up n=nlp`; build `dotnet build services/net/nlp/`; depends on `api`, `broker`.
 - `notification`: notifications/emails. Run `make up n=notification`; build `dotnet build services/net/notification/`; depends on `api`, `broker`, volume `tno-api-data`.
 - `reporting`: reporting generation worker. Run `make up n=reporting`; build `dotnet build services/net/reporting/`; depends on `api`, `broker`, volume `tno-av-data`.
 - `folder-collection`: folder aggregation/sync tasks. Run `make up n=folder-collection`; build `dotnet build services/net/folder-collection/`; depends on `api`, `broker`.
-- `extract-quotes`: quote extraction worker. Run `make up n=extract-quotes`; build `dotnet build services/net/extract-quotes/`; depends on `api`, `broker`.
+- `content-analysis`: LLM content analysis worker (replaces the retired `extract-quotes` and `nlp` services). Consumes the `analysis` Kafka topic as a wake-up and polls its job table; uses the LLM configured through the API. Run `make up n=content-analysis`; build `dotnet build services/net/content-analysis/TNO.Services.ContentAnalysis.csproj`; depends on `api`, `broker`.
 - `ffmpeg`: media transformation worker. Run `make up n=ffmpeg`; build `dotnet build services/net/ffmpeg/`; depends on `api`, `broker`, volume `tno-api-data`.
 - `scheduler`: scheduled jobs orchestrator. Run `make up n=scheduler`; build `dotnet build services/net/scheduler/`; depends on `api`, `broker`.
 - `event-handler`: event-driven processing. Run `make up n=event-handler`; build `dotnet build services/net/event-handler/`; depends on `api`, `broker`.

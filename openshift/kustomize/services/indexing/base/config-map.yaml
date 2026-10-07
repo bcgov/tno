@@ -16,7 +16,7 @@ metadata:
     managed-by: kustomize
 data:
   KAFKA_CLIENT_ID: Indexing
-  MAX_FAIL_LIMIT: "5"
+  MAX_FAILURE_LIMIT: "5"
   TOPICS: index
   ELASTICSEARCH_URI: http://elastic:9200
   CONTENT_INDEX: unpublished_content
@@ -25,3 +25,6 @@ data:
   CHES_EMAIL_ENABLED: "true"
   CHES_EMAIL_AUTHORIZED: "true"
   INDEX_ONLY: "false"
+  EVIDENCE_INDEX: content_evidence
+  # Attempts made for each Elasticsearch write before the failure is logged.
+  INDEX_RETRY_LIMIT: "3"

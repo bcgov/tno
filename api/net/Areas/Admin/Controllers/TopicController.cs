@@ -31,6 +31,7 @@ public class TopicController : ControllerBase
 {
     #region Variables
     private readonly ITopicService _service;
+    private readonly ISettingService _settingService;
     #endregion
 
     #region Constructors
@@ -38,9 +39,11 @@ public class TopicController : ControllerBase
     /// Creates a new instance of a TopicController object, initializes with specified parameters.
     /// </summary>
     /// <param name="service"></param>
-    public TopicController(ITopicService service)
+    /// <param name="settingService"></param>
+    public TopicController(ITopicService service, ISettingService settingService)
     {
         _service = service;
+        _settingService = settingService;
     }
     #endregion
 
@@ -137,6 +140,48 @@ public class TopicController : ControllerBase
     {
         _service.DeleteAndSave((Topic)model);
         return new JsonResult(model);
+    }
+
+    /// <summary>
+    /// How Content-Analysis assigns topics to content.
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("population")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(TopicPopulationSettingsModel), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Topic" })]
+    public IActionResult GetPopulationSettings()
+    {
+        return new JsonResult(ReadPopulationSettings());
+    }
+
+    /// <summary>
+    /// Change how Content-Analysis assigns topics to content.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPut("population")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(TopicPopulationSettingsModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Topic" })]
+    public IActionResult UpdatePopulationSettings([FromBody] TopicPopulationSettingsModel model)
+    {
+        if (!Enum.IsDefined(model.Mode)) throw new ArgumentException("The topic population mode is not valid.");
+        _settingService.SetValue(AdminConfigurableSettingNames.TopicPopulationMode.ToString(), model.Mode.ToString(),
+            "How Content-Analysis assigns topics: ExistingOnly or AllowCreate.");
+        return new JsonResult(ReadPopulationSettings());
+    }
+    #endregion
+
+    #region Methods
+    private TopicPopulationSettingsModel ReadPopulationSettings()
+    {
+        var mode = _settingService.FindByName(AdminConfigurableSettingNames.TopicPopulationMode.ToString());
+        return new TopicPopulationSettingsModel()
+        {
+            Mode = Enum.TryParse<TopicPopulationMode>(mode?.Value, true, out var value) ? value : TopicPopulationMode.ExistingOnly,
+        };
     }
     #endregion
 }

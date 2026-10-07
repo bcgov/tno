@@ -38,7 +38,6 @@ oc -n 9b301c-tools tag 9b301c-tools/filemonitor-service:dev filemonitor-service:
 oc -n 9b301c-tools tag 9b301c-tools/content-service:dev content-service:prod
 oc -n 9b301c-tools tag 9b301c-tools/indexing-service:dev indexing-service:prod
 oc -n 9b301c-tools tag 9b301c-tools/transcription-service:dev transcription-service:prod
-oc -n 9b301c-tools tag 9b301c-tools/nlp-service:dev nlp-service:prod
 
 
 # Deploy images to prod.
@@ -50,4 +49,3 @@ oc kustomize services/filemonitor/overlays/prod | oc create -f -
 oc kustomize services/content/overlays/prod | oc create -f -
 oc kustomize services/indexing/overlays/prod | oc create -f -
 oc kustomize services/transcription/overlays/prod | oc create -f -
-oc kustomize services/nlp/overlays/prod | oc create -f -

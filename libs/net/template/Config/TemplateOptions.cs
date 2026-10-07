@@ -26,5 +26,10 @@ public class TemplateOptions
     /// get/set - The add to report URL.
     /// </summary>
     public Uri? AddToReportUrl { get; set; }
+
+    /// <summary>
+    /// get/set - Bounded synthesis configuration for direct-model AI sections.
+    /// </summary>
+    public TNO.AI.Synthesis.SynthesisOptions Synthesis { get; set; } = new();
     #endregion
 }

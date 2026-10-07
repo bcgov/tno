@@ -187,14 +187,22 @@ public class ReportController : ControllerBase
     /// <param name="id"></param>
     /// <param name="ownerId"></param>
     /// <param name="qty"></param>
+    /// <param name="instanceId">Only include instances older than this instance.</param>
     /// <returns></returns>
     [HttpGet("{id}/previous-instances")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ReportInstanceModel[]), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult GetPreviousInstances(int id, int? ownerId, int qty = 1)
+    public IActionResult GetPreviousInstances(int id, int? ownerId, int qty = 1, long? instanceId = null)
     {
-        var instances = _service.GetPreviousReportInstances(id, null, ownerId, true, qty) ?? Array.Empty<Entities.ReportInstance>();
+        var instances = _service.GetPreviousReportInstances(id, instanceId, ownerId, true, qty) ?? Array.Empty<Entities.ReportInstance>();
+        // The worker uses these sections to reconstruct the same history as an API preview.
+        // Without the report definition it silently drops every historical story.
+        if (instances.Length > 0)
+        {
+            var report = _service.FindById(id);
+            foreach (var instance in instances) instance.Report = report;
+        }
         return new JsonResult(instances.Select(instance => new ReportInstanceModel(instance, _serializerOptions)).ToArray());
     }
 

@@ -1,0 +1,73 @@
+{
+  "action": "createIndex",
+  "settings": {
+    "indexName": "${EvidenceIndex}_v1.0.11"
+  },
+  "data": {
+    "settings": {
+      "index": {
+        "number_of_shards": 1,
+        "number_of_replicas": 3,
+        "gc_deletes": "1h"
+      }
+    },
+    "mappings": {
+      "dynamic": "strict",
+      "properties": {
+        "contentId": {
+          "type": "long"
+        },
+        "analysisId": {
+          "type": "long"
+        },
+        "sourceId": {
+          "type": "integer"
+        },
+        "mediaTypeId": {
+          "type": "integer"
+        },
+        "isApproved": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "keyword"
+        },
+        "isPublished": {
+          "type": "boolean"
+        },
+        "publishedOn": {
+          "type": "date"
+        },
+        "topic": {
+          "type": "keyword"
+        },
+        "headline": {
+          "type": "text"
+        },
+        "summary": {
+          "type": "text"
+        },
+        "facts": {
+          "type": "text"
+        },
+        "entities": {
+          "type": "keyword"
+        },
+        "quotes": {
+          "type": "nested",
+          "properties": {
+            "statement": {
+              "type": "text"
+            },
+            "speaker": {
+              "type": "keyword"
+            }
+          }
+        },
+        "projectionRevision": {
+          "type": "long"
+        }
+      }
+    }
+  }
+}

@@ -318,7 +318,7 @@ public static partial class ReportExtensions
         return contentList
             .Where(a =>
                 a.Topics.Any() // must have at least ONE Topic set
-                && a.Topics.All(a => a.Name != "Not Applicable" && !string.IsNullOrEmpty(a.Name)) // Name must not "Not Applicable" OR be empty
+                && a.Topics.All(a => !a.IsSystem && !string.IsNullOrEmpty(a.Name)) // must not be the system "Not Applicable" topic OR be empty
                 && a.Topics.All(t => t.Score > 0) // must have a Topic Score > ZERO
             )
             .GroupBy(g => g.GetContentGroupByPropertyValue("topicType"))
@@ -338,7 +338,7 @@ public static partial class ReportExtensions
         return contentList
             .Where(a =>
                 a.Topics.Any() // must have at least ONE Topic set
-                && a.Topics.All(a => a.Name != "Not Applicable" && !string.IsNullOrEmpty(a.Name)) // Name must not "Not Applicable" OR be empty
+                && a.Topics.All(a => !a.IsSystem && !string.IsNullOrEmpty(a.Name)) // must not be the system "Not Applicable" topic OR be empty
                 && a.Topics.All(t => t.Score > 0) // must have a Topic Score > ZERO
             )
             .GroupBy(g => g.GetContentGroupByPropertyValue("topicType"))

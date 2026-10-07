@@ -107,8 +107,7 @@ These source paths build a new image and deploy the matching workload.
 | `services/net/content/**` | Build/deploy `content-service` |
 | `services/net/indexing/**` | Build/deploy `indexing-service` |
 | `services/net/transcription/**` | Build/deploy `transcription-service` |
-| `services/net/nlp/**` | Build/deploy `nlp-service` |
-| `services/net/extract-quotes/**` | Build/deploy `extract-quotes-service` |
+| `services/net/content-analysis/**` | Build/deploy `content-analysis-service` |
 | `services/net/reporting/**` | Build/deploy `reporting-service` |
 | `services/net/notification/**` | Build/deploy `notification-service` |
 | `services/net/scheduler/**` | Build/deploy `scheduler-service` |

@@ -20,7 +20,6 @@ import {
   type ITagModel,
   type ITonePoolModel,
   type ITopicModel,
-  type ITopicScoreRuleModel,
   type IUserModel,
 } from 'tno-core';
 
@@ -31,7 +30,6 @@ export const initialLookupState: ILookupState = {
   cache: [],
   actions: [],
   topics: [],
-  rules: [],
   mediaTypes: [],
   licenses: [],
   ingestTypes: [],
@@ -78,9 +76,6 @@ export const lookupSlice = createSlice({
     },
     storeTopics(state: ILookupState, action: PayloadAction<ITopicModel[]>) {
       state.topics = action.payload;
-    },
-    storeTopicScoreRules(state: ILookupState, action: PayloadAction<ITopicScoreRuleModel[]>) {
-      state.rules = action.payload;
     },
     storeMediaTypes(state: ILookupState, action: PayloadAction<IMediaTypeModel[]>) {
       state.mediaTypes = action.payload;
@@ -145,7 +140,6 @@ export const {
   updateCache,
   storeActions,
   storeTopics,
-  storeTopicScoreRules,
   storeMediaTypes,
   storeLicenses,
   storeIngestTypes,

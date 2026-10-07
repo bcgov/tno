@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using RazorEngineCore;
 using TNO.AI;
 using TNO.TemplateEngine.Config;
@@ -18,6 +19,9 @@ public static class ServiceCollectionExtensions
     /// <returns></returns>
     public static IServiceCollection AddTemplateEngine(this IServiceCollection services, IConfiguration config)
     {
+        // Hosts with result storage register their own store first.
+        services.TryAddScoped<IReportAIResultStore, NoReportAIResultStore>();
+        services.TryAddScoped<IReportEvidenceProvider, NoReportEvidenceProvider>();
         return services
             .Configure<ChartsOptions>(config.GetSection("Charts"))
             .Configure<TemplateOptions>(config.GetSection("Reporting"))
@@ -41,6 +45,9 @@ public static class ServiceCollectionExtensions
     /// <returns></returns>
     public static IServiceCollection AddTemplateEngineSingleton(this IServiceCollection services, IConfiguration config)
     {
+        // Hosts with result storage register their own store first.
+        services.TryAddSingleton<IReportAIResultStore, NoReportAIResultStore>();
+        services.TryAddSingleton<IReportEvidenceProvider, NoReportEvidenceProvider>();
         return services
             .Configure<ChartsOptions>(config.GetSection("Charts"))
             .Configure<TemplateOptions>(config.GetSection("Reporting"))

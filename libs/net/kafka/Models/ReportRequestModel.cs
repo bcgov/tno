@@ -81,6 +81,19 @@ public class ReportRequestModel
     /// get/set - Whether to resend to subscribers even if already sent.
     /// </summary>
     public bool Resend { get; set; } = false;
+
+    /// <summary>
+    /// get/set - Only generate and store the report instance's missing AI sections, then notify the
+    /// requestor. Nothing is sent and the instance is not changed.
+    /// </summary>
+    public bool PrepareAISections { get; set; } = false;
+
+    /// <summary>
+    /// get/set - The preview API's story-link base URL. AI preparation must use the same URL
+    /// as the requesting preview because links are part of its result manifest. Null preserves
+    /// the worker configuration for older messages; an empty string explicitly disables links.
+    /// </summary>
+    public string? AIViewContentUrl { get; set; }
     #endregion
 
     #region Constructors

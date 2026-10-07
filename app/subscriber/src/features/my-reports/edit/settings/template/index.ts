@@ -1,6 +1,7 @@
 export * from './AddSectionBar';
 export * from './ReportSchedule';
 export * from './ReportSectionAI';
+export * from './ReportSectionAIInput';
 export * from './ReportSectionContent';
 export * from './ReportSectionData';
 export * from './ReportSectionGallery';

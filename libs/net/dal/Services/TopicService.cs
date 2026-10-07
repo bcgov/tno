@@ -20,6 +20,39 @@ public class TopicService : BaseService<Topic, int>, ITopicService
     #endregion
 
     #region Methods
+    /// <summary>
+    /// Add a topic. Only the migration marks the system topic.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
+    public override Topic Add(Topic entity)
+    {
+        entity.IsSystem = false;
+        return base.Add(entity);
+    }
+
+    /// <summary>
+    /// Update a topic, keeping its system flag.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
+    public override Topic Update(Topic entity)
+    {
+        entity.IsSystem = this.Context.Topics.AsNoTracking().Where(t => t.Id == entity.Id).Select(t => t.IsSystem).FirstOrDefault();
+        return base.Update(entity);
+    }
+
+    /// <summary>
+    /// Delete a topic. The system topic cannot be deleted.
+    /// </summary>
+    /// <param name="entity"></param>
+    public override void Delete(Topic entity)
+    {
+        if (this.Context.Topics.AsNoTracking().Any(t => t.Id == entity.Id && t.IsSystem))
+            throw new InvalidOperationException("The system topic cannot be deleted.");
+        base.Delete(entity);
+    }
+
     public IEnumerable<Topic> FindAll()
     {
         return this.Context.Topics

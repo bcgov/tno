@@ -4,7 +4,7 @@ env=${1-dev}
 name=${2}
 
 if [ ! $2 ]; then
-  die "Name argument require to specify the object type and name (i.e. dc/corenlp)."
+  die "Name argument require to specify the object type and name (i.e. deployment/api-services)."
 fi
 
 echo "oc annotate $name -n 9b301c-$env"

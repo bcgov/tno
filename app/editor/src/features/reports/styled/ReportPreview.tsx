@@ -4,6 +4,10 @@ export const ReportPreview = styled.div`
   max-width: 100%;
   min-width: 100%;
 
+  .preview-status {
+    margin: 2rem 2rem 0 2rem;
+  }
+
   .preview-report {
     align-items: stretch;
     margin: 2rem;

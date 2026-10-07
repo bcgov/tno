@@ -1858,7 +1858,7 @@ public class AutomationEngine
                 ?? throw new InvalidOperationException("The API returned no content for the created draft.");
             if (!publish && index)
             {
-                created = await _api.UpdateContentAsync(created, index: true) ?? created;
+                created = await _api.UpdateContentAsync(created, index: true, owner: "automation") ?? created;
             }
             var tempKey = entry.TempKey ?? "";
             entry.Kind = "existing";
@@ -1881,7 +1881,7 @@ public class AutomationEngine
         var content = await _api.FindContentByIdAsync(entry.Id)
             ?? throw new InvalidOperationException($"Content {entry.Id} could not be found to apply changes.");
         ApplyDeltas(entry, content, env);
-        await _api.UpdateContentAsync(content, index);
+        await _api.UpdateContentAsync(content, index, owner: "automation");
         lock (entry.Deltas) ClearDeltas(entry.Deltas);
         RecordSave(env, entry, stepName, actionName, collection, written, "saved", index, null, headline);
         env.Log.LogDecision(stepName, actionName, actionType, entry.Id, Outcomes.Flushed,

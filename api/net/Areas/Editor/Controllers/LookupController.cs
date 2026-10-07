@@ -45,7 +45,6 @@ public class LookupController : ControllerBase
     private readonly IMemoryCache _cache;
     private readonly IActionService _actionService;
     private readonly ITopicService _topicService;
-    private readonly ITopicScoreRuleService _topicScoreRuleService;
     private readonly IMediaTypeService _mediaTypeService;
     private readonly ISourceService _sourceService;
     private readonly ILicenseService _licenseService;
@@ -73,7 +72,6 @@ public class LookupController : ControllerBase
     /// <param name="cache"></param>
     /// <param name="actionService"></param>
     /// <param name="topicService"></param>
-    /// <param name="topicScoreRuleService"></param>
     /// <param name="mediaTypeService"></param>
     /// <param name="sourceService"></param>
     /// <param name="licenseService"></param>
@@ -97,7 +95,6 @@ public class LookupController : ControllerBase
         IMemoryCache cache,
         IActionService actionService,
         ITopicService topicService,
-        ITopicScoreRuleService topicScoreRuleService,
         IMediaTypeService mediaTypeService,
         ISourceService sourceService,
         ILicenseService licenseService,
@@ -121,7 +118,6 @@ public class LookupController : ControllerBase
         _cache = cache;
         _actionService = actionService;
         _topicService = topicService;
-        _topicScoreRuleService = topicScoreRuleService;
         _mediaTypeService = mediaTypeService;
         _sourceService = sourceService;
         _licenseService = licenseService;
@@ -162,7 +158,6 @@ public class LookupController : ControllerBase
 
         var actions = _actionService.FindAll();
         var topics = _topicService.FindAll();
-        var rules = _topicScoreRuleService.FindAll();
         var mediaTypes = _mediaTypeService.FindAll();
         var sources = _sourceService.FindAll();
         var license = _licenseService.FindAll();
@@ -180,7 +175,6 @@ public class LookupController : ControllerBase
         return new JsonResult(new LookupModel(
             actions,
             topics,
-            rules,
             mediaTypes,
             sources,
             license,

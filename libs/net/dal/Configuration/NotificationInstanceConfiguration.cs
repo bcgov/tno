@@ -23,6 +23,7 @@ public class NotificationInstanceConfiguration : AuditColumnsConfiguration<Notif
         builder.HasOne(m => m.Content).WithMany(m => m.NotificationsManyToMany).OnDelete(DeleteBehavior.Cascade);
 
         builder.HasIndex(m => new { m.Status, m.SentOn });
+        builder.HasIndex(m => m.SentOn, "IX_notification_instance_sent_on");
 
         base.Configure(builder);
     }

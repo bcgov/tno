@@ -16,14 +16,13 @@ on:
           - auto-clipper
           - ches-retry
           - content
+          - content-analysis
           - contentmigration
           - event-handler
-          - extract-quotes
           - ffmpeg
           - filemonitor
           - image
           - indexing
-          - nlp
           - notification
           - reporting
           - scheduler

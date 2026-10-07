@@ -63,6 +63,7 @@ public interface IReportEngine
     /// <param name="uploadPath"></param>
     /// <param name="viewOnWebOnly"></param>
     /// <param name="isPreview"></param>
+    /// <param name="aiWait">Whether to generate missing AI sections, or leave them pending.</param>
     /// <returns></returns>
     Task<string> GenerateReportBodyAsync(
         API.Areas.Services.Models.Report.ReportModel report,
@@ -73,7 +74,29 @@ public interface IReportEngine
         Func<int, Task<API.Areas.Services.Models.LLM.LLMModel?>> getLLMAsync,
         string? uploadPath = null,
         bool viewOnWebOnly = false,
-        bool isPreview = false);
+        bool isPreview = false,
+        AISectionWait aiWait = AISectionWait.Wait);
+
+    /// <summary>
+    /// Generate and store the report's missing AI sections, without the rest of the report. A section
+    /// another generator holds is left to it.
+    /// </summary>
+    /// <param name="report"></param>
+    /// <param name="reportInstanceId"></param>
+    /// <param name="sectionContent"></param>
+    /// <param name="getPreviousReport"></param>
+    /// <param name="getLLMAsync"></param>
+    /// <param name="cancellationToken"></param>
+    /// <param name="viewContentUrlOverride">Link settings supplied by the requesting preview.</param>
+    /// <returns></returns>
+    Task PrepareReportAISectionsAsync(
+        API.Areas.Services.Models.Report.ReportModel report,
+        long? reportInstanceId,
+        Dictionary<string, ReportSectionModel> sectionContent,
+        Func<int, int?, int?, int, Task<IEnumerable<PreviousReportModel>>> getPreviousReport,
+        Func<int, Task<API.Areas.Services.Models.LLM.LLMModel?>> getLLMAsync,
+        CancellationToken cancellationToken = default,
+        string? viewContentUrlOverride = null);
 
     /// <summary>
     /// Generate the output of the report with the Razor engine.

@@ -144,11 +144,11 @@ spec:
                   key: ApiKey
 
             # Indexing Service Configuration
-            - name: Service__MaxFailLimit
+            - name: Service__MaxFailureLimit
               valueFrom:
                 configMapKeyRef:
                   name: folder-collection-service
-                  key: MAX_FAIL_LIMIT
+                  key: MAX_FAILURE_LIMIT
             - name: Service__Topics
               valueFrom:
                 configMapKeyRef:

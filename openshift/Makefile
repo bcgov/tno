@@ -83,7 +83,7 @@ up: ## Start up environment - scales every service to its per-environment replic
 	$(info Start up environment (e=environment) [e=$(if $(e),$(e),dev)])
 	@cd ./scripts; ./up.sh $(if $(e),$(e),dev)
 
-annotate: ## Annotate an object to force a rollout (n=object type/name, e.g. dc/corenlp, e=environment {dev,test,prod} [dev]).
+annotate: ## Annotate an object to force a rollout (n=object type/name, e.g. deployment/api-services, e=environment {dev,test,prod} [dev]).
 	$(info Annotate an object (n=name) [e=environment])
 	@cd ./scripts; ./annotate.sh $(if $(e),$(e),dev) $(n)
 

@@ -128,14 +128,12 @@ Both `deploy-all` and `deploy-all-deployment` manage the following services:
 - **editor** - Editor web application
 - **subscriber** - Subscriber web application
 
-### Processing Services (13 services)
+### Processing Services (11 services)
 
 - **content-service** - Content processing
 - **indexing-service** - Content indexing
 - **indexing-service-cloud** - Cloud-based indexing (test/prod only)
 - **transcription-service** - Audio/video transcription
-- **nlp-service** - Natural language processing
-- **extract-quotes-service** - Quote extraction
 - **reporting-service** - Report generation
 - **notification-service** - Notification handling
 - **scheduler-service** - Task scheduling

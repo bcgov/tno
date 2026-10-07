@@ -2,6 +2,7 @@ import styled from 'styled-components';
 
 export const TopicList = styled.div`
   display: flex;
+
   .filter-bar {
     display: flex;
     align-items: center;

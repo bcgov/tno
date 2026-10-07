@@ -46,6 +46,30 @@ public class Quote : AuditColumns
     /// get/set - Content that owns this file reference.
     /// </summary>
     public virtual Content? Content { get; set; }
+
+    /// <summary>
+    /// get/set - Who added the quote.
+    /// </summary>
+    [Column("owner")]
+    public FieldOwner Owner { get; set; } = FieldOwner.Human;
+
+    /// <summary>
+    /// get/set - The analysis that extracted the quote.
+    /// </summary>
+    [Column("analysis_id")]
+    public long? AnalysisId { get; set; }
+
+    /// <summary>
+    /// get/set - Offset of the quote in the analyzed text.
+    /// </summary>
+    [Column("source_start")]
+    public int? SourceStart { get; set; }
+
+    /// <summary>
+    /// get/set - Length of the quote in the analyzed text.
+    /// </summary>
+    [Column("source_length")]
+    public int? SourceLength { get; set; }
     #endregion
 
     #region Constructors

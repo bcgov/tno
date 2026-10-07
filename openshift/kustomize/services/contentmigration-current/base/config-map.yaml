@@ -16,7 +16,7 @@ metadata:
     managed-by: kustomize
 # type: Opaque
 data:
-  MAX_FAIL_LIMIT: "5"
+  MAX_FAILURE_LIMIT: "5"
   VOLUME_PATH: /data
   CONTENT_MIGRATION_MEDIA_HOST_ROOT_URI: "https://tno.gov.bc.ca/av"
   # Filter per instance

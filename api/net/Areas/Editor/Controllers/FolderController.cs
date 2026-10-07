@@ -30,8 +30,7 @@ public class FolderController : ControllerBase
 {
     #region Variables
     private readonly IFolderService _folderService;
-    private readonly ITopicScoreRuleService _topicScoreRuleService;
-    private readonly ITopicScoreHelper _topicScoreHelper;
+    private readonly ITopicScoreService _topicScoreService;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -40,18 +39,15 @@ public class FolderController : ControllerBase
     /// Creates a new instance of a FolderController object, initializes with specified parameters.
     /// </summary>
     /// <param name="folderService"></param>
-    /// <param name="topicScoreRuleService"></param>
-    /// <param name="topicScoreHelper"></param>
+    /// <param name="topicScoreService"></param>
     /// <param name="serializerOptions"></param>
     public FolderController(
         IFolderService folderService,
-        ITopicScoreRuleService topicScoreRuleService,
-        ITopicScoreHelper topicScoreHelper,
+        ITopicScoreService topicScoreService,
         IOptions<JsonSerializerOptions> serializerOptions)
     {
         _folderService = folderService;
-        _topicScoreRuleService = topicScoreRuleService;
-        _topicScoreHelper = topicScoreHelper;
+        _topicScoreService = topicScoreService;
 
         _serializerOptions = serializerOptions.Value;
     }
@@ -62,23 +58,24 @@ public class FolderController : ControllerBase
     /// Get folder content for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
-    /// <param name="includeMaxTopicScore">return the max topic score for each piece of content in the folder</param>
+    /// <param name="includeCalculatedTopicScore">return the calculated topic score for each piece of content in the folder</param>
     /// <returns></returns>
     [HttpGet("{id}/content")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<FolderContentModel>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Folder" })]
-    public IActionResult GetContent(int id, bool includeMaxTopicScore = false)
+    public IActionResult GetContent(int id, bool includeCalculatedTopicScore = false)
     {
         var result = _folderService.GetContentInFolder(id) ?? throw new NoContentException();
 
-        if (includeMaxTopicScore)
+        if (includeCalculatedTopicScore)
         {
-            var topicScoreRules = _topicScoreRuleService.FindAll();
+            // The score the topic score rules give each story, which caps the score an editor can choose.
+            var scores = _topicScoreService.CalculateScores(result.Where(f => f.Content != null).Select(f => f.ContentId));
             return new JsonResult(result.Select(f => new FolderContentModel(f)
             {
-                MaxTopicScore = f.Content == null ? 0 : _topicScoreHelper.GetScore(topicScoreRules, f.Content.PublishedOn, f.Content.SourceId, f.Content.Body.Length, f.Content.Section, f.Content.Page, f.Content.SeriesId)
+                CalculatedTopicScore = scores.TryGetValue(f.ContentId, out var score) ? score : 0
             }));
         }
         else
