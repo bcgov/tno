@@ -1,0 +1,296 @@
+{
+  "action": "createIndex",
+  "settings": {
+    "indexName": "${ContentIndex}_v1.0.11"
+  },
+  "data": {
+    "settings": {
+      "index": {
+        "number_of_shards": 1,
+        "number_of_replicas": 3,
+        "gc_deletes": "1h"
+      }
+    },
+    "mappings": {
+      "properties": {
+        "id": {
+          "type": "long"
+        },
+        "uid": {
+          "type": "text"
+        },
+        "sourceId": {
+          "type": "integer"
+        },
+        "otherSource": {
+          "type": "keyword"
+        },
+        "status": {
+          "type": "keyword"
+        },
+        "contentType": {
+          "type": "keyword"
+        },
+        "licenseId": {
+          "type": "integer"
+        },
+        "mediaTypeId": {
+          "type": "integer"
+        },
+        "seriesId": {
+          "type": "integer"
+        },
+        "otherSeries": {
+          "type": "text"
+        },
+        "ownerId": {
+          "type": "integer"
+        },
+        "headline": {
+          "type": "text"
+        },
+        "byline": {
+          "type": "text"
+        },
+        "sourceUrl": {
+          "type": "text",
+          "index": false
+        },
+        "summary": {
+          "type": "text"
+        },
+        "body": {
+          "type": "text"
+        },
+        "edition": {
+          "type": "keyword"
+        },
+        "section": {
+          "type": "keyword"
+        },
+        "page": {
+          "type": "keyword"
+        },
+        "storyType": {
+          "type": "keyword"
+        },
+        "isHidden": {
+          "type": "boolean"
+        },
+        "isApproved": {
+          "type": "boolean"
+        },
+        "publishedOn": {
+          "type": "date"
+        },
+        "createdBy": {
+          "type": "text",
+          "index": false
+        },
+        "createdOn": {
+          "type": "date"
+        },
+        "updatedBy": {
+          "type": "text",
+          "index": false
+        },
+        "updatedOn": {
+          "type": "date"
+        },
+        "version": {
+          "type": "long",
+          "index": false
+        },
+        "tags": {
+          "type": "nested",
+          "properties": {
+            "id": {
+              "type": "integer"
+            },
+            "code": {
+              "type": "keyword"
+            },
+            "name": {
+              "type": "keyword"
+            }
+          }
+        },
+        "tonePools": {
+          "type": "nested",
+          "properties": {
+            "id": {
+              "type": "integer"
+            },
+            "name": {
+              "type": "keyword"
+            },
+            "ownerId": {
+              "type": "integer"
+            },
+            "value": {
+              "type": "integer"
+            }
+          }
+        },
+        "topics": {
+          "type": "nested",
+          "properties": {
+            "id": {
+              "type": "integer"
+            },
+            "name": {
+              "type": "keyword"
+            },
+            "topicType": {
+              "type": "keyword"
+            },
+            "score": {
+              "type": "integer"
+            },
+            "isSystem": {
+              "type": "boolean"
+            }
+          }
+        },
+        "actions": {
+          "type": "nested",
+          "properties": {
+            "id": {
+              "type": "integer"
+            },
+            "name": {
+              "type": "keyword"
+            },
+            "value": {
+              "type": "text"
+            }
+          }
+        },
+        "labels": {
+          "type": "nested",
+          "properties": {
+            "key": {
+              "type": "keyword"
+            },
+            "value": {
+              "type": "text"
+            }
+          }
+        },
+        "projectionRevision": {
+          "type": "long"
+        },
+        "analysis": {
+          "type": "object",
+          "dynamic": "strict",
+          "properties": {
+            "id": {
+              "type": "long"
+            },
+            "summary": {
+              "type": "text"
+            },
+            "primaryTopic": {
+              "type": "keyword"
+            },
+            "topicLabel": {
+              "type": "keyword"
+            },
+            "staffTopicId": {
+              "type": "integer"
+            },
+            "analyzedOn": {
+              "type": "date"
+            },
+            "model": {
+              "type": "keyword",
+              "index": false
+            },
+            "schemaVersion": {
+              "type": "keyword",
+              "index": false
+            },
+            "keyFacts": {
+              "type": "nested",
+              "properties": {
+                "statement": {
+                  "type": "text"
+                },
+                "isInferred": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "entities": {
+              "type": "nested",
+              "properties": {
+                "type": {
+                  "type": "keyword"
+                },
+                "name": {
+                  "type": "keyword"
+                },
+                "aliases": {
+                  "type": "keyword"
+                },
+                "roles": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "places": {
+              "type": "nested",
+              "properties": {
+                "name": {
+                  "type": "keyword"
+                },
+                "role": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "topics": {
+              "type": "nested",
+              "properties": {
+                "label": {
+                  "type": "keyword"
+                },
+                "relevance": {
+                  "type": "float"
+                }
+              }
+            },
+            "events": {
+              "type": "nested",
+              "properties": {
+                "actor": {
+                  "type": "keyword"
+                },
+                "action": {
+                  "type": "text"
+                },
+                "date": {
+                  "type": "keyword"
+                },
+                "location": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "quotes": {
+              "type": "nested",
+              "properties": {
+                "statement": {
+                  "type": "text"
+                },
+                "speaker": {
+                  "type": "keyword"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

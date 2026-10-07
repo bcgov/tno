@@ -103,7 +103,7 @@ yarn lint:fix
 
 ### Service Communication
 
-**Kafka is the backbone.** All service-to-service communication flows through Kafka topics defined in each service's `appsettings.json` (e.g., `index`, `transcribe`, `notify`, `hub`, `reporting`, `nlp`, `ffmpeg`). The API itself is a Kafka consumer — it uses the `hub` topic to deliver SignalR messages to connected browser clients via `KafkaHubLifetimeManager`.
+**Kafka is the backbone.** All service-to-service communication flows through Kafka topics defined in each service's `appsettings.json` (e.g., `index`, `transcribe`, `notify`, `hub`, `reporting`, `analysis`, `ffmpeg`). The API itself is a Kafka consumer — it uses the `hub` topic to deliver SignalR messages to connected browser clients via `KafkaHubLifetimeManager`.
 
 **SignalR** hub is at `/hub`. Both React apps connect via SignalR for real-time updates. The API's `KafkaHubLifetimeManager` (in `libs/net/kafka/SignalR/`) consumes the `hub` Kafka topic and fans out messages to connected users.
 

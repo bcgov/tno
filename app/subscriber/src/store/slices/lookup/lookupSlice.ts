@@ -20,7 +20,6 @@ import {
   ITagModel,
   ITonePoolModel,
   ITopicModel,
-  ITopicScoreRuleModel,
   IUserModel,
 } from 'tno-core';
 
@@ -49,7 +48,6 @@ export const initialLookupState: ILookupState = {
   dataLocations: [],
   systemMessages: [],
   settings: [],
-  rules: [],
 };
 
 export const lookupSlice = createSlice({
@@ -78,9 +76,6 @@ export const lookupSlice = createSlice({
     },
     storeTopics(state: ILookupState, action: PayloadAction<ITopicModel[]>) {
       state.topics = action.payload;
-    },
-    storeRules(state: ILookupState, action: PayloadAction<ITopicScoreRuleModel[]>) {
-      state.rules = action.payload;
     },
     storeLLMs(state: ILookupState, action: PayloadAction<ILLMModel[]>) {
       state.llms = action.payload;
@@ -148,7 +143,6 @@ export const {
   updateCache,
   storeActions,
   storeTopics,
-  storeRules,
   storeMediaTypes,
   storeLicenses,
   storeSeries,

@@ -107,23 +107,6 @@
       // Use IntelliSense to find out which attributes exist for C# debugging
       // Use hover for the description of the existing attributes
       // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
-      "name": "Run NLP Service",
-      "type": "coreclr",
-      "request": "launch",
-      "preLaunchTask": "build-nlp",
-      // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/nlp/bin/Debug/net7.0/TNO.Services.NLP.dll",
-      "args": [],
-      "cwd": "${workspaceFolder}/nlp",
-      // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
-      "console": "internalConsole",
-      "stopAtEntry": false,
-      "envFile": "${workspaceFolder}/nlp/.env"
-    },
-    {
-      // Use IntelliSense to find out which attributes exist for C# debugging
-      // Use hover for the description of the existing attributes
-      // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
       "name": "Run File Monitor Service",
       "type": "coreclr",
       "request": "launch",
@@ -226,18 +209,18 @@
       // Use IntelliSense to find out which attributes exist for C# debugging
       // Use hover for the description of the existing attributes
       // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
-      "name": "Run Extract Quotes Service",
+      "name": "Run Content-Analysis Service",
       "type": "coreclr",
       "request": "launch",
-      "preLaunchTask": "build-extract-quotes",
+      "preLaunchTask": "build-content-analysis",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/services/net/extract-quotes/bin/Debug/net7.0/TNO.Services.ExtractQuotes.dll",
+      "program": "${workspaceFolder}/content-analysis/bin/Debug/net9.0/TNO.Services.ContentAnalysis.dll",
       "args": [],
-      "cwd": "${workspaceFolder}/services/net/extract-quotes",
+      "cwd": "${workspaceFolder}/content-analysis",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
       "console": "internalConsole",
       "stopAtEntry": false,
-      "envFile": "${workspaceFolder}/services/net/extract-quotes/.env"
+      "envFile": "${workspaceFolder}/content-analysis/.env"
     },
     {
       // Use IntelliSense to find out which attributes exist for C# debugging

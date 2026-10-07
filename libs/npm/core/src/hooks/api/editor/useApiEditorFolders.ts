@@ -19,9 +19,9 @@ export const useApiEditorFolders = (
   const api = useApi(options);
 
   return React.useRef({
-    getContentInFolder: (id: number, includeMaxTopicScore: boolean = false) => {
+    getContentInFolder: (id: number, includeCalculatedTopicScore: boolean = false) => {
       return api.get<never, AxiosResponse<IFolderContentModel[]>, any>(
-        `/editor/folders/${id}/content?includeMaxTopicScore=${includeMaxTopicScore}`,
+        `/editor/folders/${id}/content?includeCalculatedTopicScore=${includeCalculatedTopicScore}`,
       );
     },
   }).current;

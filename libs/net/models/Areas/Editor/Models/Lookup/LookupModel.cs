@@ -18,10 +18,6 @@ public class LookupModel
     /// </summary>
     public IEnumerable<Topic.TopicModel> Topics { get; set; } = Array.Empty<Topic.TopicModel>();
 
-    /// <summary>
-    /// get/set - An array of all topics score rules.
-    /// </summary>
-    public IEnumerable<TopicScoreRule.TopicScoreRuleModel> Rules { get; set; } = Array.Empty<TopicScoreRule.TopicScoreRuleModel>();
 
     /// <summary>
     /// get/set - An array of all media types.
@@ -110,7 +106,6 @@ public class LookupModel
     /// </summary>
     /// <param name="actions"></param>
     /// <param name="topics"></param>
-    /// <param name="rules"></param>
     /// <param name="claims"></param>
     /// <param name="mediaTypes"></param>
     /// <param name="sources"></param>
@@ -130,7 +125,6 @@ public class LookupModel
     public LookupModel(
         IEnumerable<Entities.Action> actions,
         IEnumerable<Entities.Topic> topics,
-        IEnumerable<Entities.TopicScoreRule> rules,
         IEnumerable<Entities.MediaType> mediaTypes,
         IEnumerable<Entities.Source> sources,
         IEnumerable<Entities.License> license,
@@ -150,7 +144,6 @@ public class LookupModel
     {
         this.Actions = actions.Select(a => new Action.ActionModel(a));
         this.Topics = topics.Select(a => new Topic.TopicModel(a));
-        this.Rules = rules.Select(a => new TopicScoreRule.TopicScoreRuleModel(a));
         this.MediaTypes = mediaTypes.Select(a => new MediaType.MediaTypeModel(a));
         this.Sources = sources.Select(a => new Source.SourceModel(a, options));
         this.Licenses = license.Select(a => new License.LicenseModel(a));

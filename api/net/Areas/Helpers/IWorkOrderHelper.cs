@@ -73,18 +73,6 @@ public interface IWorkOrderHelper
     Task<Entities.WorkOrder> RequestAutoClipAsync(long contentId, Entities.User requestor, bool force = false);
 
     /// <summary>
-    /// Request a natural language processing for the specified 'contentId'.
-    /// Only allow one active nlp request.
-    /// </summary>
-    /// <param name="contentId"></param>
-    /// <param name="force">Whether to force a request regardless of the prior requests state</param>
-    /// <returns></returns>
-    /// <exception cref="NoContentException"></exception>
-    /// <exception cref="ConfigurationException"></exception>
-    /// <exception cref="NotAuthorizedException"></exception>
-    Task<Entities.WorkOrder> RequestNLPAsync(long contentId, bool force = false);
-
-    /// <summary>
     /// Request a FFmpeg for the specified 'contentId'.
     /// </summary>
     /// <param name="contentId"></param>

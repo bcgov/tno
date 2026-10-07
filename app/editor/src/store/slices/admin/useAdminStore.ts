@@ -29,7 +29,6 @@ import {
   type ISystemMessageModel,
   type ITagModel,
   type ITopicModel,
-  type ITopicScoreRuleModel,
   type IUserFilter,
   type IUserModel,
   type IWorkOrderModel,
@@ -82,7 +81,6 @@ import {
   storeAdminTags,
   storeAdminTopicFilter,
   storeAdminTopics,
-  storeAdminTopicScoreRules,
   storeAdminUserFilter,
   storeAdminUsers,
   storeAdminWorkOrderFilter,
@@ -152,9 +150,6 @@ export interface IAdminStore {
   storeTags: (tags: ITagModel[] | ActionDelegate<ITagModel[]>) => void;
   storeTopicFilter: (filter: string | ActionDelegate<string>) => void;
   storeTopics: (topics: ITopicModel[] | ActionDelegate<ITopicModel[]>) => void;
-  storeTopicScoreRules: (
-    rules: ITopicScoreRuleModel[] | ActionDelegate<ITopicScoreRuleModel[]>,
-  ) => void;
   storeUserFilter: (filter: IUserListFilter | ActionDelegate<IUserListFilter>) => void;
   storeUsers: (users: IPaged<IUserModel> | ActionDelegate<IPaged<IUserModel>>) => void;
   storeWorkOrderFilter: (
@@ -413,13 +408,6 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
           dispatch(storeAdminTopics(topics(state.topics)));
         } else dispatch(storeAdminTopics(topics));
       },
-      storeTopicScoreRules: (
-        rules: ITopicScoreRuleModel[] | ActionDelegate<ITopicScoreRuleModel[]>,
-      ) => {
-        if (typeof rules === 'function') {
-          dispatch(storeAdminTopicScoreRules(rules(state.rules)));
-        } else dispatch(storeAdminTopicScoreRules(rules));
-      },
       storeUserFilter: (filter: IUserListFilter | ActionDelegate<IUserListFilter>) => {
         if (typeof filter === 'function') {
           dispatch(storeAdminUserFilter(filter(state.userFilter)));
@@ -497,7 +485,6 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       state.tags,
       state.topicFilter,
       state.topics,
-      state.rules,
       state.userFilter,
       state.users,
       state.workOrderFilter,

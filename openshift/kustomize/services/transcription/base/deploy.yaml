@@ -147,11 +147,11 @@ spec:
                   key: AZURE_COGNITIVE_SERVICES_KEY
 
             # Service Configuration
-            - name: Service__MaxFailLimit
+            - name: Service__MaxFailureLimit
               valueFrom:
                 configMapKeyRef:
                   name: transcription-service
-                  key: MAX_FAIL_LIMIT
+                  key: MAX_FAILURE_LIMIT
             - name: Service__Topics
               valueFrom:
                 configMapKeyRef:

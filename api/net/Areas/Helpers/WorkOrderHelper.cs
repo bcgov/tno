@@ -259,42 +259,6 @@ public class WorkOrderHelper : IWorkOrderHelper
     }
 
     /// <summary>
-    /// Request a natural language processing for the specified 'contentId'.
-    /// Only allow one active nlp request.
-    /// </summary>
-    /// <param name="contentId"></param>
-    /// <param name="force">Whether to force a request regardless of the prior requests state</param>
-    /// <returns></returns>
-    /// <exception cref="NoContentException"></exception>
-    /// <exception cref="ConfigurationException"></exception>
-    /// <exception cref="NotAuthorizedException"></exception>
-    public async Task<Entities.WorkOrder> RequestNLPAsync(long contentId, bool force = false)
-    {
-        if (this.Content == null || this.Content.Id != contentId)
-            this.Content = _contentService.FindById(contentId) ?? throw new NoContentException("Content does not exist");
-        if (String.IsNullOrWhiteSpace(_kafkaOptions.TranscriptionTopic)) throw new ConfigurationException("Kafka transcription topic not configured.");
-
-        // Only allow one work order nlp request at a time.
-        // TODO: Handle blocked work orders stuck in progress.
-        var workOrders = _workOrderService.FindByContentId(contentId);
-        if (force || !workOrders.Any(o => o.WorkType == Entities.WorkOrderType.NaturalLanguageProcess || !WorkLimiterStatus.Contains(o.Status)))
-        {
-            var username = _principal.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-            var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
-            var workOrder = _workOrderService.AddAndSave(
-                new Entities.WorkOrder(
-                    Entities.WorkOrderType.NaturalLanguageProcess,
-                    user,
-                    "",
-                    this.Content));
-
-            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.NLPTopic, new TNO.Kafka.Models.NlpRequestModel(workOrder));
-            return workOrder;
-        }
-        return workOrders.OrderByDescending(w => w.CreatedOn).First();
-    }
-
-    /// <summary>
     /// Request a FFmpeg for the specified 'contentId'.
     /// </summary>
     /// <param name="contentId"></param>

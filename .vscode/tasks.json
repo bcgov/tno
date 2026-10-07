@@ -249,42 +249,6 @@
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "build-nlp",
-      "command": "dotnet",
-      "type": "process",
-      "args": [
-        "build",
-        "${workspaceFolder}/services/net/nlp/TNO.Services.NLP.csproj",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "problemMatcher": "$msCompile"
-    },
-    {
-      "label": "publish-nlp",
-      "command": "dotnet",
-      "type": "process",
-      "args": [
-        "publish",
-        "${workspaceFolder}/services/net/nlp/TNO.Services.NLP.csproj",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "problemMatcher": "$msCompile"
-    },
-    {
-      "label": "watch-nlp",
-      "command": "dotnet",
-      "type": "process",
-      "args": [
-        "watch",
-        "run",
-        "--project",
-        "${workspaceFolder}/services/net/nlp/TNO.Services.NLP.csproj"
-      ],
-      "problemMatcher": "$msCompile"
-    },
-    {
       "label": "build-filemonitor",
       "command": "dotnet",
       "type": "process",
@@ -573,38 +537,38 @@
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "build-extract-quotes",
+      "label": "build-content-analysis",
       "command": "dotnet",
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/services/net/extract-quotes/TNO.Services.ExtractQuotes.csproj",
+        "${workspaceFolder}/services/net/content-analysis/TNO.Services.ContentAnalysis.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "publish-extract-quotes",
+      "label": "publish-content-analysis",
       "command": "dotnet",
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/services/net/extract-quotes/TNO.Services.ExtractQuotes.csproj",
+        "${workspaceFolder}/services/net/content-analysis/TNO.Services.ContentAnalysis.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "watch-extract-quotes",
+      "label": "watch-content-analysis",
       "command": "dotnet",
       "type": "process",
       "args": [
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/extract-quotes/TNO.Services.ExtractQuotes.csproj"
+        "${workspaceFolder}/services/net/content-analysis/TNO.Services.ContentAnalysis.csproj"
       ],
       "problemMatcher": "$msCompile"
     },

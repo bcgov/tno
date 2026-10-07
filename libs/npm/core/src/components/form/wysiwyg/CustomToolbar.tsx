@@ -15,6 +15,7 @@ export interface ICustomToolbarProps {
   onClickClear: React.MouseEventHandler<HTMLButtonElement>;
   onClickExpand: React.MouseEventHandler<HTMLButtonElement>;
   innerRef: any;
+  actions?: React.ReactNode;
 }
 
 /** Custom toolbar for the content WYSIWYG including ability to view HTML source and clear formatting */
@@ -26,6 +27,7 @@ export const CustomToolbar: React.FC<ICustomToolbarProps> = ({
   onClickExpand,
   onChangeContentSelect,
   innerRef,
+  actions,
 }) => {
   const groupedOptions =
     urlOptions?.reduce((acc, option) => {
@@ -80,6 +82,7 @@ export const CustomToolbar: React.FC<ICustomToolbarProps> = ({
           <FaExpandAlt className="custom-icon" />
         </button>
       </span>
+      {actions && <span className="ql-formats">{actions}</span>}
       <span className="ql-formats">
         <Show visible={!!urlOptions?.length}>
           <Col>

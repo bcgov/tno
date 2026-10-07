@@ -21,4 +21,8 @@ public enum EventScheduleType
     /// This event runs an automation profile.
     /// </summary>
     Automation = 3,
+    /// <summary>
+    /// This event purges report and notification history older than the configured retention.
+    /// </summary>
+    PurgeHistory = 4,
 }

@@ -41,12 +41,6 @@ export const useApiAdminTopicScoreRules = (
         model,
       );
     },
-    updateTopicScoreRules: (models: ITopicScoreRuleModel[]) => {
-      return api.put<ITopicScoreRuleModel[], AxiosResponse<ITopicScoreRuleModel[]>, any>(
-        `/admin/topics/scores/rules`,
-        models,
-      );
-    },
     deleteTopicScoreRule: (model: ITopicScoreRuleModel) => {
       return api.delete<ITopicScoreRuleModel, AxiosResponse<ITopicScoreRuleModel>, any>(
         `/admin/topics/scores/rules/${model.id}`,

@@ -132,6 +132,12 @@ patches:
         path: /spec/template/spec/containers/0/env/26/valueFrom/configMapKeyRef/name
         value: indexing-service-cloud
       - op: replace
+        path: /spec/template/spec/containers/0/env/31/valueFrom/configMapKeyRef/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/template/spec/containers/0/env/32/valueFrom/configMapKeyRef/name
+        value: indexing-service-cloud
+      - op: replace
         path: /spec/replicas
         value: 3
       - op: replace

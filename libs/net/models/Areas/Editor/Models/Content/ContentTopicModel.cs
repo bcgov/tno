@@ -34,6 +34,22 @@ public class ContentTopicModel : AuditColumnsModel
     /// get/set - The type of topic (issue, proactive).
     /// </summary>
     public TopicType TopicType { get; set; }
+
+    /// <summary>
+    /// get/set - Whether the topic is the system "Not Applicable" topic.
+    /// </summary>
+    public bool IsSystem { get; set; }
+
+    /// <summary>
+    /// get/set - The score was set by an editor or arrived with ingest, so it is never recalculated.
+    /// Only the topics endpoint changes it.
+    /// </summary>
+    public bool IsScoreOverridden { get; set; }
+
+    /// <summary>
+    /// get/set - The topic score rule that produced a calculated score.
+    /// </summary>
+    public int? ScoreRuleId { get; set; }
     #endregion
 
     #region Constructors
@@ -52,7 +68,10 @@ public class ContentTopicModel : AuditColumnsModel
         this.Id = entity.TopicId;
         this.Name = entity.Topic?.Name ?? "";
         this.Score = entity.Score;
+        this.IsScoreOverridden = entity.IsScoreOverridden;
+        this.ScoreRuleId = entity.ScoreRuleId;
         this.TopicType = entity.Topic?.TopicType ?? TopicType.Issues;
+        this.IsSystem = entity.Topic?.IsSystem ?? false;
     }
     #endregion
 

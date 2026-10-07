@@ -219,6 +219,12 @@ public class ContentModel
     /// get/set - An array of file references.
     /// </summary>
     public IEnumerable<FileReferenceModel> FileReferences { get; set; } = Array.Empty<FileReferenceModel>();
+
+    /// <summary>
+    /// get/set - The content's analysis evidence, which report synthesis reads in place of its full
+    /// text. Not set for an unapproved transcript.
+    /// </summary>
+    public TNO.API.Areas.Services.Models.Content.ContentEvidenceModel? Evidence { get; set; }
     #endregion
 
     #region Constructors
@@ -403,6 +409,13 @@ public class ContentModel
         this.Labels = model.Labels.Select(e => new ContentLabelModel(e));
         this.TonePools = model.TonePools.Select(e => new ContentTonePoolModel(e));
         this.FileReferences = model.FileReferences.Select(e => new FileReferenceModel(e));
+
+        // Documents indexed after analysis carry it; an unapproved transcript's is never used.
+        if (model.Analysis != null)
+        {
+            var evidence = new TNO.API.Areas.Services.Models.Content.ContentEvidenceModel(model, model.Analysis);
+            if (evidence.IsApproved) this.Evidence = evidence;
+        }
     }
 
     /// <summary>

@@ -1,6 +1,6 @@
 import { ShareMenu } from 'components/share-menu';
 import React, { useState } from 'react';
-import { FaArrowUpRightFromSquare } from 'react-icons/fa6';
+import { FaArrowUpRightFromSquare, FaChartSimple } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useLookup, useSettings } from 'store/hooks';
 import { useAppStore } from 'store/slices';
@@ -21,6 +21,8 @@ export interface IContentActionBarProps {
   viewingContent?: boolean;
   /** Event fires when back button is pressed */
   onBack?: () => void;
+  onAnalysis?: () => void;
+  analysisOpen?: boolean;
   /** Event fires when select all checkbox is changed */
   onSelectAll?: React.ChangeEventHandler<HTMLInputElement>;
   /** state for checkbox Select All */
@@ -39,6 +41,8 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
   className,
   content,
   viewingContent,
+  onAnalysis,
+  analysisOpen,
   onSelectAll,
   isSelectAllChecked,
   onClear,
@@ -96,6 +100,18 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
             <ShareMenu content={content} />
             {disableAddToFolder ? null : <AddToFolderMenu onClear={onClear} content={content} />}
             <AddToReportMenu content={content} onClear={onClear} />
+            <Show visible={viewingContent && !!onAnalysis}>
+              <button
+                type="button"
+                className="action analysis-button"
+                onClick={onAnalysis}
+                aria-expanded={analysisOpen}
+                aria-controls="content-analysis-panel"
+                aria-label="Analysis"
+              >
+                <FaChartSimple /> <span>ANALYSIS</span>
+              </button>
+            </Show>
             {!!removeFolderItem && <RemoveFromFolder onClick={removeFolderItem} />}
             {viewingContent &&
               (userInfo?.roles.includes(Claim.administrator) ||

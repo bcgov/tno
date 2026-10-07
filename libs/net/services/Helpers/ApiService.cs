@@ -610,9 +610,11 @@ public class ApiService : IApiService
     public async Task<API.Areas.Services.Models.Content.ContentModel?> UpdateContentAsync(
         API.Areas.Services.Models.Content.ContentModel content,
         bool index = false,
-        int? requestorId = null)
+        int? requestorId = null,
+        string? owner = null)
     {
-        var url = this.Options.ApiUrl.Append($"services/contents/{content.Id}?index={index}{(requestorId.HasValue ? $"&requestorId={requestorId.Value}" : "")}");
+        // 'owner' records who set editorial values (e.g. 'automation'), so Content-Analysis never overwrites them.
+        var url = this.Options.ApiUrl.Append($"services/contents/{content.Id}?index={index}{(requestorId.HasValue ? $"&requestorId={requestorId.Value}" : "")}{(String.IsNullOrWhiteSpace(owner) ? "" : $"&owner={Uri.EscapeDataString(owner)}")}");
         return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.Content.ContentModel>(url, JsonContent.Create(content)));
     }
 
@@ -931,11 +933,13 @@ public class ApiService : IApiService
     /// <param name="reportId"></param>
     /// <param name="ownerId"></param>
     /// <param name="qty"></param>
+    /// <param name="instanceId">Only include instances older than this instance.</param>
     /// <returns></returns>
-    public async Task<API.Areas.Services.Models.Report.ReportInstanceModel[]> GetPreviousReportInstancesAsync(int reportId, int? ownerId, int qty)
+    public async Task<API.Areas.Services.Models.Report.ReportInstanceModel[]> GetPreviousReportInstancesAsync(int reportId, int? ownerId, int qty, long? instanceId = null)
     {
         var queryParams = new List<string> { $"qty={qty}" };
         if (ownerId.HasValue) queryParams.Add($"ownerId={ownerId}");
+        if (instanceId.HasValue) queryParams.Add($"instanceId={instanceId}");
         var url = this.Options.ApiUrl.Append($"services/reports/{reportId}/previous-instances?{string.Join("&", queryParams)}");
         return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.Report.ReportInstanceModel[]>(url)) ?? Array.Empty<API.Areas.Services.Models.Report.ReportInstanceModel>();
     }
@@ -1065,6 +1069,18 @@ public class ApiService : IApiService
     {
         var url = this.Options.ApiUrl.Append($"services/report/instances/{instanceId}/status/{status}");
         return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(url));
+    }
+
+    /// <summary>
+    /// Notify the user that the report instance's AI sections are ready.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    public async Task NotifyReportAISectionsReadyAsync(long instanceId, int userId)
+    {
+        var url = this.Options.ApiUrl.Append($"services/report/instances/{instanceId}/ai-sections/ready/{userId}");
+        await RetryRequestAsync(async () => await this.OpenClient.PostAsync(url));
     }
 
     /// <summary>
@@ -1263,6 +1279,137 @@ public class ApiService : IApiService
     {
         var url = this.Options.ApiUrl.Append($"services/folders/{id}/clean");
         return await RetryRequestAsync(async () => await this.OpenClient.PutAsync(url));
+    }
+
+    /// <summary>
+    /// Purge report history older than the configured retention.
+    /// </summary>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.History.HistoryPurgeModel?> PurgeReportHistoryAsync()
+    {
+        var url = this.Options.ApiUrl.Append($"services/history/reports/purge");
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Services.Models.History.HistoryPurgeModel?>(url));
+    }
+
+    /// <summary>
+    /// Purge notification history older than the configured retention.
+    /// </summary>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.History.HistoryPurgeModel?> PurgeNotificationHistoryAsync()
+    {
+        var url = this.Options.ApiUrl.Append($"services/history/notifications/purge");
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Services.Models.History.HistoryPurgeModel?>(url));
+    }
+
+    /// <summary>
+    /// Find the stored AI section result for the specified manifest hash.
+    /// </summary>
+    /// <param name="hash"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.ReportAIResult.ReportAIResultModel?> FindReportAIResultAsync(string hash)
+    {
+        var url = this.Options.ApiUrl.Append($"services/reports/ai-results/{hash}");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.ReportAIResult.ReportAIResultModel?>(url));
+    }
+
+    /// <summary>
+    /// Claim the right to generate an AI section result.
+    /// </summary>
+    /// <param name="claim"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.ReportAIResult.ReportAIResultModel?> ClaimReportAIResultAsync(API.Areas.Services.Models.ReportAIResult.ReportAIResultClaimModel claim)
+    {
+        var url = this.Options.ApiUrl.Append($"services/reports/ai-results/claim");
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Services.Models.ReportAIResult.ReportAIResultModel?>(url, JsonContent.Create(claim)));
+    }
+
+    /// <summary>
+    /// Record the outcome of a claimed AI section result.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="completion"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.ReportAIResult.ReportAIResultModel?> CompleteReportAIResultAsync(long id, API.Areas.Services.Models.ReportAIResult.ReportAIResultCompletionModel completion)
+    {
+        var url = this.Options.ApiUrl.Append($"services/reports/ai-results/{id}");
+        return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.ReportAIResult.ReportAIResultModel?>(url, JsonContent.Create(completion)));
+    }
+
+    /// <summary>
+    /// Find the approved analysis evidence for the specified content, for report synthesis.
+    /// </summary>
+    /// <param name="contentIds"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<API.Areas.Services.Models.Content.ContentEvidenceModel>> FindReportEvidenceAsync(IEnumerable<long> contentIds)
+    {
+        var url = this.Options.ApiUrl.Append($"services/reports/ai-results/evidence");
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<IEnumerable<API.Areas.Services.Models.Content.ContentEvidenceModel>>(url, JsonContent.Create(contentIds.ToArray())))
+            ?? Array.Empty<API.Areas.Services.Models.Content.ContentEvidenceModel>();
+    }
+
+    /// <summary>
+    /// Get the Content-Analysis runtime settings (mode and LLM).
+    /// </summary>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.ContentAnalysis.ContentAnalysisSettingsModel?> GetContentAnalysisSettingsAsync()
+    {
+        var url = this.Options.ApiUrl.Append($"services/analysis/settings");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.ContentAnalysis.ContentAnalysisSettingsModel?>(url));
+    }
+
+    /// <summary>
+    /// Claim due analysis jobs.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<API.Areas.Services.Models.ContentAnalysis.AnalysisJobModel>?> ClaimAnalysisJobsAsync(API.Areas.Services.Models.ContentAnalysis.AnalysisClaimRequestModel request)
+    {
+        var url = this.Options.ApiUrl.Append($"services/analysis/jobs/claim");
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<IEnumerable<API.Areas.Services.Models.ContentAnalysis.AnalysisJobModel>?>(url, JsonContent.Create(request)));
+    }
+
+    /// <summary>
+    /// Extend an analysis claim's lease.
+    /// </summary>
+    /// <param name="lease"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.ContentAnalysis.AnalysisJobModel?> RenewAnalysisLeaseAsync(API.Areas.Services.Models.ContentAnalysis.AnalysisLeaseModel lease)
+    {
+        var url = this.Options.ApiUrl.Append($"services/analysis/jobs/{lease.JobId}/lease");
+        return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.ContentAnalysis.AnalysisJobModel?>(url, JsonContent.Create(lease)));
+    }
+
+    /// <summary>
+    /// Get the current input of claimed content.
+    /// </summary>
+    /// <param name="lease"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.ContentAnalysis.AnalysisInputModel?> GetAnalysisInputAsync(API.Areas.Services.Models.ContentAnalysis.AnalysisLeaseModel lease)
+    {
+        var url = this.Options.ApiUrl.Append($"services/analysis/jobs/{lease.JobId}/input?fencingToken={lease.FencingToken}");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.ContentAnalysis.AnalysisInputModel?>(url));
+    }
+
+    /// <summary>
+    /// Submit an analysis.
+    /// </summary>
+    /// <param name="result"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.ContentAnalysis.AnalysisSubmitResultModel?> SubmitAnalysisAsync(API.Areas.Services.Models.ContentAnalysis.AnalysisResultModel result)
+    {
+        var url = this.Options.ApiUrl.Append($"services/analysis/jobs/{result.JobId}/result");
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Services.Models.ContentAnalysis.AnalysisSubmitResultModel?>(url, JsonContent.Create(result)));
+    }
+
+    /// <summary>
+    /// Record a failed analysis attempt.
+    /// </summary>
+    /// <param name="failure"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.ContentAnalysis.AnalysisJobModel?> FailAnalysisAsync(API.Areas.Services.Models.ContentAnalysis.AnalysisFailureModel failure)
+    {
+        var url = this.Options.ApiUrl.Append($"services/analysis/jobs/{failure.JobId}/failure");
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Services.Models.ContentAnalysis.AnalysisJobModel?>(url, JsonContent.Create(failure)));
     }
 
     /// <summary>

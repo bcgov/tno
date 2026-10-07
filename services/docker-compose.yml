@@ -320,40 +320,6 @@ services:
       retries: 3
       start_period: 30s
 
-  nlp:
-    image: tno:nlp
-    profiles:
-      - all
-      - service
-    restart: "no"
-    container_name: tno-nlp
-    build:
-      context: ./
-      dockerfile: services/net/nlp/Dockerfile
-    deploy:
-      resources:
-        limits:
-          cpus: "0.25"
-          memory: 250M
-        reservations:
-          cpus: "0.05"
-          memory: 50M
-    env_file:
-      - services/net/nlp/.env
-    ports:
-      - ${NLP_PORT:-40028}:8081
-    depends_on:
-      - api
-      - broker
-    networks:
-      - tno
-    healthcheck:
-      test: curl -s -f http://localhost:8081/health || exit 1
-      interval: 1m
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-
   notification:
     image: tno:notification
     profiles:
@@ -404,7 +370,7 @@ services:
       resources:
         limits:
           cpus: "0.25"
-          memory: 250M
+          memory: 2G
         reservations:
           cpus: "0.05"
           memory: 50M
@@ -494,33 +460,39 @@ services:
       retries: 3
       start_period: 30s
 
-  extract-quotes:
-    image: tno:extract-quotes
+  content-analysis:
+    image: tno:content-analysis
     profiles:
       - all
       - service
-    restart: "no"
-    container_name: tno-extract-quotes
+    restart: unless-stopped
+    container_name: tno-content-analysis
     build:
       context: ./
-      dockerfile: services/net/extract-quotes/Dockerfile
+      dockerfile: services/net/content-analysis/Dockerfile
     deploy:
       resources:
         limits:
-          cpus: "0.25"
-          memory: 250M
+          cpus: "0.5"
+          memory: 1G
         reservations:
           cpus: "0.05"
           memory: 50M
     env_file:
-      - services/net/extract-quotes/.env
+      - services/net/content-analysis/.env
     ports:
-      - ${EXTRACT_QUOTES_PORT:-40037}:8081
+      - ${CONTENT_ANALYSIS_PORT:-40042}:8081
     depends_on:
       - api
       - broker
     networks:
       - tno
+    healthcheck:
+      test: curl -s -f http://localhost:8081/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   ffmpeg:
     image: tno:ffmpeg

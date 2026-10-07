@@ -33,8 +33,8 @@ export const Topic: React.FC<ITopicProps> = ({
   const [{ topics }] = useLookup();
   const [groupedOptions, setGroupedOptions] = React.useState<IGroupedTopicOptions[]>([]);
 
-  // item with id of 1 is the magic [Not Applicable] topic
-  const topicIdNotApplicable = 1;
+  // The system [Not Applicable] topic is identified by its flag, not by its id or name.
+  const topicIdNotApplicable = (filteredTopics ?? topics)?.find((t) => t.isSystem)?.id;
 
   React.useEffect(() => {
     if (filteredTopics) {
@@ -48,16 +48,16 @@ export const Topic: React.FC<ITopicProps> = ({
 
   const convertToGroupedOptions = (topics: ITopicModel[]): IGroupedTopicOptions[] => {
     const groupedOptions: IGroupedTopicOptions[] = [];
-    const notApplicableTopic = topics.find((el) => el.id === topicIdNotApplicable);
+    const notApplicableTopic = topics.find((el) => el.isSystem);
     if (notApplicableTopic) {
       groupedOptions.push({
-        label: 'Not Applicable',
+        label: notApplicableTopic.name,
         options: [
           {
             isDisabled: false,
-            label: 'Not Applicable',
+            label: notApplicableTopic.name,
             topicType: TopicTypeName.Issues,
-            value: topicIdNotApplicable,
+            value: notApplicableTopic.id,
           } as ITopicOptionItem,
         ],
       });
@@ -70,7 +70,7 @@ export const Topic: React.FC<ITopicProps> = ({
       .forEach((key) => {
         let filteredTopics = topics.filter(
           (el) =>
-            el.id !== topicIdNotApplicable &&
+            !el.isSystem &&
             el.topicType === key &&
             // show all enabled Topics or disabled Topic if it's set as current
             (el.isEnabled || (!el.isEnabled && el.id === value)),
@@ -141,7 +141,7 @@ export const Topic: React.FC<ITopicProps> = ({
         isDisabled={isDisabled}
         isClearable={false}
         className={className}
-        value={getTopicOption(value ?? topicIdNotApplicable)}
+        value={getTopicOption(value ?? topicIdNotApplicable ?? 0)}
         onChange={(e: any) => {
           let value;
           if (e?.value) {

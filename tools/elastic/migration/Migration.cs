@@ -130,8 +130,8 @@ public abstract class Migration
                 {
                     // Perform each action in order.
                     builder.Logger.LogInformation("Applying migration step '{file}'", file);
-                    using var stream = File.OpenRead(file);
-                    var step = JsonSerializer.Deserialize<MigrationStep>(stream, builder.SerializerOptions) ?? throw new InvalidOperationException($"Failed to deserialize '{file}'");
+                    var json = ReplaceIndexNames(builder, await File.ReadAllTextAsync(file));
+                    var step = JsonSerializer.Deserialize<MigrationStep>(json, builder.SerializerOptions) ?? throw new InvalidOperationException($"Failed to deserialize '{file}'");
                     if (step.Action == MigrationAction.CreateIndex)
                         await CreateIndexAsync(builder, step, path);
                     else if (step.Action == MigrationAction.DeleteIndex)
@@ -159,6 +159,22 @@ public abstract class Migration
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Replace the index name placeholders a step may use ('${ContentIndex}', '${PublishedIndex}',
+    /// '${EvidenceIndex}') with the configured names, so one migration runs on clusters that name
+    /// their indexes differently (on-premise and Elastic Cloud).
+    /// </summary>
+    /// <param name="builder"></param>
+    /// <param name="json"></param>
+    /// <returns></returns>
+    protected static string ReplaceIndexNames(MigrationBuilder builder, string json)
+    {
+        return json
+            .Replace("${ContentIndex}", builder.MigrationOptions.ContentIndex)
+            .Replace("${PublishedIndex}", builder.MigrationOptions.PublishedIndex)
+            .Replace("${EvidenceIndex}", builder.MigrationOptions.EvidenceIndex);
     }
 
     #region Elastic actions
@@ -201,7 +217,8 @@ public abstract class Migration
         {
             var response = await builder.Client.ReindexOnServerAsync(s => s
                 .Source(s => s.Index(source))
-                .Destination(s => s.Index(dest))
+                // Keep the source documents' versions, so a copy never regresses a newer write.
+                .Destination(s => s.Index(dest).VersionType(Elasticsearch.Net.VersionType.External))
                 .WaitForCompletion(false)
                 .Timeout(new TimeSpan(0, 5, 0)));
             if (!response.IsValid)
@@ -218,7 +235,13 @@ public abstract class Migration
             // https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-reindex.html
             if (step.Data == null) throw new InvalidOperationException($"Migration step '{path}' is missing required property 'data'.");
 
-            var data = PostData.String(JsonSerializer.Serialize(step.Data, builder.SerializerOptions));
+            var json = System.Text.Json.Nodes.JsonNode.Parse(JsonSerializer.Serialize(step.Data, builder.SerializerOptions))!;
+            // Keep the source documents' versions unless the step says otherwise ('create' only
+            // supports internal versioning, so older steps that use it are left as they are).
+            if (json["dest"] is System.Text.Json.Nodes.JsonObject destination && destination["version_type"] == null
+                && destination["op_type"]?.GetValue<string>() != "create")
+                destination["version_type"] = "external";
+            var data = PostData.String(json.ToJsonString());
             var response = await builder.Client.LowLevel.ReindexOnServerAsync<ReindexOnServerResponse>(data, new ReindexOnServerRequestParameters()
             {
                 Timeout = new TimeSpan(0, 5, 0),

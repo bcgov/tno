@@ -32,6 +32,11 @@ public class ReportResultModel
     /// get/set - JSON data that was used to generate the report.
     /// </summary>
     public JsonDocument? Data { get; set; }
+
+    /// <summary>
+    /// get/set - The state of each AI section in the report.
+    /// </summary>
+    public IEnumerable<ReportAISectionStatusModel> AISections { get; set; } = Array.Empty<ReportAISectionStatusModel>();
     #endregion
 
     #region Constructors

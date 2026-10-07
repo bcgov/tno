@@ -19,7 +19,6 @@ import {
   type ITagModel,
   type ITonePoolModel,
   type ITopicModel,
-  type ITopicScoreRuleModel,
   type IUserModel,
 } from 'tno-core';
 
@@ -28,7 +27,6 @@ export interface ILookupState {
   cache: ICacheModel[];
   actions: IActionModel[];
   topics: ITopicModel[];
-  rules: ITopicScoreRuleModel[];
   mediaTypes: IMediaTypeModel[];
   licenses: ILicenseModel[];
   ingestTypes: IIngestTypeModel[];

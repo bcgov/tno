@@ -1,9 +1,17 @@
 import React from 'react';
 import { FaEye } from 'react-icons/fa6';
-import { useApp, useReportInstances } from 'store/hooks';
+import { useApiHub, useApp, useReportInstances } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Col, Loading, Overlay, Row, Show } from 'tno-core';
+import {
+  AISectionStatusName,
+  Col,
+  IReportMessageModel,
+  MessageTargetKey,
+  ReportPreviewStatus,
+  Row,
+} from 'tno-core';
 
+import { ReportBody } from '../../ReportBody';
 import { useReportEditContext } from '../ReportEditContext';
 import * as styled from './styled';
 
@@ -12,10 +20,12 @@ export const ReportView = () => {
   const [{ requests }] = useApp();
   const [{ reportOutput }, { storeReportOutput }] = useProfileStore();
   const [{ viewReportInstance }] = useReportInstances();
+  const hub = useApiHub();
   const instance = values.instances.length ? values.instances[0] : undefined;
   const instanceId = instance?.id;
   const updatedOn = instance?.updatedOn;
   const isLoading = requests.some((r) => r.group.includes('view-report'));
+  const aiSections = reportOutput?.instanceId === instanceId ? reportOutput?.aiSections : undefined;
 
   const handleViewReport = React.useCallback(
     async (instanceId: any, regenerate: boolean) => {
@@ -38,6 +48,24 @@ export const ReportView = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instanceId, updatedOn, instance?.sentOn]);
 
+  // AI sections are generated in the background; refresh the preview when they are ready.
+  hub.useHubEffect(MessageTargetKey.ReportStatus, async (message: IReportMessageModel) => {
+    if (message.message === 'ai-sections' && message.id === instanceId) {
+      await handleViewReport(instanceId, !instance?.sentOn);
+    }
+  });
+
+  // Completion notifications can be missed (or sent to another viewer). Recheck queued and
+  // running sections until they reach a terminal state, including when a claim expires.
+  const isWaitingForAI = aiSections?.some((section) =>
+    [AISectionStatusName.NotStarted, AISectionStatusName.Generating].includes(section.status),
+  );
+  React.useEffect(() => {
+    if (!isWaitingForAI || isLoading || !instanceId) return;
+    const timer = setTimeout(() => handleViewReport(instanceId, !instance?.sentOn), 30000);
+    return () => clearTimeout(timer);
+  }, [isWaitingForAI, isLoading, instanceId, instance?.sentOn, handleViewReport, aiSections]);
+
   return (
     <styled.ReportView className="report-edit-section">
       <div>
@@ -47,20 +75,13 @@ export const ReportView = () => {
           <div></div>
         </Row>
       </div>
+      <ReportPreviewStatus isRequesting={isLoading} sections={aiSections} />
       <Col className="preview-report">
-        <Show visible={isLoading}>
-          <Overlay>
-            <Loading />
-          </Overlay>
-        </Show>
         <div
           className="preview-subject"
           dangerouslySetInnerHTML={{ __html: reportOutput?.subject ?? '' }}
         ></div>
-        <div
-          className="preview-body"
-          dangerouslySetInnerHTML={{ __html: reportOutput?.body ?? '' }}
-        ></div>
+        <ReportBody html={reportOutput?.body ?? ''} />
       </Col>
     </styled.ReportView>
   );

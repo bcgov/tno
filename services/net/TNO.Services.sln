@@ -5,8 +5,6 @@ VisualStudioVersion = 17.6.33712.159
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TNO.Services.Syndication", "syndication\TNO.Services.Syndication.csproj", "{F3D767A1-7B69-415D-ADAF-29EF5814C4EA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TNO.Services.NLP", "nlp\TNO.Services.NLP.csproj", "{9F920C1C-1D67-4D34-A60E-5608D4989762}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TNO.Services.Content", "content\TNO.Services.Content.csproj", "{F57E61B8-C192-4FF9-B211-77FEAB8890B0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TNO.Services.Image", "image\TNO.Services.Image.csproj", "{9F4D1CCE-68FC-4E8B-8548-4372488117C8}"
@@ -31,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.ChesRetry", "c
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Automation", "automation\TNO.Services.Automation.csproj", "{484A005E-4301-41DB-AB53-3F589EC724C9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.ContentAnalysis", "content-analysis\TNO.Services.ContentAnalysis.csproj", "{A8FE00B4-E675-447B-931F-1DD981D6D0A6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,10 +41,6 @@ Global
 		{F3D767A1-7B69-415D-ADAF-29EF5814C4EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3D767A1-7B69-415D-ADAF-29EF5814C4EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F3D767A1-7B69-415D-ADAF-29EF5814C4EA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9F920C1C-1D67-4D34-A60E-5608D4989762}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9F920C1C-1D67-4D34-A60E-5608D4989762}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9F920C1C-1D67-4D34-A60E-5608D4989762}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9F920C1C-1D67-4D34-A60E-5608D4989762}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F57E61B8-C192-4FF9-B211-77FEAB8890B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F57E61B8-C192-4FF9-B211-77FEAB8890B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F57E61B8-C192-4FF9-B211-77FEAB8890B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -93,6 +89,10 @@ Global
 		{484A005E-4301-41DB-AB53-3F589EC724C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{484A005E-4301-41DB-AB53-3F589EC724C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{484A005E-4301-41DB-AB53-3F589EC724C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8FE00B4-E675-447B-931F-1DD981D6D0A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8FE00B4-E675-447B-931F-1DD981D6D0A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8FE00B4-E675-447B-931F-1DD981D6D0A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8FE00B4-E675-447B-931F-1DD981D6D0A6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

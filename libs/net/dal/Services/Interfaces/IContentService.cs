@@ -47,9 +47,12 @@ public interface IContentService : IBaseService<Content, long>
     ContentAction AddOrUpdateContentAction(ContentAction action);
 
     /// <summary>
-    /// Update the content topics.
+    /// Update the content topics. A score equal to the calculated score is stored as calculated;
+    /// any other changed score is an override. Each existing topic's version is checked.
     /// </summary>
+    /// <param name="contentId"></param>
     /// <param name="topics">update the current topics with these</param>
+    /// <param name="calculatedScore">The score the topic score rules give the content, or null when it is not scored.</param>
     /// <returns></returns>
-    IEnumerable<ContentTopic> AddOrUpdateContentTopics(long contentId, IEnumerable<ContentTopic> topics);
+    IEnumerable<ContentTopic> AddOrUpdateContentTopics(long contentId, IEnumerable<ContentTopic> topics, int? calculatedScore);
 }

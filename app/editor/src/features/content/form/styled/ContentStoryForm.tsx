@@ -20,13 +20,6 @@ export const ContentStoryForm = styled.div`
     margin-right: 0.5em;
   }
 
-  .nlp-button {
-    align-self: center;
-    padding-right: 0.25em;
-    height: 1.25em;
-    width: 1.25em;
-  }
-
   .transcription-section {
     align-items: center;
     padding-right: 1em;

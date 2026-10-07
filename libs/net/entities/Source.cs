@@ -86,6 +86,13 @@ public class Source : BaseType<int>
     public bool UseInTopics { get; set; }
 
     /// <summary>
+    /// get/set - The topic score used when none of the source's topic score rules match. Null
+    /// scores unmatched content 0.
+    /// </summary>
+    [Column("topic_default_score")]
+    public int? TopicDefaultScore { get; set; }
+
+    /// <summary>
     /// get/set - Configuration settings.
     /// </summary>
     [Column("configuration")]

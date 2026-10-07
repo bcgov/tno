@@ -28,7 +28,6 @@ import {
   type ISystemMessageModel,
   type ITagModel,
   type ITopicModel,
-  type ITopicScoreRuleModel,
   type IUserFilter,
   type IUserModel,
   type IWorkOrderModel,
@@ -73,7 +72,6 @@ export const initialAdminState: IAdminState = {
   reportSubscriberFilter: {},
   reports: [],
   reportTemplates: [],
-  rules: [],
   seriesFilter: '',
   series: [],
   sourceFilter: '',
@@ -243,9 +241,6 @@ export const adminSlice = createSlice({
     storeTopics(state: IAdminState, action: PayloadAction<ITopicModel[]>) {
       state.topics = action.payload;
     },
-    storeTopicScoreRules(state: IAdminState, action: PayloadAction<ITopicScoreRuleModel[]>) {
-      state.rules = action.payload;
-    },
     storeUserFilter(state: IAdminState, action: PayloadAction<IUserListFilter>) {
       state.userFilter = action.payload;
     },
@@ -310,7 +305,6 @@ export const {
   storeTags: storeAdminTags,
   storeTopicFilter: storeAdminTopicFilter,
   storeTopics: storeAdminTopics,
-  storeTopicScoreRules: storeAdminTopicScoreRules,
   storeUserFilter: storeAdminUserFilter,
   storeUsers: storeAdminUsers,
   storeWorkOrderFilter: storeAdminWorkOrderFilter,

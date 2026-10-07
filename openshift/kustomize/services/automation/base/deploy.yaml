@@ -71,11 +71,11 @@ spec:
                 configMapKeyRef:
                   name: services
                   key: EMAIL_FAILURE_TO
-            - name: Service__MaxFailLimit
+            - name: Service__MaxFailureLimit
               valueFrom:
                 configMapKeyRef:
                   name: automation-service
-                  key: MAX_FAIL_LIMIT
+                  key: MAX_FAILURE_LIMIT
             - name: Service__SendEmailOnFailure
               valueFrom:
                 configMapKeyRef:

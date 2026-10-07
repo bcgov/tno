@@ -1,27 +1,30 @@
 import { type ITopicScoreRuleModel } from 'tno-core';
 
-import { type ITopicScoreRuleForm } from './../interfaces';
+import { type ITopicScoreRuleForm } from '../interfaces';
+
+const toNumber = (value: number | '') => (value === '' ? undefined : Number(value));
+const toText = (value: string) => (value.trim() === '' ? undefined : value.trim());
 
 export const toModel = (values: ITopicScoreRuleForm): ITopicScoreRuleModel => {
+  const prefix = values.pagePrefix.trim().toUpperCase();
   return {
     id: values.id,
-    sourceId: values.sourceId !== '' ? values.sourceId : 0,
-    seriesId: values.seriesId !== '' ? values.seriesId : undefined,
-    section: values.section !== '' ? values.section : undefined,
-    pageMin: values.pageMin !== '' ? values.pageMin : undefined,
-    pageMax: values.pageMax !== '' ? values.pageMax : undefined,
-    hasImage: values.hasImage,
-    timeMin: values.timeMin !== '' ? values.timeMin : undefined,
-    timeMax: values.timeMax !== '' ? values.timeMax : undefined,
-    characterMin: values.characterMin !== '' ? values.characterMin : undefined,
-    characterMax: values.characterMax !== '' ? values.characterMax : undefined,
-    score: values.score !== '' ? values.score : 0,
+    sourceId: values.sourceId,
+    seriesId: toNumber(values.seriesId),
+    section: toText(values.section),
+    pageMin: values.pageMin === '' ? undefined : `${prefix}${values.pageMin}`,
+    pageMax: values.pageMax === '' ? undefined : `${prefix}${values.pageMax}`,
+    hasImage: values.hasImage === '' ? undefined : values.hasImage === 'true',
+    timeMin: toText(values.timeMin),
+    timeMax: toText(values.timeMax),
+    characterMin: toNumber(values.characterMin),
+    characterMax: toNumber(values.characterMax),
+    score: values.score === '' ? 0 : Number(values.score),
     sortOrder: values.sortOrder,
     createdBy: values.createdBy,
     createdOn: values.createdOn,
     updatedBy: values.updatedBy,
     updatedOn: values.updatedOn,
     version: values.version,
-    remove: values.remove,
   };
 };

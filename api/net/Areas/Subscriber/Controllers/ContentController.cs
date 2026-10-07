@@ -369,7 +369,8 @@ public class ContentController : ControllerBase
 
         if (content.OwnerId == user.Id)
         {
-            // Delete custom content owned by user.
+            // Delete custom content owned by user, and remove it from Elasticsearch.
+            _contentService.RequestIndex(content.Id, Entities.IndexRequestAction.Delete, user.Id);
             _contentService.DeleteAndSave(content);
         }
         else

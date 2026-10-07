@@ -42,5 +42,12 @@ public class ElasticMigrationOptions : ElasticOptions
     /// get/set - Maximum number of failures before exiting the reindex process.
     /// </summary>
     public int ReindexFailureLimit { get; set; } = 5;
+
+    /// <summary>
+    /// get/set - For a cluster whose indexes exist but whose migrations index has no history (the
+    /// indexes were created some other way): the version the cluster is treated as already at.
+    /// Recorded before migrating, so earlier migrations are not run against existing indexes.
+    /// </summary>
+    public string BaselineVersion { get; set; } = "";
     #endregion
 }

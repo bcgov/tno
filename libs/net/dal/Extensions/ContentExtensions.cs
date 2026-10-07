@@ -122,16 +122,13 @@ public static class ContentExtensions
         {
             context.Entry(a).State = EntityState.Deleted;
         });
+        // A content save only adds and removes topics. Calculated scores follow their inputs
+        // (TNOContext.RecalculateTopicScores) and overrides are set through the topics endpoint.
         updated.TopicsManyToMany.ForEach(a =>
         {
             var current = a.TopicId != 0 ? oTopics.FirstOrDefault(o => o.TopicId == a.TopicId) : null;
             if (current == null)
                 original.TopicsManyToMany.Add(a);
-            else if (current.Score != a.Score)
-            {
-                current.Score = a.Score;
-                current.Version = a.Version;
-            }
         });
 
         oTags.Except(updated.TagsManyToMany).ForEach(a =>

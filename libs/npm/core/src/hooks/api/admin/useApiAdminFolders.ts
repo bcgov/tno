@@ -24,9 +24,9 @@ export const useApiAdminFolders = (
       var query = toQueryString(filter ?? {});
       return api.get<never, AxiosResponse<IFolderModel[]>, any>(`/admin/folders?${query}`);
     },
-    getContentInFolder: (id: number, includeMaxTopicScore: boolean = false) => {
+    getContentInFolder: (id: number, includeCalculatedTopicScore: boolean = false) => {
       return api.get<never, AxiosResponse<IFolderContentModel[]>, any>(
-        `/admin/folders/${id}/content?includeMaxTopicScore=${includeMaxTopicScore}`,
+        `/admin/folders/${id}/content?includeCalculatedTopicScore=${includeCalculatedTopicScore}`,
       );
     },
     getFolder: (id: number, includeContent: boolean = false) => {

@@ -32,6 +32,7 @@ import {
   WorkOrderTypeName,
 } from 'tno-core';
 
+import { ContentAnalysis } from './ContentAnalysis';
 import * as styled from './styled';
 import { ToneValue } from './ToneValue';
 import { isWorkOrderStatus } from './utils';
@@ -56,6 +57,8 @@ export interface IViewContentProps {
  */
 export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, activeContent }) => {
   const { id, popout } = useParams();
+  const [analysisOpen, setAnalysisOpen] = React.useState(false);
+  React.useEffect(() => setAnalysisOpen(false), [id]);
   const [
     {
       search: { filter },
@@ -330,153 +333,172 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, act
           )}
         </Row>
       </Bar>
-      {!!content && <ContentActionBar className="actions" content={[content]} viewingContent />}
-      <Show visible={!!avStream && isAV}>
-        <Row justifyContent="center">
-          <Show visible={isProcessing}>
-            <Col alignItems="center" gap="1rem">
-              File is being converted.
-              <Spinner />
+      {!!content && (
+        <ContentActionBar
+          className="actions"
+          content={[content]}
+          viewingContent
+          analysisOpen={analysisOpen}
+          onAnalysis={() => setAnalysisOpen((value) => !value)}
+        />
+      )}
+      {analysisOpen && content && (
+        <section id="content-analysis-panel" aria-label="Analysis">
+          <Button variant="secondary" onClick={() => setAnalysisOpen(false)}>
+            Read story
+          </Button>
+          <ContentAnalysis key={content.id} contentId={content.id} />
+        </section>
+      )}
+      <div hidden={analysisOpen}>
+        <Show visible={!!avStream && isAV}>
+          <Row justifyContent="center">
+            <Show visible={isProcessing}>
+              <Col alignItems="center" gap="1rem">
+                File is being converted.
+                <Spinner />
+              </Col>
+            </Show>
+            <Show visible={!isProcessing && fileReference?.contentType.startsWith('audio/')}>
+              <audio controls ref={radioRef}>
+                <source src={avStream?.url} type={fileReference?.contentType} />
+                HTML5 Audio is required
+              </audio>
+            </Show>
+            <Show visible={!isProcessing && fileReference?.contentType.startsWith('video/')}>
+              <video
+                controls
+                height={width! > 500 ? '270' : 135}
+                width={width! > 500 ? 480 : 240}
+                preload="metadata"
+                ref={videoRef}
+              >
+                <source src={avStream?.url} type={fileReference?.contentType} />
+                HTML5 Audio is required
+              </video>
+            </Show>
+          </Row>
+        </Show>
+        <Show visible={!!avStream && content?.contentType === ContentTypeName.Image}>
+          <Row justifyContent="center">
+            <img alt="media" src={!!avStream?.url ? avStream?.url : ''} />
+          </Row>
+        </Show>
+        <Row id="summary" className="summary">
+          <Show visible={isAV && !!content?.summary && isDifferent && !popout}>
+            <Col className="summary-container">
+              <span>{formattedSummary}</span>
+              <Show visible={!!content?.sourceUrl && content?.mediaType?.name !== 'CP Wire'}>
+                <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
+                  More...
+                </a>
+              </Show>
             </Col>
           </Show>
-          <Show visible={!isProcessing && fileReference?.contentType.startsWith('audio/')}>
-            <audio controls ref={radioRef}>
-              <source src={avStream?.url} type={fileReference?.contentType} />
-              HTML5 Audio is required
-            </audio>
+          <Show visible={!isAV && !!content}>
+            <Col>
+              {!!content?.body?.length && !popout ? (
+                <div>{formattedBody}</div>
+              ) : (
+                <span>{formattedSummary}</span>
+              )}
+              <Show visible={!!content?.sourceUrl && content?.mediaType?.name !== 'CP Wire'}>
+                <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
+                  More...
+                </a>
+              </Show>
+            </Col>
           </Show>
-          <Show visible={!isProcessing && fileReference?.contentType.startsWith('video/')}>
-            <video
-              controls
-              height={width! > 500 ? '270' : 135}
-              width={width! > 500 ? 480 : 240}
-              preload="metadata"
-              ref={videoRef}
-            >
-              <source src={avStream?.url} type={fileReference?.contentType} />
-              HTML5 Audio is required
-            </video>
-          </Show>
-        </Row>
-      </Show>
-      <Show visible={!!avStream && content?.contentType === ContentTypeName.Image}>
-        <Row justifyContent="center">
-          <img alt="media" src={!!avStream?.url ? avStream?.url : ''} />
-        </Row>
-      </Show>
-      <Row id="summary" className="summary">
-        <Show visible={isAV && !!content?.summary && isDifferent && !popout}>
-          <Col className="summary-container">
-            <span>{formattedSummary}</span>
-            <Show visible={!!content?.sourceUrl && content?.mediaType?.name !== 'CP Wire'}>
-              <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
-                More...
-              </a>
-            </Show>
-          </Col>
-        </Show>
-        <Show visible={!isAV && !!content}>
-          <Col>
-            {!!content?.body?.length && !popout ? (
-              <div>{formattedBody}</div>
-            ) : (
-              <span>{formattedSummary}</span>
-            )}
-            <Show visible={!!content?.sourceUrl && content?.mediaType?.name !== 'CP Wire'}>
-              <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
-                More...
-              </a>
-            </Show>
-          </Col>
-        </Show>
-        <Row className={`${!!popout && 'popout-transcribe-row'}`}>
-          <Show
-            visible={
-              isAV &&
-              !content?.source?.disableTranscribe &&
-              !content.isApproved &&
-              !isTranscriptRequestor &&
-              !!content?.fileReferences.length
-            }
-          >
-            <Button
-              onClick={() => handleTranscribe()}
-              variant={isTranscribing ? 'warn' : 'primary'}
-              className="transcribe-button"
-              disabled={
-                (!!content?.fileReferences && !content?.fileReferences.length) ||
-                (!!content?.fileReferences &&
-                  content?.fileReferences.length > 0 &&
-                  !content?.fileReferences[0].isUploaded)
+          <Row className={`${!!popout && 'popout-transcribe-row'}`}>
+            <Show
+              visible={
+                isAV &&
+                !content?.source?.disableTranscribe &&
+                !content.isApproved &&
+                !isTranscriptRequestor &&
+                !!content?.fileReferences.length
               }
             >
-              <Show visible={!isTranscribing}>
-                <FaFeather /> Request Transcript
-              </Show>
-              <Show visible={isTranscribing && !isTranscriptRequestor}>
-                Request Email when Transcript Complete
-              </Show>
-            </Button>
-            {!!popout && (
-              <ContentActionBar className="actions-popout" content={activeContent ?? []} />
-            )}
-          </Show>
+              <Button
+                onClick={() => handleTranscribe()}
+                variant={isTranscribing ? 'warn' : 'primary'}
+                className="transcribe-button"
+                disabled={
+                  (!!content?.fileReferences && !content?.fileReferences.length) ||
+                  (!!content?.fileReferences &&
+                    content?.fileReferences.length > 0 &&
+                    !content?.fileReferences[0].isUploaded)
+                }
+              >
+                <Show visible={!isTranscribing}>
+                  <FaFeather /> Request Transcript
+                </Show>
+                <Show visible={isTranscribing && !isTranscriptRequestor}>
+                  Request Email when Transcript Complete
+                </Show>
+              </Button>
+              {!!popout && (
+                <ContentActionBar className="actions-popout" content={activeContent ?? []} />
+              )}
+            </Show>
+          </Row>
         </Row>
-      </Row>
-      <Show visible={!!popout}>
-        <div className="copyright-text">
+        <Show visible={!!popout}>
+          <div className="copyright-text">
+            <hr />
+            <FaCopyright />
+            Copyright protected and owned by broadcaster. Your licence is limited to internal,
+            non-commercial, government use. All reproduction, broadcast, transmission, or other use
+            of this work is prohibited and subject to licence.
+          </div>
+        </Show>
+        <Show visible={isAV && isTranscribing}>
           <hr />
-          <FaCopyright />
-          Copyright protected and owned by broadcaster. Your licence is limited to internal,
-          non-commercial, government use. All reproduction, broadcast, transmission, or other use of
-          this work is prohibited and subject to licence.
-        </div>
-      </Show>
-      <Show visible={isAV && isTranscribing}>
-        <hr />
-        <h3>Transcription:</h3>
-        <Col className="transcript-status">
-          <p>
-            Transcript request has been submitted. Once reviewed and approved it will be displayed.
-          </p>
-          {isTranscriptRequestor && <p>You will receive an email once available.</p>}
-        </Col>
-      </Show>
-      <Show visible={isAV && !isTranscribing && !!content.body?.length && !popout}>
-        <hr />
-        <Row>
-          <img
-            className="transcript-feather"
-            src={`/assets/transcript_feather.svg`}
-            alt="Transcript"
-          />
-          <h3 className="transcript-heading">Transcript:</h3>
-        </Row>
-        <Col>{content && parse(showTranscription(content))}</Col>
-      </Show>
-      <Show
-        visible={
-          (content?.contentType === ContentTypeName.PrintContent ||
-            content?.contentType === ContentTypeName.Internet) &&
-          !!filteredQuotes.length
-        }
-      >
-        <hr />
-        <h3 id="quotes-anchor">Quotes:</h3>
-        <Row>
-          <ul className="quotes-container">
-            {filteredQuotes.map((q) => {
-              return (
-                <li key={q.id}>
-                  <q className="quote-statement">{q.statement}</q>
-                  <br />
-                  <label className="quote-byline">&mdash; {q.byline}</label>
-                </li>
-              );
-            })}
-          </ul>
-        </Row>
-      </Show>
+          <h3>Transcription:</h3>
+          <Col className="transcript-status">
+            <p>
+              Transcript request has been submitted. Once reviewed and approved it will be
+              displayed.
+            </p>
+            {isTranscriptRequestor && <p>You will receive an email once available.</p>}
+          </Col>
+        </Show>
+        <Show visible={isAV && !isTranscribing && !!content.body?.length && !popout}>
+          <hr />
+          <Row>
+            <img
+              className="transcript-feather"
+              src={`/assets/transcript_feather.svg`}
+              alt="Transcript"
+            />
+            <h3 className="transcript-heading">Transcript:</h3>
+          </Row>
+          <Col>{content && parse(showTranscription(content))}</Col>
+        </Show>
+        <Show
+          visible={
+            (content?.contentType === ContentTypeName.PrintContent ||
+              content?.contentType === ContentTypeName.Internet) &&
+            !!filteredQuotes.length
+          }
+        >
+          <hr />
+          <h3 id="quotes-anchor">Quotes:</h3>
+          <Row>
+            <ul className="quotes-container">
+              {filteredQuotes.map((q) => {
+                return (
+                  <li key={q.id}>
+                    <q className="quote-statement">{q.statement}</q>
+                    <br />
+                    <label className="quote-byline">&mdash; {q.byline}</label>
+                  </li>
+                );
+              })}
+            </ul>
+          </Row>
+        </Show>
+      </div>
     </styled.ViewContent>
   );
 };

@@ -14,7 +14,7 @@ metadata:
     component: ches-retry-service
     managed-by: kustomize
 data:
-  MAX_FAIL_LIMIT: "5"
+  MAX_FAILURE_LIMIT: "5"
   CHES_EMAIL_ENABLED: "true"
   CHES_EMAIL_AUTHORIZED: "true"
   RETRY_TIME_LIMIT: "5"

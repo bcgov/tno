@@ -15,9 +15,10 @@ metadata:
     managed-by: kustomize
 data:
   KAFKA_CLIENT_ID: Scheduler
-  MAX_FAIL_LIMIT: "5"
+  MAX_FAILURE_LIMIT: "5"
   EVENT_TYPES: |
     - Notification
     - Report
+    - PurgeHistory
   CHES_EMAIL_ENABLED: "true"
   CHES_EMAIL_AUTHORIZED: "true"

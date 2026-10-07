@@ -22,9 +22,9 @@ public class KafkaOptions
     public string AutoClipTopic { get; set; } = "";
 
     /// <summary>
-    /// get/set - The Kafka topic name to request NLP.
+    /// get/set - The Kafka topic name that wakes Content-Analysis workers.
     /// </summary>
-    public string NLPTopic { get; set; } = "";
+    public string AnalysisTopic { get; set; } = "";
 
     /// <summary>
     /// get/set - The Kafka topic name to request a remote file.

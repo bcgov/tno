@@ -1,5 +1,4 @@
 using System.Text.Json;
-using TNO.Core.Extensions;
 using TNO.Models.Extensions;
 
 namespace TNO.API.Models.Settings;
@@ -37,6 +36,29 @@ public class ReportSectionSettingsModel
     public int? ChoiceQty { get; set; }
     public float? Temperature { get; set; }
     public bool ShowErrorDetails { get; set; }
+
+    /// <summary>
+    /// get/set - Which content feeds an AI section: 'Report' (every content section, the behaviour
+    /// of sections saved before scopes existed) or 'Sections' (the SourceSections).
+    /// </summary>
+    public string? AIScope { get; set; }
+
+    /// <summary>
+    /// get/set - The content sections (by name) that feed an AI section scoped to sections.
+    /// </summary>
+    public string[] SourceSections { get; set; } = Array.Empty<string>();
+
+    /// <summary>
+    /// get/set - What an AI section produces: 'FreeText' (default) or 'TopicSummary' (headings
+    /// with bullet statements and source lists).
+    /// </summary>
+    public string? AIOutputMode { get; set; }
+
+    /// <summary>
+    /// get/set - Story fields sent to AI synthesis. Null preserves the default fields; an empty
+    /// selection is invalid. Applies to both current stories and previous report context.
+    /// </summary>
+    public string[]? AIInputFields { get; set; }
     #endregion
 
     #region Constructors
@@ -74,40 +96,15 @@ public class ReportSectionSettingsModel
         this.ChoiceQty = settings.GetDictionaryJsonValue<int?>("choiceQty", null, options)!;
         this.Temperature = settings.GetDictionaryJsonValue<float?>("temperature", null, options)!;
         this.ShowErrorDetails = settings.GetDictionaryJsonValue("showErrorDetails", false, options)!;
+        this.AIScope = settings.GetDictionaryJsonValue<string?>("aiScope", null, options)!;
+        this.SourceSections = settings.GetDictionaryJsonValue("sourceSections", Array.Empty<string>(), options)!;
+        this.AIOutputMode = settings.GetDictionaryJsonValue<string?>("aiOutputMode", null, options)!;
+        this.AIInputFields = settings.GetDictionaryJsonValue<string[]?>("aiInputFields", null, options);
     }
 
     public ReportSectionSettingsModel(JsonDocument settings, JsonSerializerOptions options)
+        : this(settings.RootElement.Deserialize<Dictionary<string, object>>(options) ?? new(), options)
     {
-        this.Label = settings.GetElementValue("label", "", options)!;
-        this.UseAllContent = settings.GetElementValue("useAllContent", false, options);
-        this.ShowHeadlines = settings.GetElementValue("showHeadlines", false, options);
-        this.ShowFullStory = settings.GetElementValue("showFullStory", false, options);
-        this.ShowImage = settings.GetElementValue("showImage", false, options);
-        this.ConvertToBase64Image = settings.GetElementValue("convertToBase64Image", false, options);
-        this.CacheData = settings.GetElementValue("cacheData", false, options);
-        this.Direction = settings.GetElementValue("direction", "", options)!;
-        this.RemoveDuplicates = settings.GetElementValue("removeDuplicates", false, options)!;
-        this.RemoveDuplicateTitles3Days = settings.GetElementValue("removeDuplicateTitles3Days", false, options)!;
-        this.OverrideExcludeHistorical = settings.GetElementValue("overrideExcludeHistorical", false, options)!;
-        this.InTableOfContents = settings.GetElementValue<bool?>("inTableOfContents", null, options)!;
-        this.IncludePreviousReports = settings.GetElementValue<int?>("includePreviousReports", null, options)!;
-        this.HideEmpty = settings.GetElementValue("hideEmpty", false, options)!;
-        this.GroupBy = settings.GetElementValue("groupBy", "", options)!;
-        this.SortBy = settings.GetElementValue("sortBy", "", options)!;
-        this.SortDirection = settings.GetElementValue("sortDirection", "", options)!;
-        this.Url = settings.GetElementValue("url", "", options)!;
-        this.UrlCache = settings.GetElementValue<string?>("urlCache", null, options)!;
-        this.Preload = settings.GetElementValue("preload", false, options)!;
-        this.DataType = settings.GetElementValue<string?>("dataType", null, options)!;
-        this.DataProperty = settings.GetElementValue<string?>("dataProperty", null, options)!;
-        this.DataTemplate = settings.GetElementValue<string?>("dataTemplate", null, options)!;
-        this.LLMId = settings.GetElementValue<int?>("llmId", null, options)!;
-        this.SystemPrompt = settings.GetElementValue<string?>("systemPrompt", null, options)!;
-        this.UserPrompt = settings.GetElementValue<string?>("userPrompt", null, options)!;
-        this.ChoiceIndex = settings.GetElementValue<int?>("choiceIndex", null, options)!;
-        this.ChoiceQty = settings.GetElementValue<int?>("choiceQty", null, options)!;
-        this.Temperature = settings.GetElementValue<float?>("temperature", null, options)!;
-        this.ShowErrorDetails = settings.GetElementValue("showErrorDetails", false, options)!;
     }
     #endregion
 }

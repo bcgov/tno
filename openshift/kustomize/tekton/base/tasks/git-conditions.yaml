@@ -173,13 +173,11 @@ spec:
         # build_service 'contentmigration' # Moved to GHA — contentmigration-service-cicd.yml
         # build_service 'ffmpeg' # Moved to GHA — ffmpeg-service-cicd.yml
         # build_service 'event-handler' # Moved to GHA — event-handler-cicd.yml
-        # build_service 'extract-quotes' # Moved to GitHub Actions CI/CD — extract-quotes-service-cicd.yml
         build_service 'filecopy'
         # build_service 'filemonitor' # Moved to GitHub Actions CI/CD — filemonitor-service-cicd.yml
         # build_service 'folder-collection' # Moved to GitHub Actions CI/CD — folder-collection-cicd.yml
         # build_service 'image' # Moved to GitHub Actions CI/CD — image-service-cicd.yml
         # build_service 'indexing' # Moved to GHA — indexing-service-cicd.yml
-        # build_service 'nlp' # Moved to GitHub Actions CI/CD — nlp-service-cicd.yml
         # build_service 'notification' # Moved to GHA — notification-service-cicd.yml
         # build_service 'scheduler' # Moved to GHA — scheduler-service-cicd.yml
         # build_service 'syndication' # Moved to GHA — syndication-service-cicd.yml

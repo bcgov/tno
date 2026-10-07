@@ -1,5 +1,6 @@
 export * from './useAVOverviewInstances';
 export * from './useContent';
+export * from './useContentAnalysis';
 export * from './useFolders';
 export * from './usehooks-ts';
 export * from './useNotifications';

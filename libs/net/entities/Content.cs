@@ -186,6 +186,13 @@ public class Content : AuditColumns
     public bool IsApproved { get; set; }
 
     /// <summary>
+    /// get/set - Incremented with every index request; the version of the content's Elasticsearch
+    /// documents, so an older projection never replaces a newer one. Not a concurrency token.
+    /// </summary>
+    [Column("projection_revision")]
+    public long ProjectionRevision { get; set; }
+
+    /// <summary>
     /// get/set - Private content is not searchable.
     /// </summary>
     [Column("is_private")]

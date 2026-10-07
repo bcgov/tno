@@ -1,8 +1,9 @@
 import React from 'react';
 import { useApp, useReportInstances } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Col, Loading, Show } from 'tno-core';
+import { Col, Loading, NotFound, Show } from 'tno-core';
 
+import { ReportBody } from './ReportBody';
 import * as styled from './styled';
 
 export interface IReportInstanceViewProps {
@@ -19,6 +20,7 @@ export const ReportInstanceView: React.FC<IReportInstanceViewProps> = ({
   const [{ viewReportInstance }] = useReportInstances();
   const [{ requests }] = useApp();
   const [{ reportOutput }, { storeReportOutput }] = useProfileStore();
+  const [notFoundId, setNotFoundId] = React.useState<number>();
 
   const isLoading = requests.some((r) => r.group.includes('view-report'));
 
@@ -26,7 +28,9 @@ export const ReportInstanceView: React.FC<IReportInstanceViewProps> = ({
     async (instanceId: number) => {
       try {
         const response = await viewReportInstance(instanceId, regenerate);
-        storeReportOutput({ ...response, instanceId });
+        // The API answers 204 (no content) for a report instance that no longer exists.
+        if (!response) setNotFoundId(instanceId);
+        else storeReportOutput({ ...response, instanceId });
       } catch {}
     },
     [viewReportInstance, regenerate, storeReportOutput],
@@ -40,6 +44,8 @@ export const ReportInstanceView: React.FC<IReportInstanceViewProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instanceId, reportOutput]);
 
+  if (notFoundId === instanceId) return <NotFound />;
+
   return (
     <styled.ReportInstanceView className="preview-section">
       <Show visible={isLoading}>
@@ -50,10 +56,7 @@ export const ReportInstanceView: React.FC<IReportInstanceViewProps> = ({
           className="preview-subject"
           dangerouslySetInnerHTML={{ __html: reportOutput?.subject ?? '' }}
         ></div>
-        <div
-          className="preview-body"
-          dangerouslySetInnerHTML={{ __html: reportOutput?.body ?? '' }}
-        ></div>
+        <ReportBody html={reportOutput?.body ?? ''} />
       </Col>
     </styled.ReportInstanceView>
   );

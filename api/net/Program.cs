@@ -62,6 +62,8 @@ builder.Services.AddTransient<ClaimsPrincipal>(s => s.GetService<IHttpContextAcc
 builder.Services.AddControllers(options =>
 {
     options.RespectBrowserAcceptHeader = true;
+    options.Filters.Add<TNO.API.Filters.IndexRequestFilter>();
+    options.Filters.Add<TNO.API.Filters.AnalysisWakeFilter>();
 })
   .AddJsonOptions(options =>
   {
@@ -204,12 +206,14 @@ builder.Services
     .AddScoped<INotificationHelper, NotificationHelper>()
     .AddScoped<IReportHelper, ReportHelper>()
     .AddScoped<IWorkOrderHelper, WorkOrderHelper>()
-    .AddScoped<ITopicScoreHelper, TopicScoreHelper>()
     .AddScoped<IImpersonationHelper, ImpersonationHelper>()
     .AddChesService(config.GetSection("CHES"))
     .Configure<S3Options>(config.GetSection("S3"))
     .AddSingleton<IS3StorageService, S3StorageService>()
     .AddTNOServices(config, env)
+    .AddScoped<IIndexRequestSender, IndexRequestSender>()
+    .AddScoped<TNO.TemplateEngine.IReportAIResultStore, ReportAIResultStore>()
+    .AddScoped<TNO.TemplateEngine.IReportEvidenceProvider, ReportEvidenceProvider>()
     .AddTemplateEngine(config)
     .AddKafkaMessenger(config)
     .AddHttpClient()

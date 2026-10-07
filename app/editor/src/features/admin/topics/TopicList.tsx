@@ -30,10 +30,10 @@ const TopicList: React.FC = () => {
       setLoading(true);
       findAllTopics()
         .then((data) => {
-          setAllTopics(data.filter((t) => t.id !== 1));
+          setAllTopics(data.filter((t) => !t.isSystem));
           setFilteredTopics(
             data
-              .filter((t) => t.id !== 1 && t.isEnabled)
+              .filter((t) => !t.isSystem && t.isEnabled)
               .sort(function (a, b) {
                 // sort by Topic Type then Topic Name
                 return b.topicType.localeCompare(a.topicType) || a.name.localeCompare(b.name);

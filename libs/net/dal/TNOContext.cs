@@ -6,18 +6,21 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Core.Extensions;
+using TNO.DAL.Config;
 using TNO.DAL.Configuration;
 using TNO.DAL.Extensions;
 using TNO.Entities;
 
 namespace TNO.DAL;
 
-public class TNOContext : DbContext
+public partial class TNOContext : DbContext
 {
     #region Variables
     private readonly ILogger? _logger;
     private readonly IHttpContextAccessor? _httpContextAccessor;
     private readonly JsonSerializerOptions? _serializerOptions;
+    private readonly TopicScoreOptions _topicScoreOptions = new();
+    private readonly ContentAnalysisOptions _analysisOptions = new();
     #endregion
 
     #region Properties
@@ -25,6 +28,7 @@ public class TNOContext : DbContext
     public DbSet<SystemMessage> SystemMessages => Set<SystemMessage>();
     public DbSet<Cache> Cache => Set<Cache>();
     public DbSet<TopicScoreRule> TopicScoreRules => Set<TopicScoreRule>();
+    public DbSet<TopicRescoreJob> TopicRescoreJobs => Set<TopicRescoreJob>();
     public DbSet<SourceMetric> SourceMetrics => Set<SourceMetric>();
     public DbSet<Metric> Metrics => Set<Metric>();
     public DbSet<Sentiment> Sentiments => Set<Sentiment>();
@@ -57,6 +61,11 @@ public class TNOContext : DbContext
     public DbSet<ContentTonePool> ContentTonePools => Set<ContentTonePool>();
     public DbSet<ContentAction> ContentActions => Set<ContentAction>();
     public DbSet<Quote> Quotes => Set<Quote>();
+    public DbSet<ContentAnalysis> ContentAnalyses => Set<ContentAnalysis>();
+    public DbSet<AnalysisJob> AnalysisJobs => Set<AnalysisJob>();
+    public DbSet<AnalysisBackfill> AnalysisBackfills => Set<AnalysisBackfill>();
+    public DbSet<AnalysisTopic> AnalysisTopics => Set<AnalysisTopic>();
+    public DbSet<ContentFieldOwnership> ContentFieldOwnerships => Set<ContentFieldOwnership>();
     #endregion
 
     #region Content Metadata
@@ -112,6 +121,7 @@ public class TNOContext : DbContext
     public DbSet<ReportInstanceContent> ReportInstanceContents => Set<ReportInstanceContent>();
     public DbSet<UserReport> UserReports => Set<UserReport>();
     public DbSet<UserReportInstance> UserReportInstances => Set<UserReportInstance>();
+    public DbSet<ReportAIResult> ReportAIResults => Set<ReportAIResult>();
 
     public DbSet<AVOverviewSection> AVOverviewSections => Set<AVOverviewSection>();
     public DbSet<AVOverviewSectionItem> AVOverviewSectionItems => Set<AVOverviewSectionItem>();
@@ -168,12 +178,16 @@ public class TNOContext : DbContext
     /// <param name="httpContextAccessor"></param>
     /// <param name="serializerOptions"></param>
     /// <param name="logger"></param>
-    public TNOContext(DbContextOptions<TNOContext> options, IHttpContextAccessor? httpContextAccessor = null, IOptions<JsonSerializerOptions>? serializerOptions = null, ILogger<TNOContext>? logger = null)
+    /// <param name="topicScoreOptions"></param>
+    /// <param name="analysisOptions"></param>
+    public TNOContext(DbContextOptions<TNOContext> options, IHttpContextAccessor? httpContextAccessor = null, IOptions<JsonSerializerOptions>? serializerOptions = null, ILogger<TNOContext>? logger = null, IOptions<TopicScoreOptions>? topicScoreOptions = null, IOptions<ContentAnalysisOptions>? analysisOptions = null)
       : base(options)
     {
         _logger = logger;
         _httpContextAccessor = httpContextAccessor;
         _serializerOptions = serializerOptions?.Value;
+        _topicScoreOptions = topicScoreOptions?.Value ?? new TopicScoreOptions();
+        _analysisOptions = analysisOptions?.Value ?? new ContentAnalysisOptions();
     }
     #endregion
 
@@ -190,6 +204,8 @@ public class TNOContext : DbContext
             optionsBuilder.EnableSensitiveDataLogging();
         }
 
+        // Only index requests saved in a committed transaction are sent.
+        optionsBuilder.AddInterceptors(TransactionInterceptor);
         base.OnConfiguring(optionsBuilder);
     }
 
@@ -230,6 +246,12 @@ public class TNOContext : DbContext
     /// <returns></returns>
     public override int SaveChanges()
     {
+        // Derived values are recalculated before audit columns are stamped, so the rows they
+        // touch are stamped too.
+        RecalculateTopicScores();
+        RecordFieldOwnership();
+        ScheduleAnalysisJobs();
+
         // get entries that are being Added or Updated
         var modifiedEntries = ChangeTracker.Entries()
                 .Where(x => x.State == EntityState.Added || x.State == EntityState.Modified);
@@ -250,7 +272,20 @@ public class TNOContext : DbContext
             }
         }
 
-        return base.SaveChanges();
+        // Projection revisions change with the change they follow; open a transaction when the
+        // caller has not.
+        if (_pendingIndexRequests.Count == 0 || this.Database.CurrentTransaction != null)
+        {
+            var saved = base.SaveChanges();
+            RecordIndexRequests();
+            return saved;
+        }
+
+        using var transaction = this.Database.BeginTransaction();
+        var result = base.SaveChanges();
+        RecordIndexRequests();
+        transaction.Commit();
+        return result;
     }
 
     /// <summary>
