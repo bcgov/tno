@@ -95,6 +95,57 @@ cat DAILYHIVE-0/partition.metadata ; echo
 sed -i 's/_YCpj6MpQjudzH8OPik9Pw/--lKOi1HSN2AiT6WP7pfRg/' DAILYHIVE-0/partition.metadata
 ```
 
+## Topic migrations
+
+Topics are created by migrations in `db/kafka/migrations`, applied in version order. `V<version>.sh`
+declares the topics a version needs; `U<version>.sh` rolls it back (deleting the topics and their
+messages). Applying a migration again is safe.
+
+```bash
+# Local Docker broker
+make kafka-update                    # every migration
+make kafka-update n=1.0.1            # one version
+make kafka-update r=1 n=1.0.1        # roll back one version (asks first; y=1 skips)
+
+# OpenShift (oc login first)
+cd openshift
+make kafka-update e=dev d=1          # dry run: show what would change
+make kafka-update e=dev              # apply (asks first; y=1 skips)
+make kafka-topics e=dev              # list topics with partitions and replication factor
+```
+
+A migration declares each topic with `ensure_topic`, optionally with its own settings:
+
+```bash
+ensure_topic analysis
+ensure_topic analysis-dlq --config retention.ms=2592000000
+ensure_topic index --partitions 12 --replication-factor 3
+```
+
+`ensure_topic` creates a missing topic. An existing topic gets its configuration applied, and its
+partitions increased when a value is set for that topic. Partitions are never decreased. The
+environment default never resizes an existing topic, because adding partitions changes which
+partition each key goes to. A different replication factor is only reported, since changing it
+needs a partition reassignment (see `update-replicas.sh`).
+
+Each environment's settings are in `db/kafka/environments/<environment>.conf`: the broker
+(container, or namespace and pod), the bootstrap server, the default partitions and replication
+factor, configuration for every topic (`KAFKA_TOPIC_CONFIG`), and per-topic overrides. The per-topic
+variables upper-case the topic name and turn `-` and `.` into `_`:
+
+| Variable | Example |
+| --- | --- |
+| `KAFKA_TOPIC_<TOPIC>_PARTITIONS` | `KAFKA_TOPIC_ANALYSIS_PARTITIONS=12` |
+| `KAFKA_TOPIC_<TOPIC>_REPLICATION_FACTOR` | `KAFKA_TOPIC_WORK_ORDER_REPLICATION_FACTOR=3` |
+| `KAFKA_TOPIC_<TOPIC>_CONFIG` | `KAFKA_TOPIC_ANALYSIS_DLQ_CONFIG=retention.ms=2592000000` |
+
+Precedence: a per-topic override, then the migration's value, then the environment default. Exported
+variables and command line options (`p=` default partitions, `f=` default replication factor) win
+over the file.
+
+`make kafka-topic-add e=dev t=<topic> p=6` and `make kafka-topic-delete e=dev t=<topic>` change one
+topic with the same settings; prefer a migration for topics a feature needs.
+
 ## Helper scripts
 
 Reconfigure all topics partitions.

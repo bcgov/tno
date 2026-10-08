@@ -88,6 +88,20 @@ annotate: ## Annotate an object to force a rollout (n=object type/name, e.g. dep
 	@cd ./scripts; ./annotate.sh $(if $(e),$(e),dev) $(n)
 
 ##############################################################################
+# Kafka
+##############################################################################
+
+kafka-update: ## Apply the Kafka topic migrations to an environment (e=environment {dev,test,prod} [dev], n=version [all], r=1 roll back version n, p=default partitions, f=default replication factor, d=1 dry run, y=1 skip confirmation). Settings: db/kafka/environments/<e>.conf.
+	$(info Apply the Kafka topic migrations [e=$(if $(e),$(e),dev)$(if $(n), n=$(n),)$(if $(r), rollback,)$(if $(d), dry run,)])
+	@../db/kafka/scripts/migration.sh -e $(if $(e),$(e),dev) $(if $(n),-n $(n),) $(if $(r),-r,) $(if $(p),-p $(p),) $(if $(f),--replication $(f),) $(if $(d),-d,) $(if $(y),-y,)
+
+kafka-topics: ## List the Kafka topics in an environment with their partitions (e=environment {dev,test,prod} [dev]).
+	$(info List the Kafka topics [e=$(if $(e),$(e),dev)])
+	@oc exec -n $(NAMESPACE)-$(if $(e),$(e),dev) kafka-broker-0 -- kafka-topics --describe --bootstrap-server kafka-headless:29092 | grep -E '^Topic:' | grep -v '__consumer_offsets' | awk -F'\t' '{print $$1"\t"$$3"\t"$$4}'
+
+.PHONY: kafka-update kafka-topics
+
+##############################################################################
 # Azure Container Registry Images
 ##############################################################################
 

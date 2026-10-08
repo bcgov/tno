@@ -1,6 +1,7 @@
 #!/bin/bash
+# Sourced by db/kafka/scripts/migration.sh; deletes the topics and every message in them.
 
-docker exec -i tno-broker bash -c "/bin/kafka-topics --delete --topic analysis-backfill --bootstrap-server $bootstrap"
-docker exec -i tno-broker bash -c "/bin/kafka-topics --delete --topic analysis-retry --bootstrap-server $bootstrap"
-docker exec -i tno-broker bash -c "/bin/kafka-topics --delete --topic analysis-dlq --bootstrap-server $bootstrap"
-docker exec -i tno-broker bash -c "/bin/kafka-topics --delete --topic work-order --bootstrap-server $bootstrap"
+delete_topic analysis-backfill
+delete_topic analysis-retry
+delete_topic analysis-dlq
+delete_topic work-order

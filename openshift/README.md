@@ -65,6 +65,19 @@ To verify script behavior without contacting Docker, ACR, or OpenShift:
 python3 -m unittest discover -s openshift/scripts/tests -v
 ```
 
+## Kafka topic migrations
+
+Apply the Kafka topic migrations (`db/kafka/migrations`) to an environment's brokers. Log in with
+`oc login` first. The settings (partitions, replication factor, topic configuration, per-topic
+overrides) are in `db/kafka/environments/<environment>.conf`; see `db/kafka/README.md`.
+
+```bash
+make kafka-update e=dev d=1     # dry run: show what would change
+make kafka-update e=dev         # apply every migration (asks first; y=1 skips)
+make kafka-update e=prod n=1.0.1
+make kafka-topics e=prod        # list topics with partitions and replication factor
+```
+
 ## Platform Registry Services
 
 The Exchange Lab has an app that provides a way to request a new product, or provision more resource quotas here [https://registry.developer.gov.bc.ca/dashboard](https://registry.developer.gov.bc.ca/dashboard)
