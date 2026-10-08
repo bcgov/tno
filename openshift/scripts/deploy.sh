@@ -5,13 +5,14 @@
 #   environment - target environment: dev, test, prod (default: dev)
 #   tag         - source image tag promoted onto the environment tag (default: latest)
 #   workload    - deployment/statefulset name (e.g. charts-api, automation-service), or
-#                 'db-migration' to run the EF migrations bundle as a one-shot Job.
+#                 'db-migration' or 'elastic-migration' to run a one-shot migration Job.
 #                 When given, only that one workload is retagged and rolled; the rest of the
 #                 environment is left untouched. When omitted, the whole environment is
 #                 retagged, stopped, and scaled back up.
-#   migration   - db-migration only: the migration to migrate to. Omit to apply every pending
+#   migration   - db-migration: the migration to migrate to. Omit to apply every pending
 #                 migration; name an earlier migration to roll back to it; '0' reverts all.
-#   secret      - db-migration only: name of the secret holding the database USERNAME/PASSWORD
+#                 elastic-migration: a version such as 1.0.11; omit for all pending migrations.
+#   secret      - either migration job: name of the secret holding the database USERNAME/PASSWORD
 #                 (montford in dev, mooncrest in test, moonstep in prod). Omit to copy whatever
 #                 the api StatefulSet in that namespace uses.
 
@@ -30,14 +31,25 @@ name=${3-}
 migration=${4-}
 secret=${5-}
 
-if [[ -n "$migration" && "$name" != "db-migration" ]]; then
-  echo "ERROR: a migration target only applies to n=db-migration (got n='$name')."
+if [[ -n "$migration" && "$name" != "db-migration" && "$name" != "elastic-migration" ]]; then
+  echo "ERROR: a migration target only applies to n=db-migration or n=elastic-migration (got n='$name')."
   exit 1
 fi
 
-if [[ -n "$secret" && "$name" != "db-migration" ]]; then
-  echo "ERROR: a database secret only applies to n=db-migration (got n='$name')."
+if [[ -n "$secret" && "$name" != "db-migration" && "$name" != "elastic-migration" ]]; then
+  echo "ERROR: a database secret only applies to n=db-migration or n=elastic-migration (got n='$name')."
   exit 1
+fi
+
+if [[ "$name" == "elastic-migration" ]]; then
+  case "$env" in
+    dev|test|prod) ;;
+    *) echo "ERROR: elastic-migration environment must be dev, test, or prod."; exit 1 ;;
+  esac
+  if [[ -n "$migration" && ! "$migration" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    echo "ERROR: elastic-migration requires a version such as 1.0.11 (not an EF migration or 0)."
+    exit 1
+  fi
 fi
 
 if [[ -n "$name" ]]; then
@@ -52,6 +64,34 @@ case "$_os" in
   MINGW*|MSYS*|CYGWIN*) _is_windows=true ;;
   *) _is_windows=false ;;
 esac
+
+# Validate migration controls before registry promotion or cluster changes.
+_migration_deadline=${MIGRATION_ACTIVE_DEADLINE_SECONDS:-1800}
+_migration_startup=${MIGRATION_STARTUP_TIMEOUT_SECONDS:-900}
+if [[ "$name" == "elastic-migration" ]]; then
+  _migration_deadline=${MIGRATION_ACTIVE_DEADLINE_SECONDS:-86400}
+  if [[ "${ELASTIC_MIGRATION_WRITERS_PAUSED:-false}" != "true" ]]; then
+    echo "ERROR: pause database and Elasticsearch writers, then set ELASTIC_MIGRATION_WRITERS_PAUSED=true. See the Elasticsearch migration runbook."
+    exit 1
+  fi
+  if [[ -n "${ELASTIC_MIGRATION_BASELINE:-}" && ! "$ELASTIC_MIGRATION_BASELINE" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    echo "ERROR: ELASTIC_MIGRATION_BASELINE must be a version such as 1.0.10."
+    exit 1
+  fi
+  _reindex_rate=${ELASTIC_MIGRATION_REQUESTS_PER_SECOND:--1}
+  if [[ "$_reindex_rate" != "-1" && ! "$_reindex_rate" =~ ^[1-9][0-9]{0,8}$ ]]; then
+    echo "ERROR: ELASTIC_MIGRATION_REQUESTS_PER_SECOND must be a positive integer or -1."
+    exit 1
+  fi
+fi
+if [[ "$name" == "elastic-migration" || "$name" == "db-migration" ]]; then
+  for _duration in "$_migration_deadline" "$_migration_startup"; do
+    if [[ ! "$_duration" =~ ^[1-9][0-9]{0,7}$ ]]; then
+      echo "ERROR: migration execution and startup timeouts must be positive integer seconds."
+      exit 1
+    fi
+  done
+fi
 
 # --- Pre-flight: verify required tools are available ---
 _missing=false
@@ -363,12 +403,10 @@ else
   }
 fi
 
-# --- Database migration (n=db-migration) ------------------------------------
-# The image is an EF migrations bundle (libs/net/Dockerfile, ENTRYPOINT /app/efbundle):
-# with no argument it applies every pending migration, with one it migrates to that named
-# migration - naming one that precedes the current state reverts down to it, and '0' reverts
-# them all. It is one-shot work, so it runs as a Job rather than a long-lived workload.
-if [[ "$name" == "db-migration" ]]; then
+# --- Migration jobs (n=db-migration or n=elastic-migration) ------------------------------------
+# Both tools apply pending migrations by default. EF accepts a positional migration name
+# (or 0 to revert all); Elasticsearch accepts --version. Run either as a one-shot Job.
+if [[ "$name" == "db-migration" || "$name" == "elastic-migration" ]]; then
   if [[ -n "$migration" && ! "$migration" =~ ^[A-Za-z0-9_.-]+$ ]]; then
     echo "ERROR: invalid migration target '$migration'."
     echo "       Expected a migration name (e.g. 20250704120000_AddAutomation) or 0 to revert all."
@@ -397,6 +435,12 @@ if [[ "$name" == "db-migration" ]]; then
   _user_key=${_user_key:-USERNAME}
   _pass_key=${_pass_key:-PASSWORD}
 
+  if ! oc get configmap "$_cs_cm" -n "9b301c-$env" \
+      -o "jsonpath={.data.$_cs_key}" 2>/dev/null | grep -q .; then
+    echo "ERROR: missing configmap/$_cs_cm key $_cs_key in 9b301c-$env."
+    exit 1
+  fi
+
   # An explicit s= wins over whatever the api uses.
   if [[ -n "$secret" ]]; then
     _user_secret=$secret
@@ -406,7 +450,7 @@ if [[ "$name" == "db-migration" ]]; then
   if [[ -z "$_user_secret" || -z "$_pass_secret" ]]; then
     echo "ERROR: could not determine the database credential secret for 9b301c-$env."
     echo "       The api StatefulSet has no DB_POSTGRES_USERNAME/PASSWORD reference to copy."
-    echo "       Name it explicitly: make deploy n=db-migration e=$env s=<secret>"
+    echo "       Name it explicitly: make deploy n=$name e=$env s=<secret>"
     echo "       Secrets in 9b301c-$env:"
     oc get secret -n "9b301c-$env" -o name 2>/dev/null | sed 's|^|         |'
     exit 1
@@ -435,57 +479,118 @@ if [[ "$name" == "db-migration" ]]; then
     echo "  database: configmap/$_cs_cm[$_cs_key], secret/$_user_secret (as used by the api)"
   fi
 
-  # Retag only once the configuration checks out, so a bad s= does not move the ACR tag first.
-  echo "Tagging image in ACR ($ACR_HOST): db-migration:$tag → db-migration:$env"
-  acr_tag db-migration
+  _elastic_env=""
+  _memory_request=256Mi
+  _memory_limit=1Gi
+  if [[ "$name" == "elastic-migration" ]]; then
+    # Match the Elastic Migration CD workflow: dev uses the local cluster; test/prod
+    # use Elastic Cloud. Overrides allow explicitly targeting a different cluster.
+    if [[ "$env" == "dev" ]]; then
+      _indexing_config=${ELASTIC_MIGRATION_CONFIGMAP:-indexing-service}
+      _elastic_secret=${ELASTIC_MIGRATION_SECRET:-elastic}
+      _elastic_auth=${ELASTIC_MIGRATION_AUTH:-basic}
+    else
+      _indexing_config=${ELASTIC_MIGRATION_CONFIGMAP:-indexing-service-cloud}
+      _elastic_secret=${ELASTIC_MIGRATION_SECRET:-elastic-cloud}
+      _elastic_auth=${ELASTIC_MIGRATION_AUTH:-apikey}
+    fi
+    case "$_elastic_auth" in
+      basic|apikey) ;;
+      *) echo "ERROR: ELASTIC_MIGRATION_AUTH must be basic or apikey."; exit 1 ;;
+    esac
 
-  _job="db-migration-$(date +%Y%m%d%H%M%S)"
+    # Validate references before promoting the image. Keep values (especially secrets)
+    # out of the generated manifest and logs; Kubernetes resolves the references.
+    _elastic_ref() {
+      local variable=$1 kind=$2 resource=$3 key=$4
+      if ! oc get "$kind" "$resource" -n "9b301c-$env" \
+          -o "jsonpath={.data.$key}" 2>/dev/null | grep -q .; then
+        echo "ERROR: missing $kind/$resource key $key in 9b301c-$env." >&2
+        return 1
+      fi
+      local ref=secretKeyRef
+      [[ "$kind" == "configmap" ]] && ref=configMapKeyRef
+      cat <<YAML
+            - name: $variable
+              valueFrom:
+                $ref:
+                  name: $resource
+                  key: $key
+YAML
+    }
+    _elastic_env=$(_elastic_ref Elastic__Url configmap "$_indexing_config" ELASTICSEARCH_URI) || exit 1
+    _elastic_env+=$'\n'"$(_elastic_ref Elastic__ContentIndex configmap "$_indexing_config" CONTENT_INDEX)" || exit 1
+    _elastic_env+=$'\n'"$(_elastic_ref Elastic__PublishedIndex configmap "$_indexing_config" PUBLISHED_INDEX)" || exit 1
+    if [[ "$_elastic_auth" == "apikey" ]]; then
+      _elastic_env+=$'\n'"$(_elastic_ref Elastic__ApiKey secret "$_elastic_secret" ApiKey)" || exit 1
+    else
+      _elastic_env+=$'\n'"$(_elastic_ref Elastic__Username secret "$_elastic_secret" USERNAME)" || exit 1
+      _elastic_env+=$'\n'"$(_elastic_ref Elastic__Password secret "$_elastic_secret" PASSWORD)" || exit 1
+    fi
+    _elastic_env+=$'\n'"            - name: Elastic__WritersPaused
+              value: \"true\"
+            - name: Elastic__BaselineVersion
+              value: \"${ELASTIC_MIGRATION_BASELINE:-}\"
+            - name: Elastic__ReindexRequestsPerSecond
+              value: \"$_reindex_rate\""
+    _memory_request=1Gi
+    _memory_limit=2Gi
+  fi
+
+  # Retag only once the configuration checks out, so a bad s= does not move the ACR tag first.
+  echo "Tagging image in ACR ($ACR_HOST): $name:$tag → $name:$env"
+  acr_tag "$name"
+
+  _job="$name-$(date +%Y%m%d%H%M%S)"
   if [[ -n "$migration" ]]; then
     echo "Migrating 9b301c-$env to '$migration'"
     _args="[\"$migration\"]"
+    if [[ "$name" == "elastic-migration" ]]; then
+      _args="[\"--version\", \"$migration\"]"
+    fi
   else
     echo "Applying all pending migrations to 9b301c-$env"
     _args="[]"
   fi
 
-  oc apply -n "9b301c-$env" -f - <<YAML
+  oc apply -n "9b301c-$env" -f - <<YAML || exit 1
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: $_job
   labels:
-    name: db-migration
+    name: $name
     part-of: tno
-    component: db-migration
+    component: $name
     managed-by: deploy.sh
 spec:
   # A half-applied migration should stop and be looked at, never be retried blindly.
   backoffLimit: 0
-  activeDeadlineSeconds: 1800
+  activeDeadlineSeconds: $_migration_deadline
   # Keep the finished Job around for a day so its logs remain readable.
   ttlSecondsAfterFinished: 86400
   template:
     metadata:
       labels:
-        name: db-migration
+        name: $name
         part-of: tno
-        component: db-migration
+        component: $name
     spec:
       restartPolicy: Never
       imagePullSecrets:
         - name: acr-secret
       containers:
-        - name: db-migration
-          image: $ACR_HOST/db-migration:$env
+        - name: $name
+          image: $ACR_HOST/$name:$env
           imagePullPolicy: Always
           args: $_args
           resources:
             requests:
               cpu: 100m
-              memory: 256Mi
+              memory: $_memory_request
             limits:
               cpu: 1000m
-              memory: 1Gi
+              memory: $_memory_limit
           env:
             - name: ConnectionStrings__TNO
               valueFrom:
@@ -502,6 +607,7 @@ spec:
                 secretKeyRef:
                   name: $_pass_secret
                   key: $_pass_key
+$_elastic_env
 YAML
 
   # Wait for the container to actually start before following its output. `oc logs -f` fails
@@ -511,7 +617,7 @@ YAML
   _phase=""
   _start=$SECONDS
   _next_beat=$((SECONDS + 30))
-  _deadline=$((SECONDS + 1800))
+  _deadline=$((SECONDS + _migration_startup))
   while (( SECONDS < _deadline )); do
     _pod=$(oc get pod -l "job-name=$_job" -n "9b301c-$env" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || true)
     if [[ -n "$_pod" ]]; then
@@ -552,7 +658,7 @@ YAML
   # check both outcomes instead.
   _succeeded=""
   _job_failed=""
-  _deadline=$((SECONDS + 300))
+  _deadline=$((_start + _migration_deadline + 60))
   while (( SECONDS < _deadline )); do
     _succeeded=$(oc get job "$_job" -n "9b301c-$env" -o jsonpath='{.status.succeeded}' 2>/dev/null)
     _job_failed=$(oc get job "$_job" -n "9b301c-$env" -o jsonpath='{.status.failed}' 2>/dev/null)
@@ -563,6 +669,11 @@ YAML
 
   if [[ "$_succeeded" != "1" ]]; then
     echo "ERROR: migration job $_job did not succeed."
+    oc get job "$_job" -n "9b301c-$env" -o 'jsonpath={range .status.conditions[*]}{.type}{": "}{.reason}{" - "}{.message}{"\n"}{end}'
+    oc get pod "$_pod" -n "9b301c-$env" -o 'jsonpath={range .status.containerStatuses[*]}{.name}{": "}{.state.terminated.reason}{" exit="}{.state.terminated.exitCode}{"\n"}{end}'
+    if [[ "$name" == "elastic-migration" ]]; then
+      echo "       Native Elasticsearch tasks may still be running. Keep writers paused; rerun to reconnect."
+    fi
     echo "       Logs:    oc logs job/$_job -n 9b301c-$env"
     echo "       Cleanup: oc delete job/$_job -n 9b301c-$env"
     exit 1

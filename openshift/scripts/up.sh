@@ -31,7 +31,7 @@ declare -A REPLICAS=(
   # Kafka consumers
   [folder-collection-service_dev]=1 [folder-collection-service_test]=2 [folder-collection-service_prod]=3
   [content-service_dev]=1   [content-service_test]=2   [content-service_prod]=3
-  [indexing-service_dev]=1  [indexing-service_test]=2  [indexing-service_prod]=3
+  [indexing-service_dev]=1  [indexing-service_test]=0  [indexing-service_prod]=0
   [indexing-service-cloud_dev]=1 [indexing-service-cloud_test]=2 [indexing-service-cloud_prod]=3
   [event-handler-service_dev]=1 [event-handler-service_test]=2 [event-handler-service_prod]=3
   [notification-service_dev]=1 [notification-service_test]=2 [notification-service_prod]=3

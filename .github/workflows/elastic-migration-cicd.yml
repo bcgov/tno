@@ -4,12 +4,12 @@ on:
   push:
     branches: [dev, master]
     paths:
-      - 'tools/elastic/migration/**'
+      - 'tools/elastic/**'
       - 'libs/net/**'
   pull_request:
     branches: [dev, master]
     paths:
-      - 'tools/elastic/migration/**'
+      - 'tools/elastic/**'
       - 'libs/net/**'
   workflow_dispatch:
     inputs:
@@ -20,6 +20,16 @@ on:
         options:
           - dev
           - test
+      writers_paused:
+        description: 'All database and Elasticsearch writers are paused for this maintenance window'
+        required: true
+        type: boolean
+        default: false
+      baseline:
+        description: 'Existing schema baseline only when migration history is absent (e.g. 1.0.10)'
+        required: false
+        type: string
+        default: ''
 
 concurrency:
   group: elastic-migration-${{ github.ref }}
@@ -33,6 +43,33 @@ jobs:
   ci:
     name: CI — Validate (.NET 9)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        elasticsearch: ['7.17.9', '8.19.21']
+    services:
+      elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:${{ matrix.elasticsearch }}
+        env:
+          discovery.type: single-node
+          xpack.security.enabled: 'false'
+          # Disposable test data only; host disk usage must not prevent tiny clone fixtures.
+          cluster.routing.allocation.disk.threshold_enabled: 'false'
+          ES_JAVA_OPTS: '-Xms512m -Xmx512m'
+        ports:
+          - 19274:9200
+        options: >-
+          --health-cmd "curl -fs http://localhost:9200/_cluster/health"
+          --health-interval 10s --health-timeout 5s --health-retries 20
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_PASSWORD: migration-test-only
+        ports:
+          - 15439:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
       - uses: actions/checkout@v4
 
@@ -47,6 +84,15 @@ jobs:
       - name: Build Migration Tool
         run: dotnet build "tools/elastic/migration/TNO.Elastic.Migration.csproj" --configuration Release --no-restore
 
+      - name: Test native migration and database reconciliation
+        env:
+          MMI_ELASTIC_TEST_URL: http://127.0.0.1:19274
+          MMI_MIGRATION_TEST_POSTGRES: Host=127.0.0.1;Port=15439;Database=postgres;Username=postgres;Password=migration-test-only
+        run: dotnet test tools/elastic/tests/ --configuration Release
+
+      - name: Test deployment scripts
+        run: python3 -m unittest discover -s openshift/scripts/tests -v
+
   cd-dev:
     name: CD — Migrate Dev Elastic
     needs: ci
@@ -54,6 +100,8 @@ jobs:
     uses: ./.github/workflows/_reusable-elastic-migration-cd.yml
     with:
       environment: dev
+      writers_paused: ${{ inputs.writers_paused }}
+      baseline: ${{ inputs.baseline }}
       image_tag: dev
       openshift_namespace: 9b301c-dev
       db_secret_name: montford
@@ -71,6 +119,8 @@ jobs:
     uses: ./.github/workflows/_reusable-elastic-migration-cd.yml
     with:
       environment: test
+      writers_paused: ${{ inputs.writers_paused }}
+      baseline: ${{ inputs.baseline }}
       image_tag: test
       openshift_namespace: 9b301c-test
       db_secret_name: mooncrest

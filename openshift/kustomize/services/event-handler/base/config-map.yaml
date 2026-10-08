@@ -17,5 +17,9 @@ data:
   KAFKA_CLIENT_ID: Event-Scheduler
   MAX_FAILURE_LIMIT: "5"
   TOPICS: event-schedule
+  # Work orders have their own consumer, so a long-running work order never delays event schedules.
+  WORK_ORDER_TOPICS: work-order
+  # Content-Analysis backfill work orders send each content item to this topic.
+  ANALYSIS_BACKFILL_TOPIC: analysis-backfill
   CHES_EMAIL_ENABLED: "true"
   CHES_EMAIL_AUTHORIZED: "true"

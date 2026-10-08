@@ -1,92 +1,76 @@
 using TNO.API.Areas.Services.Models.ContentAnalysis;
 using TNO.DAL.Analysis;
 using TNO.Entities;
+using TNO.Entities.Models;
 
 namespace TNO.DAL.Services;
 
 /// <summary>
-/// IContentAnalysisService interface, the Content-Analysis work queue and the acceptance of results.
+/// IContentAnalysisService interface, the Content-Analysis inputs, the acceptance of results, and the
+/// record of each content item's recent analysis runs. The work itself arrives through Kafka.
 /// </summary>
 public interface IContentAnalysisService : IBaseService
 {
     /// <summary>
-    /// The runtime settings.
+    /// The runtime settings (LLM, exclusions).
     /// </summary>
     /// <returns></returns>
     ContentAnalysisSettings GetSettings();
 
     /// <summary>
-    /// Claim due jobs (FOR UPDATE SKIP LOCKED), highest priority then earliest due. Jobs whose lease
-    /// lapsed return to the queue. Each claim gets a lease and a new fencing token.
+    /// The content's current analysis input, or null when the content does not exist.
     /// </summary>
-    /// <param name="request"></param>
+    /// <param name="contentId"></param>
     /// <returns></returns>
-    IEnumerable<AnalysisJob> ClaimJobs(AnalysisClaimRequestModel request);
+    AnalysisInputModel? GetInput(long contentId);
 
     /// <summary>
-    /// Extend a valid claim's lease.
-    /// </summary>
-    /// <param name="lease"></param>
-    /// <returns>The job, or null when the claim is no longer valid.</returns>
-    AnalysisJob? RenewLease(AnalysisLeaseModel lease);
-
-    /// <summary>
-    /// The current input of claimed content. Ineligible content ends the job as skipped.
-    /// </summary>
-    /// <param name="lease"></param>
-    /// <returns>The input, or null when the claim is no longer valid.</returns>
-    AnalysisInputModel? GetInput(AnalysisLeaseModel lease);
-
-    /// <summary>
-    /// Accept an analysis when the content exists and is eligible, the input is current, and the
-    /// claim is valid. A duplicate returns the stored result; a stale one is rejected without
-    /// populating anything.
+    /// Accept an analysis when its input is still the content's current input, populate the empty
+    /// fields of the processes run, and record the request's run.
     /// </summary>
     /// <param name="result"></param>
     /// <returns></returns>
     AnalysisSubmitResultModel Submit(AnalysisResultModel result);
 
     /// <summary>
-    /// Record a failed attempt: transient failures retry with backoff until the attempts run out.
+    /// Record the outcome of an analysis request in the content's metadata. Returns null when the
+    /// content does not exist.
     /// </summary>
-    /// <param name="failure"></param>
+    /// <param name="contentId"></param>
+    /// <param name="run"></param>
     /// <returns></returns>
-    AnalysisJob? Fail(AnalysisFailureModel failure);
+    AnalysisMetadata? RecordRun(long contentId, AnalysisRun run);
 
     /// <summary>
-    /// Queue content for analysis again, even when its analysis is current.
+    /// The content's recent analysis runs.
     /// </summary>
     /// <param name="contentId"></param>
     /// <returns></returns>
-    AnalysisJob RequestReanalysis(long contentId);
+    AnalysisMetadata FindRuns(long contentId);
 
     /// <summary>
-    /// Queue a failed job again.
+    /// Content whose newest analysis request failed, most recent first.
     /// </summary>
-    /// <param name="jobId"></param>
-    /// <returns></returns>
-    AnalysisJob Replay(long jobId);
-
-    /// <summary>
-    /// The content's job, if any.
-    /// </summary>
-    /// <param name="contentId"></param>
-    /// <returns></returns>
-    AnalysisJob? FindJob(long contentId);
-
-    /// <summary>
-    /// Jobs with the specified status, most recently updated first.
-    /// </summary>
-    /// <param name="status"></param>
     /// <param name="qty"></param>
     /// <returns></returns>
-    IEnumerable<AnalysisJob> FindJobs(AnalysisJobStatus status, int qty = 100);
+    IEnumerable<(long ContentId, string Headline, AnalysisRun Run)> FindFailures(int qty = 100);
 
     /// <summary>
-    /// Job counts by status and reason.
+    /// The number of content items whose newest analysis request failed, optionally only those sent
+    /// by the specified backfill work order.
     /// </summary>
+    /// <param name="workOrderId"></param>
     /// <returns></returns>
-    IDictionary<string, int> GetQueueCounts();
+    int CountFailures(long? workOrderId = null);
+
+    /// <summary>
+    /// Request analysis of the content's current input, even when its analysis is current; the API
+    /// sends the request once the action completes.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="reason"></param>
+    /// <returns></returns>
+    SavedAnalysisRequest RequestAnalysis(long contentId, AnalysisRequestReason reason);
 
     /// <summary>
     /// The content's current analysis.

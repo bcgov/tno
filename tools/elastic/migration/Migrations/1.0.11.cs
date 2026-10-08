@@ -18,22 +18,11 @@ namespace TNO.Elastic.Migration;
 /// Adds content analysis ('analysis'), 'topics.isSystem' and 'projectionRevision' to the content
 /// indexes, creates the report evidence index, and raises 'index.gc_deletes'.
 ///
-/// The indexes are rebuilt from the database (not copied), so every document carries its content's
-/// projection revision as an external version and writes can be ordered from here on.
-/// Index names come from configuration, so the same migration runs on-premise and on Elastic Cloud.
-///
-/// Safety:
-/// - fields the old indexes mapped dynamically are copied to the new indexes first, so their types
-///   do not change;
-/// - the new indexes are compared with the database (every content item and its projection
-///   revision, every published item) and repaired before any alias moves; if they still differ the
-///   migration stops and users keep the old indexes. Content changed while the migration runs has a
-///   newer revision in the database, so the comparison also catches it up;
-/// - documents in the old indexes that no longer exist in the database are reported;
-/// - the aliases move in one atomic request, and the old indexes are kept (never deleted), so they
-///   can be inspected or restored; an alias name held by a concrete index is cloned to a backup first.
-/// Rollback rebuilds indexes in the previous (1.0.10) shape from the database the same way, and
-/// keeps the 1.0.11 indexes.
+/// Elasticsearch copies existing documents server-side with external projection revisions.
+/// Database reads hydrate only missing/stale documents and current analyses. Writers must remain
+/// paused until verification and atomic alias cutover complete. Destination mapping metadata
+/// records copy progress, allowing a replacement Job to reconnect after interruption.
+/// Old indexes are retained; an existing unmanaged destination is never deleted automatically.
 /// </summary>
 [Migration("1.0.11")]
 public class Migration_1011 : TNOMigration
@@ -71,63 +60,82 @@ public class Migration_1011 : TNOMigration
     #endregion
 
     #region Methods
-    /// <summary>
-    /// Build the 1.0.11 indexes from the database, verify them, and move the aliases to them.
-    /// </summary>
-    /// <param name="builder"></param>
-    /// <returns></returns>
-    protected override async Task UpAsync(MigrationBuilder builder)
+    /// <inheritdoc />
+    protected override Task UpAsync(MigrationBuilder builder) => WithLockAsync(builder, () => NativeUpAsync(builder));
+
+    /// <inheritdoc />
+    protected override Task DownAsync(MigrationBuilder builder) => WithLockAsync(builder, () => NativeDownAsync(builder));
+
+    private async Task WithLockAsync(MigrationBuilder builder, Func<Task> action)
     {
-        var targets = GetTargets(builder, $"_v{this.Version}");
-        await CreateIndexFromFileAsync(builder, targets.Published.Index, Path.Combine("indexes", "index-published.json"));
-        await CreateIndexFromFileAsync(builder, targets.Content.Index, Path.Combine("indexes", "index-content.json"));
-        await CreateIndexFromFileAsync(builder, targets.Evidence?.Index, Path.Combine("indexes", "index-evidence.json"));
-        await RebuildAndSwitchAsync(builder, targets, includeAnalysis: true);
+        RequireMaintenance(builder);
+        await _context.Database.OpenConnectionAsync();
+        try
+        {
+            await using var command = _context.Database.GetDbConnection().CreateCommand();
+            command.CommandText = "SELECT pg_try_advisory_lock(1011001011)";
+            if (!Equals(await command.ExecuteScalarAsync(), true))
+                throw new InvalidOperationException("Another Elasticsearch migration is using this database.");
+            try { await action(); }
+            finally
+            {
+                command.CommandText = "SELECT pg_advisory_unlock(1011001011)";
+                await command.ExecuteScalarAsync();
+            }
+        }
+        finally { await _context.Database.CloseConnectionAsync(); }
     }
 
     /// <summary>
-    /// Build indexes in the 1.0.10 shape from the database, verify them, and move the aliases back
+    /// Copy the 1.0.11 indexes natively, verify them, and move the aliases to them.
+    /// </summary>
+    /// <param name="builder"></param>
+    /// <returns></returns>
+    private async Task NativeUpAsync(MigrationBuilder builder)
+    {
+        var targets = await GetCycleTargetsAsync(builder, rollback: false);
+        await CreateIndexFromFileAsync(builder, targets.Published.Index, Path.Combine("indexes", "index-published.json"), targets, targets.Published.Alias);
+        await CreateIndexFromFileAsync(builder, targets.Content.Index, Path.Combine("indexes", "index-content.json"), targets);
+        await CreateIndexFromFileAsync(builder, targets.Evidence?.Index, Path.Combine("indexes", "index-evidence.json"), targets);
+        await CopyAndSwitchAsync(builder, targets, includeAnalysis: true);
+    }
+
+    /// <summary>
+    /// Copy indexes into the 1.0.10 shape, verify them, and move the aliases back
     /// to them. The 1.0.11 indexes and the evidence index are kept.
     /// </summary>
     /// <param name="builder"></param>
     /// <returns></returns>
-    protected override async Task DownAsync(MigrationBuilder builder)
+    private async Task NativeDownAsync(MigrationBuilder builder)
     {
-        var current = GetTargets(builder, $"_v{this.Version}");
-        var targets = GetTargets(builder, $"_v{PreviousVersion}-rollback-{DateTime.UtcNow:yyyyMMddHHmmss}") with { Evidence = null };
+        var targets = await GetCycleTargetsAsync(builder, rollback: true);
         var rollbackMapping = Path.Combine("rollback", "index-content.json");
-        await CreateIndexFromFileAsync(builder, targets.Published.Index, rollbackMapping);
-        await CreateIndexFromFileAsync(builder, targets.Content.Index, rollbackMapping);
-        await RebuildAndSwitchAsync(builder, targets, includeAnalysis: false);
+        await CreateIndexFromFileAsync(builder, targets.Published.Index, rollbackMapping, targets, targets.Published.Alias);
+        await CreateIndexFromFileAsync(builder, targets.Content.Index, rollbackMapping, targets);
+        await CopyAndSwitchAsync(builder, targets, includeAnalysis: false);
 
-        // 1.0.10 has no evidence index.
-        if (current.Evidence != null)
-        {
-            await DeleteAliasAsync(builder, current.Evidence.Value.Index, current.Evidence.Value.Alias);
-            builder.Logger.LogWarning("Kept index '{index}' (no longer behind an alias).", current.Evidence.Value.Index);
-        }
+
     }
 
     /// <summary>
-    /// Copy dynamic mappings, rebuild from the database, verify (catching up changes made
-    /// meanwhile), report orphans, move the aliases, and verify again. Nothing users see changes
+    /// Copy dynamic mappings and documents, repair database differences, move aliases, and verify again. Nothing users see changes
     /// until the aliases move.
     /// </summary>
-    private async Task RebuildAndSwitchAsync(MigrationBuilder builder, MigrationTargets targets, bool includeAnalysis)
+    private async Task CopyAndSwitchAsync(MigrationBuilder builder, MigrationTargets targets, bool includeAnalysis)
     {
         await CopyDynamicMappingsAsync(builder, targets.Published);
         await CopyDynamicMappingsAsync(builder, targets.Content);
 
-        await RebuildAsync(builder, targets, includeAnalysis);
-        await VerifyAsync(builder, targets, includeAnalysis, stopOnDifference: true);
-
-        await ReportOrphansAsync(builder, targets.Content.Alias, publishedOnly: false);
-        await ReportOrphansAsync(builder, targets.Published.Alias, publishedOnly: true);
+        var native = new NativeReindex(builder);
+        await native.CopyAsync(targets.Content.Alias, targets.Content.Index, false, includeAnalysis);
+        await native.CopyAsync(targets.Published.Alias, targets.Published.Index, true, includeAnalysis);
+        if (includeAnalysis) await RebuildAnalysesAsync(builder, targets);
+        await VerifyAsync(builder, targets, includeAnalysis);
 
         var previous = await SwitchAliasesAsync(builder, targets);
 
-        // Changes indexed into the old indexes between the verification and the alias switch.
-        await VerifyAsync(builder, targets, includeAnalysis, stopOnDifference: false);
+        // A restart after cutover must validate again before recording migration completion.
+        await VerifyAsync(builder, targets, includeAnalysis);
 
         foreach (var index in previous.Distinct())
             builder.Logger.LogWarning("Kept index '{index}' (no longer behind an alias). Delete it once the migration is confirmed: DELETE /{index}", index, index);
@@ -142,7 +150,11 @@ public class Migration_1011 : TNOMigration
     /// <summary>
     /// The indexes a rebuild writes; evidence is skipped when no evidence index is configured.
     /// </summary>
-    private record MigrationTargets(IndexTarget Published, IndexTarget Content, IndexTarget? Evidence);
+    private record MigrationTargets(IndexTarget Published, IndexTarget Content, IndexTarget? Evidence)
+    {
+        public string Generation { get; init; } = "";
+        public string Direction { get; init; } = "";
+    }
 
     private static MigrationTargets GetTargets(MigrationBuilder builder, string suffix)
     {
@@ -153,8 +165,40 @@ public class Migration_1011 : TNOMigration
             String.IsNullOrWhiteSpace(options.EvidenceIndex) ? null : new IndexTarget(options.EvidenceIndex, $"{options.EvidenceIndex}{suffix}"));
     }
 
+    // Source UUIDs identify a cycle. Retries before cutover select the same destinations;
+    // retries after atomic cutover recover the generation from both live primary indexes.
+    private async Task<MigrationTargets> GetCycleTargetsAsync(MigrationBuilder builder, bool rollback)
+    {
+        var native = new NativeReindex(builder);
+        var direction = rollback ? "down" : "up";
+        var aliases = new[] { builder.MigrationOptions.ContentIndex, builder.MigrationOptions.PublishedIndex };
+        var uuids = new List<string>();
+        var generations = new List<string?>();
+        foreach (var alias in aliases)
+        {
+            var settings = (await native.ReadAsync($"{alias}/_settings")).AsObject();
+            if (settings.Count != 1) throw new InvalidOperationException($"Expected one source index for '{alias}'.");
+            var source = settings.Single();
+            uuids.Add(source.Value!["settings"]!["index"]!["uuid"]!.GetValue<string>());
+            var mapping = await native.ReadAsync($"{source.Key}/_mapping");
+            var meta = mapping[source.Key]?["mappings"]?["_meta"];
+            generations.Add(meta?["owner"]?.GetValue<string>() == NativeReindex.Owner &&
+                meta?["direction"]?.GetValue<string>() == direction ? meta?["generation"]?.GetValue<string>() : null);
+        }
+        if (generations.Any(g => g != null) &&
+            (generations[0] == null || generations[0] != generations[1]))
+            throw new InvalidOperationException("Primary aliases have inconsistent migration generations; inspect them before retrying.");
+        var generation = generations[0] ?? Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
+            System.Text.Encoding.UTF8.GetBytes(String.Join("|", uuids.Append(direction))))).ToLowerInvariant()[..24];
+        var suffix = rollback ? $"_v{PreviousVersion}-rollback-from-{this.Version}-{generation}" : $"_v{this.Version}-{generation}";
+        var targets = GetTargets(builder, suffix) with { Generation = generation, Direction = direction };
+        return rollback ? targets with { Evidence = null } : targets;
+    }
+
     private static async Task<StringResponse> RequestAsync(MigrationBuilder builder, Elasticsearch.Net.HttpMethod method, string path, string? body = null, IRequestParameters? parameters = null)
     {
+        parameters ??= new SearchRequestParameters();
+        parameters.RequestConfiguration = new RequestConfiguration { ThrowExceptions = false };
         return await builder.Client.LowLevel.DoRequestAsync<StringResponse>(method, path, CancellationToken.None, body == null ? null : PostData.String(body), parameters);
     }
 
@@ -165,26 +209,36 @@ public class Migration_1011 : TNOMigration
     }
 
     /// <summary>
-    /// Create an index from a step file in this migration's folder (not run as a step). An index of
-    /// that name left by a failed run (behind no alias, so never seen by users) is replaced.
+    /// Create an index from a step file in this migration's folder (not run as a step). An owned destination left by a failed run is retained for recovery.
     /// </summary>
-    private async Task CreateIndexFromFileAsync(MigrationBuilder builder, string? index, string file)
+    private async Task CreateIndexFromFileAsync(MigrationBuilder builder, string? index, string file, MigrationTargets targets, string? sourceAlias = null)
     {
         if (index == null) return;
         if ((await RequestAsync(builder, Elasticsearch.Net.HttpMethod.HEAD, index)).HttpStatusCode == 200)
         {
-            var aliases = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.GET, $"{index}/_alias");
-            if (!aliases.Success) throw Fail(builder, $"Failed to read the aliases of '{index}'.", aliases);
-            if (JsonNode.Parse(aliases.Body)?[index]?["aliases"]?.AsObject().Count > 0)
-                throw new InvalidOperationException($"Index '{index}' already exists and is in use; nothing was changed.");
-            var delete = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.DELETE, index);
-            if (!delete.Success) throw Fail(builder, $"Failed to replace '{index}' left by a failed run.", delete);
-            builder.Logger.LogWarning("Replaced index '{index}' left by a failed run.", index);
+            var mapping = await new NativeReindex(builder).ReadAsync($"{index}/_mapping");
+            if (mapping[index]?["mappings"]?["_meta"]?["owner"]?.GetValue<string>() != NativeReindex.Owner)
+                throw new InvalidOperationException($"Index '{index}' already exists without native migration metadata. Verify it is an unused partial destination and clean it up explicitly before retrying; nothing was deleted.");
+            var meta = mapping[index]?["mappings"]?["_meta"];
+            if (meta?["generation"]?.GetValue<string>() != targets.Generation ||
+                meta?["direction"]?.GetValue<string>() != targets.Direction)
+                throw new InvalidOperationException($"Index '{index}' belongs to a different migration cycle; nothing was deleted.");
+            builder.Logger.LogInformation("Resuming retained destination {index}", index);
+            return;
         }
         var path = Path.Combine(builder.MigrationOptions.MigrationsPath, this.Version, file);
         var json = ReplaceIndexNames(builder, await File.ReadAllTextAsync(path));
         var step = JsonSerializer.Deserialize<MigrationStep>(json, builder.SerializerOptions) ?? throw new InvalidOperationException($"Failed to deserialize '{path}'");
-        var response = await builder.Client.LowLevel.Indices.CreateAsync<StringResponse>(index, PostData.String(JsonSerializer.Serialize(step.Data, builder.SerializerOptions)));
+        var data = JsonNode.Parse(JsonSerializer.Serialize(step.Data, builder.SerializerOptions))!;
+        data["mappings"]!["_meta"] = new JsonObject { ["owner"] = NativeReindex.Owner, ["generation"] = targets.Generation, ["direction"] = targets.Direction };
+        var indexSettings = data["settings"]!["index"]!;
+        // Preserve cluster-specific topology instead of hard-coding three replicas on Cloud.
+        sourceAlias ??= builder.MigrationOptions.ContentIndex;
+        var sourceSettings = await new NativeReindex(builder).ReadAsync($"{sourceAlias}/_settings");
+        var original = sourceSettings.AsObject().First().Value!["settings"]!["index"]!;
+        indexSettings["number_of_replicas"] = builder.MigrationOptions.NumberOfReplicas ?? Int32.Parse(original["number_of_replicas"]!.GetValue<string>());
+        indexSettings["number_of_shards"] = builder.MigrationOptions.NumberOfShards ?? Int32.Parse(original["number_of_shards"]!.GetValue<string>());
+        var response = await builder.Client.LowLevel.Indices.CreateAsync<StringResponse>(index, PostData.String(data.ToJsonString()));
         if (!response.Success) throw Fail(builder, $"Failed to create index '{index}'.", response);
     }
 
@@ -213,29 +267,28 @@ public class Migration_1011 : TNOMigration
         builder.Logger.LogInformation("Copied {count} field mapping(s) from '{alias}' to '{index}': {fields}", missing.Count, target.Alias, target.Index, String.Join(", ", missing.Select(p => p.Key)));
     }
 
-    /// <summary>
-    /// Index every content item, in ID order.
-    /// </summary>
-    private async Task RebuildAsync(MigrationBuilder builder, MigrationTargets targets, bool includeAnalysis)
+    private static void RequireMaintenance(MigrationBuilder builder)
     {
-        var total = await _context.Contents.CountAsync();
-        builder.Logger.LogInformation("Rebuilding {total:N0} content item(s) from the database", total);
+        if (!builder.MigrationOptions.WritersPaused)
+            throw new InvalidOperationException("Pause database and Elasticsearch writers, then set Elastic__WritersPaused=true. Keep them paused through verification and alias cutover; see the migration runbook.");
+        var throttle = builder.MigrationOptions.ReindexRequestsPerSecond;
+        if (throttle != -1 && throttle <= 0)
+            throw new InvalidOperationException("ReindexRequestsPerSecond must be positive or -1.");
+    }
+
+    private async Task RebuildAnalysesAsync(MigrationBuilder builder, MigrationTargets targets)
+    {
         long after = 0;
-        var count = 0;
         while (true)
         {
             var ids = await _context.Contents.AsNoTracking()
-                .Where(c => c.Id > after)
-                .OrderBy(c => c.Id)
-                .Select(c => c.Id)
-                .Take(BatchSize)
-                .ToArrayAsync();
+                .Where(c => c.Id > after && (_context.ContentAnalyses.Any(a => a.ContentId == c.Id && a.IsCurrent)
+                    || c.TopicsManyToMany.Any(t => t.Topic!.IsSystem)))
+                .OrderBy(c => c.Id).Select(c => c.Id).Take(BatchSize).ToArrayAsync();
             if (ids.Length == 0) break;
+            await IndexAsync(builder, targets, ids, includeAnalysis: true);
             after = ids[^1];
-
-            await IndexAsync(builder, targets, ids, includeAnalysis);
-            count += ids.Length;
-            builder.Logger.LogInformation("Rebuilt {count:N0} of {total:N0} content item(s)", count, total);
+            builder.Logger.LogInformation("Rebuilt current analyses through content {id}", after);
         }
     }
 
@@ -322,8 +375,8 @@ public class Migration_1011 : TNOMigration
     }
 
     /// <summary>
-    /// Send the bulk request, retrying the whole request on transport failures. Version conflicts
-    /// (a newer revision already indexed) and deletes of missing documents are success.
+    /// Send the bulk request, retrying failures. Only deletes of missing documents are success;
+    /// revision conflicts during a maintenance window require investigation.
     /// </summary>
     private static async Task BulkAsync(MigrationBuilder builder, BulkOperationsCollection operations)
     {
@@ -332,7 +385,7 @@ public class Migration_1011 : TNOMigration
         while (true)
         {
             var response = await builder.IndexingClient.BulkAsync(new global::Elastic.Clients.Elasticsearch.BulkRequest { Operations = operations });
-            var errors = response.ItemsWithErrors.Where(i => i.Status != 409 && i.Status != 404).ToArray();
+            var errors = response.ItemsWithErrors.Where(i => !(i.Status == 404 && i.Operation == "delete")).ToArray();
             if (response.ApiCallDetails?.HasSuccessfulStatusCode == true && errors.Length == 0) return;
 
             foreach (var item in errors.Take(20))
@@ -346,12 +399,13 @@ public class Migration_1011 : TNOMigration
     /// <summary>
     /// The content IDs in the database with their projection revisions, ascending.
     /// </summary>
-    private async IAsyncEnumerable<(long Id, long Revision)> DatabaseIdsAsync(bool publishedOnly)
+    private async IAsyncEnumerable<(long Id, long Revision)> DatabaseIdsAsync(bool publishedOnly, bool evidenceOnly = false)
     {
         long after = 0;
         while (true)
         {
             var query = _context.Contents.AsNoTracking().Where(c => c.Id > after);
+            if (evidenceOnly) query = query.Where(c => _context.ContentAnalyses.Any(a => a.ContentId == c.Id && a.IsCurrent));
             if (publishedOnly) query = query.Where(c => c.Status == ContentStatus.Publish || c.Status == ContentStatus.Published);
             var rows = await query.OrderBy(c => c.Id).Select(c => new { c.Id, c.ProjectionRevision }).Take(IdPageSize).ToArrayAsync();
             foreach (var row in rows) yield return (row.Id, row.ProjectionRevision);
@@ -364,7 +418,7 @@ public class Migration_1011 : TNOMigration
     /// The document IDs in an index (or alias) with their projection revisions (null when the
     /// document has none), ascending, read with a point in time.
     /// </summary>
-    private static async IAsyncEnumerable<(long Id, long? Revision)> IndexIdsAsync(MigrationBuilder builder, string index, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    private static async IAsyncEnumerable<(long Id, long? Revision, long? Version)> IndexIdsAsync(MigrationBuilder builder, string index, string idField = "id", [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var refresh = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.POST, $"{index}/_refresh");
         if (!refresh.Success) throw Fail(builder, $"Failed to refresh '{index}'.", refresh);
@@ -382,8 +436,9 @@ public class Migration_1011 : TNOMigration
                     ["size"] = IdPageSize,
                     ["_source"] = new JsonArray("projectionRevision"),
                     ["track_total_hits"] = false,
+                    ["version"] = true,
                     ["pit"] = new JsonObject { ["id"] = pitId, ["keep_alive"] = "5m" },
-                    ["sort"] = new JsonArray(new JsonObject { ["id"] = "asc" }),
+                    ["sort"] = new JsonArray(new JsonObject { [idField] = "asc" }),
                 };
                 if (searchAfter != null) body["search_after"] = searchAfter.DeepClone();
                 var response = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.POST, "_search", body.ToJsonString());
@@ -395,7 +450,7 @@ public class Migration_1011 : TNOMigration
                 {
                     searchAfter = hit!["sort"];
                     var revision = hit["_source"]?["projectionRevision"];
-                    yield return (searchAfter!.AsArray()[0]!.GetValue<long>(), revision?.GetValue<long>());
+                    yield return (searchAfter!.AsArray()[0]!.GetValue<long>(), revision?.GetValue<long>(), hit["_version"]?.GetValue<long>());
                 }
                 if (hits.Count < IdPageSize) yield break;
             }
@@ -412,13 +467,13 @@ public class Migration_1011 : TNOMigration
     /// </summary>
     private record IdDifference(long MissingCount, List<long> Missing, long ExtraCount, List<long> Extra, long IndexCount, long DatabaseCount);
 
-    private async Task<IdDifference> CompareAsync(MigrationBuilder builder, string index, bool publishedOnly, int keep, bool compareRevisions = true)
+    private async Task<IdDifference> CompareAsync(MigrationBuilder builder, string index, bool publishedOnly, int keep, bool compareRevisions = true, bool evidenceOnly = false)
     {
         var missing = new List<long>();
         var extra = new List<long>();
         long missingCount = 0, extraCount = 0, indexCount = 0, databaseCount = 0;
-        await using var db = DatabaseIdsAsync(publishedOnly).GetAsyncEnumerator();
-        await using var es = IndexIdsAsync(builder, index).GetAsyncEnumerator();
+        await using var db = DatabaseIdsAsync(publishedOnly, evidenceOnly).GetAsyncEnumerator();
+        await using var es = IndexIdsAsync(builder, index, evidenceOnly ? "contentId" : "id").GetAsyncEnumerator();
         var hasDb = await db.MoveNextAsync();
         var hasEs = await es.MoveNextAsync();
         while (hasDb || hasEs)
@@ -440,7 +495,7 @@ public class Migration_1011 : TNOMigration
             else
             {
                 // A document behind its content's revision is out of date.
-                if (compareRevisions && (es.Current.Revision ?? -1) < db.Current.Revision)
+                if (compareRevisions && (es.Current.Revision != db.Current.Revision || es.Current.Version != db.Current.Revision))
                 {
                     missingCount++;
                     if (missing.Count < keep) missing.Add(db.Current.Id);
@@ -456,64 +511,37 @@ public class Migration_1011 : TNOMigration
 
     /// <summary>
     /// Every content item must be in the new content index at its current revision, and every
-    /// published item in the new published index, with nothing else. Differences are repaired once;
-    /// if any remain, the migration stops before the aliases move ('stopOnDifference'), or, once
-    /// they have moved, logs them.
+    /// published item in the new published index, with nothing else. Repair differences in bounded
+    /// batches and fail if a pass makes no progress. Evidence must match current analyses too.
     /// </summary>
-    private async Task VerifyAsync(MigrationBuilder builder, MigrationTargets targets, bool includeAnalysis, bool stopOnDifference)
+    private async Task VerifyAsync(MigrationBuilder builder, MigrationTargets targets, bool includeAnalysis)
     {
-        foreach (var (target, publishedOnly) in new[] { (targets.Content, false), (targets.Published, true) })
+        var checks = new List<(IndexTarget Target, bool Published, bool Evidence)> { (targets.Content, false, false), (targets.Published, true, false) };
+        if (targets.Evidence != null) checks.Add((targets.Evidence.Value, false, true));
+        foreach (var (target, publishedOnly, evidenceOnly) in checks)
         {
-            var difference = await CompareAsync(builder, target.Index, publishedOnly, MaxRepairs);
-            if (difference.MissingCount > MaxRepairs || difference.ExtraCount > MaxRepairs)
+            var difference = await CompareAsync(builder, target.Index, publishedOnly, MaxRepairs, evidenceOnly: evidenceOnly);
+            while (difference.MissingCount > 0 || difference.ExtraCount > 0)
             {
-                var message = $"'{target.Index}' differs from the database by {difference.MissingCount:N0} missing or out of date and {difference.ExtraCount:N0} extra documents.";
-                if (stopOnDifference) throw new InvalidOperationException($"{message} The aliases were not moved.");
-                builder.Logger.LogError("{message}", message);
-                continue;
-            }
-            if (difference.MissingCount > 0 || difference.ExtraCount > 0)
-            {
+                var before = difference.MissingCount + difference.ExtraCount;
                 builder.Logger.LogWarning("Repairing '{index}': {missing:N0} missing or out of date, {extra:N0} extra", target.Index, difference.MissingCount, difference.ExtraCount);
                 foreach (var batch in difference.Missing.Chunk(BatchSize))
                     await IndexAsync(builder, targets, batch, includeAnalysis);
-                await DeleteAsync(builder, targets, difference.Extra, publishedOnly: publishedOnly);
-                difference = await CompareAsync(builder, target.Index, publishedOnly, 20);
-            }
-            if (difference.MissingCount > 0 || difference.ExtraCount > 0)
-            {
-                var message = $"'{target.Index}' still differs from the database ({difference.MissingCount:N0} missing or out of date, e.g. {String.Join(", ", difference.Missing)}; " +
-                    $"{difference.ExtraCount:N0} extra, e.g. {String.Join(", ", difference.Extra)}).";
-                if (stopOnDifference) throw new InvalidOperationException($"{message} The aliases were not moved.");
-                builder.Logger.LogError("{message}", message);
-                continue;
+                foreach (var batch in difference.Extra.Chunk(BatchSize))
+                {
+                    if (evidenceOnly)
+                    {
+                        var deletes = new BulkOperationsCollection();
+                        foreach (var id in batch) deletes.Add(new BulkDeleteOperation(id) { Index = target.Index });
+                        await BulkAsync(builder, deletes);
+                    }
+                    else await DeleteAsync(builder, targets, batch, publishedOnly: publishedOnly);
+                }
+                difference = await CompareAsync(builder, target.Index, publishedOnly, MaxRepairs, evidenceOnly: evidenceOnly);
+                if (difference.MissingCount + difference.ExtraCount >= before)
+                    throw new InvalidOperationException($"Repairs to '{target.Index}' made no progress. Keep writers paused and investigate; migration was not marked complete.");
             }
             builder.Logger.LogInformation("Verified '{index}': {count:N0} document(s), matching the database", target.Index, difference.IndexCount);
-        }
-    }
-
-    /// <summary>
-    /// Report documents in the index users see now that the database no longer has, which the new
-    /// indexes will not carry. The old index is kept, so nothing is deleted.
-    /// </summary>
-    private async Task ReportOrphansAsync(MigrationBuilder builder, string alias, bool publishedOnly)
-    {
-        var exists = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.HEAD, alias);
-        if (exists.HttpStatusCode != 200) return;
-        try
-        {
-            var difference = await CompareAsync(builder, alias, publishedOnly, 50, compareRevisions: false);
-            builder.Logger.LogInformation("'{alias}' has {count:N0} document(s); the database has {db:N0} matching item(s)", alias, difference.IndexCount, difference.DatabaseCount);
-            if (difference.ExtraCount > 0)
-                builder.Logger.LogWarning("'{alias}' has {count:N0} document(s) whose content no longer exists in the database; they are not carried to the new index (the old index is kept). e.g. {ids}",
-                    alias, difference.ExtraCount, String.Join(", ", difference.Extra));
-            if (difference.MissingCount > 0)
-                builder.Logger.LogWarning("'{alias}' was missing {count:N0} item(s) the new index has. e.g. {ids}", alias, difference.MissingCount, String.Join(", ", difference.Missing));
-        }
-        catch (InvalidOperationException ex)
-        {
-            // The report is informational; an old index without a sortable 'id' cannot be compared.
-            builder.Logger.LogWarning(ex, "Could not compare '{alias}' with the database", alias);
         }
     }
 
@@ -547,6 +575,21 @@ public class Migration_1011 : TNOMigration
 
     private static async Task AddAliasActionsAsync(MigrationBuilder builder, MigrationTargets targets, List<string> previous, JsonArray actions, List<string> blocked)
     {
+        // Remove the actual evidence alias in the same transaction as rollback cutover.
+        if (targets.Evidence == null && !String.IsNullOrWhiteSpace(builder.MigrationOptions.EvidenceIndex))
+        {
+            var alias = builder.MigrationOptions.EvidenceIndex;
+            var response = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.GET, $"_alias/{alias}");
+            if (response.HttpStatusCode != 404)
+            {
+                if (!response.Success) throw Fail(builder, $"Failed to read alias '{alias}'.", response);
+                foreach (var index in JsonNode.Parse(response.Body)!.AsObject().Select(p => p.Key))
+                {
+                    previous.Add(index);
+                    actions.Add(new JsonObject { ["remove"] = new JsonObject { ["index"] = index, ["alias"] = alias } });
+                }
+            }
+        }
         foreach (var target in new[] { targets.Published, targets.Content, targets.Evidence }.OfType<IndexTarget>())
         {
             var aliasResponse = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.GET, $"_alias/{target.Alias}");
@@ -575,10 +618,32 @@ public class Migration_1011 : TNOMigration
     private static async Task<string> BackupConcreteIndexAsync(MigrationBuilder builder, string index)
     {
         var backup = $"{index}-backup-{DateTime.UtcNow:yyyyMMddHHmmss}";
-        var block = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.PUT, $"{index}/_settings", new JsonObject { ["index.blocks.write"] = true }.ToJsonString());
+        var settings = await new NativeReindex(builder).ReadAsync($"{index}/_settings");
+        var sourceSettings = settings[index]!["settings"]!["index"]!;
+        var cloneSettings = new JsonObject
+        {
+            ["index.number_of_replicas"] = sourceSettings["number_of_replicas"]!.DeepClone(),
+        };
+        if (sourceSettings["auto_expand_replicas"] != null)
+            cloneSettings["index.auto_expand_replicas"] = sourceSettings["auto_expand_replicas"]!.DeepClone();
+        // The dedicated block API waits for in-flight writes to finish before cloning.
+        var block = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.PUT, $"{index}/_block/write");
         if (!block.Success) throw Fail(builder, $"Failed to block writes to '{index}' for its backup.", block);
-        var clone = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.POST, $"{index}/_clone/{backup}");
+        var clone = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.POST, $"{index}/_clone/{backup}",
+            new JsonObject { ["settings"] = cloneSettings }.ToJsonString());
         if (!clone.Success) throw Fail(builder, $"Failed to back up '{index}'; nothing was changed.", clone);
+        var health = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.GET,
+            $"_cluster/health/{backup}", parameters: new Elasticsearch.Net.Specification.ClusterApi.ClusterHealthRequestParameters
+            {
+                WaitForStatus = Elasticsearch.Net.WaitForStatus.Yellow,
+                WaitForNoInitializingShards = true,
+                Timeout = TimeSpan.FromMinutes(5),
+            });
+        if (!health.Success || JsonNode.Parse(health.Body)?["timed_out"]?.GetValue<bool>() != false)
+            throw new InvalidOperationException($"Backup '{backup}' is not ready; source '{index}' was not removed.");
+        var unblock = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.PUT, $"{backup}/_settings",
+            new JsonObject { ["index.blocks.write"] = null }.ToJsonString());
+        if (!unblock.Success) throw Fail(builder, $"Failed to unblock backup '{backup}'.", unblock);
         builder.Logger.LogWarning("'{index}' is an index, not an alias; backed it up to '{backup}' before replacing it with an alias.", index, backup);
         return backup;
     }

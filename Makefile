@@ -188,16 +188,16 @@ reset-consumer-offset: ## Reset the consumer group topic offset.
 	$(info Reset the consumer group topic offset)
 	@cd ./db/kafka/scripts/reset-consumer-offset.sh
 
-kafka-update: ## Run the kafka migration (n=migration name, r=rollback, b=bootstrap server, p=partitions)
-	$(info Run the kafka migration (n=$(n)))
-	@./db/kafka/scripts/migration.sh $(if $(n),-n $(n),) $(if $(r),-r,) $(if $(b),-b $(b),) $(if $(p),-p $(p),)
+kafka-update: ## Apply the Kafka topic migrations (e=environment {local,dev,test,prod} [local], n=version [all], r=1 roll back version n, b=bootstrap server, p=default partitions, f=default replication factor, d=1 dry run, y=1 skip confirmation)
+	$(info Run the kafka migration (e=$(if $(e),$(e),local)$(if $(n), n=$(n),)))
+	@./db/kafka/scripts/migration.sh -e $(if $(e),$(e),local) $(if $(n),-n $(n),) $(if $(r),-r,) $(if $(b),-z $(b),) $(if $(p),-p $(p),) $(if $(f),--replication $(f),) $(if $(d),-d,) $(if $(y),-y,)
 
-kafka-topic-add: ## Add a new kafka topic (e=environment, t=topic, b=bootstrap server, p=partitions, r=replications, i=index)
+kafka-topic-add: ## Create or update a kafka topic (e=environment [local], t=topic, b=bootstrap server, p=partitions, r=replication factor, c=config key=value[,...], i=broker pod index, d=1 dry run)
 	$(info Add a new kafka topic (e=$(if $(e),$(e),local), t=$(t)))
-	@./db/kafka/scripts/topic-add.sh $(if $(e),-e $(e),) $(if $(t),-t $(t),) $(if $(b),-b $(b),) $(if $(p),-p $(p),) $(if $(r),-r $(r),) $(if $(i),-i $(i),)
+	@./db/kafka/scripts/topic-add.sh -e $(if $(e),$(e),local) $(if $(t),-t $(t),) $(if $(b),-z $(b),) $(if $(p),-p $(p),) $(if $(r),-r $(r),) $(if $(c),-c $(c),) $(if $(i),-i $(i),) $(if $(d),-d,)
 
-kafka-topic-delete: ## Delete a kafka topic (t=topic, b=bootstrap server)
-	$(info Add a new kafka topic (e=$(if $(e),$(e),local), t=$(t)))
-	@./db/kafka/scripts/topic-add.sh $(if $(e),-e $(e),) $(if $(t),-t $(t),) $(if $(b),-b $(b),)
+kafka-topic-delete: ## Delete a kafka topic and its messages (e=environment [local], t=topic, b=bootstrap server, i=broker pod index, d=1 dry run, y=1 skip confirmation)
+	$(info Delete a kafka topic (e=$(if $(e),$(e),local), t=$(t)))
+	@./db/kafka/scripts/topic-delete.sh -e $(if $(e),$(e),local) $(if $(t),-t $(t),) $(if $(b),-z $(b),) $(if $(i),-i $(i),) $(if $(d),-d,) $(if $(y),-y,)
 
 .PHONY: local

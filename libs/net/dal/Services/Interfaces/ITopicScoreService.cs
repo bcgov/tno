@@ -1,3 +1,4 @@
+using TNO.API.Areas.Services.Models.TopicScore;
 using TNO.DAL.Models;
 using TNO.DAL.Scoring;
 using TNO.Entities;
@@ -111,35 +112,37 @@ public interface ITopicScoreService : IBaseService
     TopicRescorePreview PreviewRescore(DateTime startOn, DateTime endOn, IEnumerable<int>? sourceIds);
 
     /// <summary>
-    /// Record a new rescore job.
+    /// Record a new bulk rescore work order, counting the content in its range now. The Event
+    /// Handler runs it a page at a time.
     /// </summary>
-    /// <param name="startOn"></param>
-    /// <param name="endOn"></param>
-    /// <param name="sourceIds"></param>
+    /// <param name="startOn">Published on or after (UTC).</param>
+    /// <param name="endOn">Published before (UTC).</param>
+    /// <param name="sourceIds">Limit to these sources; empty includes every source.</param>
+    /// <param name="requestorId"></param>
     /// <returns></returns>
-    TopicRescoreJob AddRescoreJob(DateTime startOn, DateTime endOn, IEnumerable<int>? sourceIds);
+    WorkOrder AddRescore(DateTime startOn, DateTime endOn, IEnumerable<int>? sourceIds, int? requestorId);
 
     /// <summary>
-    /// Find a rescore job.
+    /// Find a bulk rescore work order.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    TopicRescoreJob? FindRescoreJob(long id);
+    WorkOrder? FindRescore(long id);
 
     /// <summary>
-    /// The most recent rescore jobs.
+    /// The most recent bulk rescore work orders.
     /// </summary>
     /// <param name="qty"></param>
     /// <returns></returns>
-    IEnumerable<TopicRescoreJob> FindRescoreJobs(int qty = 10);
+    IEnumerable<WorkOrder> FindRescores(int qty = 10);
 
     /// <summary>
-    /// Run a rescore job: recalculate the calculated scores of the content in its range, recording
-    /// progress on the job. Content whose score changed is re-indexed.
+    /// Recalculate the calculated scores of the next page of a bulk rescore, after the specified
+    /// content ID. Content whose score changed is re-indexed once the page commits.
     /// </summary>
-    /// <param name="jobId"></param>
-    /// <param name="onBatchSaved">Called after each batch commits (to send its index requests).</param>
-    /// <param name="cancellationToken"></param>
+    /// <param name="configuration"></param>
+    /// <param name="afterContentId"></param>
+    /// <param name="quantity"></param>
     /// <returns></returns>
-    Task RunRescoreJobAsync(long jobId, Func<Task> onBatchSaved, CancellationToken cancellationToken = default);
+    TopicRescorePageModel RescorePage(TopicRescoreConfigurationModel configuration, long afterContentId, int quantity = 200);
 }

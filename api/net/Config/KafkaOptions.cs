@@ -22,9 +22,35 @@ public class KafkaOptions
     public string AutoClipTopic { get; set; } = "";
 
     /// <summary>
-    /// get/set - The Kafka topic name that wakes Content-Analysis workers.
+    /// get/set - The Kafka topic name to request analysis of added or changed content (and editor
+    /// and administrator requests).
     /// </summary>
     public string AnalysisTopic { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The Kafka topic name a backfill sends content to for analysis.
+    /// </summary>
+    public string AnalysisBackfillTopic { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The Kafka topic name Content-Analysis sends failed requests to for a delayed retry.
+    /// </summary>
+    public string AnalysisRetryTopic { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The Kafka topic name Content-Analysis sends requests to when retries are exhausted.
+    /// </summary>
+    public string AnalysisDeadLetterTopic { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The Content-Analysis consumer group, to report how many requests are waiting.
+    /// </summary>
+    public string AnalysisConsumerGroup { get; set; } = "ContentAnalysis";
+
+    /// <summary>
+    /// get/set - The Kafka topic name the Event Handler receives work orders on.
+    /// </summary>
+    public string WorkOrderTopic { get; set; } = "";
 
     /// <summary>
     /// get/set - The Kafka topic name to request a remote file.

@@ -67,6 +67,30 @@ public class KafkaMessenger : IKafkaMessenger
     }
 
     /// <summary>
+    /// Send the messages to Kafka with one producer, waiting until every message is accepted.
+    /// Throws when any message is not.
+    /// </summary>
+    /// <typeparam name="TKey"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
+    /// <param name="topic"></param>
+    /// <param name="messages"></param>
+    /// <returns></returns>
+    public async Task<DeliveryResult<TKey, TValue>[]> SendMessagesAsync<TKey, TValue>(string topic, IEnumerable<KeyValuePair<TKey, TValue>> messages)
+    {
+        if (String.IsNullOrWhiteSpace(topic)) throw new ArgumentException("Parameter cannot be null, empty, or whitespace", nameof(topic));
+        ArgumentNullException.ThrowIfNull(messages);
+
+        var builder = new ProducerBuilder<TKey, TValue>(_config);
+        builder.SetKeySerializer(new DefaultJsonSerializer<TKey>(_serializerOptions));
+        builder.SetValueSerializer(new DefaultJsonSerializer<TValue>(_serializerOptions));
+        using var producer = builder.Build();
+
+        var results = await Task.WhenAll(messages.Select(m => producer.ProduceAsync(topic, new Message<TKey, TValue>() { Key = m.Key, Value = m.Value })));
+        _logger.LogDebug("Messages received by Kafka topic:'{topic}' count:{count}", topic, results.Length);
+        return results;
+    }
+
+    /// <summary>
     /// Send a message to to Kafka.
     /// </summary>
     /// <param name="topic"></param>

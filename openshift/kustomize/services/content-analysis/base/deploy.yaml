@@ -133,21 +133,46 @@ spec:
                 configMapKeyRef:
                   name: content-analysis-service
                   key: TIME_ZONE
-            - name: Service__MaxConcurrency
+            - name: Service__BackfillTopic
               valueFrom:
                 configMapKeyRef:
                   name: content-analysis-service
-                  key: MAX_CONCURRENCY
+                  key: BACKFILL_TOPIC
+            - name: Service__RetryTopic
+              valueFrom:
+                configMapKeyRef:
+                  name: content-analysis-service
+                  key: RETRY_TOPIC
+            - name: Service__DeadLetterTopic
+              valueFrom:
+                configMapKeyRef:
+                  name: content-analysis-service
+                  key: DEAD_LETTER_TOPIC
             - name: Service__Processes
               valueFrom:
                 configMapKeyRef:
                   name: content-analysis-service
                   key: PROCESSES
-            - name: Service__PollIntervalSeconds
+            - name: Service__QuietPeriodSeconds
               valueFrom:
                 configMapKeyRef:
                   name: content-analysis-service
-                  key: POLL_INTERVAL_SECONDS
+                  key: QUIET_PERIOD_SECONDS
+            - name: Service__MaxAttempts
+              valueFrom:
+                configMapKeyRef:
+                  name: content-analysis-service
+                  key: MAX_ATTEMPTS
+            - name: Service__RetryDelaySeconds
+              valueFrom:
+                configMapKeyRef:
+                  name: content-analysis-service
+                  key: RETRY_DELAY_SECONDS
+            - name: Service__MaxRetryDelaySeconds
+              valueFrom:
+                configMapKeyRef:
+                  name: content-analysis-service
+                  key: MAX_RETRY_DELAY_SECONDS
             - name: Service__SettingsRefreshSeconds
               valueFrom:
                 configMapKeyRef:

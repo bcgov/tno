@@ -33,7 +33,7 @@ patches:
     patch: |-
       - op: replace
         path: /spec/replicas
-        value: 3
+        value: 0  # Elasticsearch Cloud is primary; retain local PVCs.
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/cpu
         value: 100m

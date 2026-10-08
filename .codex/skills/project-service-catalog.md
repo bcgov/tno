@@ -25,10 +25,10 @@
 - `notification`: notifications/emails. Run `make up n=notification`; build `dotnet build services/net/notification/`; depends on `api`, `broker`, volume `tno-api-data`.
 - `reporting`: reporting generation worker. Run `make up n=reporting`; build `dotnet build services/net/reporting/`; depends on `api`, `broker`, volume `tno-av-data`.
 - `folder-collection`: folder aggregation/sync tasks. Run `make up n=folder-collection`; build `dotnet build services/net/folder-collection/`; depends on `api`, `broker`.
-- `content-analysis`: LLM content analysis worker (replaces the retired `extract-quotes` and `nlp` services). Consumes the `analysis` Kafka topic as a wake-up and polls its job table; uses the LLM configured through the API. Run `make up n=content-analysis`; build `dotnet build services/net/content-analysis/TNO.Services.ContentAnalysis.csproj`; depends on `api`, `broker`.
+- `content-analysis`: LLM content analysis worker (replaces the retired `extract-quotes` and `nlp` services). Consumes analysis requests (keyed by content ID) from the `analysis`, `analysis-retry`, and `analysis-backfill` Kafka topics, each with its own consumer, and sends exhausted requests to `analysis-dlq`; uses the LLM configured through the API. Run `make up n=content-analysis`; build `dotnet build services/net/content-analysis/TNO.Services.ContentAnalysis.csproj`; depends on `api`, `broker`.
 - `ffmpeg`: media transformation worker. Run `make up n=ffmpeg`; build `dotnet build services/net/ffmpeg/`; depends on `api`, `broker`, volume `tno-api-data`.
 - `scheduler`: scheduled jobs orchestrator. Run `make up n=scheduler`; build `dotnet build services/net/scheduler/`; depends on `api`, `broker`.
-- `event-handler`: event-driven processing. Run `make up n=event-handler`; build `dotnet build services/net/event-handler/`; depends on `api`, `broker`.
+- `event-handler`: event-driven processing: event schedules (`event-schedule`) and work orders (`work-order`, e.g. Content-Analysis backfills and bulk topic rescores, a page at a time), each with its own consumer. Run `make up n=event-handler`; build `dotnet build services/net/event-handler/`; depends on `api`, `broker`.
 - `automation`: morning automation service scaffold. Build `dotnet build services/net/automation/`; run manually with `cd services/net/automation && dotnet run`.
 - `ches-retry`: CHES retry support service. Build `dotnet build services/net/ches-retry/`; run manually as needed.
 

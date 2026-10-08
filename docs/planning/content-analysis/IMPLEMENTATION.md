@@ -6,12 +6,16 @@ and what still needs a decision.
 
 ## Delivery
 
-All phases and both independent workstreams ship together on one branch with **one** database
-migration and **one** Elasticsearch migration.
+All phases and both independent workstreams shipped with database migration `1.5.6` and one
+Elasticsearch migration. Moving analysis work from a database job table to Kafka followed with
+database migration `1.5.7` (which also covers moving bulk topic rescore to an Event Handler work
+order) and Kafka topic migration `1.0.1`.
 
 | Migration | Contents |
 | --- | --- |
 | EF `1.5.6` (`libs/net/dal/Migrations/20260930220328_1.5.6.cs`) | `llm` limits; `report_ai_result`; topic scoring columns, `topic_rescore_job`, score check constraint; analysis tables (`analysis_job`, `content_analysis`, `content_field_ownership`, `analysis_topic`, `analysis_backfill`), quote provenance; `content.projection_revision`; history indexes. SQL: `Migrations/1.5.6/Up/PreUp/00-TopicScoring.sql`, `Up/PostUp/00-HistoryRetention.sql`, `Up/PostUp/01-TopicScoring.sql`, `Down/PreDown/*`. |
+| EF `1.5.7` (`libs/net/dal/Migrations/20261007235520_1.5.7.cs`) | Drops `analysis_job` and `analysis_backfill` (Kafka is the source of analysis work; backfills are work orders) and `topic_rescore_job` (bulk rescores are work orders); adds `content.metadata` (`jsonb`, run history under `analysis`). SQL: `Migrations/1.5.7/Up/PostUp/00-ContentAnalysisMetadata.sql` (partial index `IX_content_analysis_failed`), `Down/PreDown/*`. |
+| Kafka `1.0.1` (`db/kafka/migrations/V1.0.1.sh`) | Topics `analysis-backfill`, `analysis-retry`, `analysis-dlq`, `work-order`. |
 | Elasticsearch `1.0.11` (`tools/elastic/migration/Migrations/1.0.11*`) | Rebuilds the content indexes **from the database** with external versions (projection revision), adds `analysis` (`dynamic: strict`), `topics.isSystem`, `projectionRevision`, `index.gc_deletes: 1h`, and creates the evidence index. See [Elasticsearch migration safety](#elasticsearch-migration-safety). |
 
 ## Status
@@ -19,10 +23,10 @@ migration and **one** Elasticsearch migration.
 | Document | Built |
 | --- | --- |
 | 01 Report synthesis | `TNO.AI` tokens, chunker, synthesizer; `ReportAISectionGenerator`; `report_ai_result` store (API + reporting service); LLM limits in the admin form; AI scope / source sections / output mode on AI sections (editor and subscriber). Analyzed stories contribute evidence (summary, facts, entities, quotes), ordered by topic so related stories share a request. |
-| 02 Content analysis | `services/net/content-analysis` running the processes it is configured for; DAL job queue, ownership, population, topic registry; services/editor/admin endpoints; editor Analysis tab; `/admin/content-analysis`. Quote Extraction and NLP services removed. |
+| 02 Content analysis | `services/net/content-analysis` consuming the Kafka analysis topics (lifecycle, retry, and backfill consumers; dead-letter topic) and running the processes it is configured for; analysis requests recorded by the DAL save hook and sent by `AnalysisRequestFilter`; run history in `content.metadata`; ownership, population, topic registry; services/editor/admin endpoints; editor Analysis tab; `/admin/content-analysis`. Quote Extraction and NLP services removed. |
 | 03 Indexing reliability | Projection revisions incremented in the save's transaction; index requests sent to Kafka by the API before it responds (a Kafka failure fails the request); versioned writes with retries in the indexing service, `tools/indexer`, and the migration tool; subscriber delete, `tools/indexer` transcript leak, and `MaxFailLimit` fixed. No reconciliation (out of scope). |
-| 04 Backfill | `AnalysisBackfillService`, admin endpoints and panel. |
-| 05 Topic scoring | Calculator, save hook, rescore jobs, rebuilt `/admin/topic-scores`, system topic flag. |
+| 04 Backfill | Backfill work orders (`AnalysisBackfillService`), run a page at a time by the Event Handler (`ContentAnalysisBackfillHandler`); admin endpoints and panel. |
+| 05 Topic scoring | Calculator, save hook, bulk rescore work orders (run by the Event Handler), rebuilt `/admin/topic-scores`, system topic flag. |
 | 06 History retention | Purge service, `Purge History` schedule (02:00 daily), admin panel; purged report links show Not Found. |
 
 ## Deviations and decisions made while building
@@ -36,8 +40,10 @@ migration and **one** Elasticsearch migration.
   rescore). Unpublishing is idempotent in the indexer.
 - **Bulk editor actions** now always send hub messages (before, they were sent only when the index
   topic was configured).
-- **Rescore re-indexing** moved from the admin controller into `TopicScoreService.RunRescoreJobAsync`,
-  so a rescore batch and its index requests commit together.
+- **Bulk rescore is a work order** (`WorkOrderType.TopicRescore`) the Event Handler runs a page at a
+  time (`TopicRescoreHandler`); each page is rescored by `TopicScoreService.RescorePage` in a services
+  API request, so a page and its index requests commit together. EF `1.5.7` drops
+  `topic_rescore_job`.
 - **Content-Analysis processes.** There is no on/off or shadow mode. The service's
   `Service:Processes` (config map `PROCESSES`) lists what it runs — `Metadata` (key facts, people
   and organizations, places, events, topics), `Summary`, `Quotes`, `Tags`, `Contributor`,
@@ -49,7 +55,7 @@ migration and **one** Elasticsearch migration.
   in its transaction; a global filter (and the rescore job, per batch) sends the saved requests to
   Kafka once the transaction commits, before the API responds. Kafka not accepting them fails the
   request with a 500 (the change itself is saved). Requests from a rolled-back transaction are
-  never sent. The Content-Analysis wake message follows the same rule.
+  never sent. Analysis requests follow the same rule.
 - **Failed index writes.** The indexing service retries each Elasticsearch write
   `Service:IndexRetryLimit` times (config map `INDEX_RETRY_LIMIT`, default 3) with a growing delay,
   then logs the failure and moves on. There is no reconciliation.
@@ -77,16 +83,23 @@ migration and **one** Elasticsearch migration.
 | API | `Kafka:Producer:MessageTimeoutMs` | 10000 (fail fast when Kafka is down) |
 | API | `API:NotificationPublishedBeforeOffset` | from the notification service config map (optional) |
 | API / reporting | `Reporting:Synthesis:*` | margin 10%, depth 8, 8 concurrent, 16,000 input / 8,000 output tokens per map or reduce request, 3 attempts, 900s claim, 300s timeout |
-| DAL (API) | `ContentAnalysis:QuietPeriodSeconds`, `MaxAttempts`, `LeaseSeconds`, priorities | 120, 5, 600, 100 / 10 |
+| API | `Kafka:AnalysisTopic`, `AnalysisBackfillTopic`, `AnalysisRetryTopic`, `AnalysisDeadLetterTopic`, `AnalysisConsumerGroup`, `WorkOrderTopic` | `analysis`, `analysis-backfill`, `analysis-retry`, `analysis-dlq`, `ContentAnalysis`, `work-order` |
 | DAL (API) | `TopicScore:TimeZone` | `Pacific Standard Time` |
 | Indexing service | `Elastic:EvidenceIndex`, `Service:IndexRetryLimit`, `Service:IndexRetryDelayMs` | `content_evidence`, 3, 1000 |
 | Content-Analysis service | `Service:Processes` | `Metadata,Summary,Quotes,Tags,Contributor,Topics` |
+| Content-Analysis service | `Service:Topics`, `BackfillTopic`, `RetryTopic`, `DeadLetterTopic` (empty consumes none, e.g. a backfill-only instance) | `analysis`, `analysis-backfill`, `analysis-retry`, `analysis-dlq` |
+| Content-Analysis service | `Service:QuietPeriodSeconds`, `MaxAttempts`, `RetryDelaySeconds`, `MaxRetryDelaySeconds`, `BackfillShare` | 120, 5, 30, 3600, 0.2 |
+| Content-Analysis service | `Kafka:Consumer` `EnableAutoCommit`, `MaxThreads` | `false`, 1 (one request at a time per consumer; scale with partitions and replicas) |
+| Event Handler | `Service:WorkOrderTopics`, `AnalysisBackfillTopic`, `AnalysisBackfillPageSize`, `TopicRescorePageSize` | `work-order`, `analysis-backfill`, 500, 200 |
 | Settings table | `ContentAnalysisLLMId`, excluded media types/sources, `TopicPopulationMode`, `ReportRetentionDays`, `NotificationRetentionDays` | — / — / ExistingOnly / 90 / 30 |
 
 ## Deployment order
 
-1. Deploy the API, indexing service, reporting, event-handler, scheduler, and content-analysis
-   images; apply EF `1.5.6` (`make db-update` locally).
+1. Create the Kafka topics: `make kafka-update` locally, `cd openshift && make kafka-update e=<env>`
+   on OpenShift (partitions per `db/kafka/environments/<env>.conf`). Deploy the API, indexing service, reporting, event-handler, scheduler, and
+   content-analysis images; apply EF `1.5.6` and `1.5.7` (`make db-update` locally). Requests still
+   in `analysis_job` when `1.5.7` drops it are not carried over; run a missing-or-stale backfill over
+   the affected range afterwards.
 2. Run Elasticsearch `1.0.11` on **each** cluster, with the indexing service's index names:
    - on-prem: `Elastic__ContentIndex=unpublished_content`, `Elastic__PublishedIndex=content`;
    - Elastic Cloud: `Elastic__ContentIndex=content`, `Elastic__PublishedIndex=published_content`,

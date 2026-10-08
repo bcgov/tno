@@ -1,3 +1,4 @@
+using TNO.API.Areas.Services.Models.ContentAnalysis;
 using TNO.Entities;
 
 namespace TNO.DAL.Services;
@@ -12,75 +13,43 @@ namespace TNO.DAL.Services;
 public record AnalysisBackfillPreview(int Matching, int Excluded, int MissingPublicationDate, int AlreadyCurrent);
 
 /// <summary>
-/// AnalysisBackfillProgress record, where a backfill stands.
-/// </summary>
-/// <param name="Backfill">The backfill.</param>
-/// <param name="Analyzed">Content the backfill's jobs analyzed.</param>
-/// <param name="Superseded">Content whose backfill job was taken over by lifecycle work.</param>
-/// <param name="Deleted">Content deleted after it was scheduled.</param>
-/// <param name="Failed">Jobs that failed (shown for replay).</param>
-/// <param name="Remaining">Jobs still queued or running.</param>
-/// <param name="Indexed">Analyzed content whose index request has been dispatched.</param>
-/// <param name="IsComplete">Every target is resolved and successful results are searchable.</param>
-public record AnalysisBackfillProgress(AnalysisBackfill Backfill, int Analyzed, int Superseded, int Deleted, int Failed, int Remaining, int Indexed, bool IsComplete);
-
-/// <summary>
 /// IAnalysisBackfillService interface, administrator-requested analysis of existing content in a
-/// date range, through the same job queue as lifecycle work at a lower priority.
+/// date range, run as a work order by the Event Handler.
 /// </summary>
 public interface IAnalysisBackfillService : IBaseService
 {
     /// <summary>
     /// Count what a backfill would cover.
     /// </summary>
-    /// <param name="startOn">Inclusive (UTC).</param>
-    /// <param name="endOn">Exclusive (UTC).</param>
-    /// <param name="dateField"></param>
-    /// <param name="mode"></param>
-    /// <returns></returns>
     AnalysisBackfillPreview Preview(DateTime startOn, DateTime endOn, AnalysisBackfillDateField dateField, AnalysisBackfillMode mode);
 
     /// <summary>
-    /// Record a new backfill with its criteria and creation high-water mark.
+    /// Record a new backfill work order, counting the eligible content in its range now.
     /// </summary>
-    /// <param name="backfill"></param>
-    /// <returns></returns>
-    AnalysisBackfill Add(AnalysisBackfill backfill);
+    WorkOrder Add(AnalysisBackfillConfigurationModel configuration, int? requestorId);
 
     /// <summary>
-    /// Schedule the backfill's jobs from its checkpoint, in keyset order, checkpointing each batch.
-    /// Stops when the backfill is cancelled.
+    /// The backfill work order.
     /// </summary>
-    /// <param name="id"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    Task RunAsync(long id, CancellationToken cancellationToken = default);
+    WorkOrder? FindById(long id);
 
     /// <summary>
-    /// Stop scheduling and withdraw the backfill's unclaimed jobs; claimed work may finish.
+    /// The most recent backfill work orders.
     /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    AnalysisBackfill Cancel(long id);
+    IEnumerable<WorkOrder> FindRecent(int qty = 20);
 
     /// <summary>
-    /// Mark a cancelled or failed backfill to continue from its checkpoint.
+    /// Stop the backfill.
     /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    AnalysisBackfill Resume(long id);
+    WorkOrder Cancel(long id);
 
     /// <summary>
-    /// The most recent backfills.
+    /// Continue a cancelled or failed backfill from its checkpoint.
     /// </summary>
-    /// <param name="qty"></param>
-    /// <returns></returns>
-    IEnumerable<AnalysisBackfillProgress> FindRecent(int qty = 20);
+    WorkOrder Resume(long id);
 
     /// <summary>
-    /// A backfill and its progress.
+    /// The next page of a backfill after the specified content ID.
     /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    AnalysisBackfillProgress? FindProgress(long id);
+    AnalysisBackfillPageModel FindPage(AnalysisBackfillConfigurationModel configuration, long afterContentId, int quantity = 500);
 }

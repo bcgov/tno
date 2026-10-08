@@ -246,6 +246,19 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     }
 
     /// <summary>
+    /// Return the consumer to the message's offset without committing it, so it is received again.
+    /// Use instead of 'Commit' when a message could not be handled and must not be lost.
+    /// </summary>
+    /// <param name="result"></param>
+    public void Seek(ConsumeResult<TKey, TValue> result)
+    {
+        this.Consumer?.Seek(result.TopicPartitionOffset);
+        _logger.LogDebug("Consumer returned to topic:'{topic}' partition:{partition} offset:{offset}", result.Topic, result.Partition.Value, result.Offset.Value);
+
+        if (this.IsLongRunningJob) Interlocked.Decrement(ref _resultConsumerTracker);
+    }
+
+    /// <summary>
     /// Pause consuming messages from the current assignment.
     /// </summary>
     public void Pause()

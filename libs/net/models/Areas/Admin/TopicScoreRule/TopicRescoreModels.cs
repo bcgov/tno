@@ -44,20 +44,20 @@ public class TopicRescorePreviewModel
 }
 
 /// <summary>
-/// TopicRescoreJobModel class, a bulk rescore and its progress.
+/// TopicRescoreJobModel class, a bulk rescore (a work order the Event Handler runs) and its progress.
 /// </summary>
 public class TopicRescoreJobModel
 {
     #region Properties
     /// <summary>
-    /// get/set - Primary key.
+    /// get/set - The work order.
     /// </summary>
     public long Id { get; set; }
 
     /// <summary>
-    /// get/set - The job status.
+    /// get/set - The work order status.
     /// </summary>
-    public BackgroundJobStatus Status { get; set; }
+    public WorkOrderStatus Status { get; set; }
 
     /// <summary>
     /// get/set - Content published on or after this date.
@@ -75,7 +75,7 @@ public class TopicRescoreJobModel
     public IEnumerable<int> SourceIds { get; set; } = Array.Empty<int>();
 
     /// <summary>
-    /// get/set - Content in the range.
+    /// get/set - Content in the range when the rescore started.
     /// </summary>
     public int Total { get; set; }
 
@@ -100,24 +100,19 @@ public class TopicRescoreJobModel
     public string? Error { get; set; }
 
     /// <summary>
-    /// get/set - Who requested the job.
+    /// get/set - Who requested the rescore.
     /// </summary>
     public string CreatedBy { get; set; } = "";
 
     /// <summary>
-    /// get/set - When the job was requested.
+    /// get/set - When the rescore was requested.
     /// </summary>
     public DateTime? CreatedOn { get; set; }
 
     /// <summary>
-    /// get/set - When the job started.
+    /// get/set - When its progress last changed.
     /// </summary>
-    public DateTime? StartedOn { get; set; }
-
-    /// <summary>
-    /// get/set - When the job finished.
-    /// </summary>
-    public DateTime? CompletedOn { get; set; }
+    public DateTime? UpdatedOn { get; set; }
     #endregion
 
     #region Constructors
@@ -129,23 +124,23 @@ public class TopicRescoreJobModel
     /// <summary>
     /// Creates a new instance of a TopicRescoreJobModel, initializes with specified parameters.
     /// </summary>
-    /// <param name="entity"></param>
-    public TopicRescoreJobModel(Entities.TopicRescoreJob entity)
+    /// <param name="workOrder"></param>
+    /// <param name="configuration"></param>
+    public TopicRescoreJobModel(Entities.WorkOrder workOrder, TNO.API.Areas.Services.Models.TopicScore.TopicRescoreConfigurationModel configuration)
     {
-        this.Id = entity.Id;
-        this.Status = entity.Status;
-        this.StartOn = entity.StartOn;
-        this.EndOn = entity.EndOn;
-        this.SourceIds = entity.SourceIds;
-        this.Total = entity.Total;
-        this.Processed = entity.Processed;
-        this.Changed = entity.Changed;
-        this.Failed = entity.Failed;
-        this.Error = entity.Error;
-        this.CreatedBy = entity.CreatedBy;
-        this.CreatedOn = entity.CreatedOn;
-        this.StartedOn = entity.StartedOn;
-        this.CompletedOn = entity.CompletedOn;
+        this.Id = workOrder.Id;
+        this.Status = workOrder.Status;
+        this.StartOn = configuration.StartOn;
+        this.EndOn = configuration.EndOn;
+        this.SourceIds = configuration.SourceIds;
+        this.Total = configuration.Total;
+        this.Processed = configuration.Processed;
+        this.Changed = configuration.Changed;
+        this.Failed = configuration.Failed;
+        this.Error = configuration.Error;
+        this.CreatedBy = workOrder.CreatedBy;
+        this.CreatedOn = workOrder.CreatedOn;
+        this.UpdatedOn = workOrder.UpdatedOn;
     }
     #endregion
 }

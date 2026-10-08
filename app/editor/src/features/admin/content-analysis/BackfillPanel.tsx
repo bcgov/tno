@@ -33,12 +33,21 @@ const modeOptions = [
   new OptionItem('Everything (force reanalysis)', 'Force'),
 ];
 
+const statusNames: Record<IAnalysisBackfillModel['status'], string> = {
+  Submitted: 'Waiting to start',
+  InProgress: 'Sending stories',
+  Completed: 'All stories sent',
+  Cancelled: 'Cancelled',
+  Failed: 'Failed',
+};
+
 const isActive = (backfill: IAnalysisBackfillModel) =>
-  backfill.status === 'Pending' || (backfill.status === 'Running' && !backfill.isComplete);
+  backfill.status === 'Submitted' || backfill.status === 'InProgress';
 
 /**
- * Analyze existing stories in a date range. Backfill uses the same queue as new stories at a lower
- * priority and a limited share of the model's throughput; reports never wait for it.
+ * Analyze existing stories in a date range. A backfill is a work order: the Event Handler sends the
+ * stories in the range to Content-Analysis, which analyzes them apart from new stories and with a
+ * limited share of the model's throughput; reports never wait for it.
  * @returns Component.
  */
 export const BackfillPanel: React.FC = () => {
@@ -178,12 +187,11 @@ export const BackfillPanel: React.FC = () => {
               {moment(b.startOn).format('YYYY-MM-DD')} to {moment(b.endOn).format('YYYY-MM-DD')} (
               {b.dateField === 'PublishedOn' ? 'published' : 'created'}, {b.timeZone})
             </span>
-            <span>{b.isComplete ? 'Complete' : b.status}</span>
+            <span>{statusNames[b.status] ?? b.status}</span>
             <span>
-              {b.scheduled.toLocaleString()} queued · {b.analyzed.toLocaleString()} analyzed ·{' '}
-              {b.alreadyCurrent.toLocaleString()} already current · {b.superseded.toLocaleString()}{' '}
-              superseded · {b.deleted.toLocaleString()} deleted · {b.failed.toLocaleString()} failed
-              · {b.indexed.toLocaleString()} searchable
+              {b.scheduled.toLocaleString()} of {b.total.toLocaleString()} sent ·{' '}
+              {b.alreadyCurrent.toLocaleString()} already current · {b.failed.toLocaleString()}{' '}
+              failed
             </span>
             {b.error && <span className="error">{b.error}</span>}
             <Show visible={isActive(b)}>
@@ -194,13 +202,7 @@ export const BackfillPanel: React.FC = () => {
                 Cancel
               </Button>
             </Show>
-            <Show
-              visible={
-                b.status === 'Cancelled' ||
-                b.status === 'Failed' ||
-                (b.status === 'Running' && !b.completedOn)
-              }
-            >
+            <Show visible={b.status === 'Cancelled' || b.status === 'Failed'}>
               <Button
                 variant={ButtonVariant.link}
                 onClick={() => api.resumeBackfill(b.id).then(refresh)}
@@ -215,7 +217,7 @@ export const BackfillPanel: React.FC = () => {
         headerText="Start backfill"
         body={`Analyze ${
           preview?.matching.toLocaleString() ?? ''
-        } stories in this range? New stories keep priority.`}
+        } stories in this range? Backfill never delays new stories.`}
         isShowing={isShowing}
         hide={toggle}
         type="default"

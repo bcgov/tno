@@ -9,8 +9,8 @@ namespace TNO.DAL;
 /// TNOContext Content-Analysis hooks.
 /// - Field ownership: a save records who set a populated editorial value (and that a person
 ///   cleared one), so analysis never overwrites a person's or automation's choice.
-/// - Scheduling: a save that changes an analysis input upserts the content's analysis job in the
-///   same transaction, due after the quiet period.
+/// - Requests: a save that adds content or changes an analysis input records an analysis request
+///   (see TNOContext.AnalysisRequests), which the API sends to Kafka once the save commits.
 /// </summary>
 public partial class TNOContext
 {
@@ -27,12 +27,6 @@ public partial class TNOContext
     /// query parameter or 'X-Change-Owner' header), and otherwise a person.
     /// </summary>
     public FieldOwner? ChangeOwner { get; set; }
-
-    /// <summary>
-    /// get - When the analysis jobs scheduled by saves on this context become due, so the API can
-    /// wake the Content-Analysis workers.
-    /// </summary>
-    public List<DateTime> ScheduledAnalysisJobs { get; } = new();
     #endregion
 
     #region Methods
@@ -223,80 +217,6 @@ public partial class TNOContext
         if (contentId == 0) return true;
         var record = FindOwnership(contentId, ContentFieldOwnership.SummaryField, "");
         return record == null || (record.Owner == FieldOwner.Human && !record.IsCleared);
-    }
-
-    /// <summary>
-    /// Upsert the analysis job of every content item whose analysis input this save changes.
-    /// </summary>
-    private void ScheduleAnalysisJobs()
-    {
-        var now = DateTime.UtcNow;
-        var dueOn = now.AddSeconds(Math.Max(0, _analysisOptions.QuietPeriodSeconds));
-
-        foreach (var entry in ChangeTracker.Entries<Content>().ToArray())
-        {
-            var content = entry.Entity;
-            if (entry.State == EntityState.Added)
-            {
-                // The job is inserted with the content; EF fills in its key.
-                var job = new AnalysisJob(0, AnalysisInput.ComputeHash(content, true), AnalysisJobReason.Lifecycle, _analysisOptions.LifecyclePriority, dueOn) { Content = content };
-                this.AnalysisJobs.Add(job);
-                this.ScheduledAnalysisJobs.Add(dueOn);
-                continue;
-            }
-            if (entry.State != EntityState.Modified) continue;
-            if (!AnalysisInput.Properties.Any(p => entry.Property(p).IsModified)
-                && !ChangeTracker.Entries<ContentFieldOwnership>().Any(o => o.Entity.ContentId == content.Id && o.Entity.Field == ContentFieldOwnership.SummaryField && o.State != EntityState.Unchanged))
-                continue;
-
-            var hash = AnalysisInput.ComputeHash(content, IsSummaryHumanOwned(content.Id));
-            ScheduleJob(content.Id, hash, AnalysisJobReason.Lifecycle, _analysisOptions.LifecyclePriority, dueOn, null);
-        }
-    }
-
-    /// <summary>
-    /// Upsert a content item's job for the specified input. Nothing changes when the job is already
-    /// for this input (and not failed), unless 'force' asks for reanalysis.
-    /// </summary>
-    /// <param name="contentId"></param>
-    /// <param name="inputHash"></param>
-    /// <param name="reason"></param>
-    /// <param name="priority"></param>
-    /// <param name="dueOn"></param>
-    /// <param name="backfillId"></param>
-    /// <param name="force">Queue even when the job's input is current.</param>
-    /// <returns>Whether work was queued.</returns>
-    public bool ScheduleJob(long contentId, string inputHash, AnalysisJobReason reason, int priority, DateTime dueOn, long? backfillId, bool force = false)
-    {
-        var job = ChangeTracker.Entries<AnalysisJob>().Select(e => e.Entity).FirstOrDefault(j => j.ContentId == contentId)
-            ?? this.AnalysisJobs.FirstOrDefault(j => j.ContentId == contentId);
-        if (job == null)
-        {
-            job = new AnalysisJob(contentId, inputHash, reason, priority, dueOn) { BackfillId = backfillId };
-            this.AnalysisJobs.Add(job);
-            this.ScheduledAnalysisJobs.Add(dueOn);
-            return true;
-        }
-
-        var isCurrent = job.InputHash == inputHash;
-        if (isCurrent && !force && job.Status != AnalysisJobStatus.Failed && job.Status != AnalysisJobStatus.Skipped) return false;
-        // Backfill never displaces lifecycle work that is still to run.
-        if (reason == AnalysisJobReason.Backfill && isCurrent && (job.Status == AnalysisJobStatus.Pending || job.Status == AnalysisJobStatus.Claimed)) return false;
-
-        // Lifecycle work takes over a backfill's job; the job keeps its backfill so the backfill can
-        // count it as superseded.
-        job.InputHash = inputHash;
-        job.Reason = reason;
-        job.Priority = priority;
-        if (reason == AnalysisJobReason.Backfill) job.BackfillId = backfillId;
-        job.Status = AnalysisJobStatus.Pending;
-        job.Attempts = 0;
-        job.DueOn = dueOn;
-        job.NextAttemptOn = null;
-        job.LastError = null;
-        job.CompletedOn = null;
-        this.ScheduledAnalysisJobs.Add(dueOn);
-        return true;
     }
     #endregion
 }

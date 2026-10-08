@@ -23,6 +23,10 @@ public class EventHandlerManager : ServiceManager<EventHandlerOptions>
     private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
     private int _retries = 0;
     private readonly JsonSerializerOptions _serializationOptions;
+    private CancellationTokenSource? _workOrderCancelToken;
+    private Task? _workOrderConsumer;
+    private readonly ContentAnalysisBackfillHandler _backfillHandler;
+    private readonly TopicRescoreHandler _rescoreHandler;
     #endregion
 
     #region Properties
@@ -30,6 +34,12 @@ public class EventHandlerManager : ServiceManager<EventHandlerOptions>
     /// get - Kafka Consumer.
     /// </summary>
     protected IKafkaListener<string, EventScheduleRequestModel> Listener { get; }
+
+    /// <summary>
+    /// get - Kafka message consumer for work orders; separate from event schedules, so a work order
+    /// never delays them.
+    /// </summary>
+    protected IKafkaListener<string, WorkOrderRequestModel> WorkOrderListener { get; }
     #endregion
 
     #region Constructors
@@ -37,6 +47,9 @@ public class EventHandlerManager : ServiceManager<EventHandlerOptions>
     /// Creates a new instance of a EventHandlerManager object, initializes with specified parameters.
     /// </summary>
     /// <param name="listener"></param>
+    /// <param name="workOrderListener"></param>
+    /// <param name="backfillHandler"></param>
+    /// <param name="rescoreHandler"></param>
     /// <param name="api"></param>
     /// <param name="chesService"></param>
     /// <param name="chesOptions"></param>
@@ -45,6 +58,9 @@ public class EventHandlerManager : ServiceManager<EventHandlerOptions>
     /// <param name="logger"></param>
     public EventHandlerManager(
         IKafkaListener<string, EventScheduleRequestModel> listener,
+        IKafkaListener<string, WorkOrderRequestModel> workOrderListener,
+        ContentAnalysisBackfillHandler backfillHandler,
+        TopicRescoreHandler rescoreHandler,
         IApiService api,
         IChesService chesService,
         IOptions<ChesOptions> chesOptions,
@@ -58,6 +74,16 @@ public class EventHandlerManager : ServiceManager<EventHandlerOptions>
         this.Listener.IsLongRunningJob = true;
         this.Listener.OnError += ListenerErrorHandler;
         this.Listener.OnStop += ListenerStopHandler;
+        _backfillHandler = backfillHandler;
+        _rescoreHandler = rescoreHandler;
+        // A work order message is one short page of work, handled before the next is received.
+        this.WorkOrderListener = workOrderListener;
+        this.WorkOrderListener.IsLongRunningJob = false;
+        this.WorkOrderListener.OnError += (_, e) => this.Logger.LogError(e.GetException(), "Work order consumer failed");
+        this.WorkOrderListener.OnStop += (_, _) =>
+        {
+            if (_workOrderCancelToken?.IsCancellationRequested == false) _workOrderCancelToken.Cancel();
+        };
     }
     #endregion
 
@@ -81,6 +107,7 @@ public class EventHandlerManager : ServiceManager<EventHandlerOptions>
 
                 // The service is stopping or has stopped, consume should stop too.
                 this.Listener.Stop();
+                this.WorkOrderListener.Stop();
             }
             else if (this.State.Status != ServiceStatus.Running)
             {
@@ -100,6 +127,17 @@ public class EventHandlerManager : ServiceManager<EventHandlerOptions>
                     else if (topics.Length == 0)
                     {
                         this.Listener.Stop();
+                    }
+
+                    var workOrderTopics = this.Options.WorkOrderTopics.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                    if (workOrderTopics.Length != 0)
+                    {
+                        this.WorkOrderListener.Subscribe(workOrderTopics);
+                        ConsumeWorkOrders();
+                    }
+                    else
+                    {
+                        this.WorkOrderListener.Stop();
                     }
                 }
                 catch (Exception ex)
@@ -289,6 +327,67 @@ public class EventHandlerManager : ServiceManager<EventHandlerOptions>
     {
         if (result == null || result.Tables.Count == 0) return "none";
         return String.Join(", ", result.Tables.Select(t => $"{t.Key}={t.Value}"));
+    }
+
+    /// <summary>
+    /// Start consuming work orders when the consumer is not running.
+    /// </summary>
+    private void ConsumeWorkOrders()
+    {
+        if (_workOrderConsumer == null || _notRunning.Contains(_workOrderConsumer.Status))
+        {
+            if (_workOrderCancelToken?.IsCancellationRequested == false)
+                _workOrderCancelToken.Cancel();
+            _workOrderCancelToken = new CancellationTokenSource();
+            var token = _workOrderCancelToken.Token;
+            _workOrderConsumer = Task.Run(async () =>
+            {
+                while (this.State.Status == ServiceStatus.Running && !token.IsCancellationRequested)
+                    await this.WorkOrderListener.ConsumeAsync(HandleWorkOrderAsync, token);
+                this.WorkOrderListener.Stop();
+            }, token);
+        }
+    }
+
+    /// <summary>
+    /// Do the work order's work and commit the message. When it fails the message is received again.
+    /// </summary>
+    /// <param name="result"></param>
+    /// <returns></returns>
+    private async Task HandleWorkOrderAsync(ConsumeResult<string, WorkOrderRequestModel> result)
+    {
+        try
+        {
+            var request = result.Message.Value;
+            switch (request?.WorkType)
+            {
+                case Entities.WorkOrderType.ContentAnalysisBackfill:
+                    await _backfillHandler.HandleAsync(request);
+                    break;
+                case Entities.WorkOrderType.TopicRescore:
+                    await _rescoreHandler.HandleAsync(request);
+                    break;
+                default:
+                    this.Logger.LogWarning("Work order type not implemented. Key: {key}, Type: {type}", result.Message.Key, request?.WorkType);
+                    break;
+            }
+            this.WorkOrderListener.Commit(result);
+            this.State.ResetFailures();
+        }
+        catch (Exception ex)
+        {
+            this.Logger.LogError(ex, "Failed to handle work order. Key: {key}", result.Message.Key);
+            this.State.RecordFailure();
+            try
+            {
+                this.WorkOrderListener.Seek(result);
+            }
+            catch (KafkaException seekEx)
+            {
+                this.Logger.LogWarning(seekEx, "Work order consumer could not return to the message. Key: {key}", result.Message.Key);
+            }
+            await Task.Delay(Math.Max(1000, this.Options.RetryDelayMS));
+        }
     }
     #endregion
 }
