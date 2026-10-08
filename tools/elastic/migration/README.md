@@ -52,13 +52,15 @@ Before starting:
 ## Failed DEV run: old partial destinations
 
 The original database-rebuild migration left `content_v1.0.11`, `unpublished_content_v1.0.11`, and
-possibly `content_evidence_v1.0.11`. The new tool **never automatically deletes** an existing index
-without its own `_meta.owner = tno-native-1.0.11` marker. It refuses and names the index instead.
+possibly `content_evidence_v1.0.11`. The tool **never automatically deletes** retained destinations.
+New cycles use generation-suffixed names, so these older fixed-name indexes do not block an upgrade.
+A collision at a generated destination requires matching ownership and cycle metadata; otherwise
+the tool refuses and names the index.
 
 Before explicitly deleting any old partial destination, inspect `GET /_alias`, the index's mapping,
 and `GET /_tasks?actions=*reindex&detailed=true`. Confirm no alias uses it and no process/task writes
 it. Remove only those verified partial destinations. Keep the live 1.0.10 indexes. Do not use a
-wildcard deletion command. An index with native migration metadata is normally resumed, not deleted.
+wildcard deletion command. An index with matching native migration generation metadata is resumed, not deleted.
 
 ## Build and run
 
@@ -125,9 +127,10 @@ checks and the retention window pass. Old copies cost storage; deletion is an ex
 
 Rollback to `m=1.0.10` also requires a maintenance window and storage. It performs a native copy into
 rollback destinations, removes analysis fields from the copied documents, repairs from PostgreSQL,
-and switches aliases. It retains the 1.0.11/evidence indexes. Repeated upgrade/rollback cycles may
-encounter existing destinations from an earlier cycle; inspect and archive/clean these explicitly
-rather than deleting a live target or bypassing ownership/source checks.
+and switches aliases. It retains the 1.0.11/evidence indexes. Each cycle uses destinations suffixed with a generation derived from the source index UUIDs.
+Interrupted runs reuse that generation, including after alias cutover. Subsequent upgrade/rollback
+cycles create fresh destinations without deleting retained backups. Rollback removes the evidence
+alias atomically with the primary alias switch. Clean up retained generations explicitly after validation.
 
 ## Retire OpenShift Elasticsearch in TEST/PROD
 

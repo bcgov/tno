@@ -274,13 +274,16 @@ public sealed class NativeReindexTests : IAsyncLifetime
             options.WritersPaused = false;
             await Assert.ThrowsAsync<InvalidOperationException>(() => migration.RunUpAsync());
             options.WritersPaused = true;
+            foreach (var retained in new[] { Source, published, options.EvidenceIndex })
+                await Request(HttpMethod.Put, retained + "_v1.0.11", JsonNode.Parse("""{"settings":{"number_of_replicas":0}}"""));
             await migration.RunUpAsync();
             var topology = await Request(HttpMethod.Get, $"{Source}/_settings");
             Assert.Equal("0", topology.AsObject().First().Value!["settings"]!["index"]!["number_of_replicas"]!.GetValue<string>());
             // Replaying the coordinator after cutover must not recreate indexes or duplicate history.
             await migration.RunUpAsync();
             var alias = await Request(HttpMethod.Get, $"_alias/{Source}");
-            Assert.NotNull(alias[Source + "_v1.0.11"]);
+            var firstUpgrade = alias.AsObject().Single().Key;
+            Assert.StartsWith(Source + "_v1.0.11-", firstUpgrade);
             Assert.Equal(3, (await Request(HttpMethod.Get, $"{Source}/_count"))["count"]!.GetValue<int>());
             Assert.Equal(2, (await Request(HttpMethod.Get, $"{published}/_count"))["count"]!.GetValue<int>());
             Assert.Equal(1, (await Request(HttpMethod.Get, $"{options.EvidenceIndex}/_count"))["count"]!.GetValue<int>());
@@ -292,9 +295,31 @@ public sealed class NativeReindexTests : IAsyncLifetime
             Assert.Null(protectedDoc["_source"]!["analysis"]);
             await migration.RunDownAsync();
             alias = await Request(HttpMethod.Get, $"_alias/{Source}");
-            Assert.NotNull(alias[Source + "_v1.0.10-rollback-from-1.0.11"]);
+            var firstRollback = alias.AsObject().Single().Key;
+            Assert.StartsWith(Source + "_v1.0.10-rollback-from-1.0.11-", firstRollback);
             await Request(HttpMethod.Post, options.MigrationIndex + "/_refresh");
             Assert.Equal(0, (await Request(HttpMethod.Get, $"{options.MigrationIndex}/_count"))["count"]!.GetValue<int>());
+            Assert.Equal(System.Net.HttpStatusCode.NotFound, (await _http.GetAsync($"_alias/{options.EvidenceIndex}")).StatusCode);
+            await migration.RunDownAsync();
+            Assert.NotNull((await Request(HttpMethod.Get, $"_alias/{Source}"))[firstRollback]);
+
+            // A new cycle must preserve both backups and copy changes made after rollback.
+            await context.Database.ExecuteSqlRawAsync("UPDATE content SET headline = 'updated after rollback', projection_revision = 4 WHERE uid = 'missing'");
+            await migration.RunUpAsync();
+            var secondUpgrade = (await Request(HttpMethod.Get, $"_alias/{Source}")).AsObject().Single().Key;
+            Assert.NotEqual(firstUpgrade, secondUpgrade);
+            Assert.Equal(4, (await Request(HttpMethod.Get, $"{Source}/_doc/{missing.Id}"))["_version"]!.GetValue<long>());
+            await migration.RunUpAsync();
+            Assert.NotNull((await Request(HttpMethod.Get, $"_alias/{Source}"))[secondUpgrade]);
+            Assert.Equal(1, (await Request(HttpMethod.Get, $"{options.EvidenceIndex}/_count"))["count"]!.GetValue<int>());
+            await migration.RunDownAsync();
+            var secondRollback = (await Request(HttpMethod.Get, $"_alias/{Source}")).AsObject().Single().Key;
+            Assert.NotEqual(firstRollback, secondRollback);
+            Assert.Equal(System.Net.HttpStatusCode.NotFound, (await _http.GetAsync($"_alias/{options.EvidenceIndex}")).StatusCode);
+            foreach (var retained in new[] { firstUpgrade, firstRollback, secondUpgrade })
+                Assert.Equal(3, (await Request(HttpMethod.Get, $"{retained}/_count"))["count"]!.GetValue<int>());
+            Assert.Equal(0, (await Request(HttpMethod.Get, $"{options.MigrationIndex}/_count"))["count"]!.GetValue<int>());
+
         }
         finally
         {
