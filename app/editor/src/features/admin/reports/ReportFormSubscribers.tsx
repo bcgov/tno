@@ -1,3 +1,4 @@
+import { useDistributionListMembership } from 'features/admin/users/hooks';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { useUsers } from 'store/hooks/admin';
@@ -29,6 +30,7 @@ export const ReportFormSubscribers: React.FC = () => {
   const sendToOptions = getEnumStringOptions(EmailSendToName, { splitOnCapital: false });
 
   const [filter, setFilter] = React.useState<IUserFilter>({ page: 1, quantity: 100, sort: [] });
+  const distributionLists = useDistributionListMembership(values.subscribers);
 
   const subscribers = users.items.map<IUserReportModel>((u) => {
     const subscriber = values.subscribers.find((s) => s.userId === u.id);
@@ -116,7 +118,16 @@ export const ReportFormSubscribers: React.FC = () => {
               } else setFieldValue('subscribers', [user, ...values.subscribers]);
             }}
           />,
-          <CellEllipsis key="2">{row.username}</CellEllipsis>,
+          <>
+            <CellEllipsis>{row.username}</CellEllipsis>
+            {distributionLists[row.userId] ? (
+              <CellEllipsis className="distribution">
+                Also receives via distribution list: {distributionLists[row.userId].join(', ')}
+              </CellEllipsis>
+            ) : (
+              ''
+            )}
+          </>,
           <CellEllipsis key="3">{row.lastName}</CellEllipsis>,
           <CellEllipsis key="4">{row.firstName}</CellEllipsis>,
           <>

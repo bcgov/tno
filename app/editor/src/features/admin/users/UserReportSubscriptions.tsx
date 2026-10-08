@@ -27,6 +27,7 @@ export const UserReportSubscriptions: React.FC = () => {
         onSortChange={async (column, direction) => {}}
         renderHeader={() => [
           { name: 'report.name', label: 'Name' },
+          { name: 'userId', label: 'Received through' },
           { name: 'createdOn', label: 'Created', size: '120px' },
           { name: 'updatedOn', label: 'Updated', size: '120px' },
         ]}
@@ -34,8 +35,17 @@ export const UserReportSubscriptions: React.FC = () => {
           <div key="1">
             <Link to={`/admin/reports/${row.reportId}`}>{row.report?.name}</Link>
           </div>,
-          <div key="2">{formatDate(row.createdOn, 'YYYY-MM-DD')}</div>,
-          <div key="3">{formatDate(row.updatedOn, 'YYYY-MM-DD')}</div>,
+          <div key="2">
+            {row.userId === values.id ? (
+              'Direct subscription'
+            ) : (
+              <Link to={`/admin/users/${row.userId}`}>
+                Distribution list: {row.displayName || row.username}
+              </Link>
+            )}
+          </div>,
+          <div key="3">{formatDate(row.createdOn, 'YYYY-MM-DD')}</div>,
+          <div key="4">{formatDate(row.updatedOn, 'YYYY-MM-DD')}</div>,
         ]}
       />
     </div>

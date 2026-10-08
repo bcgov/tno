@@ -40,6 +40,12 @@ export const MyProducts = styled(Col)`
       margin-top: 0.5em;
       margin-bottom: 0.5em;
     }
+
+    .product-distribution {
+      font-size: 0.85em;
+      font-style: italic;
+      margin-bottom: 0.5em;
+    }
     svg {
       align-self: center;
     }

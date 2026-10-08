@@ -119,6 +119,65 @@ public class ProductServiceTest : IDisposable
         Assert.True(GetSubscription(context).IsSubscribed);
     }
 
+    [Fact]
+    public void Update_SubscriptionAddedAfterLoad_ThrowsConcurrencyAndKeepsSubscription()
+    {
+        // Arrange
+        var service = helper.Provider.GetRequiredService<IProductService>();
+        var context = helper.Provider.GetRequiredService<TNOContext>();
+        var product = SeedProduct(context);
+
+        // The form loaded bob as a product subscriber without a report subscription.
+        context.Add(new User("bob", "bob@test.com") { Id = 3 });
+        context.Add(new UserProduct(3, product.Id));
+        context.SaveChanges();
+
+        // An admin subscribes bob to the report after the form loaded.
+        context.Add(new UserReport(3, product.TargetProductId, true));
+        context.SaveChanges();
+        context.ChangeTracker.Clear();
+
+        var stale = new Product(product.Id, product.Name, product.ProductType, product.TargetProductId);
+        stale.SubscribersManyToMany.Add(new UserProduct(3, product.Id)
+        {
+            User = new User(new UserReport(3, product.TargetProductId, false))
+        });
+
+        // Act / Assert
+        Assert.Throws<DbUpdateConcurrencyException>(() => service.UpdateAndSave(stale));
+        context.ChangeTracker.Clear();
+        Assert.True(context.UserReports.Single(ur => ur.UserId == 3 && ur.ReportId == product.TargetProductId).IsSubscribed);
+    }
+
+    [Fact]
+    public void Update_NewProductSubscriberWithExistingSubscription_AppliesChange()
+    {
+        // Arrange
+        var service = helper.Provider.GetRequiredService<IProductService>();
+        var context = helper.Provider.GetRequiredService<TNOContext>();
+        var product = SeedProduct(context);
+
+        // Bob is not a product subscriber, but has an unsubscribed report subscription the form never loaded.
+        context.Add(new User("bob", "bob@test.com") { Id = 3 });
+        context.Add(new UserReport(3, product.TargetProductId, false));
+        context.SaveChanges();
+        context.ChangeTracker.Clear();
+
+        // The admin adds bob to the product, alice is returned unchanged with the version that was loaded.
+        var submitted = SubmitSubscription(product, false, 1);
+        submitted.SubscribersManyToMany.Add(new UserProduct(3, product.Id)
+        {
+            User = new User(new UserReport(3, product.TargetProductId, true))
+        });
+
+        // Act
+        service.UpdateAndSave(submitted);
+        context.ChangeTracker.Clear();
+
+        // Assert
+        Assert.True(context.UserReports.Single(ur => ur.UserId == 3 && ur.ReportId == product.TargetProductId).IsSubscribed);
+    }
+
     public void Dispose()
     {
         GC.SuppressFinalize(this);

@@ -200,6 +200,31 @@ public class UserServiceTest : IDisposable
         Assert.True(subscriptions[3].IsSubscribed);
     }
 
+    [Fact]
+    public void GetUserReportSubscriptions_IncludesDistributionListWithItsUser()
+    {
+        // Arrange
+        var service = helper.Provider.GetRequiredService<IUserService>();
+        var context = helper.Provider.GetRequiredService<TNOContext>();
+        var alice = SeedUser(context);
+
+        // Alice is a member of a distribution list subscribed to report 3.
+        context.Add(new User("team", "team@test.com", UserAccountType.Distribution) { Id = 10, DisplayName = "Team" });
+        context.Add(new UserDistribution(10, alice.Id));
+        context.Add(new UserReport(10, 3, true));
+        context.SaveChanges();
+        context.ChangeTracker.Clear();
+
+        // Act
+        var subscriptions = service.GetUserReportSubscriptions(alice.Id).ToDictionary(s => s.ReportId);
+
+        // Assert
+        Assert.Equal(alice.Id, subscriptions[1].UserId);
+        Assert.Equal(10, subscriptions[3].UserId);
+        Assert.Equal("Team", subscriptions[3].User?.DisplayName);
+        Assert.Equal(UserAccountType.Distribution, subscriptions[3].User?.AccountType);
+    }
+
     public void Dispose()
     {
         GC.SuppressFinalize(this);

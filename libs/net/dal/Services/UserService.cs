@@ -748,6 +748,7 @@ public class UserService : BaseService<User, int>, IUserService
 
         return this.Context.UserReports
             .Include(ur => ur.Report)
+            .Include(ur => ur.User)
             .Where(ur => ur.IsSubscribed && (ur.UserId == userId || distributionIds.Contains(ur.UserId)))
             .OrderBy(up => up.Report!.Name)
             .ToArray();
@@ -785,6 +786,7 @@ public class UserService : BaseService<User, int>, IUserService
 
         return this.Context.UserNotifications
             .Include(un => un.Notification)
+            .Include(un => un.User)
             .Where(un => un.IsSubscribed && (un.UserId == userId || distributionIds.Contains(un.UserId)))
             .OrderBy(up => up.Notification!.Name)
             .ToArray();
