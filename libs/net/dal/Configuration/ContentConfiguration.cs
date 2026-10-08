@@ -40,6 +40,9 @@ public class ContentConfiguration : AuditColumnsConfiguration<Content>
         builder.Property(m => m.Summary).IsRequired().HasColumnType("text");
         builder.Property(m => m.Body).IsRequired().HasColumnType("text");
         builder.Property(m => m.Versions).IsRequired().HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        builder.Property(m => m.Metadata).IsRequired().HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        builder.Property(m => m.Metadata).Metadata.SetBeforeSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior.Ignore);
+        builder.Property(m => m.Metadata).Metadata.SetAfterSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior.Ignore);
 
         builder.HasOne(m => m.Source).WithMany(m => m.Contents).HasForeignKey(m => m.SourceId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(m => m.MediaType).WithMany(m => m.Contents).HasForeignKey(m => m.MediaTypeId).OnDelete(DeleteBehavior.Cascade);

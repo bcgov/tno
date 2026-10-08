@@ -64,8 +64,12 @@ assuming it died.
 make db-update        # Apply EF Core migrations (runs db-update.sh)
 make db-refresh       # Drop and reinitialize
 make elastic-update   # Apply Elasticsearch migrations (the target is not es-update)
-make kafka-update     # Apply Kafka topic migrations (n=migration, r=rollback)
+make kafka-update     # Apply Kafka topic migrations (n=version, r=1 rollback n, d=1 dry run)
 ```
+
+`cd openshift && make kafka-update e={dev,test,prod}` applies the same Kafka migrations to an
+OpenShift environment (`oc login` first); partitions, replication factor and per-topic settings are
+in `db/kafka/environments/<environment>.conf`.
 
 `db-update` and `elastic-update` each build an image and run it as a one-shot container
 **on `tno-net`**, reaching postgres and elasticsearch by their compose service names

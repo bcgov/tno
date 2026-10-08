@@ -1,23 +1,14 @@
 #!/bin/bash
+# Sourced by db/kafka/scripts/migration.sh; see db/kafka/scripts/kafka.sh for the functions.
+# A topic without --partitions or --replication-factor uses the environment's defaults.
 
-# Topics for media capture
-docker exec -i tno-broker bash -c "/bin/kafka-topics --create --if-not-exists --topic hub --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
-docker exec -i tno-broker bash -c "/bin/kafka-topics --create --if-not-exists --topic notify --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
-docker exec -i tno-broker bash -c "/bin/kafka-topics --create --if-not-exists --topic index --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
-docker exec -i tno-broker bash -c "/bin/kafka-topics --create --if-not-exists --topic reporting --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
-docker exec -i tno-broker bash -c "/bin/kafka-topics --create --if-not-exists --topic transcribe --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
-docker exec -i tno-broker bash -c "/bin/kafka-topics --create --if-not-exists --topic request-clips --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
-docker exec -i tno-broker bash -c "/bin/kafka-topics --create --if-not-exists --topic ffmpeg --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
-docker exec -i tno-broker bash -c "/bin/kafka-topics --create --if-not-exists --topic event-schedule --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
-docker exec -i tno-broker bash -c "/bin/kafka-topics --create --if-not-exists --topic automation --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
-docker exec -i tno-broker bash -c "/bin/kafka-topics --create --if-not-exists --topic analysis --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
-
-## Manually add topics
-# /bin/kafka-topics --create --if-not-exists --topic hub --bootstrap-server kafka-headless:29092 --partitions 6 --replication-factor 3
-# /bin/kafka-topics --create --if-not-exists --topic notify --bootstrap-server kafka-headless:29092 --partitions 6 --replication-factor 3
-# /bin/kafka-topics --create --if-not-exists --topic index --bootstrap-server kafka-headless:29092 --partitions 6 --replication-factor 3
-# /bin/kafka-topics --create --if-not-exists --topic reporting --bootstrap-server kafka-headless:29092 --partitions 6 --replication-factor 3
-# /bin/kafka-topics --create --if-not-exists --topic transcribe --bootstrap-server kafka-headless:29092 --partitions 6 --replication-factor 3
-# /bin/kafka-topics --create --if-not-exists --topic request-clips --bootstrap-server kafka-headless:29092 --partitions 6 --replication-factor 3
-# /bin/kafka-topics --create --if-not-exists --topic ffmpeg --bootstrap-server kafka-headless:29092 --partitions 6 --replication-factor 3
-# /bin/kafka-topics --create --if-not-exists --topic event-schedule --bootstrap-server kafka-headless:29092 --partitions 6 --replication-factor 3
+ensure_topic hub
+ensure_topic notify
+ensure_topic index
+ensure_topic reporting
+ensure_topic transcribe
+ensure_topic request-clips
+ensure_topic ffmpeg
+ensure_topic event-schedule
+ensure_topic automation
+ensure_topic analysis

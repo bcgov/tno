@@ -9,27 +9,57 @@ public class ContentAnalysisOptions : ServiceOptions
 {
     #region Properties
     /// <summary>
-    /// get/set - Comma-separated Kafka topics that wake the workers.
+    /// get/set - Comma-separated Kafka topics of analysis requests for added and changed content
+    /// (and editor and administrator requests). Empty consumes none, e.g. for a backfill-only instance.
     /// </summary>
     public string Topics { get; set; } = "analysis";
+
+    /// <summary>
+    /// get/set - The Kafka topic backfills send content to. It is consumed apart from 'Topics', so a
+    /// backfill never delays new content. Empty consumes none.
+    /// </summary>
+    public string BackfillTopic { get; set; } = "analysis-backfill";
+
+    /// <summary>
+    /// get/set - The Kafka topic a failed request is sent to for a delayed retry; also consumed.
+    /// Empty sends failures straight to the dead-letter topic.
+    /// </summary>
+    public string RetryTopic { get; set; } = "analysis-retry";
+
+    /// <summary>
+    /// get/set - The Kafka topic a request is sent to when its retries are exhausted or its failure
+    /// is permanent. Not consumed; replay failures from the administration page.
+    /// </summary>
+    public string DeadLetterTopic { get; set; } = "analysis-dlq";
 
     /// <summary>
     /// get/set - Comma-separated processes this service runs, each producing its part of the
     /// analysis and applying it to the content's empty field: Metadata (key facts, people and
     /// organizations, places, events, topics), Summary, Quotes, Tags, Contributor, Topics.
-    /// Empty runs nothing.
+    /// Empty runs nothing, and no topic is consumed.
     /// </summary>
     public string Processes { get; set; } = "Metadata,Summary,Quotes,Tags,Contributor,Topics";
 
     /// <summary>
-    /// get/set - Content items analyzed at once by this instance.
+    /// get/set - Seconds after a content change before it is analyzed, so a burst of edits is
+    /// analyzed once (applies to lifecycle requests).
     /// </summary>
-    public int MaxConcurrency { get; set; } = 4;
+    public int QuietPeriodSeconds { get; set; } = 120;
 
     /// <summary>
-    /// get/set - Seconds between polls of the job table when no wake message arrives.
+    /// get/set - Attempts made for a request before it is sent to the dead-letter topic.
     /// </summary>
-    public int PollIntervalSeconds { get; set; } = 30;
+    public int MaxAttempts { get; set; } = 5;
+
+    /// <summary>
+    /// get/set - Seconds before the first retry; each later retry waits twice as long.
+    /// </summary>
+    public int RetryDelaySeconds { get; set; } = 30;
+
+    /// <summary>
+    /// get/set - The longest wait before a retry, in seconds.
+    /// </summary>
+    public int MaxRetryDelaySeconds { get; set; } = 3600;
 
     /// <summary>
     /// get/set - Seconds between refreshes of the runtime settings (LLM, exclusions).
@@ -37,7 +67,13 @@ public class ContentAnalysisOptions : ServiceOptions
     public int SettingsRefreshSeconds { get; set; } = 60;
 
     /// <summary>
-    /// get/set - The share of the LLM's rate limits and of this instance's concurrency backfill may use.
+    /// get/set - Seconds a backfill work order's status is cached, so a cancelled backfill's requests
+    /// are skipped.
+    /// </summary>
+    public int WorkOrderRefreshSeconds { get; set; } = 30;
+
+    /// <summary>
+    /// get/set - The share of the LLM's rate limits backfill requests may use.
     /// </summary>
     public double BackfillShare { get; set; } = 0.2;
 
@@ -69,7 +105,7 @@ public class ContentAnalysisOptions : ServiceOptions
 
     #region Methods
     /// <summary>
-    /// The topics to subscribe to.
+    /// The topics of analysis requests for added and changed content.
     /// </summary>
     /// <returns></returns>
     public string[] GetTopics() => this.Topics.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);

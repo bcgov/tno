@@ -1,24 +1,33 @@
 using System.Security.Claims;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using TNO.API.Areas.Services.Models.ContentAnalysis;
 using TNO.Core.Exceptions;
 using TNO.DAL.Analysis;
-using TNO.DAL.Config;
 using TNO.Entities;
 
 namespace TNO.DAL.Services;
 
 /// <summary>
 /// AnalysisBackfillService class, administrator-requested analysis of existing content in a date
-/// range. Backfill jobs go through the same queue as lifecycle work, at a lower priority; reports
-/// never depend on, wait for, or create them.
+/// range. A backfill is a work order: the Event Handler reads it a page at a time and sends each
+/// content item to the analysis backfill topic, which the Content-Analysis service consumes apart
+/// from new content, so reports never depend on, wait for, or create backfill work.
 /// </summary>
 public class AnalysisBackfillService : BaseService, IAnalysisBackfillService
 {
     #region Variables
     private const int BatchSize = 500;
-    private readonly ContentAnalysisOptions _options;
+
+    /// <summary>
+    /// How a backfill's configuration is stored in its work order.
+    /// </summary>
+    public static readonly JsonSerializerOptions ConfigurationOptions = new(JsonSerializerDefaults.Web)
+    {
+        Converters = { new JsonStringEnumConverter() },
+    };
     #endregion
 
     #region Constructors
@@ -28,16 +37,13 @@ public class AnalysisBackfillService : BaseService, IAnalysisBackfillService
     /// <param name="dbContext"></param>
     /// <param name="principal"></param>
     /// <param name="serviceProvider"></param>
-    /// <param name="options"></param>
     /// <param name="logger"></param>
     public AnalysisBackfillService(
         TNOContext dbContext,
         ClaimsPrincipal principal,
         IServiceProvider serviceProvider,
-        IOptions<ContentAnalysisOptions> options,
         ILogger<AnalysisBackfillService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
-        _options = options.Value;
     }
     #endregion
 
@@ -114,161 +120,139 @@ public class AnalysisBackfillService : BaseService, IAnalysisBackfillService
             c => (AnalysisInput.ComputeHash(c, !ownedSummaries.Contains(c.Id)), analyses.TryGetValue(c.Id, out var hash) ? hash : null));
     }
 
+
     /// <summary>
-    /// Record a new backfill.
+    /// Record a new backfill work order, counting the eligible content in its range now.
     /// </summary>
-    public AnalysisBackfill Add(AnalysisBackfill backfill)
+    /// <param name="configuration"></param>
+    /// <param name="requestorId"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException">The range is empty.</exception>
+    public WorkOrder Add(AnalysisBackfillConfigurationModel configuration, int? requestorId)
     {
-        if (backfill.EndOn <= backfill.StartOn) throw new ArgumentException("The end must be after the start.");
-        backfill.Status = BackgroundJobStatus.Pending;
-        backfill.HighWaterMark = DateTime.UtcNow;
-        backfill.CheckpointContentId = 0;
+        if (configuration.EndOn <= configuration.StartOn) throw new ArgumentException("The end must be after the start.");
+        configuration.HighWaterMark = DateTime.UtcNow;
+        configuration.CheckpointContentId = 0;
+        configuration.Scheduled = 0;
+        configuration.AlreadyCurrent = 0;
+        configuration.Error = null;
         var settings = ContentAnalysisSettings.Read(this.Context);
-        backfill.Total = Eligible(InRange(backfill.StartOn, backfill.EndOn, backfill.DateField, backfill.HighWaterMark), settings).Count();
-        this.Context.AnalysisBackfills.Add(backfill);
+        configuration.Total = Eligible(InRange(configuration.StartOn, configuration.EndOn, configuration.DateField, configuration.HighWaterMark), settings).Count();
+
+        var workOrder = new WorkOrder(
+            WorkOrderType.ContentAnalysisBackfill,
+            $"Content-Analysis backfill {configuration.StartOn:yyyy-MM-dd} to {configuration.EndOn:yyyy-MM-dd}",
+            JsonSerializer.SerializeToDocument(configuration, ConfigurationOptions))
+        {
+            RequestorId = requestorId,
+        };
+        this.Context.WorkOrders.Add(workOrder);
         this.Context.CommitTransaction();
-        return backfill;
+        return workOrder;
     }
 
     /// <summary>
-    /// Schedule the backfill's jobs from its checkpoint.
+    /// The backfill work order.
     /// </summary>
-    public async Task RunAsync(long id, CancellationToken cancellationToken = default)
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public WorkOrder? FindById(long id)
+        => this.Context.WorkOrders.AsNoTracking().FirstOrDefault(w => w.Id == id && w.WorkType == WorkOrderType.ContentAnalysisBackfill);
+
+    /// <summary>
+    /// The most recent backfill work orders.
+    /// </summary>
+    /// <param name="qty"></param>
+    /// <returns></returns>
+    public IEnumerable<WorkOrder> FindRecent(int qty = 20)
     {
-        var backfill = this.Context.AnalysisBackfills.FirstOrDefault(b => b.Id == id) ?? throw new NoContentException("Backfill does not exist");
-        if (backfill.Status == BackgroundJobStatus.Cancelled || backfill.Status == BackgroundJobStatus.Completed) return;
-        backfill.Status = BackgroundJobStatus.Running;
-        backfill.Error = null;
-        this.Context.CommitTransaction();
-
-        try
-        {
-            var settings = ContentAnalysisSettings.Read(this.Context);
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                // A cancellation from another request stops further scheduling.
-                var status = this.Context.AnalysisBackfills.AsNoTracking().Where(b => b.Id == id).Select(b => b.Status).First();
-                if (status == BackgroundJobStatus.Cancelled) return;
-
-                var batch = Eligible(InRange(backfill.StartOn, backfill.EndOn, backfill.DateField, backfill.HighWaterMark), settings)
-                    .Where(c => c.Id > backfill.CheckpointContentId)
-                    .OrderBy(c => c.Id)
-                    .Take(BatchSize)
-                    .ToArray();
-                if (batch.Length == 0) break;
-
-                var hashes = CurrentHashes(batch);
-                foreach (var content in batch)
-                {
-                    var (input, analysis) = hashes[content.Id];
-                    if (backfill.Mode == AnalysisBackfillMode.MissingOrStale && analysis == input)
-                    {
-                        backfill.AlreadyCurrent++;
-                        continue;
-                    }
-                    if (this.Context.ScheduleJob(content.Id, input, AnalysisJobReason.Backfill, _options.BackfillPriority, DateTime.UtcNow, backfill.Id, backfill.Mode == AnalysisBackfillMode.Force))
-                        backfill.Scheduled++;
-                    else
-                        backfill.AlreadyCurrent++; // Lifecycle work for the same input is already queued.
-                }
-                backfill.CheckpointContentId = batch[^1].Id;
-                this.Context.CommitTransaction();
-                this.Context.ChangeTracker.Clear();
-                backfill = this.Context.AnalysisBackfills.First(b => b.Id == id);
-                await Task.Yield();
-            }
-
-            backfill.CompletedOn = DateTime.UtcNow;
-            this.Context.CommitTransaction();
-        }
-        catch (Exception ex)
-        {
-            this.Logger.LogError(ex, "Analysis backfill {id} failed", id);
-            this.Context.ChangeTracker.Clear();
-            backfill = this.Context.AnalysisBackfills.First(b => b.Id == id);
-            backfill.Status = BackgroundJobStatus.Failed;
-            backfill.Error = ex.Message;
-            this.Context.CommitTransaction();
-        }
+        return this.Context.WorkOrders.AsNoTracking()
+            .Where(w => w.WorkType == WorkOrderType.ContentAnalysisBackfill)
+            .OrderByDescending(w => w.Id)
+            .Take(Math.Clamp(qty, 1, 100))
+            .ToArray();
     }
 
     /// <summary>
-    /// Stop scheduling and withdraw unclaimed jobs.
+    /// Stop the backfill. Content already sent is still analyzed unless the Content-Analysis service
+    /// sees the cancellation first.
     /// </summary>
-    public AnalysisBackfill Cancel(long id)
+    /// <param name="id"></param>
+    /// <returns></returns>
+    /// <exception cref="NoContentException">The backfill does not exist.</exception>
+    public WorkOrder Cancel(long id)
     {
-        var backfill = this.Context.AnalysisBackfills.FirstOrDefault(b => b.Id == id) ?? throw new NoContentException("Backfill does not exist");
-        backfill.Status = BackgroundJobStatus.Cancelled;
-        this.Context.CommitTransaction();
-        this.Context.AnalysisJobs
-            .Where(j => j.BackfillId == id && j.Reason == AnalysisJobReason.Backfill && j.Status == AnalysisJobStatus.Pending)
-            .ExecuteDelete();
-        return backfill;
+        var workOrder = this.Context.WorkOrders.FirstOrDefault(w => w.Id == id && w.WorkType == WorkOrderType.ContentAnalysisBackfill) ?? throw new NoContentException("Backfill does not exist");
+        if (workOrder.Status == WorkOrderStatus.Submitted || workOrder.Status == WorkOrderStatus.InProgress)
+        {
+            workOrder.Status = WorkOrderStatus.Cancelled;
+            this.Context.CommitTransaction();
+        }
+        return workOrder;
     }
 
     /// <summary>
     /// Continue a cancelled or failed backfill from its checkpoint.
     /// </summary>
-    public AnalysisBackfill Resume(long id)
+    /// <param name="id"></param>
+    /// <returns></returns>
+    /// <exception cref="NoContentException">The backfill does not exist.</exception>
+    /// <exception cref="InvalidOperationException">The backfill is not cancelled or failed.</exception>
+    public WorkOrder Resume(long id)
     {
-        var backfill = this.Context.AnalysisBackfills.FirstOrDefault(b => b.Id == id) ?? throw new NoContentException("Backfill does not exist");
-        if (backfill.Status != BackgroundJobStatus.Cancelled && backfill.Status != BackgroundJobStatus.Failed && backfill.Status != BackgroundJobStatus.Running)
-            throw new InvalidOperationException("Only a cancelled, failed, or interrupted backfill can be resumed.");
-        backfill.Status = BackgroundJobStatus.Pending;
-        backfill.CompletedOn = null;
+        var workOrder = this.Context.WorkOrders.FirstOrDefault(w => w.Id == id && w.WorkType == WorkOrderType.ContentAnalysisBackfill) ?? throw new NoContentException("Backfill does not exist");
+        if (workOrder.Status != WorkOrderStatus.Cancelled && workOrder.Status != WorkOrderStatus.Failed)
+            throw new InvalidOperationException("Only a cancelled or failed backfill can be resumed.");
+        var configuration = ReadConfiguration(workOrder);
+        configuration.Error = null;
+        workOrder.Configuration = JsonSerializer.SerializeToDocument(configuration, ConfigurationOptions);
+        workOrder.Status = WorkOrderStatus.Submitted;
         this.Context.CommitTransaction();
-        return backfill;
+        return workOrder;
     }
 
     /// <summary>
-    /// The most recent backfills with their progress.
+    /// The next page of a backfill: eligible content in its range after the checkpoint, leaving out
+    /// content whose analysis is current unless the backfill is forced.
     /// </summary>
-    public IEnumerable<AnalysisBackfillProgress> FindRecent(int qty = 20)
+    /// <param name="configuration"></param>
+    /// <param name="afterContentId"></param>
+    /// <param name="quantity"></param>
+    /// <returns></returns>
+    public AnalysisBackfillPageModel FindPage(AnalysisBackfillConfigurationModel configuration, long afterContentId, int quantity = BatchSize)
     {
-        return this.Context.AnalysisBackfills.AsNoTracking()
-            .OrderByDescending(b => b.Id)
-            .Take(Math.Clamp(qty, 1, 100))
-            .ToArray()
-            .Select(Progress)
+        var settings = ContentAnalysisSettings.Read(this.Context);
+        var batch = Eligible(InRange(configuration.StartOn, configuration.EndOn, configuration.DateField, configuration.HighWaterMark), settings)
+            .Where(c => c.Id > afterContentId)
+            .OrderBy(c => c.Id)
+            .Take(Math.Clamp(quantity, 1, 1000))
             .ToArray();
-    }
+        if (batch.Length == 0) return new AnalysisBackfillPageModel() { LastContentId = afterContentId, IsLast = true };
 
-    /// <summary>
-    /// A backfill with its progress.
-    /// </summary>
-    public AnalysisBackfillProgress? FindProgress(long id)
-    {
-        var backfill = this.Context.AnalysisBackfills.AsNoTracking().FirstOrDefault(b => b.Id == id);
-        return backfill == null ? null : Progress(backfill);
-    }
-
-    private AnalysisBackfillProgress Progress(AnalysisBackfill backfill)
-    {
-        var jobs = this.Context.AnalysisJobs.AsNoTracking()
-            .Where(j => j.BackfillId == backfill.Id)
-            .GroupBy(j => new { j.Status, IsBackfill = j.Reason == AnalysisJobReason.Backfill })
-            .Select(g => new { g.Key.Status, g.Key.IsBackfill, Count = g.Count() })
-            .ToArray();
-        int Count(Func<AnalysisJobStatus, bool> status, bool? isBackfill = null)
-            => jobs.Where(j => status(j.Status) && (isBackfill == null || j.IsBackfill == isBackfill)).Sum(j => j.Count);
-
-        var analyzed = Count(s => s == AnalysisJobStatus.Completed, true);
-        var superseded = Count(_ => true, false);
-        var failed = Count(s => s == AnalysisJobStatus.Failed, true);
-        var remaining = Count(s => s == AnalysisJobStatus.Pending || s == AnalysisJobStatus.Claimed, true);
-        var deleted = Math.Max(0, backfill.Scheduled - jobs.Sum(j => j.Count));
-
-        // Accepting an analysis sends its index request before the submission succeeds.
-        var indexed = analyzed;
-
-        var isComplete = backfill.CompletedOn.HasValue && backfill.Status != BackgroundJobStatus.Cancelled && remaining == 0;
-        if (isComplete && backfill.Status != BackgroundJobStatus.Completed)
+        var hashes = CurrentHashes(batch);
+        var items = new List<AnalysisBackfillItemModel>();
+        var alreadyCurrent = 0;
+        foreach (var content in batch)
         {
-            backfill.Status = BackgroundJobStatus.Completed;
-            this.Context.AnalysisBackfills.Where(b => b.Id == backfill.Id && b.Status == BackgroundJobStatus.Running)
-                .ExecuteUpdate(setters => setters.SetProperty(b => b.Status, BackgroundJobStatus.Completed));
+            var (input, analysis) = hashes[content.Id];
+            if (configuration.Mode == AnalysisBackfillMode.MissingOrStale && analysis == input) alreadyCurrent++;
+            else items.Add(new AnalysisBackfillItemModel() { ContentId = content.Id, InputHash = input });
         }
-        return new AnalysisBackfillProgress(backfill, analyzed, superseded, deleted, failed, remaining, indexed, isComplete);
+        return new AnalysisBackfillPageModel()
+        {
+            Items = items,
+            AlreadyCurrent = alreadyCurrent,
+            LastContentId = batch[^1].Id,
+            IsLast = batch.Length < Math.Clamp(quantity, 1, 1000),
+        };
     }
+
+    /// <summary>
+    /// A backfill work order's configuration.
+    /// </summary>
+    /// <param name="workOrder"></param>
+    /// <returns></returns>
+    public static AnalysisBackfillConfigurationModel ReadConfiguration(WorkOrder workOrder)
+        => workOrder.Configuration.Deserialize<AnalysisBackfillConfigurationModel>(ConfigurationOptions) ?? new AnalysisBackfillConfigurationModel();
     #endregion
 }

@@ -3,18 +3,24 @@ using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.ContentAnalysis;
+using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.ContentAnalysis;
-using TNO.API.BackgroundWorkItem;
+using TNO.API.Config;
+using TNO.API.Helpers;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
 using TNO.DAL.Services;
 using TNO.Entities;
+using TNO.Kafka;
+using TNO.Kafka.Models;
 using TNO.Keycloak;
 
 namespace TNO.API.Areas.Admin.Controllers;
 
 /// <summary>
-/// ContentAnalysisController class, Content-Analysis administration: settings, failed jobs and
-/// replay, queue counts, and shadow comparison with Quote Extraction.
+/// ContentAnalysisController class, Content-Analysis administration: settings, the requests waiting
+/// in Kafka, failed content and replay, and backfills (work orders the Event Handler runs).
 /// </summary>
 [ClientRoleAuthorize(ClientRole.Administrator)]
 [ApiController]
@@ -32,8 +38,11 @@ public partial class ContentAnalysisController : ControllerBase
     private readonly IContentAnalysisService _service;
     private readonly ISettingService _settingService;
     private readonly IAnalysisBackfillService _backfillService;
-    private readonly IBackgroundTaskQueue _backgroundWorkerQueue;
-    private readonly IServiceScopeFactory _serviceScopeFactory;
+    private readonly IUserService _userService;
+    private readonly IWorkOrderRequestSender _workOrderSender;
+    private readonly IKafkaAdmin _kafkaAdmin;
+    private readonly KafkaOptions _kafkaOptions;
+    private readonly ILogger<ContentAnalysisController> _logger;
     #endregion
 
     #region Constructors
@@ -43,20 +52,29 @@ public partial class ContentAnalysisController : ControllerBase
     /// <param name="service"></param>
     /// <param name="settingService"></param>
     /// <param name="backfillService"></param>
-    /// <param name="backgroundWorkerQueue"></param>
-    /// <param name="serviceScopeFactory"></param>
+    /// <param name="userService"></param>
+    /// <param name="workOrderSender"></param>
+    /// <param name="kafkaAdmin"></param>
+    /// <param name="kafkaOptions"></param>
+    /// <param name="logger"></param>
     public ContentAnalysisController(
         IContentAnalysisService service,
         ISettingService settingService,
         IAnalysisBackfillService backfillService,
-        IBackgroundTaskQueue backgroundWorkerQueue,
-        IServiceScopeFactory serviceScopeFactory)
+        IUserService userService,
+        IWorkOrderRequestSender workOrderSender,
+        IKafkaAdmin kafkaAdmin,
+        IOptions<KafkaOptions> kafkaOptions,
+        ILogger<ContentAnalysisController> logger)
     {
         _service = service;
         _settingService = settingService;
         _backfillService = backfillService;
-        _backgroundWorkerQueue = backgroundWorkerQueue;
-        _serviceScopeFactory = serviceScopeFactory;
+        _userService = userService;
+        _workOrderSender = workOrderSender;
+        _kafkaAdmin = kafkaAdmin;
+        _kafkaOptions = kafkaOptions.Value;
+        _logger = logger;
     }
     #endregion
 
@@ -97,46 +115,61 @@ public partial class ContentAnalysisController : ControllerBase
     }
 
     /// <summary>
-    /// Job counts by status and reason.
+    /// The analysis requests waiting in each Kafka topic, and the number of content items whose
+    /// newest request failed.
     /// </summary>
     /// <returns></returns>
     [HttpGet("queue")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(AnalysisQueueModel), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "ContentAnalysis" })]
-    public IActionResult GetQueue()
+    public async Task<IActionResult> GetQueueAsync()
     {
-        return new JsonResult(new AnalysisQueueModel() { Counts = _service.GetQueueCounts() });
+        var topics = new[] { _kafkaOptions.AnalysisTopic, _kafkaOptions.AnalysisRetryTopic, _kafkaOptions.AnalysisBackfillTopic }
+            .Where(t => !String.IsNullOrWhiteSpace(t))
+            .ToArray();
+        var lag = new Dictionary<string, long>();
+        try
+        {
+            lag = new Dictionary<string, long>(await _kafkaAdmin.GetConsumerLagAsync(_kafkaOptions.AnalysisConsumerGroup, topics));
+        }
+        catch (Exception ex)
+        {
+            // The failed count is still useful when Kafka cannot be asked.
+            _logger.LogWarning(ex, "Failed to read the Content-Analysis consumer lag");
+        }
+        return new JsonResult(new AnalysisQueueModel() { Lag = lag, Failed = _service.CountFailures() });
     }
 
     /// <summary>
-    /// Jobs with the specified status (failed by default), most recent first.
+    /// Content whose newest analysis request failed, most recent first.
     /// </summary>
-    /// <param name="status"></param>
     /// <param name="quantity"></param>
     /// <returns></returns>
-    [HttpGet("jobs")]
+    [HttpGet("failures")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(IEnumerable<AnalysisJobModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(IEnumerable<AnalysisFailureModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "ContentAnalysis" })]
-    public IActionResult FindJobs(AnalysisJobStatus status = AnalysisJobStatus.Failed, int quantity = 100)
+    public IActionResult FindFailures(int quantity = 100)
     {
-        return new JsonResult(_service.FindJobs(status, quantity).Select(j => new AnalysisJobModel(j)));
+        return new JsonResult(_service.FindFailures(quantity).Select(f => new AnalysisFailureModel() { ContentId = f.ContentId, Headline = f.Headline, Run = f.Run }));
     }
 
     /// <summary>
-    /// Queue a failed or skipped job again.
+    /// Send the content for analysis again, even when its analysis is current.
     /// </summary>
-    /// <param name="id"></param>
+    /// <param name="contentId"></param>
     /// <returns></returns>
-    [HttpPost("jobs/{id:long}/replay")]
+    [HttpPost("contents/{contentId:long}/replay")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(AnalysisJobModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(AnalysisRequestModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ContentAnalysis" })]
-    public IActionResult Replay(long id)
+    public IActionResult Replay(long contentId)
     {
-        return new JsonResult(new AnalysisJobModel(_service.Replay(id)));
+        // The request is sent to Kafka once the action completes.
+        var request = _service.RequestAnalysis(contentId, AnalysisRequestReason.Replay);
+        return new JsonResult(new AnalysisRequestModel(request.RequestId, request.ContentId, request.InputHash, request.Reason, request.Force, request.RequestedOn));
     }
 
     /// <summary>
@@ -162,7 +195,8 @@ public partial class ContentAnalysisController : ControllerBase
     }
 
     /// <summary>
-    /// Start a backfill: persist its criteria, then schedule its jobs in the background.
+    /// Start a backfill: a work order the Event Handler runs, sending each content item in the range
+    /// to the analysis backfill topic.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -171,11 +205,20 @@ public partial class ContentAnalysisController : ControllerBase
     [ProducesResponseType(typeof(AnalysisBackfillModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ContentAnalysis" })]
-    public IActionResult StartBackfill([FromBody] AnalysisBackfillRequestModel model)
+    public async Task<IActionResult> StartBackfillAsync([FromBody] AnalysisBackfillRequestModel model)
     {
-        var backfill = _backfillService.Add(new AnalysisBackfill(model.StartOn.ToUniversalTime(), model.EndOn.ToUniversalTime(), model.TimeZone, model.DateField, model.Mode));
-        QueueBackfill(backfill.Id);
-        return new JsonResult(ToModel(_backfillService.FindProgress(backfill.Id)!));
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var workOrder = _backfillService.Add(new AnalysisBackfillConfigurationModel()
+        {
+            StartOn = model.StartOn.ToUniversalTime(),
+            EndOn = model.EndOn.ToUniversalTime(),
+            TimeZone = model.TimeZone,
+            DateField = model.DateField,
+            Mode = model.Mode,
+        }, user.Id);
+        await _workOrderSender.SendAsync(workOrder, user.Username);
+        return new JsonResult(ToModel(workOrder));
     }
 
     /// <summary>
@@ -192,7 +235,7 @@ public partial class ContentAnalysisController : ControllerBase
     }
 
     /// <summary>
-    /// Stop a backfill: no further scheduling, and its unclaimed jobs are withdrawn.
+    /// Stop a backfill.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
@@ -202,12 +245,11 @@ public partial class ContentAnalysisController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ContentAnalysis" })]
     public IActionResult CancelBackfill(long id)
     {
-        _backfillService.Cancel(id);
-        return new JsonResult(ToModel(_backfillService.FindProgress(id)!));
+        return new JsonResult(ToModel(_backfillService.Cancel(id)));
     }
 
     /// <summary>
-    /// Continue a cancelled, failed, or interrupted backfill from its checkpoint.
+    /// Continue a cancelled or failed backfill from its checkpoint.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
@@ -216,54 +258,47 @@ public partial class ContentAnalysisController : ControllerBase
     [ProducesResponseType(typeof(AnalysisBackfillModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ContentAnalysis" })]
-    public IActionResult ResumeBackfill(long id)
+    public async Task<IActionResult> ResumeBackfillAsync(long id)
     {
-        _backfillService.Resume(id);
-        QueueBackfill(id);
-        return new JsonResult(ToModel(_backfillService.FindProgress(id)!));
+        var workOrder = _backfillService.Resume(id);
+        await _workOrderSender.SendAsync(workOrder, User.GetUsername() ?? "");
+        return new JsonResult(ToModel(workOrder));
     }
     #endregion
 
     #region Methods
-    private void QueueBackfill(long id)
+    /// <summary>
+    /// The backfill and its progress.
+    /// </summary>
+    /// <param name="workOrder"></param>
+    /// <returns></returns>
+    private AnalysisBackfillModel ToModel(WorkOrder workOrder)
     {
-        _backgroundWorkerQueue.QueueBackgroundWorkItem(async token =>
-        {
-            using var scope = _serviceScopeFactory.CreateScope();
-            var service = scope.ServiceProvider.GetRequiredService<IAnalysisBackfillService>();
-            await service.RunAsync(id, token);
-        });
-    }
-
-    private static AnalysisBackfillModel ToModel(AnalysisBackfillProgress progress)
-    {
-        var backfill = progress.Backfill;
+        var configuration = AnalysisBackfillService.ReadConfiguration(workOrder);
         return new AnalysisBackfillModel()
         {
-            Id = backfill.Id,
-            StartOn = backfill.StartOn,
-            EndOn = backfill.EndOn,
-            TimeZone = backfill.TimeZone,
-            DateField = backfill.DateField,
-            Mode = backfill.Mode,
-            Status = backfill.Status,
-            Total = backfill.Total,
-            Scheduled = backfill.Scheduled,
-            AlreadyCurrent = backfill.AlreadyCurrent,
-            Analyzed = progress.Analyzed,
-            Superseded = progress.Superseded,
-            Deleted = progress.Deleted,
-            Failed = progress.Failed,
-            Remaining = progress.Remaining,
-            Indexed = progress.Indexed,
-            IsComplete = progress.IsComplete,
-            Error = backfill.Error,
-            CreatedBy = backfill.CreatedBy,
-            CreatedOn = backfill.CreatedOn,
-            CompletedOn = backfill.CompletedOn,
+            Id = workOrder.Id,
+            StartOn = configuration.StartOn,
+            EndOn = configuration.EndOn,
+            TimeZone = configuration.TimeZone,
+            DateField = configuration.DateField,
+            Mode = configuration.Mode,
+            Status = workOrder.Status,
+            Total = configuration.Total,
+            Scheduled = configuration.Scheduled,
+            AlreadyCurrent = configuration.AlreadyCurrent,
+            Failed = _service.CountFailures(workOrder.Id),
+            Error = configuration.Error,
+            CreatedBy = workOrder.CreatedBy,
+            CreatedOn = workOrder.CreatedOn,
+            UpdatedOn = workOrder.UpdatedOn,
         };
     }
 
+    /// <summary>
+    /// The Content-Analysis settings.
+    /// </summary>
+    /// <returns></returns>
     private ContentAnalysisSettingsModel ReadSettings()
     {
         var settings = _service.GetSettings();

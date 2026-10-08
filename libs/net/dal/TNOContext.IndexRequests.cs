@@ -36,7 +36,7 @@ public partial class TNOContext
     private readonly List<(SavedIndexRequest Request, DbTransaction? Transaction)> _savedIndexRequests = new();
     private readonly HashSet<DbTransaction> _committedTransactions = new();
 
-    /// <summary>Tells each context when its transactions commit.</summary>
+    /// <summary>Tells each context when its transactions commit (for index and analysis requests).</summary>
     private static readonly IndexRequestTransactionInterceptor TransactionInterceptor = new();
 
     /// <summary>
@@ -122,6 +122,7 @@ public partial class TNOContext
     private void OnTransactionCommitted(DbTransaction transaction)
     {
         if (_savedIndexRequests.Any(r => r.Transaction == transaction)) _committedTransactions.Add(transaction);
+        OnAnalysisTransactionCommitted(transaction);
     }
 
     /// <summary>

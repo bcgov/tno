@@ -1358,58 +1358,87 @@ public class ApiService : IApiService
     }
 
     /// <summary>
-    /// Claim due analysis jobs.
+    /// Get the content's current analysis input.
     /// </summary>
-    /// <param name="request"></param>
+    /// <param name="contentId"></param>
     /// <returns></returns>
-    public async Task<IEnumerable<API.Areas.Services.Models.ContentAnalysis.AnalysisJobModel>?> ClaimAnalysisJobsAsync(API.Areas.Services.Models.ContentAnalysis.AnalysisClaimRequestModel request)
+    public async Task<API.Areas.Services.Models.ContentAnalysis.AnalysisInputModel?> GetAnalysisInputAsync(long contentId)
     {
-        var url = this.Options.ApiUrl.Append($"services/analysis/jobs/claim");
-        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<IEnumerable<API.Areas.Services.Models.ContentAnalysis.AnalysisJobModel>?>(url, JsonContent.Create(request)));
-    }
-
-    /// <summary>
-    /// Extend an analysis claim's lease.
-    /// </summary>
-    /// <param name="lease"></param>
-    /// <returns></returns>
-    public async Task<API.Areas.Services.Models.ContentAnalysis.AnalysisJobModel?> RenewAnalysisLeaseAsync(API.Areas.Services.Models.ContentAnalysis.AnalysisLeaseModel lease)
-    {
-        var url = this.Options.ApiUrl.Append($"services/analysis/jobs/{lease.JobId}/lease");
-        return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.ContentAnalysis.AnalysisJobModel?>(url, JsonContent.Create(lease)));
-    }
-
-    /// <summary>
-    /// Get the current input of claimed content.
-    /// </summary>
-    /// <param name="lease"></param>
-    /// <returns></returns>
-    public async Task<API.Areas.Services.Models.ContentAnalysis.AnalysisInputModel?> GetAnalysisInputAsync(API.Areas.Services.Models.ContentAnalysis.AnalysisLeaseModel lease)
-    {
-        var url = this.Options.ApiUrl.Append($"services/analysis/jobs/{lease.JobId}/input?fencingToken={lease.FencingToken}");
+        var url = this.Options.ApiUrl.Append($"services/analysis/contents/{contentId}/input");
         return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.ContentAnalysis.AnalysisInputModel?>(url));
     }
 
     /// <summary>
-    /// Submit an analysis.
+    /// Submit an analysis; the request's run is recorded with it.
     /// </summary>
     /// <param name="result"></param>
     /// <returns></returns>
     public async Task<API.Areas.Services.Models.ContentAnalysis.AnalysisSubmitResultModel?> SubmitAnalysisAsync(API.Areas.Services.Models.ContentAnalysis.AnalysisResultModel result)
     {
-        var url = this.Options.ApiUrl.Append($"services/analysis/jobs/{result.JobId}/result");
+        var url = this.Options.ApiUrl.Append($"services/analysis/contents/{result.ContentId}/result");
         return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Services.Models.ContentAnalysis.AnalysisSubmitResultModel?>(url, JsonContent.Create(result)));
     }
 
     /// <summary>
-    /// Record a failed analysis attempt.
+    /// Record the outcome of an analysis request that produced no result (skipped, retrying, or failed).
     /// </summary>
-    /// <param name="failure"></param>
+    /// <param name="contentId"></param>
+    /// <param name="run"></param>
     /// <returns></returns>
-    public async Task<API.Areas.Services.Models.ContentAnalysis.AnalysisJobModel?> FailAnalysisAsync(API.Areas.Services.Models.ContentAnalysis.AnalysisFailureModel failure)
+    public async Task<TNO.Entities.Models.AnalysisMetadata?> RecordAnalysisRunAsync(long contentId, API.Areas.Services.Models.ContentAnalysis.AnalysisRunRequestModel run)
     {
-        var url = this.Options.ApiUrl.Append($"services/analysis/jobs/{failure.JobId}/failure");
-        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Services.Models.ContentAnalysis.AnalysisJobModel?>(url, JsonContent.Create(failure)));
+        var url = this.Options.ApiUrl.Append($"services/analysis/contents/{contentId}/runs");
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<TNO.Entities.Models.AnalysisMetadata?>(url, JsonContent.Create(run)));
+    }
+
+    /// <summary>
+    /// Publish analysis requests to an analysis topic (analysis, backfill, retry, or dead-letter).
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <param name="requests"></param>
+    /// <returns></returns>
+    public async Task<int> SendAnalysisRequestsAsync(string topic, IEnumerable<TNO.Kafka.Models.AnalysisRequestModel> requests)
+    {
+        var url = this.Options.ApiUrl.Append($"kafka/producers/analysis/{topic}");
+        var models = requests.ToArray();
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<int>(url, JsonContent.Create(models)));
+    }
+
+    /// <summary>
+    /// Get the next page of a Content-Analysis backfill after the specified content ID.
+    /// </summary>
+    /// <param name="workOrderId"></param>
+    /// <param name="afterContentId"></param>
+    /// <param name="quantity"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.ContentAnalysis.AnalysisBackfillPageModel?> FindAnalysisBackfillPageAsync(long workOrderId, long afterContentId, int quantity)
+    {
+        var url = this.Options.ApiUrl.Append($"services/analysis/backfills/{workOrderId}/page?after={afterContentId}&quantity={quantity}");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.ContentAnalysis.AnalysisBackfillPageModel?>(url));
+    }
+
+    /// <summary>
+    /// Rescore the next page of a bulk rescore after the specified content ID.
+    /// </summary>
+    /// <param name="workOrderId"></param>
+    /// <param name="afterContentId"></param>
+    /// <param name="quantity"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.TopicScore.TopicRescorePageModel?> RescoreTopicsPageAsync(long workOrderId, long afterContentId, int quantity)
+    {
+        var url = this.Options.ApiUrl.Append($"services/topic-scores/rescores/{workOrderId}/pages?after={afterContentId}&quantity={quantity}");
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Services.Models.TopicScore.TopicRescorePageModel?>(url));
+    }
+
+    /// <summary>
+    /// Publish a work order request to the Event Handler.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.WorkOrderRequestModel>?> SendMessageAsync(TNO.Kafka.Models.WorkOrderRequestModel request)
+    {
+        var url = this.Options.ApiUrl.Append($"kafka/producers/work-order");
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.WorkOrderRequestModel>>(url, JsonContent.Create(request)));
     }
 
     /// <summary>

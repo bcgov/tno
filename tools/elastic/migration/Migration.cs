@@ -82,7 +82,7 @@ public abstract class Migration
         await RunScriptsAsync(_builder, $"up{Path.DirectorySeparatorChar}post");
 
         var version = new MigrationVersion(this.Version, "");
-        var response = await _builder.Client.IndexAsync(version, id => id.Index(_builder.MigrationOptions.MigrationIndex));
+        var response = await _builder.Client.IndexAsync(version, id => id.Index(_builder.MigrationOptions.MigrationIndex).Id(this.Version).Refresh(Refresh.WaitFor));
         if (!response.IsValid)
         {
             _builder.Logger.LogError(response.OriginalException, "Failed to add migration {version} to index.  Error: {error}", this.Version, response.ServerError);
@@ -102,8 +102,9 @@ public abstract class Migration
         await RunScriptsAsync(_builder, "down");
         await RunScriptsAsync(_builder, $"down{Path.DirectorySeparatorChar}post");
 
-        var response = await _builder.Client.DeleteAsync<MigrationVersion>(this.Version, dd => dd.Index(_builder.MigrationOptions.MigrationIndex));
-        if (!response.IsValid)
+        var response = await _builder.Client.DeleteAsync<MigrationVersion>(this.Version, dd => dd.Index(_builder.MigrationOptions.MigrationIndex).Refresh(Refresh.WaitFor)
+            .RequestConfiguration(r => r.ThrowExceptions(false)));
+        if (!response.IsValid && response.ApiCall.HttpStatusCode != 404)
         {
             var error = response.OriginalException ?? new ElasticsearchClientException("Failed to perform delete");
             _builder.Logger.LogError(error, "Failed to remove migration {version} from index.  Error: {error}", this.Version, response.ServerError);

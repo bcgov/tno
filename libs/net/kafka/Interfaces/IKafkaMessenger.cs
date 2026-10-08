@@ -21,6 +21,17 @@ public interface IKafkaMessenger
     public Task<DeliveryResult<TKey, TValue>?> SendMessageAsync<TKey, TValue>(string topic, TKey key, TValue value);
 
     /// <summary>
+    /// Send the messages to Kafka with one producer, waiting until every message is accepted.
+    /// Throws when any message is not.
+    /// </summary>
+    /// <typeparam name="TKey"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
+    /// <param name="topic"></param>
+    /// <param name="messages"></param>
+    /// <returns></returns>
+    public Task<DeliveryResult<TKey, TValue>[]> SendMessagesAsync<TKey, TValue>(string topic, IEnumerable<KeyValuePair<TKey, TValue>> messages);
+
+    /// <summary>
     /// Send a message to Kafka.
     /// </summary>
     /// <param name="topic"></param>

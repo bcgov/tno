@@ -112,10 +112,16 @@ public class AnalysisQuoteModel
 }
 
 /// <summary>
-/// AnalysisResultModel class, a worker's analysis of claimed content.
+/// AnalysisResultModel class, the Content-Analysis service's analysis of a content item.
 /// </summary>
-public class AnalysisResultModel : AnalysisLeaseModel
+public class AnalysisResultModel
 {
+    /// <summary>get/set - The content analyzed.</summary>
+    public long ContentId { get; set; }
+
+    /// <summary>get/set - The request analyzed, recorded as a run in the content's metadata.</summary>
+    public AnalysisRequestRunModel Request { get; set; } = new();
+
     /// <summary>get/set - The input fingerprint analyzed.</summary>
     public string InputHash { get; set; } = "";
 

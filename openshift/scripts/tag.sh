@@ -54,7 +54,7 @@ case "$mode" in
         --force
     fi
     echo "Tagged $IMAGE:$to in ACR ($IMAGE:$from and $IMAGE:$to now point at the same image)."
-    echo "Deploy: make deploy e=$to n=$IMAGE"
+    echo "Deploy: make deploy e=$to n=$IMAGE t=$to"
     ;;
   *)
     echo "ERROR: mode must be 'local' or 'remote' (got '$mode')." >&2

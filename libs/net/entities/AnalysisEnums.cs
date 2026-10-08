@@ -1,9 +1,9 @@
 namespace TNO.Entities;
 
 /// <summary>
-/// AnalysisJobReason enum, why content is queued for analysis.
+/// AnalysisRequestReason enum, why content is sent for analysis.
 /// </summary>
-public enum AnalysisJobReason
+public enum AnalysisRequestReason
 {
     /// <summary>Content was added, or an analysis input changed.</summary>
     Lifecycle = 0,
@@ -11,23 +11,23 @@ public enum AnalysisJobReason
     Reanalysis = 1,
     /// <summary>An administrator's date-range backfill.</summary>
     Backfill = 2,
+    /// <summary>An administrator replayed a failed analysis.</summary>
+    Replay = 3,
 }
 
 /// <summary>
-/// AnalysisJobStatus enum, the state of queued analysis work.
+/// AnalysisRunStatus enum, the outcome of an analysis request, recorded in the content's metadata.
 /// </summary>
-public enum AnalysisJobStatus
+public enum AnalysisRunStatus
 {
-    /// <summary>Waiting until it is due.</summary>
-    Pending = 0,
-    /// <summary>A worker holds the lease.</summary>
-    Claimed = 1,
-    /// <summary>A result for the latest input was accepted.</summary>
-    Completed = 2,
-    /// <summary>Retries were exhausted; shown for explicit replay.</summary>
-    Failed = 3,
+    /// <summary>A result for the requested input was accepted (or already existed).</summary>
+    Completed = 0,
     /// <summary>The content is not eligible (excluded, or awaiting transcript approval).</summary>
-    Skipped = 4,
+    Skipped = 1,
+    /// <summary>An attempt failed and the request was sent to the retry topic.</summary>
+    Retrying = 2,
+    /// <summary>Retries were exhausted, or the failure is permanent; shown for explicit replay.</summary>
+    Failed = 3,
 }
 
 /// <summary>

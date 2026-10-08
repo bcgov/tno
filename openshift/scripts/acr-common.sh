@@ -40,6 +40,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 #   subscriber subscriber     app/subscriber/Dockerfile.nginx app/subscriber/Dockerfile app/subscriber
 #   charts     charts-api     api/node/Dockerfile.open     api/node/Dockerfile.local   api/node
 #   db-migration db-migration libs/net/Dockerfile          (same for both)             libs/net
+#   elastic-migration elastic-migration tools/elastic/migration/Dockerfile (same)   .
 #   <name>     <name>-service services/net/<name>/Dockerfile (same for both)           .
 #
 # The 'local' variants are the ones docker-compose builds for development; they are not
@@ -96,6 +97,11 @@ resolve_image() {
       else
         DOCKERFILE=${DOCKERFILE:-api/node/Dockerfile.open}
       fi
+      ;;
+    elastic-migration)
+      IMAGE=${IMAGE:-elastic-migration}
+      DOCKERFILE=${DOCKERFILE:-tools/elastic/migration/Dockerfile}
+      CONTEXT=${CONTEXT:-.}
       ;;
     db-migration)
       # An EF migrations bundle, not a service; the same Dockerfile in both environments.

@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.TopicScoreRule;
-using TNO.API.BackgroundWorkItem;
 using TNO.API.Config;
+using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
-using TNO.DAL;
+using TNO.Core.Extensions;
 using TNO.DAL.Scoring;
 using TNO.DAL.Services;
 using TNO.Entities;
@@ -36,8 +36,8 @@ public class TopicScoreController : ControllerBase
     #region Variables
     private readonly ITopicScoreService _scoreService;
     private readonly ITopicScoreRuleService _ruleService;
-    private readonly IBackgroundTaskQueue _backgroundWorkerQueue;
-    private readonly IServiceScopeFactory _serviceScopeFactory;
+    private readonly IUserService _userService;
+    private readonly IWorkOrderRequestSender _workOrderSender;
     private readonly ILogger<TopicScoreController> _logger;
     #endregion
 
@@ -47,20 +47,20 @@ public class TopicScoreController : ControllerBase
     /// </summary>
     /// <param name="scoreService"></param>
     /// <param name="ruleService"></param>
-    /// <param name="backgroundWorkerQueue"></param>
-    /// <param name="serviceScopeFactory"></param>
+    /// <param name="userService"></param>
+    /// <param name="workOrderSender"></param>
     /// <param name="logger"></param>
     public TopicScoreController(
         ITopicScoreService scoreService,
         ITopicScoreRuleService ruleService,
-        IBackgroundTaskQueue backgroundWorkerQueue,
-        IServiceScopeFactory serviceScopeFactory,
+        IUserService userService,
+        IWorkOrderRequestSender workOrderSender,
         ILogger<TopicScoreController> logger)
     {
         _scoreService = scoreService;
         _ruleService = ruleService;
-        _backgroundWorkerQueue = backgroundWorkerQueue;
-        _serviceScopeFactory = serviceScopeFactory;
+        _userService = userService;
+        _workOrderSender = workOrderSender;
         _logger = logger;
     }
     #endregion
@@ -227,8 +227,8 @@ public class TopicScoreController : ControllerBase
     }
 
     /// <summary>
-    /// Start a background job that recalculates calculated scores in the range and re-indexes the
-    /// content whose score changed.
+    /// Start a bulk rescore: a work order the Event Handler runs a page at a time, recalculating the
+    /// calculated scores in the range and re-indexing the content whose score changed.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -237,21 +237,13 @@ public class TopicScoreController : ControllerBase
     [ProducesResponseType(typeof(TopicRescoreJobModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "TopicScore" })]
-    public IActionResult Rescore([FromBody] TopicRescoreRequestModel model)
+    public async Task<IActionResult> RescoreAsync([FromBody] TopicRescoreRequestModel model)
     {
-        var job = _scoreService.AddRescoreJob(model.StartOn.ToUniversalTime(), model.EndOn.ToUniversalTime(), model.SourceIds);
-        var jobId = job.Id;
-
-        _backgroundWorkerQueue.QueueBackgroundWorkItem(async token =>
-        {
-            using var scope = _serviceScopeFactory.CreateScope();
-            var scoreService = scope.ServiceProvider.GetRequiredService<ITopicScoreService>();
-            var context = scope.ServiceProvider.GetRequiredService<TNOContext>();
-            var sender = scope.ServiceProvider.GetRequiredService<TNO.API.Helpers.IIndexRequestSender>();
-            await scoreService.RunRescoreJobAsync(jobId, () => sender.SendAsync(context), token);
-        });
-
-        return new JsonResult(new TopicRescoreJobModel(job));
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
+        var workOrder = _scoreService.AddRescore(model.StartOn.ToUniversalTime(), model.EndOn.ToUniversalTime(), model.SourceIds, user.Id);
+        await _workOrderSender.SendAsync(workOrder, user.Username);
+        return new JsonResult(ToModel(workOrder));
     }
 
     /// <summary>
@@ -264,7 +256,7 @@ public class TopicScoreController : ControllerBase
     [SwaggerOperation(Tags = new[] { "TopicScore" })]
     public IActionResult FindRescoreJobs()
     {
-        return new JsonResult(_scoreService.FindRescoreJobs().Select(j => new TopicRescoreJobModel(j)));
+        return new JsonResult(_scoreService.FindRescores().Select(ToModel));
     }
 
     /// <summary>
@@ -279,12 +271,20 @@ public class TopicScoreController : ControllerBase
     [SwaggerOperation(Tags = new[] { "TopicScore" })]
     public IActionResult FindRescoreJob(long id)
     {
-        var job = _scoreService.FindRescoreJob(id) ?? throw new NoContentException("Rescore job does not exist");
-        return new JsonResult(new TopicRescoreJobModel(job));
+        var workOrder = _scoreService.FindRescore(id) ?? throw new NoContentException("Rescore does not exist");
+        return new JsonResult(ToModel(workOrder));
     }
     #endregion
 
     #region Methods
+    /// <summary>
+    /// The bulk rescore and its progress.
+    /// </summary>
+    /// <param name="workOrder"></param>
+    /// <returns></returns>
+    private static TopicRescoreJobModel ToModel(WorkOrder workOrder)
+        => new(workOrder, TopicScoreService.ReadRescoreConfiguration(workOrder));
+
     private static TopicScoreSourceModel ToModel(TNO.DAL.Models.TopicScoreSourceSummary summary)
     {
         return new TopicScoreSourceModel()

@@ -142,11 +142,6 @@ public class MigrationService
     }
 
     /// <summary>
-    /// Generate a number that can be used to sort the migration versions.
-    /// </summary>
-    /// <param name="value"></param>
-    /// <returns></returns>
-    /// <summary>
     /// A cluster with no migration history must be empty, or be given a baseline: running the
     /// first migrations against indexes that already exist would fail or replace them.
     /// </summary>

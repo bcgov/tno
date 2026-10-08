@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 
 namespace TNO.Entities;
 
@@ -205,6 +206,14 @@ public class Content : AuditColumns
     /// </summary>
     [Column("versions")]
     public Dictionary<int, Models.ContentVersion> Versions { get; set; } = new();
+
+    /// <summary>
+    /// get - Operational metadata about the content (e.g. 'analysis', the outcome of its recent
+    /// Content-Analysis runs). Never saved through the entity: services write it with targeted SQL
+    /// so it does not change the content's version, and a stale form cannot overwrite it.
+    /// </summary>
+    [Column("metadata")]
+    public JsonDocument Metadata { get; set; } = JsonDocument.Parse("{}");
 
     /// <summary>
     /// get - Collection of logs associated with this content.

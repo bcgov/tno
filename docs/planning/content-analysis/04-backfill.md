@@ -21,22 +21,38 @@ apply to backfills too.
 
 ## Processing
 
-At submission:
+A backfill is a work order (`WorkOrderType.ContentAnalysisBackfill`) that the Event Handler runs; the
+API never runs it in the background.
 
-1. Persist the criteria and a creation high-water mark.
-2. Enumerate matching content with stable keyset pagination, checkpointing progress.
-3. Create `analysis_job` rows with reason `backfill`, backfill priority, and the current input
-   hash — the same queue and service as lifecycle work.
-4. Track analyzed, already current, superseded, deleted, failed, and indexed counts.
+At submission the API:
 
-- Lifecycle work always outranks backfill, and backfill uses at most 20% of provider throughput
-  (configurable).
-- Content changed during a backfill gets ordinary lifecycle work; the backfill job for it is
-  superseded.
-- Cancellation stops further scheduling; claimed work may finish.
+1. records the criteria, a creation high-water mark, and the eligible total in the work order's
+   configuration;
+2. sends a `work-order` message.
+
+The Event Handler consumes `work-order` with its own consumer, so a backfill never delays event
+schedules. Each message is one page (`AnalysisBackfillPageSize`, default 500):
+
+1. read the next page of eligible content after the checkpoint (stable keyset pagination by
+   content ID), leaving out content whose analysis is current unless the backfill is forced;
+2. send each item to `analysis-backfill` with reason `backfill` and the work order ID;
+3. save the checkpoint and counts on the work order (a cancellation is never overwritten);
+4. send a message to continue, carrying the work order's new version, or mark it completed.
+
+A message for an older version is ignored, so only one chain of messages works on a backfill. A page
+that fails is received again; after `RetryLimit` failures the work order is marked failed for an
+administrator to resume. Sending a page twice is harmless: Content-Analysis skips content whose
+analysis is already current.
+
+- Content-Analysis consumes `analysis-backfill` apart from new content, so a backfill never delays
+  it, and backfill uses at most 20% of provider throughput (configurable).
+- Content changed during a backfill gets an ordinary lifecycle request; the backfill request for the
+  old input is skipped.
+- Cancellation stops further pages, and Content-Analysis skips the cancelled backfill's requests.
 - Resume continues from the last checkpoint without duplicating accepted analysis.
-- A backfill is complete when every target item is resolved and successful results are searchable.
-  Unresolved failures stay visible for replay.
+- Progress shows the total, the content sent, already current, and failed (content whose newest
+  run, from this backfill, failed). The administration page shows the requests waiting in
+  `analysis-backfill`.
 
 ## Tests
 
@@ -44,5 +60,5 @@ At submission:
 - Missing/stale versus force modes.
 - Durable, idempotent cancellation and resume.
 - Content updated or deleted mid-backfill reconciles correctly.
-- Lifecycle work keeps priority and the throughput share holds.
-- Reporting never creates a backfill or analysis job.
+- New content is never delayed by a backfill, and the throughput share holds.
+- Reporting never creates a backfill or analysis request.

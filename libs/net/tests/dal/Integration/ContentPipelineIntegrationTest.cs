@@ -7,12 +7,14 @@ using TNO.DAL;
 using TNO.DAL.Config;
 using TNO.DAL.Services;
 using TNO.Entities;
+using TNO.Entities.Models;
 
 namespace TNO.Test.DAL.Integration;
 
 /// <summary>
-/// Database integration tests for the raw SQL paths: index requests, analysis job claims and
-/// result submission, report AI result claims, and history purges.
+/// Database integration tests for the raw SQL paths: index requests, analysis requests, result
+/// submission and the analysis runs kept in content metadata, report AI result claims, and history
+/// purges.
 /// Run with 'TNO_TEST_POSTGRES' set (see PostgresFactAttribute).
 /// </summary>
 [Collection(PostgresCollection.Name)]
@@ -37,16 +39,13 @@ public class ContentPipelineIntegrationTest
         => context.Contents.AsNoTracking().Where(c => c.Id == contentId).Select(c => c.ProjectionRevision).First();
 
     private ContentAnalysisService CreateAnalysisService(TNOContext context)
-        => new(context, _fixture.Principal, _fixture.Services, Options.Create(new ContentAnalysisOptions()), TestLogger.For<ContentAnalysisService>());
+        => new(context, _fixture.Principal, _fixture.Services, TestLogger.For<ContentAnalysisService>());
 
-    /// <summary>
-    /// Make the content's job due now, ahead of every other job.
-    /// </summary>
-    private static void MakeJobDue(TNOContext context, long contentId)
-    {
-        // The newest test content always has the highest priority.
-        context.Database.ExecuteSqlRaw("UPDATE public.analysis_job SET due_on = CURRENT_TIMESTAMP - interval '1 second', priority = {1} WHERE content_id = {0}", contentId, (int)(1_000_000 + contentId % 1_000_000_000));
-    }
+    private TopicScoreService CreateTopicScoreService(TNOContext context)
+        => new(context, _fixture.Principal, _fixture.Services, Options.Create(new TopicScoreOptions()), TestLogger.For<TopicScoreService>());
+
+    private static AnalysisRun Run(string requestId, AnalysisRunStatus status, DateTime requestedOn, long? workOrderId = null)
+        => new() { RequestId = requestId, Status = status, RequestedOn = requestedOn, FinishedOn = DateTime.UtcNow, Attempts = 1, InputHash = "hash", WorkOrderId = workOrderId };
     #endregion
 
     #region Index requests
@@ -149,53 +148,65 @@ public class ContentPipelineIntegrationTest
     }
     #endregion
 
-    #region Analysis jobs
+    #region Analysis
     [PostgresFact]
-    public void Analysis_NewContentSchedulesAJobAfterTheQuietPeriod()
-    {
-        using var context = _fixture.CreateContext();
-        var before = DateTime.UtcNow;
-        var content = _fixture.AddContent(context);
-
-        var job = context.AnalysisJobs.AsNoTracking().Single(j => j.ContentId == content.Id);
-        job.Status.Should().Be(AnalysisJobStatus.Pending);
-        job.Reason.Should().Be(AnalysisJobReason.Lifecycle);
-        job.DueOn.Should().BeOnOrAfter(before.AddSeconds(new ContentAnalysisOptions().QuietPeriodSeconds - 1));
-    }
-
-    [PostgresFact]
-    public void Analysis_AJobIsClaimedOnce()
+    public void Analysis_NewContentRecordsALifecycleRequest()
     {
         using var context = _fixture.CreateContext();
         var content = _fixture.AddContent(context);
-        MakeJobDue(context, content.Id);
 
-        using var first = _fixture.CreateContext();
-        using var second = _fixture.CreateContext();
-        var request = new AnalysisClaimRequestModel() { WorkerId = "it", Quantity = 1, MaxBackfill = 0 };
-        var claimed = CreateAnalysisService(first).ClaimJobs(request).ToArray();
-        var again = CreateAnalysisService(second).ClaimJobs(request).ToArray();
-
-        claimed.Should().ContainSingle(j => j.ContentId == content.Id);
-        claimed[0].Status.Should().Be(AnalysisJobStatus.Claimed);
-        claimed[0].FencingToken.Should().Be(1);
-        again.Should().NotContain(j => j.ContentId == content.Id);
+        var request = context.TakeAnalysisRequests().Single(r => r.ContentId == content.Id);
+        request.Reason.Should().Be(AnalysisRequestReason.Lifecycle);
+        request.Force.Should().BeFalse();
+        request.InputHash.Should().NotBeNullOrWhiteSpace();
+        context.TakeAnalysisRequests().Should().BeEmpty("requests are taken once");
     }
 
     [PostgresFact]
-    public void Analysis_SubmitAppliesOnlyTheProcessesRunAndRejectsStaleClaims()
+    public void Analysis_OnlyAnalysisInputChangesRecordARequest()
+    {
+        using var context = _fixture.CreateContext();
+        var content = _fixture.AddContent(context);
+        context.TakeAnalysisRequests();
+
+        content.Page = "A2";
+        context.SaveChanges();
+        context.TakeAnalysisRequests().Should().BeEmpty("the page is not an analysis input");
+
+        content.Headline = "A changed headline";
+        context.SaveChanges();
+        context.TakeAnalysisRequests().Should().ContainSingle(r => r.ContentId == content.Id && r.Reason == AnalysisRequestReason.Lifecycle);
+    }
+
+    [PostgresFact]
+    public void Analysis_RolledBackSaveSendsNoRequest()
+    {
+        using var context = _fixture.CreateContext();
+        var content = _fixture.AddContent(context);
+        context.TakeAnalysisRequests();
+
+        using (var transaction = context.Database.BeginTransaction())
+        {
+            content.Headline = "A change that is rolled back";
+            context.SaveChanges();
+            transaction.Rollback();
+        }
+        context.TakeAnalysisRequests().Should().BeEmpty();
+    }
+
+    [PostgresFact]
+    public void Analysis_SubmitAppliesOnlyTheProcessesRunAndRecordsTheRun()
     {
         using var context = _fixture.CreateContext();
         var content = _fixture.AddContent(context, ContentStatus.Draft, c => c.Summary = "");
-        MakeJobDue(context, content.Id);
-
-        var job = CreateAnalysisService(context).ClaimJobs(new AnalysisClaimRequestModel() { WorkerId = "it", Quantity = 1, MaxBackfill = 0 }).Single();
-        job.ContentId.Should().Be(content.Id);
+        var input = CreateAnalysisService(context).GetInput(content.Id)!;
+        input.AnalysisInputHash.Should().BeNull();
+        var request = new AnalysisRequestRunModel() { RequestId = Guid.NewGuid().ToString("N"), Reason = AnalysisRequestReason.Lifecycle, InputHash = input.InputHash, RequestedOn = DateTime.UtcNow, Attempts = 1 };
         var result = new AnalysisResultModel()
         {
-            JobId = job.Id,
-            FencingToken = job.FencingToken,
-            InputHash = job.InputHash,
+            ContentId = content.Id,
+            Request = request,
+            InputHash = input.InputHash,
             Processes = AnalysisProcess.Summary | AnalysisProcess.Quotes,
             NormalizationVersion = "1",
             SchemaVersion = "1",
@@ -207,26 +218,135 @@ public class ContentPipelineIntegrationTest
             Quotes = new[] { new AnalysisQuoteModel() { Statement = "the hospital will open in the spring", Speaker = "The minister" } },
         };
 
-        // A stale fencing token (a lapsed claim) is rejected.
+        // An analysis of an input the content no longer has is rejected.
         using var staleContext = _fixture.CreateContext();
-        CreateAnalysisService(staleContext).Submit(new AnalysisResultModel() { JobId = job.Id, FencingToken = job.FencingToken - 1, InputHash = job.InputHash })
+        CreateAnalysisService(staleContext).Submit(new AnalysisResultModel() { ContentId = content.Id, Request = request, InputHash = "out-of-date" })
             .Status.Should().Be(ContentAnalysisService.Stale);
 
         using var submitting = _fixture.CreateContext();
         var accepted = CreateAnalysisService(submitting).Submit(result);
         accepted.Status.Should().Be(ContentAnalysisService.Accepted);
         accepted.PopulatedFields.Should().BeEquivalentTo(new[] { "summary", "quotes" }, "only the processes the worker ran are applied");
+        submitting.TakeAnalysisRequests().Should().BeEmpty("analysis's own changes are not sent back to it");
 
         using var verify = _fixture.CreateContext();
         verify.Contents.AsNoTracking().Single(c => c.Id == content.Id).Summary.Should().Be(result.Summary);
         verify.ContentAnalyses.AsNoTracking().Where(a => a.ContentId == content.Id && a.IsCurrent).Should().ContainSingle();
-        verify.AnalysisJobs.AsNoTracking().Single(j => j.Id == job.Id).Status.Should().Be(AnalysisJobStatus.Completed);
         TakeRequests(submitting, content.Id).Should().ContainSingle(o => o.Reason == TNOContext.IndexReasonAnalysis);
+        var runs = CreateAnalysisService(verify).FindRuns(content.Id);
+        runs.Status.Should().Be(AnalysisRunStatus.Completed);
+        runs.Runs.Should().ContainSingle(r => r.RequestId == request.RequestId && r.AnalysisId == accepted.AnalysisId);
+        CreateAnalysisService(verify).GetInput(content.Id)!.AnalysisInputHash.Should().Be(input.InputHash);
 
         // Resubmitting the same input is a duplicate, not a second analysis.
         using var duplicate = _fixture.CreateContext();
         CreateAnalysisService(duplicate).Submit(result).Status.Should().Be(ContentAnalysisService.Duplicate);
         verify.ContentAnalyses.AsNoTracking().Count(a => a.ContentId == content.Id).Should().Be(1);
+    }
+
+    [PostgresFact]
+    public void Analysis_RunsKeepTheNewestRequestAsTheStatus()
+    {
+        using var context = _fixture.CreateContext();
+        var content = _fixture.AddContent(context);
+        var version = context.Contents.AsNoTracking().Where(c => c.Id == content.Id).Select(c => c.Version).First();
+        var service = CreateAnalysisService(context);
+        var now = DateTime.UtcNow;
+
+        service.RecordRun(content.Id, Run("newer", AnalysisRunStatus.Completed, now));
+        // An older request that finishes later does not replace the newer outcome.
+        service.RecordRun(content.Id, Run("older", AnalysisRunStatus.Failed, now.AddMinutes(-5)));
+        // A retry of a request updates its run.
+        service.RecordRun(content.Id, Run("newer", AnalysisRunStatus.Completed, now));
+
+        using var verify = _fixture.CreateContext();
+        var runs = CreateAnalysisService(verify).FindRuns(content.Id);
+        runs.Status.Should().Be(AnalysisRunStatus.Completed);
+        runs.Runs.Select(r => r.RequestId).Should().Equal("newer", "older");
+        verify.Contents.AsNoTracking().Where(c => c.Id == content.Id).Select(c => c.Version).First().Should().Be(version, "recording a run does not change the content's version");
+
+        for (var i = 0; i < AnalysisMetadata.MaxRuns + 2; i++)
+            service.RecordRun(content.Id, Run($"run-{i}", AnalysisRunStatus.Completed, now.AddMinutes(i + 1)));
+        CreateAnalysisService(verify).FindRuns(content.Id).Runs.Should().HaveCount(AnalysisMetadata.MaxRuns);
+    }
+
+    [PostgresFact]
+    public void Analysis_SavingContentDoesNotOverwriteItsMetadata()
+    {
+        using var context = _fixture.CreateContext();
+        var content = _fixture.AddContent(context);
+        using (var recording = _fixture.CreateContext())
+            CreateAnalysisService(recording).RecordRun(content.Id, Run("kept", AnalysisRunStatus.Skipped, DateTime.UtcNow));
+
+        // The tracked entity still holds the metadata it was created with.
+        content.Headline = "A change saved from a stale entity";
+        context.SaveChanges();
+
+        using var verify = _fixture.CreateContext();
+        CreateAnalysisService(verify).FindRuns(content.Id).Runs.Should().ContainSingle(r => r.RequestId == "kept");
+    }
+
+    [PostgresFact]
+    public void Analysis_FailuresListTheContentWhoseNewestRequestFailed()
+    {
+        using var context = _fixture.CreateContext();
+        var failed = _fixture.AddContent(context);
+        var recovered = _fixture.AddContent(context);
+        var service = CreateAnalysisService(context);
+        var workOrderId = -Random.Shared.NextInt64(1, long.MaxValue);
+        var now = DateTime.UtcNow;
+
+        service.RecordRun(failed.Id, Run("failed", AnalysisRunStatus.Failed, now, workOrderId));
+        service.RecordRun(recovered.Id, Run("failed", AnalysisRunStatus.Failed, now, workOrderId));
+        service.RecordRun(recovered.Id, Run("recovered", AnalysisRunStatus.Completed, now.AddMinutes(1)));
+
+        service.FindFailures(1000).Select(f => f.ContentId).Should().Contain(failed.Id).And.NotContain(recovered.Id);
+        service.CountFailures(workOrderId).Should().Be(1);
+    }
+    #endregion
+
+    #region Topic rescore
+    [PostgresFact]
+    public void TopicRescore_IsAWorkOrderRescoredAPageAtATime()
+    {
+        using var context = _fixture.CreateContext();
+        var topic = context.Topics.AsNoTracking().OrderBy(t => t.Id).FirstOrDefault();
+        if (topic == null) return; // No topic to score.
+
+        // A minute no other content is published in.
+        var publishedOn = new DateTime(1990, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddMinutes(Random.Shared.Next(1, 500_000));
+        var first = _fixture.AddContent(context, ContentStatus.Draft, c => c.PublishedOn = publishedOn);
+        var second = _fixture.AddContent(context, ContentStatus.Draft, c => c.PublishedOn = publishedOn);
+        context.ContentTopics.Add(new ContentTopic(first.Id, topic.Id, 0));
+        context.ContentTopics.Add(new ContentTopic(second.Id, topic.Id, 0));
+        context.SaveChanges();
+
+        var service = CreateTopicScoreService(context);
+        var workOrder = service.AddRescore(publishedOn, publishedOn.AddMinutes(1), null, null);
+        try
+        {
+            workOrder.WorkType.Should().Be(WorkOrderType.TopicRescore);
+            workOrder.Status.Should().Be(WorkOrderStatus.Submitted);
+            var configuration = TopicScoreService.ReadRescoreConfiguration(service.FindRescore(workOrder.Id)!);
+            configuration.Total.Should().Be(2);
+            service.FindRescores().Should().Contain(w => w.Id == workOrder.Id);
+
+            var page = service.RescorePage(configuration, 0, 1);
+            page.Processed.Should().Be(1);
+            page.LastContentId.Should().Be(Math.Min(first.Id, second.Id));
+            page.IsLast.Should().BeFalse();
+
+            page = service.RescorePage(configuration, page.LastContentId, 1);
+            page.LastContentId.Should().Be(Math.Max(first.Id, second.Id));
+
+            page = service.RescorePage(configuration, page.LastContentId, 1);
+            page.Processed.Should().Be(0);
+            page.IsLast.Should().BeTrue();
+        }
+        finally
+        {
+            context.Database.ExecuteSqlRaw("DELETE FROM public.work_order WHERE id = {0}", workOrder.Id);
+        }
     }
     #endregion
 

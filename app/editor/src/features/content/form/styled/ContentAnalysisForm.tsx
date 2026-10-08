@@ -16,10 +16,15 @@ export const ContentAnalysisForm = styled.div`
       min-width: 0;
     }
 
-    .job-status {
+    .run-status {
       display: block;
       font-style: italic;
     }
+  }
+
+  .analysis-runs {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
   }
 
   // Only the results scroll, within the height of the Summary tab's editor, so the form's buttons
