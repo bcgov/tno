@@ -111,7 +111,7 @@ public class KeycloakHelper : IKeycloakHelper
         if (user.Id == 0)
             _userService.AddAndSave(user);
         else
-            _userService.UpdateAndSave(user);
+            _userService.UpdateAccountAndSave(user);
     }
 
     /// <summary>
@@ -194,8 +194,8 @@ public class KeycloakHelper : IKeycloakHelper
                 user.LastLoginOn = DateTime.UtcNow;
                 user.Status = Entities.UserStatus.Approved;
                 user.Roles = String.Join(",", rolesFromKeycloak.Select(r => $"[{r.ToLower()}]"));
-                var model = await UpdateUserAsync(new UserModel(user));
-                user = (Entities.User)model;
+                user = _userService.UpdateAccountAndSave(user);
+                await UpdateKeycloakUserAsync(user, rolesFromKeycloak.Select(r => r.ToLower()).ToArray());
             }
         }
         else
@@ -216,10 +216,14 @@ public class KeycloakHelper : IKeycloakHelper
                 user.Key = keycloakUid.ToString();
             }
             user.LastLoginOn = DateTime.UtcNow;
-            _userService.UpdateAndSave(user);
         }
 
-        if (user != null) auth = AuthorizeLocation(user, location);
+        if (user != null)
+        {
+            // Save the login after the location is captured, the locations are stored in the user preferences.
+            auth = AuthorizeLocation(user, location);
+            user = _userService.UpdateLoginAndSave(user);
+        }
 
         return Tuple.Create(user, auth);
     }
@@ -234,23 +238,33 @@ public class KeycloakHelper : IKeycloakHelper
     {
         var user = _userService.UpdateAndSave((Entities.User)model);
         var result = new UserModel(user);
-        if (Guid.TryParse(user.Key, out Guid key))
-        {
-            var kUser = await _keycloakService.GetUserAsync(key);
-            if (kUser != null)
-            {
-                // Update attributes.
-                kUser.Attributes ??= new Dictionary<string, string[]>();
-                kUser.SetDisplayName(user.DisplayName);
-                kUser.EmailVerified = user.EmailVerified;
-                kUser.Enabled = user.IsEnabled;
-                await _keycloakService.UpdateUserAsync(kUser);
-
-                result.Roles = await UpdateUserRolesAsync(key, model.Roles.ToArray());
-            }
-        }
-
+        var roles = await UpdateKeycloakUserAsync(user, model.Roles.ToArray());
+        if (roles != null) result.Roles = roles;
         return result;
+    }
+
+    /// <summary>
+    /// Update the user's attributes and roles in Keycloak.
+    /// If the user 'Key' is not linked it will do nothing.
+    /// </summary>
+    /// <param name="user"></param>
+    /// <param name="roles"></param>
+    /// <returns>The roles the user now has in Keycloak, or null if the user is not linked to Keycloak.</returns>
+    private async Task<string[]?> UpdateKeycloakUserAsync(Entities.User user, string[] roles)
+    {
+        if (!Guid.TryParse(user.Key, out Guid key)) return null;
+
+        var kUser = await _keycloakService.GetUserAsync(key);
+        if (kUser == null) return null;
+
+        // Update attributes.
+        kUser.Attributes ??= new Dictionary<string, string[]>();
+        kUser.SetDisplayName(user.DisplayName);
+        kUser.EmailVerified = user.EmailVerified;
+        kUser.Enabled = user.IsEnabled;
+        await _keycloakService.UpdateUserAsync(kUser);
+
+        return await UpdateUserRolesAsync(key, roles);
     }
 
     /// <summary>
@@ -317,7 +331,7 @@ public class KeycloakHelper : IKeycloakHelper
                     userLocations.ForEach(location => arrayNode.Add(location));
                     preferences.Add("locations", arrayNode);
                     user.Preferences = JsonDocument.Parse(preferences.ToJsonString());
-                    _userService.UpdateAndSave(user);
+                    _userService.UpdateLoginAndSave(user);
                 }
             }
         }
@@ -348,7 +362,7 @@ public class KeycloakHelper : IKeycloakHelper
                     userLocations.ForEach(location => arrayNode.Add(location));
                     preferences.Add("locations", arrayNode);
                     user.Preferences = JsonDocument.Parse(preferences.ToJsonString());
-                    _userService.UpdateAndSave(user);
+                    _userService.UpdateLoginAndSave(user);
                 }
             }
         }

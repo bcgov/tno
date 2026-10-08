@@ -67,6 +67,12 @@ public class UserProductModel
     /// get/set - How the email will be sent to the subscriber.
     /// </summary>
     public Entities.EmailSentTo? SendTo { get; set; }
+
+    /// <summary>
+    /// get/set - The version of the user's subscription to the report or notification this product targets.
+    /// Null when the user has no subscription to it.
+    /// </summary>
+    public long? SubscriptionVersion { get; set; }
     #endregion
 
     #region Constructors
@@ -103,6 +109,7 @@ public class UserProductModel
             this.IsSubscribed = subscription?.IsSubscribed ?? false;
             this.Format = subscription?.Format;
             this.SendTo = subscription?.SendTo;
+            this.SubscriptionVersion = subscription?.Version;
         }
         else if (entity.Product.ProductType == Entities.ProductType.Notification)
         {
@@ -110,6 +117,7 @@ public class UserProductModel
                 .FirstOrDefault(s => s.UserId == entity.UserId &&
                     s.NotificationId == entity.Product!.TargetProductId);
             this.IsSubscribed = subscription?.IsSubscribed ?? false;
+            this.SubscriptionVersion = subscription?.Version;
         }
         else if (entity.Product.ProductType == Entities.ProductType.EveningOverview)
         {

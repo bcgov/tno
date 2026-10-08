@@ -106,9 +106,16 @@ public class UserModel : AuditColumnsModel
     public IEnumerable<OrganizationModel> Organizations { get; set; } = Array.Empty<OrganizationModel>();
 
     /// <summary>
-    /// get/set - An array of organization this user belongs to.
+    /// get/set - An array of reports this user is subscribed to.
     /// </summary>
     public IEnumerable<ReportModel> Reports { get; set; } = Array.Empty<ReportModel>();
+
+    /// <summary>
+    /// get/set - Every report subscription this user has, subscribed or not, with the version that was loaded.
+    /// It must be returned unchanged when updating the user, so that changes made to the subscriptions after they were
+    /// loaded are detected.  'Reports' determines which of them are subscribed.
+    /// </summary>
+    public IEnumerable<UserReportModel> ReportSubscriptions { get; set; } = Array.Empty<UserReportModel>();
 
     /// <summary>
     /// get/set - An array of folders owned by this user.
@@ -176,8 +183,7 @@ public class UserModel : AuditColumnsModel
         if (entity.Organizations.Any())
             this.Organizations = entity.Organizations.Select(o => new OrganizationModel(o));
         this.Reports = entity.ReportSubscriptionsManyToMany.Where(r => r.Report != null && r.IsSubscribed).Select(r => new ReportModel(r.Report!));
-        if (entity.Reports.Any())
-            this.Reports = entity.Reports.Select(r => new ReportModel(r));
+        this.ReportSubscriptions = entity.ReportSubscriptionsManyToMany.Select(r => new UserReportModel(r)).ToArray();
         this.Folders = entity.Folders.Select(f => new FolderModel(f, serializerOptions ?? JsonSerializerOptions.Default));
         this.Filters = entity.Filters.Select(f => new FilterModel(f, serializerOptions ?? JsonSerializerOptions.Default));
         this.UserUpdateHistory = entity.UserUpdateHistory.Select(f => new UserUpdateHistoryModel(f));
@@ -249,7 +255,16 @@ public class UserModel : AuditColumnsModel
 
         entity.UserUpdateHistory.AddRange(model.UserUpdateHistory.Select(f => new UserUpdateHistory(f.Id, f.UserId, f.ChangeType, f.DateOfChange, f.Value)));
         entity.OrganizationsManyToMany.AddRange(model.Organizations.Select(o => new UserOrganization(entity.Id, o.Id)));
-        entity.ReportSubscriptionsManyToMany.AddRange(model.Reports.Select(o => new UserReport(entity.Id, o.Id)));
+        // Every subscription that was loaded is returned with its version, subscribed only if it is still in 'Reports'.
+        // A report in 'Reports' without a loaded subscription is a new subscription.
+        var reportIds = model.Reports.Select(r => r.Id).ToHashSet();
+        entity.ReportSubscriptionsManyToMany.AddRange(model.ReportSubscriptions.Select(s => new UserReport(entity.Id, s.ReportId, reportIds.Contains(s.ReportId), s.Format, s.SendTo)
+        {
+            ExpectedVersion = s.Version,
+        }));
+        entity.ReportSubscriptionsManyToMany.AddRange(model.Reports
+            .Where(r => !model.ReportSubscriptions.Any(s => s.ReportId == r.Id))
+            .Select(r => new UserReport(entity.Id, r.Id)));
         entity.SourcesManyToMany.AddRange(model.Sources.Select(s => new UserSource(entity.Id, s)));
         entity.MediaTypesManyToMany.AddRange(model.MediaTypes.Select(s => new UserMediaType(entity.Id, s)));
         entity.Distribution.AddRange(model.Distribution.Select(d => new UserDistribution(entity.Id, d.Id)));

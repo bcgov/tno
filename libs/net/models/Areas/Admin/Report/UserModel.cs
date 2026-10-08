@@ -42,6 +42,11 @@ public class UserModel : AuditColumnsModel
     /// get/set - Last name of user.
     /// </summary>
     public string LastName { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The type of account (a distribution list is a type of account).
+    /// </summary>
+    public Entities.UserAccountType AccountType { get; set; }
     #endregion
 
     #region Constructors
@@ -65,6 +70,7 @@ public class UserModel : AuditColumnsModel
             this.DisplayName = entity.DisplayName;
             this.FirstName = entity.FirstName;
             this.LastName = entity.LastName;
+            this.AccountType = entity.AccountType;
         }
     }
 
@@ -83,6 +89,7 @@ public class UserModel : AuditColumnsModel
             this.DisplayName = entity.User.DisplayName;
             this.FirstName = entity.User.FirstName;
             this.LastName = entity.User.LastName;
+            this.AccountType = entity.User.AccountType;
         }
     }
     #endregion

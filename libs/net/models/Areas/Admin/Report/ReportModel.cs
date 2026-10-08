@@ -197,6 +197,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
         entity.SubscribersManyToMany.AddRange(model.Subscribers.Select(us => new Entities.UserReport(us.Id, entity.Id, us.IsSubscribed, us.Format, us.SendTo)
         {
             Version = us.Version ?? 0,
+            ExpectedVersion = us.Version,
         }));
 
         entity.Events.AddRange(model.Events.Select(s =>

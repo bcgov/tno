@@ -91,7 +91,7 @@ public class NotificationModel : BaseTypeWithAuditColumnsModel<int>
         this.AlertOnIndex = entity.AlertOnIndex;
         this.Settings = JsonSerializer.Deserialize<FilterSettingsModel>(entity.Settings, options) ?? new();
         this.Query = entity.Query;
-        this.Subscribers = entity.SubscribersManyToMany.Where(s => s.User != null).Select(s => new UserModel(s.User!, s.IsSubscribed));
+        this.Subscribers = entity.SubscribersManyToMany.Where(s => s.User != null).Select(s => new UserModel(s.User!, s.IsSubscribed) { Version = s.Version });
     }
     #endregion
 
@@ -135,7 +135,8 @@ public class NotificationModel : BaseTypeWithAuditColumnsModel<int>
 
         entity.SubscribersManyToMany.AddRange(model.Subscribers.Select(us => new UserNotification(us.Id, entity.Id)
         {
-            IsSubscribed = us.IsSubscribed
+            IsSubscribed = us.IsSubscribed,
+            ExpectedVersion = us.Version,
         }));
 
         return entity;

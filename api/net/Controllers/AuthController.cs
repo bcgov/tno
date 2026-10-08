@@ -115,7 +115,7 @@ public class AuthController : ControllerBase
             user.Roles = preapproved.Roles;
             var key = Guid.Parse(user.Key);
             await _keycloakHelper.UpdateUserRolesAsync(key, preapproved.Roles.Split(",").Select(r => r[1..^1]).ToArray());
-            _userService.UpdateAndSave(user);
+            _userService.UpdateAccountAndSave(user);
             _userService.DeleteAndSave(preapproved);
             return new JsonResult(new RegisterModel(model.Email, user.Status, $"An email has been sent to {model.Email}"));
         }
@@ -124,7 +124,7 @@ public class AuthController : ControllerBase
             // TODO: Send email.
             var rnd = new Random();
             user.Code = $"{rnd.Next()}";
-            _userService.UpdateAndSave(user);
+            _userService.UpdateAccountAndSave(user);
 
             return new JsonResult(new RegisterModel(model.Email, UserStatus.Approved, "Your account has been approved"));
         }
@@ -147,7 +147,7 @@ public class AuthController : ControllerBase
         var original = _userService.FindByUsername(username) ?? throw new InvalidOperationException("Cannot update user");
         original.Note = model.Note;
         original.Status = Entities.UserStatus.Requested;
-        var result = _userService.UpdateAndSave(original);
+        var result = _userService.UpdateAccountAndSave(original);
         return new JsonResult(new UserModel(result));
     }
     #endregion
