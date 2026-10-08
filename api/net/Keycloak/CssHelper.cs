@@ -115,7 +115,7 @@ public class CssHelper : ICssHelper
         if (user.Id == 0)
             _userService.AddAndSave(user);
         else
-            _userService.UpdateAndSave(user);
+            _userService.UpdateAccountAndSave(user);
     }
 
     /// <summary>
@@ -192,7 +192,7 @@ public class CssHelper : ICssHelper
                 // Apply the preapproved roles to the user.
                 var roles = await UpdateUserRolesAsync(key, user.Roles.Replace("[", "").Replace("]", "").Split(",").Select(r => r.Trim()).ToArray());
                 user.Roles = String.Join(",", roles.Select(r => $"[{r}]"));
-                user = _userService.UpdateAndSave(user);
+                user = _userService.UpdateAccountAndSave(user);
             }
         }
         else
@@ -208,10 +208,14 @@ public class CssHelper : ICssHelper
             }
 
             user.LastLoginOn = DateTime.UtcNow;
-            user = _userService.UpdateAndSave(user);
         }
 
-        if (user != null) auth = AuthorizeLocation(user, location);
+        if (user != null)
+        {
+            // Save the login after the location is captured, the locations are stored in the user preferences.
+            auth = AuthorizeLocation(user, location);
+            user = _userService.UpdateLoginAndSave(user);
+        }
 
         return Tuple.Create(user, auth);
     }
@@ -241,7 +245,7 @@ public class CssHelper : ICssHelper
                     userLocations.ForEach(location => arrayNode.Add(location));
                     preferences.Add("locations", arrayNode);
                     user.Preferences = JsonDocument.Parse(preferences.ToJsonString());
-                    _userService.UpdateAndSave(user);
+                    _userService.UpdateLoginAndSave(user);
                 }
             }
         }
@@ -272,7 +276,7 @@ public class CssHelper : ICssHelper
                     userLocations.ForEach(location => arrayNode.Add(location));
                     preferences.Add("locations", arrayNode);
                     user.Preferences = JsonDocument.Parse(preferences.ToJsonString());
-                    _userService.UpdateAndSave(user);
+                    _userService.UpdateLoginAndSave(user);
                 }
             }
         }

@@ -315,15 +315,17 @@ public class ReportService : BaseService<Report, int>, IReportService
 
     /// <summary>
     /// Update the report in the database.
-    /// When 'updateSubscribers' is true, subscribers absent from 'entity' are unsubscribed (IsSubscribed = false).
-    /// A subscription row is never deleted by this method, so a client holding a stale subscriber list cannot remove
-    /// subscriptions that were added elsewhere.
+    /// When 'updateSubscribers' is true, 'entity' must contain every subscriber the client loaded, each with the
+    /// 'ExpectedVersion' it loaded, plus any it is adding.  A subscriber the client never loaded, or one that changed
+    /// since, means the client's copy is stale and a DbUpdateConcurrencyException is thrown instead of overwriting it.
+    /// A subscription row is never deleted by this method, unsubscribing sets 'IsSubscribed' to false.
     /// When 'updateSubscribers' is false, subscribers in 'entity' are ignored entirely.
     /// </summary>
     /// <param name="entity"></param>
     /// <param name="updateSubscribers"></param>
     /// <returns></returns>
     /// <exception cref="NoContentException"></exception>
+    /// <exception cref="DbUpdateConcurrencyException"></exception>
     public Report Update(Report entity, bool updateSubscribers)
     {
         var original = FindById(entity.Id) ?? throw new NoContentException("Entity does not exist");
@@ -332,14 +334,12 @@ public class ReportService : BaseService<Report, int>, IReportService
         {
             // Add/Update report subscribers.  Never delete a subscription, unsubscribe instead.
             var originalSubscribers = original.SubscribersManyToMany.ToArray();
-            originalSubscribers.Except(entity.SubscribersManyToMany).ForEach(s =>
-            {
-                if (s.IsSubscribed)
-                    s.IsSubscribed = false;
-            });
+            var notLoaded = originalSubscribers.Except(entity.SubscribersManyToMany).FirstOrDefault();
+            if (notLoaded != null) throw SubscriptionExtensions.NotLoaded($"Report ID:{original.Id} subscription for user ID:{notLoaded.UserId}");
             entity.SubscribersManyToMany.ForEach(s =>
             {
                 var originalSubscriber = originalSubscribers.FirstOrDefault(rs => rs.UserId == s.UserId);
+                originalSubscriber.ThrowIfStale(s.ExpectedVersion, $"Report ID:{original.Id} subscription for user ID:{s.UserId}");
                 if (originalSubscriber == null)
                     original.SubscribersManyToMany.Add(new UserReport(s.UserId, original.Id, s.IsSubscribed, s.Format, s.SendTo));
                 else

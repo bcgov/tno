@@ -42,9 +42,20 @@ public class UserModel
     public string LastName { get; set; } = "";
 
     /// <summary>
+    /// get/set - The type of account (a distribution list is a type of account).
+    /// </summary>
+    public Entities.UserAccountType AccountType { get; set; }
+
+    /// <summary>
     /// get/set - Whether the user is subscribed to the notification.
     /// </summary>
     public bool IsSubscribed { get; set; }
+
+    /// <summary>
+    /// get/set - The version of the user's notification subscription.
+    /// Null when the user has no subscription to the notification.
+    /// </summary>
+    public long? Version { get; set; }
     #endregion
 
     #region Constructors
@@ -67,6 +78,7 @@ public class UserModel
         this.DisplayName = entity.DisplayName;
         this.FirstName = entity.FirstName;
         this.LastName = entity.LastName;
+        this.AccountType = entity.AccountType;
         this.IsSubscribed = isSubscribed;
     }
     #endregion

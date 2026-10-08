@@ -168,4 +168,9 @@ export const ReportForm = styled(FormPage)`
     border-radius: 0.5rem;
     background: ${(props) => props.theme.css.lightAccentColor};
   }
+
+  .distribution {
+    font-size: 0.85rem;
+    font-style: italic;
+  }
 `;

@@ -39,6 +39,21 @@ public class UserNotificationModel : AuditColumnsModel
     /// get/set - Whether the user is subscribed to the notification.
     /// </summary>
     public bool IsSubscribed { get; set; }
+
+    /// <summary>
+    /// get/set - The username of the subscriber, which is a distribution list when it is not the user's own subscription.
+    /// </summary>
+    public string Username { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The display name of the subscriber.
+    /// </summary>
+    public string DisplayName { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The type of account of the subscriber.
+    /// </summary>
+    public Entities.UserAccountType AccountType { get; set; }
     #endregion
 
     #region Constructors
@@ -59,6 +74,9 @@ public class UserNotificationModel : AuditColumnsModel
         this.Notification = entity.Notification != null ? new NotificationModel(entity.Notification) : null;
         this.Resend = entity.Resend;
         this.IsSubscribed = entity.IsSubscribed;
+        this.Username = entity.User?.Username ?? "";
+        this.DisplayName = entity.User?.DisplayName ?? "";
+        this.AccountType = entity.User?.AccountType ?? default;
     }
     #endregion
 }

@@ -56,6 +56,10 @@ export const ProductCard: React.FC<IProductCardProps> = ({
     // Switch the subscription to the user from the distribution list.
     if (distribution) userProduct = { ...distribution, userId: userId ?? 0 };
   }
+  // Distribution lists keep delivering to their members, even when the member is not subscribed directly.
+  const distributionLists = product.subscribers.filter(
+    (s) => s.userId !== userId && s.isSubscribed,
+  );
   const isSubscribed = userProduct.isSubscribed;
   const isRequesting =
     !userProduct.isSubscribed &&
@@ -97,6 +101,12 @@ export const ProductCard: React.FC<IProductCardProps> = ({
         </Show>
       </Row>
       {product.description && <div className="product-description">{product.description}</div>}
+      {distributionLists.length > 0 && (
+        <div className="product-distribution">
+          Received through distribution list:{' '}
+          {distributionLists.map((s) => s.displayName || s.username).join(', ')}
+        </div>
+      )}
     </Col>
   );
 };

@@ -72,4 +72,9 @@ export const NotificationForm = styled(FormPage)`
     margin-left: 0.1em;
     margin-right: 1em;
   }
+
+  .distribution {
+    font-size: 0.85rem;
+    font-style: italic;
+  }
 `;

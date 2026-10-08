@@ -58,6 +58,21 @@ public class UserReportModel : AuditColumnsModel
     /// get/set - The response from CHES for this specific subscriber.
     /// </summary>
     public JsonDocument? TextResponse { get; set; }
+
+    /// <summary>
+    /// get/set - The username of the subscriber, which is a distribution list when it is not the user's own subscription.
+    /// </summary>
+    public string Username { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The display name of the subscriber.
+    /// </summary>
+    public string DisplayName { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The type of account of the subscriber.
+    /// </summary>
+    public Entities.UserAccountType AccountType { get; set; }
     #endregion
 
     #region Constructors
@@ -78,6 +93,9 @@ public class UserReportModel : AuditColumnsModel
         this.IsSubscribed = entity.IsSubscribed;
         this.Format = entity.Format;
         this.SendTo = entity.SendTo;
+        this.Username = entity.User?.Username ?? "";
+        this.DisplayName = entity.User?.DisplayName ?? "";
+        this.AccountType = entity.User?.AccountType ?? default;
     }
     #endregion
 }

@@ -1,3 +1,4 @@
+import { useDistributionListMembership } from 'features/admin/users/hooks';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { useUsers } from 'store/hooks/admin';
@@ -18,6 +19,9 @@ export const NotificationSubscribersForm = () => {
   const [{ users }, { findUsers }] = useUsers();
 
   const [filter, setFilter] = React.useState<IUserFilter>({ page: 1, quantity: 100, sort: [] });
+  const distributionLists = useDistributionListMembership(
+    values.subscribers.map((s) => ({ ...s, userId: s.id })),
+  );
 
   const fetch = React.useCallback(
     async (filter: IUserFilter) => {
@@ -79,8 +83,10 @@ export const NotificationSubscribersForm = () => {
             name={`chk-${row.id}`}
             checked={values.subscribers.some((u) => u.id === row.id && u.isSubscribed)}
             onChange={(e) => {
-              const user = { ...row, isSubscribed: e.target.checked };
-              if (values.subscribers.some((u) => u.id === user.id)) {
+              // Keep the subscription version that was loaded, a new subscriber has none.
+              const subscriber = values.subscribers.find((u) => u.id === row.id);
+              const user = { ...row, isSubscribed: e.target.checked, version: subscriber?.version };
+              if (subscriber) {
                 setFieldValue(
                   'subscribers',
                   values.subscribers.map((item) => (item.id === user.id ? user : item)),
@@ -88,7 +94,16 @@ export const NotificationSubscribersForm = () => {
               } else setFieldValue('subscribers', [user, ...values.subscribers]);
             }}
           />,
-          <CellEllipsis key="2">{row.username}</CellEllipsis>,
+          <>
+            <CellEllipsis>{row.username}</CellEllipsis>
+            {distributionLists[row.id] ? (
+              <CellEllipsis className="distribution">
+                Also receives via distribution list: {distributionLists[row.id].join(', ')}
+              </CellEllipsis>
+            ) : (
+              ''
+            )}
+          </>,
           <CellEllipsis key="3">{row.lastName}</CellEllipsis>,
           <CellEllipsis key="4">{row.firstName}</CellEllipsis>,
           <>

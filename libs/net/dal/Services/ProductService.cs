@@ -388,6 +388,10 @@ public class ProductService : BaseService<Product, int>, IProductService
                     foreach (var subscription in subscriber.User.ReportSubscriptionsManyToMany)
                     {
                         var currentSubscription = currentSubscriptions.FirstOrDefault(cs => cs.UserId == subscriber.UserId);
+                        currentSubscription.ThrowIfStale(subscription.ExpectedVersion, $"Report ID:{entity.TargetProductId} subscription for user ID:{subscriber.UserId}");
+                        // An existing product subscriber was loaded without a subscription, so one that exists now was added after the form loaded.
+                        if (subscription.ExpectedVersion == null && currentSubscription != null && originalSubscribers.Any(os => os.UserId == subscriber.UserId))
+                            throw SubscriptionExtensions.NotLoaded($"Report ID:{entity.TargetProductId} subscription for user ID:{subscriber.UserId}");
                         if (currentSubscription == null)
                         {
                             this.Context.Entry(subscription).State = EntityState.Added;
@@ -416,6 +420,10 @@ public class ProductService : BaseService<Product, int>, IProductService
                     foreach (var subscription in subscriber.User.NotificationSubscriptionsManyToMany)
                     {
                         var currentSubscription = currentSubscriptions.FirstOrDefault(cs => cs.UserId == subscriber.UserId);
+                        currentSubscription.ThrowIfStale(subscription.ExpectedVersion, $"Notification ID:{entity.TargetProductId} subscription for user ID:{subscriber.UserId}");
+                        // An existing product subscriber was loaded without a subscription, so one that exists now was added after the form loaded.
+                        if (subscription.ExpectedVersion == null && currentSubscription != null && originalSubscribers.Any(os => os.UserId == subscriber.UserId))
+                            throw SubscriptionExtensions.NotLoaded($"Notification ID:{entity.TargetProductId} subscription for user ID:{subscriber.UserId}");
                         if (currentSubscription == null)
                         {
                             this.Context.Entry(subscription).State = EntityState.Added;

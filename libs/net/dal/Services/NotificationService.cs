@@ -181,24 +181,28 @@ public class NotificationService : BaseService<Notification, int>, INotification
     }
 
     /// <summary>
-    /// Update the report in the database.
-    /// Update subscribers of the report.
+    /// Update the notification in the database.
+    /// Update subscribers of the notification.
+    /// 'entity' must contain every subscriber the client loaded, each with the 'ExpectedVersion' it loaded, plus any it
+    /// is adding.  A subscriber the client never loaded, or one that changed since, means the client's copy is stale and
+    /// a DbUpdateConcurrencyException is thrown instead of overwriting it.
+    /// A subscription row is never deleted by this method, unsubscribing sets 'IsSubscribed' to false.
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
     /// <exception cref="NoContentException"></exception>
+    /// <exception cref="DbUpdateConcurrencyException"></exception>
     public override Notification Update(Notification entity)
     {
         var original = FindById(entity.Id) ?? throw new NoContentException("Entity does not exist");
         var subscribers = this.Context.UserNotifications.Where(ur => ur.NotificationId == entity.Id).ToArray();
 
-        subscribers.Except(entity.SubscribersManyToMany).ForEach(s =>
-        {
-            this.Context.Entry(s).State = EntityState.Deleted;
-        });
+        var notLoaded = subscribers.Except(entity.SubscribersManyToMany).FirstOrDefault();
+        if (notLoaded != null) throw SubscriptionExtensions.NotLoaded($"Notification ID:{original.Id} subscription for user ID:{notLoaded.UserId}");
         entity.SubscribersManyToMany.ForEach(s =>
         {
             var current = subscribers.FirstOrDefault(rs => rs.UserId == s.UserId);
+            current.ThrowIfStale(s.ExpectedVersion, $"Notification ID:{original.Id} subscription for user ID:{s.UserId}");
             if (current == null)
                 original.SubscribersManyToMany.Add(s);
             else
