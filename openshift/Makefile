@@ -71,7 +71,7 @@ db-connect: ## Port forward to the database (e=environment {dev,test,prod,tools}
 	$(info Port forward to the database [e=$(if $(e),$(e),dev)] $(l):$(r))
 	@cd ./scripts; ./database-connect.sh $(if $(e),$(e),dev) $(l) $(r)
 
-deploy: ## Deploy to environment - retags images to e and restarts (e=environment {dev,test,prod} [dev], t=source tag to promote [latest], n=single workload name, e.g. charts-api or db-migration [all], m=migration target for n=db-migration, 0 reverts all [apply all pending], s=db credential secret for n=db-migration, e.g. montford [whatever the api uses]).
+deploy: ## Deploy to environment - retags images to e and restarts (e=environment {dev,test,prod} [dev], t=source tag to promote [latest], n=single workload name, e.g. charts-api, db-migration, or elastic-migration [all], m=migration target/version, 0 reverts all for db-migration only [apply all pending], s=db credential secret for either migration job, e.g. montford [whatever the api uses]).
 	$(info Deploy to environment (e=environment) [e=$(if $(e),$(e),dev), t=$(if $(t),$(t),latest), n=$(if $(n),$(n),all)$(if $(m), m=$(m),)$(if $(s), s=$(s),)])
 	@cd ./scripts; ./deploy.sh "$(if $(e),$(e),dev)" "$(if $(t),$(t),latest)" "$(n)" "$(m)" "$(s)"
 
@@ -91,19 +91,19 @@ annotate: ## Annotate an object to force a rollout (n=object type/name, e.g. dep
 # Azure Container Registry Images
 ##############################################################################
 
-build: ## Build a linux/amd64 image tagged for ACR (n=component, t=tag [latest], e=Dockerfile variant {prod,local} [prod]).
+build: ## Build a linux/amd64 image tagged for ACR (n=component including elastic-migration, t=tag [latest], e=Dockerfile variant {prod,local} [prod]).
 	$(info Build image [n=$(n), t=$(if $(t),$(t),latest), e=$(if $(e),$(e),prod)])
 	@cd ./scripts; ./build.sh "$(n)" "$(if $(t),$(t),latest)" "$(if $(e),$(e),prod)"
 
-push: ## Push a locally built image to ACR (n=component, t=tag [latest]).
+push: ## Push a locally built image to ACR (n=component including elastic-migration, t=tag [latest]).
 	$(info Push image to ACR [n=$(n), t=$(if $(t),$(t),latest)])
 	@cd ./scripts; ./push.sh "$(n)" "$(if $(t),$(t),latest)"
 
-pull: ## Pull an image from ACR to the local registry (n=component, t=tag [latest]).
+pull: ## Pull an image from ACR to the local registry (n=component including elastic-migration, t=tag [latest]).
 	$(info Pull image from ACR [n=$(n), t=$(if $(t),$(t),latest)])
 	@cd ./scripts; ./pull.sh "$(n)" "$(if $(t),$(t),latest)"
 
-tag: ## Retag an image in ACR so both tags point at the same image (n=component, f=from tag [latest], t=to tag, r=where to tag {remote,local} [remote]).
+tag: ## Retag an image in ACR so both tags point at the same image (n=component including elastic-migration, f=from tag [latest], t=to tag, r=where to tag {remote,local} [remote]).
 	$(info Tag image [n=$(n), f=$(if $(f),$(f),latest), t=$(t), $(if $(r),$(r),remote)])
 	@cd ./scripts; ./tag.sh "$(n)" "$(if $(f),$(f),latest)" "$(t)" "$(if $(r),$(r),remote)"
 

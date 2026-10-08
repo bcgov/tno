@@ -4,6 +4,67 @@ This TNO solution is primarily hosted within Openshift.
 Everything relevant and required by the solution is capture as "Infrastructure as Code" so that it is easily setup, configured, built, and deployed.
 You can find all templates files and instructions for Openshift in this folder.
 
+## Elasticsearch migration image and deployment
+
+From the repository root, build and push the migration tool to ACR, then run it in DEV during the maintenance window described in the
+[migration runbook](../tools/elastic/migration/README.md):
+
+```bash
+make -C openshift build n=elastic-migration t=latest
+make -C openshift push n=elastic-migration t=latest
+ELASTIC_MIGRATION_WRITERS_PAUSED=true make -C openshift deploy n=elastic-migration e=dev t=latest
+```
+
+The image commands also support `pull n=elastic-migration t=latest` and
+`tag n=elastic-migration f=latest t=dev` (add `r=local` to tag locally).
+Build uses `tools/elastic/migration/Dockerfile` with the repository root as its context.
+The build option `e=prod` (the default) selects the Dockerfile variant, whereas deploy's
+`e=dev|test|prod` selects the target namespace.
+
+Deployment promotes the source tag to the environment tag and creates a one-shot Job in
+`9b301c-<environment>`. It follows the logs, reports failure, and retains the Job for 24 hours.
+Jobs are not automatically retried. An unqualified full-environment deployment does not run
+migrations; request `n=elastic-migration` explicitly.
+
+Database connection references are copied from the API StatefulSet, just as for `db-migration`.
+Use `s=<secret>` to override the database credential secret. Elasticsearch defaults match the
+migration workflow:
+
+| Environment | ConfigMap | Secret | Authentication |
+| --- | --- | --- | --- |
+| dev | indexing-service | elastic | USERNAME / PASSWORD |
+| test, prod | indexing-service-cloud | elastic-cloud | ApiKey |
+
+The ConfigMap supplies `ELASTICSEARCH_URI`, `CONTENT_INDEX`, and `PUBLISHED_INDEX`.
+For a different Elasticsearch target, set `ELASTIC_MIGRATION_CONFIGMAP`,
+`ELASTIC_MIGRATION_SECRET`, and `ELASTIC_MIGRATION_AUTH` (`basic` or `apikey`). Only the
+selected authentication method is passed to the Job. References are validated before promotion.
+
+Omit `m=` to apply pending migrations, or specify `m=1.0.11` to target that version. An earlier
+version requests rollback. Unlike EF database migrations, Elasticsearch migrations do not accept
+`m=0`. The tool's existing migration-history checks remain in effect; these scripts do not seed
+or override the baseline automatically. For a verified existing 1.0.10 schema without migration
+history (including the inspected TEST/PROD Cloud instances), explicitly pass
+`ELASTIC_MIGRATION_BASELINE=1.0.10`. Do not use a baseline to skip unapplied schema changes.
+
+Native migration requires all database and index writers to be paused and an explicit
+`ELASTIC_MIGRATION_WRITERS_PAUSED=true` acknowledgement. See the runbook for storage checks,
+partial-index cleanup, task recovery, validation, and restoring service. The default Job execution
+budget is 24 hours for Elasticsearch and 30 minutes for database migrations; override with
+`MIGRATION_ACTIVE_DEADLINE_SECONDS`. Startup waits default to 15 minutes and are independently
+controlled by `MIGRATION_STARTUP_TIMEOUT_SECONDS`. A Job timeout does not cancel Elasticsearch's
+server-side tasks. `ELASTIC_MIGRATION_REQUESTS_PER_SECOND` throttles a new native copy (default -1).
+
+TEST/PROD local Elasticsearch and local `indexing-service` overlays now specify zero replicas.
+Their Cloud indexing deployments remain enabled. Applying these overlays is a separate operational
+step; local PVCs remain allocated until explicitly retired. See the runbook before reclaiming them.
+
+To verify script behavior without contacting Docker, ACR, or OpenShift:
+
+```bash
+python3 -m unittest discover -s openshift/scripts/tests -v
+```
+
 ## Platform Registry Services
 
 The Exchange Lab has an app that provides a way to request a new product, or provision more resource quotas here [https://registry.developer.gov.bc.ca/dashboard](https://registry.developer.gov.bc.ca/dashboard)

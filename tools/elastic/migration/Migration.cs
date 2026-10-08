@@ -82,7 +82,7 @@ public abstract class Migration
         await RunScriptsAsync(_builder, $"up{Path.DirectorySeparatorChar}post");
 
         var version = new MigrationVersion(this.Version, "");
-        var response = await _builder.Client.IndexAsync(version, id => id.Index(_builder.MigrationOptions.MigrationIndex));
+        var response = await _builder.Client.IndexAsync(version, id => id.Index(_builder.MigrationOptions.MigrationIndex).Id(this.Version).Refresh(Refresh.WaitFor));
         if (!response.IsValid)
         {
             _builder.Logger.LogError(response.OriginalException, "Failed to add migration {version} to index.  Error: {error}", this.Version, response.ServerError);
