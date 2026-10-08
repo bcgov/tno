@@ -139,7 +139,6 @@ public static class ServiceCollectionExtensions
 
         services.AddTNOContext(config, env)
             .Configure<TopicScoreOptions>(config.GetSection("TopicScore"))
-            .Configure<ContentAnalysisOptions>(config.GetSection("ContentAnalysis"))
             .AddStorageConfig(config)
             .AddElastic(config, env)
             .AddScoped<IElasticsearchService, ElasticsearchService>()
@@ -173,7 +172,6 @@ public static class ServiceCollectionExtensions
 
         services.AddSingletonTNOContext(config, env)
             .Configure<TopicScoreOptions>(config.GetSection("TopicScore"))
-            .Configure<ContentAnalysisOptions>(config.GetSection("ContentAnalysis"))
             .AddStorageConfig(config)
             .AddSingletonElastic(config, env)
             .AddSingleton<IElasticsearchService, ElasticsearchService>();

@@ -1,20 +1,35 @@
 /** Who set a populated editorial value. */
 export type FieldOwnerName = 'Human' | 'Analysis' | 'Automation';
 
-/** The state of a content item's analysis work. */
-export type AnalysisJobStatusName = 'Pending' | 'Claimed' | 'Completed' | 'Failed' | 'Skipped';
+/** Why a story was sent for analysis. */
+export type AnalysisRequestReasonName = 'Lifecycle' | 'Reanalysis' | 'Backfill' | 'Replay';
 
-/** A content item's analysis job. */
-export interface IAnalysisJobModel {
-  id: number;
+/** The outcome of an analysis request. */
+export type AnalysisRunStatusName = 'Completed' | 'Skipped' | 'Retrying' | 'Failed';
+
+/** A request to analyze a story, as sent to Kafka. */
+export interface IAnalysisRequestModel {
+  requestId: string;
   contentId: number;
-  reason: 'Lifecycle' | 'Reanalysis' | 'Backfill';
-  status: AnalysisJobStatusName;
+  inputHash: string;
+  reason: AnalysisRequestReasonName;
+  force: boolean;
+  requestedOn: string;
+  workOrderId?: number;
+}
+
+/** The outcome of one analysis request for a story; retries update their request's run. */
+export interface IAnalysisRunModel {
+  requestId: string;
+  reason: AnalysisRequestReasonName;
+  status: AnalysisRunStatusName;
+  inputHash: string;
+  requestedOn: string;
+  finishedOn: string;
   attempts: number;
-  dueOn: string;
-  lastError?: string;
-  updatedOn?: string;
-  backfillId?: number;
+  workOrderId?: number;
+  analysisId?: number;
+  error?: string;
 }
 
 /** A content item's structured analysis. */
@@ -56,9 +71,9 @@ export interface IContentFieldOwnershipModel {
   isCleared: boolean;
 }
 
-/** A content item's analysis, field ownership, and queued work. */
+/** A content item's analysis, field ownership, and recent analysis runs (newest request first). */
 export interface IContentAnalysisDetailsModel {
   analysis?: IContentAnalysisModel;
   ownership: IContentFieldOwnershipModel[];
-  job?: IAnalysisJobModel;
+  runs: IAnalysisRunModel[];
 }

@@ -3,10 +3,11 @@ import {
   type IAnalysisBackfillModel,
   type IAnalysisBackfillPreviewModel,
   type IAnalysisBackfillRequestModel,
+  type IAnalysisFailureModel,
   type IAnalysisQueueModel,
   type IContentAnalysisSettingsModel,
 } from 'features/admin/content-analysis/interfaces';
-import { type IAnalysisJobModel } from 'features/content/form/interfaces';
+import { type IAnalysisRequestModel } from 'features/content/form/interfaces';
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
 import { useApi } from 'tno-core';
@@ -15,8 +16,8 @@ export interface IContentAnalysisAdminController {
   getSettings: () => Promise<IContentAnalysisSettingsModel>;
   updateSettings: (model: IContentAnalysisSettingsModel) => Promise<IContentAnalysisSettingsModel>;
   getQueue: () => Promise<IAnalysisQueueModel>;
-  findJobs: (status: string) => Promise<IAnalysisJobModel[]>;
-  replayJob: (id: number) => Promise<IAnalysisJobModel>;
+  findFailures: () => Promise<IAnalysisFailureModel[]>;
+  replay: (contentId: number) => Promise<IAnalysisRequestModel>;
   previewBackfill: (model: IAnalysisBackfillRequestModel) => Promise<IAnalysisBackfillPreviewModel>;
   startBackfill: (model: IAnalysisBackfillRequestModel) => Promise<IAnalysisBackfillModel>;
   findBackfills: () => Promise<IAnalysisBackfillModel[]>;
@@ -61,19 +62,17 @@ export const useContentAnalysisAdmin = (): IContentAnalysisAdminController => {
             true,
           )
         ).data,
-      findJobs: async (status: string) =>
+      findFailures: async () =>
         (
-          await dispatch('find-analysis-jobs', () =>
-            api.get<never, AxiosResponse<IAnalysisJobModel[]>, any>(
-              `/admin/analysis/jobs?status=${status}`,
-            ),
+          await dispatch('find-analysis-failures', () =>
+            api.get<never, AxiosResponse<IAnalysisFailureModel[]>, any>('/admin/analysis/failures'),
           )
         ).data,
-      replayJob: async (id: number) =>
+      replay: async (contentId: number) =>
         (
-          await dispatch('replay-analysis-job', () =>
-            api.post<never, AxiosResponse<IAnalysisJobModel>, any>(
-              `/admin/analysis/jobs/${id}/replay`,
+          await dispatch('replay-analysis', () =>
+            api.post<never, AxiosResponse<IAnalysisRequestModel>, any>(
+              `/admin/analysis/contents/${contentId}/replay`,
             ),
           )
         ).data,

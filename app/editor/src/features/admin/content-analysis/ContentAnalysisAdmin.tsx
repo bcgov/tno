@@ -6,29 +6,35 @@ import { useLookup } from 'store/hooks';
 import { useContentAnalysisAdmin } from 'store/hooks/admin';
 import { Button, ButtonVariant, Col, OptionItem, Row, Select, Show, Tab, Tabs } from 'tno-core';
 
-import { type IAnalysisJobModel } from '../../content/form/interfaces';
 import { BackfillPanel } from './BackfillPanel';
-import { type IContentAnalysisSettingsModel } from './interfaces';
+import {
+  type IAnalysisFailureModel,
+  type IAnalysisQueueModel,
+  type IContentAnalysisSettingsModel,
+} from './interfaces';
 import * as styled from './styled';
 import { TopicPopulationPanel } from './TopicPopulationPanel';
 
-const statusOptions = [new OptionItem('Failed', 'Failed'), new OptionItem('Skipped', 'Skipped')];
+const topicNames: Record<string, string> = {
+  analysis: 'New and changed stories',
+  'analysis-retry': 'Retries',
+  'analysis-backfill': 'Backfill',
+};
 
 type TabName = 'settings' | 'topics' | 'queue' | 'backfill';
 
 /**
  * Content-Analysis administration, a tab each: the LLM and excluded media types and sources,
- * automatic topics, the work queue with failed jobs and replay, and backfill. The processes it runs are configured on
- * the Content-Analysis service.
+ * automatic topics, the requests waiting in Kafka with failed stories and replay, and backfill. The
+ * processes it runs are configured on the Content-Analysis service.
  * @returns Component.
  */
 const ContentAnalysisAdmin: React.FC = () => {
   const api = useContentAnalysisAdmin();
   const [{ mediaTypes, sources, llms }, { getLLMs }] = useLookup();
   const [settings, setSettings] = React.useState<IContentAnalysisSettingsModel>();
-  const [counts, setCounts] = React.useState<Record<string, number>>({});
-  const [status, setStatus] = React.useState('Failed');
-  const [jobs, setJobs] = React.useState<IAnalysisJobModel[]>([]);
+  const [queue, setQueue] = React.useState<IAnalysisQueueModel>({ lag: {}, failed: 0 });
+  const [failures, setFailures] = React.useState<IAnalysisFailureModel[]>([]);
   const [active, setActive] = React.useState<TabName>('settings');
 
   React.useEffect(() => {
@@ -43,10 +49,10 @@ const ContentAnalysisAdmin: React.FC = () => {
 
   const refreshQueue = React.useCallback(async () => {
     try {
-      setCounts((await api.getQueue()).counts);
-      setJobs(await api.findJobs(status));
+      setQueue(await api.getQueue());
+      setFailures(await api.findFailures());
     } catch {}
-  }, [api, status]);
+  }, [api]);
 
   React.useEffect(() => {
     refreshQueue();
@@ -64,15 +70,14 @@ const ContentAnalysisAdmin: React.FC = () => {
     } catch {}
   };
 
-  const handleReplay = async (job: IAnalysisJobModel) => {
+  const handleReplay = async (failure: IAnalysisFailureModel) => {
     try {
-      await api.replayJob(job.id);
-      toast.success(`Analysis of story ${job.contentId} queued again.`);
-      await refreshQueue();
+      await api.replay(failure.contentId);
+      toast.success(`Story ${failure.contentId} sent for analysis again.`);
     } catch {}
   };
 
-  const countKeys = Object.keys(counts).sort();
+  const topics = Object.keys(queue.lag).sort();
 
   return (
     <styled.ContentAnalysisAdmin>
@@ -171,38 +176,38 @@ const ContentAnalysisAdmin: React.FC = () => {
           <Show visible={active === 'queue'}>
             <Col className="panel" gap="0.5rem">
               <h2>Queue</h2>
+              <p className="hint">
+                Stories waiting in each Kafka topic for Content-Analysis, and the stories whose most
+                recent analysis request failed.
+              </p>
               <Row gap="1rem" alignItems="flex-end" className="field-row">
-                <Select
-                  name="status"
-                  label="Jobs"
-                  width="20ch"
-                  isClearable={false}
-                  options={statusOptions}
-                  value={statusOptions.find((o) => o.value === status)}
-                  onChange={(o) => setStatus(((o as OptionItem)?.value as string) ?? 'Failed')}
-                />
                 <Button variant={ButtonVariant.secondary} onClick={refreshQueue}>
                   Refresh
                 </Button>
               </Row>
               <div className="counts">
-                {countKeys.map((key) => (
-                  <span key={key}>
-                    {key.replace(':', ' · ')}: <b>{counts[key].toLocaleString()}</b>
+                {topics.map((topic) => (
+                  <span key={topic}>
+                    {topicNames[topic] ?? topic}: <b>{queue.lag[topic].toLocaleString()}</b> waiting
                   </span>
                 ))}
+                <span>
+                  Failed: <b>{queue.failed.toLocaleString()}</b>
+                </span>
               </div>
-              <div className="jobs">
-                <Show visible={!jobs.length}>
-                  <p>No {status.toLowerCase()} jobs.</p>
+              <div className="failures">
+                <Show visible={!failures.length}>
+                  <p>No failed stories.</p>
                 </Show>
-                {jobs.map((job) => (
-                  <Row key={job.id} gap="1rem" alignItems="center" className="job">
-                    <Link to={`/contents/${job.contentId}`}>Story {job.contentId}</Link>
-                    <span>{job.reason}</span>
-                    <span>{job.attempts} attempt(s)</span>
-                    <span className="error">{job.lastError}</span>
-                    <Button variant={ButtonVariant.link} onClick={() => handleReplay(job)}>
+                {failures.map((failure) => (
+                  <Row key={failure.contentId} gap="1rem" alignItems="center" className="failure">
+                    <Link to={`/contents/${failure.contentId}`}>
+                      {failure.headline || `Story ${failure.contentId}`}
+                    </Link>
+                    <span>{failure.run.reason}</span>
+                    <span>{failure.run.attempts} attempt(s)</span>
+                    <span className="error">{failure.run.error}</span>
+                    <Button variant={ButtonVariant.link} onClick={() => handleReplay(failure)}>
                       Replay
                     </Button>
                   </Row>

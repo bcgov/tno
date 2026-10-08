@@ -1,6 +1,6 @@
 import { AxiosResponse } from 'axios';
 import {
-  type IAnalysisJobModel,
+  type IAnalysisRequestModel,
   type IContentAnalysisDetailsModel,
 } from 'features/content/form/interfaces';
 import React from 'react';
@@ -10,7 +10,7 @@ import { useAjaxWrapper } from '..';
 
 interface IContentAnalysisController {
   getContentAnalysis: (contentId: number) => Promise<IContentAnalysisDetailsModel>;
-  requestAnalysis: (contentId: number) => Promise<IAnalysisJobModel>;
+  requestAnalysis: (contentId: number) => Promise<IAnalysisRequestModel>;
 }
 
 /**
@@ -38,7 +38,7 @@ export const useContentAnalysis = (): IContentAnalysisController => {
       requestAnalysis: async (contentId: number) =>
         (
           await dispatch('request-content-analysis', () =>
-            api.post<never, AxiosResponse<IAnalysisJobModel>, any>(
+            api.post<never, AxiosResponse<IAnalysisRequestModel>, any>(
               `/editor/contents/${contentId}/analysis`,
             ),
           )

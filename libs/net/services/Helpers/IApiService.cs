@@ -702,39 +702,59 @@ public interface IApiService
     Task<API.Areas.Services.Models.ContentAnalysis.ContentAnalysisSettingsModel?> GetContentAnalysisSettingsAsync();
 
     /// <summary>
-    /// Claim due analysis jobs.
+    /// Get the content's current analysis input.
     /// </summary>
-    /// <param name="request"></param>
-    /// <returns></returns>
-    Task<IEnumerable<API.Areas.Services.Models.ContentAnalysis.AnalysisJobModel>?> ClaimAnalysisJobsAsync(API.Areas.Services.Models.ContentAnalysis.AnalysisClaimRequestModel request);
+    /// <param name="contentId"></param>
+    /// <returns>The input, or null when the content does not exist.</returns>
+    Task<API.Areas.Services.Models.ContentAnalysis.AnalysisInputModel?> GetAnalysisInputAsync(long contentId);
 
     /// <summary>
-    /// Extend an analysis claim's lease.
-    /// </summary>
-    /// <param name="lease"></param>
-    /// <returns>The job, or null when the claim is no longer valid.</returns>
-    Task<API.Areas.Services.Models.ContentAnalysis.AnalysisJobModel?> RenewAnalysisLeaseAsync(API.Areas.Services.Models.ContentAnalysis.AnalysisLeaseModel lease);
-
-    /// <summary>
-    /// Get the current input of claimed content.
-    /// </summary>
-    /// <param name="lease"></param>
-    /// <returns>The input, or null when the claim is no longer valid.</returns>
-    Task<API.Areas.Services.Models.ContentAnalysis.AnalysisInputModel?> GetAnalysisInputAsync(API.Areas.Services.Models.ContentAnalysis.AnalysisLeaseModel lease);
-
-    /// <summary>
-    /// Submit an analysis.
+    /// Submit an analysis; the request's run is recorded with it.
     /// </summary>
     /// <param name="result"></param>
     /// <returns></returns>
     Task<API.Areas.Services.Models.ContentAnalysis.AnalysisSubmitResultModel?> SubmitAnalysisAsync(API.Areas.Services.Models.ContentAnalysis.AnalysisResultModel result);
 
     /// <summary>
-    /// Record a failed analysis attempt.
+    /// Record the outcome of an analysis request that produced no result (skipped, retrying, or failed).
     /// </summary>
-    /// <param name="failure"></param>
+    /// <param name="contentId"></param>
+    /// <param name="run"></param>
+    /// <returns>The content's analysis runs, or null when the content does not exist.</returns>
+    Task<TNO.Entities.Models.AnalysisMetadata?> RecordAnalysisRunAsync(long contentId, API.Areas.Services.Models.ContentAnalysis.AnalysisRunRequestModel run);
+
+    /// <summary>
+    /// Publish analysis requests to an analysis topic (analysis, backfill, retry, or dead-letter).
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <param name="requests"></param>
+    /// <returns>The number of requests published.</returns>
+    Task<int> SendAnalysisRequestsAsync(string topic, IEnumerable<TNO.Kafka.Models.AnalysisRequestModel> requests);
+
+    /// <summary>
+    /// Get the next page of a Content-Analysis backfill after the specified content ID.
+    /// </summary>
+    /// <param name="workOrderId"></param>
+    /// <param name="afterContentId"></param>
+    /// <param name="quantity"></param>
+    /// <returns>The page, or null when the backfill does not exist.</returns>
+    Task<API.Areas.Services.Models.ContentAnalysis.AnalysisBackfillPageModel?> FindAnalysisBackfillPageAsync(long workOrderId, long afterContentId, int quantity);
+
+    /// <summary>
+    /// Rescore the next page of a bulk rescore after the specified content ID.
+    /// </summary>
+    /// <param name="workOrderId"></param>
+    /// <param name="afterContentId"></param>
+    /// <param name="quantity"></param>
+    /// <returns>The page, or null when the rescore does not exist.</returns>
+    Task<API.Areas.Services.Models.TopicScore.TopicRescorePageModel?> RescoreTopicsPageAsync(long workOrderId, long afterContentId, int quantity);
+
+    /// <summary>
+    /// Publish a work order request to the Event Handler.
+    /// </summary>
+    /// <param name="request"></param>
     /// <returns></returns>
-    Task<API.Areas.Services.Models.ContentAnalysis.AnalysisJobModel?> FailAnalysisAsync(API.Areas.Services.Models.ContentAnalysis.AnalysisFailureModel failure);
+    Task<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.WorkOrderRequestModel>?> SendMessageAsync(TNO.Kafka.Models.WorkOrderRequestModel request);
 
     /// <summary>
     /// Get all folders with enabled filters

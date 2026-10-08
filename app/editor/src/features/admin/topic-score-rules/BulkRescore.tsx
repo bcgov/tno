@@ -5,11 +5,11 @@ import { useTopicScores } from 'store/hooks/admin';
 import { Button, Col, Modal, OptionItem, Row, Select, Show, Text, useModal } from 'tno-core';
 
 import {
-  BackgroundJobStatusName,
   type ITopicRescoreJobModel,
   type ITopicRescorePreviewModel,
   type ITopicRescoreRequestModel,
   type ITopicScoreSourceModel,
+  RescoreStatusName,
 } from './interfaces';
 
 export interface IBulkRescoreProps {
@@ -17,13 +17,21 @@ export interface IBulkRescoreProps {
   sources: ITopicScoreSourceModel[];
 }
 
+const statusNames: Record<RescoreStatusName, string> = {
+  [RescoreStatusName.Submitted]: 'Waiting to start',
+  [RescoreStatusName.InProgress]: 'Running',
+  [RescoreStatusName.Completed]: 'Completed',
+  [RescoreStatusName.Cancelled]: 'Cancelled',
+  [RescoreStatusName.Failed]: 'Failed',
+};
+
 const isActive = (job?: ITopicRescoreJobModel) =>
-  job?.status === BackgroundJobStatusName.Pending ||
-  job?.status === BackgroundJobStatusName.Running;
+  job?.status === RescoreStatusName.Submitted || job?.status === RescoreStatusName.InProgress;
 
 /**
  * Recalculates the calculated scores of stories in a date range after rules change. Overridden
- * scores are never touched. Runs as a background job that re-indexes the stories that changed.
+ * scores are never touched. Runs as a work order the Event Handler processes a page at a time,
+ * re-indexing the stories that changed.
  * @param param0 Component properties.
  * @returns Component.
  */
@@ -59,7 +67,7 @@ export const BulkRescore: React.FC<IBulkRescoreProps> = ({ sources }) => {
       try {
         const job = await findRescoreJob(activeJob.id);
         setJobs((jobs) => jobs.map((j) => (j.id === job.id ? job : j)));
-        if (!isActive(job) && job.status === BackgroundJobStatusName.Completed)
+        if (!isActive(job) && job.status === RescoreStatusName.Completed)
           toast.success(`Rescore finished: ${job.changed} of ${job.total} stories changed.`);
       } catch {}
     }, 3000);
@@ -140,7 +148,7 @@ export const BulkRescore: React.FC<IBulkRescoreProps> = ({ sources }) => {
           {jobs.map((job) => (
             <div key={job.id} className="job">
               <b>#{job.id}</b> {moment(job.startOn).format('YYYY-MM-DD')} to{' '}
-              {moment(job.endOn).format('YYYY-MM-DD')} — {job.status}
+              {moment(job.endOn).format('YYYY-MM-DD')} — {statusNames[job.status] ?? job.status}
               {job.total > 0 && ` · ${job.processed}/${job.total} processed`}
               {` · ${job.changed} changed`}
               {job.failed > 0 && ` · ${job.failed} failed`}

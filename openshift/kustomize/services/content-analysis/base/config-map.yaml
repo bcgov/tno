@@ -16,19 +16,29 @@ metadata:
 data:
   KAFKA_CLIENT_ID: ContentAnalysis
   MAX_FAILURE_LIMIT: "5"
-  # Kafka topic that wakes the workers (the job table is polled regardless).
+  # Kafka topics of analysis requests for added and changed content (keyed by content ID).
+  # Empty consumes none, e.g. for a backfill-only instance.
   TOPICS: analysis
+  # Backfill requests, consumed apart from TOPICS so a backfill never delays new content.
+  BACKFILL_TOPIC: analysis-backfill
+  # Failed requests wait here for a delayed retry (also consumed).
+  RETRY_TOPIC: analysis-retry
+  # Requests whose retries are exhausted; not consumed (replay from the admin page).
+  DEAD_LETTER_TOPIC: analysis-dlq
   TIME_ZONE: Pacific Standard Time
   # Processes this service runs; each applies its result to the content's empty field.
   # Any of: Metadata, Summary, Quotes, Tags, Contributor, Topics. Empty runs nothing.
   PROCESSES: Metadata,Summary,Quotes,Tags,Contributor,Topics
-  # Content items analyzed at once by this instance.
-  MAX_CONCURRENCY: "4"
-  # Seconds between polls of the job table when no wake message arrives.
-  POLL_INTERVAL_SECONDS: "30"
+  # Seconds after a content change before it is analyzed, so a burst of edits is analyzed once.
+  QUIET_PERIOD_SECONDS: "120"
+  # Attempts per request before it goes to the dead-letter topic; retries back off from
+  # RETRY_DELAY_SECONDS, doubling, up to MAX_RETRY_DELAY_SECONDS.
+  MAX_ATTEMPTS: "5"
+  RETRY_DELAY_SECONDS: "30"
+  MAX_RETRY_DELAY_SECONDS: "3600"
   # Seconds between refreshes of the runtime settings (LLM, exclusions).
   SETTINGS_REFRESH_SECONDS: "60"
-  # Share of the LLM's rate limits and of this instance's concurrency backfill may use.
+  # Share of the LLM's rate limits backfill requests may use.
   BACKFILL_SHARE: "0.2"
   LLM_REQUEST_TIMEOUT_SECONDS: "300"
   LLM_REQUEST_ATTEMPTS: "3"

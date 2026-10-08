@@ -47,6 +47,7 @@ export const ContentAnalysisForm: React.FC = () => {
   };
 
   const analysis = details?.analysis;
+  const lastRun = details?.runs[0];
   const populated = details?.ownership.filter((o) => o.owner === 'Analysis' && !o.isCleared) ?? [];
   const cleared = details?.ownership.filter((o) => o.isCleared) ?? [];
 
@@ -64,10 +65,10 @@ export const ContentAnalysisForm: React.FC = () => {
           <Show visible={!analysis}>
             <span>This story has not been analyzed.</span>
           </Show>
-          <Show visible={!!details?.job && details.job.status !== 'Completed'}>
-            <span className="job-status">
-              Analysis {details?.job?.status.toLowerCase()}
-              {details?.job?.lastError ? `: ${details.job.lastError}` : ''}
+          <Show visible={!!lastRun && lastRun.status !== 'Completed'}>
+            <span className="run-status">
+              Last analysis request {lastRun?.status.toLowerCase()}
+              {lastRun?.error ? `: ${lastRun.error}` : ''}
             </span>
           </Show>
         </Col>
@@ -75,6 +76,20 @@ export const ContentAnalysisForm: React.FC = () => {
           Analyze again
         </Button>
       </Row>
+      <Show visible={!!details?.runs.length}>
+        <section className="analysis-runs">
+          <h3>Recent analysis requests</h3>
+          <ul>
+            {details?.runs.map((run) => (
+              <li key={run.requestId}>
+                {moment(run.finishedOn).format('YYYY-MM-DD HH:mm')} · {run.reason} · {run.status}
+                {run.attempts > 1 ? ` after ${run.attempts} attempts` : ''}
+                {run.error ? ` — ${run.error}` : ''}
+              </li>
+            ))}
+          </ul>
+        </section>
+      </Show>
       <Show visible={!!analysis}>
         <Col gap="0.75rem" direction="column" nowrap className="analysis-body">
           <Show visible={!!analysis?.summary}>

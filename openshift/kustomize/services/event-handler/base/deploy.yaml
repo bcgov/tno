@@ -122,6 +122,16 @@ spec:
                 configMapKeyRef:
                   name: event-handler-service
                   key: TOPICS
+            - name: Service__WorkOrderTopics
+              valueFrom:
+                configMapKeyRef:
+                  name: event-handler-service
+                  key: WORK_ORDER_TOPICS
+            - name: Service__AnalysisBackfillTopic
+              valueFrom:
+                configMapKeyRef:
+                  name: event-handler-service
+                  key: ANALYSIS_BACKFILL_TOPIC
 
             # CHES Configuration
             - name: CHES__From

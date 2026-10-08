@@ -29,4 +29,16 @@ public enum WorkOrderType
     /// A request to generate clips and transcripts via the auto clipper pipeline.
     /// </summary>
     AutoClip = 4,
+
+    /// <summary>
+    /// A Content-Analysis backfill of a date range; the Event Handler sends each content item in the
+    /// range to the analysis backfill topic.
+    /// </summary>
+    ContentAnalysisBackfill = 5,
+
+    /// <summary>
+    /// A bulk recalculation of calculated topic scores in a date range; the Event Handler rescores
+    /// it a page at a time.
+    /// </summary>
+    TopicRescore = 6,
 }

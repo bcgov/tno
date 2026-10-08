@@ -63,7 +63,7 @@ builder.Services.AddControllers(options =>
 {
     options.RespectBrowserAcceptHeader = true;
     options.Filters.Add<TNO.API.Filters.IndexRequestFilter>();
-    options.Filters.Add<TNO.API.Filters.AnalysisWakeFilter>();
+    options.Filters.Add<TNO.API.Filters.AnalysisRequestFilter>();
 })
   .AddJsonOptions(options =>
   {
@@ -212,10 +212,14 @@ builder.Services
     .AddSingleton<IS3StorageService, S3StorageService>()
     .AddTNOServices(config, env)
     .AddScoped<IIndexRequestSender, IndexRequestSender>()
+    .AddScoped<IAnalysisRequestSender, AnalysisRequestSender>()
+    .AddScoped<IWorkOrderRequestSender, WorkOrderRequestSender>()
     .AddScoped<TNO.TemplateEngine.IReportAIResultStore, ReportAIResultStore>()
     .AddScoped<TNO.TemplateEngine.IReportEvidenceProvider, ReportEvidenceProvider>()
     .AddTemplateEngine(config)
     .AddKafkaMessenger(config)
+    .Configure<Confluent.Kafka.AdminClientConfig>(options => options.BootstrapServers = config["Kafka:Producer:BootstrapServers"])
+    .AddSingleton<TNO.Kafka.IKafkaAdmin, TNO.Kafka.KafkaAdmin>()
     .AddHttpClient()
     .AddScoped<JwtSecurityTokenHandler>()
     .AddTransient<IHttpRequestClient, HttpRequestClient>()

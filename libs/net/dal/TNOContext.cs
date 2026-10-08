@@ -20,7 +20,6 @@ public partial class TNOContext : DbContext
     private readonly IHttpContextAccessor? _httpContextAccessor;
     private readonly JsonSerializerOptions? _serializerOptions;
     private readonly TopicScoreOptions _topicScoreOptions = new();
-    private readonly ContentAnalysisOptions _analysisOptions = new();
     #endregion
 
     #region Properties
@@ -28,7 +27,6 @@ public partial class TNOContext : DbContext
     public DbSet<SystemMessage> SystemMessages => Set<SystemMessage>();
     public DbSet<Cache> Cache => Set<Cache>();
     public DbSet<TopicScoreRule> TopicScoreRules => Set<TopicScoreRule>();
-    public DbSet<TopicRescoreJob> TopicRescoreJobs => Set<TopicRescoreJob>();
     public DbSet<SourceMetric> SourceMetrics => Set<SourceMetric>();
     public DbSet<Metric> Metrics => Set<Metric>();
     public DbSet<Sentiment> Sentiments => Set<Sentiment>();
@@ -62,8 +60,6 @@ public partial class TNOContext : DbContext
     public DbSet<ContentAction> ContentActions => Set<ContentAction>();
     public DbSet<Quote> Quotes => Set<Quote>();
     public DbSet<ContentAnalysis> ContentAnalyses => Set<ContentAnalysis>();
-    public DbSet<AnalysisJob> AnalysisJobs => Set<AnalysisJob>();
-    public DbSet<AnalysisBackfill> AnalysisBackfills => Set<AnalysisBackfill>();
     public DbSet<AnalysisTopic> AnalysisTopics => Set<AnalysisTopic>();
     public DbSet<ContentFieldOwnership> ContentFieldOwnerships => Set<ContentFieldOwnership>();
     #endregion
@@ -179,15 +175,13 @@ public partial class TNOContext : DbContext
     /// <param name="serializerOptions"></param>
     /// <param name="logger"></param>
     /// <param name="topicScoreOptions"></param>
-    /// <param name="analysisOptions"></param>
-    public TNOContext(DbContextOptions<TNOContext> options, IHttpContextAccessor? httpContextAccessor = null, IOptions<JsonSerializerOptions>? serializerOptions = null, ILogger<TNOContext>? logger = null, IOptions<TopicScoreOptions>? topicScoreOptions = null, IOptions<ContentAnalysisOptions>? analysisOptions = null)
+    public TNOContext(DbContextOptions<TNOContext> options, IHttpContextAccessor? httpContextAccessor = null, IOptions<JsonSerializerOptions>? serializerOptions = null, ILogger<TNOContext>? logger = null, IOptions<TopicScoreOptions>? topicScoreOptions = null)
       : base(options)
     {
         _logger = logger;
         _httpContextAccessor = httpContextAccessor;
         _serializerOptions = serializerOptions?.Value;
         _topicScoreOptions = topicScoreOptions?.Value ?? new TopicScoreOptions();
-        _analysisOptions = analysisOptions?.Value ?? new ContentAnalysisOptions();
     }
     #endregion
 
@@ -250,7 +244,7 @@ public partial class TNOContext : DbContext
         // touch are stamped too.
         RecalculateTopicScores();
         RecordFieldOwnership();
-        ScheduleAnalysisJobs();
+        CollectAnalysisRequests();
 
         // get entries that are being Added or Updated
         var modifiedEntries = ChangeTracker.Entries()
@@ -278,12 +272,14 @@ public partial class TNOContext : DbContext
         {
             var saved = base.SaveChanges();
             RecordIndexRequests();
+            RecordAnalysisRequests();
             return saved;
         }
 
         using var transaction = this.Database.BeginTransaction();
         var result = base.SaveChanges();
         RecordIndexRequests();
+        RecordAnalysisRequests();
         transaction.Commit();
         return result;
     }

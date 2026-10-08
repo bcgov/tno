@@ -46,7 +46,7 @@ Phase 4 extends analysis coverage to historical content.
 | LLM provider | Azure AI deployments configured in the `llm` table, as reports and automation use today. |
 | Eligibility | All content is analyzed; administrators configure excluded media types and sources. |
 | Triggering | A quiet period per content ID (default 2 minutes) after the last input change; only the latest input is analyzed. |
-| Work queue | A database job table is the source of truth (priority, lease, fencing token). Kafka messages only wake workers. |
+| Work queue | Kafka is the source of work. Analysis requests are messages keyed by content ID on `analysis` (new and changed content), `analysis-backfill`, and `analysis-retry`, each consumed separately, with `analysis-dlq` for exhausted retries. Instances scale with partitions; nothing is queued in the database. The outcome of each content item's last five requests is kept in `content.metadata`. |
 | Populated fields | Summary, Tags, Contributor, Quotes, and Topics — only when empty and not cleared by a human, and only for the processes the Content-Analysis service is configured to run. |
 | Topics | Staff-managed `Topic` list. Assigned when the service runs its `Topics` process, with a mode: use existing active topics only, or allow creating topics. Scores come from the topic score rules, refactored in [05-topic-scoring.md](05-topic-scoring.md). Unmatched extracted topics go to an analysis topic registry. |
 | Analysis retention | Analysis records last as long as their content. |
@@ -88,15 +88,21 @@ Verified against the code; these are the constraints each phase starts from.
 ```mermaid
 flowchart TD
     U[Content added or updated] --> A[API / DAL transaction]
-    A --> D[(Content, analysis jobs)]
+    A --> D[(Content, analysis, run history)]
     A -->|after commit| IQ[Kafka index topic]
-    D -. wake-up .-> AQ[Kafka analysis topic]
+    A -->|after commit| AQ[Kafka analysis topic]
     AQ --> CA[Content-Analysis service]
-    CA -->|claim / input / submit via API| A
+    RQ[Kafka analysis-retry topic] --> CA
+    BQ[Kafka analysis-backfill topic] --> CA
+    CA -->|failures| RQ
+    CA -->|exhausted| DLQ[Kafka analysis-dlq topic]
+    CA -->|input / submit / runs via API| A
     IQ --> IX[Indexing service]
     IX --> ES[(Elasticsearch on-prem or Cloud)]
 
-    BF[Admin date-range backfill] --> D
+    BF[Admin date-range backfill] -->|work order| WQ[Kafka work-order topic]
+    WQ --> EH[Event Handler]
+    EH -->|a page at a time| BQ
 
     SR[Scheduled or manual report] --> R[Reporting service / API preview]
     R --> M[(Report manifest and cached AI results)]
@@ -107,10 +113,10 @@ flowchart TD
     M --> OUT[Render and send]
 ```
 
-- Analysis jobs are written in the same transaction as the content change. Index requests are
-  sent to Kafka once it commits, before the API responds; if Kafka does not accept them the
-  request fails.
-- Reporting reads whatever analysis exists. It never creates jobs, waits, or requests backfills.
+- Analysis and index requests are sent to Kafka once the content change commits, before the API
+  responds; if Kafka does not accept them the request fails.
+- Reporting reads whatever analysis exists. It never requests analysis, waits, or requests
+  backfills.
 
 ## Configuration
 
@@ -121,7 +127,8 @@ All values are configuration; the defaults are proposals to confirm before rollo
 | Token safety margin | 10% of context window | 1 |
 | Maximum synthesis reduction depth | 8 | 1 |
 | Analysis quiet period | 2 minutes | 2 |
-| Transient retry attempts before a job fails | 5 | 2 |
+| Transient retry attempts before a request goes to the dead-letter topic | 5 | 2 |
+| Retry backoff | 30 seconds, doubling, up to 1 hour | 2 |
 | Excluded media types / sources | none | 2 |
 | Content-Analysis processes | Metadata, Summary, Quotes, Tags, Contributor, Topics (service configuration) | 2 |
 | Topic population mode | existing active topics only | 2 |

@@ -32,12 +32,12 @@ export const ContentAnalysisAdmin = styled.div`
     padding-bottom: 0;
   }
 
-  .jobs {
+  .failures {
     max-height: 50vh;
     overflow-y: auto;
   }
 
-  .job,
+  .failure,
   .backfill {
     border-bottom: 1px solid ${(props) => props.theme.css.tableOddRowColor};
     padding: 0.25rem 0;

@@ -9,8 +9,8 @@ persists structured analysis, populates empty editorial fields, and replaces Quo
   configuration, Docker Compose and OpenShift deployment).
 - Calls models through `TNO.AI` `LlmDirectClient` with Azure AI deployments from the `llm` table,
   using the limits added in Phase 1.
-- Never touches the database directly; claims, inputs, and results go through new services API
-  endpoints.
+- Never touches the database directly; inputs, results, and run outcomes go through services API
+  endpoints. Its work arrives through Kafka.
 
 ## Eligibility
 
@@ -22,10 +22,13 @@ All content is eligible except administrator-configured excluded media types and
 
 ## Triggering
 
-A DAL hook in `TNOContext.SaveChanges` detects inserts and updates to analysis inputs and upserts one
-`analysis_job` per content ID in the same transaction, with `due_at = now + quiet period`
-(default 2 minutes). A further change inside the quiet period moves `due_at` forward, so rapid
-edits produce one analysis of the latest input.
+Kafka is the source of analysis work; nothing is queued in the database.
+
+A DAL hook in `TNOContext.SaveChanges` detects inserts and updates to analysis inputs and records an
+analysis request (request ID, content ID, input fingerprint, reason, requested time). The API sends
+the requests whose transaction committed to the `analysis` topic before it responds, keyed by
+content ID (`AnalysisRequestFilter`, the same rule as index requests: when Kafka is down the request
+fails). Editor reanalysis and administrator replay send a forced request the same way.
 
 Analysis inputs (the input fingerprint):
 
@@ -35,29 +38,63 @@ Analysis inputs (the input fingerprint):
 - source, media type, and publication date.
 
 Workflow changes (status, actions, publication) and population by analysis itself do not change
-the fingerprint. Deleting content, including EF cascade deletes, cascades to its jobs. Series merge
-updates content with `ExecuteUpdate`, bypassing the hook; series is not an analysis input, so no
-job is needed.
+the fingerprint and send no request. Series merge updates content with `ExecuteUpdate`, bypassing
+the hook; series is not an analysis input, so no request is needed.
 
-## Work queue
+## Kafka topics
 
-`analysis_job` is the source of truth: content ID, input hash, reason (`lifecycle`, `reanalysis`,
-`backfill`), priority, backfill ID, status, attempts, next attempt time, lease expiry, and fencing
-token.
+| Topic | Sent by | Consumed by | Purpose |
+| --- | --- | --- | --- |
+| `analysis` | API | Content-Analysis | Added and changed content, reanalysis, replay |
+| `analysis-backfill` | Event Handler | Content-Analysis | Backfill (its own consumer, so it never delays new content) |
+| `analysis-retry` | Content-Analysis | Content-Analysis | Failed requests waiting out their backoff |
+| `analysis-dlq` | Content-Analysis | nobody (inspect in Kowl) | Requests whose retries are exhausted |
+| `work-order` | API | Event Handler | Work orders, including backfills |
 
-- Workers claim due jobs through the API (`FOR UPDATE SKIP LOCKED`), ordered by priority then due
-  time. Lifecycle work outranks backfill.
-- Each claim gets a lease and a new fencing token; workers renew long leases.
-- A Kafka `analysis` topic message wakes idle workers after a job is created; workers also poll, so
-  a lost message delays work but never loses it. Messages are committed on receipt.
-- Transient failures retry with exponential backoff and jitter; after 5 attempts (configurable) the
-  job fails and is shown for explicit replay.
-- Expired leases return jobs to the queue.
-- Provider rate limits from the `llm` table bound concurrency.
+Every analysis message is keyed by content ID, so requests for one content item are handled in
+order, and instances scale with the topics' partitions (consumer group `ContentAnalysis`).
+
+## Consuming
+
+Each topic has its own consumer, handling one message at a time and committing it once its outcome
+is recorded (`EnableAutoCommit: false`). For each request:
+
+- **Quiet period.** A lifecycle request waits until `requestedOn + QuietPeriodSeconds` (default 2
+  minutes). Every request waits the same period, so a partition's requests become due in order.
+  A retry waits until its `notBefore`; backfill, reanalysis, and replay are due at once.
+- **Latest input wins.** The current input is fetched by content ID. A request whose fingerprint no
+  longer matches the content is skipped — a newer request for the changed input follows it — so a
+  burst of edits is analyzed once. A request whose content already has a current analysis for the
+  same fingerprint is skipped unless it is forced.
+- **Ineligible** content (excluded, or a transcript awaiting approval) is recorded as `Skipped`; its
+  approval changes the fingerprint and sends a new request.
+- **Failures.** A transient failure is sent to `analysis-retry` with exponential backoff and jitter
+  (`RetryDelaySeconds`, doubling, up to `MaxRetryDelaySeconds`) and recorded as `Retrying`; after
+  `MaxAttempts` (default 5), or for a permanent failure, it is sent to `analysis-dlq` and recorded
+  as `Failed`, for explicit replay.
+- **Not the content's fault.** A misconfigured LLM, or an unreachable API or Kafka, is not
+  committed: the consumer returns to the message and the failure counts toward the service
+  sleeping, so nothing is lost and no attempt is spent.
+- A cancelled backfill's requests are skipped (the work order's status is cached briefly).
+- Provider rate limits from the `llm` table bound throughput; backfill requests are held to
+  `BackfillShare` of them. The limiter is per instance.
+
+## Run history
+
+The outcome of each request is kept in `content.metadata` under `analysis`: the newest five runs
+(request ID, reason, status, fingerprint, requested and finished times, attempts, backfill work
+order, analysis ID, error), ordered by when their request was made, and the newest run's status.
+Retries of a request update its run. An older request that finishes after a newer one never
+replaces the newer outcome as the status.
+
+The metadata is written only by targeted SQL under a row lock (`ContentAnalysisService.RecordRun`),
+never through the entity: it does not change the content's version or projection revision, and a
+stale editor form cannot overwrite it (the EF property is ignored on insert and update). A partial
+index (`IX_content_analysis_failed`) finds content whose newest run failed.
 
 ## Processing
 
-1. Claim a job and fetch its current input.
+1. Fetch the content's current input.
 2. Normalize text, keeping offsets into the source.
 3. Copy authoritative metadata (source, dates, byline).
 4. Split oversized text on paragraph/sentence boundaries within the model budget; overlap only for
@@ -66,7 +103,7 @@ token.
 6. Validate the schema, source spans, and that quotes are verbatim.
 7. Merge duplicate findings; keep ambiguous identities separate.
 8. Produce a bounded summary from validated facts.
-9. Submit the result with the input hash and fencing token.
+9. Submit the result with the input hash and the request's run.
 
 ## Analysis record
 
@@ -91,9 +128,9 @@ Analysis records, including superseded ones, last as long as their content: the 
 
 ## Acceptance
 
-The API accepts a submission only when the content exists and is eligible, the input hash is
-current, and the claim and fencing token are valid. A duplicate submission returns the existing
-result; a stale one is rejected without populating anything.
+The API accepts a submission only when the content exists and is eligible and the input hash is
+current. A duplicate submission returns the existing result; a stale one is rejected without
+populating anything (a newer request for the changed input follows it).
 
 In one transaction, acceptance:
 
@@ -104,8 +141,8 @@ In one transaction, acceptance:
 
 After commit it sends a hub `ContentUpdated` message with reason `analysis`, and the editor form
 merges populated fields and the new version the way it handles `quotes` today
-(`app/editor/src/features/content/form/hooks/useContentForm.ts`). Acceptance never creates another
-analysis job.
+(`app/editor/src/features/content/form/hooks/useContentForm.ts`). Acceptance never sends another
+analysis request.
 
 ## Population and ownership
 
@@ -150,13 +187,15 @@ when matched, otherwise the registry label.
 
 Services area (service account):
 
-- claim job, renew lease, fetch input, submit result, record failure.
+- fetch a content item's input, submit a result, record a run (skipped, retrying, failed);
+- read a backfill's next page;
+- publish analysis requests and work orders (Kafka producer area).
 
 Editor/admin area:
 
-- read a content item's analysis and field ownership;
+- read a content item's analysis, field ownership, and recent runs;
 - request reanalysis;
-- list failed jobs and replay them;
+- read the requests waiting in each topic (consumer-group lag), list failed content and replay it;
 - manage excluded media types/sources and topic population settings.
 
 ## Elasticsearch
@@ -188,11 +227,11 @@ the indexing service's index names differ.
 
 ## Tests
 
-- New content and relevant updates create one job after the quiet period; unrelated changes and
-  analysis acceptance do not.
+- New content and relevant updates record one analysis request; unrelated changes, rolled-back
+  saves, and analysis acceptance do not.
 - Analysis proceeds while Elasticsearch is unavailable.
-- Stale results, expired leases, duplicate submissions, and concurrent workers cannot overwrite
-  current data.
+- Stale results and duplicate submissions cannot overwrite current data; an older request's run
+  never replaces a newer one's status; saving content never overwrites its run history.
 - Human edits, clears, and automation values survive population.
 - An open editor form merges populated fields without a conflict on its next save.
 - Processes: only the configured processes run, and only their results are applied.

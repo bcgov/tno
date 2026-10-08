@@ -1,12 +1,30 @@
 namespace TNO.API.Areas.Admin.Models.ContentAnalysis;
 
 /// <summary>
-/// AnalysisQueueModel class, the analysis job counts.
+/// AnalysisQueueModel class, the analysis requests waiting in each Kafka topic.
 /// </summary>
 public class AnalysisQueueModel
 {
-    /// <summary>get/set - Counts keyed 'Status:Reason', plus 'Due'.</summary>
-    public IDictionary<string, int> Counts { get; set; } = new Dictionary<string, int>();
+    /// <summary>get/set - Messages the Content-Analysis consumer group has not handled, keyed by topic.</summary>
+    public IDictionary<string, long> Lag { get; set; } = new Dictionary<string, long>();
+
+    /// <summary>get/set - Content whose newest analysis request failed.</summary>
+    public int Failed { get; set; }
+}
+
+/// <summary>
+/// AnalysisFailureModel class, content whose newest analysis request failed.
+/// </summary>
+public class AnalysisFailureModel
+{
+    /// <summary>get/set - The content.</summary>
+    public long ContentId { get; set; }
+
+    /// <summary>get/set - Its headline.</summary>
+    public string Headline { get; set; } = "";
+
+    /// <summary>get/set - The failed run.</summary>
+    public TNO.Entities.Models.AnalysisRun Run { get; set; } = new();
 }
 
 /// <summary>
@@ -50,47 +68,29 @@ public class AnalysisBackfillPreviewModel
 }
 
 /// <summary>
-/// AnalysisBackfillModel class, a backfill and its progress.
+/// AnalysisBackfillModel class, a backfill (a Content-Analysis backfill work order) and its progress.
 /// </summary>
 public class AnalysisBackfillModel : AnalysisBackfillRequestModel
 {
-    /// <summary>get/set - Primary key.</summary>
+    /// <summary>get/set - The work order.</summary>
     public long Id { get; set; }
 
-    /// <summary>get/set - The backfill status.</summary>
-    public TNO.Entities.BackgroundJobStatus Status { get; set; }
+    /// <summary>get/set - The work order status.</summary>
+    public TNO.Entities.WorkOrderStatus Status { get; set; }
 
-    /// <summary>get/set - Content matching the criteria.</summary>
+    /// <summary>get/set - Eligible content in the range when the backfill started.</summary>
     public int Total { get; set; }
 
-    /// <summary>get/set - Jobs the backfill queued.</summary>
+    /// <summary>get/set - Content sent for analysis.</summary>
     public int Scheduled { get; set; }
 
     /// <summary>get/set - Content whose analysis was already current.</summary>
     public int AlreadyCurrent { get; set; }
 
-    /// <summary>get/set - Content analyzed.</summary>
-    public int Analyzed { get; set; }
-
-    /// <summary>get/set - Content taken over by lifecycle work.</summary>
-    public int Superseded { get; set; }
-
-    /// <summary>get/set - Content deleted after it was scheduled.</summary>
-    public int Deleted { get; set; }
-
-    /// <summary>get/set - Jobs that failed (replay them from the job list).</summary>
+    /// <summary>get/set - Content whose newest analysis request, from this backfill, failed.</summary>
     public int Failed { get; set; }
 
-    /// <summary>get/set - Jobs still queued or running.</summary>
-    public int Remaining { get; set; }
-
-    /// <summary>get/set - Analyzed content that is searchable.</summary>
-    public int Indexed { get; set; }
-
-    /// <summary>get/set - Every target is resolved and successful results are searchable.</summary>
-    public bool IsComplete { get; set; }
-
-    /// <summary>get/set - The last error.</summary>
+    /// <summary>get/set - Why the backfill stopped.</summary>
     public string? Error { get; set; }
 
     /// <summary>get/set - Who requested it.</summary>
@@ -99,6 +99,6 @@ public class AnalysisBackfillModel : AnalysisBackfillRequestModel
     /// <summary>get/set - When it was requested.</summary>
     public DateTime? CreatedOn { get; set; }
 
-    /// <summary>get/set - When scheduling finished.</summary>
-    public DateTime? CompletedOn { get; set; }
+    /// <summary>get/set - When it was last updated.</summary>
+    public DateTime? UpdatedOn { get; set; }
 }

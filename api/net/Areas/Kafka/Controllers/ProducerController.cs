@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Kafka.Models;
 using TNO.API.Config;
+using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.Kafka;
 using TNO.Kafka.Models;
@@ -29,6 +30,7 @@ public class ProducerController : ControllerBase
 {
     #region Variables
     private readonly IKafkaMessenger _producer;
+    private readonly IAnalysisRequestSender _analysisSender;
     private readonly KafkaOptions _kafkaOptions;
     #endregion
 
@@ -37,10 +39,12 @@ public class ProducerController : ControllerBase
     /// Creates a new instance of a ProducerController object, initializes with specified parameters.
     /// </summary>
     /// <param name="producer"></param>
+    /// <param name="analysisSender"></param>
     /// <param name="kafkaOptions"></param>
-    public ProducerController(IKafkaMessenger producer, IOptions<KafkaOptions> kafkaOptions)
+    public ProducerController(IKafkaMessenger producer, IAnalysisRequestSender analysisSender, IOptions<KafkaOptions> kafkaOptions)
     {
         _producer = producer;
+        _analysisSender = analysisSender;
         _kafkaOptions = kafkaOptions.Value;
     }
     #endregion
@@ -137,6 +141,47 @@ public class ProducerController : ControllerBase
     {
         var result = (await _producer.SendMessageAsync(_kafkaOptions.FolderTopic, model)) ?? throw new InvalidOperationException("An unknown error occurred when publishing message to Kafka");
         return new JsonResult(new DeliveryResultModel<IndexRequestModel>(result))
+        {
+            StatusCode = 201
+        };
+    }
+
+    /// <summary>
+    /// Publish analysis requests to an analysis topic (analysis, backfill, retry, or dead-letter),
+    /// each keyed by its content ID.
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <param name="models"></param>
+    /// <returns>The number of requests published.</returns>
+    [HttpPost("analysis/{topic}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(int), (int)HttpStatusCode.Created)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Kafka" })]
+    public async Task<IActionResult> SendAnalysisAsync(string topic, [FromBody] IEnumerable<AnalysisRequestModel> models)
+    {
+        var requests = models.ToArray();
+        await _analysisSender.SendAsync(topic, requests);
+        return new JsonResult(requests.Length)
+        {
+            StatusCode = 201
+        };
+    }
+
+    /// <summary>
+    /// Publish a work order request to the Event Handler.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPost("work-order")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(DeliveryResultModel<WorkOrderRequestModel>), (int)HttpStatusCode.Created)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Kafka" })]
+    public async Task<IActionResult> SendWorkOrderAsync([FromBody] WorkOrderRequestModel model)
+    {
+        var result = (await _producer.SendMessageAsync(_kafkaOptions.WorkOrderTopic, $"{model.WorkOrderId}", model)) ?? throw new InvalidOperationException("An unknown error occurred when publishing message to Kafka");
+        return new JsonResult(new DeliveryResultModel<WorkOrderRequestModel>(result))
         {
             StatusCode = 201
         };

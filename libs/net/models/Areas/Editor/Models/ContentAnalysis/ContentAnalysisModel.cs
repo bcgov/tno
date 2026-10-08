@@ -150,7 +150,7 @@ public class ContentFieldOwnershipModel
 }
 
 /// <summary>
-/// ContentAnalysisDetailsModel class, a content item's analysis, field ownership, and queued work.
+/// ContentAnalysisDetailsModel class, a content item's analysis, field ownership, and recent runs.
 /// </summary>
 public class ContentAnalysisDetailsModel
 {
@@ -160,6 +160,6 @@ public class ContentAnalysisDetailsModel
     /// <summary>get/set - Recorded ownership (a value without a record is human-owned).</summary>
     public IEnumerable<ContentFieldOwnershipModel> Ownership { get; set; } = Array.Empty<ContentFieldOwnershipModel>();
 
-    /// <summary>get/set - The content's analysis job.</summary>
-    public TNO.API.Areas.Services.Models.ContentAnalysis.AnalysisJobModel? Job { get; set; }
+    /// <summary>get/set - The outcome of the content's recent analysis requests, newest first.</summary>
+    public IEnumerable<TNO.Entities.Models.AnalysisRun> Runs { get; set; } = Array.Empty<TNO.Entities.Models.AnalysisRun>();
 }

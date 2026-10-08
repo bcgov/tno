@@ -137,8 +137,12 @@ Two-pane layout built from tno-core components.
 
 - Choose a date range and optional sources.
 - Preview the number of stories whose calculated score would change (overrides excluded).
-- Run as a background job that updates scores and re-indexes changed content, showing progress
-  and failures.
+- Run as a `TopicRescore` work order: the API records it and sends a `work-order` message, and the
+  Event Handler runs it a page at a time (`TopicRescorePageSize`, default 200). Each page asks the
+  API to recalculate that page's scores and re-index the content that changed, then saves the
+  checkpoint and counts on the work order and continues. Progress and failures show on the page.
+  Nothing runs in the API's background, and a restarted Event Handler continues from the
+  checkpoint.
 
 ## Topics admin page
 
@@ -156,7 +160,9 @@ Admin area:
 - `GET` sources with topic rule summaries; `PUT` a source's default score;
 - `GET` a source's rules; `POST`, `PUT`, `DELETE` a single rule; `PUT` a source's rule order;
 - `POST` test (content ID or fields) → match explanation;
-- `POST` rescore preview and rescore job; `GET` job status.
+- `POST` rescore preview and rescore (a work order); `GET` its status.
+
+Services area: `POST` rescore the next page of a rescore work order.
 
 Remove the bulk-array rule `PUT` once the new page ships, and drop `topic_score_rules` from the
 editor and subscriber lookups.

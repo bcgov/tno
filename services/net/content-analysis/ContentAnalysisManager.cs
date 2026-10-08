@@ -1,4 +1,5 @@
 using Confluent.Kafka;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.AI;
@@ -7,6 +8,7 @@ using TNO.AI.Tokens;
 using TNO.API.Areas.Services.Models.ContentAnalysis;
 using TNO.Ches;
 using TNO.Ches.Configuration;
+using TNO.Core.Exceptions;
 using TNO.Entities;
 using TNO.Kafka;
 using TNO.Kafka.Models;
@@ -16,30 +18,37 @@ using TNO.Services.Managers;
 namespace TNO.Services.ContentAnalysis;
 
 /// <summary>
-/// ContentAnalysisManager class, the Content-Analysis worker. The job table is the source of truth:
-/// the worker claims due jobs through the API (lease + fencing token), analyzes the content's
-/// current input, and submits the result with the input hash and token. Kafka 'analysis' messages
-/// only wake it; it also polls, so a lost message delays work but never loses it.
+/// ContentAnalysisManager class, the Content-Analysis consumer. Kafka is the source of work: each
+/// analysis request is a message keyed by content ID, so requests for the same content are handled
+/// in order and instances scale with the topic's partitions. Lifecycle requests, retries, and
+/// backfill each have their own consumer, so a backfill never delays new content.
+///
+/// A request is handled one at a time per consumer and committed once its outcome is recorded:
+/// - a lifecycle request waits out the quiet period, so a burst of edits is analyzed once;
+/// - a request whose input has since changed is skipped (a newer request follows it), as is one
+///   whose analysis is already current, unless it is forced;
+/// - a failure is sent to the retry topic with a backoff, and to the dead-letter topic once its
+///   attempts are exhausted;
+/// - a misconfigured LLM, or an unreachable API, is not the content's fault: the message is not
+///   committed, so it is received again once the service recovers.
 /// </summary>
 public class ContentAnalysisManager : ServiceManager<ContentAnalysisOptions>
 {
     #region Variables
-    private CancellationTokenSource? _cancelToken;
-    private Task? _consumer;
     private readonly TaskStatus[] _notRunning = new[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
     private readonly IKafkaAdmin _kafkaAdmin;
-    private readonly IKafkaListener<string, AnalysisRequestModel> _listener;
-    private readonly SemaphoreSlim _wake = new(0);
-    private readonly object _wakeLock = new();
-    private DateTime? _nextWake;
-    private readonly string _workerId = $"{Environment.MachineName}:{Environment.ProcessId}";
     private readonly HttpClient _httpClient;
+    private readonly AnalysisProcess _processes;
+    private readonly AnalysisConsumer[] _consumers;
 
+    private readonly SemaphoreSlim _settingsLock = new(1, 1);
     private ContentAnalysisSettingsModel? _settings;
     private API.Areas.Services.Models.LLM.LLMModel? _llm;
     private IReadOnlyList<AnalyzerTag> _tags = Array.Empty<AnalyzerTag>();
     private DateTime _settingsRefreshedOn = DateTime.MinValue;
-    private readonly AnalysisProcess _processes;
+
+    private readonly object _workOrderLock = new();
+    private readonly Dictionary<long, (WorkOrderStatus Status, DateTime CheckedOn)> _workOrders = new();
     #endregion
 
     #region Constructors
@@ -48,7 +57,7 @@ public class ContentAnalysisManager : ServiceManager<ContentAnalysisOptions>
     /// </summary>
     /// <param name="api"></param>
     /// <param name="kafkaAdmin"></param>
-    /// <param name="listener"></param>
+    /// <param name="serviceProvider"></param>
     /// <param name="chesService"></param>
     /// <param name="chesOptions"></param>
     /// <param name="options"></param>
@@ -56,7 +65,7 @@ public class ContentAnalysisManager : ServiceManager<ContentAnalysisOptions>
     public ContentAnalysisManager(
         IApiService api,
         IKafkaAdmin kafkaAdmin,
-        IKafkaListener<string, AnalysisRequestModel> listener,
+        IServiceProvider serviceProvider,
         IChesService chesService,
         IOptions<ChesOptions> chesOptions,
         IOptions<ContentAnalysisOptions> options,
@@ -64,18 +73,35 @@ public class ContentAnalysisManager : ServiceManager<ContentAnalysisOptions>
         : base(api, chesService, chesOptions, options, logger)
     {
         _kafkaAdmin = kafkaAdmin;
-        _listener = listener;
-        _listener.OnError += (_, e) => this.Logger.LogError(e.GetException(), "Content-Analysis wake listener failed");
         _httpClient = new HttpClient() { Timeout = TimeSpan.FromSeconds(Math.Max(30, this.Options.LLMRequestTimeoutSeconds)) };
         _processes = this.Options.GetProcesses();
-        if (_processes == AnalysisProcess.None) this.Logger.LogWarning("Content-Analysis has no processes configured (Service:Processes); it will not claim jobs.");
+        if (_processes == AnalysisProcess.None) this.Logger.LogWarning("Content-Analysis has no processes configured (Service:Processes); it will not consume analysis requests.");
         else this.Logger.LogInformation("Content-Analysis processes: {processes}", _processes);
+
+        var consumers = new List<AnalysisConsumer>();
+        void Add(AnalysisConsumerKind kind, params string[] topics)
+        {
+            topics = topics.Where(t => !String.IsNullOrWhiteSpace(t)).ToArray();
+            if (topics.Length == 0) return;
+            var listener = serviceProvider.GetRequiredService<IKafkaListener<string, AnalysisRequestModel>>();
+            // One message at a time; the listener pauses while it is handled, so the consumer stays
+            // in its group however long the analysis takes.
+            listener.IsLongRunningJob = true;
+            var consumer = new AnalysisConsumer(kind, topics, listener);
+            listener.OnError += (_, e) => this.Logger.LogError(e.GetException(), "Content-Analysis {kind} consumer failed", kind);
+            listener.OnStop += (_, _) => consumer.Cancel();
+            consumers.Add(consumer);
+        }
+        Add(AnalysisConsumerKind.Lifecycle, this.Options.GetTopics());
+        Add(AnalysisConsumerKind.Retry, this.Options.RetryTopic);
+        Add(AnalysisConsumerKind.Backfill, this.Options.BackfillTopic);
+        _consumers = consumers.ToArray();
     }
     #endregion
 
     #region Methods
     /// <summary>
-    /// Run the worker loop.
+    /// Keep the consumers running until the service stops.
     /// </summary>
     /// <returns></returns>
     public override async Task RunAsync()
@@ -86,34 +112,19 @@ public class ContentAnalysisManager : ServiceManager<ContentAnalysisOptions>
             {
                 this.Logger.LogInformation("The service is stopping: '{Status}'", this.State.Status);
                 this.State.Stop();
-                _listener.Stop();
+                foreach (var consumer in _consumers) consumer.Listener.Stop();
             }
-
-            if (this.State.Status == ServiceStatus.Failed && this.Options.AutoRestartAfterCriticalFailure)
+            else if (this.State.Status == ServiceStatus.Failed && this.Options.AutoRestartAfterCriticalFailure)
             {
                 await Task.Delay(this.Options.RetryAfterCriticalFailureDelayMS);
                 this.State.Resume();
             }
-
-            if (this.State.Status == ServiceStatus.Running)
+            else if (this.State.Status == ServiceStatus.Running && _processes != AnalysisProcess.None)
             {
                 try
                 {
-                    ListenForWakeMessages();
                     await RefreshSettingsAsync();
-                    if (_processes != AnalysisProcess.None)
-                    {
-                        ValidateLlm();
-                        await ProcessAvailableJobsAsync();
-                    }
-                    this.State.ResetFailures();
-                }
-                catch (Exception ex) when (LlmConfigurationException.IsConfigurationError(ex))
-                {
-                    // No job is failed for it; the service retries, then sleeps until the LLM is fixed.
-                    var failures = this.State.RecordFailure();
-                    this.Logger.LogError(ex, "Content-Analysis LLM is misconfigured. This is failure [{failures}] out of [{max}] before the service sleeps.", failures, this.State.MaxFailureLimit);
-                    await this.SendErrorEmailAsync("Content-Analysis LLM is misconfigured", ex);
+                    StartConsumers();
                 }
                 catch (Exception ex)
                 {
@@ -123,23 +134,287 @@ public class ContentAnalysisManager : ServiceManager<ContentAnalysisOptions>
                 }
             }
 
-            await WaitForWorkAsync();
+            await Task.Delay(Math.Max(1000, this.Options.DefaultDelayMS));
         }
     }
 
     /// <summary>
-    /// Ensure the LLM the configured processes need is configured. Without it no jobs are claimed,
-    /// so they wait rather than fail.
+    /// Subscribe each consumer to its topics that exist, and start consuming.
+    /// </summary>
+    private void StartConsumers()
+    {
+        var existing = _kafkaAdmin.ListTopics();
+        foreach (var consumer in _consumers)
+        {
+            var topics = consumer.Topics.Intersect(existing).ToArray();
+            if (topics.Length == 0)
+            {
+                this.Logger.LogWarning("Content-Analysis {kind} topics do not exist: {topics}", consumer.Kind, String.Join(", ", consumer.Topics));
+                continue;
+            }
+            consumer.Listener.Subscribe(topics);
+            if (consumer.Task == null || _notRunning.Contains(consumer.Task.Status))
+            {
+                var token = consumer.Restart();
+                consumer.Task = Task.Run(async () =>
+                {
+                    while (this.State.Status == ServiceStatus.Running && !token.IsCancellationRequested)
+                        await consumer.Listener.ConsumeAsync(result => HandleMessageAsync(consumer, result), token);
+                    consumer.Listener.Stop();
+                }, token);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Handle a request and commit it. When it cannot be handled through no fault of the content
+    /// (the LLM is misconfigured, or the API or Kafka is unreachable) it is not committed: the
+    /// consumer returns to it, and the failure counts toward the service sleeping.
+    /// </summary>
+    /// <param name="consumer"></param>
+    /// <param name="result"></param>
+    /// <returns></returns>
+    private async Task HandleMessageAsync(AnalysisConsumer consumer, ConsumeResult<string, AnalysisRequestModel> result)
+    {
+        try
+        {
+            if (this.State.Status != ServiceStatus.Running)
+            {
+                ReturnTo(consumer, result);
+                return;
+            }
+
+            await ProcessRequestAsync(consumer, result.Message.Value, consumer.Token);
+            consumer.Listener.Commit(result);
+            this.State.ResetFailures();
+        }
+        catch (Exception ex)
+        {
+            ReturnTo(consumer, result);
+            var failures = this.State.RecordFailure();
+            if (LlmConfigurationException.IsConfigurationError(ex))
+            {
+                this.Logger.LogError(ex, "Content-Analysis LLM is misconfigured. This is failure [{failures}] out of [{max}] before the service sleeps.", failures, this.State.MaxFailureLimit);
+                await this.SendErrorEmailAsync("Content-Analysis LLM is misconfigured", ex);
+            }
+            else
+            {
+                this.Logger.LogError(ex, "Content-Analysis failed to handle a request for content {contentId}. This is failure [{failures}] out of [{max}] before the service sleeps.", result.Message.Key, failures, this.State.MaxFailureLimit);
+                await this.SendErrorEmailAsync("Content-Analysis failed to handle a request", ex);
+            }
+            // Give what failed time to recover before the request is received again.
+            await Task.Delay(Math.Max(1000, this.Options.RetryDelayMS));
+        }
+        finally
+        {
+            if (this.State.Status == ServiceStatus.Running) consumer.Listener.Resume();
+        }
+    }
+
+    /// <summary>
+    /// Return the consumer to the message so it is received again. After a rebalance the partition
+    /// may belong to another instance, which receives it from the last commit instead.
+    /// </summary>
+    /// <param name="consumer"></param>
+    /// <param name="result"></param>
+    private void ReturnTo(AnalysisConsumer consumer, ConsumeResult<string, AnalysisRequestModel> result)
+    {
+        try
+        {
+            consumer.Listener.Seek(result);
+        }
+        catch (KafkaException ex)
+        {
+            this.Logger.LogWarning(ex, "Content-Analysis could not return to topic {topic} partition {partition} offset {offset}", result.Topic, result.Partition.Value, result.Offset.Value);
+        }
+    }
+
+    /// <summary>
+    /// Analyze the content when the request is due and still current, and record the outcome.
+    /// </summary>
+    /// <param name="consumer"></param>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    private async Task ProcessRequestAsync(AnalysisConsumer consumer, AnalysisRequestModel? request, CancellationToken cancellationToken)
+    {
+        if (request == null || request.ContentId == 0)
+        {
+            this.Logger.LogWarning("Content-Analysis received an empty request");
+            return;
+        }
+        if (request.WorkOrderId.HasValue && await IsCancelledAsync(request.WorkOrderId.Value))
+        {
+            this.Logger.LogDebug("Content {contentId} is not analyzed: backfill {workOrderId} was cancelled", request.ContentId, request.WorkOrderId);
+            return;
+        }
+
+        // Every request in a partition waits the same quiet period, so they become due in order and
+        // waiting on this one holds up none that are due sooner.
+        var dueOn = consumer.Kind switch
+        {
+            AnalysisConsumerKind.Retry => request.NotBefore ?? DateTime.UtcNow,
+            AnalysisConsumerKind.Lifecycle when request.Reason == AnalysisRequestReason.Lifecycle => request.RequestedOn.AddSeconds(Math.Max(0, this.Options.QuietPeriodSeconds)),
+            _ => DateTime.UtcNow,
+        };
+        var wait = dueOn - DateTime.UtcNow;
+        if (wait > TimeSpan.Zero) await Task.Delay(wait, cancellationToken);
+
+        await RefreshSettingsAsync();
+        var input = await this.Api.GetAnalysisInputAsync(request.ContentId);
+        if (input == null)
+        {
+            this.Logger.LogDebug("Content {contentId} is not analyzed: it was deleted", request.ContentId);
+            return;
+        }
+        if (input.InputHash != request.InputHash)
+        {
+            this.Logger.LogDebug("Content {contentId} is not analyzed: it changed after request {requestId}, and a newer request follows", request.ContentId, request.RequestId);
+            return;
+        }
+        if (!request.Force && input.AnalysisInputHash == input.InputHash)
+        {
+            this.Logger.LogDebug("Content {contentId} is not analyzed: its analysis is current", request.ContentId);
+            return;
+        }
+        if (!input.IsEligible)
+        {
+            this.Logger.LogDebug("Content {contentId} is not analyzed: {reason}", request.ContentId, input.IneligibleReason);
+            await RecordRunAsync(request, AnalysisRunStatus.Skipped, request.Attempts, input.IneligibleReason);
+            return;
+        }
+
+        var attempt = request.Attempts + 1;
+        try
+        {
+            await AnalyzeAsync(consumer, request, input, attempt, cancellationToken);
+        }
+        catch (Exception ex) when (!LlmConfigurationException.IsConfigurationError(ex) && ex is not OperationCanceledException && ex is not HttpClientRequestException)
+        {
+            await HandleFailureAsync(request, attempt, ex);
+        }
+    }
+
+    /// <summary>
+    /// Analyze the content's input and submit the result with the request's run.
+    /// </summary>
+    private async Task AnalyzeAsync(AnalysisConsumer consumer, AnalysisRequestModel request, AnalysisInputModel input, int attempt, CancellationToken cancellationToken)
+    {
+        var analyzerOptions = new AnalyzerOptions()
+        {
+            SafetyMarginPercent = this.Options.SafetyMarginPercent,
+            OverlapTokens = this.Options.OverlapTokens,
+            MinTextCharacters = this.Options.MinTextCharacters,
+            RequestAttempts = this.Options.LLMRequestAttempts,
+            ExtractMetadata = _processes.HasFlag(AnalysisProcess.Metadata),
+            Summarize = _processes.HasFlag(AnalysisProcess.Summary),
+            ExtractQuotes = _processes.HasFlag(AnalysisProcess.Quotes),
+            SuggestTags = _processes.HasFlag(AnalysisProcess.Tags),
+            SuggestContributor = _processes.HasFlag(AnalysisProcess.Contributor),
+            ChooseTopic = _processes.HasFlag(AnalysisProcess.Topics),
+        };
+
+        // Only the model-based processes need the LLM.
+        var llm = _llm;
+        if (analyzerOptions.UsesModel) ValidateLlm(llm);
+        var limits = GetLimits(llm);
+        var endpoint = new LlmEndpoint(llm?.ProjectEndpoint ?? new Uri("http://localhost"), llm?.ApiKey ?? "", llm?.DeploymentName ?? "");
+        var isBackfill = consumer.Kind == AnalysisConsumerKind.Backfill || request.Reason == AnalysisRequestReason.Backfill;
+
+        var analyzer = new ContentAnalyzer(new LlmDirectClient(_httpClient, this.Logger), analyzerOptions, this.Logger);
+        var result = await analyzer.AnalyzeAsync(
+            new AnalyzerInput(input.ContentId, input.Headline, input.Body, input.Byline, input.Summary, input.Source, input.MediaType, input.Series, input.PublishedOn),
+            endpoint,
+            limits,
+            _tags,
+            (tokens, token) => WaitForCapacityAsync(endpoint, limits, tokens, isBackfill, token),
+            cancellationToken);
+
+        var submitted = await this.Api.SubmitAnalysisAsync(ToModel(request, attempt, input, analyzerOptions.UsesModel ? llm : null, _processes, result));
+        this.Logger.LogInformation("Analysis of content {contentId} {status}{reason}{fields}",
+            input.ContentId, submitted?.Status, submitted?.Reason != null ? $": {submitted.Reason}" : "",
+            submitted?.PopulatedFields.Any() == true ? $" (populated {String.Join(", ", submitted.PopulatedFields)})" : "");
+    }
+
+    /// <summary>
+    /// Send a failed request to the retry topic with a backoff, or, once its attempts are exhausted
+    /// or its failure is permanent, to the dead-letter topic; and record the run.
+    /// </summary>
+    private async Task HandleFailureAsync(AnalysisRequestModel request, int attempt, Exception ex)
+    {
+        // Input that cannot be split is permanent; the rest retry.
+        var isTransient = ex is not InvalidOperationException;
+        var canRetry = isTransient && attempt < Math.Max(1, this.Options.MaxAttempts) && !String.IsNullOrWhiteSpace(this.Options.RetryTopic);
+        var failed = new AnalysisRequestModel(request.RequestId, request.ContentId, request.InputHash, request.Reason, request.Force, request.RequestedOn)
+        {
+            WorkOrderId = request.WorkOrderId,
+            Attempts = attempt,
+            Error = ex.Message,
+        };
+
+        if (canRetry)
+        {
+            var delay = Math.Min(Math.Max(1, this.Options.MaxRetryDelaySeconds), Math.Max(1, this.Options.RetryDelaySeconds) * Math.Pow(2, attempt - 1)) + Random.Shared.Next(0, 30);
+            failed.NotBefore = DateTime.UtcNow.AddSeconds(delay);
+            this.Logger.LogWarning(ex, "Analysis of content {contentId} failed (attempt {attempt} of {max}); retrying after {notBefore}", request.ContentId, attempt, this.Options.MaxAttempts, failed.NotBefore);
+            await this.Api.SendAnalysisRequestsAsync(this.Options.RetryTopic, new[] { failed });
+            await RecordRunAsync(request, AnalysisRunStatus.Retrying, attempt, ex.Message);
+            return;
+        }
+
+        this.Logger.LogError(ex, "Analysis of content {contentId} failed after {attempt} attempt(s)", request.ContentId, attempt);
+        if (!String.IsNullOrWhiteSpace(this.Options.DeadLetterTopic))
+            await this.Api.SendAnalysisRequestsAsync(this.Options.DeadLetterTopic, new[] { failed });
+        await RecordRunAsync(request, AnalysisRunStatus.Failed, attempt, ex.Message);
+    }
+
+    /// <summary>
+    /// Record the outcome of a request that produced no result.
+    /// </summary>
+    private Task<TNO.Entities.Models.AnalysisMetadata?> RecordRunAsync(AnalysisRequestModel request, AnalysisRunStatus status, int attempts, string? error)
+    {
+        return this.Api.RecordAnalysisRunAsync(request.ContentId, new AnalysisRunRequestModel()
+        {
+            RequestId = request.RequestId,
+            Reason = request.Reason,
+            InputHash = request.InputHash,
+            RequestedOn = request.RequestedOn,
+            Attempts = attempts,
+            WorkOrderId = request.WorkOrderId,
+            Status = status,
+            Error = error,
+        });
+    }
+
+    /// <summary>
+    /// Whether the backfill work order was cancelled; its status is cached briefly.
+    /// </summary>
+    private async Task<bool> IsCancelledAsync(long workOrderId)
+    {
+        lock (_workOrderLock)
+        {
+            if (_workOrders.TryGetValue(workOrderId, out var cached) && DateTime.UtcNow - cached.CheckedOn < TimeSpan.FromSeconds(Math.Max(1, this.Options.WorkOrderRefreshSeconds)))
+                return cached.Status == WorkOrderStatus.Cancelled;
+        }
+        var workOrder = await this.Api.FindWorkOrderAsync(workOrderId);
+        var status = workOrder?.Status ?? WorkOrderStatus.Cancelled;
+        lock (_workOrderLock)
+        {
+            _workOrders[workOrderId] = (status, DateTime.UtcNow);
+        }
+        return status == WorkOrderStatus.Cancelled;
+    }
+
+    /// <summary>
+    /// Ensure the LLM the configured processes need is configured.
     /// </summary>
     /// <exception cref="LlmConfigurationException">The LLM is missing, or lacks an endpoint, key, deployment, or limits.</exception>
-    private void ValidateLlm()
+    private static void ValidateLlm(API.Areas.Services.Models.LLM.LLMModel? llm)
     {
-        const AnalysisProcess modelProcesses = AnalysisProcess.Metadata | AnalysisProcess.Summary | AnalysisProcess.Quotes | AnalysisProcess.Tags | AnalysisProcess.Topics;
-        if ((_processes & modelProcesses) == AnalysisProcess.None) return;
-        if (_llm?.ProjectEndpoint == null || String.IsNullOrWhiteSpace(_llm.ApiKey) || String.IsNullOrWhiteSpace(_llm.DeploymentName))
+        if (llm?.ProjectEndpoint == null || String.IsNullOrWhiteSpace(llm.ApiKey) || String.IsNullOrWhiteSpace(llm.DeploymentName))
             throw new LlmConfigurationException("Content-Analysis has no LLM configured (ContentAnalysisLLMId), or it has no endpoint, key, or deployment.");
-        if (!GetLimits(_llm).IsValid)
-            throw new LlmConfigurationException($"The LLM '{_llm.Name}' has no context window or output limit configured, or its output limit is not less than its context window.");
+        if (!GetLimits(llm).IsValid)
+            throw new LlmConfigurationException($"The LLM '{llm.Name}' has no context window or output limit configured, or its output limit is not less than its context window.");
     }
 
     /// <summary>
@@ -151,197 +426,24 @@ public class ContentAnalysisManager : ServiceManager<ContentAnalysisOptions>
         llm != null ? new LlmLimits(llm.ContextWindow ?? 0, llm.MaxOutputTokens ?? 0, llm.TokenEstimation, llm.RequestsPerMinute, llm.TokensPerMinute) : new LlmLimits(0, 0, null, null, null);
 
     /// <summary>
-    /// Subscribe to the wake topic, when it exists.
-    /// </summary>
-    private void ListenForWakeMessages()
-    {
-        var topics = this.Options.GetTopics();
-        var existing = _kafkaAdmin.ListTopics();
-        topics = topics.Intersect(existing).ToArray();
-        if (topics.Length == 0) return;
-        _listener.Subscribe(topics);
-        if (_consumer == null || _notRunning.Contains(_consumer.Status))
-        {
-            if (_cancelToken?.IsCancellationRequested == false) _cancelToken.Cancel();
-            _cancelToken = new CancellationTokenSource();
-            var token = _cancelToken.Token;
-            _consumer = Task.Run(async () =>
-            {
-                while (this.State.Status == ServiceStatus.Running && !token.IsCancellationRequested)
-                    await _listener.ConsumeAsync(HandleWakeAsync, token);
-            }, token);
-        }
-    }
-
-    /// <summary>
-    /// A wake message: poll when its work becomes due. Committed on receipt.
-    /// </summary>
-    private Task HandleWakeAsync(ConsumeResult<string, AnalysisRequestModel> result)
-    {
-        _listener.Commit(result);
-        var dueOn = result.Message.Value?.DueOn ?? DateTime.UtcNow;
-        lock (_wakeLock)
-        {
-            if (dueOn <= DateTime.UtcNow) _wake.Release();
-            else if (_nextWake == null || dueOn < _nextWake) _nextWake = dueOn;
-        }
-        return Task.CompletedTask;
-    }
-
-    /// <summary>
-    /// Wait for the poll interval, a wake message, or the next scheduled wake, whichever is first.
-    /// </summary>
-    private async Task WaitForWorkAsync()
-    {
-        var wait = TimeSpan.FromSeconds(Math.Max(1, this.Options.PollIntervalSeconds));
-        lock (_wakeLock)
-        {
-            if (_nextWake.HasValue)
-            {
-                var untilWake = _nextWake.Value - DateTime.UtcNow + TimeSpan.FromSeconds(1);
-                if (untilWake < wait) wait = untilWake < TimeSpan.Zero ? TimeSpan.Zero : untilWake;
-                if (_nextWake <= DateTime.UtcNow + wait) _nextWake = null;
-            }
-        }
-        await _wake.WaitAsync(wait);
-    }
-
-    /// <summary>
     /// Refresh the runtime settings, the LLM, and the tags analysis may suggest.
     /// </summary>
     private async Task RefreshSettingsAsync()
     {
         if (DateTime.UtcNow - _settingsRefreshedOn < TimeSpan.FromSeconds(Math.Max(5, this.Options.SettingsRefreshSeconds))) return;
-        _settings = await this.Api.GetContentAnalysisSettingsAsync();
-        _llm = _settings?.LLMId.HasValue == true ? await this.Api.GetLLMAsync(_settings.LLMId.Value) : null;
-        var lookups = await this.Api.GetLookupsAsync();
-        _tags = lookups?.Tags.Where(t => t.IsEnabled).Select(t => new AnalyzerTag(t.Code, t.Name)).ToArray() ?? Array.Empty<AnalyzerTag>();
-        _settingsRefreshedOn = DateTime.UtcNow;
-    }
-
-    /// <summary>
-    /// Claim and process due jobs until none are left. Lifecycle work is claimed first; backfill
-    /// takes at most its share of this instance's concurrency.
-    /// </summary>
-    private async Task ProcessAvailableJobsAsync()
-    {
-        var concurrency = Math.Max(1, this.Options.MaxConcurrency);
-        var maxBackfill = Math.Max(1, (int)Math.Floor(concurrency * Math.Clamp(this.Options.BackfillShare, 0, 1)));
-        while (this.State.Status == ServiceStatus.Running)
-        {
-            var jobs = (await this.Api.ClaimAnalysisJobsAsync(new AnalysisClaimRequestModel()
-            {
-                WorkerId = _workerId,
-                Quantity = concurrency,
-                MaxBackfill = maxBackfill,
-            }))?.ToArray() ?? Array.Empty<AnalysisJobModel>();
-            if (jobs.Length == 0) return;
-            await Task.WhenAll(jobs.Select(ProcessJobAsync));
-        }
-    }
-
-    /// <summary>
-    /// Analyze one claimed job and submit the result, renewing the lease while it runs.
-    /// </summary>
-    /// <param name="job"></param>
-    /// <returns></returns>
-    private async Task ProcessJobAsync(AnalysisJobModel job)
-    {
-        var lease = new AnalysisLeaseModel() { JobId = job.Id, FencingToken = job.FencingToken };
-        using var claim = new CancellationTokenSource();
-        using var renewal = new CancellationTokenSource();
-        var renewTask = RenewLeaseAsync(job, lease, claim, renewal.Token);
+        await _settingsLock.WaitAsync();
         try
         {
-            var input = await this.Api.GetAnalysisInputAsync(lease);
-            if (input == null)
-            {
-                this.Logger.LogDebug("Analysis job {jobId} was no longer claimed or its content was deleted", job.Id);
-                return;
-            }
-            if (!input.IsEligible)
-            {
-                this.Logger.LogDebug("Content {contentId} is not analyzed: {reason}", input.ContentId, input.IneligibleReason);
-                return;
-            }
-
-            var analyzerOptions = new AnalyzerOptions()
-            {
-                SafetyMarginPercent = this.Options.SafetyMarginPercent,
-                OverlapTokens = this.Options.OverlapTokens,
-                MinTextCharacters = this.Options.MinTextCharacters,
-                RequestAttempts = this.Options.LLMRequestAttempts,
-                ExtractMetadata = _processes.HasFlag(AnalysisProcess.Metadata),
-                Summarize = _processes.HasFlag(AnalysisProcess.Summary),
-                ExtractQuotes = _processes.HasFlag(AnalysisProcess.Quotes),
-                SuggestTags = _processes.HasFlag(AnalysisProcess.Tags),
-                SuggestContributor = _processes.HasFlag(AnalysisProcess.Contributor),
-                ChooseTopic = _processes.HasFlag(AnalysisProcess.Topics),
-            };
-
-            // Only the model-based processes need the LLM.
-            var llm = _llm;
-            if (analyzerOptions.UsesModel) ValidateLlm();
-            var limits = GetLimits(llm);
-            var endpoint = new LlmEndpoint(llm?.ProjectEndpoint ?? new Uri("http://localhost"), llm?.ApiKey ?? "", llm?.DeploymentName ?? "");
-            var isBackfill = job.Reason == AnalysisJobReason.Backfill;
-
-            var analyzer = new ContentAnalyzer(new LlmDirectClient(_httpClient, this.Logger), analyzerOptions, this.Logger);
-            var result = await analyzer.AnalyzeAsync(
-                new AnalyzerInput(input.ContentId, input.Headline, input.Body, input.Byline, input.Summary, input.Source, input.MediaType, input.Series, input.PublishedOn),
-                endpoint,
-                limits,
-                _tags,
-                (tokens, token) => WaitForCapacityAsync(endpoint, limits, tokens, isBackfill, token),
-                claim.Token);
-
-            var submitted = await this.Api.SubmitAnalysisAsync(ToModel(lease, input, analyzerOptions.UsesModel ? llm : null, _processes, result));
-            this.Logger.LogInformation("Analysis of content {contentId} {status}{reason}{fields}",
-                input.ContentId, submitted?.Status, submitted?.Reason != null ? $": {submitted.Reason}" : "",
-                submitted?.PopulatedFields.Any() == true ? $" (populated {String.Join(", ", submitted.PopulatedFields)})" : "");
-        }
-        catch (OperationCanceledException) when (claim.IsCancellationRequested)
-        {
-            this.Logger.LogWarning("Analysis job {jobId} lost its claim and was abandoned", job.Id);
-        }
-        catch (Exception ex) when (LlmConfigurationException.IsConfigurationError(ex))
-        {
-            // The content is not at fault: return the job without counting an attempt, and fail the
-            // cycle so the service retries, then sleeps.
-            this.Logger.LogWarning("Analysis job {jobId} for content {contentId} was returned to the queue: {error}", job.Id, job.ContentId, ex.Message);
-            await this.Api.FailAnalysisAsync(new AnalysisFailureModel() { JobId = job.Id, FencingToken = job.FencingToken, Error = ex.Message, IsAttempt = false });
-            throw;
-        }
-        catch (Exception ex)
-        {
-            // Input that cannot be split is permanent; the rest retry.
-            var isTransient = ex is not InvalidOperationException;
-            this.Logger.LogError(ex, "Analysis job {jobId} for content {contentId} failed", job.Id, job.ContentId);
-            await this.Api.FailAnalysisAsync(new AnalysisFailureModel() { JobId = job.Id, FencingToken = job.FencingToken, Error = ex.Message, IsTransient = isTransient });
+            if (DateTime.UtcNow - _settingsRefreshedOn < TimeSpan.FromSeconds(Math.Max(5, this.Options.SettingsRefreshSeconds))) return;
+            _settings = await this.Api.GetContentAnalysisSettingsAsync();
+            _llm = _settings?.LLMId.HasValue == true ? await this.Api.GetLLMAsync(_settings.LLMId.Value) : null;
+            var lookups = await this.Api.GetLookupsAsync();
+            _tags = lookups?.Tags.Where(t => t.IsEnabled).Select(t => new AnalyzerTag(t.Code, t.Name)).ToArray() ?? Array.Empty<AnalyzerTag>();
+            _settingsRefreshedOn = DateTime.UtcNow;
         }
         finally
         {
-            renewal.Cancel();
-            try { await renewTask; } catch (OperationCanceledException) { }
-        }
-    }
-
-    /// <summary>
-    /// Renew the lease at a third of its length; cancel the work when the claim is lost.
-    /// </summary>
-    private async Task RenewLeaseAsync(AnalysisJobModel job, AnalysisLeaseModel lease, CancellationTokenSource claim, CancellationToken cancellationToken)
-    {
-        var leaseLength = (job.LeaseExpiresOn ?? DateTime.UtcNow.AddMinutes(10)) - DateTime.UtcNow;
-        var interval = TimeSpan.FromSeconds(Math.Max(10, leaseLength.TotalSeconds / 3));
-        while (!cancellationToken.IsCancellationRequested)
-        {
-            await Task.Delay(interval, cancellationToken);
-            var renewed = await this.Api.RenewAnalysisLeaseAsync(lease);
-            if (renewed == null)
-            {
-                claim.Cancel();
-                return;
-            }
+            _settingsLock.Release();
         }
     }
 
@@ -363,12 +465,20 @@ public class ContentAnalysisManager : ServiceManager<ContentAnalysisOptions>
     /// <summary>
     /// The submission for an analysis.
     /// </summary>
-    private static AnalysisResultModel ToModel(AnalysisLeaseModel lease, AnalysisInputModel input, API.Areas.Services.Models.LLM.LLMModel? llm, AnalysisProcess processes, AnalyzerResult result)
+    private static AnalysisResultModel ToModel(AnalysisRequestModel request, int attempt, AnalysisInputModel input, API.Areas.Services.Models.LLM.LLMModel? llm, AnalysisProcess processes, AnalyzerResult result)
     {
         return new AnalysisResultModel()
         {
-            JobId = lease.JobId,
-            FencingToken = lease.FencingToken,
+            ContentId = input.ContentId,
+            Request = new AnalysisRequestRunModel()
+            {
+                RequestId = request.RequestId,
+                Reason = request.Reason,
+                InputHash = request.InputHash,
+                RequestedOn = request.RequestedOn,
+                Attempts = attempt,
+                WorkOrderId = request.WorkOrderId,
+            },
             InputHash = input.InputHash,
             IsMetadataOnly = result.IsMetadataOnly,
             Processes = processes,

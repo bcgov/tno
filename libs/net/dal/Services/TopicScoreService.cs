@@ -4,6 +4,7 @@ using System.Text.Json.Nodes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using TNO.API.Areas.Services.Models.TopicScore;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Config;
@@ -327,120 +328,124 @@ public class TopicScoreService : BaseService, ITopicScoreService
     }
 
     /// <summary>
-    /// Record a new rescore job.
+    /// How a bulk rescore's configuration is stored in its work order.
+    /// </summary>
+    public static readonly JsonSerializerOptions RescoreConfigurationOptions = new(JsonSerializerDefaults.Web);
+
+    /// <summary>
+    /// Record a new bulk rescore work order, counting the content in its range now. The Event
+    /// Handler runs it a page at a time.
     /// </summary>
     /// <param name="startOn"></param>
     /// <param name="endOn"></param>
     /// <param name="sourceIds"></param>
+    /// <param name="requestorId"></param>
     /// <returns></returns>
-    public TopicRescoreJob AddRescoreJob(DateTime startOn, DateTime endOn, IEnumerable<int>? sourceIds)
+    /// <exception cref="ArgumentException">The range is empty.</exception>
+    public WorkOrder AddRescore(DateTime startOn, DateTime endOn, IEnumerable<int>? sourceIds, int? requestorId)
     {
         if (endOn <= startOn) throw new ArgumentException("The end date must be after the start date.");
-        var job = new TopicRescoreJob(startOn, endOn, sourceIds);
-        this.Context.TopicRescoreJobs.Add(job);
+        var configuration = new TopicRescoreConfigurationModel()
+        {
+            StartOn = startOn,
+            EndOn = endOn,
+            SourceIds = sourceIds?.Distinct().ToArray() ?? Array.Empty<int>(),
+        };
+        configuration.Total = RescoreQuery(startOn, endOn, configuration.SourceIds, 0).Count();
+        var workOrder = new WorkOrder(
+            WorkOrderType.TopicRescore,
+            $"Topic rescore {startOn:yyyy-MM-dd} to {endOn:yyyy-MM-dd}",
+            JsonSerializer.SerializeToDocument(configuration, RescoreConfigurationOptions))
+        {
+            RequestorId = requestorId,
+        };
+        this.Context.WorkOrders.Add(workOrder);
         this.Context.CommitTransaction();
-        return job;
+        return workOrder;
     }
 
     /// <summary>
-    /// Find a rescore job.
+    /// Find a bulk rescore work order.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public TopicRescoreJob? FindRescoreJob(long id)
-    {
-        return this.Context.TopicRescoreJobs.AsNoTracking().FirstOrDefault(j => j.Id == id);
-    }
+    public WorkOrder? FindRescore(long id)
+        => this.Context.WorkOrders.AsNoTracking().FirstOrDefault(w => w.Id == id && w.WorkType == WorkOrderType.TopicRescore);
 
     /// <summary>
-    /// The most recent rescore jobs.
+    /// The most recent bulk rescore work orders.
     /// </summary>
     /// <param name="qty"></param>
     /// <returns></returns>
-    public IEnumerable<TopicRescoreJob> FindRescoreJobs(int qty = 10)
+    public IEnumerable<WorkOrder> FindRescores(int qty = 10)
     {
-        return this.Context.TopicRescoreJobs.AsNoTracking().OrderByDescending(j => j.Id).Take(qty).ToArray();
+        return this.Context.WorkOrders.AsNoTracking()
+            .Where(w => w.WorkType == WorkOrderType.TopicRescore)
+            .OrderByDescending(w => w.Id)
+            .Take(Math.Clamp(qty, 1, 100))
+            .ToArray();
     }
 
     /// <summary>
-    /// Run a rescore job, recording progress on the job.
+    /// Recalculate the calculated scores of the next page of a bulk rescore, after the specified
+    /// content ID. Overridden scores are never touched. Content whose score changed is re-indexed
+    /// once the page commits. Rescoring a page again changes nothing, so a repeated page is harmless.
     /// </summary>
-    /// <param name="jobId"></param>
-    /// <param name="onBatchSaved">Called after each batch commits (to send its index requests).</param>
-    /// <param name="cancellationToken"></param>
+    /// <param name="configuration"></param>
+    /// <param name="afterContentId"></param>
+    /// <param name="quantity"></param>
     /// <returns></returns>
-    public async Task RunRescoreJobAsync(long jobId, Func<Task> onBatchSaved, CancellationToken cancellationToken = default)
+    public TopicRescorePageModel RescorePage(TopicRescoreConfigurationModel configuration, long afterContentId, int quantity = BatchSize)
     {
-        var job = this.Context.TopicRescoreJobs.FirstOrDefault(j => j.Id == jobId) ?? throw new NoContentException("Rescore job does not exist");
-        if (job.Status != BackgroundJobStatus.Pending) return;
+        quantity = Math.Clamp(quantity, 1, 1000);
+        var ids = RescoreQuery(configuration.StartOn, configuration.EndOn, configuration.SourceIds, afterContentId).Take(quantity).ToArray();
+        if (ids.Length == 0) return new TopicRescorePageModel() { LastContentId = afterContentId, IsLast = true };
 
-        job.Status = BackgroundJobStatus.Running;
-        job.StartedOn = DateTime.UtcNow;
-        job.Total = RescoreQuery(job.StartOn, job.EndOn, job.SourceIds, 0).Count();
-        this.Context.CommitTransaction();
-
+        var page = new TopicRescorePageModel() { Processed = ids.Length, LastContentId = ids[^1], IsLast = ids.Length < quantity };
         var scorer = new BatchScorer(this.Context, this.TimeZone);
-        long after = 0;
-        try
+        var changedIds = new List<long>();
+        var items = LoadScoringItems(this.Context.Contents.AsNoTracking().Where(c => ids.Contains(c.Id)));
+        var topics = this.Context.ContentTopics
+            .Where(t => ids.Contains(t.ContentId) && !t.IsScoreOverridden)
+            .ToArray()
+            .ToLookup(t => t.ContentId);
+        foreach (var item in items)
         {
-            while (!cancellationToken.IsCancellationRequested)
+            try
             {
-                var ids = RescoreQuery(job.StartOn, job.EndOn, job.SourceIds, after).Take(BatchSize).ToArray();
-                if (ids.Length == 0) break;
-                after = ids[^1];
-
-                var changedIds = new List<long>();
-                var items = LoadScoringItems(this.Context.Contents.AsNoTracking().Where(c => ids.Contains(c.Id)));
-                var topics = this.Context.ContentTopics
-                    .Where(t => ids.Contains(t.ContentId) && !t.IsScoreOverridden)
-                    .ToArray()
-                    .ToLookup(t => t.ContentId);
-                foreach (var item in items)
+                var result = scorer.Calculate(item);
+                if (result == null) continue;
+                var changed = false;
+                foreach (var topic in topics[item.Id].Where(t => t.Score != result.Score || t.ScoreRuleId != result.RuleId))
                 {
-                    try
-                    {
-                        var result = scorer.Calculate(item);
-                        if (result == null) continue;
-                        var changed = false;
-                        foreach (var topic in topics[item.Id].Where(t => t.Score != result.Score || t.ScoreRuleId != result.RuleId))
-                        {
-                            topic.Score = result.Score;
-                            topic.ScoreRuleId = result.RuleId;
-                            changed = true;
-                        }
-                        if (changed) changedIds.Add(item.Id);
-                    }
-                    catch (Exception ex)
-                    {
-                        job.Failed++;
-                        job.Error = $"Content {item.Id}: {ex.Message}";
-                        this.Logger.LogError(ex, "Topic rescore failed for content {contentId}", item.Id);
-                    }
+                    topic.Score = result.Score;
+                    topic.ScoreRuleId = result.RuleId;
+                    changed = true;
                 }
-
-                job.Processed += ids.Length;
-                job.Changed += changedIds.Count;
-                // Content whose score changed is re-indexed once the scores commit.
-                foreach (var id in changedIds) this.Context.RequestIndex(id);
-                this.Context.CommitTransaction();
-                await onBatchSaved();
-                this.Context.ChangeTracker.Clear();
-                job = this.Context.TopicRescoreJobs.First(j => j.Id == jobId);
+                if (changed) changedIds.Add(item.Id);
             }
+            catch (Exception ex)
+            {
+                page.Failed++;
+                page.Error = $"Content {item.Id}: {ex.Message}";
+                this.Logger.LogError(ex, "Topic rescore failed for content {contentId}", item.Id);
+            }
+        }
 
-            job.Status = cancellationToken.IsCancellationRequested ? BackgroundJobStatus.Cancelled : BackgroundJobStatus.Completed;
-        }
-        catch (Exception ex)
-        {
-            this.Logger.LogError(ex, "Topic rescore job {jobId} failed", jobId);
-            this.Context.ChangeTracker.Clear();
-            job = this.Context.TopicRescoreJobs.First(j => j.Id == jobId);
-            job.Status = BackgroundJobStatus.Failed;
-            job.Error = ex.Message;
-        }
-        job.CompletedOn = DateTime.UtcNow;
+        page.Changed = changedIds.Count;
+        // Content whose score changed is re-indexed once the scores commit.
+        foreach (var id in changedIds) this.Context.RequestIndex(id);
         this.Context.CommitTransaction();
+        return page;
     }
+
+    /// <summary>
+    /// A bulk rescore work order's configuration.
+    /// </summary>
+    /// <param name="workOrder"></param>
+    /// <returns></returns>
+    public static TopicRescoreConfigurationModel ReadRescoreConfiguration(WorkOrder workOrder)
+        => workOrder.Configuration.Deserialize<TopicRescoreConfigurationModel>(RescoreConfigurationOptions) ?? new TopicRescoreConfigurationModel();
 
     /// <summary>
     /// Content in the rescore range that has at least one calculated topic score.

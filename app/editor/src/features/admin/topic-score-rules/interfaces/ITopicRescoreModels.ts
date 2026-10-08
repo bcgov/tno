@@ -13,19 +13,19 @@ export interface ITopicRescorePreviewModel {
   changed: number;
 }
 
-/** BackgroundJobStatus, as serialized by the API. */
-export enum BackgroundJobStatusName {
-  Pending = 'Pending',
-  Running = 'Running',
+/** The status of a bulk rescore's work order, as serialized by the API. */
+export enum RescoreStatusName {
+  Submitted = 'Submitted',
+  InProgress = 'InProgress',
   Completed = 'Completed',
-  Failed = 'Failed',
   Cancelled = 'Cancelled',
+  Failed = 'Failed',
 }
 
-/** A bulk rescore and its progress. */
+/** A bulk rescore (a work order the Event Handler runs) and its progress. */
 export interface ITopicRescoreJobModel {
   id: number;
-  status: BackgroundJobStatusName;
+  status: RescoreStatusName;
   startOn: string;
   endOn: string;
   sourceIds: number[];
@@ -36,6 +36,5 @@ export interface ITopicRescoreJobModel {
   error?: string;
   createdBy: string;
   createdOn?: string;
-  startedOn?: string;
-  completedOn?: string;
+  updatedOn?: string;
 }
