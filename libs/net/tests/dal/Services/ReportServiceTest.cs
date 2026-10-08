@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TNO.DAL;
@@ -62,27 +63,73 @@ public class ReportServiceTest : IDisposable
 
     #region Methods
     [Fact]
-    public void Update_MissingSubscriber_IsUnsubscribedNotDeleted()
+    public void Update_SubscriberNotLoaded_ThrowsConcurrencyAndChangesNothing()
     {
         // Arrange
         var service = helper.Provider.GetRequiredService<IReportService>();
         var context = helper.Provider.GetRequiredService<TNOContext>();
         var report = SeedReport(context);
 
-        // A stale client only knows about alice.
+        // A stale client only loaded alice, bob was subscribed after it loaded.
         var stale = new Report(report.Id, report.Name, report.TemplateId, report.OwnerId);
-        stale.SubscribersManyToMany.Add(new UserReport(2, report.Id, true));
+        stale.SubscribersManyToMany.Add(new UserReport(2, report.Id, true) { ExpectedVersion = 0 });
+
+        // Act / Assert
+        Assert.Throws<DbUpdateConcurrencyException>(() => service.UpdateAndSave(stale));
+        context.ChangeTracker.Clear();
+        var subscriptions = context.UserReports.Where(ur => ur.ReportId == report.Id).ToArray();
+        Assert.Equal(2, subscriptions.Length);
+        Assert.All(subscriptions, s => Assert.True(s.IsSubscribed));
+    }
+
+    [Fact]
+    public void Update_StaleSubscriberVersion_ThrowsConcurrencyAndDoesNotResubscribe()
+    {
+        // Arrange
+        var service = helper.Provider.GetRequiredService<IReportService>();
+        var context = helper.Provider.GetRequiredService<TNOContext>();
+        var report = SeedReport(context);
+
+        // An admin unsubscribes bob after the stale client loaded the report.
+        var bob = context.UserReports.Single(ur => ur.ReportId == report.Id && ur.UserId == 3);
+        bob.IsSubscribed = false;
+        context.SaveChanges();
+        context.ChangeTracker.Clear();
+
+        var stale = new Report(report.Id, report.Name, report.TemplateId, report.OwnerId);
+        stale.SubscribersManyToMany.Add(new UserReport(2, report.Id, true) { ExpectedVersion = 0 });
+        stale.SubscribersManyToMany.Add(new UserReport(3, report.Id, true) { ExpectedVersion = 0 });
+
+        // Act / Assert
+        Assert.Throws<DbUpdateConcurrencyException>(() => service.UpdateAndSave(stale));
+        context.ChangeTracker.Clear();
+        Assert.False(context.UserReports.Single(ur => ur.ReportId == report.Id && ur.UserId == 3).IsSubscribed);
+    }
+
+    [Fact]
+    public void Update_CurrentSubscribers_AppliesChangesAndAddsNewSubscriber()
+    {
+        // Arrange
+        var service = helper.Provider.GetRequiredService<IReportService>();
+        var context = helper.Provider.GetRequiredService<TNOContext>();
+        var report = SeedReport(context);
+
+        // The client loaded alice and bob, unsubscribes bob and adds carol.
+        var current = new Report(report.Id, report.Name, report.TemplateId, report.OwnerId);
+        current.SubscribersManyToMany.Add(new UserReport(2, report.Id, true) { ExpectedVersion = 0 });
+        current.SubscribersManyToMany.Add(new UserReport(3, report.Id, false) { ExpectedVersion = 0 });
+        current.SubscribersManyToMany.Add(new UserReport(4, report.Id, true));
 
         // Act
-        service.UpdateAndSave(stale);
+        service.UpdateAndSave(current);
         context.ChangeTracker.Clear();
-        var subscriptions = context.UserReports.Where(ur => ur.ReportId == report.Id).OrderBy(ur => ur.UserId).ToArray();
+        var subscriptions = context.UserReports.Where(ur => ur.ReportId == report.Id).ToDictionary(ur => ur.UserId);
 
         // Assert
-        Assert.Equal(2, subscriptions.Length);
-        Assert.True(subscriptions[0].IsSubscribed);
-        Assert.Equal(3, subscriptions[1].UserId);
-        Assert.False(subscriptions[1].IsSubscribed);
+        Assert.Equal(3, subscriptions.Count);
+        Assert.True(subscriptions[2].IsSubscribed);
+        Assert.False(subscriptions[3].IsSubscribed);
+        Assert.True(subscriptions[4].IsSubscribed);
     }
 
     [Fact]

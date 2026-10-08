@@ -276,25 +276,24 @@ public class UserService : BaseService<User, int>, IUserService
         });
 
         // update ReportSubscriptionsManyToMany
-        // A subscription is never deleted.  A report absent from the submitted list is unsubscribed instead,
-        // and a report present in the list is (re)subscribed.
+        // The submitted list contains every report subscription the client loaded, each with the version it loaded,
+        // plus any it is adding.  A subscription the client never loaded, or one that changed since, means the client's
+        // copy is stale and the save is rejected.  A subscription is never deleted, unsubscribing sets 'IsSubscribed' to false.
         var originalReports = this.Context.UserReports.Where(umt => umt.UserId == entity.Id).ToArray();
-        originalReports.Except(entity.ReportSubscriptionsManyToMany).ForEach((org) =>
-        {
-            if (org.IsSubscribed)
-                org.IsSubscribed = false;
-        });
+        var notLoaded = originalReports.Except(entity.ReportSubscriptionsManyToMany).FirstOrDefault();
+        if (notLoaded != null) throw SubscriptionExtensions.NotLoaded($"User ID:{entity.Id} subscription to report ID:{notLoaded.ReportId}");
         entity.ReportSubscriptionsManyToMany.ForEach((org) =>
         {
             var originalReport = originalReports.FirstOrDefault(s => s.ReportId == org.ReportId);
+            originalReport.ThrowIfStale(org.ExpectedVersion, $"User ID:{entity.Id} subscription to report ID:{org.ReportId}");
             if (originalReport == null)
             {
                 org.UserId = original.Id;
                 this.Context.Entry(org).State = EntityState.Added;
             }
-            else if (!originalReport.IsSubscribed)
+            else if (originalReport.IsSubscribed != org.IsSubscribed)
             {
-                originalReport.IsSubscribed = true;
+                originalReport.IsSubscribed = org.IsSubscribed;
             }
         });
 
@@ -341,6 +340,58 @@ public class UserService : BaseService<User, int>, IUserService
         original.Preferences = model.Preferences;
         base.UpdateAndSave(original);
         return FindById(model.Id)!;
+    }
+
+    /// <summary>
+    /// Update only the login tracking of the user (key, last login and preferences, which hold the login locations).
+    /// Logging in must never change anything else, in particular subscriptions, sources, media types or organizations.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
+    /// <exception cref="NoContentException"></exception>
+    public User UpdateLoginAndSave(User entity)
+    {
+        var original = this.Context.Users.Find(entity.Id) ?? throw new NoContentException("User does not exist");
+        original.Key = entity.Key;
+        original.LastLoginOn = entity.LastLoginOn;
+        original.Preferences = entity.Preferences;
+        this.Context.CommitTransaction();
+        return original;
+    }
+
+    /// <summary>
+    /// Update only the account values the authentication process manages (identity, status, roles, access request)
+    /// along with the login tracking.
+    /// Never changes subscriptions, sources, media types, organizations, distribution lists or history.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
+    /// <exception cref="NoContentException"></exception>
+    public User UpdateAccountAndSave(User entity)
+    {
+        var original = this.Context.Users.Find(entity.Id) ?? throw new NoContentException("User does not exist");
+
+        // 'entity' is usually the tracked 'original', so compare against the code that was loaded.
+        var loadedCode = this.Context.Entry(original).Property(u => u.Code).OriginalValue;
+        if (String.IsNullOrWhiteSpace(entity.Code)) original.CodeCreatedOn = null;
+        else if (loadedCode != entity.Code) original.CodeCreatedOn = DateTime.UtcNow;
+
+        original.Key = entity.Key;
+        original.Username = entity.Username;
+        original.Email = entity.Email;
+        original.EmailVerified = entity.EmailVerified;
+        original.DisplayName = entity.DisplayName;
+        original.FirstName = entity.FirstName;
+        original.LastName = entity.LastName;
+        original.IsEnabled = entity.IsEnabled;
+        original.Status = entity.Status;
+        original.Roles = entity.Roles;
+        original.Note = entity.Note;
+        original.Code = entity.Code;
+        original.LastLoginOn = entity.LastLoginOn;
+        original.Preferences = entity.Preferences;
+        this.Context.CommitTransaction();
+        return original;
     }
 
     public IEnumerable<User> FindByRoles(IEnumerable<string> roles)

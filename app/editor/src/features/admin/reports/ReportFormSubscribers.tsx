@@ -40,7 +40,8 @@ export const ReportFormSubscribers: React.FC = () => {
       format: subscriber?.format ?? ReportDistributionFormatName.LinkOnly,
       sendTo: subscriber?.sendTo ?? EmailSendToName.To,
       status: undefined,
-      version: 0,
+      // The subscription version that was loaded, or none for a new subscriber.
+      version: subscriber?.version,
     };
   });
   const page = { ...users, items: subscribers };

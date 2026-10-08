@@ -19,6 +19,10 @@ public interface IUserService : IBaseService<User, int>
 
     User UpdatePreferences(User user);
 
+    User UpdateLoginAndSave(User entity);
+
+    User UpdateAccountAndSave(User entity);
+
     User? FindByUsername(string username);
     IEnumerable<User> FindByEmail(string email);
     IEnumerable<User> FindByRoles(IEnumerable<string> roles);

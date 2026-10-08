@@ -45,6 +45,12 @@ public class UserModel
     /// get/set - Whether the user is subscribed to the notification.
     /// </summary>
     public bool IsSubscribed { get; set; }
+
+    /// <summary>
+    /// get/set - The version of the user's notification subscription.
+    /// Null when the user has no subscription to the notification.
+    /// </summary>
+    public long? Version { get; set; }
     #endregion
 
     #region Constructors

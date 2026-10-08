@@ -90,7 +90,10 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
                     entity.TargetProductId,
                     us.IsSubscribed,
                     us.Format ?? ReportDistributionFormat.FullText,
-                    us.SendTo ?? EmailSentTo.To);
+                    us.SendTo ?? EmailSentTo.To)
+                {
+                    ExpectedVersion = us.SubscriptionVersion,
+                };
                 userProduct.User = new Entities.User(subscription);
 
                 return userProduct;
@@ -104,7 +107,10 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
                 var subscription = new UserNotification(
                     us.UserId,
                     entity.TargetProductId,
-                    us.IsSubscribed);
+                    us.IsSubscribed)
+                {
+                    ExpectedVersion = us.SubscriptionVersion,
+                };
                 userProduct.User = new Entities.User(subscription);
 
                 return userProduct;

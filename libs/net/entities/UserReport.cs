@@ -48,6 +48,14 @@ public class UserReport : AuditColumns
     /// </summary>
     [Column("send_to")]
     public EmailSentTo SendTo { get; set; } = EmailSentTo.To;
+
+    /// <summary>
+    /// get/set - The version of this subscription the client loaded before submitting it (not persisted).
+    /// A save is rejected when the stored subscription no longer has this version.
+    /// Null when the client is adding a subscription it never loaded.
+    /// </summary>
+    [NotMapped]
+    public long? ExpectedVersion { get; set; }
     #endregion
 
     #region Constructors

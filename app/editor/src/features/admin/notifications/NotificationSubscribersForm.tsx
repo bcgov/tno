@@ -79,8 +79,10 @@ export const NotificationSubscribersForm = () => {
             name={`chk-${row.id}`}
             checked={values.subscribers.some((u) => u.id === row.id && u.isSubscribed)}
             onChange={(e) => {
-              const user = { ...row, isSubscribed: e.target.checked };
-              if (values.subscribers.some((u) => u.id === user.id)) {
+              // Keep the subscription version that was loaded, a new subscriber has none.
+              const subscriber = values.subscribers.find((u) => u.id === row.id);
+              const user = { ...row, isSubscribed: e.target.checked, version: subscriber?.version };
+              if (subscriber) {
                 setFieldValue(
                   'subscribers',
                   values.subscribers.map((item) => (item.id === user.id ? user : item)),

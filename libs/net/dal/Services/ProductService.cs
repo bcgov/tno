@@ -388,6 +388,7 @@ public class ProductService : BaseService<Product, int>, IProductService
                     foreach (var subscription in subscriber.User.ReportSubscriptionsManyToMany)
                     {
                         var currentSubscription = currentSubscriptions.FirstOrDefault(cs => cs.UserId == subscriber.UserId);
+                        currentSubscription.ThrowIfStale(subscription.ExpectedVersion, $"Report ID:{entity.TargetProductId} subscription for user ID:{subscriber.UserId}");
                         if (currentSubscription == null)
                         {
                             this.Context.Entry(subscription).State = EntityState.Added;
@@ -416,6 +417,7 @@ public class ProductService : BaseService<Product, int>, IProductService
                     foreach (var subscription in subscriber.User.NotificationSubscriptionsManyToMany)
                     {
                         var currentSubscription = currentSubscriptions.FirstOrDefault(cs => cs.UserId == subscriber.UserId);
+                        currentSubscription.ThrowIfStale(subscription.ExpectedVersion, $"Notification ID:{entity.TargetProductId} subscription for user ID:{subscriber.UserId}");
                         if (currentSubscription == null)
                         {
                             this.Context.Entry(subscription).State = EntityState.Added;
