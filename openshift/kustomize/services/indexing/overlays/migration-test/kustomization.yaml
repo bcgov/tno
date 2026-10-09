@@ -1,0 +1,10 @@
+# Second indexing service for the test Elasticsearch migration; writes to the same cluster as cloud-test.
+# See components/migration and openshift/kustomize/elastic-migration/README.md.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../cloud-test
+
+components:
+  - ../../components/migration

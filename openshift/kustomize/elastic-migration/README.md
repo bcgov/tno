@@ -39,8 +39,10 @@ There are two ways to run it:
 | TEST | Elastic Cloud (`test-mmi`) | `indexing-service-cloud` | `elastic-cloud` | ApiKey |
 | PROD | Elastic Cloud (`prod-mmi`) | `indexing-service-cloud` | `elastic-cloud` | ApiKey |
 
-Only the primary cluster is migrated. TEST and PROD still run a local OpenShift `elastic` StatefulSet, which is
-being retired and is not migrated.
+Only the primary cluster is migrated. TEST and PROD still run a local OpenShift `elastic` StatefulSet and its
+`indexing-service`, which are retired before the migration and are not migrated. `indexing-service-cloud` then becomes
+the only indexing service and needs `INDEX_ONLY=false`; the steps are in
+[1.0.11 checklist 3.1](./1.0.11.md#31-pause-indexing-and-retire-the-local-cluster).
 
 ### State on 2026-10-09
 
@@ -71,9 +73,10 @@ main cost of the copy.
 - **Job time limit.** Each Job's default limit is 24 hours (`MIGRATION_ACTIVE_DEADLINE_SECONDS=86400`). Copy takes
   most of the time. Raise it for PROD if TEST suggests it is needed, e.g. `MIGRATION_ACTIVE_DEADLINE_SECONDS=172800`.
 - **Disk.** The new indexes load without replicas, so the copy needs the source's primary size again. Cutover adds
-  the source's replica count, so afterwards the new indexes take the source's full size, replicas included. On DEV
-  that takes each node to about 88% and past Elasticsearch's 85% low watermark. TEST Cloud reaches about 82%. PROD
-  has room. Free space or add disk before cutover in DEV or TEST; doing it before `prepare` is simplest. Do not
+  the source's replica count, so afterwards the new indexes take the source's full size, replicas included. While
+  loading, each new index sits on a single node, so one node fills first. On DEV that node reaches about 78% after
+  `copy`, and every node about 79% after cutover, close to Elasticsearch's 85% low watermark. TEST Cloud reaches
+  about 82%. PROD has room. Free space or add disk before cutover in DEV or TEST; doing it before `prepare` is simplest. Do not
   disable disk watermarks.
 
 ## Accessing Elasticsearch
@@ -178,58 +181,70 @@ indexing off. A hosted runner can time out before a long Job finishes; the Job k
 
 ### Second Indexing Service
 
-For the stepped migration, a second copy of the environment's live indexing service writes every content change
-into the new indexes from `prepare` until cutover. It is a temporary Deployment, created from the live one and
-deleted afterwards; nothing in the repository describes it.
+For the stepped migration, a second indexing service, `indexing-service-migration`, writes every content change into
+the new indexes from `prepare` until cutover, while the live one keeps writing to the live indexes. Each environment
+has an overlay for it in [kustomize/services/indexing](../services/indexing):
+
+| Overlay | Built on | Writes to |
+| ------- | -------- | --------- |
+| `overlays/migration-dev` | `overlays/dev` | DEV OpenShift Elasticsearch |
+| `overlays/migration-test` | `overlays/cloud-test` | TEST Elastic Cloud |
+| `overlays/migration-prod` | `overlays/cloud-prod` | PROD Elastic Cloud |
+
+The shared [migration component](../services/indexing/components/migration) changes the live service's
+configuration to:
 
 | Setting | Value | Why |
 | ------- | ----- | --- |
-| `Kafka__Consumer__GroupId` | its own, e.g. `IndexingMigration` | A consumer group shared with the live service would split the messages between them. |
-| `Kafka__Admin__ClientId`, `Kafka__Producer__ClientId` | the same | Keeps it apart from the live service in Kafka. |
+| Name and labels | `indexing-service-migration` | Keeps its pods out of the live service's selector and Service. |
+| `KAFKA_CLIENT_ID` (consumer group) | `IndexingMigration` | A consumer group shared with the live service would split the messages between them. |
 | `Kafka__Consumer__AutoOffsetReset` | `Latest` | A new group otherwise starts at the oldest message, replaying 7 days of the `index` topic. |
-| `Service__IndexOnly` | `true` | Stops a second set of alerts, notifications, status updates and `folder` topic messages. |
-| `Elastic__ContentIndex` | the new unpublished content index (`CONTENT_INDEX` in the `prepare` log) | Where it writes. |
-| `Elastic__PublishedIndex` | the new published content index (`PUBLISHED_INDEX`) | Where it writes. |
-| `Elastic__EvidenceIndex` | the new evidence index (`EVIDENCE_INDEX`) | Where it writes. Set it explicitly: the live DEV Deployment does not reference it and uses the default `content_evidence`. |
+| `INDEX_ONLY` | `"true"` | Stops a second set of alerts, notifications, status updates and `folder` topic messages. |
+| `CONTENT_INDEX`, `PUBLISHED_INDEX`, `EVIDENCE_INDEX` | placeholders | Set from the `prepare` log once it has run. The placeholders are not valid index names, so nothing is written until they are set. |
+| Replicas | 0 | Scaled up once the index names are set. |
 
-Everything else (Elasticsearch URL and credentials, API, Kafka servers) stays as the live service has it, so it writes
-to the same cluster as the migration. Create it after `prepare` and before `copy`, so no change made during the copy
-is missed:
+Everything else (Elasticsearch URL and credentials, API, Kafka servers, image tag) comes from the overlay it is built
+on, so it writes to the same cluster as the migration. The `folder` messages stop only once the environment runs an
+indexing image with that change; an older image forwards them, so `folder-collection` handles each change twice.
 
-```bash
-SRC=indexing-service          # TEST and PROD: indexing-service-cloud
-NEW=indexing-service-migration
+Start it after `prepare` and before `copy`, so no change made during the copy is missed. The
+[1.0.11 checklist](./1.0.11.md) does this during a short pause with every indexing service stopped, and first sets the
+`IndexingMigration` group to the live group's positions, so both start from the same message (step 3 below). Without
+a pause, skip step 3: a new group starts at the newest message, and `verify` repairs anything in between.
 
-# 1. Copy the live Deployment, renamed, with no pods yet
-oc get deploy $SRC -n $N -o json | jq --arg name $NEW '
-  del(.metadata.uid, .metadata.resourceVersion, .metadata.creationTimestamp, .metadata.generation,
-      .metadata.managedFields, .metadata.annotations, .status)
-  | .metadata.name = $name | .metadata.labels.name = $name | .metadata.labels.component = $name
-  | .spec.selector.matchLabels.name = $name | .spec.selector.matchLabels.component = $name
-  | .spec.template.metadata.labels.name = $name | .spec.template.metadata.labels.component = $name
-  | .spec.replicas = 0' | oc apply -n $N -f -
-
-# 2. Point it at the new indexes, from the prepare log
-oc set env deploy/$NEW -n $N \
-  Kafka__Consumer__GroupId=IndexingMigration Kafka__Admin__ClientId=IndexingMigration \
-  Kafka__Producer__ClientId=IndexingMigration Kafka__Consumer__AutoOffsetReset=Latest Service__IndexOnly=true \
-  Elastic__ContentIndex=<CONTENT_INDEX> Elastic__PublishedIndex=<PUBLISHED_INDEX> Elastic__EvidenceIndex=<EVIDENCE_INDEX>
-
-# 3. Start it and check it subscribes
-oc scale deploy/$NEW -n $N --replicas=1
-oc logs -f deploy/$NEW -n $N                 # "Subscribing to topics: index", then "Content indexed ... Index: <new index>"
-```
-
-The renamed labels keep its pods out of the live service's selector and Service. Use a group name that has never been
-used: `AutoOffsetReset` only applies to a group with no saved position.
-
-Keep it running until cutover has finished, then remove it:
+`syncgroup` and `lag` are defined in [section 0 of the checklist](./1.0.11.md#0-set-up-your-shell). The live group is
+`Indexing` in DEV and `IndexingCloud` in TEST and PROD; `useenv` sets it as `$G`.
 
 ```bash
-oc delete deploy/$NEW -n $N
+O=openshift/kustomize/services/indexing/overlays/migration-dev     # migration-test, migration-prod
+
+# 1. Create it, with no pods
+oc apply -k $O
+
+# 2. Set the index names from the prepare log
+oc patch configmap indexing-service-migration -n $N --type merge -p '{"data":{
+  "CONTENT_INDEX":"<CONTENT_INDEX>","PUBLISHED_INDEX":"<PUBLISHED_INDEX>","EVIDENCE_INDEX":"<EVIDENCE_INDEX>"}}'
+
+# 3. While the live indexer is stopped: start from its positions (dry run first, then --execute)
+syncgroup $G IndexingMigration
+syncgroup $G IndexingMigration --execute
+
+# 4. Start it and check it writes to the new indexes
+oc scale deploy/indexing-service-migration -n $N --replicas=1
+oc logs -f deploy/indexing-service-migration -n $N   # "Subscribing to topics: index", then "Content indexed ... Index: <new index>"
 ```
 
-The consumer group `IndexingMigration` stays in Kafka with its last position; it does nothing once no service uses it.
+Applying the overlay again resets the index names and replicas, so repeat steps 2 and 4 after it. Keep it running
+until cutover has finished, then remove it:
+
+```bash
+oc delete -k $O
+```
+
+The consumer group `IndexingMigration` stays in Kafka with its last position. Before the next migration, either set
+it again with `syncgroup` (step 3), or delete it (`kafka-consumer-groups --delete --group IndexingMigration`) so the
+new service starts at the newest message. In DEV every broker advertises the same address, so Kafka group commands
+can time out finding the group's coordinator; give them `--timeout 60000`.
 
 ## Watch Progress
 

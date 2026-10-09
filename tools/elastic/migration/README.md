@@ -17,7 +17,7 @@ coordinators for the same database from running concurrently.
 
 ## Steps
 
-`Elastic__Step` (`--step`, or `p=` through `make deploy`) runs one step of a single migration named
+`Elastic__Step` (`--step`/`-s`, or `p=` through `make deploy`) runs one step of a single migration named
 by `Elastic__MigrationVersion`; `all`, the default, runs every step in order. Only migrations that
 override `SupportsSteps` accept a step, and a rollback always runs every step. Each step records its
 completion in the destinations' mapping `_meta`, and the next step refuses to start until it is there.
@@ -165,7 +165,11 @@ oc scale deployment/indexing-service --replicas=0 -n 9b301c-prod
 oc scale statefulset/elastic --replicas=0 -n 9b301c-prod
 ```
 
-Keep the Cloud writer running. Scaling down retains local
+Retire it during an indexing pause: stop the local `indexing-service`, then the Cloud writer, move the Cloud writer's
+consumer group to the local one's position and set its `INDEX_ONLY` to `false` before it starts again. From then on it
+is the only service that updates content status and sends alerts, notifications and folder messages, and it picks up
+exactly where the local one stopped. The ordered steps are in the
+[1.0.11 checklist](../../../openshift/kustomize/elastic-migration/1.0.11.md#31-pause-indexing-and-retire-the-local-cluster). Scaling down retains local
 PVCs and therefore does not release storage quota. Reclaim local PVCs only after snapshots and Cloud
 verification, checking the PV reclaim policy first. This branch does not delete cluster data or apply
 these operational changes automatically.

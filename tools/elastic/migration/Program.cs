@@ -19,10 +19,10 @@ class Program
     #region Variables
     private static Dictionary<string, string> _argMapping = new()
         {
-            { "-v", "Elastic__MigrationVersion" },
-            { "--version", "Elastic__MigrationVersion" },
-            { "-s", "Elastic__Step" },
-            { "--step", "Elastic__Step" },
+            { "-v", "Elastic:MigrationVersion" },
+            { "--version", "Elastic:MigrationVersion" },
+            { "-s", "Elastic:Step" },
+            { "--step", "Elastic:Step" },
         };
     #endregion
 

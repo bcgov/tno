@@ -147,7 +147,9 @@ class MigrationCommands(unittest.TestCase):
         for environment in ('test', 'prod'):
             self.run_make('deploy', 'n=elastic-migration', f'e={environment}', 'm=1.0.11', 's=custom-db')
             job = self.manifest()
-            self.assertIn('args: ["--version", "1.0.11"]', job)
+            self.assertIn('args: []', job)
+            self.assertIn('name: Elastic__MigrationVersion\n              value: "1.0.11"', job)
+            self.assertIn('name: Elastic__Step\n              value: "all"', job)
             self.assertIn('name: indexing-service-cloud', job)
             self.assertIn('name: elastic-cloud', job)
             self.assertIn('name: custom-db', job)
@@ -158,10 +160,12 @@ class MigrationCommands(unittest.TestCase):
     def test_step_job(self):
         self.run_make('deploy', 'n=elastic-migration', 'e=dev', 'm=1.0.11', 'p=prepare')
         job = self.manifest()
-        self.assertIn('args: ["--version", "1.0.11", "--step", "prepare"]', job)
+        self.assertIn('args: []', job)
+        self.assertIn('name: Elastic__MigrationVersion\n              value: "1.0.11"', job)
+        self.assertIn('name: Elastic__Step\n              value: "prepare"', job)
         self.assertIn('name: elastic-migration-prepare-', job)
         self.run_make('deploy', 'n=elastic-migration', 'e=dev', 'm=1.0.11', 'p=all')
-        self.assertIn('args: ["--version", "1.0.11", "--step", "all"]', self.manifest())
+        self.assertIn('name: Elastic__Step\n              value: "all"', self.manifest())
 
     def test_invalid_step_before_external_commands(self):
         for args in (('n=elastic-migration', 'm=1.0.11', 'p=bad'),

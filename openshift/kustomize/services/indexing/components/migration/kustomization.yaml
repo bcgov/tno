@@ -1,0 +1,77 @@
+# A temporary second indexing service for a stepped Elasticsearch migration
+# (openshift/kustomize/elastic-migration/README.md): indexing-service-migration writes every
+# content change into the new indexes while the live indexing service keeps writing to the live
+# ones. It has its own consumer group starting at the latest message, and only indexes.
+#
+# Created with no pods. The index names include a generation that the migration's 'prepare' step
+# prints; set them on the ConfigMap after applying, then scale it up. The placeholders are not valid
+# index names, so a pod started without them cannot create an index. Applying again resets them.
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+patches:
+  # Matches the ConfigMap, Service and Deployment whether the overlay builds on the OpenShift or
+  # the cloud indexing service. Kustomize follows the renamed ConfigMap in every reference to it.
+  - target:
+      kind: (ConfigMap|Service|Deployment)
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: indexing-service-migration
+      - op: replace
+        path: /metadata/labels/name
+        value: indexing-service-migration
+      - op: replace
+        path: /metadata/labels/component
+        value: indexing-service-migration
+  - target:
+      kind: ConfigMap
+    patch: |-
+      - op: replace
+        path: /data/KAFKA_CLIENT_ID
+        value: IndexingMigration
+      - op: replace
+        path: /data/INDEX_ONLY
+        value: "true"
+      - op: replace
+        path: /data/CONTENT_INDEX
+        value: SET-CONTENT_INDEX-FROM-PREPARE
+      - op: replace
+        path: /data/PUBLISHED_INDEX
+        value: SET-PUBLISHED_INDEX-FROM-PREPARE
+      - op: replace
+        path: /data/EVIDENCE_INDEX
+        value: SET-EVIDENCE_INDEX-FROM-PREPARE
+  - target:
+      kind: Service
+    patch: |-
+      - op: replace
+        path: /spec/selector/component
+        value: indexing-service-migration
+  - target:
+      kind: Deployment
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 0
+      - op: replace
+        path: /spec/selector/matchLabels/name
+        value: indexing-service-migration
+      - op: replace
+        path: /spec/selector/matchLabels/component
+        value: indexing-service-migration
+      - op: replace
+        path: /spec/template/metadata/labels/name
+        value: indexing-service-migration
+      - op: replace
+        path: /spec/template/metadata/labels/component
+        value: indexing-service-migration
+      - op: replace
+        path: /spec/template/spec/containers/0/name
+        value: indexing-service-migration
+      # A new consumer group otherwise starts at the oldest message and replays the topic.
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: Kafka__Consumer__AutoOffsetReset
+          value: Latest

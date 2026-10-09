@@ -559,7 +559,13 @@ YAML
     echo "Migrating 9b301c-$env to '$migration'${step:+, step '$step'}"
     _args="[\"$migration\"]"
     if [[ "$name" == "elastic-migration" ]]; then
-      _args="[\"--version\", \"$migration\"${step:+, \"--step\", \"$step\"}]"
+      # Pass the version and step as configuration rather than --version/--step: images built
+      # before the tool dropped DragonFruit reject --version and ignore the step.
+      _args="[]"
+      _elastic_env+=$'\n'"            - name: Elastic__MigrationVersion
+              value: \"$migration\"
+            - name: Elastic__Step
+              value: \"${step:-all}\""
     fi
   else
     echo "Applying all pending migrations to 9b301c-$env"
