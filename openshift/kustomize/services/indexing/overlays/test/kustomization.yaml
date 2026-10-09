@@ -16,7 +16,7 @@ patches:
     patch: |-
       - op: replace
         path: /spec/replicas
-        value: 0  # Elasticsearch Cloud is primary; retain local PVCs.
+        value: 0  # Elasticsearch Cloud is primary; indexing-service-cloud indexes.
       - op: replace
         path: /spec/template/spec/containers/0/image
         value: bcgov-c4awhwfpcremdbga.azurecr.io/indexing-service:test

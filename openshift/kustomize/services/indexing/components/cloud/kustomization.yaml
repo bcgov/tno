@@ -1,0 +1,109 @@
+# Indexing service for an Elasticsearch Cloud cluster: indexing-service-cloud, with its own
+# ConfigMap, consumer group and the elastic-cloud API key. Cloud is the primary cluster and the
+# OpenShift indexing-service is retired (0 replicas), so this is the full indexing service: it also
+# updates content status and sends alerts, notifications and folder messages (INDEX_ONLY=false).
+# Each cloud-<environment> overlay sets the cluster URL, replicas, resources and image.
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+patches:
+  # Kustomize follows the renamed ConfigMap, so every reference to it is updated.
+  - target:
+      kind: ConfigMap
+      name: indexing-service
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /metadata/labels/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /metadata/labels/component
+        value: indexing-service-cloud
+      - op: replace
+        path: /data/KAFKA_CLIENT_ID
+        value: IndexingCloud
+      - op: replace
+        path: /data/CONTENT_INDEX
+        value: content
+      - op: replace
+        path: /data/PUBLISHED_INDEX
+        value: published_content
+      - op: replace
+        path: /data/INDEX_ONLY
+        value: "false"
+  - target:
+      kind: Service
+      name: indexing-service
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /metadata/labels/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /metadata/labels/component
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/selector/component
+        value: indexing-service-cloud
+  # Elasticsearch credentials come from the elastic-cloud Secret (matched by variable name).
+  - target:
+      kind: Deployment
+      name: indexing-service
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: indexing-service
+      spec:
+        template:
+          spec:
+            containers:
+              - name: indexing-service
+                env:
+                  - name: Elastic__Username
+                    valueFrom:
+                      secretKeyRef:
+                        name: elastic-cloud
+                  - name: Elastic__Password
+                    valueFrom:
+                      secretKeyRef:
+                        name: elastic-cloud
+                  - name: Elastic__ApiKey
+                    valueFrom:
+                      secretKeyRef:
+                        name: elastic-cloud
+  - target:
+      kind: Deployment
+      name: indexing-service
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /metadata/labels/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /metadata/labels/component
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/selector/matchLabels/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/selector/matchLabels/component
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/template/metadata/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/template/metadata/labels/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/template/metadata/labels/component
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/template/spec/containers/0/name
+        value: indexing-service-cloud

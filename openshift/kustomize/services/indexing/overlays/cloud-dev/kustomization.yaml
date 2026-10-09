@@ -1,6 +1,8 @@
+# Scaffold: DEV has no Elasticsearch Cloud cluster yet. Before scaling it up, set ELASTICSEARCH_URI
+# below and create the elastic-cloud Secret (ApiKey) in 9b301c-dev.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: 9b301c-prod
+namespace: 9b301c-dev
 
 resources:
   - ../../base
@@ -18,14 +20,14 @@ patches:
     patch: |-
       - op: replace
         path: /data/ELASTICSEARCH_URI
-        value: https://prod-mmi.es.ca-central-1.aws.elastic-cloud.com
+        value: https://SET-DEV-CLOUD-URL.es.ca-central-1.aws.elastic-cloud.com
   - target:
       kind: Deployment
       name: indexing-service
     patch: |-
       - op: replace
         path: /spec/replicas
-        value: 3
+        value: 0
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/cpu
         value: 100m
@@ -40,4 +42,4 @@ patches:
         value: 250Mi
       - op: replace
         path: /spec/template/spec/containers/0/image
-        value: bcgov-c4awhwfpcremdbga.azurecr.io/indexing-service:prod
+        value: bcgov-c4awhwfpcremdbga.azurecr.io/indexing-service:dev

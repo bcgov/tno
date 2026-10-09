@@ -19,8 +19,10 @@ class Program
     #region Variables
     private static Dictionary<string, string> _argMapping = new()
         {
-            { "-v", "Elastic__MigrationVersion" },
-            { "--version", "Elastic__MigrationVersion" },
+            { "-v", "Elastic:MigrationVersion" },
+            { "--version", "Elastic:MigrationVersion" },
+            { "-s", "Elastic:Step" },
+            { "--step", "Elastic:Step" },
         };
     #endregion
 
@@ -65,6 +67,11 @@ class Program
             })
             .ConfigureServices((context, services) =>
             {
+                // A migration holds one database session through hours of Elasticsearch work.
+                var connectionString = context.Configuration["ConnectionStrings:TNO"];
+                if (!String.IsNullOrWhiteSpace(connectionString))
+                    context.Configuration["ConnectionStrings:TNO"] = DatabaseSession.WithKeepAlive(connectionString);
+
                 services
                     .AddLogging()
                     .AddSerializerOptions(context.Configuration)
