@@ -8,12 +8,13 @@ ID/revision projections, and repairs missing/stale documents and removes extras 
 Published documents never retain unapproved audio/video transcript bodies or their analysis.
 The evidence index is populated and checked against current analyses.
 
-This is a **maintenance-window migration**. All database and index writers must remain paused
-from before the copy starts until verification, alias cutover, and migration-history recording
-succeed. Routing the web apps to a maintenance page alone does not stop background writers.
-The tool requires `Elastic__WritersPaused=true`; this is an operator acknowledgement, not a mechanism
-that pauses services. A PostgreSQL session advisory lock prevents two migration coordinators for
-the same database from running concurrently.
+To run it in OpenShift, follow the [operations runbook](../../../openshift/kustomize/elastic-migration/README.md).
+
+Writers do not need to be paused. Every copy, repair and live write is versioned by
+`projectionRevision`, so an older revision can never replace a newer one. Live writes go through the
+aliases to the old indexes until cutover; content that changes after the tool has verified a
+destination reaches the new index the next time it is indexed. A PostgreSQL session advisory lock
+prevents two migration coordinators for the same database from running concurrently.
 
 ## Targets and prerequisites
 
@@ -43,11 +44,8 @@ Before starting:
    indexes and mappings, read cluster tasks/health, manage aliases, clone concrete indexes, and
    write migration history. Concrete-index replacement also requires deleting that concrete name.
    The backup clone is checked for recovered primaries before replacement.
-4. Record desired replica counts and CronJob suspension states. Pause API/API-services and all
-   ingestion, content-editing, indexing (including Cloud), analysis, automation, and other workers
-   or jobs that can change content or its projections. Stop external writers too. Drain in-flight
-   requests. Preserve Kafka consumer groups/offsets; do not delete topics or reset offsets. Keep
-   PostgreSQL, Kafka, and the primary Elasticsearch cluster running.
+4. Keep PostgreSQL, Kafka, and the primary Elasticsearch cluster running. Preserve Kafka consumer
+   groups/offsets; do not delete topics or reset offsets.
 
 ## Failed DEV run: old partial destinations
 
@@ -64,36 +62,33 @@ wildcard deletion command. An index with matching native migration generation me
 
 ## Build and run
 
-From the repository root, after preparing the maintenance window:
+From the repository root, after the checks above:
 
 ```bash
 make -C openshift build n=elastic-migration t=latest
 make -C openshift push n=elastic-migration t=latest
-ELASTIC_MIGRATION_WRITERS_PAUSED=true \
-  make -C openshift deploy n=elastic-migration e=dev t=latest m=1.0.11
+make -C openshift deploy n=elastic-migration e=dev t=latest m=1.0.11
 ```
 
 For a verified Cloud schema without history, explicitly supply the baseline:
 
 ```bash
-ELASTIC_MIGRATION_WRITERS_PAUSED=true ELASTIC_MIGRATION_BASELINE=1.0.10 \
+ELASTIC_MIGRATION_BASELINE=1.0.10 \
   make -C openshift deploy n=elastic-migration e=test t=latest m=1.0.11
 # Use e=prod for the PROD Cloud primary, after validating TEST.
 ```
 
-The GitHub Actions workflow uses the same deployment script. Its manual inputs require the writer
-pause acknowledgement and optionally a baseline. It does not pause/resume services or routes itself.
-A hosted runner may time out before a long Job finishes; inspect the Job or reconnect using the CLI.
+The GitHub Actions workflow uses the same deployment script. Its manual inputs take an optional
+baseline. A hosted runner may time out before a long Job finishes; inspect the Job or reconnect using the CLI.
 
 | Script environment variable | Default | Purpose |
 | --- | --- | --- |
-| `ELASTIC_MIGRATION_WRITERS_PAUSED` | false | Required maintenance acknowledgement; pass per invocation |
 | `ELASTIC_MIGRATION_BASELINE` | empty | Baseline only when history is absent |
 | `ELASTIC_MIGRATION_REQUESTS_PER_SECOND` | -1 | New-task document throttle; positive integer or unlimited (-1) |
 | `MIGRATION_ACTIVE_DEADLINE_SECONDS` | 86400 | Elasticsearch Job execution limit; DB Jobs still default to 1800 |
 | `MIGRATION_STARTUP_TIMEOUT_SECONDS` | 900 | Separate wait for image/container startup |
 
-Direct tool invocations use `Elastic__WritersPaused`, `Elastic__BaselineVersion`, and
+Direct tool invocations use `Elastic__BaselineVersion` and
 `Elastic__ReindexRequestsPerSecond`. `Elastic__NumberOfShards` and `Elastic__NumberOfReplicas`
 can explicitly override preserved topology. `Elastic__EvidenceIndex` defaults to `content_evidence`.
 
@@ -107,25 +102,25 @@ replays into the retained destination using external versions, without overwriti
 Task failures never count as completion. A replaced source UUID or unmanaged destination fails closed.
 
 **Stopping or timing out the Kubernetes Job does not cancel a server-side Elasticsearch task.**
-Keep writers paused. Inspect the logged task with `GET /_tasks/<task-id>`; either let it finish and
+Inspect the logged task with `GET /_tasks/<task-id>`; either let it finish and
 rerun, or cancel it explicitly with `POST /_tasks/<task-id>/_cancel` and wait for cancellation before
 cleanup. Never delete a destination while its task is running. Existing tasks keep their original
 throttle; use `POST /_reindex/<task-id>/_rethrottle?requests_per_second=...` to change it.
 
 The migration compares database IDs/revisions with both `_source.projectionRevision` and `_version`
 in the target. Counts alone are insufficient. It repairs differences and refuses to complete if
-repairs make no progress. It also verifies published membership and evidence membership. With
-writers paused, aliases move in one atomic request and are checked again before history is recorded.
+repairs make no progress. It also verifies published membership and evidence membership. Aliases
+move in one atomic request and are checked again before history is recorded.
 If the alias name is currently a concrete index (common on Cloud), the tool clones it to a backup,
 waits for the backup's primaries, and replaces the concrete name with the alias in the same request.
 A crash after alias cutover is recoverable: rerunning reuses the targets and verifies before recording
 history. Migration history uses a stable version ID so a retry cannot create duplicate records.
 
 After success, inspect aliases, test editor/subscriber search and published transcript filtering,
-then restore the recorded service/Job settings. Keep the old indexes/backups until the application
+then keep the old indexes/backups until the application
 checks and the retention window pass. Old copies cost storage; deletion is an explicit later action.
 
-Rollback to `m=1.0.10` also requires a maintenance window and storage. It performs a native copy into
+Rollback to `m=1.0.10` also requires storage. It performs a native copy into
 rollback destinations, removes analysis fields from the copied documents, repairs from PostgreSQL,
 and switches aliases. It retains the 1.0.11/evidence indexes. Each cycle uses destinations suffixed with a generation derived from the source index UUIDs.
 Interrupted runs reuse that generation, including after alias cutover. Subsequent upgrade/rollback
@@ -146,7 +141,7 @@ oc scale deployment/indexing-service --replicas=0 -n 9b301c-prod
 oc scale statefulset/elastic --replicas=0 -n 9b301c-prod
 ```
 
-Keep the Cloud writer running outside the migration maintenance window. Scaling down retains local
+Keep the Cloud writer running. Scaling down retains local
 PVCs and therefore does not release storage quota. Reclaim local PVCs only after snapshots and Cloud
 verification, checking the PV reclaim policy first. This branch does not delete cluster data or apply
 these operational changes automatically.

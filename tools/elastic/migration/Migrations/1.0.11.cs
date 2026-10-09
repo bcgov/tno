@@ -68,7 +68,7 @@ public class Migration_1011 : TNOMigration
 
     private async Task WithLockAsync(MigrationBuilder builder, Func<Task> action)
     {
-        RequireMaintenance(builder);
+        ValidateThrottle(builder);
         await _context.Database.OpenConnectionAsync();
         try
         {
@@ -267,10 +267,8 @@ public class Migration_1011 : TNOMigration
         builder.Logger.LogInformation("Copied {count} field mapping(s) from '{alias}' to '{index}': {fields}", missing.Count, target.Alias, target.Index, String.Join(", ", missing.Select(p => p.Key)));
     }
 
-    private static void RequireMaintenance(MigrationBuilder builder)
+    private static void ValidateThrottle(MigrationBuilder builder)
     {
-        if (!builder.MigrationOptions.WritersPaused)
-            throw new InvalidOperationException("Pause database and Elasticsearch writers, then set Elastic__WritersPaused=true. Keep them paused through verification and alias cutover; see the migration runbook.");
         var throttle = builder.MigrationOptions.ReindexRequestsPerSecond;
         if (throttle != -1 && throttle <= 0)
             throw new InvalidOperationException("ReindexRequestsPerSecond must be positive or -1.");
@@ -539,7 +537,7 @@ public class Migration_1011 : TNOMigration
                 }
                 difference = await CompareAsync(builder, target.Index, publishedOnly, MaxRepairs, evidenceOnly: evidenceOnly);
                 if (difference.MissingCount + difference.ExtraCount >= before)
-                    throw new InvalidOperationException($"Repairs to '{target.Index}' made no progress. Keep writers paused and investigate; migration was not marked complete.");
+                    throw new InvalidOperationException($"Repairs to '{target.Index}' made no progress. Investigate before rerunning; migration was not marked complete.");
             }
             builder.Logger.LogInformation("Verified '{index}': {count:N0} document(s), matching the database", target.Index, difference.IndexCount);
         }

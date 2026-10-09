@@ -48,6 +48,8 @@ metadata:
     cluster: elastic-cluster
 spec:
   clusterIP: None
+  # Nodes discover each other through this service, including before they are ready.
+  publishNotReadyAddresses: true
   ports:
     - name: 9200-tcp
       protocol: TCP

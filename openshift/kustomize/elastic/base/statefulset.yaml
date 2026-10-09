@@ -35,7 +35,8 @@ spec:
       schedulerName: default-scheduler
       securityContext: {}
       serviceAccountName: tno
-      terminationGracePeriodSeconds: 0
+      # Give Elasticsearch time to shut down cleanly.
+      terminationGracePeriodSeconds: 120
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -70,6 +71,15 @@ spec:
             - containerPort: 9300
               name: 9300-com
               protocol: TCP
+          # Ready once this node's Elasticsearch answers; does not wait for shard recovery.
+          readinessProbe:
+            httpGet:
+              path: /_cluster/health?local=true
+              port: 9200
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
           volumeMounts:
             - name: data
               mountPath: /usr/share/elasticsearch/data
@@ -105,7 +115,7 @@ spec:
                   name: elastic
                   key: PASSWORD
             - name: ES_JAVA_OPTS
-              value: -Xms512m -Xmx512m
+              value: -Xms1536m -Xmx1536m
 
   volumeClaimTemplates:
     - metadata:
