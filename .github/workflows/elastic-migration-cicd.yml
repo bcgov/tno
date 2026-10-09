@@ -20,11 +20,6 @@ on:
         options:
           - dev
           - test
-      writers_paused:
-        description: 'All database and Elasticsearch writers are paused for this maintenance window'
-        required: true
-        type: boolean
-        default: false
       baseline:
         description: 'Existing schema baseline only when migration history is absent (e.g. 1.0.10)'
         required: false
@@ -100,7 +95,6 @@ jobs:
     uses: ./.github/workflows/_reusable-elastic-migration-cd.yml
     with:
       environment: dev
-      writers_paused: ${{ inputs.writers_paused }}
       baseline: ${{ inputs.baseline }}
       image_tag: dev
       openshift_namespace: 9b301c-dev
@@ -119,7 +113,6 @@ jobs:
     uses: ./.github/workflows/_reusable-elastic-migration-cd.yml
     with:
       environment: test
-      writers_paused: ${{ inputs.writers_paused }}
       baseline: ${{ inputs.baseline }}
       image_tag: test
       openshift_namespace: 9b301c-test

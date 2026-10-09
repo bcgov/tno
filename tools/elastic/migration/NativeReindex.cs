@@ -77,7 +77,7 @@ public sealed class NativeReindex(MigrationBuilder builder)
             taskId = matches.SingleOrDefault();
             if (taskId == null)
             {
-                // Replays are safe with paused writers: older revisions cannot replace newer repairs.
+                // Replays are safe: external versions stop older revisions replacing newer writes.
                 var body = CreateRequest(source, destination, published, includeAnalysis);
                 var response = await RequestAsync(Elasticsearch.Net.HttpMethod.POST, "_reindex", body,
                     new ReindexOnServerRequestParameters

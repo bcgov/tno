@@ -74,8 +74,7 @@ class MigrationCommands(unittest.TestCase):
                     and key not in ('IMAGE', 'DOCKERFILE', 'CONTEXT')}
         self.env.update(PATH=f'{binary}:{os.environ["PATH"]}',
                         CALLS=str(self.root / 'calls'), MANIFEST=str(self.root / 'job.yaml'),
-                        ACR_USERNAME='mock-user', ACR_PASSWORD='mock-password',
-                        ELASTIC_MIGRATION_WRITERS_PAUSED='true')
+                        ACR_USERNAME='mock-user', ACR_PASSWORD='mock-password')
 
     def run_make(self, *args, success=True, **env):
         result = subprocess.run(['make', *args], cwd=self.scripts.parent,
@@ -120,13 +119,11 @@ class MigrationCommands(unittest.TestCase):
                       ELASTIC_MIGRATION_REQUESTS_PER_SECOND='500')
         job = self.manifest()
         self.assertIn('activeDeadlineSeconds: 43200', job)
-        for name, value in [('BaselineVersion', '1.0.10'), ('WritersPaused', 'true'),
-                            ('ReindexRequestsPerSecond', '500')]:
+        for name, value in [('BaselineVersion', '1.0.10'), ('ReindexRequestsPerSecond', '500')]:
             self.assertIn(f'name: Elastic__{name}\n              value: "{value}"', job)
 
     def test_invalid_controls_fail_before_promotion(self):
-        for values in ({'ELASTIC_MIGRATION_WRITERS_PAUSED': 'false'},
-                       {'ELASTIC_MIGRATION_BASELINE': 'bad'},
+        for values in ({'ELASTIC_MIGRATION_BASELINE': 'bad'},
                        {'ELASTIC_MIGRATION_REQUESTS_PER_SECOND': '0'},
                        {'MIGRATION_ACTIVE_DEADLINE_SECONDS': '0'},
                        {'MIGRATION_STARTUP_TIMEOUT_SECONDS': '-1'}):

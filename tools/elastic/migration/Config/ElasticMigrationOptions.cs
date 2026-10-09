@@ -49,9 +49,6 @@ public class ElasticMigrationOptions : ElasticOptions
     /// Recorded before migrating, so earlier migrations are not run against existing indexes.
     /// </summary>
     public string BaselineVersion { get; set; } = "";
-    /// <summary>Explicit maintenance-window acknowledgement: database and index writers are paused.</summary>
-    public bool WritersPaused { get; set; }
-
     /// <summary>Native reindex throttle, documents per second; -1 disables throttling.</summary>
     public long ReindexRequestsPerSecond { get; set; } = -1;
     #endregion

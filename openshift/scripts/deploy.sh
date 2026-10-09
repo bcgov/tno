@@ -70,10 +70,6 @@ _migration_deadline=${MIGRATION_ACTIVE_DEADLINE_SECONDS:-1800}
 _migration_startup=${MIGRATION_STARTUP_TIMEOUT_SECONDS:-900}
 if [[ "$name" == "elastic-migration" ]]; then
   _migration_deadline=${MIGRATION_ACTIVE_DEADLINE_SECONDS:-86400}
-  if [[ "${ELASTIC_MIGRATION_WRITERS_PAUSED:-false}" != "true" ]]; then
-    echo "ERROR: pause database and Elasticsearch writers, then set ELASTIC_MIGRATION_WRITERS_PAUSED=true. See the Elasticsearch migration runbook."
-    exit 1
-  fi
   if [[ -n "${ELASTIC_MIGRATION_BASELINE:-}" && ! "$ELASTIC_MIGRATION_BASELINE" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     echo "ERROR: ELASTIC_MIGRATION_BASELINE must be a version such as 1.0.10."
     exit 1
@@ -527,9 +523,7 @@ YAML
       _elastic_env+=$'\n'"$(_elastic_ref Elastic__Username secret "$_elastic_secret" USERNAME)" || exit 1
       _elastic_env+=$'\n'"$(_elastic_ref Elastic__Password secret "$_elastic_secret" PASSWORD)" || exit 1
     fi
-    _elastic_env+=$'\n'"            - name: Elastic__WritersPaused
-              value: \"true\"
-            - name: Elastic__BaselineVersion
+    _elastic_env+=$'\n'"            - name: Elastic__BaselineVersion
               value: \"${ELASTIC_MIGRATION_BASELINE:-}\"
             - name: Elastic__ReindexRequestsPerSecond
               value: \"$_reindex_rate\""
@@ -672,7 +666,7 @@ YAML
     oc get job "$_job" -n "9b301c-$env" -o 'jsonpath={range .status.conditions[*]}{.type}{": "}{.reason}{" - "}{.message}{"\n"}{end}'
     oc get pod "$_pod" -n "9b301c-$env" -o 'jsonpath={range .status.containerStatuses[*]}{.name}{": "}{.state.terminated.reason}{" exit="}{.state.terminated.exitCode}{"\n"}{end}'
     if [[ "$name" == "elastic-migration" ]]; then
-      echo "       Native Elasticsearch tasks may still be running. Keep writers paused; rerun to reconnect."
+      echo "       Native Elasticsearch tasks may still be running; rerun to reconnect."
     fi
     echo "       Logs:    oc logs job/$_job -n 9b301c-$env"
     echo "       Cleanup: oc delete job/$_job -n 9b301c-$env"
