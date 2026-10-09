@@ -17,10 +17,12 @@ is described in the [tool README](../../../tools/elastic/migration/README.md).
 4. Moves the `content`, `unpublished_content` (or `published_content` on Cloud) and `content_evidence` aliases to
    the new indexes in one atomic request, then records `1.0.11` in the `migrations` index.
 
-Writers do not need to be paused. Searches keep using the 1.0.10 indexes until the alias switch.
-
-> Until the [stepped migration](#planned-zero-downtime-stepped-migration) is built, content that changes after the
-> tool has verified an index only reaches the new index the next time that content is indexed.
+Searches keep using the 1.0.10 indexes until the alias switch. The indexing service that writes to the migrated
+cluster (`indexing-service` in DEV, `indexing-service-cloud` in TEST and PROD) is turned off for the run, so nothing
+writes to Elasticsearch until the new indexes and their mappings are in place. Content changes wait in the Kafka
+`index` topic, kept for 7 days, and are indexed into the new indexes when indexing is turned back on after the alias
+switch. Search shows nothing new or changed until then. The [stepped migration](#planned-zero-downtime-stepped-migration)
+will remove the need to turn indexing off.
 
 ## Environments
 
@@ -68,8 +70,9 @@ main cost of the copy.
 
 ## Accessing Elasticsearch
 
-The commands below use these helpers. DEV Elasticsearch has security disabled and is reached through a pod; Cloud is
-reached through the `indexing-service-cloud` pod, which holds the API key.
+The commands below use these helpers. DEV Elasticsearch has security disabled and is reached through a pod. Cloud is
+reached directly from your machine with the API key from the `elastic-cloud` secret, so it works while
+`indexing-service-cloud` is scaled to 0.
 
 ```bash
 # DEV
@@ -78,7 +81,9 @@ es() { oc exec -n $N elastic-0 -- curl -s "$@"; }
 
 # TEST or PROD Cloud: paths only, e.g. escloud '_cat/indices?v'
 N=9b301c-test   # or 9b301c-prod
-escloud() { oc exec -n $N deploy/indexing-service-cloud -- sh -c "curl -s -H \"Authorization: ApiKey \$Elastic__ApiKey\" \"\$Elastic__Url/$1\""; }
+ESKEY=$(oc get secret elastic-cloud -n $N -o jsonpath='{.data.ApiKey}' | base64 -d)
+ESURL=$(oc get configmap indexing-service-cloud -n $N -o jsonpath='{.data.ELASTICSEARCH_URI}')
+escloud() { curl -s -H "Authorization: ApiKey $ESKEY" "$ESURL/$1"; }
 ```
 
 For DEV, pass the URL as `localhost:9200/<path>`, e.g. `es 'localhost:9200/_cat/health?v'`.
@@ -109,17 +114,17 @@ For DEV, pass the URL as `localhost:9200/<path>`, e.g. `es 'localhost:9200/_cat/
    oc get jobs -n $N | grep elastic-migration
    ```
 
-5. **`content_evidence` is not a concrete index.** The migration creates `content_evidence` as an alias. An
-   indexing service running the content-analysis code creates a concrete `content_evidence` index the first time it
-   writes evidence. If one exists and is empty, delete it by its exact name:
+5. **Indexing is off and `content_evidence` is not a concrete index.** Scale the environment's indexing service to 0
+   (see the [checklist](./1.0.11.md)). The migration creates `content_evidence` as an alias. A running indexing
+   service creates an empty concrete `content_evidence` index when it deletes evidence for content without analysis.
+   The tool would back it up and replace it at the alias switch, but if one exists and is empty, delete it by its
+   exact name:
 
    ```bash
    es 'localhost:9200/_cat/indices/content_evidence?v&h=index,docs.count'
    es 'localhost:9200/_alias/content_evidence'           # expect 404 "alias missing"
    es -XDELETE 'localhost:9200/content_evidence'
    ```
-
-   In DEV, keep `indexing-service` scaled to 0 until the alias exists, or it will recreate the index.
 
 6. **Disk.** Confirm the space described in [Size, Duration and Disk](#size-duration-and-disk).
 
@@ -336,4 +341,4 @@ Start it after `prepare` and before `copy`, so no change made during the copy is
 | `content_evidence` alias cannot be created | A concrete `content_evidence` index exists | See [Before You Start](#before-you-start), step 5 |
 | `Repairs to '<index>' made no progress` | Differences the tool cannot fix | Check the Job log; aliases are unchanged |
 | `Source index '<index>' was replaced; refusing to resume` | Source index changed between runs | Delete the partial indexes and rerun |
-| Job succeeded but searches miss recent edits | Content changed after verification | Reindex the affected content |
+| Job succeeded but searches miss recent edits | Indexing is still off, or still working through its Kafka backlog | Turn it back on; check the consumer group's lag |
