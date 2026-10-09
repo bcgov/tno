@@ -48,6 +48,10 @@ or override the baseline automatically. For a verified existing 1.0.10 schema wi
 history (including the inspected TEST/PROD Cloud instances), explicitly pass
 `ELASTIC_MIGRATION_BASELINE=1.0.10`. Do not use a baseline to skip unapplied schema changes.
 
+Add `p=prepare`, `p=copy`, `p=verify` or `p=cutover` (with `m=`) to run one step of a migration as its
+own Job, which lets a second indexing service keep the new indexes current with no downtime; see the
+[operations runbook](./kustomize/elastic-migration/README.md#run-the-migration).
+
 See the runbook for storage checks, partial-index cleanup, task recovery, and validation. The default Job execution
 budget is 24 hours for Elasticsearch and 30 minutes for database migrations; override with
 `MIGRATION_ACTIVE_DEADLINE_SECONDS`. Startup waits default to 15 minutes and are independently

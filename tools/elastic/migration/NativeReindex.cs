@@ -33,6 +33,24 @@ public sealed class NativeReindex(MigrationBuilder builder)
     private Task SaveAsync(string destination, JsonObject state) => RequestAsync(Elasticsearch.Net.HttpMethod.PUT,
         $"{destination}/_mapping", new JsonObject { ["_meta"] = state.DeepClone() });
 
+    /// <summary>The migration state kept in an owned destination's mapping _meta.</summary>
+    internal async Task<JsonObject> ReadStateAsync(string destination)
+    {
+        var mapping = await ReadAsync($"{destination}/_mapping");
+        var state = mapping[destination]?["mappings"]?["_meta"]?.DeepClone().AsObject();
+        if (state?["owner"]?.GetValue<string>() != Owner)
+            throw new InvalidOperationException($"'{destination}' has no native migration ownership marker.");
+        return state;
+    }
+
+    /// <summary>Set values in an owned destination's state, keeping the rest.</summary>
+    internal async Task UpdateStateAsync(string destination, Action<JsonObject> update)
+    {
+        var state = await ReadStateAsync(destination);
+        update(state);
+        await SaveAsync(destination, state);
+    }
+
     /// <summary>Copy once, reconnect to an existing task, or safely replay an interrupted copy.</summary>
     public async Task CopyAsync(string sourceAlias, string destination, bool published, bool includeAnalysis)
     {
@@ -107,13 +125,16 @@ public sealed class NativeReindex(MigrationBuilder builder)
             var result = JsonNode.Parse(response.Body)!;
             if (result["completed"]?.GetValue<bool>() == true)
             {
+                // A cancelled task completes without an error; it copied only part of the source.
                 if (result["error"] != null || result["response"] == null ||
+                    result["response"]?["canceled"] != null ||
                     result["response"]?["timed_out"]?.GetValue<bool>() == true ||
                     result["response"]?["failures"]?.AsArray().Count > 0)
                 {
                     state.Remove("task");
                     await SaveAsync(destination, state);
-                    throw new InvalidOperationException($"Reindex task '{taskId}' failed; destinations retained, aliases unchanged. {result}");
+                    var reason = result["response"]?["canceled"] != null ? "was cancelled" : "failed";
+                    throw new InvalidOperationException($"Reindex task '{taskId}' {reason}; destinations retained, aliases unchanged. Rerun to copy again. {result}");
                 }
                 state["complete"] = true;
                 await SaveAsync(destination, state);

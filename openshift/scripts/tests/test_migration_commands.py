@@ -147,13 +147,32 @@ class MigrationCommands(unittest.TestCase):
         for environment in ('test', 'prod'):
             self.run_make('deploy', 'n=elastic-migration', f'e={environment}', 'm=1.0.11', 's=custom-db')
             job = self.manifest()
-            self.assertIn('args: ["--version", "1.0.11"]', job)
+            self.assertIn('args: []', job)
+            self.assertIn('name: Elastic__MigrationVersion\n              value: "1.0.11"', job)
+            self.assertIn('name: Elastic__Step\n              value: "all"', job)
             self.assertIn('name: indexing-service-cloud', job)
             self.assertIn('name: elastic-cloud', job)
             self.assertIn('name: custom-db', job)
             self.assertIn('name: Elastic__ApiKey', job)
             self.assertNotIn('Elastic__Username', job)
             self.assertNotIn('Elastic__Password', job)
+
+    def test_step_job(self):
+        self.run_make('deploy', 'n=elastic-migration', 'e=dev', 'm=1.0.11', 'p=prepare')
+        job = self.manifest()
+        self.assertIn('args: []', job)
+        self.assertIn('name: Elastic__MigrationVersion\n              value: "1.0.11"', job)
+        self.assertIn('name: Elastic__Step\n              value: "prepare"', job)
+        self.assertIn('name: elastic-migration-prepare-', job)
+        self.run_make('deploy', 'n=elastic-migration', 'e=dev', 'm=1.0.11', 'p=all')
+        self.assertIn('name: Elastic__Step\n              value: "all"', self.manifest())
+
+    def test_invalid_step_before_external_commands(self):
+        for args in (('n=elastic-migration', 'm=1.0.11', 'p=bad'),
+                     ('n=elastic-migration', 'p=copy'),
+                     ('n=db-migration', 'p=copy')):
+            self.run_make('deploy', *args, success=False)
+        self.assertEqual('', self.calls())
 
     def test_database_job_unchanged(self):
         self.run_make('deploy', 'n=db-migration', 'e=dev', 'm=0')

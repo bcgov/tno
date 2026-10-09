@@ -325,7 +325,8 @@ public class IndexingManager : ServiceManager<IndexingOptions>
             }
         }
         // Indexing is completed, pass the baton to the folder process.
-        await this.Api.SendMessageAsync(model);
+        if (!this.Options.IndexOnly)
+            await this.Api.SendMessageAsync(model);
     }
 
     /// <summary>

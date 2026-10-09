@@ -71,9 +71,9 @@ db-connect: ## Port forward to the database (e=environment {dev,test,prod,tools}
 	$(info Port forward to the database [e=$(if $(e),$(e),dev)] $(l):$(r))
 	@cd ./scripts; ./database-connect.sh $(if $(e),$(e),dev) $(l) $(r)
 
-deploy: ## Deploy to environment - retags images to e and restarts (e=environment {dev,test,prod} [dev], t=source tag to promote [latest], n=single workload name, e.g. charts-api, db-migration, or elastic-migration [all], m=migration target/version, 0 reverts all for db-migration only [apply all pending], s=db credential secret for either migration job, e.g. montford [whatever the api uses]).
-	$(info Deploy to environment (e=environment) [e=$(if $(e),$(e),dev), t=$(if $(t),$(t),latest), n=$(if $(n),$(n),all)$(if $(m), m=$(m),)$(if $(s), s=$(s),)])
-	@cd ./scripts; ./deploy.sh "$(if $(e),$(e),dev)" "$(if $(t),$(t),latest)" "$(n)" "$(m)" "$(s)"
+deploy: ## Deploy to environment - retags images to e and restarts (e=environment {dev,test,prod} [dev], t=source tag to promote [latest], n=single workload name, e.g. charts-api, db-migration, or elastic-migration [all], m=migration target/version, 0 reverts all for db-migration only [apply all pending], s=db credential secret for either migration job, e.g. montford [whatever the api uses], p=elastic-migration step {prepare,copy,verify,cutover} of migration m [all]).
+	$(info Deploy to environment (e=environment) [e=$(if $(e),$(e),dev), t=$(if $(t),$(t),latest), n=$(if $(n),$(n),all)$(if $(m), m=$(m),)$(if $(s), s=$(s),)$(if $(p), p=$(p),)])
+	@cd ./scripts; ./deploy.sh "$(if $(e),$(e),dev)" "$(if $(t),$(t),latest)" "$(n)" "$(m)" "$(s)" "$(p)"
 
 stop: ## Stop environment - scales every service to 0 (e=environment {dev,test,prod} [dev]).
 	$(info Stop environment (e=environment) [e=$(if $(e),$(e),dev)])

@@ -120,7 +120,8 @@ public sealed class NativeReindexTests : IAsyncLifetime
         var source = await Request(HttpMethod.Get, $"{Source}/_settings");
         return new JsonObject
         {
-            ["owner"] = "tno-native-1.0.11", ["source"] = Source,
+            ["owner"] = "tno-native-1.0.11",
+            ["source"] = Source,
             ["sourceUuid"] = source[Source]!["settings"]!["index"]!["uuid"]!.DeepClone(),
         };
     }
@@ -193,6 +194,27 @@ public sealed class NativeReindexTests : IAsyncLifetime
     }
 
     [ElasticFact]
+    public async Task CancelledCopyIsNotMarkedCompleteAndCanBeRetried()
+    {
+        for (var id = 1; id <= 4; id++)
+            await Put(id, new JsonObject { ["id"] = id }.ToJsonString());
+        var body = NativeReindex.CreateRequest(Source, Target, false, true);
+        body["source"]!["size"] = 1;
+        var task = (await Request(HttpMethod.Post, "_reindex?wait_for_completion=false&requests_per_second=1", body))["task"]!.GetValue<string>();
+        var state = await State();
+        state["task"] = task;
+        await Save(state);
+        await Request(HttpMethod.Post, $"_tasks/{task}/_cancel");
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _copy.CopyAsync(Source, Target, false, true));
+        var mapping = await Request(HttpMethod.Get, $"{Target}/_mapping");
+        Assert.Null(mapping[Target]!["mappings"]!["_meta"]!["complete"]);
+        Assert.Null(mapping[Target]!["mappings"]!["_meta"]!["task"]);
+        await _copy.CopyAsync(Source, Target, false, true);
+        await Request(HttpMethod.Post, $"{Target}/_refresh");
+        Assert.Equal(4, (await Request(HttpMethod.Get, $"{Target}/_count"))["count"]!.GetValue<int>());
+    }
+
+    [ElasticFact]
     public async Task RefusesReplacedSourceAndUnownedDestination()
     {
         var state = await State();
@@ -214,8 +236,8 @@ public sealed class NativeReindexTests : IAsyncLifetime
         Assert.Null(doc["_source"]!["topics"]![0]!["isSystem"]);
         Assert.Equal("text", doc["_source"]!["body"]!.GetValue<string>());
     }
-    [MigrationFact]
-    public async Task RepairsDatabaseDifferencesBuildsEvidenceAndSwitchesConcreteIndexesAtomically()
+    /// <summary>Run 'test' against a new, empty database that is dropped afterwards.</summary>
+    private static async Task WithDatabaseAsync(Func<TNOContext, Task> test)
     {
         var cs = new NpgsqlConnectionStringBuilder(Environment.GetEnvironmentVariable("MMI_MIGRATION_TEST_POSTGRES"));
         Assert.Contains(cs.Host, new[] { "127.0.0.1", "localhost" });
@@ -231,92 +253,7 @@ public sealed class NativeReindexTests : IAsyncLifetime
             await using var dataSource = dataSourceBuilder.Build();
             await using var context = new TNOContext(new DbContextOptionsBuilder<TNOContext>().UseNpgsql(dataSource).Options);
             await context.Database.EnsureCreatedAsync();
-            var license = new TNO.Entities.License("test", 0);
-            var media = new MediaType("test");
-            var source = new Source("Test", "TEST", license);
-            var legacy = new Content("legacy", "legacy", source, ContentType.PrintContent, license, media) { Status = ContentStatus.Published, Body = "legacy" };
-            var stale = new Content("stale", "stale", source, ContentType.AudioVideo, license, media) { Status = ContentStatus.Published, Body = "private transcript", IsApproved = false };
-            var missing = new Content("missing", "missing", source, ContentType.PrintContent, license, media) { Status = ContentStatus.Draft, Body = "missing" };
-            context.Contents.AddRange(legacy, stale, missing);
-            await context.SaveChangesAsync();
-            context.ContentAnalyses.Add(new ContentAnalysis(stale.Id, "hash") { IsCurrent = true, Summary = "analysis" });
-            await context.SaveChangesAsync();
-            await context.Database.ExecuteSqlRawAsync("UPDATE content SET projection_revision = CASE WHEN uid = 'legacy' THEN 0 ELSE 3 END");
-            context.ChangeTracker.Clear();
-
-            var published = _prefix + "-published";
-            await Request(HttpMethod.Put, published, JsonNode.Parse("""{"settings":{"number_of_replicas":0},"mappings":{"properties":{"id":{"type":"long"}}}}"""));
-            foreach (var index in new[] { Source, published })
-            {
-                await Request(HttpMethod.Put, $"{index}/_doc/{legacy.Id}?refresh=true", new JsonObject { ["id"] = legacy.Id, ["contentType"] = 1, ["body"] = "legacy" });
-                await Request(HttpMethod.Put, $"{index}/_doc/{stale.Id}?refresh=true", new JsonObject { ["id"] = stale.Id, ["projectionRevision"] = 1, ["contentType"] = 0, ["body"] = "old transcript" });
-                await Request(HttpMethod.Put, $"{index}/_doc/999999?refresh=true", new JsonObject { ["id"] = 999999 });
-            }
-            await Request(HttpMethod.Put, $"{published}/_doc/{missing.Id}?refresh=true", new JsonObject { ["id"] = missing.Id });
-            var options = new ElasticMigrationOptions
-            {
-                ContentIndex = Source, PublishedIndex = published, EvidenceIndex = _prefix + "-evidence",
-                MigrationIndex = _prefix + "-history",
-                MigrationsPath = Path.Combine(AppContext.BaseDirectory, "Migrations"), ReindexDelay = 1,
-            };
-            var serializer = Options.Create(new JsonSerializerOptions(JsonSerializerDefaults.Web)
-            {
-                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
-                Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() },
-            });
-            var url = _http.BaseAddress!;
-            var builder = new MigrationBuilder(new ElasticClient(new ConnectionSettings(url).EnableApiVersioningHeader().ThrowExceptions()),
-                new TNO.Elastic.Migration.TNOElasticClient(Options.Create<TNO.Elastic.ElasticOptions>(new TNO.Elastic.ElasticOptions { Url = url }), serializer), Options.Create(options),
-                serializer, NullLogger<MigrationBuilder>.Instance);
-            using var services = new ServiceCollection().BuildServiceProvider();
-            var analysis = new ContentAnalysisService(context, new ClaimsPrincipal(), services, NullLogger<ContentAnalysisService>.Instance);
-            var migration = new Migration_1011(builder, null!, analysis, context, serializer);
-            foreach (var retained in new[] { Source, published, options.EvidenceIndex })
-                await Request(HttpMethod.Put, retained + "_v1.0.11", JsonNode.Parse("""{"settings":{"number_of_replicas":0}}"""));
-            await migration.RunUpAsync();
-            var topology = await Request(HttpMethod.Get, $"{Source}/_settings");
-            Assert.Equal("0", topology.AsObject().First().Value!["settings"]!["index"]!["number_of_replicas"]!.GetValue<string>());
-            // Replaying the coordinator after cutover must not recreate indexes or duplicate history.
-            await migration.RunUpAsync();
-            var alias = await Request(HttpMethod.Get, $"_alias/{Source}");
-            var firstUpgrade = alias.AsObject().Single().Key;
-            Assert.StartsWith(Source + "_v1.0.11-", firstUpgrade);
-            Assert.Equal(3, (await Request(HttpMethod.Get, $"{Source}/_count"))["count"]!.GetValue<int>());
-            Assert.Equal(2, (await Request(HttpMethod.Get, $"{published}/_count"))["count"]!.GetValue<int>());
-            Assert.Equal(1, (await Request(HttpMethod.Get, $"{options.EvidenceIndex}/_count"))["count"]!.GetValue<int>());
-            Assert.Equal(1, (await Request(HttpMethod.Get, $"{options.MigrationIndex}/_count"))["count"]!.GetValue<int>());
-            var repaired = await Request(HttpMethod.Get, $"{Source}/_doc/{missing.Id}");
-            Assert.Equal(3, repaired["_version"]!.GetValue<long>());
-            var protectedDoc = await Request(HttpMethod.Get, $"{published}/_doc/{stale.Id}");
-            Assert.Equal("", protectedDoc["_source"]!["body"]!.GetValue<string>());
-            Assert.Null(protectedDoc["_source"]!["analysis"]);
-            await migration.RunDownAsync();
-            alias = await Request(HttpMethod.Get, $"_alias/{Source}");
-            var firstRollback = alias.AsObject().Single().Key;
-            Assert.StartsWith(Source + "_v1.0.10-rollback-from-1.0.11-", firstRollback);
-            await Request(HttpMethod.Post, options.MigrationIndex + "/_refresh");
-            Assert.Equal(0, (await Request(HttpMethod.Get, $"{options.MigrationIndex}/_count"))["count"]!.GetValue<int>());
-            Assert.Equal(System.Net.HttpStatusCode.NotFound, (await _http.GetAsync($"_alias/{options.EvidenceIndex}")).StatusCode);
-            await migration.RunDownAsync();
-            Assert.NotNull((await Request(HttpMethod.Get, $"_alias/{Source}"))[firstRollback]);
-
-            // A new cycle must preserve both backups and copy changes made after rollback.
-            await context.Database.ExecuteSqlRawAsync("UPDATE content SET headline = 'updated after rollback', projection_revision = 4 WHERE uid = 'missing'");
-            await migration.RunUpAsync();
-            var secondUpgrade = (await Request(HttpMethod.Get, $"_alias/{Source}")).AsObject().Single().Key;
-            Assert.NotEqual(firstUpgrade, secondUpgrade);
-            Assert.Equal(4, (await Request(HttpMethod.Get, $"{Source}/_doc/{missing.Id}"))["_version"]!.GetValue<long>());
-            await migration.RunUpAsync();
-            Assert.NotNull((await Request(HttpMethod.Get, $"_alias/{Source}"))[secondUpgrade]);
-            Assert.Equal(1, (await Request(HttpMethod.Get, $"{options.EvidenceIndex}/_count"))["count"]!.GetValue<int>());
-            await migration.RunDownAsync();
-            var secondRollback = (await Request(HttpMethod.Get, $"_alias/{Source}")).AsObject().Single().Key;
-            Assert.NotEqual(firstRollback, secondRollback);
-            Assert.Equal(System.Net.HttpStatusCode.NotFound, (await _http.GetAsync($"_alias/{options.EvidenceIndex}")).StatusCode);
-            foreach (var retained in new[] { firstUpgrade, firstRollback, secondUpgrade })
-                Assert.Equal(3, (await Request(HttpMethod.Get, $"{retained}/_count"))["count"]!.GetValue<int>());
-            Assert.Equal(0, (await Request(HttpMethod.Get, $"{options.MigrationIndex}/_count"))["count"]!.GetValue<int>());
-
+            await test(context);
         }
         finally
         {
@@ -324,5 +261,172 @@ public sealed class NativeReindexTests : IAsyncLifetime
             await command.ExecuteNonQueryAsync();
         }
     }
+
+    private ElasticMigrationOptions MigrationOptions(string published) => new()
+    {
+        ContentIndex = Source,
+        PublishedIndex = published,
+        EvidenceIndex = _prefix + "-evidence",
+        MigrationIndex = _prefix + "-history",
+        MigrationsPath = Path.Combine(AppContext.BaseDirectory, "Migrations"),
+        ReindexDelay = 1,
+    };
+
+    private Migration_1011 CreateMigration(TNOContext context, ElasticMigrationOptions options)
+    {
+        var serializer = Options.Create(new JsonSerializerOptions(JsonSerializerDefaults.Web)
+        {
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+            Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() },
+        });
+        var url = _http.BaseAddress!;
+        var builder = new MigrationBuilder(new ElasticClient(new ConnectionSettings(url).EnableApiVersioningHeader().ThrowExceptions()),
+            new TNO.Elastic.Migration.TNOElasticClient(Options.Create<TNO.Elastic.ElasticOptions>(new TNO.Elastic.ElasticOptions { Url = url }), serializer), Options.Create(options),
+            serializer, NullLogger<MigrationBuilder>.Instance);
+        var services = new ServiceCollection().BuildServiceProvider();
+        var analysis = new ContentAnalysisService(context, new ClaimsPrincipal(), services, NullLogger<ContentAnalysisService>.Instance);
+        return new Migration_1011(builder, null!, analysis, context, serializer);
+    }
+
+    [MigrationFact]
+    public Task RepairsDatabaseDifferencesBuildsEvidenceAndSwitchesConcreteIndexesAtomically() => WithDatabaseAsync(async context =>
+    {
+        var license = new TNO.Entities.License("test", 0);
+        var media = new MediaType("test");
+        var source = new Source("Test", "TEST", license);
+        var legacy = new Content("legacy", "legacy", source, ContentType.PrintContent, license, media) { Status = ContentStatus.Published, Body = "legacy" };
+        var stale = new Content("stale", "stale", source, ContentType.AudioVideo, license, media) { Status = ContentStatus.Published, Body = "private transcript", IsApproved = false };
+        var missing = new Content("missing", "missing", source, ContentType.PrintContent, license, media) { Status = ContentStatus.Draft, Body = "missing" };
+        context.Contents.AddRange(legacy, stale, missing);
+        await context.SaveChangesAsync();
+        context.ContentAnalyses.Add(new ContentAnalysis(stale.Id, "hash") { IsCurrent = true, Summary = "analysis" });
+        await context.SaveChangesAsync();
+        await context.Database.ExecuteSqlRawAsync("UPDATE content SET projection_revision = CASE WHEN uid = 'legacy' THEN 0 ELSE 3 END");
+        context.ChangeTracker.Clear();
+
+        var published = _prefix + "-published";
+        await Request(HttpMethod.Put, published, JsonNode.Parse("""{"settings":{"number_of_replicas":0},"mappings":{"properties":{"id":{"type":"long"}}}}"""));
+        foreach (var index in new[] { Source, published })
+        {
+            await Request(HttpMethod.Put, $"{index}/_doc/{legacy.Id}?refresh=true", new JsonObject { ["id"] = legacy.Id, ["contentType"] = 1, ["body"] = "legacy" });
+            await Request(HttpMethod.Put, $"{index}/_doc/{stale.Id}?refresh=true", new JsonObject { ["id"] = stale.Id, ["projectionRevision"] = 1, ["contentType"] = 0, ["body"] = "old transcript" });
+            await Request(HttpMethod.Put, $"{index}/_doc/999999?refresh=true", new JsonObject { ["id"] = 999999 });
+        }
+        await Request(HttpMethod.Put, $"{published}/_doc/{missing.Id}?refresh=true", new JsonObject { ["id"] = missing.Id });
+        var options = MigrationOptions(published);
+        var migration = CreateMigration(context, options);
+        foreach (var retained in new[] { Source, published, options.EvidenceIndex })
+            await Request(HttpMethod.Put, retained + "_v1.0.11", JsonNode.Parse("""{"settings":{"number_of_replicas":0}}"""));
+        await migration.RunUpAsync();
+        var topology = await Request(HttpMethod.Get, $"{Source}/_settings");
+        Assert.Equal("0", topology.AsObject().First().Value!["settings"]!["index"]!["number_of_replicas"]!.GetValue<string>());
+        // Replaying the coordinator after cutover must not recreate indexes or duplicate history.
+        await migration.RunUpAsync();
+        var alias = await Request(HttpMethod.Get, $"_alias/{Source}");
+        var firstUpgrade = alias.AsObject().Single().Key;
+        Assert.StartsWith(Source + "_v1.0.11-", firstUpgrade);
+        Assert.Equal(3, (await Request(HttpMethod.Get, $"{Source}/_count"))["count"]!.GetValue<int>());
+        Assert.Equal(2, (await Request(HttpMethod.Get, $"{published}/_count"))["count"]!.GetValue<int>());
+        Assert.Equal(1, (await Request(HttpMethod.Get, $"{options.EvidenceIndex}/_count"))["count"]!.GetValue<int>());
+        Assert.Equal(1, (await Request(HttpMethod.Get, $"{options.MigrationIndex}/_count"))["count"]!.GetValue<int>());
+        var repaired = await Request(HttpMethod.Get, $"{Source}/_doc/{missing.Id}");
+        Assert.Equal(3, repaired["_version"]!.GetValue<long>());
+        var protectedDoc = await Request(HttpMethod.Get, $"{published}/_doc/{stale.Id}");
+        Assert.Equal("", protectedDoc["_source"]!["body"]!.GetValue<string>());
+        Assert.Null(protectedDoc["_source"]!["analysis"]);
+        await migration.RunDownAsync();
+        alias = await Request(HttpMethod.Get, $"_alias/{Source}");
+        var firstRollback = alias.AsObject().Single().Key;
+        Assert.StartsWith(Source + "_v1.0.10-rollback-from-1.0.11-", firstRollback);
+        await Request(HttpMethod.Post, options.MigrationIndex + "/_refresh");
+        Assert.Equal(0, (await Request(HttpMethod.Get, $"{options.MigrationIndex}/_count"))["count"]!.GetValue<int>());
+        Assert.Equal(System.Net.HttpStatusCode.NotFound, (await _http.GetAsync($"_alias/{options.EvidenceIndex}")).StatusCode);
+        await migration.RunDownAsync();
+        Assert.NotNull((await Request(HttpMethod.Get, $"_alias/{Source}"))[firstRollback]);
+
+        // A new cycle must preserve both backups and copy changes made after rollback.
+        await context.Database.ExecuteSqlRawAsync("UPDATE content SET headline = 'updated after rollback', projection_revision = 4 WHERE uid = 'missing'");
+        await migration.RunUpAsync();
+        var secondUpgrade = (await Request(HttpMethod.Get, $"_alias/{Source}")).AsObject().Single().Key;
+        Assert.NotEqual(firstUpgrade, secondUpgrade);
+        Assert.Equal(4, (await Request(HttpMethod.Get, $"{Source}/_doc/{missing.Id}"))["_version"]!.GetValue<long>());
+        await migration.RunUpAsync();
+        Assert.NotNull((await Request(HttpMethod.Get, $"_alias/{Source}"))[secondUpgrade]);
+        Assert.Equal(1, (await Request(HttpMethod.Get, $"{options.EvidenceIndex}/_count"))["count"]!.GetValue<int>());
+        await migration.RunDownAsync();
+        var secondRollback = (await Request(HttpMethod.Get, $"_alias/{Source}")).AsObject().Single().Key;
+        Assert.NotEqual(firstRollback, secondRollback);
+        Assert.Equal(System.Net.HttpStatusCode.NotFound, (await _http.GetAsync($"_alias/{options.EvidenceIndex}")).StatusCode);
+        foreach (var retained in new[] { firstUpgrade, firstRollback, secondUpgrade })
+            Assert.Equal(3, (await Request(HttpMethod.Get, $"{retained}/_count"))["count"]!.GetValue<int>());
+        Assert.Equal(0, (await Request(HttpMethod.Get, $"{options.MigrationIndex}/_count"))["count"]!.GetValue<int>());
+    });
+
+    [MigrationFact]
+    public Task StepsKeepLiveWritesAndRunOnlyInOrder() => WithDatabaseAsync(async context =>
+    {
+        var license = new TNO.Entities.License("test", 0);
+        var media = new MediaType("test");
+        var source = new Source("Test", "TEST", license);
+        var copied = new Content("copied", "copied", source, ContentType.PrintContent, license, media) { Status = ContentStatus.Published, Body = "copied" };
+        var edited = new Content("edited", "edited", source, ContentType.PrintContent, license, media) { Status = ContentStatus.Draft, Body = "edited" };
+        context.Contents.AddRange(copied, edited);
+        await context.SaveChangesAsync();
+        await context.Database.ExecuteSqlRawAsync("UPDATE content SET projection_revision = 2");
+        context.ChangeTracker.Clear();
+
+        var published = _prefix + "-published";
+        await Request(HttpMethod.Put, published, JsonNode.Parse("""{"settings":{"number_of_replicas":0},"mappings":{"properties":{"id":{"type":"long"}}}}"""));
+        await Request(HttpMethod.Put, $"{published}/_doc/{copied.Id}?refresh=true", new JsonObject { ["id"] = copied.Id, ["projectionRevision"] = 2, ["contentType"] = 1, ["body"] = "copied" });
+        await Put((int)copied.Id, new JsonObject { ["id"] = copied.Id, ["projectionRevision"] = 2, ["contentType"] = 1, ["body"] = "copied" }.ToJsonString());
+        await Put((int)edited.Id, new JsonObject { ["id"] = edited.Id, ["projectionRevision"] = 2, ["body"] = "before" }.ToJsonString());
+        // Deleted from the database while the migration runs; still in the live index.
+        await Put(999999, """{"id":999999,"projectionRevision":2}""");
+
+        var options = MigrationOptions(published);
+        var migration = CreateMigration(context, options);
+        options.Step = MigrationStepName.Copy;
+        var error = await Assert.ThrowsAsync<InvalidOperationException>(() => migration.RunUpAsync());
+        Assert.Contains("'prepare'", error.Message);
+
+        options.Step = MigrationStepName.Prepare;
+        await migration.RunUpAsync();
+        var target = (await Request(HttpMethod.Get, $"{Source}_v1.0.11-*/_settings")).AsObject().Single();
+        var loading = target.Value!["settings"]!["index"]!;
+        Assert.Equal("-1", loading["refresh_interval"]!.GetValue<string>());
+        Assert.Equal("48h", loading["gc_deletes"]!.GetValue<string>());
+        Assert.Equal(System.Net.HttpStatusCode.NotFound, (await _http.GetAsync($"{options.MigrationIndex}/_doc/1.0.11")).StatusCode);
+
+        // The second indexing service writes newer revisions and deletes before the copy reaches them.
+        await context.Database.ExecuteSqlAsync($"UPDATE content SET body = 'live', projection_revision = 5 WHERE id = {edited.Id}");
+        await Put((int)edited.Id, new JsonObject { ["id"] = edited.Id, ["projectionRevision"] = 5, ["body"] = "live" }.ToJsonString(), target.Key, "&version_type=external_gte&version=5");
+        // Not copied yet, so Elasticsearch answers 404, but it keeps the delete's version.
+        Assert.Equal(System.Net.HttpStatusCode.NotFound, (await _http.DeleteAsync($"{target.Key}/_doc/999999?version_type=external_gte&version=3")).StatusCode);
+
+        options.Step = MigrationStepName.Cutover;
+        error = await Assert.ThrowsAsync<InvalidOperationException>(() => migration.RunUpAsync());
+        Assert.Contains("'verify'", error.Message);
+
+        foreach (var step in new[] { MigrationStepName.Copy, MigrationStepName.Verify })
+        {
+            options.Step = step;
+            await migration.RunUpAsync();
+        }
+        Assert.Equal(System.Net.HttpStatusCode.NotFound, (await _http.GetAsync($"{target.Key}/_doc/999999")).StatusCode);
+        Assert.Equal(System.Net.HttpStatusCode.NotFound, (await _http.GetAsync($"_alias/{options.EvidenceIndex}")).StatusCode);
+
+        options.Step = MigrationStepName.Cutover;
+        await migration.RunUpAsync();
+        Assert.Equal(target.Key, (await Request(HttpMethod.Get, $"_alias/{Source}")).AsObject().Single().Key);
+        var restored = (await Request(HttpMethod.Get, $"{target.Key}/_settings"))[target.Key]!["settings"]!["index"]!;
+        Assert.Null(restored["refresh_interval"]);
+        Assert.Equal("1h", restored["gc_deletes"]!.GetValue<string>());
+        var live = await Request(HttpMethod.Get, $"{Source}/_doc/{edited.Id}");
+        Assert.Equal("live", live["_source"]!["body"]!.GetValue<string>());
+        Assert.Equal(5, live["_version"]!.GetValue<long>());
+        Assert.Equal(2, (await Request(HttpMethod.Get, $"{Source}/_count"))["count"]!.GetValue<int>());
+        Assert.Equal(1, (await Request(HttpMethod.Get, $"{published}/_count"))["count"]!.GetValue<int>());
+        Assert.Equal(1, (await Request(HttpMethod.Get, $"{options.MigrationIndex}/_count"))["count"]!.GetValue<int>());
+    });
 
 }

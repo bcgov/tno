@@ -6,23 +6,30 @@ is described in the [tool README](../../../tools/elastic/migration/README.md).
 
 ## What the Migration Does
 
-1.0.11 adds content analysis to the search indexes and a new evidence index used by report AI.
+1.0.11 adds content analysis to the search indexes and a new evidence index used by report AI. It runs as four
+steps, each a separate Job (`p=<step>`), or all of them in one Job.
 
-1. Creates new indexes named `<alias>_v1.0.11-<generation>` for the published content, unpublished content and
-   evidence indexes. The generation is derived from the source index UUIDs, so a rerun reuses the same names.
-2. Copies every document from the 1.0.10 indexes with a native Elasticsearch `_reindex`. Each document's
-   `_version` is set from its `projectionRevision`, so an older copy can never replace a newer write.
-3. Brings current analyses in from PostgreSQL, compares every content ID and revision with the database, and
-   repairs or removes differences.
-4. Moves the `content`, `unpublished_content` (or `published_content` on Cloud) and `content_evidence` aliases to
-   the new indexes in one atomic request, then records `1.0.11` in the `migrations` index.
+| Step | What it does |
+| ---- | ------------ |
+| `prepare` | Creates new indexes named `<alias>_v1.0.11-<generation>` for the published content, unpublished content and evidence indexes, with the 1.0.11 mappings plus the fields the old indexes mapped dynamically. They load without replicas or refreshes, and remember deletes for 48 hours. The Job log prints their names. |
+| `copy` | Copies every document from the 1.0.10 indexes with a native Elasticsearch `_reindex`. Each document's `_version` is set from its `projectionRevision`, so an older copy can never replace a newer write. A cancelled or failed copy is not counted as done. |
+| `verify` | Brings current analyses in from PostgreSQL, compares every content ID and revision with the database, and repairs or removes differences. Content that changes while it runs is left to the indexing service once repaired. |
+| `cutover` | Restores the replicas, refreshes and delete retention, waits until the replicas are ready, moves the `content`, `unpublished_content` (or `published_content` on Cloud) and `content_evidence` aliases to the new indexes in one atomic request, verifies again, then records `1.0.11` in the `migrations` index. |
 
-Searches keep using the 1.0.10 indexes until the alias switch. The indexing service that writes to the migrated
-cluster (`indexing-service` in DEV, `indexing-service-cloud` in TEST and PROD) is turned off for the run, so nothing
-writes to Elasticsearch until the new indexes and their mappings are in place. Content changes wait in the Kafka
-`index` topic, kept for 7 days, and are indexed into the new indexes when indexing is turned back on after the alias
-switch. Search shows nothing new or changed until then. The [stepped migration](#planned-zero-downtime-stepped-migration)
-will remove the need to turn indexing off.
+The generation is derived from the source index UUIDs, so every step and every rerun uses the same names. Each step
+checks the one before it has finished, and each can be rerun. Searches keep using the 1.0.10 indexes until cutover.
+
+There are two ways to run it:
+
+- **Stepped, no downtime (recommended).** The existing indexing service keeps writing to the live indexes. A
+  [second indexing service](#second-indexing-service), started after `prepare`, writes the same changes into the new
+  indexes while they are copied and verified. Every write is versioned by `projectionRevision`, so the two services,
+  the copy and the repairs can overlap in any order. Search stays current throughout. The
+  [1.0.11 checklist](./1.0.11.md) follows this way.
+- **Single run, indexing off.** The indexing service that writes to the migrated cluster (`indexing-service` in DEV,
+  `indexing-service-cloud` in TEST and PROD) is scaled to 0 and one Job runs every step. Content changes wait in the
+  Kafka `index` topic, kept for 7 days, and are indexed into the new indexes when indexing is turned back on after
+  the alias switch. Search shows nothing new or changed for as long as the run takes (hours).
 
 ## Environments
 
@@ -32,8 +39,10 @@ will remove the need to turn indexing off.
 | TEST | Elastic Cloud (`test-mmi`) | `indexing-service-cloud` | `elastic-cloud` | ApiKey |
 | PROD | Elastic Cloud (`prod-mmi`) | `indexing-service-cloud` | `elastic-cloud` | ApiKey |
 
-Only the primary cluster is migrated. TEST and PROD still run a local OpenShift `elastic` StatefulSet, which is
-being retired and is not migrated.
+Only the primary cluster is migrated. TEST and PROD still run a local OpenShift `elastic` StatefulSet and its
+`indexing-service`, which are retired before the migration and are not migrated. `indexing-service-cloud` then becomes
+the only indexing service and needs `INDEX_ONLY=false`; the steps are in
+[1.0.11 checklist 3.1](./1.0.11.md#31-pause-indexing-and-retire-the-local-cluster).
 
 ### State on 2026-10-09
 
@@ -61,12 +70,14 @@ main cost of the copy.
 - **Duration.** The cancelled DEV run copied about 120–180 documents/second while each Elasticsearch pod was limited
   to 0.15 CPU and a 512 MB heap, which projects to 8–12 hours for DEV. DEV now has 2 CPU and a 1.5 GB heap, and the
   Cloud clusters are not CPU-limited, so expect faster runs; time TEST and estimate PROD at about 2.3 × TEST.
-- **Job time limit.** The Job's default limit is 24 hours (`MIGRATION_ACTIVE_DEADLINE_SECONDS=86400`). Raise it for
-  PROD if TEST suggests it is needed, e.g. `MIGRATION_ACTIVE_DEADLINE_SECONDS=172800`.
-- **Disk.** The new indexes are created with the source's replica count, so each copy needs the source's full size
-  again, including replicas. On DEV that takes each node to about 88% and past Elasticsearch's 85% low watermark.
-  TEST Cloud reaches about 82%. PROD has room. Free space or add disk before a DEV or TEST run. Do not disable disk
-  watermarks.
+- **Job time limit.** Each Job's default limit is 24 hours (`MIGRATION_ACTIVE_DEADLINE_SECONDS=86400`). Copy takes
+  most of the time. Raise it for PROD if TEST suggests it is needed, e.g. `MIGRATION_ACTIVE_DEADLINE_SECONDS=172800`.
+- **Disk.** The new indexes load without replicas, so the copy needs the source's primary size again. Cutover adds
+  the source's replica count, so afterwards the new indexes take the source's full size, replicas included. While
+  loading, each new index sits on a single node, so one node fills first. On DEV that node reaches about 78% after
+  `copy`, and every node about 79% after cutover, close to Elasticsearch's 85% low watermark. TEST Cloud reaches
+  about 82%. PROD has room. Free space or add disk before cutover in DEV or TEST; doing it before `prepare` is simplest. Do not
+  disable disk watermarks.
 
 ## Accessing Elasticsearch
 
@@ -114,11 +125,11 @@ For DEV, pass the URL as `localhost:9200/<path>`, e.g. `es 'localhost:9200/_cat/
    oc get jobs -n $N | grep elastic-migration
    ```
 
-5. **Indexing is off and `content_evidence` is not a concrete index.** Scale the environment's indexing service to 0
-   (see the [checklist](./1.0.11.md)). The migration creates `content_evidence` as an alias. A running indexing
-   service creates an empty concrete `content_evidence` index when it deletes evidence for content without analysis.
-   The tool would back it up and replace it at the alias switch, but if one exists and is empty, delete it by its
-   exact name:
+5. **`content_evidence` is not a concrete index, if you can avoid it.** The migration creates `content_evidence` as an
+   alias. A running indexing service creates an empty concrete `content_evidence` index when it deletes evidence for
+   content without analysis. Cutover backs it up to `content_evidence-backup-<time>` and replaces it with the alias,
+   blocking writes to it for the few seconds that takes. While the indexing service runs it will be recreated, which
+   is expected. Otherwise, if one exists and is empty, delete it by its exact name:
 
    ```bash
    es 'localhost:9200/_cat/indices/content_evidence?v&h=index,docs.count'
@@ -136,17 +147,25 @@ From the repository root, build and push the tool image, then run it in each env
 make -C openshift build n=elastic-migration t=latest
 make -C openshift push n=elastic-migration t=latest
 
-# DEV
-make -C openshift deploy n=elastic-migration e=dev t=latest m=1.0.11
+# Stepped: one Job per step, the second indexing service running from after prepare until after cutover
+make -C openshift deploy n=elastic-migration e=dev t=latest m=1.0.11 p=prepare
+make -C openshift deploy n=elastic-migration e=dev t=latest m=1.0.11 p=copy
+make -C openshift deploy n=elastic-migration e=dev t=latest m=1.0.11 p=verify
+make -C openshift deploy n=elastic-migration e=dev t=latest m=1.0.11 p=cutover
 
-# TEST, then PROD once TEST is validated
-ELASTIC_MIGRATION_BASELINE=1.0.10 make -C openshift deploy n=elastic-migration e=test t=latest m=1.0.11
-ELASTIC_MIGRATION_BASELINE=1.0.10 MIGRATION_ACTIVE_DEADLINE_SECONDS=172800 \
-  make -C openshift deploy n=elastic-migration e=prod t=latest m=1.0.11
+# Single run, with indexing off: every step in one Job
+make -C openshift deploy n=elastic-migration e=dev t=latest m=1.0.11
 ```
 
-`deploy` promotes the image tag to the environment, creates a one-shot Job `elastic-migration-<timestamp>` in
-`9b301c-<environment>`, follows its logs and reports failure. Jobs are not retried and are kept for 24 hours.
+For TEST and PROD add `ELASTIC_MIGRATION_BASELINE=1.0.10` (see [the table above](#state-on-2026-10-09)), and for
+PROD's copy a longer `MIGRATION_ACTIVE_DEADLINE_SECONDS`.
+
+`p=` needs `m=`, and takes `prepare`, `copy`, `verify`, `cutover` or `all` (the default). A rollback (`m=1.0.10`)
+always runs as a single run.
+
+`deploy` promotes the image tag to the environment, creates a one-shot Job `elastic-migration-<timestamp>` (or
+`elastic-migration-<step>-<timestamp>`) in `9b301c-<environment>`, follows its logs and reports failure. Jobs are not
+retried and are kept for 24 hours.
 
 | Variable | Default | Purpose |
 | --------------------------------------- | ------- | ---------------------------------------------------------- |
@@ -157,13 +176,80 @@ ELASTIC_MIGRATION_BASELINE=1.0.10 MIGRATION_ACTIVE_DEADLINE_SECONDS=172800 \
 | `ELASTIC_MIGRATION_CONFIGMAP` / `_SECRET` / `_AUTH` | per environment | Override the Elasticsearch target (`basic` or `apikey`) |
 
 The GitHub Actions workflow **Elastic Migration CI/CD** runs the same script for DEV and TEST through
-`workflow_dispatch`, with an optional baseline. A hosted runner can time out before a long Job finishes; the Job keeps
-running, so check it with `oc`.
+`workflow_dispatch`, with an optional baseline. It runs every pending migration in a single run, so use it only with
+indexing off. A hosted runner can time out before a long Job finishes; the Job keeps running, so check it with `oc`.
+
+### Second Indexing Service
+
+For the stepped migration, a second indexing service, `indexing-service-migration`, writes every content change into
+the new indexes from `prepare` until cutover, while the live one keeps writing to the live indexes. Each environment
+has an overlay for it in [kustomize/services/indexing](../services/indexing):
+
+| Overlay | Built on | Writes to |
+| ------- | -------- | --------- |
+| `overlays/migration-dev` | `overlays/dev` | DEV OpenShift Elasticsearch |
+| `overlays/migration-test` | `overlays/cloud-test` | TEST Elastic Cloud |
+| `overlays/migration-prod` | `overlays/cloud-prod` | PROD Elastic Cloud |
+
+The shared [migration component](../services/indexing/components/migration) changes the live service's
+configuration to:
+
+| Setting | Value | Why |
+| ------- | ----- | --- |
+| Name and labels | `indexing-service-migration` | Keeps its pods out of the live service's selector and Service. |
+| `KAFKA_CLIENT_ID` (consumer group) | `IndexingMigration` | A consumer group shared with the live service would split the messages between them. |
+| `Kafka__Consumer__AutoOffsetReset` | `Latest` | A new group otherwise starts at the oldest message, replaying 7 days of the `index` topic. |
+| `INDEX_ONLY` | `"true"` | Stops a second set of alerts, notifications, status updates and `folder` topic messages. |
+| `CONTENT_INDEX`, `PUBLISHED_INDEX`, `EVIDENCE_INDEX` | placeholders | Set from the `prepare` log once it has run. The placeholders are not valid index names, so nothing is written until they are set. |
+| Replicas | 0 | Scaled up once the index names are set. |
+
+Everything else (Elasticsearch URL and credentials, API, Kafka servers, image tag) comes from the overlay it is built
+on, so it writes to the same cluster as the migration. The `folder` messages stop only once the environment runs an
+indexing image with that change; an older image forwards them, so `folder-collection` handles each change twice.
+
+Start it after `prepare` and before `copy`, so no change made during the copy is missed. The
+[1.0.11 checklist](./1.0.11.md) does this during a short pause with every indexing service stopped, and first sets the
+`IndexingMigration` group to the live group's positions, so both start from the same message (step 3 below). Without
+a pause, skip step 3: a new group starts at the newest message, and `verify` repairs anything in between.
+
+`syncgroup` and `lag` are defined in [section 0 of the checklist](./1.0.11.md#0-set-up-your-shell). The live group is
+`Indexing` in DEV and `IndexingCloud` in TEST and PROD; `useenv` sets it as `$G`.
+
+```bash
+O=openshift/kustomize/services/indexing/overlays/migration-dev     # migration-test, migration-prod
+
+# 1. Create it, with no pods
+oc apply -k $O
+
+# 2. Set the index names from the prepare log
+oc patch configmap indexing-service-migration -n $N --type merge -p '{"data":{
+  "CONTENT_INDEX":"<CONTENT_INDEX>","PUBLISHED_INDEX":"<PUBLISHED_INDEX>","EVIDENCE_INDEX":"<EVIDENCE_INDEX>"}}'
+
+# 3. While the live indexer is stopped: start from its positions (dry run first, then --execute)
+syncgroup $G IndexingMigration
+syncgroup $G IndexingMigration --execute
+
+# 4. Start it and check it writes to the new indexes
+oc scale deploy/indexing-service-migration -n $N --replicas=1
+oc logs -f deploy/indexing-service-migration -n $N   # "Subscribing to topics: index", then "Content indexed ... Index: <new index>"
+```
+
+Applying the overlay again resets the index names and replicas, so repeat steps 2 and 4 after it. Keep it running
+until cutover has finished, then remove it:
+
+```bash
+oc delete -k $O
+```
+
+The consumer group `IndexingMigration` stays in Kafka with its last position. Before the next migration, either set
+it again with `syncgroup` (step 3), or delete it (`kafka-consumer-groups --delete --group IndexingMigration`) so the
+new service starts at the newest message. In DEV every broker advertises the same address, so Kafka group commands
+can time out finding the group's coordinator; give them `--timeout 60000`.
 
 ## Watch Progress
 
 ```bash
-oc get jobs -n $N | grep elastic-migration
+oc get jobs -n $N -l component=elastic-migration --sort-by=.metadata.creationTimestamp
 oc logs -f job/<job-name> -n $N
 
 # Copy progress: compare "created" with "total"
@@ -177,25 +263,26 @@ es 'localhost:9200/_cat/allocation?v'
 
 1. The aliases point at the `_v1.0.11-<generation>` indexes, including `content_evidence`.
 2. `migrations` contains `1.0.11`.
-3. Test editor and subscriber search, published transcript filtering and report AI evidence.
-4. Keep the `_v1.0.10` indexes until those checks and the retention window pass. Delete them later by exact name;
+3. Stepped: delete the second indexing service. Single run: turn indexing back on and wait for its Kafka lag to
+   reach 0.
+4. Test editor and subscriber search, published transcript filtering and report AI evidence.
+5. Keep the `_v1.0.10` indexes until those checks and the retention window pass. Delete them later by exact name;
    never with a wildcard.
 
 ## Stop a Running Migration
 
-Order matters. The tool treats a cancelled copy as a finished one, so cancelling the task while the Job is running,
-or before the partial indexes are deleted, makes the tool continue as if the copy were complete.
+Before cutover nothing users see has changed, so any step can be stopped. A cancelled copy is not counted as done:
+the next `copy` copies again into the same indexes.
 
-1. **Delete the Job first.** `backoffLimit` is 0, so it is not retried; its PostgreSQL lock is released when the pod
-   ends.
+1. **Delete the Job.** `backoffLimit` is 0, so it is not retried; its PostgreSQL lock is released when the pod ends.
 
    ```bash
    oc delete job <job-name> -n $N --wait
    oc get pods -n $N | grep elastic-migration     # expect nothing
    ```
 
-2. **Cancel the copy in Elasticsearch** and wait until no reindex task remains. The task ID is in the Job log and in
-   `_tasks`.
+2. **Cancel the copy in Elasticsearch**, if one is running, and wait until no reindex task remains. The task ID is in
+   the Job log and in `_tasks`. Deleting the Job alone leaves it running.
 
    ```bash
    es 'localhost:9200/_tasks?actions=*reindex'
@@ -209,14 +296,15 @@ or before the partial indexes are deleted, makes the tool continue as if the cop
    es 'localhost:9200/_cat/aliases?v' | grep -v '^\.'
    ```
 
-4. **Delete the partial `_v1.0.11-<generation>` indexes** by exact name, once no alias uses them and no task is
-   running. Otherwise the next run reconnects to the cancelled task and skips the copy.
+To carry on later, rerun the step that was stopped; the second indexing service can keep running meanwhile. To give
+up instead, delete the second indexing service, then the `_v1.0.11-<generation>` indexes by exact name, once no alias
+uses them and no task is running:
 
-   ```bash
-   es -XDELETE 'localhost:9200/unpublished_content_v1.0.11-<generation>'
-   es -XDELETE 'localhost:9200/content_v1.0.11-<generation>'
-   es -XDELETE 'localhost:9200/content_evidence_v1.0.11-<generation>'
-   ```
+```bash
+es -XDELETE 'localhost:9200/unpublished_content_v1.0.11-<generation>'
+es -XDELETE 'localhost:9200/content_v1.0.11-<generation>'
+es -XDELETE 'localhost:9200/content_evidence_v1.0.11-<generation>'
+```
 
 History is only recorded after the alias switch, so a stopped run needs no rollback.
 
@@ -224,11 +312,15 @@ History is only recorded after the alias switch, so a stopped run needs no rollb
 
 A Job that fails or times out does not stop the copy running inside Elasticsearch.
 
-- **Let it finish and rerun.** Watch `_tasks/<task-id>`; when it completes, run `deploy` again. The new Job reuses the
-  same indexes and reconnects to the finished task.
+- **Let it finish and rerun.** Watch `_tasks/<task-id>`; when it completes, run the same step again. The new Job reuses
+  the same indexes and reconnects to the finished task.
 - **Or stop it** with the steps in [Stop a Running Migration](#stop-a-running-migration).
-- **Repairs made no progress.** The tool refuses to finish and leaves the aliases unchanged. Check the Job log for the
-  index and IDs before rerunning.
+- **Repairs did not take.** A document still differs from the database at the same revision after it was repaired.
+  The tool refuses to finish and leaves the aliases unchanged. Check the Job log for the index and IDs before
+  rerunning.
+- **A step says an earlier one has not completed.** Run the step it names first.
+- **Cutover waits for replicas.** It waits up to an hour for the new indexes to be as healthy as the ones they
+  replace, then fails with the aliases unchanged. Check disk and `_cat/shards`, then rerun `p=cutover`.
 - **Task missing after a node restart.** The tool clears the task ID and fails; rerun to replay the copy into the
   retained indexes.
 
@@ -298,39 +390,6 @@ es 'localhost:9200/_cluster/health?wait_for_status=green&wait_for_no_initializin
 Each pod keeps its own disk, so a restarted node recovers in seconds. After elastic-0 the partition is 0 and later
 changes roll out normally. Never leave `cluster.routing.allocation.enable` at `primaries`.
 
-## Planned: Zero-Downtime Stepped Migration
-
-> Not built yet. This section describes the agreed direction; the commands do not work today.
-
-The tool will run as separate steps so a second indexing service can write live changes into the new indexes while
-the copy runs. Each step is resumable; `all` runs every step in order.
-
-| Step | What it does |
-| -------- | ------------------------------------------------------------------------------------------------------------- |
-| prepare | Creates the three new indexes with the 1.0.11 mappings, 0 replicas, refresh off and a longer `gc_deletes`, then prints their names. |
-| *(you)* | Start a second indexing service pointed at the new indexes. |
-| copy | Native `_reindex` of existing documents with `slices`, versioned and resumable. A cancelled task counts as failed. |
-| verify | Brings analyses in from PostgreSQL and repairs differences; content changed after the step starts is left to the second indexing service. |
-| cutover | Restores replicas and refresh, waits for green, switches the aliases in one request and records the history. Then scale the second indexing service down. |
-
-### Second Indexing Service
-
-Configure it the same way as the existing `indexing-service-cloud` overlay
-([kustomize/services/indexing/overlays/cloud-test](../services/indexing/overlays/cloud-test)): a renamed
-Deployment, Service and ConfigMap with these values.
-
-| ConfigMap key | Value | Why |
-| ------------------------- | --------------------------------------- | ------------------------------------------------------------------ |
-| `KAFKA_CLIENT_ID` | its own, e.g. `IndexingMigration` | Used as the Kafka consumer group. A shared group splits messages between the two services. |
-| `INDEX_ONLY` | `"true"` | Stops duplicate alerts and notifications. |
-| `CONTENT_INDEX` | the new unpublished content index | Where it writes. |
-| `PUBLISHED_INDEX` | the new published content index | Where it writes. |
-| `EVIDENCE_INDEX` | the new evidence index | Where it writes. |
-| `ELASTICSEARCH_URI` | the environment's primary cluster | Same cluster as the migration. |
-
-Start it after `prepare` and before `copy`, so no change made during the copy is missed. Every write is versioned by
-`projectionRevision`, so it and the copy can run at the same time in any order.
-
 ## Troubleshooting
 
 | Symptom | Cause | Action |
@@ -339,6 +398,11 @@ Start it after `prepare` and before `copy`, so no change made during the copy is
 | `disk usage exceeded flood-stage watermark`, indexes read-only | Copy filled the disk | Stop the run, free disk, delete the partial indexes, rerun |
 | Cluster red after a restart | Pods restarted together | Wait for `_cluster/health`; use the partition steps next time |
 | `content_evidence` alias cannot be created | A concrete `content_evidence` index exists | See [Before You Start](#before-you-start), step 5 |
-| `Repairs to '<index>' made no progress` | Differences the tool cannot fix | Check the Job log; aliases are unchanged |
+| `Repairs to '<index>' did not take for content ...` | Differences the tool cannot fix | Check the Job log; aliases are unchanged |
+| `Index '<index>' has not completed step '<step>'` | A step was run out of order | Run the named step first |
+| Second indexing service logs `index_not_found_exception` | Its index names do not match the `prepare` log | Patch its ConfigMap with the right names and restart it; `verify` repairs anything it missed |
 | `Source index '<index>' was replaced; refusing to resume` | Source index changed between runs | Delete the partial indexes and rerun |
-| Job succeeded but searches miss recent edits | Indexing is still off, or still working through its Kafka backlog | Turn it back on; check the consumer group's lag |
+| `Timeout during reading attempt` on a database query after a long wait, then `Connection is not open` | The database connection sat idle while the Job waited on Elasticsearch, and the network dropped it. Images built since the keepalive fix keep it alive | Rerun the step. If it then reports the lock below, clear it first |
+| `Another Elasticsearch migration is using this database` | Another migration Job is running, or a failed Job's dropped session still holds the lock | Check `oc get jobs -n $N -l component=elastic-migration`. If none is running, find the session with `SELECT a.pid, a.state, a.backend_start FROM pg_locks l JOIN pg_stat_activity a USING (pid) WHERE l.locktype = 'advisory' AND l.objid = 1011001011;` and end it with `SELECT pg_terminate_backend(<pid>);` |
+| `Backup '<index>' is not ready` at cutover | The node is above the 85% disk low watermark, so the backup copy of a concrete index cannot be placed | Free disk, then rerun `cutover` |
+| Job succeeded but searches miss recent edits | Single run: indexing is still off, or still working through its Kafka backlog | Turn it back on; check the consumer group's lag |

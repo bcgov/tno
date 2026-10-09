@@ -40,6 +40,11 @@ public abstract class Migration
     /// get/set - Number of failures.
     /// </summary>
     protected int Failures { get; set; }
+
+    /// <summary>
+    /// get - Whether the migration can run one step at a time (Elastic__Step).
+    /// </summary>
+    public virtual bool SupportsSteps => false;
     #endregion
 
     #region Constructors
@@ -75,9 +80,17 @@ public abstract class Migration
     /// <returns></returns>
     public async Task RunUpAsync()
     {
-        _builder.Logger.LogInformation("Applying migration {version}", this.Version);
-        await RunScriptsAsync(_builder, $"up{Path.DirectorySeparatorChar}pre");
+        // A step migration runs its 'pre' scripts with its first step, and finishes with its last.
+        var step = _builder.MigrationOptions.Step;
+        _builder.Logger.LogInformation("Applying migration {version}{step}", this.Version, step == MigrationStepName.All ? "" : $", step '{step.ToString().ToLowerInvariant()}'");
+        if (step == MigrationStepName.All || step == MigrationStepName.Prepare)
+            await RunScriptsAsync(_builder, $"up{Path.DirectorySeparatorChar}pre");
         await UpAsync(_builder);
+        if (step != MigrationStepName.All && step != MigrationStepName.Cutover)
+        {
+            _builder.Logger.LogInformation("Completed step '{step}' of migration {version}; it is recorded once 'cutover' completes.", step.ToString().ToLowerInvariant(), this.Version);
+            return;
+        }
         await RunScriptsAsync(_builder, "up");
         await RunScriptsAsync(_builder, $"up{Path.DirectorySeparatorChar}post");
 
