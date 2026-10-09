@@ -256,7 +256,7 @@ public sealed class NativeReindexTests : IAsyncLifetime
             var options = new ElasticMigrationOptions
             {
                 ContentIndex = Source, PublishedIndex = published, EvidenceIndex = _prefix + "-evidence",
-                MigrationIndex = _prefix + "-history", WritersPaused = true,
+                MigrationIndex = _prefix + "-history",
                 MigrationsPath = Path.Combine(AppContext.BaseDirectory, "Migrations"), ReindexDelay = 1,
             };
             var serializer = Options.Create(new JsonSerializerOptions(JsonSerializerDefaults.Web)
@@ -271,9 +271,6 @@ public sealed class NativeReindexTests : IAsyncLifetime
             using var services = new ServiceCollection().BuildServiceProvider();
             var analysis = new ContentAnalysisService(context, new ClaimsPrincipal(), services, NullLogger<ContentAnalysisService>.Instance);
             var migration = new Migration_1011(builder, null!, analysis, context, serializer);
-            options.WritersPaused = false;
-            await Assert.ThrowsAsync<InvalidOperationException>(() => migration.RunUpAsync());
-            options.WritersPaused = true;
             foreach (var retained in new[] { Source, published, options.EvidenceIndex })
                 await Request(HttpMethod.Put, retained + "_v1.0.11", JsonNode.Parse("""{"settings":{"number_of_replicas":0}}"""));
             await migration.RunUpAsync();

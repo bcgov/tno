@@ -6,13 +6,14 @@ You can find all templates files and instructions for Openshift in this folder.
 
 ## Elasticsearch migration image and deployment
 
-From the repository root, build and push the migration tool to ACR, then run it in DEV during the maintenance window described in the
-[migration runbook](../tools/elastic/migration/README.md):
+From the repository root, build and push the migration tool to ACR, then run it in DEV as described in the
+[operations runbook](./kustomize/elastic-migration/README.md). How the tool works is in the
+[tool README](../tools/elastic/migration/README.md).
 
 ```bash
 make -C openshift build n=elastic-migration t=latest
 make -C openshift push n=elastic-migration t=latest
-ELASTIC_MIGRATION_WRITERS_PAUSED=true make -C openshift deploy n=elastic-migration e=dev t=latest
+make -C openshift deploy n=elastic-migration e=dev t=latest
 ```
 
 The image commands also support `pull n=elastic-migration t=latest` and
@@ -47,9 +48,7 @@ or override the baseline automatically. For a verified existing 1.0.10 schema wi
 history (including the inspected TEST/PROD Cloud instances), explicitly pass
 `ELASTIC_MIGRATION_BASELINE=1.0.10`. Do not use a baseline to skip unapplied schema changes.
 
-Native migration requires all database and index writers to be paused and an explicit
-`ELASTIC_MIGRATION_WRITERS_PAUSED=true` acknowledgement. See the runbook for storage checks,
-partial-index cleanup, task recovery, validation, and restoring service. The default Job execution
+See the runbook for storage checks, partial-index cleanup, task recovery, and validation. The default Job execution
 budget is 24 hours for Elasticsearch and 30 minutes for database migrations; override with
 `MIGRATION_ACTIVE_DEADLINE_SECONDS`. Startup waits default to 15 minutes and are independently
 controlled by `MIGRATION_STARTUP_TIMEOUT_SECONDS`. A Job timeout does not cancel Elasticsearch's

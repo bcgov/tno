@@ -6,9 +6,6 @@ on:
       environment:
         required: true
         type: string
-      writers_paused:
-        required: true
-        type: boolean
       baseline:
         required: false
         type: string
@@ -53,12 +50,10 @@ jobs:
     environment: ${{ inputs.environment }}
     timeout-minutes: 350
     steps:
-      - name: Require maintenance window
+      - name: Validate baseline
         env:
-          WRITERS_PAUSED: ${{ inputs.writers_paused }}
           BASELINE: ${{ inputs.baseline }}
         run: |
-          [[ "$WRITERS_PAUSED" == "true" ]] || { echo "Pause all database/index writers first; see tools/elastic/migration/README.md."; exit 1; }
           [[ -z "$BASELINE" || "$BASELINE" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || exit 1
 
       - uses: actions/checkout@v4
@@ -112,14 +107,12 @@ jobs:
             ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}
 
       # Use the same validated Job, authentication references, and recovery behavior as the CLI.
-      # Route maintenance alone does not stop writers. Operators own pause/resume and keep writers
-      # paused after any failure, including a GitHub runner timeout while an ES task continues.
+      # A GitHub runner timeout does not stop a running ES task; rerun to reconnect.
       - name: Run migration Job
         env:
           TARGET_ENV: ${{ inputs.environment }}
           SOURCE_TAG: ${{ inputs.image_tag }}
           DB_SECRET: ${{ inputs.db_secret_name }}
-          ELASTIC_MIGRATION_WRITERS_PAUSED: ${{ inputs.writers_paused }}
           ELASTIC_MIGRATION_BASELINE: ${{ inputs.baseline }}
           ELASTIC_MIGRATION_CONFIGMAP: ${{ inputs.indexing_configmap }}
           ELASTIC_MIGRATION_SECRET: ${{ inputs.elastic_secret_name }}
