@@ -400,6 +400,9 @@ changes roll out normally. Never leave `cluster.routing.allocation.enable` at `p
 | `content_evidence` alias cannot be created | A concrete `content_evidence` index exists | See [Before You Start](#before-you-start), step 5 |
 | `Repairs to '<index>' did not take for content ...` | Differences the tool cannot fix | Check the Job log; aliases are unchanged |
 | `Index '<index>' has not completed step '<step>'` | A step was run out of order | Run the named step first |
-| Second indexing service logs `index_not_found_exception` | Its index names do not match the `prepare` log | Fix them with `oc set env`; `verify` repairs anything it missed |
+| Second indexing service logs `index_not_found_exception` | Its index names do not match the `prepare` log | Patch its ConfigMap with the right names and restart it; `verify` repairs anything it missed |
 | `Source index '<index>' was replaced; refusing to resume` | Source index changed between runs | Delete the partial indexes and rerun |
+| `Timeout during reading attempt` on a database query after a long wait, then `Connection is not open` | The database connection sat idle while the Job waited on Elasticsearch, and the network dropped it. Images built since the keepalive fix keep it alive | Rerun the step. If it then reports the lock below, clear it first |
+| `Another Elasticsearch migration is using this database` | Another migration Job is running, or a failed Job's dropped session still holds the lock | Check `oc get jobs -n $N -l component=elastic-migration`. If none is running, find the session with `SELECT a.pid, a.state, a.backend_start FROM pg_locks l JOIN pg_stat_activity a USING (pid) WHERE l.locktype = 'advisory' AND l.objid = 1011001011;` and end it with `SELECT pg_terminate_backend(<pid>);` |
+| `Backup '<index>' is not ready` at cutover | The node is above the 85% disk low watermark, so the backup copy of a concrete index cannot be placed | Free disk, then rerun `cutover` |
 | Job succeeded but searches miss recent edits | Single run: indexing is still off, or still working through its Kafka backlog | Turn it back on; check the consumer group's lag |

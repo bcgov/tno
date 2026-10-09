@@ -41,6 +41,8 @@ public class Migration_1011 : TNOMigration
     // content the second indexing service deleted (cutover restores the index's own value).
     private const string LoadingGcDeletes = "48h";
     private const long ExtraRevision = -1;
+    // The PostgreSQL advisory lock that keeps a second 1.0.11 run out while one is running.
+    private const long LockKey = 1011001011;
     private readonly TNOContext _context;
     private readonly IContentAnalysisService _analysisService;
     private readonly JsonSerializerOptions _serializerOptions;
@@ -80,24 +82,10 @@ public class Migration_1011 : TNOMigration
     /// <inheritdoc />
     protected override Task DownAsync(MigrationBuilder builder) => WithLockAsync(builder, () => RunStepsAsync(builder, MigrationStepName.All, rollback: true));
 
-    private async Task WithLockAsync(MigrationBuilder builder, Func<Task> action)
+    private Task WithLockAsync(MigrationBuilder builder, Func<Task> action)
     {
         ValidateThrottle(builder);
-        await _context.Database.OpenConnectionAsync();
-        try
-        {
-            await using var command = _context.Database.GetDbConnection().CreateCommand();
-            command.CommandText = "SELECT pg_try_advisory_lock(1011001011)";
-            if (!Equals(await command.ExecuteScalarAsync(), true))
-                throw new InvalidOperationException("Another Elasticsearch migration is using this database.");
-            try { await action(); }
-            finally
-            {
-                command.CommandText = "SELECT pg_advisory_unlock(1011001011)";
-                await command.ExecuteScalarAsync();
-            }
-        }
-        finally { await _context.Database.CloseConnectionAsync(); }
+        return DatabaseSession.RunLockedAsync(_context, LockKey, builder.Logger, action);
     }
 
     /// <summary>

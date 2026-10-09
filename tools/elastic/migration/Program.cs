@@ -67,6 +67,11 @@ class Program
             })
             .ConfigureServices((context, services) =>
             {
+                // A migration holds one database session through hours of Elasticsearch work.
+                var connectionString = context.Configuration["ConnectionStrings:TNO"];
+                if (!String.IsNullOrWhiteSpace(connectionString))
+                    context.Configuration["ConnectionStrings:TNO"] = DatabaseSession.WithKeepAlive(connectionString);
+
                 services
                     .AddLogging()
                     .AddSerializerOptions(context.Configuration)
