@@ -21,6 +21,8 @@ class Program
         {
             { "-v", "Elastic__MigrationVersion" },
             { "--version", "Elastic__MigrationVersion" },
+            { "-s", "Elastic__Step" },
+            { "--step", "Elastic__Step" },
         };
     #endregion
 

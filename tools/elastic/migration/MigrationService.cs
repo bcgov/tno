@@ -57,9 +57,10 @@ public class MigrationService
         _logger.LogWarning("The Elastic migration process is not transaction safe. If a failure occurs, any completed steps will leave a migration in a partially completed state.");
 
         var types = await GetMigrationVersionsAsync(cancellationToken);
-        foreach (var type in types)
+        var migrations = types.Select(type => (_provider.GetRequiredService(type) as Migration) ?? throw new InvalidOperationException($"Migration '{type.Name}' missing from service provider")).ToArray();
+        ValidateStep(migrations);
+        foreach (var migration in migrations)
         {
-            var migration = (_provider.GetRequiredService(type) as Migration) ?? throw new InvalidOperationException($"Migration '{type.Name}' missing from service provider");
             if (!_rollback)
                 await migration.RunUpAsync();
             else
@@ -68,6 +69,23 @@ public class MigrationService
 
         if (types.Length == 0) _logger.LogInformation("Elastic already up-to-date.");
         else _logger.LogInformation("Elastic migration completed successfully.");
+    }
+
+    /// <summary>
+    /// A single step applies to one migration that supports steps, and never to a rollback (which
+    /// always runs every step).
+    /// </summary>
+    /// <param name="migrations"></param>
+    private void ValidateStep(Migration[] migrations)
+    {
+        if (_options.Step == MigrationStepName.All || migrations.Length == 0) return;
+        var step = _options.Step.ToString().ToLowerInvariant();
+        if (_rollback)
+            throw new InvalidOperationException($"A rollback runs every step; remove step '{step}'. Nothing was changed.");
+        if (migrations.Length > 1)
+            throw new InvalidOperationException($"Step '{step}' applies to one migration, but {migrations.Length} are pending ({String.Join(", ", migrations.Select(m => m.Version))}). Name it with Elastic__MigrationVersion (m=). Nothing was changed.");
+        if (!migrations[0].SupportsSteps)
+            throw new InvalidOperationException($"Migration {migrations[0].Version} does not run in steps; remove step '{step}'. Nothing was changed.");
     }
 
     /// <summary>

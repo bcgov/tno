@@ -12,9 +12,27 @@ To run it in OpenShift, follow the [operations runbook](../../../openshift/kusto
 
 Writers do not need to be paused. Every copy, repair and live write is versioned by
 `projectionRevision`, so an older revision can never replace a newer one. Live writes go through the
-aliases to the old indexes until cutover; content that changes after the tool has verified a
-destination reaches the new index the next time it is indexed. A PostgreSQL session advisory lock
-prevents two migration coordinators for the same database from running concurrently.
+aliases to the old indexes until cutover. A PostgreSQL session advisory lock prevents two migration
+coordinators for the same database from running concurrently.
+
+## Steps
+
+`Elastic__Step` (`--step`, or `p=` through `make deploy`) runs one step of a single migration named
+by `Elastic__MigrationVersion`; `all`, the default, runs every step in order. Only migrations that
+override `SupportsSteps` accept a step, and a rollback always runs every step. Each step records its
+completion in the destinations' mapping `_meta`, and the next step refuses to start until it is there.
+
+| Step | 1.0.11 |
+| --- | --- |
+| `prepare` | Create the destinations with their mappings and the old indexes' dynamic mappings. They load with 0 replicas, `refresh_interval: -1` and `gc_deletes: 48h`; the intended replicas and `gc_deletes` are kept in `_meta`. Runs the `up/pre` scripts. |
+| `copy` | Native `_reindex` of both content indexes. |
+| `verify` | Rehydrate analyses and system-topic content, then compare and repair. |
+| `cutover` | Restore the settings, wait for the replicas, move the aliases, verify again, run the `up` and `up/post` scripts, record history. |
+
+Between `prepare` and `cutover` a second indexing service can write live changes straight into the
+destinations (`Elastic__ContentIndex`, `Elastic__PublishedIndex`, `Elastic__EvidenceIndex` set to the
+names `prepare` logs). The long `gc_deletes` keeps its deletes, so the copy cannot bring deleted
+content back. Repairs treat a version conflict as success: a newer revision is already indexed.
 
 ## Targets and prerequisites
 
@@ -67,7 +85,8 @@ From the repository root, after the checks above:
 ```bash
 make -C openshift build n=elastic-migration t=latest
 make -C openshift push n=elastic-migration t=latest
-make -C openshift deploy n=elastic-migration e=dev t=latest m=1.0.11
+make -C openshift deploy n=elastic-migration e=dev t=latest m=1.0.11            # every step
+make -C openshift deploy n=elastic-migration e=dev t=latest m=1.0.11 p=prepare  # one step
 ```
 
 For a verified Cloud schema without history, explicitly supply the baseline:
@@ -88,8 +107,8 @@ baseline. A hosted runner may time out before a long Job finishes; inspect the J
 | `MIGRATION_ACTIVE_DEADLINE_SECONDS` | 86400 | Elasticsearch Job execution limit; DB Jobs still default to 1800 |
 | `MIGRATION_STARTUP_TIMEOUT_SECONDS` | 900 | Separate wait for image/container startup |
 
-Direct tool invocations use `Elastic__BaselineVersion` and
-`Elastic__ReindexRequestsPerSecond`. `Elastic__NumberOfShards` and `Elastic__NumberOfReplicas`
+Direct tool invocations use `Elastic__BaselineVersion`, `Elastic__ReindexRequestsPerSecond` and
+`Elastic__Step`. `Elastic__NumberOfShards` and `Elastic__NumberOfReplicas`
 can explicitly override preserved topology. `Elastic__EvidenceIndex` defaults to `content_evidence`.
 
 ## Recovery and cutover
@@ -99,7 +118,8 @@ completion. A replacement Job reconnects to that task. `X-Opaque-Id` identifies 
 before the coordinator lost its response. If the server loses a task (for example after a node
 restart), the tool clears the stale task ID and fails with instructions to rerun. The next run
 replays into the retained destination using external versions, without overwriting newer repairs.
-Task failures never count as completion. A replaced source UUID or unmanaged destination fails closed.
+Task failures and cancellations never count as completion; the next run copies again. A replaced
+source UUID or unmanaged destination fails closed.
 
 **Stopping or timing out the Kubernetes Job does not cancel a server-side Elasticsearch task.**
 Inspect the logged task with `GET /_tasks/<task-id>`; either let it finish and
@@ -108,8 +128,12 @@ cleanup. Never delete a destination while its task is running. Existing tasks ke
 throttle; use `POST /_reindex/<task-id>/_rethrottle?requests_per_second=...` to change it.
 
 The migration compares database IDs/revisions with both `_source.projectionRevision` and `_version`
-in the target. Counts alone are insufficient. It repairs differences and refuses to complete if
-repairs make no progress. It also verifies published membership and evidence membership. Aliases
+in the target. Counts alone are insufficient. It repairs differences pass by pass. A document the
+comparison finds that the database no longer has is deleted; one the database still has (created
+while the comparison ran) is indexed again instead. Content that changes during a pass differs in
+the next one at a newer revision and is repaired; once no difference is left over from an earlier
+pass, live changes are left to the indexing service. A difference at the same revision after its
+repair fails the migration. It also verifies published membership and evidence membership. Aliases
 move in one atomic request and are checked again before history is recorded.
 If the alias name is currently a concrete index (common on Cloud), the tool clones it to a backup,
 waits for the backup's primaries, and replaces the concrete name with the alias in the same request.
@@ -159,10 +183,12 @@ MMI_MIGRATION_TEST_POSTGRES='Host=127.0.0.1;Port=15439;Database=postgres;Usernam
 
 The native integration tests create uniquely named indexes and delete only their own indexes. Without
 `MMI_ELASTIC_TEST_URL`, Elasticsearch tests are skipped. They exercise real Painless transformations,
-legacy version zero and subsequent writes, published transcript filtering, restart recovery, failed
-and missing tasks, source replacement, and rollback transformation. The PostgreSQL-backed test
-creates a uniquely named database, verifies targeted repairs/evidence membership, conversion of
-concrete indexes to aliases, restart after cutover, and rollback, then drops only that test database.
+legacy version zero and subsequent writes, published transcript filtering, restart recovery, failed,
+cancelled and missing tasks, source replacement, and rollback transformation. The PostgreSQL-backed
+tests create uniquely named databases, verify targeted repairs/evidence membership, conversion of
+concrete indexes to aliases, restart after cutover, and rollback, and run the steps in and out of
+order with a simulated second indexing service writing and deleting between them, then drop only
+those test databases.
 It requires `MMI_MIGRATION_TEST_POSTGRES` with a local role allowed to create/drop databases.
 CI runs the suite on Elasticsearch 7.17.9 (DEV) and 8.19.21 (the inspected Cloud version).
 

@@ -15,6 +15,8 @@
 #   secret      - either migration job: name of the secret holding the database USERNAME/PASSWORD
 #                 (montford in dev, mooncrest in test, moonstep in prod). Omit to copy whatever
 #                 the api StatefulSet in that namespace uses.
+#   step        - elastic-migration only: run one step of the migration named by 'migration'
+#                 (prepare, copy, verify, cutover). Omit, or 'all', to run every step.
 
 # Local configuration (openshift/.env, gitignored - see .env.sample): ACR credentials for
 # machines where 'az login' is unavailable. The same values the build/push/pull/tag scripts use.
@@ -30,6 +32,7 @@ tag=${2-latest}
 name=${3-}
 migration=${4-}
 secret=${5-}
+step=${6-}
 
 if [[ -n "$migration" && "$name" != "db-migration" && "$name" != "elastic-migration" ]]; then
   echo "ERROR: a migration target only applies to n=db-migration or n=elastic-migration (got n='$name')."
@@ -41,7 +44,20 @@ if [[ -n "$secret" && "$name" != "db-migration" && "$name" != "elastic-migration
   exit 1
 fi
 
+if [[ -n "$step" && "$name" != "elastic-migration" ]]; then
+  echo "ERROR: a step only applies to n=elastic-migration (got n='$name')."
+  exit 1
+fi
+
 if [[ "$name" == "elastic-migration" ]]; then
+  case "$step" in
+    ""|all|prepare|copy|verify|cutover) ;;
+    *) echo "ERROR: elastic-migration step must be prepare, copy, verify, cutover, or all (got p='$step')."; exit 1 ;;
+  esac
+  if [[ -n "$step" && "$step" != "all" && -z "$migration" ]]; then
+    echo "ERROR: a step runs one migration; name it, e.g. m=1.0.11 p=$step."
+    exit 1
+  fi
   case "$env" in
     dev|test|prod) ;;
     *) echo "ERROR: elastic-migration environment must be dev, test, or prod."; exit 1 ;;
@@ -536,11 +552,14 @@ YAML
   acr_tag "$name"
 
   _job="$name-$(date +%Y%m%d%H%M%S)"
+  if [[ -n "$step" && "$step" != "all" ]]; then
+    _job="$name-$step-$(date +%Y%m%d%H%M%S)"
+  fi
   if [[ -n "$migration" ]]; then
-    echo "Migrating 9b301c-$env to '$migration'"
+    echo "Migrating 9b301c-$env to '$migration'${step:+, step '$step'}"
     _args="[\"$migration\"]"
     if [[ "$name" == "elastic-migration" ]]; then
-      _args="[\"--version\", \"$migration\"]"
+      _args="[\"--version\", \"$migration\"${step:+, \"--step\", \"$step\"}]"
     fi
   else
     echo "Applying all pending migrations to 9b301c-$env"

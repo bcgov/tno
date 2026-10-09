@@ -155,6 +155,21 @@ class MigrationCommands(unittest.TestCase):
             self.assertNotIn('Elastic__Username', job)
             self.assertNotIn('Elastic__Password', job)
 
+    def test_step_job(self):
+        self.run_make('deploy', 'n=elastic-migration', 'e=dev', 'm=1.0.11', 'p=prepare')
+        job = self.manifest()
+        self.assertIn('args: ["--version", "1.0.11", "--step", "prepare"]', job)
+        self.assertIn('name: elastic-migration-prepare-', job)
+        self.run_make('deploy', 'n=elastic-migration', 'e=dev', 'm=1.0.11', 'p=all')
+        self.assertIn('args: ["--version", "1.0.11", "--step", "all"]', self.manifest())
+
+    def test_invalid_step_before_external_commands(self):
+        for args in (('n=elastic-migration', 'm=1.0.11', 'p=bad'),
+                     ('n=elastic-migration', 'p=copy'),
+                     ('n=db-migration', 'p=copy')):
+            self.run_make('deploy', *args, success=False)
+        self.assertEqual('', self.calls())
+
     def test_database_job_unchanged(self):
         self.run_make('deploy', 'n=db-migration', 'e=dev', 'm=0')
         self.assertIn('args: ["0"]', self.manifest())

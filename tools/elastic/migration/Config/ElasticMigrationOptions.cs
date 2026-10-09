@@ -51,5 +51,11 @@ public class ElasticMigrationOptions : ElasticOptions
     public string BaselineVersion { get; set; } = "";
     /// <summary>Native reindex throttle, documents per second; -1 disables throttling.</summary>
     public long ReindexRequestsPerSecond { get; set; } = -1;
+
+    /// <summary>
+    /// get/set - The step of a migration to run ('all' runs every step in order). Only migrations
+    /// that support steps accept anything else, one migration at a time, never for a rollback.
+    /// </summary>
+    public MigrationStepName Step { get; set; } = MigrationStepName.All;
     #endregion
 }
