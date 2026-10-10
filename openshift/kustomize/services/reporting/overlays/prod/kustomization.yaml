@@ -22,7 +22,7 @@ patches:
         value: 3
       - op: replace
         path: /spec/template/spec/containers/0/image
-        value: bcgov-c4awhwfpcremdbga.azurecr.io/transcription-service:prod
+        value: bcgov-c4awhwfpcremdbga.azurecr.io/reporting-service:prod
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/cpu
         value: 20m

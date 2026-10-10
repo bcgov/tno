@@ -12,19 +12,6 @@ on:
       - 'tools/elastic/**'
       - 'libs/net/**'
   workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Target environment'
-        required: true
-        type: choice
-        options:
-          - dev
-          - test
-      baseline:
-        description: 'Existing schema baseline only when migration history is absent (e.g. 1.0.10)'
-        required: false
-        type: string
-        default: ''
 
 concurrency:
   group: elastic-migration-${{ github.ref }}
@@ -88,39 +75,46 @@ jobs:
       - name: Test deployment scripts
         run: python3 -m unittest discover -s openshift/scripts/tests -v
 
+  # The image is built and pushed for the migration Job to use; the migration itself is never run
+  # here. Run it with 'make -C openshift deploy n=elastic-migration ...' (see the elastic-migration README).
   cd-dev:
-    name: CD — Migrate Dev Elastic
+    name: CD — Build Dev Image
+    runs-on: ubuntu-latest
     needs: ci
-    if: github.event_name == 'workflow_dispatch' && inputs.environment == 'dev'
-    uses: ./.github/workflows/_reusable-elastic-migration-cd.yml
-    with:
-      environment: dev
-      baseline: ${{ inputs.baseline }}
-      image_tag: dev
-      openshift_namespace: 9b301c-dev
-      db_secret_name: montford
-      elastic_secret_name: elastic
-      indexing_configmap: indexing-service
-    secrets:
-      OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
-      ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
-      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
+    if: github.ref == 'refs/heads/dev' && github.event_name != 'pull_request' && github.repository == 'bcgov/tno'
+    environment: dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build, scan, and push image
+        uses: ./.github/actions/build-scan-push-image
+        with:
+          image_name: elastic-migration
+          dockerfile: tools/elastic/migration/Dockerfile
+          context: .
+          source_tag: ${{ github.sha }}
+          image_tag: dev
+          acr_url: bcgov-c4awhwfpcremdbga.azurecr.io
+          acr_username: ${{ secrets.ACR_USERNAME }}
+          acr_password: ${{ secrets.ACR_PASSWORD }}
 
   cd-test:
-    name: CD — Migrate Test Elastic
+    name: CD — Build Test Image
+    runs-on: ubuntu-latest
     needs: ci
-    if: github.event_name == 'workflow_dispatch' && inputs.environment == 'test'
-    uses: ./.github/workflows/_reusable-elastic-migration-cd.yml
-    with:
-      environment: test
-      baseline: ${{ inputs.baseline }}
-      image_tag: test
-      openshift_namespace: 9b301c-test
-      db_secret_name: mooncrest
-      elastic_secret_name: elastic-cloud
-      indexing_configmap: indexing-service-cloud
-      elastic_apikey_enabled: true
-    secrets:
-      OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
-      ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
-      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
+    if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request' && github.repository == 'bcgov/tno'
+    environment: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build, scan, and push image
+        uses: ./.github/actions/build-scan-push-image
+        with:
+          image_name: elastic-migration
+          dockerfile: tools/elastic/migration/Dockerfile
+          context: .
+          source_tag: ${{ github.sha }}
+          image_tag: test
+          acr_url: bcgov-c4awhwfpcremdbga.azurecr.io
+          acr_username: ${{ secrets.ACR_USERNAME }}
+          acr_password: ${{ secrets.ACR_PASSWORD }}

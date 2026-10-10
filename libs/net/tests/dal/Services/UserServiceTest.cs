@@ -225,6 +225,53 @@ public class UserServiceTest : IDisposable
         Assert.Equal(UserAccountType.Distribution, subscriptions[3].User?.AccountType);
     }
 
+    [Fact]
+    public void FindById_LoadsOnlyTheRequestedUserWithTheirCollections()
+    {
+        // Arrange
+        var service = helper.Provider.GetRequiredService<IUserService>();
+        var context = helper.Provider.GetRequiredService<TNOContext>();
+        var alice = SeedUser(context);
+
+        // Both users belong to an organization and have update history.
+        context.Add(new Organization(1, "organization"));
+        context.AddRange(new UserOrganization(alice.Id, 1), new UserOrganization(1, 1));
+        context.AddRange(
+            new UserUpdateHistory(1, alice.Id, UserChangeType.AccountType, DateTime.UtcNow, "alice"),
+            new UserUpdateHistory(2, 1, UserChangeType.AccountType, DateTime.UtcNow, "owner"));
+        context.SaveChanges();
+        context.ChangeTracker.Clear();
+
+        // Act
+        var user = service.FindById(alice.Id)!;
+
+        // Assert
+        Assert.Equal(alice.Id, user.Id);
+        Assert.Equal(new[] { 1, 2 }, user.ReportSubscriptionsManyToMany.Select(s => s.ReportId).OrderBy(id => id));
+        Assert.All(user.ReportSubscriptionsManyToMany, s => Assert.NotNull(s.Report));
+        Assert.Equal("organization", Assert.Single(user.OrganizationsManyToMany).Organization?.Name);
+        Assert.Equal("alice", Assert.Single(user.UserUpdateHistory).Value);
+        // No other user is loaded alongside the requested one.
+        Assert.Equal(new[] { alice.Id }, context.ChangeTracker.Entries<User>().Select(e => e.Entity.Id));
+    }
+
+    [Fact]
+    public void FindById_WithoutIncludes_LoadsAnUntrackedUserWithoutCollections()
+    {
+        // Arrange
+        var service = helper.Provider.GetRequiredService<IUserService>();
+        var context = helper.Provider.GetRequiredService<TNOContext>();
+        var alice = SeedUser(context);
+
+        // Act
+        var user = service.FindById(alice.Id, null)!;
+
+        // Assert
+        Assert.Equal("alice@test.com", user.Email);
+        Assert.Empty(user.ReportSubscriptionsManyToMany);
+        Assert.Empty(context.ChangeTracker.Entries<User>());
+    }
+
     public void Dispose()
     {
         GC.SuppressFinalize(this);

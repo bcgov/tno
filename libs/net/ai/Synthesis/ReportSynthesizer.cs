@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using AngleSharp.Html.Parser;
 using Microsoft.Extensions.Logging;
@@ -335,7 +336,7 @@ public partial class ReportSynthesizer
         var system = String.IsNullOrWhiteSpace(request.SystemPrompt) ? $"You write the '{request.SectionLabel}' section of a media monitoring report." : request.SystemPrompt!;
         var historyMessages = history
             .Where(h => h.Findings.Count > 0)
-            .Select(h => ("user", $"## {h.Label} (previous report)\n{String.Join("\n", h.Findings.Select(f => $"- {f.Statement}"))}"))
+            .Select(h => ("user", $"## {h.Label} (previous report)\n{FormatCoverage(h.Findings)}\n\nFindings:\n{String.Join("\n", h.Findings.Select(FormatHistoryFinding))}"))
             .ToArray();
 
         var historyTokens = historyMessages.Sum(m => run.Estimator.Count(m.Item2));
@@ -349,7 +350,7 @@ public partial class ReportSynthesizer
             var findingsTokens = run.Estimator.Count(findingsText);
             var messages = new List<(string Role, string Content)> { ("system", system) };
             messages.AddRange(historyMessages);
-            messages.Add(("user", $"{SynthesisPrompts.FinalCitationRule}\n\n## Findings for this report\n{findingsText}\n\n{request.UserPrompt}"));
+            messages.Add(("user", $"{SynthesisPrompts.FinalCitationRule}\n\n{findingsText}\n\n{request.UserPrompt}"));
 
             string problem;
             if (findingsTokens <= allowance)
@@ -494,18 +495,49 @@ public partial class ReportSynthesizer
     private const int MaxFinalCitations = 3;
 
     /// <summary>
-    /// A finding as one final-prompt line, with a few of its story handles to cite.
+    /// A finding's topic label as given to the final step.
+    /// </summary>
+    private static string TopicOf(Finding finding) => String.IsNullOrWhiteSpace(finding.Topic) ? "Other" : finding.Topic.Trim();
+
+    /// <summary>
+    /// A finding as one final-prompt line, with its topic and a few of its story handles to cite.
     /// </summary>
     private static string FormatFinalFinding(Finding finding)
-        => $"- {finding.Statement} {String.Concat(finding.Sources.Take(MaxFinalCitations).Select(h => $"[{h}]"))}";
+        => $"- ({TopicOf(finding)}) {finding.Statement} {String.Concat(finding.Sources.Take(MaxFinalCitations).Select(h => $"[{h}]"))}";
 
-    /// <summary>Include the exact URLs for cited stories in the final request's token budget.</summary>
+    /// <summary>
+    /// A previous report's finding as one line, with its topic.
+    /// </summary>
+    private static string FormatHistoryFinding(Finding finding) => $"- ({TopicOf(finding)}) {finding.Statement}";
+
+    /// <summary>
+    /// The number of stories behind each topic's findings, most covered first, so coverage can be
+    /// compared between reports.
+    /// </summary>
+    private static string FormatCoverage(IEnumerable<Finding> findings)
+    {
+        var topics = findings
+            .GroupBy(TopicOf, StringComparer.OrdinalIgnoreCase)
+            .Select(g => (Topic: TopicOf(g.First()), Stories: g.SelectMany(f => f.Sources).Distinct().Count()))
+            .OrderByDescending(t => t.Stories)
+            .ThenBy(t => t.Topic, StringComparer.OrdinalIgnoreCase);
+        return $"Coverage by topic:\n{String.Join("\n", topics.Select(t => $"- {t.Topic}: {t.Stories} {(t.Stories == 1 ? "story" : "stories")}"))}";
+    }
+
+    /// <summary>Include the exact URLs and selected metadata of cited stories in the final request's token budget.</summary>
     private static string FormatFinalInput(Run run, IReadOnlyList<Finding> findings)
     {
-        var sources = findings.SelectMany(f => f.Sources.Take(MaxFinalCitations)).Distinct()
+        var stories = new JsonArray(findings.SelectMany(f => f.Sources.Take(MaxFinalCitations)).Distinct()
             .Where(run.Sources.ContainsKey)
-            .Select(handle => new { reference = handle, url = run.Sources[handle].Url, anchor = run.Sources[handle].Anchor });
-        return $"{String.Join("\n", findings.Select(FormatFinalFinding))}\n\n## Story link data\n{JsonSerializer.Serialize(sources)}";
+            .Select(handle =>
+            {
+                var source = run.Sources[handle];
+                var story = new JsonObject { ["reference"] = handle, ["url"] = source.Url, ["anchor"] = source.Anchor };
+                foreach (var field in source.Fields ?? new Dictionary<string, string>())
+                    if (!story.ContainsKey(field.Key)) story[field.Key] = field.Value;
+                return (JsonNode)story;
+            }).ToArray());
+        return $"{FormatCoverage(findings)}\n\n## Findings for this report\n{String.Join("\n", findings.Select(FormatFinalFinding))}\n\n## Story data\n{stories.ToJsonString()}";
     }
 
     /// <summary>
@@ -605,7 +637,7 @@ public partial class ReportSynthesizer
         public Dictionary<string, SynthesisSource> Sources { get; } = new();
 
         public void AddSource(string handle, SynthesisStory story)
-            => this.Sources[handle] = new SynthesisSource(handle, story.ContentId, story.Headline, story.Url, story.Anchor);
+            => this.Sources[handle] = new SynthesisSource(handle, story.ContentId, story.Headline, story.Url, story.Anchor, story.Fields);
 
         /// <summary>
         /// Input tokens available beside the specified system prompt, in a two-message request.

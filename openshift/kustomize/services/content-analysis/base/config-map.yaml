@@ -29,6 +29,10 @@ data:
   # Processes this service runs; each applies its result to the content's empty field.
   # Any of: Metadata, Summary, Quotes, Tags, Contributor, Topics. Empty runs nothing.
   PROCESSES: Metadata,Summary,Quotes,Tags,Contributor,Topics
+  # Request reasons this service analyzes; any other request is consumed and committed
+  # unanalyzed, so the topics do not lag. Any of: Lifecycle (content added or changed),
+  # Reanalysis (an editor's request), Backfill, Replay. Empty analyzes nothing.
+  REASONS: Lifecycle,Reanalysis,Backfill,Replay
   # Seconds after a content change before it is analyzed, so a burst of edits is analyzed once.
   QUIET_PERIOD_SECONDS: "120"
   # Attempts per request before it goes to the dead-letter topic; retries back off from

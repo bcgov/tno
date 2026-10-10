@@ -53,7 +53,8 @@ public class UserController : ControllerBase
     [SwaggerOperation(Tags = new[] { "User" })]
     public IActionResult FindById(int id)
     {
-        var result = _service.FindById(id);
+        // The model has no collections, so none are loaded.
+        var result = _service.FindById(id, null);
         if (result == null) return NoContent();
         return new JsonResult(new UserModel(result));
     }

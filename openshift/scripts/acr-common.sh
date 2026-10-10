@@ -38,7 +38,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 #   api        api            api/net/Dockerfile.openshift api/net/Dockerfile          .
 #   editor     editor         app/editor/Dockerfile.nginx  app/editor/Dockerfile       app/editor
 #   subscriber subscriber     app/subscriber/Dockerfile.nginx app/subscriber/Dockerfile app/subscriber
-#   charts     charts-api     api/node/Dockerfile.open     api/node/Dockerfile.local   api/node
+#   charts     charts-api     api/node/Dockerfile          api/node/Dockerfile.local   api/node
 #   db-migration db-migration libs/net/Dockerfile          (same for both)             libs/net
 #   elastic-migration elastic-migration tools/elastic/migration/Dockerfile (same)   .
 #   <name>     <name>-service services/net/<name>/Dockerfile (same for both)           .
@@ -95,7 +95,9 @@ resolve_image() {
       if [ "$environment" = "local" ]; then
         DOCKERFILE=${DOCKERFILE:-api/node/Dockerfile.local}
       else
-        DOCKERFILE=${DOCKERFILE:-api/node/Dockerfile.open}
+        # The image CI builds and pushes. Dockerfile.open is for the in-cluster BuildConfig: its
+        # base image is in the cluster's internal registry, which is unreachable from elsewhere.
+        DOCKERFILE=${DOCKERFILE:-api/node/Dockerfile}
       fi
       ;;
     elastic-migration)
