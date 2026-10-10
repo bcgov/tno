@@ -148,6 +148,25 @@ public class ReportSynthesizerTest
     }
 
     [Fact]
+    public async Task FinalPromptCarriesTopicsCoverageAndSelectedMetadata()
+    {
+        var client = new FakeLlmClient(8000);
+        var stories = Stories(3);
+        stories[0] = stories[0] with { Fields = new Dictionary<string, string> { ["source"] = "Globe and Mail", ["mediaType"] = "Print" } };
+        stories[1] = stories[1] with { Fields = new Dictionary<string, string>() };
+
+        var result = await Synthesizer(client).SynthesizeAsync(Request(stories));
+
+        result.IsSuccess.Should().BeTrue(result.Error);
+        var finalInput = client.Requests.Last()[^1].Content;
+        finalInput.Should().Contain("\"reference\":\"S1\",\"url\":\"https://mmi.test/view/1\",\"anchor\":null,\"source\":\"Globe and Mail\",\"mediaType\":\"Print\"}")
+            .And.Contain("\"reference\":\"S2\",\"url\":\"https://mmi.test/view/2\",\"anchor\":null}")
+            .And.Contain("- (Topic 1) Fact from S1. [S1]")
+            .And.Contain("Coverage by topic:\n- Topic 0: 1 story")
+            .And.Contain("do not also\ncite references in square brackets");
+    }
+
+    [Fact]
     public async Task FreeTextCitationsBecomeLinksAndHtmlIsSanitized()
     {
         var client = new FakeLlmClient(8000) { FinalOutput = "<script>alert(1)</script><p onclick=\"x()\">Budget [S2] and [S999]</p>" };
@@ -241,6 +260,8 @@ public class ReportSynthesizerTest
         maps[2].Should().OnlyContain(h => h.StartsWith("S"));
         var final = client.Requests.Last();
         final.Select(m => m.Content).Should().Contain(c => c.Contains("Report of 2026-09-28"));
+        // Previous reports carry their coverage by topic, so trends can be compared.
+        final.Select(m => m.Content).Should().Contain(c => c.Contains("## Report of 2026-09-28 (previous report)\nCoverage by topic:\n- History: 3 stories") && c.Contains("- (History) Fact from P1-1."));
         // Historical stories are context only; they are never cited in the output.
         result.Output.Should().NotContain("P1-");
     }

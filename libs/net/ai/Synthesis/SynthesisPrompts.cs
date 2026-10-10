@@ -9,7 +9,7 @@ public static class SynthesisPrompts
     /// <summary>
     /// The version of the prompts and pipeline. Changing it invalidates stored results.
     /// </summary>
-    public const string PipelineVersion = "5";
+    public const string PipelineVersion = "6";
 
     /// <summary>
     /// The shape every map and reduce step returns.
@@ -71,14 +71,21 @@ public static class SynthesisPrompts
     /// </summary>
     public const string FinalCitationRule = """
         The findings below were synthesized from the report's stories. Write the section from them,
-        following the instructions. Each finding cites supporting story references, e.g. [S3].
-        The Story link data array maps each reference to its optional "url" and "anchor" properties.
+        following the instructions. Each finding starts with its topic in parentheses and cites
+        supporting story references, e.g. [S3]. Coverage by topic counts the stories behind each
+        topic's findings; previous reports, when given, list the same counts for comparison.
+        The Story data array maps each reference to its optional "url" and "anchor" properties and
+        to the story's metadata fields that were provided (any of "source", "mediaType", "series",
+        "publishedOn", "byline", "contributor"). Use a metadata value exactly as given; when a field
+        is missing for a story, leave it out rather than guessing it.
         "url" opens the subscriber story page. "anchor" jumps to the story within this report.
         When asked for HTML links, copy the requested property exactly into href; never invent a
         URL or anchor, use a reference as a URL, or substitute one property for the other. If the
         requested property is missing, null or empty, omit the link. For anchor links omit target
         so they stay in this tab. URL links may use target="_blank" with rel="noopener noreferrer".
-        Otherwise cite references in square brackets, e.g. [S3] or [S3][S7]; the report replaces
-        them with links. Do not place bracketed references inside HTML links. Do not invent references or facts.
+        When the instructions ask for their own story links, write only those links and do not also
+        cite references in square brackets. Otherwise cite references in square brackets, e.g. [S3]
+        or [S3][S7]; the report replaces them with links. Do not place bracketed references inside
+        HTML links. Do not invent references or facts.
         """;
 }

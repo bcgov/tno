@@ -28,7 +28,8 @@ public enum SynthesisOutputMode
 /// <param name="Anchor">An anchor to the story in the report body, preferred over the URL.</param>
 /// <param name="Group">The group the story belongs to (a topic), or null for the whole section.</param>
 /// <param name="AnalysisId">The analysis the text came from, pinned in the manifest.</param>
-public record SynthesisStory(long ContentId, string Headline, string Metadata, string Text, string? Url = null, string? Anchor = null, string? Group = null, long? AnalysisId = null);
+/// <param name="Fields">The selected metadata fields by name (e.g. "source"), given to the final step with the story's reference.</param>
+public record SynthesisStory(long ContentId, string Headline, string Metadata, string Text, string? Url = null, string? Anchor = null, string? Group = null, long? AnalysisId = null, IReadOnlyDictionary<string, string>? Fields = null);
 
 /// <summary>
 /// SynthesisHistoricalInstance record, a previous report instance given as context.
@@ -128,7 +129,8 @@ public record Finding(string Topic, string Statement, IReadOnlyList<string> Sour
 /// <param name="Headline">The headline.</param>
 /// <param name="Url">The subscriber story page URL.</param>
 /// <param name="Anchor">The story's anchor within the current report, when rendered.</param>
-public record SynthesisSource(string Handle, long ContentId, string Headline, string? Url, string? Anchor = null)
+/// <param name="Fields">The story's selected metadata fields by name.</param>
+public record SynthesisSource(string Handle, long ContentId, string Headline, string? Url, string? Anchor = null, IReadOnlyDictionary<string, string>? Fields = null)
 {
     /// <summary>The preferred destination for automatic citations.</summary>
     public string? Link => this.Anchor ?? this.Url;

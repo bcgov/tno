@@ -289,29 +289,38 @@ public class ReportAISectionGenerator
                     viewContentUrl != null ? $"{viewContentUrl}{content.Id}" : null,
                     anchoredIds.Contains(content.Id) ? $"#{ReportEngine.ContentAnchorPrefix}{content.Id}" : null,
                     GetGroup(content),
-                    content.Evidence?.AnalysisId));
+                    content.Evidence?.AnalysisId,
+                    GetMetadataFields(content, fields)));
             }
         }
         return stories;
     }
 
     /// <summary>
+    /// The selected metadata fields that have a value, by name, in a fixed order.
+    /// </summary>
+    private static IReadOnlyDictionary<string, string> GetMetadataFields(ContentModel content, ISet<string> fields)
+    {
+        var parts = new (string Key, string? Value)[]
+        {
+            ("source", content.Source?.Name ?? content.OtherSource),
+            ("mediaType", content.MediaType?.Name),
+            ("series", content.Series?.Name ?? content.OtherSeries),
+            ("publishedOn", content.PublishedOn?.ToString("yyyy-MM-dd HH:mm 'UTC'")),
+            ("byline", content.Byline),
+            ("contributor", content.Contributor?.Name),
+        };
+        var result = new Dictionary<string, string>();
+        foreach (var (key, value) in parts.Where(p => fields.Contains(p.Key) && !String.IsNullOrWhiteSpace(p.Value)))
+            result[key] = value!;
+        return result;
+    }
+
+    /// <summary>
     /// One line of metadata the model reads with the story.
     /// </summary>
     private static string BuildMetadata(ContentModel content, ISet<string> fields)
-    {
-        var parts = new Dictionary<string, string?>
-        {
-            ["source"] = content.Source?.Name ?? content.OtherSource,
-            ["mediaType"] = content.MediaType?.Name,
-            ["series"] = content.Series?.Name ?? content.OtherSeries,
-            ["publishedOn"] = content.PublishedOn?.ToString("yyyy-MM-dd HH:mm 'UTC'"),
-            ["byline"] = content.Byline,
-            ["contributor"] = content.Contributor?.Name,
-        };
-        return String.Join(" | ", parts.Where(p => fields.Contains(p.Key) && !String.IsNullOrWhiteSpace(p.Value))
-            .Select(p => $"{p.Key}: {p.Value}"));
-    }
+        => String.Join(" | ", GetMetadataFields(content, fields).Select(p => $"{p.Key}: {p.Value}"));
 
     /// <summary>
     /// The selected analysis fields with either article text or a summary, never both.
