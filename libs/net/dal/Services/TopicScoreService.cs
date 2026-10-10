@@ -137,11 +137,22 @@ public class TopicScoreService : BaseService, ITopicScoreService
             if (topic.IsScoreOverridden) topic.ScoreRuleId = null;
         }
 
+        AddSystemTopicWhenScored(content);
+    }
+
+    /// <summary>
+    /// Give eligible content without a topic the system topic when a rule or its source default
+    /// scores it. Content being updated is scored with its saved images as well as its own.
+    /// </summary>
+    /// <param name="content"></param>
+    public void AddSystemTopicWhenScored(Content content)
+    {
         if (content.TopicsManyToMany.Count > 0 || !IsEligible(content.ContentType, content.SourceId, content.SeriesId)) return;
 
         // Only content a rule or source default scores is given the placeholder topic, as before.
-        var input = TopicScoreInput.From(content.SourceId, content.SeriesId, content.Section, content.Page, content.Body, content.PublishedOn,
-            content.FileReferences.Any(f => TNOContext.IsImageFile(f.ContentType)));
+        var hasImageFile = content.FileReferences.Any(f => TNOContext.IsImageFile(f.ContentType))
+            || (content.Id != 0 && this.Context.FileReferences.AsNoTracking().Any(f => f.ContentId == content.Id && f.ContentType.StartsWith("image/")));
+        var input = TopicScoreInput.From(content.SourceId, content.SeriesId, content.Section, content.Page, content.Body, content.PublishedOn, hasImageFile);
         var result = Calculate(input);
         if (!result.RuleId.HasValue && !result.IsSourceDefault) return;
 

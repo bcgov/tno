@@ -246,6 +246,9 @@ public class ContentController : ControllerBase
         if (!updateContent.PostedOn.HasValue)
             updateContent.PostedOn = DateTime.UtcNow;
 
+        // A story saved without a topic is given "Not Applicable" when the rules now score it.
+        _topicScoreService.AddSystemTopicWhenScored(updateContent);
+
         // If a request is submitted to unpublish we do it regardless of the current state of the content.
         _contentService.RequestIndex(updateContent, requestorId: user.Id);
         var content = _contentService.UpdateAndSave(updateContent);
