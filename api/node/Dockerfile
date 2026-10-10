@@ -1,4 +1,4 @@
-FROM node:18-bullseye AS build
+FROM node:18-bookworm AS build
 
 WORKDIR /usr/app
 COPY .yarn ./.yarn
@@ -13,7 +13,7 @@ RUN yarn
 COPY . .
 RUN yarn run build
 
-FROM node:18-bullseye AS final
+FROM node:18-bookworm AS final
 
 WORKDIR /usr/app
 COPY --from=build /usr/app/node_modules ./node_modules
