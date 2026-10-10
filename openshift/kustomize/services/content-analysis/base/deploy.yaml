@@ -153,6 +153,11 @@ spec:
                 configMapKeyRef:
                   name: content-analysis-service
                   key: PROCESSES
+            - name: Service__Reasons
+              valueFrom:
+                configMapKeyRef:
+                  name: content-analysis-service
+                  key: REASONS
             - name: Service__QuietPeriodSeconds
               valueFrom:
                 configMapKeyRef:

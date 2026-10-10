@@ -47,6 +47,11 @@ public class AnalysisConsumer
     public Task? Task { get; set; }
 
     /// <summary>
+    /// get/set - Whether the listener is left paused until the LLM is available again.
+    /// </summary>
+    public bool IsHeld { get; set; }
+
+    /// <summary>
     /// get - Cancelled when the consumer stops.
     /// </summary>
     public CancellationToken Token => _cancellation.Token;

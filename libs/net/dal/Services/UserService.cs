@@ -119,7 +119,8 @@ public class UserService : BaseService<User, int>, IUserService
             .Include(u => u.SourcesManyToMany)
             .Include(u => u.OrganizationsManyToMany).ThenInclude(o => o.Organization)
             .Include(u => u.ReportSubscriptionsManyToMany).ThenInclude(o => o.Report)
-            .Include(u => u.UserUpdateHistory).ToList()
+            .Include(u => u.UserUpdateHistory)
+            .AsSplitQuery()
             .FirstOrDefault(u => u.Id == id);
     }
 

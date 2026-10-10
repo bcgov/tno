@@ -239,6 +239,23 @@ public class ReportAISectionGeneratorTest
     }
 
     [Fact]
+    public void OnlySelectedMetadataFieldsAreGivenToTheFinalStep()
+    {
+        var story = Story(1, "News.");
+        story.OtherSource = "Globe and Mail";
+        story.Byline = "Jane Doe";
+        var sections = new[] { ContentSection("news", 0, story) };
+
+        var selected = ReportAISectionGenerator.BuildStories(sections, null, false, new[] { "headline", "source" }).Single();
+        var defaults = ReportAISectionGenerator.BuildStories(sections, null, false).Single();
+
+        selected.Fields.Should().BeEquivalentTo(new Dictionary<string, string> { ["source"] = "Globe and Mail" });
+        selected.Metadata.Should().Be("source: Globe and Mail");
+        // Empty fields are left out rather than sent blank.
+        defaults.Fields.Should().BeEquivalentTo(new Dictionary<string, string> { ["source"] = "Globe and Mail", ["byline"] = "Jane Doe" });
+    }
+
+    [Fact]
     public void AnUnapprovedTranscriptsAnalysisIsNeverUsed()
     {
         var model = new API.Areas.Services.Models.Content.ContentModel()

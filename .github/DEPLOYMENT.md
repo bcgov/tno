@@ -182,7 +182,8 @@ before this belongs in the orchestrated deploy flow.
 If that setup is standardized later, add Elastic migration by:
 
 - Adding an Elastic migration output in `detect_deploy_changes.py`
-- Adding a `deploy-all.yml` job that calls `_reusable-elastic-migration-cd.yml`
+- Adding a `deploy-all.yml` job that runs the migration Job (the **Elastic Migration CI/CD**
+  workflow only builds and pushes the `elastic-migration` image)
 - Passing the right `elastic_secret_name`, `indexing_configmap`, and
   `elastic_apikey_enabled` values per environment
 - Placing the job before API/service/frontend rollout if app pods depend on it

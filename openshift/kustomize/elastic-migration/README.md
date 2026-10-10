@@ -175,9 +175,9 @@ retried and are kept for 24 hours.
 | `MIGRATION_STARTUP_TIMEOUT_SECONDS` | 900 | Wait for the image to pull and the container to start |
 | `ELASTIC_MIGRATION_CONFIGMAP` / `_SECRET` / `_AUTH` | per environment | Override the Elasticsearch target (`basic` or `apikey`) |
 
-The GitHub Actions workflow **Elastic Migration CI/CD** runs the same script for DEV and TEST through
-`workflow_dispatch`, with an optional baseline. It runs every pending migration in a single run, so use it only with
-indexing off. A hosted runner can time out before a long Job finishes; the Job keeps running, so check it with `oc`.
+The GitHub Actions workflow **Elastic Migration CI/CD** never runs a migration. It tests the tool, and a push to
+`dev` or `master` builds the image and pushes it to ACR as `elastic-migration:dev` or `elastic-migration:test`.
+Run the migration itself with `make -C openshift deploy n=elastic-migration ...` as described above.
 
 ### Second Indexing Service
 

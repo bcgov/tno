@@ -1,4 +1,4 @@
-FROM node:18-bullseye
+FROM node:18-bookworm
 
 RUN apt-get update && apt-get install -qq -y --no-install-recommends \
   nano build-essential libpq-dev yarn

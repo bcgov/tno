@@ -32,3 +32,11 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
         value: 768Mi
+  # Analyze only what editors and administrators ask for, not every new or changed story.
+  - target:
+      kind: ConfigMap
+      name: content-analysis-service
+    patch: |-
+      - op: replace
+        path: /data/REASONS
+        value: Reanalysis,Backfill,Replay

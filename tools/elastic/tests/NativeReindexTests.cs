@@ -70,7 +70,10 @@ public sealed class NativeReindexTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         await Request(HttpMethod.Put, Source, JsonNode.Parse("""{"settings":{"number_of_replicas":0},"mappings":{"properties":{"id":{"type":"long"}}}}"""));
-        await Request(HttpMethod.Put, Target, JsonNode.Parse("""{"settings":{"number_of_replicas":0},"mappings":{"_meta":{"owner":"tno-native-1.0.11"},"properties":{"id":{"type":"long"}}}}"""));
+        // Map the fields the copies add up front. A dynamic mapping update from a running copy can
+        // replace a _meta the test saves at the same moment (e.g. the task it follows), as the
+        // migration's prepare step avoids by copying the source mappings.
+        await Request(HttpMethod.Put, Target, JsonNode.Parse("""{"settings":{"number_of_replicas":0},"mappings":{"_meta":{"owner":"tno-native-1.0.11"},"properties":{"id":{"type":"long"},"projectionRevision":{"type":"long"},"body":{"type":"text"}}}}"""));
     }
 
     public async Task DisposeAsync()
