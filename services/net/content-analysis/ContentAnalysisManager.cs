@@ -29,8 +29,11 @@ namespace TNO.Services.ContentAnalysis;
 ///   whose analysis is already current, unless it is forced;
 /// - a failure is sent to the retry topic with a backoff, and to the dead-letter topic once its
 ///   attempts are exhausted;
+/// - a request for a reason the service is not configured to analyze is committed unanalyzed;
 /// - a misconfigured LLM, or an unreachable API, is not the content's fault: the message is not
-///   committed, so it is received again once the service recovers.
+///   committed, so it is received again once the service recovers. While the LLM is misconfigured
+///   the consumers hold at the first request that needs it, and one email is sent, rather than
+///   failing (and emailing) every request.
 /// </summary>
 public class ContentAnalysisManager : ServiceManager<ContentAnalysisOptions>
 {
@@ -39,6 +42,8 @@ public class ContentAnalysisManager : ServiceManager<ContentAnalysisOptions>
     private readonly IKafkaAdmin _kafkaAdmin;
     private readonly HttpClient _httpClient;
     private readonly AnalysisProcess _processes;
+    private readonly bool _usesModel;
+    private readonly AnalysisRequestReason[] _reasons;
     private readonly AnalysisConsumer[] _consumers;
 
     private readonly SemaphoreSlim _settingsLock = new(1, 1);
@@ -46,6 +51,11 @@ public class ContentAnalysisManager : ServiceManager<ContentAnalysisOptions>
     private API.Areas.Services.Models.LLM.LLMModel? _llm;
     private IReadOnlyList<AnalyzerTag> _tags = Array.Empty<AnalyzerTag>();
     private DateTime _settingsRefreshedOn = DateTime.MinValue;
+
+    private readonly object _llmLock = new();
+    private string? _llmError;
+    private string? _llmErrorNotified;
+    private DateTime _llmHeldUntil = DateTime.MinValue;
 
     private readonly object _workOrderLock = new();
     private readonly Dictionary<long, (WorkOrderStatus Status, DateTime CheckedOn)> _workOrders = new();
@@ -77,6 +87,9 @@ public class ContentAnalysisManager : ServiceManager<ContentAnalysisOptions>
         _processes = this.Options.GetProcesses();
         if (_processes == AnalysisProcess.None) this.Logger.LogWarning("Content-Analysis has no processes configured (Service:Processes); it will not consume analysis requests.");
         else this.Logger.LogInformation("Content-Analysis processes: {processes}", _processes);
+        _usesModel = CreateAnalyzerOptions().UsesModel;
+        _reasons = this.Options.GetReasons();
+        this.Logger.LogInformation("Content-Analysis analyzes requests for: {reasons}", _reasons.Length > 0 ? String.Join(", ", _reasons) : "none (every request is committed unanalyzed)");
 
         var consumers = new List<AnalysisConsumer>();
         void Add(AnalysisConsumerKind kind, params string[] topics)
@@ -124,6 +137,7 @@ public class ContentAnalysisManager : ServiceManager<ContentAnalysisOptions>
                 try
                 {
                     await RefreshSettingsAsync();
+                    await CheckLlmAsync();
                     StartConsumers();
                 }
                 catch (Exception ex)
@@ -176,6 +190,7 @@ public class ContentAnalysisManager : ServiceManager<ContentAnalysisOptions>
     /// <returns></returns>
     private async Task HandleMessageAsync(AnalysisConsumer consumer, ConsumeResult<string, AnalysisRequestModel> result)
     {
+        var hold = false;
         try
         {
             if (this.State.Status != ServiceStatus.Running)
@@ -183,31 +198,51 @@ public class ContentAnalysisManager : ServiceManager<ContentAnalysisOptions>
                 ReturnTo(consumer, result);
                 return;
             }
+            if (NeedsLlm(result.Message.Value) && !IsLlmAvailable())
+            {
+                ReturnTo(consumer, result);
+                hold = true;
+                return;
+            }
 
             await ProcessRequestAsync(consumer, result.Message.Value, consumer.Token);
             consumer.Listener.Commit(result);
             this.State.ResetFailures();
         }
+        catch (OperationCanceledException) when (consumer.Token.IsCancellationRequested)
+        {
+            // The consumer is stopping; the request is received again when it restarts.
+            ReturnTo(consumer, result);
+        }
+        catch (Exception ex) when (LlmConfigurationException.IsConfigurationError(ex))
+        {
+            // Not counted as a failure: every request would fail the same way, so the consumers hold
+            // until the LLM is available rather than putting the service to sleep.
+            ReturnTo(consumer, result);
+            hold = true;
+            await HoldForLlmAsync(ex.Message, ex, DateTime.UtcNow.AddMilliseconds(Math.Max(1000, this.Options.RetryAfterCriticalFailureDelayMS)));
+        }
         catch (Exception ex)
         {
             ReturnTo(consumer, result);
             var failures = this.State.RecordFailure();
-            if (LlmConfigurationException.IsConfigurationError(ex))
-            {
-                this.Logger.LogError(ex, "Content-Analysis LLM is misconfigured. This is failure [{failures}] out of [{max}] before the service sleeps.", failures, this.State.MaxFailureLimit);
-                await this.SendErrorEmailAsync("Content-Analysis LLM is misconfigured", ex);
-            }
-            else
-            {
-                this.Logger.LogError(ex, "Content-Analysis failed to handle a request for content {contentId}. This is failure [{failures}] out of [{max}] before the service sleeps.", result.Message.Key, failures, this.State.MaxFailureLimit);
-                await this.SendErrorEmailAsync("Content-Analysis failed to handle a request", ex);
-            }
+            this.Logger.LogError(ex, "Content-Analysis failed to handle a request for content {contentId}. This is failure [{failures}] out of [{max}] before the service sleeps.", result.Message.Key, failures, this.State.MaxFailureLimit);
+            await this.SendErrorEmailAsync("Content-Analysis failed to handle a request", ex);
             // Give what failed time to recover before the request is received again.
             await Task.Delay(Math.Max(1000, this.Options.RetryDelayMS));
         }
         finally
         {
-            if (this.State.Status == ServiceStatus.Running) consumer.Listener.Resume();
+            if (this.State.Status == ServiceStatus.Running)
+            {
+                // A request held for the LLM leaves the listener paused, so it is not received again
+                // until the LLM is available; CheckLlmAsync resumes it.
+                lock (_llmLock)
+                {
+                    consumer.IsHeld = hold && _llmError != null;
+                }
+                if (!consumer.IsHeld) consumer.Listener.Resume();
+            }
         }
     }
 
@@ -241,6 +276,11 @@ public class ContentAnalysisManager : ServiceManager<ContentAnalysisOptions>
         if (request == null || request.ContentId == 0)
         {
             this.Logger.LogWarning("Content-Analysis received an empty request");
+            return;
+        }
+        if (!_reasons.Contains(request.Reason))
+        {
+            this.Logger.LogDebug("Content {contentId} is not analyzed: {reason} requests are not analyzed (Service:Reasons)", request.ContentId, request.Reason);
             return;
         }
         if (request.WorkOrderId.HasValue && await IsCancelledAsync(request.WorkOrderId.Value))
@@ -300,19 +340,7 @@ public class ContentAnalysisManager : ServiceManager<ContentAnalysisOptions>
     /// </summary>
     private async Task AnalyzeAsync(AnalysisConsumer consumer, AnalysisRequestModel request, AnalysisInputModel input, int attempt, CancellationToken cancellationToken)
     {
-        var analyzerOptions = new AnalyzerOptions()
-        {
-            SafetyMarginPercent = this.Options.SafetyMarginPercent,
-            OverlapTokens = this.Options.OverlapTokens,
-            MinTextCharacters = this.Options.MinTextCharacters,
-            RequestAttempts = this.Options.LLMRequestAttempts,
-            ExtractMetadata = _processes.HasFlag(AnalysisProcess.Metadata),
-            Summarize = _processes.HasFlag(AnalysisProcess.Summary),
-            ExtractQuotes = _processes.HasFlag(AnalysisProcess.Quotes),
-            SuggestTags = _processes.HasFlag(AnalysisProcess.Tags),
-            SuggestContributor = _processes.HasFlag(AnalysisProcess.Contributor),
-            ChooseTopic = _processes.HasFlag(AnalysisProcess.Topics),
-        };
+        var analyzerOptions = CreateAnalyzerOptions();
 
         // Only the model-based processes need the LLM.
         var llm = _llm;
@@ -331,6 +359,7 @@ public class ContentAnalysisManager : ServiceManager<ContentAnalysisOptions>
             cancellationToken);
 
         var submitted = await this.Api.SubmitAnalysisAsync(ToModel(request, attempt, input, analyzerOptions.UsesModel ? llm : null, _processes, result));
+        if (analyzerOptions.UsesModel) ReportLlmWorking();
         this.Logger.LogInformation("Analysis of content {contentId} {status}{reason}{fields}",
             input.ContentId, submitted?.Status, submitted?.Reason != null ? $": {submitted.Reason}" : "",
             submitted?.PopulatedFields.Any() == true ? $" (populated {String.Join(", ", submitted.PopulatedFields)})" : "");
@@ -406,15 +435,130 @@ public class ContentAnalysisManager : ServiceManager<ContentAnalysisOptions>
     }
 
     /// <summary>
+    /// The analyzer options for the configured processes.
+    /// </summary>
+    /// <returns></returns>
+    private AnalyzerOptions CreateAnalyzerOptions()
+    {
+        return new AnalyzerOptions()
+        {
+            SafetyMarginPercent = this.Options.SafetyMarginPercent,
+            OverlapTokens = this.Options.OverlapTokens,
+            MinTextCharacters = this.Options.MinTextCharacters,
+            RequestAttempts = this.Options.LLMRequestAttempts,
+            ExtractMetadata = _processes.HasFlag(AnalysisProcess.Metadata),
+            Summarize = _processes.HasFlag(AnalysisProcess.Summary),
+            ExtractQuotes = _processes.HasFlag(AnalysisProcess.Quotes),
+            SuggestTags = _processes.HasFlag(AnalysisProcess.Tags),
+            SuggestContributor = _processes.HasFlag(AnalysisProcess.Contributor),
+            ChooseTopic = _processes.HasFlag(AnalysisProcess.Topics),
+        };
+    }
+
+    /// <summary>
+    /// Whether handling the request may call the LLM. A request this service does not analyze is
+    /// committed without it, so it is never held.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    private bool NeedsLlm(AnalysisRequestModel? request) => _usesModel && request != null && _reasons.Contains(request.Reason);
+
+    /// <summary>
+    /// Whether the LLM is available, i.e. not held for a misconfiguration.
+    /// </summary>
+    /// <returns></returns>
+    private bool IsLlmAvailable()
+    {
+        lock (_llmLock)
+        {
+            return _llmError == null;
+        }
+    }
+
+    /// <summary>
+    /// Check the LLM's configuration. A misconfiguration holds the consumers before any request
+    /// fails; once the LLM is configured (and any hold for an error the LLM returned has passed),
+    /// the held consumers resume.
+    /// </summary>
+    /// <returns></returns>
+    private async Task CheckLlmAsync()
+    {
+        var error = _usesModel ? GetLlmError(_llm) : null;
+        if (error != null)
+        {
+            await HoldForLlmAsync(error, new LlmConfigurationException(error), DateTime.MinValue);
+            return;
+        }
+
+        AnalysisConsumer[] held;
+        lock (_llmLock)
+        {
+            if (_llmError == null || DateTime.UtcNow < _llmHeldUntil) return;
+            _llmError = null;
+            held = _consumers.Where(c => c.IsHeld).ToArray();
+            foreach (var consumer in held) consumer.IsHeld = false;
+        }
+        this.Logger.LogInformation("Content-Analysis LLM is configured; analysis resumes.");
+        foreach (var consumer in held) consumer.Listener.Resume();
+    }
+
+    /// <summary>
+    /// Hold the consumers until the LLM is available, and send one email for each new misconfiguration
+    /// (not one for every request it fails).
+    /// </summary>
+    /// <param name="error">The misconfiguration.</param>
+    /// <param name="ex">The exception to email.</param>
+    /// <param name="heldUntil">The earliest the consumers may resume, for an error the LLM returned
+    /// that its configuration cannot reveal (e.g. a rejected key).</param>
+    /// <returns></returns>
+    private async Task HoldForLlmAsync(string error, Exception ex, DateTime heldUntil)
+    {
+        bool isNew, notify;
+        lock (_llmLock)
+        {
+            isNew = _llmError != error;
+            notify = _llmErrorNotified != error;
+            _llmError = error;
+            _llmErrorNotified = error;
+            if (heldUntil > _llmHeldUntil) _llmHeldUntil = heldUntil;
+        }
+        if (isNew) this.Logger.LogError(ex, "Content-Analysis LLM is misconfigured; analysis is held until it is configured.");
+        if (notify) await this.SendErrorEmailAsync("Content-Analysis LLM is misconfigured", ex);
+    }
+
+    /// <summary>
+    /// The LLM answered, so a later misconfiguration is emailed again, even if it is the same one.
+    /// </summary>
+    private void ReportLlmWorking()
+    {
+        lock (_llmLock)
+        {
+            _llmErrorNotified = null;
+        }
+    }
+
+    /// <summary>
+    /// The LLM's misconfiguration, if any.
+    /// </summary>
+    /// <param name="llm"></param>
+    /// <returns>Why the LLM cannot be used, or null.</returns>
+    private static string? GetLlmError(API.Areas.Services.Models.LLM.LLMModel? llm)
+    {
+        if (llm?.ProjectEndpoint == null || String.IsNullOrWhiteSpace(llm.ApiKey) || String.IsNullOrWhiteSpace(llm.DeploymentName))
+            return "Content-Analysis has no LLM configured (ContentAnalysisLLMId), or it has no endpoint, key, or deployment.";
+        if (!GetLimits(llm).IsValid)
+            return $"The LLM '{llm.Name}' has no context window or output limit configured, or its output limit is not less than its context window.";
+        return null;
+    }
+
+    /// <summary>
     /// Ensure the LLM the configured processes need is configured.
     /// </summary>
     /// <exception cref="LlmConfigurationException">The LLM is missing, or lacks an endpoint, key, deployment, or limits.</exception>
     private static void ValidateLlm(API.Areas.Services.Models.LLM.LLMModel? llm)
     {
-        if (llm?.ProjectEndpoint == null || String.IsNullOrWhiteSpace(llm.ApiKey) || String.IsNullOrWhiteSpace(llm.DeploymentName))
-            throw new LlmConfigurationException("Content-Analysis has no LLM configured (ContentAnalysisLLMId), or it has no endpoint, key, or deployment.");
-        if (!GetLimits(llm).IsValid)
-            throw new LlmConfigurationException($"The LLM '{llm.Name}' has no context window or output limit configured, or its output limit is not less than its context window.");
+        var error = GetLlmError(llm);
+        if (error != null) throw new LlmConfigurationException(error);
     }
 
     /// <summary>

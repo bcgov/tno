@@ -41,6 +41,14 @@ public class ContentAnalysisOptions : ServiceOptions
     public string Processes { get; set; } = "Metadata,Summary,Quotes,Tags,Contributor,Topics";
 
     /// <summary>
+    /// get/set - Comma-separated request reasons this service analyzes: Lifecycle (content added or
+    /// changed), Reanalysis (an editor's request), Backfill, Replay. A request for any other reason
+    /// is consumed and committed without being analyzed or recorded, so its topic does not lag, e.g.
+    /// to analyze only what editors and administrators ask for in a test environment.
+    /// </summary>
+    public string Reasons { get; set; } = "Lifecycle,Reanalysis,Backfill,Replay";
+
+    /// <summary>
     /// get/set - Seconds after a content change before it is analyzed, so a burst of edits is
     /// analyzed once (applies to lifecycle requests).
     /// </summary>
@@ -125,6 +133,23 @@ public class ContentAnalysisOptions : ServiceOptions
             processes |= process;
         }
         return processes;
+    }
+
+    /// <summary>
+    /// The configured request reasons.
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException">A reason is not recognized.</exception>
+    public TNO.Entities.AnalysisRequestReason[] GetReasons()
+    {
+        var reasons = new List<TNO.Entities.AnalysisRequestReason>();
+        foreach (var name in this.Reasons.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            if (!Enum.TryParse<TNO.Entities.AnalysisRequestReason>(name, true, out var reason) || !Enum.IsDefined(reason))
+                throw new InvalidOperationException($"Content-Analysis request reason '{name}' is not recognized. Use Lifecycle, Reanalysis, Backfill, or Replay.");
+            reasons.Add(reason);
+        }
+        return reasons.Distinct().ToArray();
     }
     #endregion
 }
