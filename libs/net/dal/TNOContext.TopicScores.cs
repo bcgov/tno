@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.Extensions.Logging;
 using TNO.Core.Extensions;
 using TNO.DAL.Scoring;
 using TNO.Entities;
@@ -55,6 +56,8 @@ public partial class TNOContext
             .ToList();
 
         var contentIds = new HashSet<long>();
+        // Content whose scoring inputs this save changes, rather than only its topics.
+        var inputChangedIds = new HashSet<long>();
         foreach (var entry in entries)
         {
             switch (entry.Entity)
@@ -62,6 +65,7 @@ public partial class TNOContext
                 case Content content when entry.State == EntityState.Modified
                     && _scoringProperties.Any(p => entry.Property(p).IsModified):
                     contentIds.Add(content.Id);
+                    inputChangedIds.Add(content.Id);
                     break;
                 case ContentTopic topic when entry.State == EntityState.Added
                     || (entry.State == EntityState.Modified && entry.Property(nameof(ContentTopic.IsScoreOverridden)).IsModified):
@@ -69,7 +73,11 @@ public partial class TNOContext
                     break;
                 case FileReference file when entry.State == EntityState.Added || entry.State == EntityState.Deleted
                     || (entry.State == EntityState.Modified && entry.Property(nameof(FileReference.ContentType)).IsModified):
-                    if (file.ContentId != 0) contentIds.Add(file.ContentId);
+                    if (file.ContentId != 0)
+                    {
+                        contentIds.Add(file.ContentId);
+                        inputChangedIds.Add(file.ContentId);
+                    }
                     break;
             }
         }
@@ -91,6 +99,8 @@ public partial class TNOContext
         }
         bool SeriesUsesTopics(int? seriesId) => seriesId.HasValue
             && this.Series.AsNoTracking().Any(s => s.Id == seriesId && s.UseInTopics);
+        int? systemTopicId = null;
+        int? GetSystemTopicId() => systemTopicId ??= this.Topics.AsNoTracking().Where(t => t.IsSystem).Select(t => (int?)t.Id).FirstOrDefault();
 
         foreach (var content in addedContent)
         {
@@ -111,14 +121,60 @@ public partial class TNOContext
                 .Where(t => Entry(t).State != EntityState.Deleted)
                 .Distinct()
                 .ToArray();
-            if (topics.Length == 0) continue;
+            if (topics.Length == 0 && !inputChangedIds.Contains(contentId)) continue;
 
             var deletedFileIds = ChangeTracker.Entries<FileReference>().Where(e => e.State == EntityState.Deleted && e.Entity.ContentId == contentId).Select(e => e.Entity.Id).ToHashSet();
             var hasImageFile = this.FileReferences.AsNoTracking().Any(f => f.ContentId == contentId && f.ContentType.StartsWith("image/") && !deletedFileIds.Contains(f.Id))
                 || ChangeTracker.Entries<FileReference>().Any(e => (e.State == EntityState.Added || e.State == EntityState.Modified) && e.Entity.ContentId == contentId && IsImageFile(e.Entity.ContentType));
 
+            if (topics.Length == 0)
+            {
+                // Content without a topic is given the system topic once its inputs score it, as on create.
+                var topic = CreateSystemTopic(content, hasImageFile, GetSource, SeriesUsesTopics, GetSystemTopicId, timeZone);
+                // A system topic this save removes stays removed.
+                if (topic != null && !ChangeTracker.Entries<ContentTopic>().Any(e => e.Entity.Equals(topic)))
+                    this.ContentTopics.Add(topic);
+                continue;
+            }
+
             ScoreTopics(content, topics, hasImageFile, GetSource, SeriesUsesTopics, timeZone);
         }
+    }
+
+    /// <summary>
+    /// Create the system topic for eligible content that a rule or its source default scores.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="hasImageFile"></param>
+    /// <param name="getSource"></param>
+    /// <param name="seriesUsesTopics"></param>
+    /// <param name="getSystemTopicId"></param>
+    /// <param name="timeZone"></param>
+    /// <returns>Null when the content is not scored or the system topic does not exist.</returns>
+    private ContentTopic? CreateSystemTopic(
+        Content content,
+        bool hasImageFile,
+        Func<int, (bool UseInTopics, int? DefaultScore, TopicScoreRule[] Rules)> getSource,
+        Func<int?, bool> seriesUsesTopics,
+        Func<int?> getSystemTopicId,
+        TimeZoneInfo timeZone)
+    {
+        if (!content.SourceId.HasValue) return null;
+
+        var source = getSource(content.SourceId.Value);
+        if (!TopicScoreCalculator.IsEligible(content.ContentType, source.UseInTopics, seriesUsesTopics(content.SeriesId))) return null;
+
+        var input = TopicScoreInput.From(content.SourceId, content.SeriesId, content.Section, content.Page, content.Body, content.PublishedOn, hasImageFile);
+        var result = TopicScoreCalculator.Calculate(source.Rules, source.DefaultScore, input, timeZone);
+        if (!result.RuleId.HasValue && !result.IsSourceDefault) return null;
+
+        var systemTopicId = getSystemTopicId();
+        if (!systemTopicId.HasValue)
+        {
+            _logger?.LogWarning("The system topic does not exist, so content {contentId} is not given a topic score.", content.Id);
+            return null;
+        }
+        return new ContentTopic(content.Id, systemTopicId.Value, result.Score) { ScoreRuleId = result.RuleId };
     }
 
     /// <summary>

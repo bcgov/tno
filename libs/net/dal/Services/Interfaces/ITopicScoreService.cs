@@ -59,6 +59,13 @@ public interface ITopicScoreService : IBaseService
     void PrepareNewContentTopics(Content content, bool incomingScoresAreOverrides);
 
     /// <summary>
+    /// Give eligible content that has no topics the system "Not Applicable" topic when a rule or
+    /// its source default scores it. The score itself is calculated when the content is saved.
+    /// </summary>
+    /// <param name="content"></param>
+    void AddSystemTopicWhenScored(Content content);
+
+    /// <summary>
     /// Calculate the score of each of the specified content items. Ineligible content scores 0.
     /// </summary>
     /// <param name="contentIds"></param>
