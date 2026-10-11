@@ -94,6 +94,13 @@ public class ReportRequestModel
     /// the worker configuration for older messages; an empty string explicitly disables links.
     /// </summary>
     public string? AIViewContentUrl { get; set; }
+
+    /// <summary>
+    /// get/set - With PrepareAISections, run one AI section once with these draft settings and
+    /// post its output and transcript back to the API; nothing is stored and no other section is
+    /// touched. Null for every other request.
+    /// </summary>
+    public TNO.API.Areas.Services.Models.ReportAIResult.ReportAISectionTestRequestModel? AISectionTest { get; set; }
     #endregion
 
     #region Constructors

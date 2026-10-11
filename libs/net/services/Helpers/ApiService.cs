@@ -1084,6 +1084,17 @@ public class ApiService : IApiService
     }
 
     /// <summary>
+    /// Post the outcome of a test run of an AI section, so the API can hand it to the requestor.
+    /// </summary>
+    /// <param name="result"></param>
+    /// <returns></returns>
+    public async Task CompleteReportAISectionTestAsync(API.Areas.Services.Models.ReportAIResult.ReportAISectionTestResultModel result)
+    {
+        var url = this.Options.ApiUrl.Append($"services/reports/ai-tests/{result.TestId}");
+        await RetryRequestAsync(async () => await this.OpenClient.PostAsync(url, JsonContent.Create(result)));
+    }
+
+    /// <summary>
     /// Update the status of the specified report instance.
     /// </summary>
     /// <param name="instanceId"></param>

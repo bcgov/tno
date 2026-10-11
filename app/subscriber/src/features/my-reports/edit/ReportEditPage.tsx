@@ -16,7 +16,7 @@ import { Col, IReportMessageModel, MessageTargetKey, ReportStatusName, Show } fr
 
 import { defaultReport } from '../constants';
 import { IReportForm } from '../interfaces';
-import { sanitizeReport, sortContent, toForm } from '../utils';
+import { isAISectionTestMessage, sanitizeReport, sortContent, toForm } from '../utils';
 import { ContentEditForm } from './content';
 import { ReportEditContextProvider } from './ReportEditContext';
 import { ReportEditForm } from './ReportEditForm';
@@ -173,6 +173,8 @@ export const ReportEditPage = () => {
   }, [id, myReports.length, userInfo]);
 
   hub.useHubEffect(MessageTargetKey.ReportStatus, async (message: IReportMessageModel) => {
+    // A finished AI section test run is for the prompt workbench; nothing about the report changed.
+    if (isAISectionTestMessage(message)) return;
     // Report has been updated, go fetch latest.
     // TODO: This can blow away a users' changes.
     try {

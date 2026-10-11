@@ -9,7 +9,7 @@ public static class SynthesisPrompts
     /// <summary>
     /// The version of the prompts and pipeline. Changing it invalidates stored results.
     /// </summary>
-    public const string PipelineVersion = "6";
+    public const string PipelineVersion = "7";
 
     /// <summary>
     /// The shape every map and reduce step returns.
@@ -37,6 +37,8 @@ public static class SynthesisPrompts
         - Each story starts with an evidence handle in brackets, e.g. [S12]. Cite the handles of every
           story that supports a statement in "sources". Never cite a handle that is not in the batch.
         - A story may arrive in parts; treat its parts as one story.
+        - The metadata line under a story's handle names the report section(s) it belongs to as
+          "section: ...". Use it when the instructions refer to sections.
         - Merge statements that say the same thing, and keep distinct facts separate.
         - Leave out stories that are not relevant to the section.
         {FindingsSchema}
@@ -79,6 +81,12 @@ public static class SynthesisPrompts
         "publishedOn", "byline", "contributor"). Use a metadata value exactly as given; when a field
         is missing for a story, leave it out rather than guessing it.
         "url" opens the subscriber story page. "anchor" jumps to the story within this report.
+        The Report sections array lists every section of this report in order: its "label", its
+        "anchor" (a link to the section within this report, or null when the section is not
+        rendered) and "stories", the references of the stories it holds, so you can tell which
+        stories belong to each section. A story's "section" field names its section(s) too.
+        When asked to link to a section, copy its anchor exactly into href with no target, and
+        omit the link when its anchor is null. Never invent a section anchor.
         When asked for HTML links, copy the requested property exactly into href; never invent a
         URL or anchor, use a reference as a URL, or substitute one property for the other. If the
         requested property is missing, null or empty, omit the link. For anchor links omit target

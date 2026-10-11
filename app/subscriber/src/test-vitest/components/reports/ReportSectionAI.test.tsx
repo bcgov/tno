@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { Formik, useFormikContext } from 'formik';
 import React from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ReportEditContext } from '../../../features/my-reports/edit/ReportEditContext';
 import { ReportSectionAI } from '../../../features/my-reports/edit/settings/template/ReportSectionAI';
@@ -25,6 +25,15 @@ const lookup = vi.hoisted(() => {
   };
 });
 
+/** The prompt tools' API, so the toolbar can be exercised without a server. */
+const reportAI = vi.hoisted(() => ({
+  describeSection: vi.fn(),
+  describeInstanceSection: vi.fn(),
+  testSection: vi.fn(),
+  getTest: vi.fn(),
+  chat: vi.fn(),
+}));
+
 vi.mock('store/hooks', async () => {
   const react = await import('react');
   return {
@@ -34,6 +43,8 @@ vi.mock('store/hooks', async () => {
     ],
     useReports: () => [{}, {}],
     useReportInstances: () => [{}, {}],
+    useReportAI: () => reportAI,
+    useApiHub: () => ({ useHubEffect: () => {} }),
   };
 });
 // Stable identity, the way a Redux selector behaves - a fresh object each render would re-run the
@@ -101,8 +112,21 @@ const renderSection = (report: any) =>
 const settings = () => JSON.parse(screen.getByTestId('values').textContent ?? '{}');
 
 describe('ReportSectionAI (subscriber)', () => {
+  // jsdom has no modal dialogs; the open attribute stands in for the top layer.
+  const originalShowModal = HTMLDialogElement.prototype.showModal;
+  const originalCloseDialog = HTMLDialogElement.prototype.close;
   beforeEach(() => {
     lookup.set([...LLMS]);
+    HTMLDialogElement.prototype.showModal = function () {
+      this.open = true;
+    };
+    HTMLDialogElement.prototype.close = function () {
+      this.open = false;
+    };
+  });
+  afterEach(() => {
+    HTMLDialogElement.prototype.showModal = originalShowModal;
+    HTMLDialogElement.prototype.close = originalCloseDialog;
   });
 
   it('keeps the saved model, and its temperature and prompt', async () => {
@@ -180,7 +204,26 @@ describe('ReportSectionAI (subscriber)', () => {
     expect(screen.getByRole('button', { name: 'Prompt data and story links' })).toHaveTextContent(
       'Prompt data',
     );
+    // Replacing text the user wrote asks first; cancelling keeps it.
     fireEvent.click(restore);
+    const confirm = screen.getByRole('dialog', { name: 'Replace the prompt?' });
+    expect(confirm).toHaveAttribute('open');
+    fireEvent.click(within(confirm).getByRole('button', { name: 'Cancel' }));
+    expect(confirm).not.toHaveAttribute('open');
+    expect(settings().userPrompt).toContain('My prompt');
+    fireEvent.click(restore);
+    fireEvent.click(within(confirm).getByRole('button', { name: 'Replace' }));
+    await waitFor(() => expect(settings().userPrompt).toContain('alpha prompt'));
+    expect(confirm).not.toHaveAttribute('open');
+  });
+
+  it('replaces an empty prompt with the default without asking', async () => {
+    renderSection(reportWith({ llmId: 1, userPrompt: '<p><br></p>' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Use default user prompt' }));
+    // A closed dialog is outside the accessibility tree, so look at the element itself.
+    const confirm = document.querySelector('dialog[aria-label="Replace the prompt?"]');
+    expect(confirm).not.toBeNull();
+    expect(confirm).not.toHaveAttribute('open');
     await waitFor(() => expect(settings().userPrompt).toContain('alpha prompt'));
   });
 
@@ -212,6 +255,10 @@ describe('ReportSectionAI (subscriber)', () => {
       const expanded = container.querySelector('#expand-modal') as HTMLDialogElement;
       await waitFor(() => expect(expanded.open).toBe(true));
       fireEvent.click(within(expanded).getByRole('button', { name: 'Use default user prompt' }));
+      const confirm = screen
+        .getAllByRole('dialog', { name: 'Replace the prompt?' })
+        .find((d) => (d as HTMLDialogElement).open)!;
+      fireEvent.click(within(confirm).getByRole('button', { name: 'Replace' }));
       await waitFor(() =>
         expect(expanded.querySelector('.ql-editor')).toHaveTextContent('alpha prompt'),
       );
@@ -235,6 +282,82 @@ describe('ReportSectionAI (subscriber)', () => {
       expect(help).toHaveTextContent('Never construct or invent a URL');
       fireEvent.click(within(help).getByRole('button', { name: 'Close' }));
       expect(help).not.toHaveAttribute('open');
+    } finally {
+      HTMLDialogElement.prototype.showModal = originalShow;
+      HTMLDialogElement.prototype.close = originalClose;
+    }
+  });
+
+  it('offers the prompt tools in the toolbar only once the report is saved and generated', async () => {
+    const originalShow = HTMLDialogElement.prototype.showModal;
+    const originalClose = HTMLDialogElement.prototype.close;
+    HTMLDialogElement.prototype.showModal = function () {
+      this.open = true;
+    };
+    HTMLDialogElement.prototype.close = function () {
+      this.open = false;
+    };
+    try {
+      const { unmount } = renderSection(reportWith({ llmId: 1, userPrompt: 'My prompt' }));
+      const view = screen.getByRole('button', { name: 'View prompt' });
+      const workbench = screen.getByRole('button', { name: 'Prompt workbench' });
+      expect(view).toBeDisabled();
+      expect(workbench).toBeDisabled();
+      expect(view).toHaveAttribute(
+        'title',
+        'Save the report to use the prompt tools for this section',
+      );
+      expect(view.closest('.toolbar')).toBe(
+        screen.getByRole('button', { name: 'Prompt data and story links' }).closest('.toolbar'),
+      );
+      unmount();
+
+      reportAI.describeSection.mockResolvedValue({
+        sectionId: 9,
+        sectionLabel: 'AI',
+        llmName: 'Alpha',
+        isPlanned: true,
+        exchanges: [
+          {
+            stage: 'Map batch 1/1',
+            kind: 'Map',
+            sequence: 1,
+            messages: [{ role: 'user', content: '[S1] Headline\nsection: news' }],
+            durationMs: 0,
+            jsonMode: true,
+            isTruncated: false,
+            estimatedTokens: 12,
+          },
+        ],
+      });
+      renderSection({
+        id: 1,
+        name: 'Report',
+        instances: [{ id: 7 }],
+        sections: [
+          {
+            id: 9,
+            name: 'ai',
+            isEnabled: true,
+            settings: { label: 'AI', llmId: 1, userPrompt: 'My prompt' },
+          },
+        ],
+      } as any);
+      const enabledView = screen.getByRole('button', { name: 'View prompt' });
+      expect(enabledView).toBeEnabled();
+      expect(screen.getByRole('button', { name: 'Prompt workbench' })).toBeEnabled();
+      fireEvent.click(enabledView);
+      await waitFor(() =>
+        expect(reportAI.describeSection).toHaveBeenCalledWith(
+          1,
+          9,
+          expect.objectContaining({ label: 'AI', llmId: 1 }),
+        ),
+      );
+      const dialog = await screen.findByRole('dialog', { name: 'AI section prompt: AI' });
+      expect(within(dialog).getByText('Map batch 1/1')).toBeInTheDocument();
+      expect(dialog).toHaveTextContent('Planned prompt');
+      expect(dialog).toHaveTextContent('section: news');
     } finally {
       HTMLDialogElement.prototype.showModal = originalShow;
       HTMLDialogElement.prototype.close = originalClose;

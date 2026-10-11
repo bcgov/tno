@@ -240,6 +240,46 @@ public class ReportSynthesizerTest
     }
     #endregion
 
+    #region Sections
+    [Fact]
+    public async Task FinalPromptListsReportSectionsWithAnchorsAndTheirStories()
+    {
+        var client = new FakeLlmClient(8000);
+        var sections = new[]
+        {
+            new SynthesisSection(12, "Top Stories", "#section-12", new long[] { 1, 2 }),
+            new SynthesisSection(13, "Business", "#section-13", new long[] { 3, 99 }),
+            new SynthesisSection(14, "Hidden", null, Array.Empty<long>()),
+        };
+
+        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(3)) with { Sections = sections });
+
+        result.IsSuccess.Should().BeTrue(result.Error);
+        var finalInput = client.Requests.Last()[^1].Content;
+        finalInput.Should().Contain("## Report sections\n[{\"label\":\"Top Stories\",\"anchor\":\"#section-12\",\"stories\":[\"S1\",\"S2\"]},{\"label\":\"Business\",\"anchor\":\"#section-13\",\"stories\":[\"S3\"]},{\"label\":\"Hidden\",\"anchor\":null,\"stories\":[]}]");
+        finalInput.IndexOf("## Report sections").Should().BeLessThan(finalInput.IndexOf("## Story data"));
+        finalInput.Should().Contain("The Report sections array lists every section");
+    }
+
+    [Fact]
+    public async Task SectionLinksAreKeptAndUnknownSectionAnchorsAreRemoved()
+    {
+        var client = new FakeLlmClient(8000)
+        {
+            FinalOutput = "<p>See <a href=\"#section-12\">Top Stories</a> and <a href=\"#section-999\">nowhere</a> [S1]</p>",
+        };
+        var sections = new[] { new SynthesisSection(12, "Top Stories", "#section-12", new long[] { 1 }) };
+
+        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(2)) with { Sections = sections });
+
+        result.IsSuccess.Should().BeTrue(result.Error);
+        result.Output.Should().Contain("<a href=\"#section-12\">Top Stories</a>")
+            .And.NotContain("#section-999")
+            .And.Contain("nowhere")
+            .And.Contain("https://mmi.test/view/1");
+    }
+    #endregion
+
     #region History
     [Fact]
     public async Task HistoricalInstancesAreProcessedSeparatelyInOrder()

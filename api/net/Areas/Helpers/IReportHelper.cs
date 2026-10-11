@@ -98,6 +98,51 @@ public interface IReportHelper
         bool isPreview = true);
 
     /// <summary>
+    /// Describe the requests the AI section would send for the instance's content, without sending
+    /// any. When 'settingsOverride' is given it stands in for the section's saved settings.
+    /// </summary>
+    /// <param name="model">The instance with its report and content.</param>
+    /// <param name="sectionId">The AI section.</param>
+    /// <param name="settingsOverride">Draft settings, or null for the saved ones.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="NoContentException"></exception>
+    Task<Areas.Services.Models.ReportAIResult.ReportAISectionPromptModel> DescribeReportAISectionAsync(
+        Areas.Services.Models.ReportInstance.ReportInstanceModel model,
+        int sectionId,
+        Models.Settings.ReportSectionSettingsModel? settingsOverride = null,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Ask the reporting service to run the AI section once with draft settings against the
+    /// instance's content and post the outcome back for the requestor.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="instanceId"></param>
+    /// <param name="testId"></param>
+    /// <param name="sectionId"></param>
+    /// <param name="settings"></param>
+    /// <param name="requestorId"></param>
+    /// <returns></returns>
+    Task RequestReportAISectionTestAsync(int reportId, long instanceId, Guid testId, int sectionId, Models.Settings.ReportSectionSettingsModel settings, int requestorId);
+
+    /// <summary>
+    /// Ask the section's model how to change the section's prompt. The first turn (no messages)
+    /// composes the context; later turns replay the conversation the browser holds.
+    /// </summary>
+    /// <param name="sectionSettings">The draft section settings.</param>
+    /// <param name="request">The question, the conversation so far, and the test run to discuss.</param>
+    /// <param name="test">The test run the conversation is about, when one was made.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="BadRequestException"></exception>
+    Task<Areas.Subscriber.Models.Report.ReportAIPromptChatResultModel> ChatAboutReportAISectionAsync(
+        Models.Settings.ReportSectionSettingsModel sectionSettings,
+        Areas.Subscriber.Models.Report.ReportAIPromptChatRequestModel request,
+        Areas.Services.Models.ReportAIResult.ReportAISectionTestResultModel? test,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Execute the report template to generate the subject and body.
     /// If the report sections contain charts it will also generate them and include them in the results.
     /// </summary>

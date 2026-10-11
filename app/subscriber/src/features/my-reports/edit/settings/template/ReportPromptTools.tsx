@@ -1,6 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { FaCircleInfo, FaPaste } from 'react-icons/fa6';
+import { FaCircleInfo, FaCode, FaFlask, FaPaste } from 'react-icons/fa6';
 import styled from 'styled-components';
 
 import { aiInputFields, defaultAIInputFields } from './aiInputFields';
@@ -44,19 +44,81 @@ const HelpButton = styled.button`
   }
 `;
 
-/** Actions shared by the inline and expanded prompt editor toolbars. */
-export const ReportPromptTools: React.FC<{
-  defaultPrompt?: string;
-  inputFields?: string[];
-  onUseDefault: () => void;
-}> = ({ defaultPrompt, inputFields, onUseDefault }) => {
-  const dialog = React.useRef<HTMLDialogElement>(null);
-  // Rich-text defaults containing only empty paragraphs are not usable defaults.
-  const hasDefault = !!defaultPrompt
+const Confirm = styled.dialog`
+  width: min(32rem, 90vw);
+  padding: 1.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  &::backdrop {
+    background: #0006;
+  }
+  h2 {
+    margin-top: 0;
+    font-size: 1.15rem;
+  }
+  .confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+`;
+
+/** Whether rich text holds anything beyond empty paragraphs. */
+const hasText = (html?: string) =>
+  !!html
     ?.replace(/<[^>]*>/g, '')
     .replace(/&nbsp;/g, ' ')
     .trim();
+
+/** Rich text as comparable plain text. */
+const toText = (html?: string) =>
+  (html ?? '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+/** Actions shared by the inline and expanded prompt editor toolbars. */
+export const ReportPromptTools: React.FC<{
+  defaultPrompt?: string;
+  /** The prompt as it is now; replacing text the user wrote asks for confirmation first. */
+  currentPrompt?: string;
+  inputFields?: string[];
+  onUseDefault: () => void;
+  /** Show the requests the section sends with its current (unsaved) settings. */
+  onViewPrompt?: () => void;
+  /** Open the prompt workbench. */
+  onOpenWorkbench?: () => void;
+  /** Why the prompt tools cannot be used yet; they are disabled while set. */
+  toolsDisabledReason?: string;
+}> = ({
+  defaultPrompt,
+  currentPrompt,
+  inputFields,
+  onUseDefault,
+  onViewPrompt,
+  onOpenWorkbench,
+  toolsDisabledReason,
+}) => {
+  const dialog = React.useRef<HTMLDialogElement>(null);
+  const confirm = React.useRef<HTMLDialogElement>(null);
+  // Rich-text defaults containing only empty paragraphs are not usable defaults.
+  const hasDefault = hasText(defaultPrompt);
+  // An empty prompt, or one that already is the default, is replaced without asking.
+  const needsConfirmation =
+    hasText(currentPrompt) && toText(currentPrompt) !== toText(defaultPrompt);
   const selected = inputFields ?? defaultAIInputFields;
+
+  const useDefault = () => {
+    if (needsConfirmation) confirm.current?.showModal();
+    else onUseDefault();
+  };
+
+  const replace = () => {
+    confirm.current?.close();
+    onUseDefault();
+  };
 
   return (
     <>
@@ -65,10 +127,28 @@ export const ReportPromptTools: React.FC<{
           type="button"
           title="Use default user prompt"
           aria-label="Use default user prompt"
-          onClick={onUseDefault}
+          onClick={useDefault}
         >
           <FaPaste className="custom-icon" />
         </button>
+      )}
+      {createPortal(
+        <Confirm ref={confirm} aria-label="Replace the prompt?">
+          <h2>Replace the prompt?</h2>
+          <p>
+            The prompt will be replaced with the model&apos;s default prompt. Your current prompt
+            text will be lost.
+          </p>
+          <div className="confirm-actions">
+            <button type="button" onClick={() => confirm.current?.close()}>
+              Cancel
+            </button>
+            <button type="button" onClick={replace}>
+              Replace
+            </button>
+          </div>
+        </Confirm>,
+        document.body,
       )}
       <HelpButton
         type="button"
@@ -79,6 +159,33 @@ export const ReportPromptTools: React.FC<{
         <FaCircleInfo className="custom-icon" />
         <span>Prompt data</span>
       </HelpButton>
+      {onViewPrompt && (
+        <HelpButton
+          type="button"
+          title={toolsDisabledReason ?? 'View the requests this section sends to the model'}
+          aria-label="View prompt"
+          disabled={!!toolsDisabledReason}
+          onClick={onViewPrompt}
+        >
+          <FaCode className="custom-icon" />
+          <span>View prompt</span>
+        </HelpButton>
+      )}
+      {onOpenWorkbench && (
+        <HelpButton
+          type="button"
+          title={
+            toolsDisabledReason ??
+            'Try the prompt, read the output, and ask the model how to improve it'
+          }
+          aria-label="Prompt workbench"
+          disabled={!!toolsDisabledReason}
+          onClick={onOpenWorkbench}
+        >
+          <FaFlask className="custom-icon" />
+          <span>Workbench</span>
+        </HelpButton>
+      )}
       {createPortal(
         <Help ref={dialog} aria-label="Prompt data and story links">
           <h2>Prompt data and story links</h2>
@@ -90,12 +197,13 @@ export const ReportPromptTools: React.FC<{
           <h3>Story data</h3>
           <p>
             Stories are sent as text blocks, not JSON objects. Each starts with a source reference
-            such as <code>[S1]</code>, followed by the selected headline, metadata, and text. An
-            analyzed story uses its summary, key facts, people and organizations, and quotes.
-            Selecting Article text uses it instead of the summary. If article text is empty, the
-            summary is used when selected. When Article text is unselected, it is still used if
-            neither an analysis summary nor a story summary is available. Summary and article text
-            are never sent together.
+            such as <code>[S1]</code>, followed by the selected headline, a metadata line that
+            always begins with the report section(s) the story belongs to (<code>section:</code>),
+            and the text. An analyzed story uses its summary, key facts, people and organizations,
+            and quotes. Selecting Article text uses it instead of the summary. If article text is
+            empty, the summary is used when selected. When Article text is unselected, it is still
+            used if neither an analysis summary nor a story summary is available. Summary and
+            article text are never sent together.
           </p>
           <table>
             <thead>
@@ -118,7 +226,7 @@ export const ReportPromptTools: React.FC<{
             </tbody>
           </table>
           <h3>Example input with default fields</h3>
-          <pre>{`[S1] New transit service announced\nsource: Example News | mediaType: Online | publishedOn: 2026-10-06 12:00 UTC\nThe city announced a new bus route.\nKey facts:\n- Service begins in November.\nEntities: City council\nQuotes:\n- "Service starts soon" (Spokesperson)`}</pre>
+          <pre>{`[S1] New transit service announced\nsection: Top Stories | source: Example News | mediaType: Online | publishedOn: 2026-10-06 12:00 UTC\nThe city announced a new bus route.\nKey facts:\n- Service begins in November.\nEntities: City council\nQuotes:\n- "Service starts soon" (Spokesperson)`}</pre>
           <p>
             Large inputs are summarized in batches. The final writing step receives findings with a
             statement and the supporting source references, rather than the original story objects.
@@ -182,6 +290,23 @@ export const ReportPromptTools: React.FC<{
           <h3>Example prompt: automatic story links</h3>
           <pre>{`Write five bullet points about the main developments. End each point with supporting story references, such as [S1] or [S1][S2].`}</pre>
           <p>The report replaces these references with story links automatically.</p>
+          <h3>Report sections sent to the final writing step</h3>
+          <p>
+            Alongside the story link data, the AI receives a <strong>Report sections</strong> JSON
+            array: every section of the report in order, with its <code>label</code>, its{' '}
+            <code>anchor</code> (a link to the section heading within this report, or null when the
+            section is not rendered) and <code>stories</code>, the references of the stories it
+            holds. Each story&apos;s link data also carries its <code>section</code>. Use it to tell
+            which stories belong to which section, and to link to a section.
+          </p>
+          <pre>{`## Report sections\n[\n  { "label": "Top Stories", "anchor": "#section-12", "stories": ["S1", "S2"] },\n  { "label": "Business", "anchor": "#section-13", "stories": ["S3"] }\n]`}</pre>
+          <h3>Example prompt: link to a section</h3>
+          <pre>{`Write one paragraph per report section, in report order, summarizing its stories. Match each section to the Report sections array and end the paragraph with <a href="{anchor}">Read the {label} section</a>, where {anchor} and {label} are that section's anchor and label copied exactly. Omit the link when anchor is null. Never invent an anchor.`}</pre>
+          <p>
+            Use <strong>View prompt</strong> in the editor toolbar to see exactly what this section
+            sends, and the <strong>Workbench</strong> to try a prompt and read its output before
+            saving it.
+          </p>
           <button type="button" onClick={() => dialog.current?.close()}>
             Close
           </button>
