@@ -64,20 +64,14 @@ const Confirm = styled.dialog`
   }
 `;
 
-/** Whether rich text holds anything beyond empty paragraphs. */
-const hasText = (html?: string) =>
-  !!html
-    ?.replace(/<[^>]*>/g, '')
-    .replace(/&nbsp;/g, ' ')
-    .trim();
-
-/** Rich text as comparable plain text. */
+/** Rich text as comparable plain text: the browser's parser drops the tags, then whitespace is collapsed. */
 const toText = (html?: string) =>
-  (html ?? '')
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
+  (new DOMParser().parseFromString(html ?? '', 'text/html').body.textContent ?? '')
     .replace(/\s+/g, ' ')
     .trim();
+
+/** Whether rich text holds anything beyond empty paragraphs. */
+const hasText = (html?: string) => toText(html).length > 0;
 
 /** Actions shared by the inline and expanded prompt editor toolbars. */
 export const ReportPromptTools: React.FC<{
