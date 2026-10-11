@@ -62,9 +62,19 @@ public partial class ReportSynthesizer
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<SynthesisResult> SynthesizeAsync(SynthesisRequest request, CancellationToken cancellationToken = default)
+    public Task<SynthesisResult> SynthesizeAsync(SynthesisRequest request, CancellationToken cancellationToken = default)
+        => SynthesizeAsync(request, null, cancellationToken);
+
+    /// <summary>
+    /// Synthesize the section, recording every request and response in 'transcript' when one is given.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="transcript">Records every exchange; null records nothing.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<SynthesisResult> SynthesizeAsync(SynthesisRequest request, SynthesisTranscript? transcript, CancellationToken cancellationToken = default)
     {
-        var run = new Run(request, TokenEstimator.Create(request.Limits.TokenEstimation), _options);
+        var run = new Run(request, TokenEstimator.Create(request.Limits.TokenEstimation), _options, transcript);
         try
         {
             if (!request.Limits.IsValid)
@@ -83,22 +93,19 @@ public partial class ReportSynthesizer
             {
                 var instance = request.History[i];
                 var stories = instance.Stories.Select((story, n) => (Handle: $"P{i + 1}-{n + 1}", Story: story)).ToArray();
-                var (previous, _) = await MapAsync(run, instructions, stories, cancellationToken);
-                history.Add((instance.Label, await ReduceAsync(run, instructions, previous, historyShare, false, cancellationToken)));
+                var label = HistoryStage(instance.Label);
+                var (previous, _) = await MapAsync(run, instructions, stories, $"{label} map", LlmExchangeKind.HistoryMap, cancellationToken);
+                history.Add((instance.Label, await ReduceAsync(run, instructions, previous, historyShare, false, $"{label} reduce", LlmExchangeKind.HistoryReduce, cancellationToken)));
             }
 
             // Every story is read in one pass. Stories are ordered by their analysis topic so related
             // stories share a request; mapping each topic on its own sent a request per story when
             // nearly every story had its own topic.
-            var current = request.Stories
-                .Select((story, i) => (Handle: $"S{i + 1}", Story: story))
-                .OrderBy(s => String.IsNullOrWhiteSpace(s.Story.Group) ? 1 : 0)
-                .ThenBy(s => s.Story.Group?.Trim() ?? "", StringComparer.OrdinalIgnoreCase)
-                .ToArray();
-            var (mapped, batches) = await MapAsync(run, instructions, current, cancellationToken);
+            var current = OrderStories(request);
+            var (mapped, batches) = await MapAsync(run, instructions, current, "Map", LlmExchangeKind.Map, cancellationToken);
             // Findings from a single batch are already consolidated.
             var consolidate = request.Mode == SynthesisOutputMode.TopicSummary && batches > 1;
-            var findings = await ReduceAsync(run, instructions, mapped, run.ReduceAllowance(instructions), consolidate, cancellationToken);
+            var findings = await ReduceAsync(run, instructions, mapped, run.ReduceAllowance(instructions), consolidate, "Reduce", LlmExchangeKind.Reduce, cancellationToken);
 
             string output;
             IReadOnlyList<Finding> final;
@@ -112,15 +119,84 @@ public partial class ReportSynthesizer
                 (output, final) = await WriteFreeTextAsync(run, instructions, findings, history, cancellationToken);
             }
 
-            return new SynthesisResult(true, output, null, final, run.Sources.Values.ToArray(), run.Usage());
+            return new SynthesisResult(true, output, null, final, run.Sources.Values.ToArray(), run.Usage(), run.Transcript?.Exchanges);
         }
         catch (Exception ex) when (ex is SynthesisException || ex is HttpRequestException || ex is JsonException
             || (ex is TaskCanceledException && !cancellationToken.IsCancellationRequested))
         {
             _logger.LogWarning(ex, "Synthesis of section '{section}' failed", request.SectionLabel);
-            return new SynthesisResult(false, "", ex.Message, Array.Empty<Finding>(), run.Sources.Values.ToArray(), run.Usage());
+            return new SynthesisResult(false, "", ex.Message, Array.Empty<Finding>(), run.Sources.Values.ToArray(), run.Usage(), run.Transcript?.Exchanges);
         }
     }
+
+    /// <summary>
+    /// Describe the requests a synthesis would send, without sending any. Map batches carry the
+    /// real story text; the reduce and final steps depend on the model's findings, so their input
+    /// is shown as a placeholder. Batches may still be split at run time when a request is rejected.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns>The planned exchanges in order, without responses.</returns>
+    /// <exception cref="SynthesisException"></exception>
+    public IReadOnlyList<LlmExchange> Plan(SynthesisRequest request)
+    {
+        if (!request.Limits.IsValid)
+            throw new SynthesisException("The LLM has no context window or output limit configured, so its requests cannot be bounded.");
+        var run = new Run(request, TokenEstimator.Create(request.Limits.TokenEstimation), _options, null);
+        var instructions = ComposeInstructions(request);
+        var exchanges = new List<LlmExchange>();
+        var sequence = 0;
+
+        LlmExchange Planned(string stage, string kind, bool jsonMode, params (string Role, string Content)[] messages)
+            => new(stage, kind, ++sequence, ToMessages(messages), null, null, null, 0, jsonMode, false, null, EstimateTokens(run, messages));
+
+        void PlanMapReduce(string mapStage, string mapKind, string reduceStage, string reduceKind, IReadOnlyList<(string Handle, SynthesisStory Story)> stories)
+        {
+            if (stories.Count == 0) return;
+            var (system, _, batches) = PlanBatches(run, instructions, stories);
+            for (var b = 0; b < batches.Count; b++)
+                exchanges.Add(Planned($"{mapStage} batch {b + 1}/{batches.Count}", mapKind, true, ("system", system), ("user", BatchInput(batches[b]))));
+            exchanges.Add(Planned($"{reduceStage} round 1", reduceKind, true,
+                ("system", SynthesisPrompts.Reduce(instructions)),
+                ("user", "{findings} - the findings the map requests above returned, one per line as \"[F1] (topic) statement\", in batches that fit the model. Sent only when they do not already fit the final request.")));
+        }
+
+        for (var i = 0; i < request.History.Count; i++)
+        {
+            var instance = request.History[i];
+            var label = HistoryStage(instance.Label);
+            PlanMapReduce($"{label} map", LlmExchangeKind.HistoryMap, $"{label} reduce", LlmExchangeKind.HistoryReduce,
+                instance.Stories.Select((story, n) => (Handle: $"P{i + 1}-{n + 1}", Story: story)).ToArray());
+        }
+        PlanMapReduce("Map", LlmExchangeKind.Map, "Reduce", LlmExchangeKind.Reduce, OrderStories(request));
+
+        var final = new List<(string Role, string Content)> { ("system", FinalSystemPrompt(request)) };
+        final.AddRange(request.History.Where(h => h.Stories.Count > 0)
+            .Select(h => ("user", $"## {h.Label} (previous report)\n{{coverage by topic and the findings reduced from that report}}")));
+        final.Add(("user", $"{SynthesisPrompts.FinalDataGuide}\n\n{{coverage by topic, the findings for this report, the Report sections array and the Story data array}}\n\n## Instructions\n{request.UserPrompt}"));
+        exchanges.Add(Planned("Final", LlmExchangeKind.Final, false, final.ToArray()));
+        return exchanges;
+    }
+
+    /// <summary>
+    /// The current stories in the order they are read: by topic, so related stories share a request.
+    /// </summary>
+    private static (string Handle, SynthesisStory Story)[] OrderStories(SynthesisRequest request)
+        => request.Stories
+            .Select((story, i) => (Handle: $"S{i + 1}", Story: story))
+            .OrderBy(s => String.IsNullOrWhiteSpace(s.Story.Group) ? 1 : 0)
+            .ThenBy(s => s.Story.Group?.Trim() ?? "", StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+    private static string HistoryStage(string label) => $"Previous report '{label}'";
+
+    private static string FinalSystemPrompt(SynthesisRequest request)
+        => String.IsNullOrWhiteSpace(request.SystemPrompt) ? $"You write the '{request.SectionLabel}' section of a media monitoring report." : request.SystemPrompt!;
+
+    private static IReadOnlyList<LlmMessage> ToMessages(IReadOnlyList<(string Role, string Content)> messages)
+        => messages.Select(m => new LlmMessage(m.Role, m.Content)).ToArray();
+
+    private static int EstimateTokens(Run run, IReadOnlyList<(string Role, string Content)> messages)
+        => messages.Sum(m => run.Estimator.Count(m.Content)) + LlmLimits.RequestOverheadTokens + LlmLimits.MessageOverheadTokens * messages.Count;
 
     /// <summary>
     /// The section's own prompts, which decide what matters.
@@ -138,9 +214,20 @@ public partial class ReportSynthesizer
     /// <summary>
     /// Send every story, in batches that fit the allowance, and collect their findings.
     /// </summary>
-    private async Task<(List<Finding> Findings, int Batches)> MapAsync(Run run, string instructions, IReadOnlyList<(string Handle, SynthesisStory Story)> stories, CancellationToken cancellationToken)
+    private async Task<(List<Finding> Findings, int Batches)> MapAsync(Run run, string instructions, IReadOnlyList<(string Handle, SynthesisStory Story)> stories, string stage, string kind, CancellationToken cancellationToken)
     {
         if (stories.Count == 0) return (new List<Finding>(), 0);
+        var (system, allowance, batches) = PlanBatches(run, instructions, stories);
+        var results = await RunAllAsync(run, batches, (batch, i) => ProcessAsync(run, system, batch, true, allowance, $"{stage} batch {i + 1}/{batches.Count}", kind, cancellationToken), cancellationToken);
+        return (results.SelectMany(r => r).ToList(), batches.Count);
+    }
+
+    /// <summary>
+    /// The map system prompt, the input allowance beside it, and the stories packed into batches
+    /// that fit it. Shared by the live map step and the planner so both describe the same requests.
+    /// </summary>
+    private static (string System, int Allowance, List<List<Item>> Batches) PlanBatches(Run run, string instructions, IReadOnlyList<(string Handle, SynthesisStory Story)> stories)
+    {
         var system = SynthesisPrompts.Map(instructions);
         var allowance = run.BatchAllowance(system);
         if (allowance < 64) throw new SynthesisException("The section instructions leave no room for stories within the model's context window.");
@@ -149,10 +236,13 @@ public partial class ReportSynthesizer
         foreach (var (handle, story) in stories)
             items.AddRange(StoryItems(run, handle, story, allowance));
 
-        var batches = Pack(items, allowance);
-        var results = await RunAllAsync(run, batches, batch => ProcessAsync(run, system, batch, true, allowance, cancellationToken), cancellationToken);
-        return (results.SelectMany(r => r).ToList(), batches.Count);
+        return (system, allowance, Pack(items, allowance));
     }
+
+    /// <summary>
+    /// The user message of one map or reduce request.
+    /// </summary>
+    private static string BatchInput(IReadOnlyList<Item> batch) => String.Join("\n\n", batch.Select(i => i.Text));
 
     /// <summary>
     /// A story as one or more items, each within the allowance. Only a story too large for one
@@ -182,7 +272,7 @@ public partial class ReportSynthesizer
     /// findings always pass through at least one single-request consolidation (for topic summaries,
     /// whose output is assembled from them).
     /// </summary>
-    private async Task<List<Finding>> ReduceAsync(Run run, string instructions, List<Finding> findings, int allowance, bool consolidate, CancellationToken cancellationToken)
+    private async Task<List<Finding>> ReduceAsync(Run run, string instructions, List<Finding> findings, int allowance, bool consolidate, string stage, string kind, CancellationToken cancellationToken)
     {
         var system = SynthesisPrompts.Reduce(instructions);
         var requestAllowance = run.InputAllowance(system);
@@ -206,7 +296,8 @@ public partial class ReportSynthesizer
                 return new Item(line, run.Estimator.Count(line), $"F{i + 1}", f.Sources, null, null);
             }).ToList();
             var batches = Pack(items, batchAllowance);
-            var results = await RunAllAsync(run, batches, batch => ProcessAsync(run, system, batch, false, batchAllowance, cancellationToken), cancellationToken);
+            var round = $"{stage} round {depth}";
+            var results = await RunAllAsync(run, batches, (batch, i) => ProcessAsync(run, system, batch, false, batchAllowance, batches.Count > 1 ? $"{round} batch {i + 1}/{batches.Count}" : round, kind, cancellationToken), cancellationToken);
             var reduced = results.SelectMany(r => r).ToList();
 
             // A single batch is a consolidation of every finding.
@@ -221,15 +312,15 @@ public partial class ReportSynthesizer
     /// <summary>
     /// Run the batches with bounded concurrency, preserving order.
     /// </summary>
-    private async Task<List<T>> RunAllAsync<T>(Run run, IReadOnlyList<List<Item>> batches, Func<List<Item>, Task<T>> process, CancellationToken cancellationToken)
+    private async Task<List<T>> RunAllAsync<T>(Run run, IReadOnlyList<List<Item>> batches, Func<List<Item>, int, Task<T>> process, CancellationToken cancellationToken)
     {
         using var throttle = new SemaphoreSlim(Math.Max(1, _options.MaxConcurrentRequests));
-        var tasks = batches.Select(async batch =>
+        var tasks = batches.Select(async (batch, index) =>
         {
             await throttle.WaitAsync(cancellationToken);
             try
             {
-                return await process(batch);
+                return await process(batch, index);
             }
             finally
             {
@@ -244,14 +335,14 @@ public partial class ReportSynthesizer
     /// output is truncated or unreadable, is split in two and each half retried; a single story part
     /// is split into smaller parts.
     /// </summary>
-    private async Task<List<Finding>> ProcessAsync(Run run, string system, List<Item> batch, bool isMap, int allowance, CancellationToken cancellationToken)
+    private async Task<List<Finding>> ProcessAsync(Run run, string system, List<Item> batch, bool isMap, int allowance, string stage, string kind, CancellationToken cancellationToken)
     {
         var handles = batch.Select(i => i.Handle).ToHashSet();
-        var input = String.Join("\n\n", batch.Select(i => i.Text));
+        var input = BatchInput(batch);
         string? problem;
         try
         {
-            var result = await SendAsync(run, new[] { ("system", system), ("user", input) }, true, null, null, run.BatchOutputTokens, cancellationToken);
+            var result = await SendAsync(run, new[] { ("system", system), ("user", input) }, true, null, null, run.BatchOutputTokens, stage, kind, cancellationToken);
             if (!result.IsTruncated)
             {
                 var findings = ParseFindings(result.Content, handles);
@@ -276,8 +367,8 @@ public partial class ReportSynthesizer
         if (batch.Count > 1)
         {
             var half = batch.Count / 2;
-            var first = await ProcessAsync(run, system, batch.Take(half).ToList(), isMap, allowance, cancellationToken);
-            var second = await ProcessAsync(run, system, batch.Skip(half).ToList(), isMap, allowance, cancellationToken);
+            var first = await ProcessAsync(run, system, batch.Take(half).ToList(), isMap, allowance, $"{stage} (split 1/2)", kind, cancellationToken);
+            var second = await ProcessAsync(run, system, batch.Skip(half).ToList(), isMap, allowance, $"{stage} (split 2/2)", kind, cancellationToken);
             return first.Concat(second).ToList();
         }
 
@@ -294,7 +385,7 @@ public partial class ReportSynthesizer
                     var text = $"{header}\n(continued, part {p.Index + 1} of {parts.Count})\n{p.Text}";
                     return new Item(text, run.Estimator.Count(text), item.Handle, item.Sources, p.Text, header);
                 }).ToList();
-                return await ProcessAsync(run, system, smaller, isMap, allowance, cancellationToken);
+                return await ProcessAsync(run, system, smaller, isMap, allowance, $"{stage} (split story)", kind, cancellationToken);
             }
         }
         throw new SynthesisException($"Synthesis failed because {problem}, and the input cannot be split further.");
@@ -303,21 +394,36 @@ public partial class ReportSynthesizer
     /// <summary>
     /// Send one request within the deployment's rate limits, recording its size and usage.
     /// </summary>
-    private async Task<LlmResult> SendAsync(Run run, IReadOnlyList<(string Role, string Content)> messages, bool jsonMode, float? temperature, int? choiceCount, int maxOutputTokens, CancellationToken cancellationToken)
+    private async Task<LlmResult> SendAsync(Run run, IReadOnlyList<(string Role, string Content)> messages, bool jsonMode, float? temperature, int? choiceCount, int maxOutputTokens, string stage, string kind, CancellationToken cancellationToken)
     {
-        var tokens = messages.Sum(m => run.Estimator.Count(m.Content)) + LlmLimits.RequestOverheadTokens + LlmLimits.MessageOverheadTokens * messages.Count;
+        var tokens = EstimateTokens(run, messages);
         run.RecordRequestSize(tokens);
         var limits = run.Request.Limits;
         await LlmRateLimiter.WaitAsync(LlmRateLimiter.GetKey(run.Request.Endpoint), limits.RequestsPerMinute, limits.TokensPerMinute, tokens + maxOutputTokens, cancellationToken);
-        var result = await _client.InvokeAsync(
-            run.Request.Endpoint,
-            messages,
-            jsonMode,
-            _options.RequestAttempts,
-            new LlmRequestOptions(maxOutputTokens, temperature, choiceCount),
-            cancellationToken);
-        run.RecordUsage(result);
-        return result;
+
+        // The sequence is taken as the request goes out, so concurrent batches read back in send order.
+        var transcript = run.Transcript;
+        var sequence = transcript?.NextSequence() ?? 0;
+        var stopwatch = transcript != null ? Stopwatch.StartNew() : null;
+        try
+        {
+            var result = await _client.InvokeAsync(
+                run.Request.Endpoint,
+                messages,
+                jsonMode,
+                _options.RequestAttempts,
+                new LlmRequestOptions(maxOutputTokens, temperature, choiceCount),
+                cancellationToken);
+            run.RecordUsage(result);
+            transcript?.Add(new LlmExchange(stage, kind, sequence, ToMessages(messages), result.Content, result.PromptTokens, result.CompletionTokens,
+                stopwatch!.ElapsedMilliseconds, jsonMode, result.IsTruncated, null, tokens));
+            return result;
+        }
+        catch (Exception ex) when (transcript != null)
+        {
+            transcript.Add(new LlmExchange(stage, kind, sequence, ToMessages(messages), null, null, null, stopwatch!.ElapsedMilliseconds, jsonMode, false, ex.Message, tokens));
+            throw;
+        }
     }
     #endregion
 
@@ -333,14 +439,14 @@ public partial class ReportSynthesizer
         CancellationToken cancellationToken)
     {
         var request = run.Request;
-        var system = String.IsNullOrWhiteSpace(request.SystemPrompt) ? $"You write the '{request.SectionLabel}' section of a media monitoring report." : request.SystemPrompt!;
+        var system = FinalSystemPrompt(request);
         var historyMessages = history
             .Where(h => h.Findings.Count > 0)
             .Select(h => ("user", $"## {h.Label} (previous report)\n{FormatCoverage(h.Findings)}\n\nFindings:\n{String.Join("\n", h.Findings.Select(FormatHistoryFinding))}"))
             .ToArray();
 
         var historyTokens = historyMessages.Sum(m => run.Estimator.Count(m.Item2));
-        var instructionTokens = run.Estimator.Count(system) + run.Estimator.Count(SynthesisPrompts.FinalCitationRule) + run.Estimator.Count(request.UserPrompt);
+        var instructionTokens = run.Estimator.Count(system) + run.Estimator.Count(SynthesisPrompts.FinalDataGuide) + run.Estimator.Count(request.UserPrompt);
         var allowance = request.Limits.GetInputAllowance(instructionTokens, 2 + historyMessages.Length, _options.SafetyMarginPercent) - historyTokens;
         if (allowance < 64) throw new SynthesisException("The section instructions and previous reports leave no room for findings within the model's context window.");
 
@@ -350,14 +456,15 @@ public partial class ReportSynthesizer
             var findingsTokens = run.Estimator.Count(findingsText);
             var messages = new List<(string Role, string Content)> { ("system", system) };
             messages.AddRange(historyMessages);
-            messages.Add(("user", $"{SynthesisPrompts.FinalCitationRule}\n\n{findingsText}\n\n{request.UserPrompt}"));
+            messages.Add(("user", $"{SynthesisPrompts.FinalDataGuide}\n\n{findingsText}\n\n## Instructions\n{request.UserPrompt}"));
 
             string problem;
             if (findingsTokens <= allowance)
             {
                 try
                 {
-                    var result = await SendAsync(run, messages, false, request.Temperature, request.ChoiceCount, request.Limits.MaxOutputTokens, cancellationToken);
+                    var result = await SendAsync(run, messages, false, request.Temperature, request.ChoiceCount, request.Limits.MaxOutputTokens,
+                        round == 0 ? "Final" : $"Final (retry {round + 1})", LlmExchangeKind.Final, cancellationToken);
                     if (!result.IsTruncated) return (ValidateStoryLinks(run, Sanitize(LinkCitations(run, SelectChoice(result, request.ChoiceIndex)))), findings);
                     problem = "the section output was truncated at the output limit";
                 }
@@ -372,7 +479,7 @@ public partial class ReportSynthesizer
             if (round >= _options.MaxReductionDepth)
                 throw new SynthesisException($"Synthesis failed because {problem} after {_options.MaxReductionDepth} rounds.");
             var target = findingsTokens <= allowance ? findingsTokens * 2 / 3 : allowance;
-            findings = await ReduceAsync(run, instructions, findings, Math.Max(64, target), true, cancellationToken);
+            findings = await ReduceAsync(run, instructions, findings, Math.Max(64, target), true, "Final reduce", LlmExchangeKind.Reduce, cancellationToken);
         }
     }
 
@@ -447,10 +554,11 @@ public partial class ReportSynthesizer
         return String.IsNullOrWhiteSpace(source.Link) ? headline : $"<a href=\"{WebUtility.HtmlEncode(source.Link)}\"{target}>{headline}</a>";
     }
 
-    /// <summary>Keep only supplied story URLs, and keep report anchors in the current tab.</summary>
+    /// <summary>Keep only supplied story URLs and section anchors, and keep report anchors in the current tab.</summary>
     private static string ValidateStoryLinks(Run run, string html)
     {
         var allowed = run.Sources.Values.SelectMany(s => new[] { s.Url, s.Anchor })
+            .Concat((run.Request.Sections ?? Array.Empty<SynthesisSection>()).Select(s => s.Anchor))
             .Where(l => !String.IsNullOrWhiteSpace(l)).ToHashSet(StringComparer.Ordinal);
         using var document = new HtmlParser().ParseDocument(html);
         foreach (var link in document.QuerySelectorAll("a"))
@@ -537,7 +645,27 @@ public partial class ReportSynthesizer
                     if (!story.ContainsKey(field.Key)) story[field.Key] = field.Value;
                 return (JsonNode)story;
             }).ToArray());
-        return $"{FormatCoverage(findings)}\n\n## Findings for this report\n{String.Join("\n", findings.Select(FormatFinalFinding))}\n\n## Story data\n{stories.ToJsonString()}";
+        return $"{FormatCoverage(findings)}\n\n## Findings for this report\n{String.Join("\n", findings.Select(FormatFinalFinding))}\n\n{FormatSections(run)}## Story data\n{stories.ToJsonString()}";
+    }
+
+    /// <summary>
+    /// Every section of the report with its anchor and the references of the stories it holds, so
+    /// the model can tell which stories belong to each section and link to a section.
+    /// </summary>
+    private static string FormatSections(Run run)
+    {
+        var sections = run.Request.Sections;
+        if (sections == null || sections.Count == 0) return "";
+        var handles = new Dictionary<long, string>();
+        for (var i = 0; i < run.Request.Stories.Count; i++)
+            handles.TryAdd(run.Request.Stories[i].ContentId, $"S{i + 1}");
+        var array = new JsonArray(sections.Select(section => (JsonNode)new JsonObject
+        {
+            ["label"] = section.Label,
+            ["anchor"] = section.Anchor,
+            ["stories"] = new JsonArray(section.ContentIds.Where(handles.ContainsKey).Select(id => (JsonNode?)JsonValue.Create(handles[id])).ToArray()),
+        }).ToArray());
+        return $"## Report sections\n{array.ToJsonString()}\n\n";
     }
 
     /// <summary>
@@ -625,15 +753,17 @@ public partial class ReportSynthesizer
         private int _largestRequest;
         private readonly SynthesisOptions _options;
 
-        public Run(SynthesisRequest request, ITokenEstimator estimator, SynthesisOptions options)
+        public Run(SynthesisRequest request, ITokenEstimator estimator, SynthesisOptions options, SynthesisTranscript? transcript)
         {
             this.Request = request;
             this.Estimator = estimator;
+            this.Transcript = transcript;
             _options = options;
         }
 
         public SynthesisRequest Request { get; }
         public ITokenEstimator Estimator { get; }
+        public SynthesisTranscript? Transcript { get; }
         public Dictionary<string, SynthesisSource> Sources { get; } = new();
 
         public void AddSource(string handle, SynthesisStory story)
@@ -660,7 +790,7 @@ public partial class ReportSynthesizer
 
         public int FinalAllowance(string instructions)
             => this.Request.Limits.GetInputAllowance(
-                this.Estimator.Count(this.Request.SystemPrompt) + this.Estimator.Count(SynthesisPrompts.FinalCitationRule) + this.Estimator.Count(this.Request.UserPrompt),
+                this.Estimator.Count(this.Request.SystemPrompt) + this.Estimator.Count(SynthesisPrompts.FinalDataGuide) + this.Estimator.Count(this.Request.UserPrompt),
                 2 + this.Request.History.Count,
                 _options.SafetyMarginPercent);
 

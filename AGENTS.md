@@ -194,6 +194,38 @@ A stop hook at `.claude/scripts/build-verify.sh` enforces this automatically by 
 
 ---
 
+## Local Dev Gotchas (verified 2026-10)
+
+**`.env` changes need a container recreate, not a restart.** `docker restart` keeps the old
+environment. Use `docker-compose -f docker-compose.yml -f docker-compose.override.yml
+-f db/kafka/docker-compose.yml -f services/docker-compose.yml up -d <service>`, then verify with
+`docker exec tno-<service> printenv <VAR>`.
+
+**API returns 401 for valid Keycloak tokens** → issuer mismatch. Local Keycloak is reached via
+three hostnames, so tokens carry three different `iss` values; `Keycloak__Issuer` in
+`api/net/.env` must list them all:
+`http://localhost:40001/realms/mmi,http://host.docker.internal:40001/realms/mmi,http://localhost:8080/realms/mmi,http://keycloak:8080/realms/mmi,mmi-app,mmi-service-account`.
+Keep `keycloak__Authority=http://host.docker.internal:40001/realms/mmi` (must resolve from inside
+the API container). Diagnose with `docker logs tno-api | grep IDX10205` — it prints the token
+issuer vs the accepted list.
+
+**Services spam Keycloak `CLIENT_LOGIN_ERROR invalid_client_credentials`** → their
+`services/net/<name>/.env` still has the placeholder `{YOU WILL NEED TO GET THIS FROM KEYCLOAK}`
+in `Auth__Keycloak__Secret`. The local secret is the `mmi-service-account` client secret in
+`auth/keycloak/config/realm-export.json`.
+
+**Content not appearing in Elasticsearch** → the indexing service needs `Elastic__Url`,
+`Elastic__Username`, `Elastic__Password` in `services/net/indexing/.env`
+(`Service__Elasticsearch*` keys are read by nothing). Pipeline order to check: syndication →
+Kafka `content` topic → content service → `index` topic → indexing → ES. Compare
+`SELECT max(id) FROM content` (postgres) against the max `id` in the `unpublished_content` index;
+Kafka replays the backlog once the indexing service is fixed and recreated.
+
+**Local test credentials**: Keycloak admin console `admin`/`password`; realm `mmi` users
+`editor`/`admin`/`subscriber` with password `password` (browser login only — direct grants fail
+with `resolve_required_actions`). For API testing, get a token via `client_credentials` with
+`mmi-service-account` and call `http://localhost:40080/api/...`.
+
 ## Do Not
 
 - Do not run `npm install` inside `app/` — use `yarn`.

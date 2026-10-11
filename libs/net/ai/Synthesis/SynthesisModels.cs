@@ -29,7 +29,18 @@ public enum SynthesisOutputMode
 /// <param name="Group">The group the story belongs to (a topic), or null for the whole section.</param>
 /// <param name="AnalysisId">The analysis the text came from, pinned in the manifest.</param>
 /// <param name="Fields">The selected metadata fields by name (e.g. "source"), given to the final step with the story's reference.</param>
-public record SynthesisStory(long ContentId, string Headline, string Metadata, string Text, string? Url = null, string? Anchor = null, string? Group = null, long? AnalysisId = null, IReadOnlyDictionary<string, string>? Fields = null);
+/// <param name="Sections">The labels of the report sections the story appears in.</param>
+public record SynthesisStory(long ContentId, string Headline, string Metadata, string Text, string? Url = null, string? Anchor = null, string? Group = null, long? AnalysisId = null, IReadOnlyDictionary<string, string>? Fields = null, IReadOnlyList<string>? Sections = null);
+
+/// <summary>
+/// SynthesisSection record, one section of the report as the model is told about it, so a prompt
+/// can refer to sections and link to them.
+/// </summary>
+/// <param name="Id">The report section.</param>
+/// <param name="Label">The section heading.</param>
+/// <param name="Anchor">A link to the section within the rendered report, or null when the section is not rendered.</param>
+/// <param name="ContentIds">The content the section holds, in report order.</param>
+public record SynthesisSection(int Id, string Label, string? Anchor, IReadOnlyList<long> ContentIds);
 
 /// <summary>
 /// SynthesisHistoricalInstance record, a previous report instance given as context.
@@ -52,6 +63,7 @@ public record SynthesisHistoricalInstance(string Label, IReadOnlyList<SynthesisS
 /// <param name="Temperature">The final request's temperature.</param>
 /// <param name="ChoiceCount">The final request's number of choices.</param>
 /// <param name="ChoiceIndex">The choice to use; -1 joins every choice.</param>
+/// <param name="Sections">Every section of the report in order, with its anchor and the content it holds.</param>
 public record SynthesisRequest(
     string SectionLabel,
     string? SystemPrompt,
@@ -63,7 +75,8 @@ public record SynthesisRequest(
     LlmLimits Limits,
     float? Temperature = null,
     int? ChoiceCount = null,
-    int? ChoiceIndex = null);
+    int? ChoiceIndex = null,
+    IReadOnlyList<SynthesisSection>? Sections = null);
 
 /// <summary>
 /// SynthesisOptions class, configuration for bounded synthesis.
@@ -111,6 +124,12 @@ public class SynthesisOptions
     /// get/set - Per-request timeout in seconds.
     /// </summary>
     public int RequestTimeoutSeconds { get; set; } = 300;
+
+    /// <summary>
+    /// get/set - The most characters a recorded transcript keeps of any one message or response.
+    /// Longer text is cut with a marker, so a transcript of a very large section stays bounded.
+    /// </summary>
+    public int TranscriptMaxMessageChars { get; set; } = 100_000;
 }
 
 /// <summary>
@@ -157,7 +176,8 @@ public record SynthesisUsage(int Requests, int PromptTokens, int CompletionToken
 /// <param name="Findings">The final findings.</param>
 /// <param name="Sources">The provenance of every handle.</param>
 /// <param name="Usage">What it cost.</param>
-public record SynthesisResult(bool IsSuccess, string Output, string? Error, IReadOnlyList<Finding> Findings, IReadOnlyList<SynthesisSource> Sources, SynthesisUsage Usage);
+/// <param name="Transcript">Every request sent and its response, in send order, when recording was requested.</param>
+public record SynthesisResult(bool IsSuccess, string Output, string? Error, IReadOnlyList<Finding> Findings, IReadOnlyList<SynthesisSource> Sources, SynthesisUsage Usage, IReadOnlyList<LlmExchange>? Transcript = null);
 
 /// <summary>
 /// SynthesisException class, synthesis could not complete within its limits.

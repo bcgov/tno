@@ -11,6 +11,7 @@ using TNO.Core.Extensions;
 using TNO.Elastic.Models;
 using TNO.Entities;
 using TNO.Kafka;
+using TNO.API.Areas.Services.Models.ReportAIResult;
 using TNO.Kafka.Models;
 using TNO.Services.Managers;
 using TNO.Services.Reporting.Config;
@@ -342,7 +343,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                     var instance = await this.Api.GetReportInstanceAsync(request.ReportInstanceId.Value);
                     if (instance != null && request.PrepareAISections)
                     {
-                        await PrepareAISectionsAsync(request, instance);
+                        if (request.AISectionTest != null) await TestAISectionAsync(request, instance);
+                        else await PrepareAISectionsAsync(request, instance);
                     }
                     else if (instance != null)
                     {
@@ -695,6 +697,71 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             // The preview waits for this, so it is told even when preparation fails; it then shows each section's state.
             if (request.RequestorId.HasValue)
                 await this.Api.NotifyReportAISectionsReadyAsync(instance.Id, request.RequestorId.Value);
+        }
+    }
+
+    /// <summary>
+    /// Run one AI section once with the draft settings in the request and post its output and
+    /// transcript back to the API, which hands them to the requestor. Nothing is stored and the
+    /// instance is not changed. A failure is posted rather than thrown: the message handler requeues
+    /// a message whose handling throws, and a failing test must not run again.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="instance"></param>
+    /// <returns></returns>
+    private async Task TestAISectionAsync(ReportRequestModel request, API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance)
+    {
+        var test = request.AISectionTest!;
+        var result = new ReportAISectionTestResultModel()
+        {
+            TestId = test.TestId,
+            ReportId = instance.ReportId,
+            ReportInstanceId = instance.Id,
+            SectionId = test.SectionId,
+            RequestorId = request.RequestorId,
+            Status = ReportAISectionTestStatus.Failed,
+        };
+        try
+        {
+            var report = instance.Report ?? throw new ArgumentException("Report instance must include the report model.");
+            var saved = report.Sections.FirstOrDefault(s => s.Id == test.SectionId && s.SectionType == Entities.ReportSectionType.AI)
+                ?? throw new InvalidOperationException($"AI section {test.SectionId} does not exist in report {report.Id}.");
+
+            // A copy carries the draft settings; the instance's own sections are left as they are.
+            var section = new API.Areas.Services.Models.Report.ReportSectionModel()
+            {
+                Id = saved.Id,
+                Name = saved.Name,
+                Description = saved.Description,
+                ReportId = saved.ReportId,
+                SectionType = saved.SectionType,
+                SortOrder = saved.SortOrder,
+                IsEnabled = true,
+                Settings = test.Settings,
+            };
+            var sections = report.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s));
+            var sectionContent = GetSectionContent(sections, await this.Api.GetContentForReportInstanceIdAsync(instance.Id));
+            var outcome = await this.ReportEngine.TestReportAISectionAsync(report, instance.Id, section, sectionContent, GetPreviousReportsAsync, GetLLMAsync, request.AIViewContentUrl);
+            outcome.TestId = test.TestId;
+            outcome.RequestorId = request.RequestorId;
+            result = outcome;
+        }
+        catch (Exception ex)
+        {
+            this.Logger.LogError(ex, "Failed to test AI section {sectionId} of report instance {instanceId}", test.SectionId, instance.Id);
+            result.Error = ex.Message;
+            result.CompletedOn = DateTime.UtcNow;
+        }
+        finally
+        {
+            try
+            {
+                await this.Api.CompleteReportAISectionTestAsync(result);
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, "Failed to post the outcome of AI section test {testId}", test.TestId);
+            }
         }
     }
 

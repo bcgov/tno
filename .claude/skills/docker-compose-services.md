@@ -18,6 +18,19 @@
 Containers are `tno-<service>`; `make refresh` adds that prefix itself, so `n=tno-api` fails. See
 the `make-commands` skill for the full rule.
 
+## `.env` Changes Need a Recreate, Not a Restart
+
+`docker restart tno-<service>` reuses the container's original environment — `env_file` is only
+read when the container is **created**. After editing any `.env`, recreate the container:
+
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.override.yml \
+  -f db/kafka/docker-compose.yml -f services/docker-compose.yml up -d <service>
+```
+
+Compose detects the env change and recreates only that container (no image rebuild needed).
+Verify with `docker exec tno-<service> printenv <VAR>`.
+
 ## Service Names
 
 - `docker-compose.yml` — `database`, `keycloak`, `elastic`, `api`, `charts`, `editor`,

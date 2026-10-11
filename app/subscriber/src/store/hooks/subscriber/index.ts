@@ -7,6 +7,7 @@ export * from './useFilters';
 export * from './useFolders';
 export * from './useNavigateAndScroll';
 export * from './useProducts';
+export * from './useReportAI';
 export * from './useReportInstances';
 export * from './useReports';
 export * from './useReportSync';

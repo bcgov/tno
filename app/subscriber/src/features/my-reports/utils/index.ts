@@ -9,6 +9,7 @@ export * from './getScheduleName';
 export * from './getStatus';
 export * from './getTime';
 export * from './hideEmptySections';
+export * from './isAISectionTestMessage';
 export * from './isAutoSend';
 export * from './isAutoSendDisabled';
 export * from './moveContent';

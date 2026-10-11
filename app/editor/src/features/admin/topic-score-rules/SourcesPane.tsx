@@ -95,6 +95,15 @@ export const SourcesPane: React.FC<ISourcesPaneProps> = ({
                     (series)
                   </span>
                 )}
+                {!source.useInTopics && !source.seriesUseInTopics && (
+                  <span
+                    className="warning"
+                    title="Neither this source nor any of its series uses topics, so its content is not scored. Enable 'Use in Topics' on the source or a series."
+                  >
+                    {' '}
+                    (not scored)
+                  </span>
+                )}
               </span>
               <div className="default-score" onClick={(e) => e.stopPropagation()}>
                 <Text

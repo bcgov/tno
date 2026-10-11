@@ -99,6 +99,52 @@ public interface IReportEngine
         string? viewContentUrlOverride = null);
 
     /// <summary>
+    /// Run one AI section once with the settings it carries (which may be unsaved drafts), recording
+    /// every request and response. Nothing is read from or written to the result store, and no other
+    /// section is touched.
+    /// </summary>
+    /// <param name="report"></param>
+    /// <param name="reportInstanceId"></param>
+    /// <param name="section">The AI section; its settings are used as given.</param>
+    /// <param name="sectionContent">Every section of the report with its content.</param>
+    /// <param name="getPreviousReport"></param>
+    /// <param name="getLLMAsync"></param>
+    /// <param name="viewContentUrlOverride">Link settings supplied by the requesting preview.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.ReportAIResult.ReportAISectionTestResultModel> TestReportAISectionAsync(
+        API.Areas.Services.Models.Report.ReportModel report,
+        long reportInstanceId,
+        API.Areas.Services.Models.Report.ReportSectionModel section,
+        Dictionary<string, ReportSectionModel> sectionContent,
+        Func<int, int?, int?, int, Task<IEnumerable<PreviousReportModel>>> getPreviousReport,
+        Func<int, Task<API.Areas.Services.Models.LLM.LLMModel?>> getLLMAsync,
+        string? viewContentUrlOverride = null,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Describe the requests one AI section would send for the report's content, without sending any.
+    /// </summary>
+    /// <param name="report"></param>
+    /// <param name="reportInstanceId"></param>
+    /// <param name="section">The AI section; its settings are used as given.</param>
+    /// <param name="sectionContent">Every section of the report with its content.</param>
+    /// <param name="getPreviousReport"></param>
+    /// <param name="getLLMAsync"></param>
+    /// <param name="viewContentUrlOverride">Link settings supplied by the requesting preview.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.ReportAIResult.ReportAISectionPromptModel> DescribeReportAISectionAsync(
+        API.Areas.Services.Models.Report.ReportModel report,
+        long? reportInstanceId,
+        API.Areas.Services.Models.Report.ReportSectionModel section,
+        Dictionary<string, ReportSectionModel> sectionContent,
+        Func<int, int?, int?, int, Task<IEnumerable<PreviousReportModel>>> getPreviousReport,
+        Func<int, Task<API.Areas.Services.Models.LLM.LLMModel?>> getLLMAsync,
+        string? viewContentUrlOverride = null,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Generate the output of the report with the Razor engine.
     /// </summary>
     /// <param name="reportTemplate"></param>

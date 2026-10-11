@@ -123,7 +123,9 @@ public class ReportAISectionGeneratorTest
         var client = new FakeLlmClient(8000);
         var (report, section) = Report(new ReportSectionSettingsModel()
         {
-            Label = "Summary", UserPrompt = "Summarize", IncludePreviousReports = 1,
+            Label = "Summary",
+            UserPrompt = "Summarize",
+            IncludePreviousReports = 1,
         });
         var sections = new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(10, "Today's news.")) };
         var first = Story(1, "Earlier budget news.");
@@ -249,10 +251,12 @@ public class ReportAISectionGeneratorTest
         var selected = ReportAISectionGenerator.BuildStories(sections, null, false, new[] { "headline", "source" }).Single();
         var defaults = ReportAISectionGenerator.BuildStories(sections, null, false).Single();
 
-        selected.Fields.Should().BeEquivalentTo(new Dictionary<string, string> { ["source"] = "Globe and Mail" });
-        selected.Metadata.Should().Be("source: Globe and Mail");
+        // The story's section is always sent, ahead of the selected fields.
+        selected.Fields.Should().BeEquivalentTo(new Dictionary<string, string> { ["section"] = "news", ["source"] = "Globe and Mail" });
+        selected.Metadata.Should().Be("section: news | source: Globe and Mail");
+        selected.Sections.Should().Equal("news");
         // Empty fields are left out rather than sent blank.
-        defaults.Fields.Should().BeEquivalentTo(new Dictionary<string, string> { ["source"] = "Globe and Mail", ["byline"] = "Jane Doe" });
+        defaults.Fields.Should().BeEquivalentTo(new Dictionary<string, string> { ["section"] = "news", ["source"] = "Globe and Mail", ["byline"] = "Jane Doe" });
     }
 
     [Fact]
@@ -290,7 +294,7 @@ public class ReportAISectionGeneratorTest
             new Uri("https://mmi.test/view/"), false, new[] { "summary", "source" }).Single();
 
         result.Headline.Should().BeEmpty();
-        result.Metadata.Should().Be("source: Selected source");
+        result.Metadata.Should().Be("section: news | source: Selected source");
         result.Text.Should().Be("Selected summary");
         result.Url.Should().Be("https://mmi.test/view/1");
         result.Anchor.Should().BeNull();
@@ -377,7 +381,7 @@ public class ReportAISectionGeneratorTest
         var result = ReportAISectionGenerator.BuildStories(sections, url, true).Single();
         result.Anchor.Should().Be("#item-1");
         result.Url.Should().Be("https://mmi.test/view/1");
-        ReportAISectionGenerator.BuildStories(new[] { headlines }, url, true, anchorSections: sections).Single().Anchor.Should().Be("#item-1");
+        ReportAISectionGenerator.BuildStories(new[] { headlines }, url, true, reportSections: sections).Single().Anchor.Should().Be("#item-1");
         full.IsEnabled = false;
         ReportAISectionGenerator.BuildStories(sections, url, true).Single().Anchor.Should().BeNull();
         full.IsEnabled = true;
@@ -645,4 +649,124 @@ public class ReportAISectionGeneratorTest
         var act = async () => await sending;
         await act.Should().ThrowAsync<OperationCanceledException>();
     }
+
+    #region Sections, tests and plans
+    [Fact]
+    public void SectionsCarryAnchorsOnlyWhenTheTemplateRendersThem()
+    {
+        var shown = ContentSection("news", 1, Story(1, "News."));
+        shown.Id = 11;
+        var empty = ContentSection("empty", 0);
+        empty.Id = 12;
+        empty.Settings.HideEmpty = true;
+        var disabled = ContentSection("off", 2, Story(2, "Off."));
+        disabled.Id = 13;
+        disabled.IsEnabled = false;
+        var ai = new ReportSectionModel()
+        {
+            Id = 14,
+            Name = "ai",
+            IsEnabled = true,
+            SectionType = ReportSectionType.AI,
+            SortOrder = 3,
+            Settings = new ReportSectionSettingsModel() { Label = "Summary", HideEmpty = true },
+            Content = Array.Empty<ContentModel>(),
+        };
+
+        var sections = ReportAISectionGenerator.BuildSections(new[] { shown, empty, disabled, ai });
+
+        sections.Select(s => s.Label).Should().Equal("empty", "news", "off", "Summary");
+        sections.Select(s => s.Anchor).Should().Equal(null, "#section-11", null, "#section-14");
+        sections[1].ContentIds.Should().Equal(1L);
+    }
+
+    [Fact]
+    public void AStoryInSeveralSectionsNamesEachOfThem()
+    {
+        var story = Story(1, "Shared.");
+        var top = ContentSection("Top Stories", 0, story);
+        var business = ContentSection("Business", 1, story);
+
+        var result = ReportAISectionGenerator.BuildStories(new[] { top }, null, false, null, new[] { top, business }).Single();
+
+        result.Sections.Should().Equal("Top Stories", "Business");
+        result.Metadata.Should().StartWith("section: Top Stories; Business");
+        result.Fields!["section"].Should().Be("Top Stories; Business");
+    }
+
+    [Fact]
+    public async Task TestRunsWithoutStoringAResultAndRecordsEveryRequest()
+    {
+        var store = new MemoryStore();
+        var client = new FakeLlmClient(8000);
+        var (report, section) = Report(new ReportSectionSettingsModel() { Label = "Summary", UserPrompt = "Summarize" });
+        var sections = new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(1, "Budget news."), Story(2, "Transit news.")) };
+
+        var outcome = await Generator(store, client).TestAsync(report, section, sections, Array.Empty<PreviousReportModel>(), Llm());
+
+        outcome.IsSuccess.Should().BeTrue(outcome.Error);
+        outcome.Output.Should().Contain("Summary");
+        outcome.Transcript.Should().HaveCount(client.Requests.Count);
+        outcome.Transcript!.First().Messages[^1].Content.Should().Contain("[S1] Headline 1\nsection: news\nBudget news.");
+        outcome.Usage!.Requests.Should().Be(client.Requests.Count);
+        store.Results.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task TestReportsConfigurationErrorsWithoutCallingTheModel()
+    {
+        var client = new FakeLlmClient(8000);
+        var (report, section) = Report(new ReportSectionSettingsModel() { AIScope = "Sections", SourceSections = Array.Empty<string>() });
+
+        var outcome = await Generator(new MemoryStore(), client).TestAsync(report, section, new Dictionary<string, ReportSectionModel>(), Array.Empty<PreviousReportModel>(), Llm());
+
+        outcome.IsSuccess.Should().BeFalse();
+        outcome.Error.Should().Contain("Choose the content sections");
+        outcome.Transcript.Should().BeNull();
+        client.Requests.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void DescribeReturnsPlannedRequestsWithStoryText()
+    {
+        var client = new FakeLlmClient(8000);
+        var (report, section) = Report(new ReportSectionSettingsModel() { Label = "Summary", UserPrompt = "Summarize" });
+        var sections = new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(1, "Budget news.")) };
+
+        var (plan, error) = Generator(new MemoryStore(), client).Describe(report, section, sections, Array.Empty<PreviousReportModel>(), Llm());
+
+        error.Should().BeNull();
+        plan!.Select(e => e.Stage).Should().Equal("Map batch 1/1", "Reduce round 1", "Final");
+        plan[0].Messages[^1].Content.Should().Contain("[S1] Headline 1\nsection: news\nBudget news.");
+        plan.Should().OnlyContain(e => e.Response == null);
+        plan[^1].Messages[^1].Content.Should().EndWith("Summarize");
+        client.Requests.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void PrepareUsesTheSettingsOnTheSectionGiven()
+    {
+        var client = new FakeLlmClient(8000);
+        var (report, section) = Report(new ReportSectionSettingsModel() { Label = "Summary", UserPrompt = "Saved prompt", AIInputFields = new[] { "headline", "summary" } });
+        var story = Story(1, "Budget news.");
+        story.Summary = "Short summary";
+        var sections = new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, story) };
+        var draft = new ServicesReport.ReportSectionModel()
+        {
+            Id = section.Id,
+            Name = section.Name,
+            SectionType = section.SectionType,
+            IsEnabled = true,
+            Settings = new ReportSectionSettingsModel() { Label = "Draft", UserPrompt = "Draft prompt", AIInputFields = new[] { "headline" } },
+        };
+
+        var (request, error) = Generator(new MemoryStore(), client).Prepare(report, draft, sections, Array.Empty<PreviousReportModel>(), Llm());
+
+        error.Should().BeNull();
+        request!.UserPrompt.Should().Be("Draft prompt");
+        request.SectionLabel.Should().Be("Draft");
+        request.Stories.Single().Text.Should().BeEmpty();
+        request.Sections.Should().ContainSingle(s => s.Label == "news");
+    }
+    #endregion
 }

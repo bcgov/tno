@@ -95,48 +95,8 @@ public class ReportAISectionGenerator
         CancellationToken cancellationToken = default,
         string? viewContentUrlOverride = null)
     {
-        var settings = section.Settings;
-        if (llm.ProjectEndpoint == null || String.IsNullOrWhiteSpace(llm.DeploymentName))
-            return (null, "The LLM configuration requires a project endpoint and a deployment name.", AISectionStatus.Failed, null);
-        var limits = new LlmLimits(llm.ContextWindow ?? 0, llm.MaxOutputTokens ?? 0, llm.TokenEstimation, llm.RequestsPerMinute, llm.TokensPerMinute);
-        if (!limits.IsValid)
-            return (null, $"The LLM '{llm.Name}' has no context window or maximum output tokens configured, so AI sections cannot use it.", AISectionStatus.Failed, null);
-        var apiKey = llm.ApiKey;
-        if (String.IsNullOrWhiteSpace(apiKey))
-            return (null, $"The LLM '{llm.Name}' has no API key configured.", AISectionStatus.Failed, null);
-
-        // Saved TopicSummary settings are legacy: every report section now follows its prompt.
-        var mode = SynthesisOutputMode.FreeText;
-        var fields = (settings.AIInputFields ?? DefaultInputFields.ToArray())
-            .Where(f => AllowedInputFields.Contains(f)).Distinct().OrderBy(f => f).ToArray();
-        if (fields.Length == 0)
-            return (null, "Choose at least one data field for this AI section.", AISectionStatus.Failed, null);
-        var sources = GetSourceSections(report, section, sectionContent);
-        if (sources == null)
-            return (null, "Choose the content sections that feed this AI section.", AISectionStatus.Failed, null);
-
-        // Do not mutate shared options: concurrent preview jobs may have different link settings.
-        var viewContentUrl = viewContentUrlOverride == null ? _options.ViewContentUrl
-            : String.IsNullOrWhiteSpace(viewContentUrlOverride) ? null : new Uri(viewContentUrlOverride, UriKind.RelativeOrAbsolute);
-        var stories = BuildStories(sources, viewContentUrl, true, fields, sectionContent.Values);
-        var history = previousReports
-            .Select(p => new SynthesisHistoricalInstance(
-                p.PublishedOn.HasValue ? $"Report of {p.PublishedOn:yyyy-MM-dd}" : $"Report instance {p.InstanceId}",
-                BuildStories(FilterSections(settings, p.Sections), viewContentUrl, false, fields)))
-            .ToArray();
-
-        var request = new SynthesisRequest(
-            settings.Label,
-            settings.SystemPrompt,
-            settings.UserPrompt ?? "",
-            mode,
-            stories,
-            history,
-            new LlmEndpoint(llm.ProjectEndpoint, apiKey, llm.DeploymentName),
-            limits,
-            settings.Temperature,
-            settings.ChoiceQty,
-            settings.ChoiceIndex);
+        var (request, prepareError) = Prepare(report, section, sectionContent, previousReports, llm, viewContentUrlOverride);
+        if (request == null) return (null, prepareError, AISectionStatus.Failed, null);
 
         var manifest = BuildManifest(report, section, llm, request, previousReports);
         var hash = Hash(manifest);
@@ -234,6 +194,187 @@ public class ReportAISectionGenerator
     }
 
     /// <summary>
+    /// Validate the section and its LLM, and build the synthesis request: the stories in scope with
+    /// the selected fields, the previous instances, every section of the report, and the model.
+    /// </summary>
+    /// <param name="report">The report.</param>
+    /// <param name="section">The AI section (its settings may be unsaved drafts).</param>
+    /// <param name="sectionContent">Every section of the report with its content.</param>
+    /// <param name="previousReports">Previous instances, oldest first.</param>
+    /// <param name="llm">The section's LLM.</param>
+    /// <param name="viewContentUrlOverride">The requesting preview's link URL; empty means no links, null uses local configuration.</param>
+    /// <returns>The request, or the reason the section cannot be generated.</returns>
+    public (SynthesisRequest? Request, string? Error) Prepare(
+        API.Areas.Services.Models.Report.ReportModel report,
+        API.Areas.Services.Models.Report.ReportSectionModel section,
+        Dictionary<string, ReportSectionModel> sectionContent,
+        IReadOnlyList<PreviousReportModel> previousReports,
+        API.Areas.Services.Models.LLM.LLMModel llm,
+        string? viewContentUrlOverride = null)
+    {
+        var settings = section.Settings;
+        if (llm.ProjectEndpoint == null || String.IsNullOrWhiteSpace(llm.DeploymentName))
+            return (null, "The LLM configuration requires a project endpoint and a deployment name.");
+        var limits = new LlmLimits(llm.ContextWindow ?? 0, llm.MaxOutputTokens ?? 0, llm.TokenEstimation, llm.RequestsPerMinute, llm.TokensPerMinute);
+        if (!limits.IsValid)
+            return (null, $"The LLM '{llm.Name}' has no context window or maximum output tokens configured, so AI sections cannot use it.");
+        var apiKey = llm.ApiKey;
+        if (String.IsNullOrWhiteSpace(apiKey))
+            return (null, $"The LLM '{llm.Name}' has no API key configured.");
+
+        // Saved TopicSummary settings are legacy: every report section now follows its prompt.
+        var mode = SynthesisOutputMode.FreeText;
+        var fields = (settings.AIInputFields ?? DefaultInputFields.ToArray())
+            .Where(f => AllowedInputFields.Contains(f)).Distinct().OrderBy(f => f).ToArray();
+        if (fields.Length == 0)
+            return (null, "Choose at least one data field for this AI section.");
+        var sources = GetSourceSections(report, section, sectionContent);
+        if (sources == null)
+            return (null, "Choose the content sections that feed this AI section.");
+
+        // Do not mutate shared options: concurrent preview jobs may have different link settings.
+        var viewContentUrl = viewContentUrlOverride == null ? _options.ViewContentUrl
+            : String.IsNullOrWhiteSpace(viewContentUrlOverride) ? null : new Uri(viewContentUrlOverride, UriKind.RelativeOrAbsolute);
+        var stories = BuildStories(sources, viewContentUrl, true, fields, sectionContent.Values);
+        var history = previousReports
+            .Select(p => new SynthesisHistoricalInstance(
+                p.PublishedOn.HasValue ? $"Report of {p.PublishedOn:yyyy-MM-dd}" : $"Report instance {p.InstanceId}",
+                BuildStories(FilterSections(settings, p.Sections), viewContentUrl, false, fields, p.Sections.Values)))
+            .ToArray();
+
+        var request = new SynthesisRequest(
+            settings.Label,
+            settings.SystemPrompt,
+            settings.UserPrompt ?? "",
+            mode,
+            stories,
+            history,
+            new LlmEndpoint(llm.ProjectEndpoint, apiKey, llm.DeploymentName),
+            limits,
+            settings.Temperature,
+            settings.ChoiceQty,
+            settings.ChoiceIndex,
+            BuildSections(sectionContent.Values));
+        return (request, null);
+    }
+
+    /// <summary>
+    /// Run the section once, recording every request and response, without reading or storing a
+    /// result. Used to try a prompt.
+    /// </summary>
+    /// <param name="report"></param>
+    /// <param name="section"></param>
+    /// <param name="sectionContent"></param>
+    /// <param name="previousReports"></param>
+    /// <param name="llm"></param>
+    /// <param name="viewContentUrlOverride"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<ReportAISectionTestOutcome> TestAsync(
+        API.Areas.Services.Models.Report.ReportModel report,
+        API.Areas.Services.Models.Report.ReportSectionModel section,
+        Dictionary<string, ReportSectionModel> sectionContent,
+        IReadOnlyList<PreviousReportModel> previousReports,
+        API.Areas.Services.Models.LLM.LLMModel llm,
+        string? viewContentUrlOverride = null,
+        CancellationToken cancellationToken = default)
+    {
+        var (request, error) = Prepare(report, section, sectionContent, previousReports, llm, viewContentUrlOverride);
+        if (request == null) return new ReportAISectionTestOutcome(false, null, error, null, null);
+
+        var synthesizer = new ReportSynthesizer(_client, _options.Synthesis, _logger);
+        var transcript = new SynthesisTranscript() { MaxMessageChars = _options.Synthesis.TranscriptMaxMessageChars };
+        var result = await synthesizer.SynthesizeAsync(request, transcript, cancellationToken);
+        _logger.LogInformation(
+            "AI section '{section}' {outcome} (test run): stories:{stories}, requests:{requests}, promptTokens:{promptTokens}, completionTokens:{completionTokens}, depth:{depth}, largestRequest:{largest}, durationMs:{duration}",
+            request.SectionLabel, result.IsSuccess ? "generated" : $"failed ({result.Error})", result.Usage.StoriesProcessed, result.Usage.Requests,
+            result.Usage.PromptTokens, result.Usage.CompletionTokens, result.Usage.ReductionDepth, result.Usage.LargestRequestTokens, result.Usage.DurationMs);
+        return new ReportAISectionTestOutcome(result.IsSuccess, result.IsSuccess ? result.Output : null, result.Error, result.Usage, result.Transcript ?? transcript.Exchanges);
+    }
+
+    /// <summary>
+    /// Describe the requests the section would send, without sending any.
+    /// </summary>
+    /// <param name="report"></param>
+    /// <param name="section"></param>
+    /// <param name="sectionContent"></param>
+    /// <param name="previousReports"></param>
+    /// <param name="llm"></param>
+    /// <param name="viewContentUrlOverride"></param>
+    /// <returns>The planned exchanges, or the reason the section cannot be generated.</returns>
+    public (IReadOnlyList<LlmExchange>? Plan, string? Error) Describe(
+        API.Areas.Services.Models.Report.ReportModel report,
+        API.Areas.Services.Models.Report.ReportSectionModel section,
+        Dictionary<string, ReportSectionModel> sectionContent,
+        IReadOnlyList<PreviousReportModel> previousReports,
+        API.Areas.Services.Models.LLM.LLMModel llm,
+        string? viewContentUrlOverride = null)
+    {
+        var (request, error) = Prepare(report, section, sectionContent, previousReports, llm, viewContentUrlOverride);
+        if (request == null) return (null, error);
+        try
+        {
+            return (new ReportSynthesizer(_client, _options.Synthesis, _logger).Plan(request), null);
+        }
+        catch (SynthesisException ex)
+        {
+            return (null, ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// An exchange as the API returns it.
+    /// </summary>
+    /// <param name="exchange"></param>
+    /// <returns></returns>
+    public static LlmExchangeModel ToModel(LlmExchange exchange) => new()
+    {
+        Stage = exchange.Stage,
+        Kind = exchange.Kind,
+        Sequence = exchange.Sequence,
+        Messages = exchange.Messages.Select(m => new LlmMessageModel(m.Role, m.Content)).ToArray(),
+        Response = exchange.Response,
+        PromptTokens = exchange.PromptTokens,
+        CompletionTokens = exchange.CompletionTokens,
+        DurationMs = exchange.DurationMs,
+        JsonMode = exchange.JsonMode,
+        IsTruncated = exchange.IsTruncated,
+        Error = exchange.Error,
+        EstimatedTokens = exchange.EstimatedTokens,
+    };
+
+    /// <summary>
+    /// Every section of the report, in order, with its anchor and the content it holds. A section's
+    /// anchor exists only when the report template renders its heading: the section is enabled and
+    /// is not an empty section hidden by its settings (image, data and AI sections are never hidden
+    /// for being empty).
+    /// </summary>
+    /// <param name="sections"></param>
+    /// <returns></returns>
+    public static IReadOnlyList<SynthesisSection> BuildSections(IEnumerable<ReportSectionModel> sections)
+        => sections.OrderBy(s => s.SortOrder).ThenBy(s => s.Id).Select(s => new SynthesisSection(
+            s.Id,
+            SectionLabel(s),
+            IsSectionRendered(s) ? $"#{ReportEngine.SectionAnchorPrefix}{s.Id}" : null,
+            s.Content.OrderBy(c => c.SortOrder).ThenBy(c => c.Id).Select(c => c.Id).Distinct().ToArray())).ToArray();
+
+    /// <summary>
+    /// The heading the model knows a section by.
+    /// </summary>
+    private static string SectionLabel(ReportSectionModel section)
+        => String.IsNullOrWhiteSpace(section.Settings.Label) ? section.Name : section.Settings.Label.Trim();
+
+    /// <summary>
+    /// Whether the report template renders the section's heading (the same rule as the template).
+    /// </summary>
+    private static bool IsSectionRendered(ReportSectionModel section)
+        => section.IsEnabled
+            && !(section.Settings.HideEmpty && !section.Content.Any()
+                && section.SectionType != Entities.ReportSectionType.Image
+                && section.SectionType != Entities.ReportSectionType.Data
+                && section.SectionType != Entities.ReportSectionType.AI);
+
+    /// <summary>
     /// The content sections that feed the AI section: every content section for the report scope
     /// (the behaviour of sections saved before scopes existed), otherwise the named sections.
     /// Returns null when a section-scoped AI section names none.
@@ -262,17 +403,35 @@ public class ReportAISectionGenerator
     }
 
     /// <summary>
-    /// Every story in the sections, once each, as synthesis input.
+    /// Every story in the sections, once each, as synthesis input. Each story names every section of
+    /// the report it appears in, so the model can tell which stories belong to each section.
     /// </summary>
-    public static IReadOnlyList<SynthesisStory> BuildStories(IEnumerable<ReportSectionModel> sections, Uri? viewContentUrl, bool includeAnchors, IEnumerable<string>? inputFields = null, IEnumerable<ReportSectionModel>? anchorSections = null)
+    /// <param name="sections">The sections whose stories are read.</param>
+    /// <param name="viewContentUrl">The story page URL base, or null for no links.</param>
+    /// <param name="includeAnchors">Whether stories rendered in the report get anchors.</param>
+    /// <param name="inputFields">The selected story fields.</param>
+    /// <param name="reportSections">Every section of the report, for anchors and section labels; the sections read when null.</param>
+    /// <returns></returns>
+    public static IReadOnlyList<SynthesisStory> BuildStories(IEnumerable<ReportSectionModel> sections, Uri? viewContentUrl, bool includeAnchors, IEnumerable<string>? inputFields = null, IEnumerable<ReportSectionModel>? reportSections = null)
     {
         var fields = new HashSet<string>(inputFields ?? DefaultInputFields, StringComparer.Ordinal);
         var sourceSections = sections.ToArray();
+        var allSections = (reportSections ?? sourceSections).OrderBy(s => s.SortOrder).ThenBy(s => s.Id).ToArray();
         // A story may first appear in a headlines-only section and be rendered later in full.
         var anchoredIds = includeAnchors
-            ? (anchorSections ?? sourceSections).Where(s => s.IsEnabled)
+            ? allSections.Where(s => s.IsEnabled)
                 .SelectMany(s => s.Content.Where(c => ReportEngine.IsAnchoredInReport(s, c)).Select(c => c.Id)).ToHashSet()
             : new HashSet<long>();
+        var labels = new Dictionary<long, List<string>>();
+        foreach (var section in allSections)
+        {
+            var label = SectionLabel(section);
+            foreach (var id in section.Content.Select(c => c.Id).Distinct())
+            {
+                if (!labels.TryGetValue(id, out var list)) labels[id] = list = new List<string>();
+                if (!list.Contains(label)) list.Add(label);
+            }
+        }
         var seen = new HashSet<long>();
         var stories = new List<SynthesisStory>();
         foreach (var section in sourceSections)
@@ -281,26 +440,31 @@ public class ReportAISectionGenerator
             // historical reports. Use report order in both paths so their manifests match.
             foreach (var content in section.Content.OrderBy(c => c.SortOrder).ThenBy(c => c.Id).Where(c => seen.Add(c.Id)))
             {
+                var storySections = labels.TryGetValue(content.Id, out var list) ? list.ToArray() : new[] { SectionLabel(section) };
                 stories.Add(new SynthesisStory(
                     content.Id,
                     fields.Contains("headline") ? content.Headline : "",
-                    BuildMetadata(content, fields),
+                    BuildMetadata(content, fields, storySections),
                     BuildStoryText(content, fields),
                     viewContentUrl != null ? $"{viewContentUrl}{content.Id}" : null,
                     anchoredIds.Contains(content.Id) ? $"#{ReportEngine.ContentAnchorPrefix}{content.Id}" : null,
                     GetGroup(content),
                     content.Evidence?.AnalysisId,
-                    GetMetadataFields(content, fields)));
+                    GetMetadataFields(content, fields, storySections),
+                    storySections));
             }
         }
         return stories;
     }
 
     /// <summary>
-    /// The selected metadata fields that have a value, by name, in a fixed order.
+    /// The selected metadata fields that have a value, by name, in a fixed order. The section(s) the
+    /// story belongs to are always included.
     /// </summary>
-    private static IReadOnlyDictionary<string, string> GetMetadataFields(ContentModel content, ISet<string> fields)
+    private static IReadOnlyDictionary<string, string> GetMetadataFields(ContentModel content, ISet<string> fields, IReadOnlyList<string> sections)
     {
+        var result = new Dictionary<string, string>();
+        if (sections.Count > 0) result["section"] = String.Join("; ", sections);
         var parts = new (string Key, string? Value)[]
         {
             ("source", content.Source?.Name ?? content.OtherSource),
@@ -310,17 +474,16 @@ public class ReportAISectionGenerator
             ("byline", content.Byline),
             ("contributor", content.Contributor?.Name),
         };
-        var result = new Dictionary<string, string>();
         foreach (var (key, value) in parts.Where(p => fields.Contains(p.Key) && !String.IsNullOrWhiteSpace(p.Value)))
             result[key] = value!;
         return result;
     }
 
     /// <summary>
-    /// One line of metadata the model reads with the story.
+    /// One line of metadata the model reads with the story, starting with its section(s).
     /// </summary>
-    private static string BuildMetadata(ContentModel content, ISet<string> fields)
-        => String.Join(" | ", GetMetadataFields(content, fields).Select(p => $"{p.Key}: {p.Value}"));
+    private static string BuildMetadata(ContentModel content, ISet<string> fields, IReadOnlyList<string> sections)
+        => String.Join(" | ", GetMetadataFields(content, fields, sections).Select(p => $"{p.Key}: {p.Value}"));
 
     /// <summary>
     /// The selected analysis fields with either article text or a summary, never both.
@@ -401,6 +564,7 @@ public class ReportAISectionGenerator
                 settings.ChoiceIndex,
                 settings.IncludePreviousReports,
             },
+            sections = (request.Sections ?? Array.Empty<SynthesisSection>()).Select(s => new { s.Id, s.Label, s.Anchor }),
             stories = request.Stories.Select(s => new { s.ContentId, s.AnalysisId, s.Url, s.Anchor, s.Group, input = Fingerprint(s) }),
             history = previousReports.Select((p, i) => new
             {

@@ -20,16 +20,24 @@
 
 set -o errexit -o pipefail -o noclobber -o nounset
 
-! getopt --test > /dev/null
+# Prefer GNU getopt (Homebrew gnu-getopt on macOS) over BSD getopt.
+if command -v /opt/homebrew/opt/gnu-getopt/bin/getopt > /dev/null 2>&1; then
+    getopt=/opt/homebrew/opt/gnu-getopt/bin/getopt
+elif command -v /usr/local/opt/gnu-getopt/bin/getopt > /dev/null 2>&1; then
+    getopt=/usr/local/opt/gnu-getopt/bin/getopt
+else
+    getopt=getopt
+fi
+! "$getopt" --test > /dev/null
 if [[ ${PIPESTATUS[0]} -ne 4 ]]; then
-    echo 'I’m sorry, `getopt --test` failed in this environment.'
+    echo >&2 "GNU getopt is required. On macOS: brew install gnu-getopt"
     exit 1
 fi
 
 OPTIONS=e:n:rz:p:dy
 LONGOPTS=environment:,version:,rollback,bootstrap:,partitions:,replication:,dry-run,yes
 
-! PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTS --name "$0" -- "$@")
+! PARSED=$("$getopt" --options=$OPTIONS --longoptions=$LONGOPTS --name "$0" -- "$@")
 if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
     exit 2
 fi

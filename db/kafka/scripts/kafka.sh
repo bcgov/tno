@@ -167,16 +167,18 @@ ensure_topic() {
   override="$(kafka_topic_setting "$topic" CONFIG)"
   [ -n "$override" ] && config_list+=("$override")
   local config
-  config="$(IFS=,; echo "${config_list[*]}")"
+  config="$(IFS=,; echo "${config_list[*]+"${config_list[*]}"}")"
 
   if ! kafka_topic_exists "$topic"; then
     local args=(kafka-topics --create --if-not-exists --topic "$topic" --bootstrap-server "$KAFKA_BOOTSTRAP"
       --partitions "${partitions:-$KAFKA_PARTITIONS}" --replication-factor "${replication:-$KAFKA_REPLICATION_FACTOR}")
-    local entry
-    IFS=',' read -ra entries <<< "$config"
-    for entry in "${entries[@]}"; do
-      [ -n "$entry" ] && args+=(--config "$entry")
-    done
+    if [ -n "$config" ]; then
+      local entry
+      IFS=',' read -ra entries <<< "$config"
+      for entry in "${entries[@]}"; do
+        [ -n "$entry" ] && args+=(--config "$entry")
+      done
+    fi
     echo "Create topic '$topic' (partitions: ${partitions:-$KAFKA_PARTITIONS}, replication factor: ${replication:-$KAFKA_REPLICATION_FACTOR}${config:+, config: $config})"
     kafka_change "${args[@]}"
     kafka_topic_created "$topic"

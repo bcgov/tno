@@ -1,3 +1,6 @@
+export * from './AIPromptDialog';
+export * from './AIPromptTranscript';
+export * from './AIPromptViewerDialog';
 export * from './DataSources';
 export * from './ReportContentInlineText';
 export * from './ReportKindIcon';
