@@ -172,7 +172,7 @@ public partial class ReportSynthesizer
         var final = new List<(string Role, string Content)> { ("system", FinalSystemPrompt(request)) };
         final.AddRange(request.History.Where(h => h.Stories.Count > 0)
             .Select(h => ("user", $"## {h.Label} (previous report)\n{{coverage by topic and the findings reduced from that report}}")));
-        final.Add(("user", $"{SynthesisPrompts.FinalCitationRule}\n\n{{coverage by topic, the findings for this report, the Report sections array and the Story data array}}\n\n{request.UserPrompt}"));
+        final.Add(("user", $"{SynthesisPrompts.FinalDataGuide}\n\n{{coverage by topic, the findings for this report, the Report sections array and the Story data array}}\n\n## Instructions\n{request.UserPrompt}"));
         exchanges.Add(Planned("Final", LlmExchangeKind.Final, false, final.ToArray()));
         return exchanges;
     }
@@ -446,7 +446,7 @@ public partial class ReportSynthesizer
             .ToArray();
 
         var historyTokens = historyMessages.Sum(m => run.Estimator.Count(m.Item2));
-        var instructionTokens = run.Estimator.Count(system) + run.Estimator.Count(SynthesisPrompts.FinalCitationRule) + run.Estimator.Count(request.UserPrompt);
+        var instructionTokens = run.Estimator.Count(system) + run.Estimator.Count(SynthesisPrompts.FinalDataGuide) + run.Estimator.Count(request.UserPrompt);
         var allowance = request.Limits.GetInputAllowance(instructionTokens, 2 + historyMessages.Length, _options.SafetyMarginPercent) - historyTokens;
         if (allowance < 64) throw new SynthesisException("The section instructions and previous reports leave no room for findings within the model's context window.");
 
@@ -456,7 +456,7 @@ public partial class ReportSynthesizer
             var findingsTokens = run.Estimator.Count(findingsText);
             var messages = new List<(string Role, string Content)> { ("system", system) };
             messages.AddRange(historyMessages);
-            messages.Add(("user", $"{SynthesisPrompts.FinalCitationRule}\n\n{findingsText}\n\n{request.UserPrompt}"));
+            messages.Add(("user", $"{SynthesisPrompts.FinalDataGuide}\n\n{findingsText}\n\n## Instructions\n{request.UserPrompt}"));
 
             string problem;
             if (findingsTokens <= allowance)
@@ -790,7 +790,7 @@ public partial class ReportSynthesizer
 
         public int FinalAllowance(string instructions)
             => this.Request.Limits.GetInputAllowance(
-                this.Estimator.Count(this.Request.SystemPrompt) + this.Estimator.Count(SynthesisPrompts.FinalCitationRule) + this.Estimator.Count(this.Request.UserPrompt),
+                this.Estimator.Count(this.Request.SystemPrompt) + this.Estimator.Count(SynthesisPrompts.FinalDataGuide) + this.Estimator.Count(this.Request.UserPrompt),
                 2 + this.Request.History.Count,
                 _options.SafetyMarginPercent);
 

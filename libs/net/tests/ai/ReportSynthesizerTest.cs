@@ -163,7 +163,9 @@ public class ReportSynthesizerTest
             .And.Contain("\"reference\":\"S2\",\"url\":\"https://mmi.test/view/2\",\"anchor\":null}")
             .And.Contain("- (Topic 1) Fact from S1. [S1]")
             .And.Contain("Coverage by topic:\n- Topic 0: 1 story")
-            .And.Contain("do not also\ncite references in square brackets");
+            .And.StartWith(SynthesisPrompts.FinalDataGuide)
+            .And.EndWith("## Instructions\n" + Request(stories).UserPrompt)
+            .And.NotContainEquivalentOf("never invent");
     }
 
     [Fact]

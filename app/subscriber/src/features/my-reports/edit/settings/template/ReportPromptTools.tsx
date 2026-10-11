@@ -194,6 +194,12 @@ export const ReportPromptTools: React.FC<{
             below the editor, with article text as a fallback when no summary is available. The same
             selection applies to prior reports. Missing values are omitted.
           </p>
+          <p>
+            The fixed part of each request only describes the data below and what happens to the
+            response. It gives no formatting or citation directions. Your prompt, sent last under{' '}
+            <code>## Instructions</code>, controls the content and format of the output entirely:
+            without instructions about links or references, the output has none.
+          </p>
           <h3>Story data</h3>
           <p>
             Stories are sent as text blocks, not JSON objects. Each starts with a source reference
@@ -289,7 +295,10 @@ export const ReportPromptTools: React.FC<{
           <pre>{`Write a concise summary as HTML bullet points. Match each supporting story reference to the Story link data. End each story bullet with a <a target="_blank" href="{url}">view</a>, where {url} is that story's url field copied exactly. Never construct or invent a URL; omit the link if a story has no url field or its value is null or empty. Do not substitute anchor for url. Do not also add bracketed citations to a bullet that already has a view link.`}</pre>
           <h3>Example prompt: automatic story links</h3>
           <pre>{`Write five bullet points about the main developments. End each point with supporting story references, such as [S1] or [S1][S2].`}</pre>
-          <p>The report replaces these references with story links automatically.</p>
+          <p>
+            The report replaces these references with story links. They appear only when your prompt
+            asks for them.
+          </p>
           <h3>Report sections sent to the final writing step</h3>
           <p>
             Alongside the story link data, the AI receives a <strong>Report sections</strong> JSON

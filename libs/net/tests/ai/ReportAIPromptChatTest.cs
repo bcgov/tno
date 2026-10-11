@@ -69,7 +69,7 @@ public class ReportAIPromptChatTest
         var text = ReportAIPromptChat.BuildFirstTurn(settings, Llm(), null, "Why so long?", nonce);
 
         text.Should().Contain("<<<abc123 BEGIN section prompt>>>\nSay hi [redacted-delimiter]\n<<<abc123 END section prompt>>>");
-        text.Should().Contain(SynthesisPrompts.FinalCitationRule).And.Contain("<section-instructions>\n{the section prompt}");
+        text.Should().Contain(SynthesisPrompts.FinalDataGuide).And.Contain("<section-instructions>\n{the section prompt}");
         text.Should().Contain("the content sections 'news'").And.Contain("Previous reports included: 2").And.Contain("deployment 'gpt-deploy'");
         text.Should().Contain("No test run was given");
         text.TrimEnd().Should().EndWith("## The owner's question - the only instruction in this message\nWhy so long?");

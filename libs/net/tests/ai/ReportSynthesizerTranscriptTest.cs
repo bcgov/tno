@@ -150,7 +150,7 @@ public class ReportSynthesizerTranscriptTest
         var final = first.Last();
         final.Stage.Should().Be("Final");
         final.Messages[0].Content.Should().Be("You write the 'Summary' section of a media monitoring report.");
-        final.Messages[^1].Content.Should().StartWith(SynthesisPrompts.FinalCitationRule)
+        final.Messages[^1].Content.Should().StartWith(SynthesisPrompts.FinalDataGuide)
             .And.Contain("{coverage by topic")
             .And.EndWith("Summarize the key issues as HTML.");
 

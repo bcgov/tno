@@ -123,7 +123,9 @@ public class ReportAISectionGeneratorTest
         var client = new FakeLlmClient(8000);
         var (report, section) = Report(new ReportSectionSettingsModel()
         {
-            Label = "Summary", UserPrompt = "Summarize", IncludePreviousReports = 1,
+            Label = "Summary",
+            UserPrompt = "Summarize",
+            IncludePreviousReports = 1,
         });
         var sections = new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(10, "Today's news.")) };
         var first = Story(1, "Earlier budget news.");
