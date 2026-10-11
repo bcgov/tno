@@ -790,6 +790,17 @@ public partial class ReportEngine : IReportEngine
     internal const string ContentAnchorPrefix = "item-";
 
     /// <summary>
+    /// The prefix of a section heading's anchor in the rendered report (the template renders
+    /// &lt;a id="section-{id}"&gt; and the table of contents links to it).
+    /// </summary>
+    internal const string SectionAnchorPrefix = "section-";
+
+    /// <summary>
+    /// Why an agent-backed section cannot be tested or discussed.
+    /// </summary>
+    public const string AgentNotSupportedMessage = "This AI model is agent-backed and receives only its prompts; test runs and prompt chat need a deployment-based model.";
+
+    /// <summary>
     /// Whether the report body renders 'content' as a story in 'section', which is what carries the
     /// anchor. Mirrors the report template's story loop: a section showing only headlines links out
     /// to the story rather than anchoring it, and an image-only section renders an item only when
@@ -894,35 +905,21 @@ public partial class ReportEngine : IReportEngine
         if (aiSections.Length == 0) return;
 
         // Previous instances are fetched once, oldest first; each section takes its own count.
-        var previousQty = aiSections.Max(s => s.Settings.IncludePreviousReports ?? 0);
-        var previousReports = previousQty > 0
-            ? (await getPreviousReportsAsync(report.Id, checked((int?)reportInstanceId), report.OwnerId, previousQty) ?? Array.Empty<PreviousReportModel>())
-                .Where(p => p.Sections.Any(section => section.Value.Content.Any()))
-                .OrderBy(p => p.PublishedOn ?? DateTime.MinValue)
-                .ToArray()
-            : Array.Empty<PreviousReportModel>();
-
-        await AddEvidenceAsync(sectionContent.Values.SelectMany(s => s.Content)
-            .Concat(previousReports.SelectMany(p => p.Sections.Values.SelectMany(s => s.Content))), cancellationToken ?? CancellationToken.None);
-
-        _llmHttpClient ??= new HttpClient() { Timeout = TimeSpan.FromSeconds(Math.Max(30, this.TemplateOptions.Synthesis.RequestTimeoutSeconds)) };
-        var generator = new ReportAISectionGenerator(
-            this.AIResultStore,
-            new TNO.AI.LlmDirectClient(_llmHttpClient, this.Logger),
-            this.TemplateOptions,
-            this.Logger);
+        var previousReports = await GetPreviousReportsForAIAsync(report, reportInstanceId, aiSections.Max(s => s.Settings.IncludePreviousReports ?? 0), getPreviousReportsAsync);
+        await AddEvidenceAsync(sectionContent, previousReports, cancellationToken ?? CancellationToken.None);
+        var generator = CreateAIGenerator(this.AIResultStore);
 
         await aiSections.ForEachAsync(async section =>
         {
             var sectionData = sectionContent[section.Name];
             var settings = section.Settings;
-            var llm = settings.LLMId.HasValue ? await getLLMAsync(settings.LLMId.Value) : null;
+            var (llm, llmError) = await ResolveSectionLlmAsync(settings, getLLMAsync);
             var projectEndpoint = llm?.ProjectEndpoint;
 
             if (llm == null || projectEndpoint == null)
             {
                 this.Logger.LogError("LLM configuration 'ProjectEndpoint' is required.");
-                sectionData.Data = "OpenAI API project endpoint is required.";
+                sectionData.Data = llmError;
                 return;
             }
 
@@ -930,9 +927,8 @@ public partial class ReportEngine : IReportEngine
             if (!String.IsNullOrWhiteSpace(agentName))
             {
                 // Agent-backed sections are unchanged: the agent receives only the prompts.
-                var systemPrompt = !String.IsNullOrWhiteSpace(settings.SystemPrompt) ? settings.SystemPrompt : this.AzureOptions.AI?.DefaultSystemPrompt;
-                var userPrompt = !String.IsNullOrWhiteSpace(settings.UserPrompt) ? settings.UserPrompt : this.AzureOptions.AI?.DefaultUserPrompt;
-                var deploymentName = !String.IsNullOrWhiteSpace(llm.DeploymentName) ? llm.DeploymentName : this.AzureOptions.AI?.DefaultModelDeploymentName;
+                var (systemPrompt, userPrompt) = AgentPrompts(settings);
+                var deploymentName = llm.DeploymentName;
                 if (String.IsNullOrWhiteSpace(userPrompt))
                 {
                     this.Logger.LogError("Azure AI user prompt is required for report: {ReportId} and section: {SectionId}", report.Id, section.Settings.Label);
@@ -956,11 +952,6 @@ public partial class ReportEngine : IReportEngine
                 }
                 return;
             }
-
-            if (String.IsNullOrWhiteSpace(llm.ApiKey) && !String.IsNullOrWhiteSpace(this.AzureOptions.AI?.ApiKey))
-                llm.ApiKey = this.AzureOptions.AI.ApiKey;
-            if (String.IsNullOrWhiteSpace(llm.DeploymentName) && !String.IsNullOrWhiteSpace(this.AzureOptions.AI?.DefaultModelDeploymentName))
-                llm.DeploymentName = this.AzureOptions.AI.DefaultModelDeploymentName;
 
             var sectionPrevious = previousReports.TakeLast(Math.Max(0, settings.IncludePreviousReports ?? 0)).ToArray();
             var (output, error, status, claimExpiresOn) = await generator.GenerateAsync(report, reportInstanceId, section, sectionContent, sectionPrevious, llm, aiWait, cancellationToken ?? CancellationToken.None, viewContentUrlOverride);
@@ -986,6 +977,190 @@ public partial class ReportEngine : IReportEngine
             sectionData.Data = settings.ShowErrorDetails ? $"AI section failed: {error}" : "";
         });
     }
+
+    /// <summary>
+    /// Run one AI section once with the settings it carries (which may be unsaved drafts), recording
+    /// every request and response. Nothing is read from or written to the result store, and no other
+    /// section is touched.
+    /// </summary>
+    /// <param name="report"></param>
+    /// <param name="reportInstanceId"></param>
+    /// <param name="section">The AI section; its settings are used as given.</param>
+    /// <param name="sectionContent">Every section of the report with its content.</param>
+    /// <param name="getPreviousReportsAsync"></param>
+    /// <param name="getLLMAsync"></param>
+    /// <param name="viewContentUrlOverride">Link settings supplied by the requesting preview.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.ReportAIResult.ReportAISectionTestResultModel> TestReportAISectionAsync(
+        API.Areas.Services.Models.Report.ReportModel report,
+        long reportInstanceId,
+        API.Areas.Services.Models.Report.ReportSectionModel section,
+        Dictionary<string, ReportSectionModel> sectionContent,
+        Func<int, int?, int?, int, Task<IEnumerable<PreviousReportModel>>> getPreviousReportsAsync,
+        Func<int, Task<API.Areas.Services.Models.LLM.LLMModel?>> getLLMAsync,
+        string? viewContentUrlOverride = null,
+        CancellationToken cancellationToken = default)
+    {
+        var result = new API.Areas.Services.Models.ReportAIResult.ReportAISectionTestResultModel()
+        {
+            ReportId = report.Id,
+            ReportInstanceId = reportInstanceId,
+            SectionId = section.Id,
+            Status = API.Areas.Services.Models.ReportAIResult.ReportAISectionTestStatus.Failed,
+        };
+        var (llm, llmError) = await ResolveSectionLlmAsync(section.Settings, getLLMAsync);
+        if (llm == null)
+        {
+            result.Error = llmError;
+            result.CompletedOn = DateTime.UtcNow;
+            return result;
+        }
+        if (!String.IsNullOrWhiteSpace(llm.AgentName))
+        {
+            result.Error = AgentNotSupportedMessage;
+            result.CompletedOn = DateTime.UtcNow;
+            return result;
+        }
+
+        var previousReports = await GetPreviousReportsForAIAsync(report, reportInstanceId, section.Settings.IncludePreviousReports ?? 0, getPreviousReportsAsync);
+        await AddEvidenceAsync(sectionContent, previousReports, cancellationToken);
+        var outcome = await CreateAIGenerator(new NoReportAIResultStore())
+            .TestAsync(report, section, sectionContent, previousReports, llm, viewContentUrlOverride, cancellationToken);
+
+        result.Status = outcome.IsSuccess
+            ? API.Areas.Services.Models.ReportAIResult.ReportAISectionTestStatus.Completed
+            : API.Areas.Services.Models.ReportAIResult.ReportAISectionTestStatus.Failed;
+        result.Output = outcome.Output;
+        result.Error = outcome.Error;
+        result.RequestCount = outcome.Usage?.Requests ?? 0;
+        result.PromptTokens = outcome.Usage?.PromptTokens ?? 0;
+        result.CompletionTokens = outcome.Usage?.CompletionTokens ?? 0;
+        result.DurationMs = outcome.Usage?.DurationMs ?? 0;
+        result.StoryCount = outcome.Usage?.StoriesProcessed ?? 0;
+        result.ReductionDepth = outcome.Usage?.ReductionDepth ?? 0;
+        result.Transcript = outcome.Transcript?.Select(ReportAISectionGenerator.ToModel).ToArray() ?? Array.Empty<API.Areas.Services.Models.ReportAIResult.LlmExchangeModel>();
+        result.CompletedOn = DateTime.UtcNow;
+        return result;
+    }
+
+    /// <summary>
+    /// Describe the requests one AI section would send for the report's content, without sending
+    /// any. An agent-backed section sends only its prompts, so that is all it describes.
+    /// </summary>
+    /// <param name="report"></param>
+    /// <param name="reportInstanceId"></param>
+    /// <param name="section">The AI section; its settings are used as given.</param>
+    /// <param name="sectionContent">Every section of the report with its content.</param>
+    /// <param name="getPreviousReportsAsync"></param>
+    /// <param name="getLLMAsync"></param>
+    /// <param name="viewContentUrlOverride">Link settings supplied by the requesting preview.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.ReportAIResult.ReportAISectionPromptModel> DescribeReportAISectionAsync(
+        API.Areas.Services.Models.Report.ReportModel report,
+        long? reportInstanceId,
+        API.Areas.Services.Models.Report.ReportSectionModel section,
+        Dictionary<string, ReportSectionModel> sectionContent,
+        Func<int, int?, int?, int, Task<IEnumerable<PreviousReportModel>>> getPreviousReportsAsync,
+        Func<int, Task<API.Areas.Services.Models.LLM.LLMModel?>> getLLMAsync,
+        string? viewContentUrlOverride = null,
+        CancellationToken cancellationToken = default)
+    {
+        var model = new API.Areas.Services.Models.ReportAIResult.ReportAISectionPromptModel()
+        {
+            ReportId = report.Id,
+            ReportInstanceId = reportInstanceId,
+            SectionId = section.Id,
+            SectionLabel = section.Settings.Label,
+            IsPlanned = true,
+        };
+        var (llm, llmError) = await ResolveSectionLlmAsync(section.Settings, getLLMAsync);
+        if (llm == null)
+        {
+            model.Error = llmError;
+            return model;
+        }
+        model.LlmName = llm.Name;
+
+        if (!String.IsNullOrWhiteSpace(llm.AgentName))
+        {
+            // The agent receives one prompt: the system prompt followed by the user prompt.
+            var (systemPrompt, userPrompt) = AgentPrompts(section.Settings);
+            var prompt = new StringBuilder(systemPrompt).AppendLine(userPrompt).ToString();
+            model.Exchanges = new[]
+            {
+                ReportAISectionGenerator.ToModel(new TNO.AI.Synthesis.LlmExchange("Agent request", TNO.AI.Synthesis.LlmExchangeKind.Agent, 1,
+                    new[] { new TNO.AI.Synthesis.LlmMessage("user", prompt) }, null, null, null, 0, false, false, null, 0)),
+            };
+            return model;
+        }
+
+        var previousReports = await GetPreviousReportsForAIAsync(report, reportInstanceId, section.Settings.IncludePreviousReports ?? 0, getPreviousReportsAsync);
+        await AddEvidenceAsync(sectionContent, previousReports, cancellationToken);
+        var (plan, error) = CreateAIGenerator(new NoReportAIResultStore())
+            .Describe(report, section, sectionContent, previousReports, llm, viewContentUrlOverride);
+        model.Exchanges = plan?.Select(ReportAISectionGenerator.ToModel).ToArray() ?? Array.Empty<API.Areas.Services.Models.ReportAIResult.LlmExchangeModel>();
+        model.Error = error;
+        return model;
+    }
+
+    /// <summary>
+    /// The previous instances AI sections read, oldest first, limited to those with content.
+    /// </summary>
+    private static async Task<PreviousReportModel[]> GetPreviousReportsForAIAsync(
+        API.Areas.Services.Models.Report.ReportModel report,
+        long? reportInstanceId,
+        int previousQty,
+        Func<int, int?, int?, int, Task<IEnumerable<PreviousReportModel>>> getPreviousReportsAsync)
+    {
+        if (previousQty <= 0) return Array.Empty<PreviousReportModel>();
+        return (await getPreviousReportsAsync(report.Id, checked((int?)reportInstanceId), report.OwnerId, previousQty) ?? Array.Empty<PreviousReportModel>())
+            .Where(p => p.Sections.Any(section => section.Value.Content.Any()))
+            .OrderBy(p => p.PublishedOn ?? DateTime.MinValue)
+            .ToArray();
+    }
+
+    /// <summary>
+    /// Attach analysis evidence to the current and previous content.
+    /// </summary>
+    private Task AddEvidenceAsync(Dictionary<string, ReportSectionModel> sectionContent, IEnumerable<PreviousReportModel> previousReports, CancellationToken cancellationToken)
+        => AddEvidenceAsync(sectionContent.Values.SelectMany(s => s.Content)
+            .Concat(previousReports.SelectMany(p => p.Sections.Values.SelectMany(s => s.Content))), cancellationToken);
+
+    /// <summary>
+    /// A generator over the shared direct-model client and the specified result store.
+    /// </summary>
+    private ReportAISectionGenerator CreateAIGenerator(IReportAIResultStore store)
+    {
+        _llmHttpClient ??= new HttpClient() { Timeout = TimeSpan.FromSeconds(Math.Max(30, this.TemplateOptions.Synthesis.RequestTimeoutSeconds)) };
+        return new ReportAISectionGenerator(store, new TNO.AI.LlmDirectClient(_llmHttpClient, this.Logger), this.TemplateOptions, this.Logger);
+    }
+
+    /// <summary>
+    /// The section's LLM with the configured defaults applied for a missing API key or deployment
+    /// name, or why it cannot be used.
+    /// </summary>
+    private async Task<(API.Areas.Services.Models.LLM.LLMModel? Llm, string? Error)> ResolveSectionLlmAsync(
+        API.Models.Settings.ReportSectionSettingsModel settings,
+        Func<int, Task<API.Areas.Services.Models.LLM.LLMModel?>> getLLMAsync)
+    {
+        var llm = settings.LLMId.HasValue ? await getLLMAsync(settings.LLMId.Value) : null;
+        if (llm == null) return (null, "Choose an AI model for this section.");
+        if (llm.ProjectEndpoint == null) return (null, "OpenAI API project endpoint is required.");
+        if (String.IsNullOrWhiteSpace(llm.ApiKey) && !String.IsNullOrWhiteSpace(this.AzureOptions.AI?.ApiKey))
+            llm.ApiKey = this.AzureOptions.AI.ApiKey;
+        if (String.IsNullOrWhiteSpace(llm.DeploymentName) && !String.IsNullOrWhiteSpace(this.AzureOptions.AI?.DefaultModelDeploymentName))
+            llm.DeploymentName = this.AzureOptions.AI.DefaultModelDeploymentName;
+        return (llm, null);
+    }
+
+    /// <summary>
+    /// The prompts an agent-backed section sends, with the configured defaults for missing ones.
+    /// </summary>
+    private (string? SystemPrompt, string? UserPrompt) AgentPrompts(API.Models.Settings.ReportSectionSettingsModel settings)
+        => (!String.IsNullOrWhiteSpace(settings.SystemPrompt) ? settings.SystemPrompt : this.AzureOptions.AI?.DefaultSystemPrompt,
+            !String.IsNullOrWhiteSpace(settings.UserPrompt) ? settings.UserPrompt : this.AzureOptions.AI?.DefaultUserPrompt);
 
     /// <summary>
     /// Each chart template has its own default settings.

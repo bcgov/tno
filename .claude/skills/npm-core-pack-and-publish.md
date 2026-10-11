@@ -1,5 +1,22 @@
 # Skill: NPM Core Package (tno-core) Pack & Publish
 
+## First: is a pack even needed?
+
+`make pack` is only for testing **local, unpublished** `libs/npm/core/src` changes. If an app
+fails to compile with missing `tno-core` exports or missing npm modules, first compare the
+container's installed version against the app's pin:
+
+```bash
+docker exec tno-subscriber sh -c 'grep "\"version\"" /usr/app/node_modules/tno-core/package.json'
+grep '"tno-core"' app/subscriber/package.json
+```
+
+If the container is older than the pin (stale image — only `src/` and `public/` are bind-mounted,
+`node_modules` is baked in at image build), a plain `make refresh n=<app>` fixes it. No pack.
+Also note `make pack` run on a Mac host swaps linux-x64 Yarn cache zips for darwin-arm64 ones in
+`app/<n>/.yarn/cache` — revert those (`git restore app/<n>/.yarn/cache/`) if a pack was started
+by mistake.
+
 ## TL;DR — testing a local `tno-core` change in a running app
 
 This is **the** supported workflow. Any time you edit `libs/npm/core/src/**` and want to see it

@@ -20,6 +20,7 @@ import { ReportCard } from './ReportCard';
 import { ReportFilter } from './ReportFilter';
 import { ReportPreview } from './ReportPreview';
 import * as styled from './styled';
+import { isAISectionTestMessage } from './utils';
 
 export const MyReports: React.FC = () => {
   const [{ myReports, reportsFilter }, { findMyReports, deleteReport, getReport }] = useReports();
@@ -44,6 +45,8 @@ export const MyReports: React.FC = () => {
   }, [userInfo]);
 
   hub.useHubEffect(MessageTargetKey.ReportStatus, async (message: IReportMessageModel) => {
+    // A finished AI section test run is for the prompt workbench; nothing about the report changed.
+    if (isAISectionTestMessage(message)) return;
     if (report) {
       try {
         if (message.message === 'status') {

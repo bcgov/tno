@@ -13,6 +13,7 @@ import {
 
 import { ReportBody } from '../../ReportBody';
 import { useReportEditContext } from '../ReportEditContext';
+import { ReportViewPromptButton } from './ReportViewPromptButton';
 import * as styled from './styled';
 
 export const ReportView = () => {
@@ -72,7 +73,9 @@ export const ReportView = () => {
         <Row className="report-edit-headline-row" alignItems="first baseline" gap="0.5em">
           <FaEye size={18} />
           <h1>Preview Report</h1>
-          <div></div>
+          <div>
+            <ReportViewPromptButton instanceId={instanceId} />
+          </div>
         </Row>
       </div>
       <ReportPreviewStatus isRequesting={isLoading} sections={aiSections} />

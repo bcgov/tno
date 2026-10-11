@@ -37,6 +37,14 @@ public class ReportHelper : IReportHelper
     private readonly IKafkaMessenger _kafkaMessenger;
     private readonly KafkaOptions _kafkaOptions;
     private readonly TemplateOptions _templateOptions;
+    private readonly AzureOptions _azureOptions;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ILogger<ReportHelper> _logger;
+
+    /// <summary>
+    /// How long one chat request may take. Two attempts stay within the two-minute route limit.
+    /// </summary>
+    private static readonly TimeSpan ChatTimeout = TimeSpan.FromSeconds(50);
     #endregion
 
     #region Properties
@@ -57,6 +65,9 @@ public class ReportHelper : IReportHelper
     /// <param name="kafkaMessenger"></param>
     /// <param name="kafkaOptions"></param>
     /// <param name="templateOptions"></param>
+    /// <param name="azureOptions"></param>
+    /// <param name="httpClientFactory"></param>
+    /// <param name="logger"></param>
     public ReportHelper(
         IReportEngine reportEngine,
         IReportService reportService,
@@ -68,8 +79,14 @@ public class ReportHelper : IReportHelper
         IOptions<JsonSerializerOptions> serializerOptions,
         IKafkaMessenger kafkaMessenger,
         IOptions<KafkaOptions> kafkaOptions,
-        IOptions<TemplateOptions> templateOptions)
+        IOptions<TemplateOptions> templateOptions,
+        IOptions<AzureOptions> azureOptions,
+        IHttpClientFactory httpClientFactory,
+        ILogger<ReportHelper> logger)
     {
+        _azureOptions = azureOptions.Value;
+        _httpClientFactory = httpClientFactory;
+        _logger = logger;
         _reportEngine = reportEngine;
         _reportService = reportService;
         _llmService = llmService;
@@ -246,6 +263,149 @@ public class ReportHelper : IReportHelper
             .ToArray();
         return result;
     }
+
+    /// <summary>
+    /// Describe the requests the AI section would send for the instance's content, without sending
+    /// any. When 'settingsOverride' is given it stands in for the section's saved settings.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="sectionId"></param>
+    /// <param name="settingsOverride"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="NoContentException"></exception>
+    public async Task<Areas.Services.Models.ReportAIResult.ReportAISectionPromptModel> DescribeReportAISectionAsync(
+        Areas.Services.Models.ReportInstance.ReportInstanceModel model,
+        int sectionId,
+        Models.Settings.ReportSectionSettingsModel? settingsOverride = null,
+        CancellationToken cancellationToken = default)
+    {
+        var report = model.Report ?? throw new ArgumentException("Parameter 'model.Report' is required");
+        var saved = report.Sections.FirstOrDefault(s => s.Id == sectionId && s.SectionType == Entities.ReportSectionType.AI)
+            ?? throw new NoContentException("AI section does not exist");
+        var section = settingsOverride == null ? saved : CloneWithSettings(saved, settingsOverride);
+        var sections = GetInstanceSections(model);
+        return await _reportEngine.DescribeReportAISectionAsync(report, model.Id, section, sections, GetPreviousReportsAsync, GetLLMAsync,
+            _templateOptions.ViewContentUrl?.ToString() ?? "", cancellationToken);
+    }
+
+    /// <summary>
+    /// Ask the reporting service to run the AI section once with draft settings against the
+    /// instance's content and post the outcome back for the requestor.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="instanceId"></param>
+    /// <param name="testId"></param>
+    /// <param name="sectionId"></param>
+    /// <param name="settings"></param>
+    /// <param name="requestorId"></param>
+    /// <returns></returns>
+    public async Task RequestReportAISectionTestAsync(int reportId, long instanceId, Guid testId, int sectionId, Models.Settings.ReportSectionSettingsModel settings, int requestorId)
+    {
+        var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, reportId, instanceId, JsonDocument.Parse("{}"))
+        {
+            RequestorId = requestorId,
+            PrepareAISections = true,
+            AIViewContentUrl = _templateOptions.ViewContentUrl?.ToString() ?? "",
+            AISectionTest = new Areas.Services.Models.ReportAIResult.ReportAISectionTestRequestModel()
+            {
+                TestId = testId,
+                SectionId = sectionId,
+                Settings = settings,
+            },
+            SendToSubscribers = false,
+            GenerateInstance = false,
+        };
+        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{reportId}", request);
+    }
+
+    /// <summary>
+    /// Ask the section's model how to change the section's prompt. The first turn (no messages)
+    /// composes the context; later turns replay the conversation the browser holds.
+    /// </summary>
+    /// <param name="sectionSettings"></param>
+    /// <param name="request"></param>
+    /// <param name="test"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="BadRequestException"></exception>
+    public async Task<Areas.Subscriber.Models.Report.ReportAIPromptChatResultModel> ChatAboutReportAISectionAsync(
+        Models.Settings.ReportSectionSettingsModel sectionSettings,
+        Areas.Subscriber.Models.Report.ReportAIPromptChatRequestModel request,
+        Areas.Services.Models.ReportAIResult.ReportAISectionTestResultModel? test,
+        CancellationToken cancellationToken = default)
+    {
+        if (String.IsNullOrWhiteSpace(request.Question)) throw new BadRequestException("A question is required.");
+        if (!sectionSettings.LLMId.HasValue) throw new BadRequestException("Choose an AI model for this section.");
+        var llm = await GetLLMAsync(sectionSettings.LLMId.Value) ?? throw new BadRequestException("The section's AI model could not be found.");
+        if (!String.IsNullOrWhiteSpace(llm.AgentName)) throw new BadRequestException(ReportEngine.AgentNotSupportedMessage);
+        // The same defaults the report engine applies when a model row leaves these empty.
+        if (String.IsNullOrWhiteSpace(llm.ApiKey) && !String.IsNullOrWhiteSpace(_azureOptions.AI?.ApiKey)) llm.ApiKey = _azureOptions.AI.ApiKey;
+        if (String.IsNullOrWhiteSpace(llm.DeploymentName) && !String.IsNullOrWhiteSpace(_azureOptions.AI?.DefaultModelDeploymentName)) llm.DeploymentName = _azureOptions.AI.DefaultModelDeploymentName;
+        if (llm.ProjectEndpoint == null || String.IsNullOrWhiteSpace(llm.DeploymentName)) throw new BadRequestException("The LLM configuration requires a project endpoint and a deployment name.");
+        if (String.IsNullOrWhiteSpace(llm.ApiKey)) throw new BadRequestException($"The LLM '{llm.Name}' has no API key configured.");
+
+        var conversation = new List<(string Role, string Content)>();
+        var prompt = "";
+        var messages = request.Messages?.ToArray() ?? Array.Empty<Areas.Subscriber.Models.Report.ReportAIPromptChatMessageModel>();
+        if (messages.Length == 0)
+        {
+            var nonce = ReportAIPromptChat.NewNonce();
+            prompt = ReportAIPromptChat.BuildFirstTurn(sectionSettings, llm, test, request.Question, nonce);
+            conversation.Add(("system", ReportAIPromptChat.BuildSystemPrompt(nonce)));
+            conversation.Add(("user", prompt));
+        }
+        else
+        {
+            foreach (var message in messages)
+                conversation.Add((message.Role, message.Content));
+            conversation.Add(("user", request.Question.Trim()));
+        }
+
+        var client = _httpClientFactory.CreateClient();
+        client.Timeout = ChatTimeout;
+        var result = await new TNO.AI.LlmDirectClient(client, _logger).InvokeAsync(
+            new TNO.AI.LlmEndpoint(llm.ProjectEndpoint, llm.ApiKey!, llm.DeploymentName),
+            conversation,
+            jsonMode: true,
+            attempts: 2,
+            new TNO.AI.LlmRequestOptions(llm.MaxOutputTokens, sectionSettings.Temperature),
+            cancellationToken);
+        var (answer, suggestedPrompt) = ReportAIPromptChat.ParseAnswer(result.Content);
+        // The conversation keeps the reply as the assistant turn, so later turns read naturally.
+        conversation.Add(("assistant", answer));
+
+        return new Areas.Subscriber.Models.Report.ReportAIPromptChatResultModel()
+        {
+            Prompt = prompt,
+            Answer = answer,
+            SuggestedPrompt = suggestedPrompt,
+            Messages = conversation.Select(m => new Areas.Subscriber.Models.Report.ReportAIPromptChatMessageModel(m.Role, m.Content)).ToArray(),
+        };
+    }
+
+    /// <summary>
+    /// A copy of the section carrying draft settings, so the instance's own sections are left as they are.
+    /// </summary>
+    private static Areas.Services.Models.Report.ReportSectionModel CloneWithSettings(Areas.Services.Models.Report.ReportSectionModel section, Models.Settings.ReportSectionSettingsModel settings)
+        => new()
+        {
+            Id = section.Id,
+            Name = section.Name,
+            Description = section.Description,
+            ReportId = section.ReportId,
+            SectionType = section.SectionType,
+            SortOrder = section.SortOrder,
+            IsEnabled = section.IsEnabled,
+            FilterId = section.FilterId,
+            Filter = section.Filter,
+            FolderId = section.FolderId,
+            Folder = section.Folder,
+            LinkedReportId = section.LinkedReportId,
+            LinkedReport = section.LinkedReport,
+            ChartTemplates = section.ChartTemplates,
+            Settings = settings,
+        };
 
     /// <summary>
     /// Link the instance's content with its section names.

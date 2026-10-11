@@ -211,6 +211,35 @@ public class ReportInstanceController : ControllerBase
     }
 
     /// <summary>
+    /// Describe the requests the AI section sends for this instance's content with its saved
+    /// settings, without sending any. Anyone who may view the instance may see them.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="sectionId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/ai-sections/{sectionId}/prompt")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(TNO.API.Areas.Services.Models.ReportAIResult.ReportAISectionPromptModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public async Task<IActionResult> DescribeAISectionAsync(long id, int sectionId, CancellationToken cancellationToken)
+    {
+        var instance = _reportInstanceService.FindById(id);
+        if (instance == null) return NoContent();
+        var user = _impersonate.GetCurrentUser();
+        var report = instance.Report ?? throw new NoContentException("Report does not exist");
+        if (instance.OwnerId != user.Id &&
+            !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&
+            !report.IsPublic) throw new NotAuthorizedException("Not authorized to preview this report");
+        instance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(id));
+        var model = new Services.Models.ReportInstance.ReportInstanceModel(instance, _serializerOptions);
+        var result = await _reportHelper.DescribeReportAISectionAsync(model, sectionId, null, cancellationToken);
+        return new JsonResult(result);
+    }
+
+    /// <summary>
     /// Send the report to the specified email address.
     /// </summary>
     /// <param name="id"></param>

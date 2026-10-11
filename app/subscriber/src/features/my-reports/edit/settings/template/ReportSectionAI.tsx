@@ -1,5 +1,6 @@
 import React from 'react';
-import { useLookup } from 'store/hooks';
+import { useLookup, useReportAI } from 'store/hooks';
+import { IReportAISectionPromptModel } from 'store/hooks/subscriber/interfaces';
 import { useAppStore } from 'store/slices';
 import {
   Checkbox,
@@ -17,7 +18,9 @@ import {
   Show,
 } from 'tno-core';
 
+import { AIPromptViewerDialog } from '../../../components';
 import { useReportEditContext } from '../../ReportEditContext';
+import { AIPromptWorkbench } from './AIPromptWorkbench';
 import { ReportPromptTools } from './ReportPromptTools';
 import { ReportSectionAIInput } from './ReportSectionAIInput';
 
@@ -30,9 +33,38 @@ export const ReportSectionAI = React.forwardRef<HTMLDivElement, IReportSectionAI
     const { values, setFieldValue, setValues } = useReportEditContext();
     const [{ userInfo }] = useAppStore();
     const [{ llms }, { getLLMs }] = useLookup();
+    const { describeSection } = useReportAI();
 
     const isAdmin = userInfo?.roles.includes(Claim.administrator);
     const selectedLLMId = values.sections[index].settings.llmId;
+    const section = values.sections[index];
+
+    // The prompt tools read the report's current instance, so the report and the section must be saved.
+    const toolsDisabledReason =
+      !values.id || !section.id
+        ? 'Save the report to use the prompt tools for this section'
+        : !(values.instances?.length ?? 0)
+        ? 'Generate the report to use the prompt tools for this section'
+        : undefined;
+    const [workbenchOpen, setWorkbenchOpen] = React.useState(false);
+    const [promptOpen, setPromptOpen] = React.useState(false);
+    const [prompt, setPrompt] = React.useState<IReportAISectionPromptModel>();
+    const [promptError, setPromptError] = React.useState<string>();
+    const [isDescribing, setIsDescribing] = React.useState(false);
+
+    const viewPrompt = React.useCallback(async () => {
+      setPromptOpen(true);
+      setPrompt(undefined);
+      setPromptError(undefined);
+      setIsDescribing(true);
+      try {
+        setPrompt(await describeSection(values.id, section.id, section.settings));
+      } catch (ex: any) {
+        setPromptError(ex?.response?.data?.error ?? 'The prompt could not be fetched.');
+      } finally {
+        setIsDescribing(false);
+      }
+    }, [describeSection, section.id, section.settings, values.id]);
 
     // Derived from the lookup rather than copied into state on mount: the lookup is shared, so it
     // can arrive after this section rendered, and a copy taken too early leaves the field with no
@@ -145,12 +177,28 @@ export const ReportSectionAI = React.forwardRef<HTMLDivElement, IReportSectionAI
           toolbarActions={
             <ReportPromptTools
               defaultPrompt={llm?.userPrompt}
+              currentPrompt={values.sections[index].settings.userPrompt}
               inputFields={values.sections[index].settings.aiInputFields}
               onUseDefault={() =>
                 setFieldValue(`sections.${index}.settings.userPrompt`, llm?.userPrompt)
               }
+              onViewPrompt={viewPrompt}
+              onOpenWorkbench={() => setWorkbenchOpen(true)}
+              toolsDisabledReason={toolsDisabledReason}
             />
           }
+        />
+        <AIPromptViewerDialog
+          open={promptOpen}
+          onClose={() => setPromptOpen(false)}
+          prompt={prompt}
+          isLoading={isDescribing}
+          error={promptError}
+        />
+        <AIPromptWorkbench
+          index={index}
+          open={workbenchOpen}
+          onClose={() => setWorkbenchOpen(false)}
         />
         <Row>
           <FormikCheckbox name={`sections.${index}.isEnabled`} label="Section is visible" />

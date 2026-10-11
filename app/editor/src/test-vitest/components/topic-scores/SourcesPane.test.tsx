@@ -37,6 +37,35 @@ it('shows Default Score without a rules count and removes without selecting the 
   expect(onSelect).not.toHaveBeenCalled();
 });
 
+it('flags a source that neither it nor its series uses topics', () => {
+  render(
+    <TestWrapper>
+      <SourcesPane
+        sources={[
+          source,
+          { ...source, id: 2, name: 'Weekly', code: 'WKY', useInTopics: false },
+          {
+            ...source,
+            id: 3,
+            name: 'Shows',
+            code: 'SHW',
+            useInTopics: false,
+            seriesUseInTopics: true,
+          },
+        ]}
+        onSelect={vi.fn()}
+        onRemove={vi.fn()}
+        onAdd={vi.fn()}
+        onDefaultScoreChange={vi.fn()}
+      />
+    </TestWrapper>,
+  );
+  expect(screen.getAllByText('(not scored)')).toHaveLength(1);
+  expect(screen.getByText('Weekly').closest('.source-name')).toHaveTextContent('(not scored)');
+  expect(screen.getByText('Shows').closest('.source-name')).toHaveTextContent('(series)');
+  expect(screen.getByText('Daily').closest('.source-name')).not.toHaveTextContent('(');
+});
+
 it('waits for confirmation and allows cancelling removal', async () => {
   const onRemove = vi.fn();
   const onClose = vi.fn();

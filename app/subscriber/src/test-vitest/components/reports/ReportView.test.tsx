@@ -27,6 +27,9 @@ vi.mock('../../../features/my-reports/edit/ReportEditContext', () => ({
   useReportEditContext: () => state.context,
 }));
 vi.mock('../../../features/my-reports/edit/view/styled', () => ({ ReportView: 'div' }));
+vi.mock('../../../features/my-reports/edit/view/ReportViewPromptButton', () => ({
+  ReportViewPromptButton: () => null,
+}));
 vi.mock('tno-core', () => ({
   AISectionStatusName: { NotStarted: 'NotStarted', Generating: 'Generating' },
   MessageTargetKey: { ReportStatus: 'ReportStatus' },

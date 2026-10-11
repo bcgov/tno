@@ -99,6 +99,15 @@ public class TopicScoreCalculatorTest
     }
 
     [Fact]
+    public void RuleWithoutSeriesMatchesContentWithOrWithoutSeries()
+    {
+        var rule = Rule(1, 10, 0);
+
+        Calculate(Input(), null, rule).Score.Should().Be(10);
+        Calculate(Input(seriesId: 3), null, rule).Score.Should().Be(10);
+    }
+
+    [Fact]
     public void ContentWithoutSeriesDoesNotMatchSeriesRule()
     {
         var result = Calculate(Input(), null, Rule(1, 10, 0, r => r.SeriesId = 3));
