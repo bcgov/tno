@@ -7,12 +7,19 @@ namespace TNO.DAL.Helpers;
 /// <summary>BC calendar dates and independent copies of historical report filters.</summary>
 public static class EventOfDayReportQuery
 {
+    /// <summary>The time zone the report's calendar days are measured in.</summary>
     public static TimeZoneInfo TimeZone => TimeZoneInfo.FindSystemTimeZoneById("America/Vancouver");
 
+    /// <summary>The UTC range [Start, End) covering the BC calendar 'date'.</summary>
+    /// <param name="date"></param>
+    /// <returns></returns>
     public static (DateTime Start, DateTime End) GetDayRange(DateOnly date) => (
         TimeZoneInfo.ConvertTimeToUtc(date.ToDateTime(TimeOnly.MinValue), TimeZone),
         TimeZoneInfo.ConvertTimeToUtc(date.AddDays(1).ToDateTime(TimeOnly.MinValue), TimeZone));
 
+    /// <summary>The BC calendar date of a UTC instant.</summary>
+    /// <param name="utc"></param>
+    /// <returns></returns>
     public static DateOnly GetDate(DateTime utc) => DateOnly.FromDateTime(
         TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(utc, DateTimeKind.Utc), TimeZone));
 
@@ -37,6 +44,13 @@ public static class EventOfDayReportQuery
         return end.AddSeconds(-1);
     }
 
+    /// <summary>
+    /// An independent copy of the filter's query as it would have run at 'publishedOn': relative dates are
+    /// anchored there, nothing after that day is included, and every hit is fetched in ID order.
+    /// </summary>
+    /// <param name="filter"></param>
+    /// <param name="publishedOn"></param>
+    /// <returns></returns>
     public static JsonObject Create(JsonDocument filter, DateTime publishedOn)
     {
         var query = JsonNode.Parse(filter.RootElement.GetRawText())!.AsObject();

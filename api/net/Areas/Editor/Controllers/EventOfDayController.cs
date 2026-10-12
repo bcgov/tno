@@ -40,6 +40,18 @@ public class EventOfDayController : ControllerBase
     private readonly ElasticOptions _elastic;
     private readonly JsonSerializerOptions _json;
 
+    /// <summary>
+    /// Creates a new instance of a EventOfDayController object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="instances"></param>
+    /// <param name="reportService"></param>
+    /// <param name="folders"></param>
+    /// <param name="settings"></param>
+    /// <param name="scores"></param>
+    /// <param name="content"></param>
+    /// <param name="reports"></param>
+    /// <param name="elastic"></param>
+    /// <param name="json"></param>
     public EventOfDayController(IReportInstanceService instances, IReportService reportService, IFolderService folders,
         ISettingService settings, ITopicScoreService scores, IContentService content, IReportHelper reports,
         IOptions<ElasticOptions> elastic, IOptions<JsonSerializerOptions> json)
@@ -108,6 +120,12 @@ public class EventOfDayController : ControllerBase
         ContentIds = contentIds.Distinct().OrderBy(id => id).ToArray()
     };
 
+    /// <summary>
+    /// The report instances published on the BC calendar 'date', and that day's stories with a topic
+    /// or in one of those reports, with their calculated topic scores.
+    /// </summary>
+    /// <param name="date"></param>
+    /// <returns></returns>
     [HttpGet]
     public IActionResult Find([FromQuery] DateOnly date)
     {
@@ -131,6 +149,8 @@ public class EventOfDayController : ControllerBase
     /// Add one of today's stories to the Event of the Day folder, so today's report includes it.
     /// The story must have a topic and be published today (BC), like the folder's collector requires.
     /// </summary>
+    /// <param name="contentId"></param>
+    /// <returns></returns>
     [HttpPost("folder/{contentId:long}")]
     public IActionResult AddToFolder(long contentId)
     {
@@ -143,11 +163,17 @@ public class EventOfDayController : ControllerBase
     }
 
     /// <summary>Regenerate a saved instance's output without saving it.</summary>
+    /// <param name="id"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
     [HttpPost("{id:long}/preview")]
     public Task<IActionResult> Preview(long id, [FromBody] EventOfDayPreviewRequest request)
         => PreviewAsync(GetInstance(id), request);
 
     /// <summary>Generate the output of a report for a past day that has none, without saving it.</summary>
+    /// <param name="date"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
     [HttpPost("preview")]
     public Task<IActionResult> PreviewDate([FromQuery] DateOnly date, [FromBody] EventOfDayPreviewRequest request)
         => PreviewAsync(NewInstance(date), request);
@@ -301,6 +327,9 @@ public class EventOfDayController : ControllerBase
     }
 
     /// <summary>Overwrite a saved instance's output with a reviewed preview.</summary>
+    /// <param name="id"></param>
+    /// <param name="preview"></param>
+    /// <returns></returns>
     [HttpPut("{id:long}/output")]
     public IActionResult Save(long id, [FromBody] EventOfDayPreview preview)
     {
@@ -313,6 +342,9 @@ public class EventOfDayController : ControllerBase
     }
 
     /// <summary>Save a generated preview as the report instance for a past day that has none.</summary>
+    /// <param name="date"></param>
+    /// <param name="preview"></param>
+    /// <returns></returns>
     [HttpPost("output")]
     public IActionResult SaveDate([FromQuery] DateOnly date, [FromBody] EventOfDayPreview preview)
     {
@@ -347,6 +379,7 @@ public class EventOfDayController : ControllerBase
         => preview.Content.Select(c => new Entities.ReportInstanceContent(instanceId, c.ContentId, c.SectionName, c.SortOrder));
 }
 
+/// <summary>What to change when a report is generated or regenerated for preview.</summary>
 public class EventOfDayPreviewRequest
 {
     /// <summary>Stories whose topics were edited; the preview waits until they are re-indexed.</summary>
@@ -357,16 +390,26 @@ public class EventOfDayPreviewRequest
     public bool Recollect { get; set; }
 }
 
+/// <summary>A story's place in one section of a report instance.</summary>
 public class EventOfDayContentLink
 {
+    /// <summary>The story's content ID.</summary>
     public long ContentId { get; set; }
+    /// <summary>The report section's name.</summary>
     public string SectionName { get; set; } = "";
+    /// <summary>The story's position within the section.</summary>
     public int SortOrder { get; set; }
 }
 
+/// <summary>
+/// Generated report output with the links that produced it, returned by a preview and sent back to save it.
+/// </summary>
 public class EventOfDayPreview : ReportResultModel
 {
+    /// <summary>The instance version the preview was generated from; saving fails if it changed.</summary>
     public long Version { get; set; }
+    /// <summary>The instance's publication date, or the one a generated day would be saved with.</summary>
     public DateTime? PublishedOn { get; set; }
+    /// <summary>The stories in each section of the generated output.</summary>
     public EventOfDayContentLink[] Content { get; set; } = Array.Empty<EventOfDayContentLink>();
 }

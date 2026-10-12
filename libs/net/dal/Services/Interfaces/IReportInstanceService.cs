@@ -4,9 +4,43 @@ namespace TNO.DAL.Services;
 
 public interface IReportInstanceService : IBaseService<ReportInstance, long>
 {
+    /// <summary>
+    /// Find the instances of the report published within [start, end), newest first, with their content links.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="start"></param>
+    /// <param name="end"></param>
+    /// <returns></returns>
     IEnumerable<ReportInstance> FindInstancesInRange(int reportId, DateTime start, DateTime end);
+
+    /// <summary>
+    /// Find the non-private content published within [start, end) that has a topic or is in an instance of the report.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="start"></param>
+    /// <param name="end"></param>
+    /// <returns></returns>
     IEnumerable<Content> FindTopicContentInRange(int reportId, DateTime start, DateTime end);
+
+    /// <summary>
+    /// Replace the instance's output and content links, keeping its publication and delivery details.
+    /// </summary>
+    /// <param name="instance"></param>
+    /// <param name="version">The version the output was generated from; a different stored version is rejected.</param>
+    /// <param name="subject"></param>
+    /// <param name="body"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
     ReportInstance SaveReportOutput(ReportInstance instance, long version, string subject, string body, IEnumerable<ReportInstanceContent> content);
+
+    /// <summary>
+    /// Create a report instance for a day within [start, end) that has none, with its generated output and content links.
+    /// </summary>
+    /// <param name="instance"></param>
+    /// <param name="start"></param>
+    /// <param name="end"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
     ReportInstance AddReportOutput(ReportInstance instance, DateTime start, DateTime end, IEnumerable<ReportInstanceContent> content);
 
     /// <summary>

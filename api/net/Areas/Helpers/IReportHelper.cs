@@ -81,6 +81,12 @@ public interface IReportHelper
         bool viewOnWebOnly = false,
         bool isPreview = false);
 
+    /// <summary>
+    /// Render a historical instance with explicitly populated content and aggregations.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="sections"></param>
+    /// <returns></returns>
     Task<ReportResultModel> GenerateReportSectionsAsync(
         Areas.Services.Models.ReportInstance.ReportInstanceModel model,
         Dictionary<string, ReportSectionModel> sections);

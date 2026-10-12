@@ -20,6 +20,13 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
     #endregion
 
     #region Methods
+    /// <summary>
+    /// Find the instances of the report published within [start, end), newest first, with their content links.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="start"></param>
+    /// <param name="end"></param>
+    /// <returns></returns>
     public IEnumerable<ReportInstance> FindInstancesInRange(int reportId, DateTime start, DateTime end)
     {
         return this.Context.ReportInstances.AsNoTracking()
@@ -28,6 +35,13 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
             .OrderByDescending(i => i.PublishedOn).ThenByDescending(i => i.Id).ToArray();
     }
 
+    /// <summary>
+    /// Find the non-private content published within [start, end) that has a topic or is in an instance of the report.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="start"></param>
+    /// <param name="end"></param>
+    /// <returns></returns>
     public IEnumerable<Content> FindTopicContentInRange(int reportId, DateTime start, DateTime end)
     {
         // Include the system topic so an excluded story can be assigned a topic again.
@@ -39,6 +53,16 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
             .OrderBy(c => c.Id).ToArray();
     }
 
+    /// <summary>
+    /// Replace the instance's output and content links, keeping its publication and delivery details.
+    /// </summary>
+    /// <param name="instance"></param>
+    /// <param name="version">The version the output was generated from; a different stored version is rejected.</param>
+    /// <param name="subject"></param>
+    /// <param name="body"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    /// <exception cref="DbUpdateConcurrencyException"></exception>
     public ReportInstance SaveReportOutput(ReportInstance instance, long version, string subject, string body, IEnumerable<ReportInstanceContent> content)
     {
         if (instance.Version != version)
@@ -87,6 +111,12 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
         return AddAndSave(instance);
     }
 
+    /// <summary>
+    /// The links keyed by content and section, after checking they belong to the instance and point at existing public content.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
     private Dictionary<(long ContentId, string SectionName), ReportInstanceContent> ValidateReportOutput(long instanceId, IEnumerable<ReportInstanceContent> content)
     {
         var incoming = content.ToDictionary(c => (c.ContentId, c.SectionName));
