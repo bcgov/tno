@@ -15,6 +15,7 @@ const state = vi.hoisted(() => ({
     describeInstanceSection: vi.fn(),
     testSection: vi.fn(),
     getTest: vi.fn(),
+    deleteTest: vi.fn(),
     chat: vi.fn(),
   },
   hub: undefined as undefined | ((message: any) => Promise<void>),
@@ -296,5 +297,23 @@ describe('AIPromptWorkbench', () => {
       expect.stringContaining('New shorter prompt'),
     );
     expect(onClose).toHaveBeenCalled();
+  });
+
+  it('drops the run when the workbench leaves the page', async () => {
+    state.api.testSection.mockResolvedValue(pending());
+    state.api.getTest.mockResolvedValue(completed());
+    state.api.deleteTest.mockResolvedValue(undefined);
+    const { unmount } = renderWorkbench(savedReport());
+
+    fireEvent.click(screen.getByRole('button', { name: 'Generate' }));
+    expect(await screen.findByRole('status')).toHaveTextContent('Generating');
+    await act(async () => {
+      await state.hub!({ id: 7, reportId: 1, message: 'ai-test:t1' });
+    });
+    expect(await screen.findByText('Done output')).toBeInTheDocument();
+    expect(state.api.deleteTest).not.toHaveBeenCalled();
+
+    unmount();
+    expect(state.api.deleteTest).toHaveBeenCalledWith(1, 9, 't1');
   });
 });

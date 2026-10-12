@@ -187,7 +187,7 @@ export interface IAIPromptWorkbenchProps {
  */
 export const AIPromptWorkbench: React.FC<IAIPromptWorkbenchProps> = ({ index, open, onClose }) => {
   const { values, setFieldValue, isSubmitting } = useReportEditContext();
-  const { testSection, getTest, describeSection, chat } = useReportAI();
+  const { testSection, getTest, deleteTest, describeSection, chat } = useReportAI();
   const hub = useApiHub();
 
   const section = values.sections[index];
@@ -197,6 +197,17 @@ export const AIPromptWorkbench: React.FC<IAIPromptWorkbenchProps> = ({ index, op
 
   const [draftPrompt, setDraftPrompt] = React.useState('');
   const [test, setTest] = React.useState<IReportAISectionTestResultModel>();
+  // The run is kept for this workbench only: drop it on the way out of the editor page.
+  const latest = React.useRef({ reportId, sectionId, testId: test?.testId, deleteTest });
+  latest.current = { reportId, sectionId, testId: test?.testId, deleteTest };
+  React.useEffect(
+    () => () => {
+      const { reportId, sectionId, testId, deleteTest } = latest.current;
+      if (testId && reportId && sectionId)
+        Promise.resolve(deleteTest(reportId, sectionId, testId)).catch(() => {});
+    },
+    [],
+  );
   const [tab, setTab] = React.useState<'output' | 'transcript' | 'chat'>('output');
   const [plan, setPlan] = React.useState<IReportAISectionPromptModel>();
   const [planFor, setPlanFor] = React.useState<string>();
@@ -412,8 +423,8 @@ export const AIPromptWorkbench: React.FC<IAIPromptWorkbenchProps> = ({ index, op
             </div>
           )}
           <p className="hint">
-            The draft is not saved until you apply it to the section and save the report. Test runs
-            are never stored and do not affect the preview or sent reports.
+            The draft is not saved until you apply it to the section and save the report. A test run
+            is kept only until you leave this page and never affects the preview or sent reports.
           </p>
         </div>
         <div className="results">

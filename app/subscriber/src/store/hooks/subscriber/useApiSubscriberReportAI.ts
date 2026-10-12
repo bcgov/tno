@@ -57,6 +57,11 @@ export const useApiSubscriberReportAI = (
         never
       >(`/subscriber/reports/${reportId}/sections/${sectionId}/ai/tests/${testId}`);
     },
+    deleteTest: (reportId: number, sectionId: number, testId: string) => {
+      return api.delete<never, AxiosResponse<never>, never>(
+        `/subscriber/reports/${reportId}/sections/${sectionId}/ai/tests/${testId}`,
+      );
+    },
     chat: (reportId: number, sectionId: number, request: IReportAIPromptChatRequestModel) => {
       return api.post<
         IReportAIPromptChatResultModel,
