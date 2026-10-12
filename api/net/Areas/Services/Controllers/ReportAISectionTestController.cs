@@ -30,7 +30,7 @@ namespace TNO.API.Areas.Services.Controllers;
 public class ReportAISectionTestController : ControllerBase
 {
     #region Variables
-    private readonly IReportAISectionTestCache _cache;
+    private readonly IReportAISectionTestStore _store;
     private readonly IUserService _userService;
     private readonly IKafkaMessenger _kafkaMessenger;
     private readonly KafkaHubConfig _kafkaHubOptions;
@@ -45,12 +45,12 @@ public class ReportAISectionTestController : ControllerBase
     /// <param name="kafkaMessenger"></param>
     /// <param name="kafkaHubOptions"></param>
     public ReportAISectionTestController(
-        IReportAISectionTestCache cache,
+        IReportAISectionTestStore store,
         IUserService userService,
         IKafkaMessenger kafkaMessenger,
         IOptions<KafkaHubConfig> kafkaHubOptions)
     {
-        _cache = cache;
+        _store = store;
         _userService = userService;
         _kafkaMessenger = kafkaMessenger;
         _kafkaHubOptions = kafkaHubOptions.Value;
@@ -73,7 +73,7 @@ public class ReportAISectionTestController : ControllerBase
     {
         model.TestId = testId;
         if (model.Status == ReportAISectionTestStatus.Pending) model.Status = ReportAISectionTestStatus.Failed;
-        var result = _cache.Complete(model);
+        var result = _store.Complete(model);
 
         var user = result.RequestorId.HasValue ? _userService.FindById(result.RequestorId.Value) : null;
         if (user != null)

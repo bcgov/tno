@@ -4757,6 +4757,119 @@ namespace TNO.DAL.Migrations
                     b.ToTable("report_ai_result");
                 });
 
+            modelBuilder.Entity("TNO.Entities.ReportAITest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime?>("CompletedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_on");
+
+                    b.Property<int>("CompletionTokens")
+                        .HasColumnType("integer")
+                        .HasColumnName("completion_tokens");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("DurationMs")
+                        .HasColumnType("bigint")
+                        .HasColumnName("duration_ms");
+
+                    b.Property<string>("Error")
+                        .HasColumnType("text")
+                        .HasColumnName("error");
+
+                    b.Property<string>("Output")
+                        .HasColumnType("text")
+                        .HasColumnName("output");
+
+                    b.Property<int>("PromptTokens")
+                        .HasColumnType("integer")
+                        .HasColumnName("prompt_tokens");
+
+                    b.Property<int>("ReductionDepth")
+                        .HasColumnType("integer")
+                        .HasColumnName("reduction_depth");
+
+                    b.Property<int>("ReportId")
+                        .HasColumnType("integer")
+                        .HasColumnName("report_id");
+
+                    b.Property<long>("ReportInstanceId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("report_instance_id");
+
+                    b.Property<int>("ReportSectionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("report_section_id");
+
+                    b.Property<int>("RequestCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("request_count");
+
+                    b.Property<int>("RequestorId")
+                        .HasColumnType("integer")
+                        .HasColumnName("requestor_id");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<int>("StoryCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("story_count");
+
+                    b.Property<string>("Transcript")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("transcript");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReportId");
+
+                    b.HasIndex("ReportInstanceId");
+
+                    b.HasIndex("ReportSectionId");
+
+                    b.HasIndex(new[] { "CreatedOn" }, "IX_report_ai_test_created_on");
+
+                    b.HasIndex(new[] { "RequestorId", "ReportSectionId" }, "IX_report_ai_test_requestor_section");
+
+                    b.ToTable("report_ai_test");
+                });
+
             modelBuilder.Entity("TNO.Entities.ReportInstance", b =>
                 {
                     b.Property<long>("Id")
@@ -8075,6 +8188,41 @@ namespace TNO.DAL.Migrations
                     b.Navigation("ReportInstance");
 
                     b.Navigation("ReportSection");
+                });
+
+            modelBuilder.Entity("TNO.Entities.ReportAITest", b =>
+                {
+                    b.HasOne("TNO.Entities.Report", "Report")
+                        .WithMany()
+                        .HasForeignKey("ReportId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TNO.Entities.ReportInstance", "ReportInstance")
+                        .WithMany()
+                        .HasForeignKey("ReportInstanceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TNO.Entities.ReportSection", "ReportSection")
+                        .WithMany()
+                        .HasForeignKey("ReportSectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TNO.Entities.User", "Requestor")
+                        .WithMany()
+                        .HasForeignKey("RequestorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Report");
+
+                    b.Navigation("ReportInstance");
+
+                    b.Navigation("ReportSection");
+
+                    b.Navigation("Requestor");
                 });
 
             modelBuilder.Entity("TNO.Entities.ReportInstance", b =>

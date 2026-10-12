@@ -34,6 +34,8 @@ export interface IReportAIController {
     sectionId: number,
     testId: string,
   ) => Promise<IReportAISectionTestResultModel | undefined>;
+  /** Remove a test run the workbench no longer needs. */
+  deleteTest: (reportId: number, sectionId: number, testId: string) => Promise<void>;
   /** Ask the section's model how to change the prompt. */
   chat: (
     reportId: number,
@@ -76,6 +78,16 @@ export const useReportAI = (): IReportAIController => {
           true,
         );
         return response.data && typeof response.data === 'object' ? response.data : undefined;
+      },
+      deleteTest: async (reportId, sectionId, testId) => {
+        // Housekeeping on the way out: no spinner and no error toast.
+        await dispatch(
+          'ai-test-delete',
+          () => api.deleteTest(reportId, sectionId, testId),
+          undefined,
+          true,
+          true,
+        );
       },
       chat: async (reportId, sectionId, request) => {
         const response = await dispatch<IReportAIPromptChatResultModel>('ai-chat', () =>
