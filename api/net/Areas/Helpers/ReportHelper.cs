@@ -408,12 +408,21 @@ public class ReportHelper : IReportHelper
         };
 
     /// <summary>
-    /// Link the instance's content with its section names.
+    /// Render a historical instance with explicitly populated content and aggregations.
     /// </summary>
     /// <param name="model"></param>
+    /// <param name="sections"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="InvalidOperationException"></exception>
+    public Task<ReportResultModel> GenerateReportSectionsAsync(
+        Areas.Services.Models.ReportInstance.ReportInstanceModel model,
+        Dictionary<string, ReportSectionModel> sections)
+    {
+        var report = model.Report ?? throw new ArgumentException("Report is required.");
+        return GenerateReportAsync(report, model, sections, false, false);
+    }
+
     private static Dictionary<string, ReportSectionModel> GetInstanceSections(Areas.Services.Models.ReportInstance.ReportInstanceModel model)
     {
         var reportModel = model.Report ?? throw new ArgumentException("Parameter 'model.Report' is required");

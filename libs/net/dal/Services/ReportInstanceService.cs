@@ -20,6 +20,83 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
     #endregion
 
     #region Methods
+    public IEnumerable<ReportInstance> FindInstancesInRange(int reportId, DateTime start, DateTime end)
+    {
+        return this.Context.ReportInstances.AsNoTracking()
+            .Include(i => i.ContentManyToMany)
+            .Where(i => i.ReportId == reportId && i.PublishedOn >= start && i.PublishedOn < end)
+            .OrderByDescending(i => i.PublishedOn).ThenByDescending(i => i.Id).ToArray();
+    }
+
+    public IEnumerable<Content> FindTopicContentInRange(int reportId, DateTime start, DateTime end)
+    {
+        // Include the system topic so an excluded story can be assigned a topic again.
+        return this.Context.Contents.AsNoTracking().AsSplitQuery()
+            .Include(c => c.Source).Include(c => c.Series).Include(c => c.MediaType)
+            .Include(c => c.TopicsManyToMany).ThenInclude(t => t.Topic)
+            .Where(c => !c.IsPrivate && c.PublishedOn >= start && c.PublishedOn < end &&
+                (c.TopicsManyToMany.Any() || c.ReportsManyToMany.Any(r => r.Instance!.ReportId == reportId)))
+            .OrderBy(c => c.Id).ToArray();
+    }
+
+    public ReportInstance SaveReportOutput(ReportInstance instance, long version, string subject, string body, IEnumerable<ReportInstanceContent> content)
+    {
+        if (instance.Version != version)
+            throw new DbUpdateConcurrencyException("This report was changed by another user. Refresh and regenerate it before saving.");
+
+        var incoming = ValidateReportOutput(instance.Id, content);
+        var existing = this.Context.ReportInstanceContents.Where(c => c.InstanceId == instance.Id).ToArray();
+        foreach (var link in existing)
+        {
+            if (incoming.Remove((link.ContentId, link.SectionName), out var replacement))
+                link.SortOrder = replacement.SortOrder;
+            else
+                this.Context.ReportInstanceContents.Remove(link);
+        }
+        this.Context.ReportInstanceContents.AddRange(incoming.Values);
+        instance.Subject = subject;
+        instance.Body = body;
+        // Preserve the original publication date, delivery status and sent date.
+        // Save the output and its links in the same EF transaction, with a version check.
+        return UpdateAndSave(instance);
+    }
+
+    /// <summary>
+    /// Create a report instance for a day that has none, with its generated output and content links.
+    /// The reporting service reuses the newest instance when it has not been sent, so the instance is
+    /// stamped as sent on its publication date even though no email went out.
+    /// </summary>
+    /// <param name="instance"></param>
+    /// <param name="start"></param>
+    /// <param name="end"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    public ReportInstance AddReportOutput(ReportInstance instance, DateTime start, DateTime end, IEnumerable<ReportInstanceContent> content)
+    {
+        if (instance.Id != 0) throw new ArgumentException("A new report instance is required.", nameof(instance));
+        if (!instance.PublishedOn.HasValue || instance.PublishedOn < start || instance.PublishedOn >= end)
+            throw new TNO.Core.Exceptions.BadRequestException("The report publication date is not within the selected day.");
+        if (this.Context.ReportInstances.Any(i => i.ReportId == instance.ReportId && i.PublishedOn >= start && i.PublishedOn < end))
+            throw new TNO.Core.Exceptions.BadRequestException("A report already exists for this date. Refresh and regenerate it before saving.");
+
+        var incoming = ValidateReportOutput(0, content);
+        instance.ContentManyToMany.Clear();
+        instance.ContentManyToMany.AddRange(incoming.Values);
+        instance.SentOn = instance.PublishedOn;
+        instance.Status = ReportStatus.Completed;
+        return AddAndSave(instance);
+    }
+
+    private Dictionary<(long ContentId, string SectionName), ReportInstanceContent> ValidateReportOutput(long instanceId, IEnumerable<ReportInstanceContent> content)
+    {
+        var incoming = content.ToDictionary(c => (c.ContentId, c.SectionName));
+        var ids = incoming.Values.Select(c => c.ContentId).Distinct().ToArray();
+        if (incoming.Values.Any(c => c.InstanceId != instanceId) ||
+            this.Context.Contents.Count(c => ids.Contains(c.Id) && !c.IsPrivate) != ids.Length)
+            throw new TNO.Core.Exceptions.BadRequestException("The preview contains missing or private stories. Regenerate it before saving.");
+        return incoming;
+    }
+
     /// <summary>
     /// Find the report instance for the specified 'id'.
     /// </summary>

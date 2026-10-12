@@ -81,6 +81,10 @@ public interface IReportHelper
         bool viewOnWebOnly = false,
         bool isPreview = false);
 
+    Task<ReportResultModel> GenerateReportSectionsAsync(
+        Areas.Services.Models.ReportInstance.ReportInstanceModel model,
+        Dictionary<string, ReportSectionModel> sections);
+
     /// <summary>
     /// Preview the report instance without waiting for its AI sections. A section without a stored
     /// result shows that it is being generated, and the reporting service is asked to generate it;

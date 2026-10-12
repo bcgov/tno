@@ -4,6 +4,11 @@ namespace TNO.DAL.Services;
 
 public interface IReportInstanceService : IBaseService<ReportInstance, long>
 {
+    IEnumerable<ReportInstance> FindInstancesInRange(int reportId, DateTime start, DateTime end);
+    IEnumerable<Content> FindTopicContentInRange(int reportId, DateTime start, DateTime end);
+    ReportInstance SaveReportOutput(ReportInstance instance, long version, string subject, string body, IEnumerable<ReportInstanceContent> content);
+    ReportInstance AddReportOutput(ReportInstance instance, DateTime start, DateTime end, IEnumerable<ReportInstanceContent> content);
+
     /// <summary>
     /// Find all report instances for the specified 'reportId' and 'ownerId'.
     /// </summary>
