@@ -18,8 +18,8 @@ namespace TNO.API.Areas.Subscriber.Controllers;
 /// <summary>
 /// ReportAIController class, lets the owner of a report see, try and discuss the prompt of one of
 /// its AI sections: the requests the section sends to its model, a test run with draft settings,
-/// and a conversation with the model about how to change the prompt. Test runs are kept in memory
-/// only (see <see cref="ReportAISectionTestCache"/>).
+/// and a conversation with the model about how to change the prompt. Test runs are kept briefly in
+/// the database (see <see cref="ReportAISectionTestStore"/>) so both API deployments see them.
 /// </summary>
 [ClientRoleAuthorize(ClientRole.Subscriber)]
 [ApiController]
@@ -38,7 +38,7 @@ public class ReportAIController : ControllerBase
     private readonly IReportInstanceService _reportInstanceService;
     private readonly IReportHelper _reportHelper;
     private readonly IImpersonationHelper _impersonate;
-    private readonly IReportAISectionTestCache _cache;
+    private readonly IReportAISectionTestStore _store;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -57,14 +57,14 @@ public class ReportAIController : ControllerBase
         IReportInstanceService reportInstanceService,
         IReportHelper reportHelper,
         IImpersonationHelper impersonateHelper,
-        IReportAISectionTestCache cache,
+        IReportAISectionTestStore store,
         IOptions<JsonSerializerOptions> serializerOptions)
     {
         _reportService = reportService;
         _reportInstanceService = reportInstanceService;
         _reportHelper = reportHelper;
         _impersonate = impersonateHelper;
-        _cache = cache;
+        _store = store;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -108,12 +108,16 @@ public class ReportAIController : ControllerBase
     public async Task<IActionResult> TestAsync(int id, int sectionId, [FromBody] ReportSectionSettingsModel settings)
     {
         var user = _impersonate.GetCurrentUser();
-        var (report, instance) = LoadReportAndInstance(id, sectionId);
-        if (_cache.FindPending(user.Id, sectionId) != null)
+        var report = LoadReport(id, sectionId, user.Id);
+        // Only the instance id is needed. Its content is deliberately not loaded: that graph is read
+        // without tracking and carries duplicate lookups, which collide in the change tracker when
+        // the run is saved below.
+        var instanceId = CurrentInstanceId(report.Id, user.Id);
+        if (_store.FindPending(user.Id, sectionId) != null)
             throw new BadRequestException("A test of this section is still running. Wait for it to finish before starting another.");
 
-        var result = _cache.Start(report.Id, instance.Id, sectionId, user.Id);
-        await _reportHelper.RequestReportAISectionTestAsync(report.Id, instance.Id, result.TestId, sectionId, settings, user.Id);
+        var result = _store.Start(report.Id, instanceId, sectionId, user.Id);
+        await _reportHelper.RequestReportAISectionTestAsync(report.Id, instanceId, result.TestId, sectionId, settings, user.Id);
         return new JsonResult(result);
     }
 
@@ -132,10 +136,30 @@ public class ReportAIController : ControllerBase
     public IActionResult FindTest(int id, int sectionId, Guid testId)
     {
         var user = _impersonate.GetCurrentUser();
-        var result = _cache.Find(testId);
+        var result = _store.Find(testId);
         if (result == null || result.ReportId != id || result.SectionId != sectionId) return NoContent();
         if (result.RequestorId != user.Id) throw new NotAuthorizedException("Not authorized to view this test run");
         return new JsonResult(result);
+    }
+
+    /// <summary>
+    /// Remove a test run the workbench no longer needs. Unknown runs are ignored.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="sectionId"></param>
+    /// <param name="testId"></param>
+    /// <returns></returns>
+    [HttpDelete("tests/{testId:guid}")]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult DeleteTest(int id, int sectionId, Guid testId)
+    {
+        var user = _impersonate.GetCurrentUser();
+        var result = _store.Find(testId);
+        if (result == null || result.ReportId != id || result.SectionId != sectionId) return NoContent();
+        if (result.RequestorId != user.Id) throw new NotAuthorizedException("Not authorized to remove this test run");
+        _store.Delete(testId);
+        return NoContent();
     }
 
     /// <summary>
@@ -160,7 +184,7 @@ public class ReportAIController : ControllerBase
         ReportAISectionTestResultModel? test = null;
         if (request.TestId.HasValue)
         {
-            test = _cache.Find(request.TestId.Value);
+            test = _store.Find(request.TestId.Value);
             if (test != null && (test.RequestorId != user.Id || test.SectionId != sectionId)) test = null;
         }
         var result = await _reportHelper.ChatAboutReportAISectionAsync(request.Settings, request, test, cancellationToken);
@@ -185,13 +209,24 @@ public class ReportAIController : ControllerBase
     /// The report and its current instance with content, as the preview loads them.
     /// </summary>
     /// <exception cref="BadRequestException">The report has no instance to read content from.</exception>
+    /// <summary>
+    /// The id of the report's current instance, which the prompt tools read.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    /// <exception cref="BadRequestException">The report has never been generated.</exception>
+    private long CurrentInstanceId(int reportId, int userId)
+    {
+        return _reportService.GetLatestInstances(reportId, userId).FirstOrDefault()?.Id
+            ?? throw new BadRequestException("Generate the report before viewing or testing its AI section prompts.");
+    }
+
     private (Entities.Report Report, Services.Models.ReportInstance.ReportInstanceModel Instance) LoadReportAndInstance(int id, int sectionId)
     {
         var user = _impersonate.GetCurrentUser();
         var report = LoadReport(id, sectionId, user.Id);
-        var current = _reportService.GetLatestInstances(id, user.Id).FirstOrDefault()
-            ?? throw new BadRequestException("Generate the report before viewing or testing its AI section prompts.");
-        var instance = _reportInstanceService.FindById(current.Id) ?? throw new NoContentException("Report instance does not exist");
+        var instance = _reportInstanceService.FindById(CurrentInstanceId(report.Id, user.Id)) ?? throw new NoContentException("Report instance does not exist");
         instance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(instance.Id));
         return (report, new Services.Models.ReportInstance.ReportInstanceModel(instance, _serializerOptions));
     }

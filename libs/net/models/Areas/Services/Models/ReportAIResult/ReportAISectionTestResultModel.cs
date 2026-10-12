@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace TNO.API.Areas.Services.Models.ReportAIResult;
 
 /// <summary>
@@ -57,5 +59,77 @@ public class ReportAISectionTestResultModel
 
     /// <summary>get/set - When the run finished.</summary>
     public DateTime? CompletedOn { get; set; }
+    #endregion
+
+    #region Constructors
+    /// <summary>
+    /// Creates a new instance of a ReportAISectionTestResultModel object.
+    /// </summary>
+    public ReportAISectionTestResultModel() { }
+
+    /// <summary>
+    /// Creates a new instance of a ReportAISectionTestResultModel object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="options">Serializer options the transcript was stored with.</param>
+    public ReportAISectionTestResultModel(Entities.ReportAITest entity, JsonSerializerOptions options)
+    {
+        this.TestId = entity.Id;
+        this.ReportId = entity.ReportId;
+        this.ReportInstanceId = entity.ReportInstanceId;
+        this.SectionId = entity.ReportSectionId;
+        this.RequestorId = entity.RequestorId;
+        this.Status = (ReportAISectionTestStatus)(int)entity.Status;
+        this.Output = entity.Output;
+        this.Error = entity.Error;
+        this.RequestCount = entity.RequestCount;
+        this.PromptTokens = entity.PromptTokens;
+        this.CompletionTokens = entity.CompletionTokens;
+        this.DurationMs = entity.DurationMs;
+        this.StoryCount = entity.StoryCount;
+        this.ReductionDepth = entity.ReductionDepth;
+        this.Transcript = ParseTranscript(entity.Transcript, options);
+        this.CreatedOn = entity.CreatedOn;
+        this.CompletedOn = entity.CompletedOn;
+    }
+    #endregion
+
+    #region Methods
+    /// <summary>
+    /// Copy this outcome into a DB entity.
+    /// </summary>
+    /// <param name="options">Serializer options to store the transcript with.</param>
+    /// <returns></returns>
+    public Entities.ReportAITest ToEntity(JsonSerializerOptions options)
+    {
+        return new Entities.ReportAITest(this.TestId, this.ReportId, this.ReportInstanceId, this.SectionId, this.RequestorId ?? 0)
+        {
+            Status = (Entities.ReportAITestStatus)(int)this.Status,
+            Output = this.Output,
+            Error = this.Error,
+            RequestCount = this.RequestCount,
+            PromptTokens = this.PromptTokens,
+            CompletionTokens = this.CompletionTokens,
+            DurationMs = this.DurationMs,
+            StoryCount = this.StoryCount,
+            ReductionDepth = this.ReductionDepth,
+            Transcript = JsonSerializer.Serialize(this.Transcript, options),
+            CreatedOn = this.CreatedOn,
+            CompletedOn = this.CompletedOn,
+        };
+    }
+
+    private static LlmExchangeModel[] ParseTranscript(string? json, JsonSerializerOptions options)
+    {
+        if (String.IsNullOrWhiteSpace(json)) return Array.Empty<LlmExchangeModel>();
+        try
+        {
+            return JsonSerializer.Deserialize<LlmExchangeModel[]>(json, options) ?? Array.Empty<LlmExchangeModel>();
+        }
+        catch (JsonException)
+        {
+            return Array.Empty<LlmExchangeModel>();
+        }
+    }
     #endregion
 }

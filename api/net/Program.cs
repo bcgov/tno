@@ -215,7 +215,7 @@ builder.Services
     .AddScoped<IAnalysisRequestSender, AnalysisRequestSender>()
     .AddScoped<IWorkOrderRequestSender, WorkOrderRequestSender>()
     .AddScoped<TNO.TemplateEngine.IReportAIResultStore, ReportAIResultStore>()
-    .AddSingleton<IReportAISectionTestCache, ReportAISectionTestCache>()
+    .AddScoped<IReportAISectionTestStore, ReportAISectionTestStore>()
     .AddScoped<TNO.TemplateEngine.IReportEvidenceProvider, ReportEvidenceProvider>()
     .AddTemplateEngine(config)
     .AddKafkaMessenger(config)
