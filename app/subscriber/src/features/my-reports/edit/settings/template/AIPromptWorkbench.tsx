@@ -26,14 +26,28 @@ export const AI_TEST_POLL_MS = 15000;
 /** How long the API keeps a run; after that the workbench stops asking. */
 export const AI_TEST_LIFETIME_MS = 30 * 60 * 1000;
 
+/**
+ * The dialog body is a column so the workbench can take the remaining height and keep its
+ * columns inside it; the body then only scrolls on narrow screens, where the columns stack.
+ */
+const WorkbenchDialog = styled(AIPromptDialog)`
+  .ai-dialog-body {
+    display: flex;
+    flex-direction: column;
+  }
+`;
+
 const Workbench = styled.div`
   display: grid;
   grid-template-columns: minmax(20rem, 1fr) minmax(24rem, 1.3fr);
+  grid-template-rows: minmax(0, 1fr);
   gap: 1.25rem;
+  flex: 1 1 auto;
   min-height: 60vh;
 
   @media (max-width: 70rem) {
     grid-template-columns: 1fr;
+    grid-template-rows: auto;
   }
 
   .draft {
@@ -41,9 +55,32 @@ const Workbench = styled.div`
     flex-direction: column;
     gap: 0.5rem;
     min-width: 0;
+    min-height: 0;
+
+    /* The editor fills the column and scrolls its own text, instead of growing the dialog. */
+    > div:has(.ql-container) {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    .editor {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
 
     .ql-container {
+      flex: 1 1 auto;
+      height: auto;
       min-height: 18rem;
+      overflow: hidden;
+    }
+
+    .ql-editor {
+      overflow-y: auto;
     }
   }
 
@@ -351,7 +388,7 @@ export const AIPromptWorkbench: React.FC<IAIPromptWorkbenchProps> = ({ index, op
   if (!section) return null;
 
   return (
-    <AIPromptDialog
+    <WorkbenchDialog
       open={open}
       title={`Prompt workbench: ${section.settings.label || section.name}`}
       onClose={onClose}
@@ -545,6 +582,6 @@ export const AIPromptWorkbench: React.FC<IAIPromptWorkbenchProps> = ({ index, op
           </div>
         </div>
       </Workbench>
-    </AIPromptDialog>
+    </WorkbenchDialog>
   );
 };

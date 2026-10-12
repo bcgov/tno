@@ -9,6 +9,65 @@ export const EventOfTheDayList = styled.div`
     flex-flow: column;
   }
 
+  .date-navigation,
+  .selection-actions {
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+    label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    input,
+    select {
+      padding: 0.4rem;
+    }
+  }
+  .history-help {
+    margin: 0.75rem;
+  }
+  .add-stories {
+    margin: 0 0.75rem;
+    .added-stories {
+      list-style: none;
+      margin: 0.5rem 0 0;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      li {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        border: 1px solid #ccc;
+        border-radius: 0.25rem;
+        padding: 0.15rem 0.25rem 0.15rem 0.5rem;
+      }
+    }
+  }
+  .topic-editor {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+  }
+  .topic-editor:disabled {
+    opacity: 0.65;
+    pointer-events: none;
+  }
+  .report-preview {
+    border-top: 1px solid #ccc;
+    padding: 1rem;
+    iframe {
+      width: 100%;
+      height: 75vh;
+      border: 1px solid #ccc;
+      background: white;
+    }
+  }
+
   .row-header {
     font-weight: bold;
     padding: 0.25em 0.5em 0.25em 0.5em;
