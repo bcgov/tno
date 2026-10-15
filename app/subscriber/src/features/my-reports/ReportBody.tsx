@@ -19,7 +19,7 @@ const Body = styled.div`
   }
 `;
 
-/** Shared by the editable preview and standalone report instance view. */
+/** Shared by the editable preview and the AI prompt workbench. */
 export const ReportBody = React.memo(({ html }: { html: string }) => (
   <Body className="preview-body" dangerouslySetInnerHTML={{ __html: html }} />
 ));
