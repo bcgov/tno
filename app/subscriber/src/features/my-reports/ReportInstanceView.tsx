@@ -3,7 +3,6 @@ import { useApp, useReportInstances } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
 import { Col, Loading, NotFound, Show } from 'tno-core';
 
-import { ReportBody } from './ReportBody';
 import * as styled from './styled';
 
 export interface IReportInstanceViewProps {
@@ -56,7 +55,12 @@ export const ReportInstanceView: React.FC<IReportInstanceViewProps> = ({
           className="preview-subject"
           dangerouslySetInnerHTML={{ __html: reportOutput?.subject ?? '' }}
         ></div>
-        <ReportBody html={reportOutput?.body ?? ''} />
+        {/* Rendered without ReportBody's deferred rendering, which leaves WebKit (all iOS browsers)
+            unable to scroll to the report's story anchors. */}
+        <div
+          className="preview-body"
+          dangerouslySetInnerHTML={{ __html: reportOutput?.body ?? '' }}
+        ></div>
       </Col>
     </styled.ReportInstanceView>
   );
