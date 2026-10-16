@@ -2059,6 +2059,8 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "PublishedOn", "Status" }, "IX_content_reference");
 
+                    b.HasIndex(new[] { "CreatedOn" }, "IX_content_reference_created_on");
+
                     b.HasIndex(new[] { "Source", "Uid" }, "IX_source_uid");
 
                     b.ToTable("content_reference");

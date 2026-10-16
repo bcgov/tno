@@ -18,6 +18,16 @@ public class ContentReferenceFilter : PageFilter
     public DateTime? UpdatedOn { get; set; }
     public DateTime? UpdatedStartOn { get; set; }
     public DateTime? UpdatedEndOn { get; set; }
+
+    /// <summary>
+    /// get/set - Only references created (discovered by the ingest) on or after this date.
+    /// </summary>
+    public DateTime? CreatedStartOn { get; set; }
+
+    /// <summary>
+    /// get/set - Only references created (discovered by the ingest) before this date.
+    /// </summary>
+    public DateTime? CreatedEndOn { get; set; }
     #endregion
 
     #region Constructors
@@ -41,6 +51,9 @@ public class ContentReferenceFilter : PageFilter
         this.UpdatedOn = filter.GetDateTimeNullValue(nameof(this.UpdatedOn));
         this.UpdatedStartOn = filter.GetDateTimeNullValue(nameof(this.UpdatedStartOn));
         this.UpdatedEndOn = filter.GetDateTimeNullValue(nameof(this.UpdatedEndOn));
+
+        this.CreatedStartOn = filter.GetDateTimeNullValue(nameof(this.CreatedStartOn));
+        this.CreatedEndOn = filter.GetDateTimeNullValue(nameof(this.CreatedEndOn));
     }
     #endregion
 }

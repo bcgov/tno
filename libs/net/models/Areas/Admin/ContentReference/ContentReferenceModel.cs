@@ -37,6 +37,16 @@ public class ContentReferenceModel : AuditColumnsModel
     /// get/set - When the content source was updated.
     /// </summary>
     public DateTime? SourceUpdateOn { get; set; }
+
+    /// <summary>
+    /// get/set - The content imported for this reference, when it has been imported.
+    /// </summary>
+    public long? ContentId { get; set; }
+
+    /// <summary>
+    /// get/set - The headline of the content imported for this reference.
+    /// </summary>
+    public string? Headline { get; set; }
     #endregion
 
     #region Constructors
@@ -56,6 +66,19 @@ public class ContentReferenceModel : AuditColumnsModel
         this.Status = reference.Status;
         this.Topic = reference.Topic;
         this.PublishedOn = reference.PublishedOn;
+        this.SourceUpdateOn = reference.SourceUpdateOn;
+    }
+
+    /// <summary>
+    /// Creates a new instance of a ContentReferenceModel object, initializes with specified parameter.
+    /// </summary>
+    /// <param name="reference"></param>
+    /// <param name="contentId">The content imported for this reference.</param>
+    /// <param name="headline">The headline of the content imported for this reference.</param>
+    public ContentReferenceModel(Entities.ContentReference reference, long? contentId, string? headline) : this(reference)
+    {
+        this.ContentId = contentId;
+        this.Headline = headline;
     }
     #endregion
 

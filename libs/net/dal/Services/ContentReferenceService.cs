@@ -39,8 +39,9 @@ public class ContentReferenceService : BaseService<ContentReference, string[]>, 
             query = query.Where(c => filter.Sources.Contains(c.Source));
         if (!String.IsNullOrWhiteSpace(filter.Uid))
             query = query.Where(c => EF.Functions.Like(c.Uid.ToLower(), $"%{filter.Uid.ToLower()}%"));
+        // An ingest posts all its content to one topic, so the topic identifies the ingest's references.
         if (!String.IsNullOrWhiteSpace(filter.Topic))
-            query = query.Where(c => EF.Functions.Like(c.Topic.ToLower(), $"%{filter.Topic.ToLower()}%"));
+            query = query.Where(c => c.Topic == filter.Topic);
         if (filter.MediaTypeIds?.Any() == true)
             query = from cf in query
                     join c in this.Context.Contents on cf.Uid equals c.Uid
@@ -64,6 +65,12 @@ public class ContentReferenceService : BaseService<ContentReference, string[]>, 
             query = query.Where(c => c.SourceUpdateOn >= filter.UpdatedStartOn.Value.ToUniversalTime());
         else if (filter.UpdatedEndOn.HasValue)
             query = query.Where(c => c.SourceUpdateOn <= filter.UpdatedEndOn.Value.ToUniversalTime());
+
+        // Created is when the ingest discovered the content, an end date is exclusive.
+        if (filter.CreatedStartOn.HasValue)
+            query = query.Where(c => c.CreatedOn >= filter.CreatedStartOn.Value.ToUniversalTime());
+        if (filter.CreatedEndOn.HasValue)
+            query = query.Where(c => c.CreatedOn < filter.CreatedEndOn.Value.ToUniversalTime());
 
         var total = query.Count();
 
@@ -117,6 +124,33 @@ public class ContentReferenceService : BaseService<ContentReference, string[]>, 
             .AsNoTracking()
             .Where(c => c.Uid.ToLower() == uid.ToLower()).Select(c => c.Id)
             .ToArray();
+    }
+
+    /// <summary>
+    /// Find the content imported for each of the specified 'references'.
+    /// Content is matched on its source code and uid.
+    /// </summary>
+    /// <param name="references"></param>
+    /// <returns>The content id and headline for each reference that has been imported, keyed by source and uid.</returns>
+    public Dictionary<(string Source, string Uid), (long Id, string Headline)> FindContents(IEnumerable<ContentReference> references)
+    {
+        var keys = references.Select(r => (r.Source, r.Uid)).Distinct().ToArray();
+        if (keys.Length == 0) return new Dictionary<(string Source, string Uid), (long Id, string Headline)>();
+
+        var sources = keys.Select(k => k.Source).Distinct().ToArray();
+        var uids = keys.Select(k => k.Uid).Distinct().ToArray();
+        // Content is only indexed on (content_type, source, uid), so include every content type to use the index.
+        var contentTypes = Enum.GetValues<ContentType>();
+        var contents = this.Context.Contents
+            .AsNoTracking()
+            .Where(c => contentTypes.Contains(c.ContentType) && sources.Contains(c.OtherSource) && uids.Contains(c.Uid))
+            .Select(c => new { c.OtherSource, c.Uid, c.Id, c.Headline })
+            .ToArray();
+
+        var result = new Dictionary<(string Source, string Uid), (long Id, string Headline)>();
+        foreach (var content in contents.OrderBy(c => c.Id))
+            result.TryAdd((content.OtherSource, content.Uid), (content.Id, content.Headline));
+        return result;
     }
     #endregion
 }
