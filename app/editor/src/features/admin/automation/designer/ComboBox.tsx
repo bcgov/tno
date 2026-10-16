@@ -1,11 +1,18 @@
 import React from 'react';
+import { createFilter } from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import styled from 'styled-components';
 
-interface IComboOption {
+export interface IComboOption {
   label: string;
   value: string;
+  /** Text matched when searching, defaults to the label and value. */
+  search?: string;
 }
+
+const filterOption = createFilter<IComboOption>({
+  stringify: (option) => option.data.search ?? `${option.label} ${option.value}`,
+});
 
 /**
  * Mirrors tno-core's SelectField control styling (primary variant) so the combobox is
@@ -56,8 +63,11 @@ export interface IComboBoxProps {
   label?: string;
   /** The committed text value. */
   value: string;
-  /** Suggested values shown in the dropdown; anything typed is also accepted. */
-  suggestions: string[];
+  /**
+   * Suggested values shown in the dropdown; anything typed is also accepted.
+   * An option shows its label in the dropdown and commits its value.
+   */
+  suggestions: Array<string | IComboOption>;
   onChange: (value: string) => void;
   placeholder?: string;
   width?: string;
@@ -83,8 +93,12 @@ export const ComboBox: React.FC<IComboBoxProps> = ({
 }) => {
   const inputId = React.useId();
   const [inputValue, setInputValue] = React.useState('');
-  const options: IComboOption[] = suggestions.map((text) => ({ label: text, value: text }));
-  const selected: IComboOption | null = value ? { label: value, value } : null;
+  const options: IComboOption[] = suggestions.map((option) =>
+    typeof option === 'string' ? { label: option, value: option } : option,
+  );
+  const selected: IComboOption | null = value
+    ? options.find((option) => option.value === value) ?? { label: value, value }
+    : null;
 
   return (
     <ComboBoxWrapper className="frm-in" $width={width}>
@@ -97,6 +111,7 @@ export const ComboBox: React.FC<IComboBoxProps> = ({
         classNamePrefix="rs"
         placeholder={placeholder}
         options={options}
+        filterOption={filterOption}
         value={selected}
         inputValue={inputValue}
         isClearable={isClearable}

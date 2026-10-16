@@ -16,5 +16,15 @@ public static class ContentReferenceMetaDataKeys
     public const string EoDCategory = "EoDCategory";
     public const string TopicScore = "TopicScore";
     public const string ToneValue = "ToneValue";
+
+    /// <summary>
+    /// The normalized headline used to find duplicate stories across syndication feeds.
+    /// </summary>
+    public const string DedupHeadline = "DedupHeadline";
+
+    /// <summary>
+    /// The SimHash fingerprint (16 hex characters) of the story text used to find duplicate stories across syndication feeds.
+    /// </summary>
+    public const string DedupBodyHash = "DedupBodyHash";
     #endregion
 }

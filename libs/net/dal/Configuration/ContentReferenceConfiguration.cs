@@ -16,6 +16,7 @@ public class ContentReferenceConfiguration : AuditColumnsConfiguration<ContentRe
 
         builder.HasIndex(m => new { m.PublishedOn, m.Status }, "IX_content_reference");
         builder.HasIndex(m => new { m.Source, m.Uid }, "IX_source_uid");
+        builder.HasIndex(m => m.CreatedOn, "IX_content_reference_created_on");
 
         base.Configure(builder);
     }

@@ -477,6 +477,31 @@ public class ApiService : IApiService
     }
 
     /// <summary>
+    /// Make an HTTP request to the api to find a page of content references that match the filter.
+    /// Supports the sources, status, topic, published and updated date range, page and quantity filters.
+    /// </summary>
+    /// <param name="filter"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<API.Areas.Services.Models.ContentReference.ContentReferenceModel>> FindContentReferencesAsync(TNO.Models.Filters.ContentReferenceFilter filter)
+    {
+        var query = new List<KeyValuePair<string, string?>>();
+        foreach (var source in filter.Sources ?? Array.Empty<string>())
+            query.Add(new KeyValuePair<string, string?>("sources", source));
+        if (filter.Status.HasValue) query.Add(new KeyValuePair<string, string?>("status", $"{(int)filter.Status.Value}"));
+        if (!String.IsNullOrWhiteSpace(filter.Topic)) query.Add(new KeyValuePair<string, string?>("topic", filter.Topic));
+        if (filter.PublishedStartOn.HasValue) query.Add(new KeyValuePair<string, string?>("publishedStartOn", filter.PublishedStartOn.Value.ToUniversalTime().ToString("o")));
+        if (filter.PublishedEndOn.HasValue) query.Add(new KeyValuePair<string, string?>("publishedEndOn", filter.PublishedEndOn.Value.ToUniversalTime().ToString("o")));
+        if (filter.UpdatedStartOn.HasValue) query.Add(new KeyValuePair<string, string?>("updatedStartOn", filter.UpdatedStartOn.Value.ToUniversalTime().ToString("o")));
+        if (filter.UpdatedEndOn.HasValue) query.Add(new KeyValuePair<string, string?>("updatedEndOn", filter.UpdatedEndOn.Value.ToUniversalTime().ToString("o")));
+        if (filter.Page.HasValue) query.Add(new KeyValuePair<string, string?>("page", $"{filter.Page.Value}"));
+        if (filter.Quantity.HasValue) query.Add(new KeyValuePair<string, string?>("quantity", $"{filter.Quantity.Value}"));
+
+        var url = this.Options.ApiUrl.Append(QueryHelpers.AddQueryString("services/content/references", query));
+        var result = await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.ContentReference.ContentReferenceModel[]>(url));
+        return result ?? Array.Empty<API.Areas.Services.Models.ContentReference.ContentReferenceModel>();
+    }
+
+    /// <summary>
     /// Make an HTTP request to the api to add the specified content reference.
     /// </summary>
     /// <param name="contentReference"></param>

@@ -2,19 +2,10 @@ import { type IContentReferenceListFilter } from '../interfaces';
 
 export const defaultContentReferenceFilter: IContentReferenceListFilter = {
   pageIndex: 0,
-  pageSize: 50,
-  sources: [],
-  mediaTypeIds: [],
+  pageSize: 100,
+  source: '',
   uid: '',
-  topic: '',
   status: '',
-  offset: 0,
-  partition: 0,
-  publishedOn: '',
-  publishedStartOn: '',
-  publishedEndOn: '',
-  updatedOn: '',
-  updatedStartOn: '',
-  updatedEndOn: '',
-  sort: [],
+  discoveredOn: new Date(),
+  sort: [{ id: 'createdOn', desc: true }],
 };

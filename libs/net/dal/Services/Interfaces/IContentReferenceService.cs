@@ -9,4 +9,5 @@ public interface IContentReferenceService : IBaseService<ContentReference, strin
 {
     IPaged<ContentReference> Find(ContentReferenceFilter filter);
     long[] FindContentIds(string uid);
+    Dictionary<(string Source, string Uid), (long Id, string Headline)> FindContents(IEnumerable<ContentReference> references);
 }
