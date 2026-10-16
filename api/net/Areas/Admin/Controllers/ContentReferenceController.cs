@@ -57,7 +57,11 @@ public class ContentReferenceController : ControllerBase
         var uri = new Uri(this.Request.GetDisplayUrl());
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
         var result = _contentReferenceService.Find(new ContentReferenceFilter(query));
-        var page = new Paged<ContentReferenceModel>(result.Items.Select(cr => new ContentReferenceModel(cr)), result.Page, result.Quantity, result.Total);
+        var contents = _contentReferenceService.FindContents(result.Items);
+        var page = new Paged<ContentReferenceModel>(result.Items.Select(cr =>
+            contents.TryGetValue((cr.Source, cr.Uid), out var content)
+                ? new ContentReferenceModel(cr, content.Id, content.Headline)
+                : new ContentReferenceModel(cr)), result.Page, result.Quantity, result.Total);
         return new JsonResult(page);
     }
 

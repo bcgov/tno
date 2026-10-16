@@ -235,6 +235,11 @@ spec:
               value: "false"
 
             # CHES Configuration
+            - name: CHES__From
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_FROM
             - name: CHES__EmailEnabled
               valueFrom:
                 configMapKeyRef:

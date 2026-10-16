@@ -1,78 +1,147 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
+import { FaPlus } from 'react-icons/fa';
+import { createFilter } from 'react-select';
+import { useLookup } from 'store/hooks';
 import {
-  FlexboxTable,
+  Button,
+  ButtonVariant,
+  FieldSize,
   FormikCheckbox,
   FormikSelect,
   FormikText,
   type IIngestModel,
+  OptionItem,
+  Row,
+  Show,
 } from 'tno-core';
 
+import { type ISyndicationFeed } from '../interfaces';
 import { TimeZones } from './constants';
-import { columns } from './constants/columns';
+import { FeedList } from './FeedList';
 import { ImportContent } from './ImportContent';
+import { SourceMapping } from './SourceMapping';
 import * as styled from './styled';
 
 export const Syndication: React.FC = (props) => {
   const { values, setFieldValue } = useFormikContext<IIngestModel>();
+  const [lookups] = useLookup();
   const timeZone = TimeZones.find((t) => t.value === values.configuration.timeZone);
 
-  const initialItems = React.useCallback(() => {
-    const data: any[] = [];
-    let id = 0;
-    const keyValues = values.configuration.sources?.split('&') ?? [];
-    keyValues.forEach((x: string) => {
-      data.push({ id: ++id, name: x.split('=')[0], source: x.split('=')[1] });
+  const sourceOptions = React.useMemo(
+    () => lookups.sources.map((s) => new OptionItem(`${s.code} - ${s.name}`, s.code, !s.isEnabled)),
+    [lookups.sources],
+  );
+  // Find a source by its code, name or short name.
+  const sourceFilter = React.useMemo(() => {
+    const search = new Map(
+      lookups.sources.map((s) => [
+        s.code,
+        [s.code, s.name, s.shortName].filter((v) => !!v).join(' '),
+      ]),
+    );
+    return createFilter<unknown>({
+      stringify: (option) => search.get(option.value) ?? `${option.label} ${option.value}`,
     });
-    data.push({ id: ++id, name: '', source: '' });
-    return data;
-  }, [values.configuration.sources]);
-
-  const [items, setItems] = React.useState<Array<{ id: number; name: string; source: string }>>(
-    initialItems(),
+  }, [lookups.sources]);
+  const feedTable = React.useRef<HTMLDivElement>(null);
+  const scrollToNewFeed = React.useRef(false);
+  const feeds: ISyndicationFeed[] = React.useMemo(
+    () => (Array.isArray(values.configuration.feeds) ? values.configuration.feeds : []),
+    [values.configuration.feeds],
   );
 
-  const updateItems = React.useCallback(
-    (updatedItems: any[]) => {
-      if (updatedItems.filter((x) => !x.name && !x.source).length === 0) {
-        updatedItems.push({ id: updatedItems.length + 1, name: '', source: '' });
-      }
-      setItems(updatedItems);
-      setFieldValue(
-        'configuration.sources',
-        updatedItems
-          .filter((t) => !!t.name)
-          .map((item) => `${item.name?.trim()}=${item.source?.trim()}`)
-          .join('&'),
-      );
-    },
+  const updateFeeds = React.useCallback(
+    (updated: ISyndicationFeed[]) => setFieldValue('configuration.feeds', updated),
     [setFieldValue],
   );
 
-  const handleRemove = async (id: number) => {
-    const item = items.find((i) => i.id === id);
-    if (!item) return;
-
-    const updatedItems = items.filter((i) => i.id !== id);
-    updateItems(updatedItems);
+  const handleAddFeed = () => {
+    // Keep the single feed URL as the first feed when switching to a list of feeds.
+    const current: ISyndicationFeed[] =
+      feeds.length === 0 && values.configuration.url
+        ? [{ url: values.configuration.url, source: '' }]
+        : feeds;
+    scrollToNewFeed.current = true;
+    updateFeeds([...current, { url: '', source: '' }]);
   };
 
-  const onChange = (event: any, cell: any, isSource = true) => {
-    const pointer = event.target.selectionStart;
+  // Bring a new feed into view at the bottom of the scrolling list.
+  React.useEffect(() => {
+    if (!scrollToNewFeed.current) return;
+    scrollToNewFeed.current = false;
     window.requestAnimationFrame(() => {
-      event.target.selectionEnd = pointer;
+      const rows = feedTable.current?.querySelector('.feed-rows');
+      if (rows) rows.scrollTop = rows.scrollHeight;
     });
-    const updatedItem = isSource
-      ? { ...cell.original, source: event.target.value }
-      : { ...cell.original, name: event.target.value };
-    const updatedItems = items.map((item) => (item.id === cell.original.id ? updatedItem : item));
-    updateItems(updatedItems);
-  };
+  }, [feeds.length]);
 
   return (
     <styled.IngestType>
       <ImportContent />
-      <FormikText label="Syndication Feed URL" name="configuration.url" required />
+      <b>Feeds</b>
+      <Show visible={feeds.length === 0}>
+        <FormikText label="Syndication Feed URL" name="configuration.url" required />
+      </Show>
+      <Show visible={feeds.length > 0}>
+        <p>
+          Feeds are imported in priority order. Stories from a feed are assigned its source, or the
+          ingest source mapping and source when it has none.
+        </p>
+        <FeedList
+          ref={feedTable}
+          feeds={feeds}
+          sources={sourceOptions}
+          sourceFilter={sourceFilter}
+          onChange={updateFeeds}
+        />
+      </Show>
+      <Row>
+        <Button variant={ButtonVariant.secondary} onClick={handleAddFeed}>
+          <FaPlus /> Add feed
+        </Button>
+      </Row>
+      <FormikCheckbox
+        label="Skip duplicate stories"
+        name="configuration.dedupEnabled"
+        tooltip="Skip a new story when a story from the same or a higher priority feed was published recently with the same or a similar headline, or nearly the same text."
+      />
+      <Show visible={!!values.configuration.dedupEnabled}>
+        <Row gap="1rem">
+          <FormikText
+            label="Compare stories within (days)"
+            name="configuration.dedupWindowDays"
+            type="number"
+            min={1}
+            max={90}
+            placeholder="7"
+            width={FieldSize.Small}
+            tooltip="Only stories published within this many days of each other are compared. Defaults to 7."
+          />
+          <FormikText
+            label="Headline similarity"
+            name="configuration.dedupHeadlineThreshold"
+            type="number"
+            min={0.01}
+            max={1}
+            step={0.01}
+            placeholder="0.8"
+            width={FieldSize.Small}
+            tooltip="Share of headline words two stories must have in common, from 0 to 1 (1 is the same words). Defaults to 0.8."
+          />
+          <FormikText
+            label="Story text similarity"
+            name="configuration.dedupBodyThreshold"
+            type="number"
+            min={0.5}
+            max={1}
+            step={0.01}
+            placeholder="0.85"
+            width={FieldSize.Small}
+            tooltip="How alike the text of two stories must be, from 0.5 (unrelated) to 1 (identical). Defaults to 0.85."
+          />
+        </Row>
+      </Show>
       <FormikCheckbox
         label="Custom RSS/ATOM"
         name="configuration.customFeed"
@@ -105,15 +174,7 @@ export const Syndication: React.FC = (props) => {
           setFieldValue('configuration.fetchContent', e.currentTarget.checked);
         }}
       />
-      <b>Source Mapping</b>
-      <FlexboxTable
-        rowId="id"
-        data={items}
-        columns={columns(handleRemove, onChange)}
-        showSort={true}
-        showActive={false}
-        pagingEnabled={false}
-      />
+      <SourceMapping />
     </styled.IngestType>
   );
 };

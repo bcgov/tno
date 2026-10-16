@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Globalization;
 using System.Net.Http.Headers;
+using System.Runtime.ExceptionServices;
 using System.ServiceModel.Syndication;
 using System.Text;
 using System.Text.Json;
@@ -16,7 +17,9 @@ using TNO.Core.Http;
 using TNO.Entities;
 using TNO.Kafka.Models;
 using TNO.Models.Extensions;
+using TNO.Models.Filters;
 using TNO.Services.Actions;
+using TNO.Services.Dedup;
 using TNO.Services.Syndication.Config;
 using TNO.Services.Syndication.Xml;
 
@@ -36,6 +39,12 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     private readonly object _lock = new object();
     private string? _etag;
     private readonly ConcurrentDictionary<string, int?> _sourceMediaTypeMap = new ConcurrentDictionary<string, int?>();
+
+    /// <summary>
+    /// Stories recently ingested by this ingest, used to skip duplicates across its feeds.
+    /// An action is created per ingest, so the index belongs to one ingest.
+    /// </summary>
+    private readonly DedupIndex _dedupIndex = new();
     #endregion
 
     #region Properties
@@ -66,16 +75,51 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <returns></returns>
     public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
-        this.Logger.LogDebug("Performing ingestion service action for ingest '{name}'", manager.Ingest.Name);
+        var ingest = manager.Ingest;
+        this.Logger.LogDebug("Performing ingestion service action for ingest '{name}'", ingest.Name);
 
         // This ingest has just begun running.
-        await manager.UpdateIngestStateFailedAttemptsAsync(manager.Ingest.FailedAttempts);
+        await manager.UpdateIngestStateFailedAttemptsAsync(ingest.FailedAttempts);
         await GetSourcesConfigurationAsync();
 
-        var url = GetUrl(manager.Ingest);
+        var invalid = new List<string>();
+        var feeds = SyndicationFeedConfig.FromIngest(ingest, invalid);
+        foreach (var value in invalid)
+            this.Logger.LogWarning("Ingest '{name}' has an invalid feed configuration value '{value}'", ingest.Name, value);
+        if (feeds.Count == 0) throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing a valid feed 'url'.");
 
-        var feed = await GetFeedAsync(url, manager);
-        await ImportFeedAsync(manager, feed);
+        var dedup = GetDedupOptions(ingest);
+        if (dedup.Enabled) await LoadDedupIndexAsync(ingest, feeds, dedup);
+
+        // Feeds are imported in priority order, so a story is kept from the highest priority feed that has it.
+        var result = new FeedImportResult();
+        ExceptionDispatchInfo? firstFailure = null;
+        for (var priority = 0; priority < feeds.Count; priority++)
+        {
+            var feedConfig = feeds[priority];
+            try
+            {
+                var feed = await GetFeedAsync(feedConfig.Uri!, manager);
+                await ImportFeedAsync(manager, feed, feedConfig, priority, dedup, result);
+                result.Feeds++;
+            }
+            catch (Exception ex) when (feeds.Count > 1)
+            {
+                // One unavailable feed must not stop the others.
+                firstFailure ??= ExceptionDispatchInfo.Capture(ex);
+                this.Logger.LogError(ex, "Failed to import feed {position} of {count} '{url}' for ingest '{name}'", priority + 1, feeds.Count, feedConfig.Url, ingest.Name);
+            }
+            finally
+            {
+                // This ingest has just completed running for one feed.
+                await manager.UpdateIngestStateFailedAttemptsAsync(manager.Ingest.FailedAttempts);
+            }
+        }
+
+        this.Logger.LogDebug("Ingest '{name}' imported {feeds} of {count} feeds, {stories} new stories, {duplicates} duplicates skipped", ingest.Name, result.Feeds, feeds.Count, result.Stories, result.Duplicates);
+
+        // When every feed fails the run has failed, the same as a single feed failing.
+        if (result.Feeds == 0) firstFailure?.Throw();
 
         return ServiceActionResult.Success;
     }
@@ -88,8 +132,12 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// </summary>
     /// <param name="manager"></param>
     /// <param name="feed"></param>
+    /// <param name="feedConfig">The configuration of the feed.</param>
+    /// <param name="priority">The position of the feed in the ingest's feeds, lower is more important.</param>
+    /// <param name="dedup">How to find duplicate stories.</param>
+    /// <param name="result">Counts of what was imported.</param>
     /// <returns></returns>
-    private async Task ImportFeedAsync(IIngestActionManager manager, SyndicationFeed feed)
+    private async Task ImportFeedAsync(IIngestActionManager manager, SyndicationFeed feed, SyndicationFeedConfig feedConfig, int priority, DedupOptions dedup, FeedImportResult result)
     {
         foreach (var item in feed.Items)
         {
@@ -101,13 +149,31 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
 
                 // Some feeds require a separate request to fetch relevant meta-data.
                 await FetchContent(manager, item, link);
-                var sourceContent = CreateSourceContent(manager.Ingest, item);
+                var sourceContent = CreateSourceContent(manager.Ingest, item, feedConfig.Source);
 
                 // Fetch content reference.
                 var reference = await this.FindContentReferenceAsync(sourceContent.Source, sourceContent.Uid);
                 if (reference == null)
                 {
-                    reference = await AddContentReferenceAsync(manager.Ingest, item, sourceContent);
+                    // A new story, skip it if an equal or higher priority feed already has it.
+                    DedupEntry? entry = null;
+                    if (dedup.Enabled)
+                    {
+                        entry = CreateDedupEntry(sourceContent, priority, dedup);
+                        if (_dedupIndex.TryFindMatch(entry, dedup, out var match) && match != null)
+                        {
+                            result.Duplicates++;
+                            LogDuplicate(manager.Ingest, entry, sourceContent, match);
+                            continue;
+                        }
+                    }
+
+                    reference = await AddContentReferenceAsync(manager.Ingest, item, sourceContent, entry);
+                    if (reference != null)
+                    {
+                        result.Stories++;
+                        if (entry != null) _dedupIndex.Add(entry);
+                    }
                 }
                 // If the Content Service hasn't imported within X minutes, then perhaps send another message.
                 else if ((reference.Status.In((int)WorkflowStatus.Failed, (int)WorkflowStatus.InProgress, (int)WorkflowStatus.Received)
@@ -140,12 +206,162 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 await manager.RecordFailureAsync(ex);
                 await manager.SendEmailAsync($"Failed to ingest item for ingest '{manager.Ingest.Name}'", ex);
             }
-            finally
-            {
-                // This ingest has just completed running for one content item.
-                await manager.UpdateIngestStateFailedAttemptsAsync(manager.Ingest.FailedAttempts);
-            }
         }
+    }
+
+    /// <summary>
+    /// Create the duplicate detection fingerprint for a story.
+    /// </summary>
+    /// <param name="sourceContent"></param>
+    /// <param name="priority"></param>
+    /// <param name="dedup"></param>
+    /// <returns></returns>
+    private static DedupEntry CreateDedupEntry(SourceContent sourceContent, int priority, DedupOptions dedup)
+    {
+        var body = !String.IsNullOrWhiteSpace(sourceContent.Body) ? sourceContent.Body : sourceContent.Summary;
+        return DedupEntry.Create(sourceContent.Source, sourceContent.Uid, sourceContent.Title, body, sourceContent.PublishedOn ?? DateTime.UtcNow, priority, dedup);
+    }
+
+    /// <summary>
+    /// Log a skipped duplicate, at information level the first time and debug after that.
+    /// </summary>
+    /// <param name="ingest"></param>
+    /// <param name="entry"></param>
+    /// <param name="sourceContent"></param>
+    /// <param name="match"></param>
+    private void LogDuplicate(IngestModel ingest, DedupEntry entry, SourceContent sourceContent, DedupMatch match)
+    {
+        var level = _dedupIndex.MarkSkipped(entry) ? LogLevel.Information : LogLevel.Debug;
+        this.Logger.Log(level,
+            "Ingest '{name}' skipped duplicate story {source}:{uid} '{headline}', it matches {primarySource}:{primaryUid} ({reason} {score:0.00})",
+            ingest.Name, entry.Source, entry.Uid, sourceContent.Title, match.Primary.Source, match.Primary.Uid, match.Reason, match.Score);
+    }
+
+    /// <summary>
+    /// Get the duplicate detection settings from the ingest configuration, using the service defaults for any that are missing or invalid.
+    /// </summary>
+    /// <param name="ingest"></param>
+    /// <returns></returns>
+    private DedupOptions GetDedupOptions(IngestModel ingest)
+    {
+        return new DedupOptions()
+        {
+            Enabled = GetConfigurationBoolean(ingest, "dedupEnabled"),
+            WindowDays = (int)GetConfigurationNumber(ingest, "dedupWindowDays", this.Options.DedupWindowDays, 1, 90),
+            HeadlineThreshold = GetConfigurationNumber(ingest, "dedupHeadlineThreshold", this.Options.DedupHeadlineThreshold, 0.01, 1),
+            BodyThreshold = GetConfigurationNumber(ingest, "dedupBodyThreshold", this.Options.DedupBodyThreshold, 0.5, 1),
+            MinHeadlineTokens = this.Options.DedupMinHeadlineTokens,
+            MinBodyTokens = this.Options.DedupMinBodyTokens,
+        };
+    }
+
+    /// <summary>
+    /// Load the duplicate index with the stories this ingest's sources published within the window.
+    /// The index is reloaded when the ingest configuration changes and periodically, otherwise old stories are pruned.
+    /// </summary>
+    /// <param name="ingest"></param>
+    /// <param name="feeds"></param>
+    /// <param name="dedup"></param>
+    /// <returns></returns>
+    private async Task LoadDedupIndexAsync(IngestModel ingest, IReadOnlyList<SyndicationFeedConfig> feeds, DedupOptions dedup)
+    {
+        var now = DateTime.UtcNow;
+        var cutoff = now.AddDays(-dedup.WindowDays);
+        if (_dedupIndex.Version == ingest.Version && _dedupIndex.LoadedOn?.AddMinutes(this.Options.DedupReloadMinutes) > now)
+        {
+            _dedupIndex.Prune(cutoff);
+            return;
+        }
+
+        var priorities = GetSourcePriorities(ingest, feeds);
+        var entries = new List<DedupEntry>();
+        var quantity = Math.Max(this.Options.DedupLoadPageSize, 1);
+        for (var page = 1; page <= Math.Max(this.Options.DedupLoadMaxPages, 1); page++)
+        {
+            var filter = new ContentReferenceFilter()
+            {
+                // Only this ingest's stories, other ingests may use the same sources.
+                Topic = ingest.Topic,
+                Sources = priorities.Keys.ToArray(),
+                PublishedStartOn = cutoff,
+                Page = page,
+                Quantity = quantity,
+            };
+            var references = (await this.Api.FindContentReferencesAsync(filter)).ToArray();
+            foreach (var reference in references)
+            {
+                // Only references created with duplicate detection have a fingerprint.
+                if (priorities.TryGetValue(reference.Source, out var priority) && DedupMetadata.TryRead(reference, priority, out var entry) && entry != null)
+                    entries.Add(entry);
+            }
+            if (references.Length < quantity) break;
+        }
+
+        _dedupIndex.Load(entries, ingest.Version, now);
+        this.Logger.LogInformation("Ingest '{name}' loaded {count} stories from the last {days} days into its duplicate index", ingest.Name, entries.Count, dedup.WindowDays);
+    }
+
+    /// <summary>
+    /// Map each source code this ingest can produce to the priority of the first feed that produces it.
+    /// Feeds without a source produce the ingest's source and the sources in its source mapping.
+    /// </summary>
+    /// <param name="ingest"></param>
+    /// <param name="feeds"></param>
+    /// <returns></returns>
+    private static Dictionary<string, int> GetSourcePriorities(IngestModel ingest, IReadOnlyList<SyndicationFeedConfig> feeds)
+    {
+        var priorities = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        for (var priority = 0; priority < feeds.Count; priority++)
+        {
+            var source = feeds[priority].Source;
+            if (!String.IsNullOrWhiteSpace(source))
+            {
+                priorities.TryAdd(source, priority);
+                continue;
+            }
+
+            if (!String.IsNullOrWhiteSpace(ingest.Source?.Code)) priorities.TryAdd(ingest.Source.Code, priority);
+            foreach (var mapping in GetSourceMappings(ingest).Where(m => !String.IsNullOrWhiteSpace(m.Value)))
+                priorities.TryAdd(mapping.Value, priority);
+        }
+        return priorities;
+    }
+
+    /// <summary>
+    /// Read a boolean ingest configuration value, false if it is missing or invalid.
+    /// </summary>
+    /// <param name="ingest"></param>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    private static bool GetConfigurationBoolean(IngestModel ingest, string key)
+    {
+        if (!ingest.Configuration.TryGetValue(key, out var value) || value is not JsonElement element) return false;
+        return element.ValueKind switch
+        {
+            JsonValueKind.True => true,
+            JsonValueKind.String => Boolean.TryParse(element.GetString(), out var result) && result,
+            _ => false,
+        };
+    }
+
+    /// <summary>
+    /// Read a numeric ingest configuration value.
+    /// Returns the default value when it is missing, not a number, or outside the range.
+    /// </summary>
+    /// <param name="ingest"></param>
+    /// <param name="key"></param>
+    /// <param name="defaultValue"></param>
+    /// <param name="min"></param>
+    /// <param name="max"></param>
+    /// <returns></returns>
+    private static double GetConfigurationNumber(IngestModel ingest, string key, double defaultValue, double min, double max)
+    {
+        if (!ingest.Configuration.TryGetValue(key, out var value) || value is not JsonElement element) return defaultValue;
+        double number;
+        if (element.ValueKind == JsonValueKind.Number) number = element.GetDouble();
+        else if (element.ValueKind == JsonValueKind.String && Double.TryParse(element.GetString(), NumberStyles.Float, CultureInfo.InvariantCulture, out var parsed)) number = parsed;
+        else return defaultValue;
+        return number < min || number > max ? defaultValue : number;
     }
 
     /// <summary>
@@ -299,12 +515,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <exception cref="InvalidOperationException"></exception>
     private string DetermineSource(IngestModel ingest, SyndicationItem item)
     {
-        KeyValuePair<string, string>[] sourceValues = ingest.Configuration.GetDictionaryJsonValue<string>("sources")?.Split('&').Select(v =>
-        {
-            var keyValue = v.Split('=');
-            if (keyValue.Length > 1) return new KeyValuePair<string, string>(keyValue[0], keyValue[1]);
-            return new KeyValuePair<string, string>(keyValue[0], keyValue[0]);
-        }).ToArray() ?? [];
+        var sourceValues = GetSourceMappings(ingest);
 
         var defaultSource = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code.");
         var itemSource = item.SourceFeed?.Title?.Text;
@@ -316,6 +527,21 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             if (!String.IsNullOrWhiteSpace(sourceMatch)) return sourceMatch;
         }
         return defaultSource;
+    }
+
+    /// <summary>
+    /// Get the source mapping configuration ('name=code&amp;name=code'), which maps a feed item's source name to a source code.
+    /// </summary>
+    /// <param name="ingest"></param>
+    /// <returns></returns>
+    private static KeyValuePair<string, string>[] GetSourceMappings(IngestModel ingest)
+    {
+        return ingest.Configuration.GetDictionaryJsonValue<string>("sources")?.Split('&').Select(v =>
+        {
+            var keyValue = v.Split('=');
+            if (keyValue.Length > 1) return new KeyValuePair<string, string>(keyValue[0], keyValue[1]);
+            return new KeyValuePair<string, string>(keyValue[0], keyValue[0]);
+        }).ToArray() ?? [];
     }
 
     /// <summary>
@@ -336,11 +562,12 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// </summary>
     /// <param name="ingest"></param>
     /// <param name="item"></param>
+    /// <param name="feedSource">The source code configured for the feed, which overrides the ingest's source mapping.</param>
     /// <returns></returns>
-    private SourceContent CreateSourceContent(IngestModel ingest, SyndicationItem item)
+    private SourceContent CreateSourceContent(IngestModel ingest, SyndicationItem item, string? feedSource = null)
     {
         var (title, summary, body) = HandleInvalidEncoding(item);
-        var source = DetermineSource(ingest, item);
+        var source = !String.IsNullOrWhiteSpace(feedSource) ? feedSource : DetermineSource(ingest, item);
         var contentType = ingest.IngestType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing ingest content type.");
         var publishedOn = item.PublishDate.UtcDateTime != DateTime.MinValue ? item.PublishDate.UtcDateTime : (DateTime?)null;
         var uid = Runners.BaseService.GetContentHash(source, title, publishedOn);
@@ -419,11 +646,14 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <param name="ingest"></param>
     /// <param name="item"></param>
     /// <param name="sourceContent"></param>
+    /// <param name="entry">The duplicate detection fingerprint to store with the reference.</param>
     /// <returns></returns>
-    private async Task<ContentReferenceModel?> AddContentReferenceAsync(IngestModel ingest, SyndicationItem item, SourceContent sourceContent)
+    private async Task<ContentReferenceModel?> AddContentReferenceAsync(IngestModel ingest, SyndicationItem item, SourceContent sourceContent, DedupEntry? entry = null)
     {
         // Add a content reference record.
-        return await this.Api.AddContentReferenceAsync(CreateContentReference(ingest, item, sourceContent));
+        var reference = CreateContentReference(ingest, item, sourceContent);
+        if (entry != null) DedupMetadata.Write(reference.Metadata, entry);
+        return await this.Api.AddContentReferenceAsync(reference);
     }
 
     /// <summary>
@@ -562,29 +792,15 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         var isRss = RssFeed.IsRssFeed(document);
         return isRss ? RssFeed.Load(document, false) : AtomFeed.Load(document);
     }
+    #endregion
 
     /// <summary>
-    /// Extract the URL from the ingest connection settings.
+    /// FeedImportResult class, counts what one run imported.
     /// </summary>
-    /// <param name="ingest"></param>
-    /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    private static Uri GetUrl(IngestModel ingest)
+    private sealed class FeedImportResult
     {
-        if (!ingest.Configuration.TryGetValue("url", out object? element)) throw new InvalidOperationException("Data source connection information is missing 'url'.");
-
-        var value = (JsonElement)element;
-        if (value.ValueKind == JsonValueKind.String)
-        {
-            var url = value.GetString() ?? throw new InvalidOperationException("Data source connection 'url' cannot be null, empty or whitespace.");
-
-            var options = new UriCreationOptions();
-            if (!Uri.TryCreate(url, options, out Uri? uri)) throw new InvalidOperationException("Data source connection 'url' is not a valid format.");
-
-            return uri;
-        }
-
-        throw new InvalidOperationException("Data source connection 'url' is not a valid string value");
+        public int Feeds { get; set; }
+        public int Stories { get; set; }
+        public int Duplicates { get; set; }
     }
-    #endregion
 }
