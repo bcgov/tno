@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Mime;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
@@ -9,6 +10,7 @@ using TNO.API.Models;
 using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Keycloak;
+using TNO.Models.Filters;
 
 namespace TNO.API.Areas.Services.Controllers;
 
@@ -46,6 +48,23 @@ public class ContentReferenceController : ControllerBase
     #endregion
 
     #region Endpoints
+    /// <summary>
+    /// Find a page of content references for the specified query filter.
+    /// Supports the same query parameters as the admin endpoint (e.g. 'sources', 'publishedStartOn', 'page', 'quantity').
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<ContentReferenceModel>), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "ContentReference" })]
+    public IActionResult Find()
+    {
+        var uri = new Uri(this.Request.GetDisplayUrl());
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+        var result = _service.Find(new ContentReferenceFilter(query));
+        return new JsonResult(result.Items.Select(reference => new ContentReferenceModel(reference, _serializerOptions)).ToArray());
+    }
+
     /// <summary>
     /// Find a page of content for the specified query filter.
     /// </summary>

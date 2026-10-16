@@ -3,7 +3,6 @@ using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Ches;
 using TNO.Ches.Configuration;
-using TNO.Models.Extensions;
 using TNO.Services.Actions.Managers;
 using TNO.Services.Syndication.Config;
 
@@ -42,12 +41,12 @@ public class SyndicationIngestActionManager : IngestActionManager<SyndicationOpt
 
     /// <summary>
     /// Verify that the specified data source ingestion action should be run.
+    /// The ingest requires at least one valid feed URL, in its 'feeds' list or its 'url'.
     /// </summary>
     /// <returns></returns>
     public override bool VerifyIngest()
     {
-        var url = this.Ingest.GetConfigurationValue("url");
-        return !String.IsNullOrWhiteSpace(url);
+        return SyndicationFeedConfig.FromIngest(this.Ingest).Count > 0;
     }
     #endregion
 }

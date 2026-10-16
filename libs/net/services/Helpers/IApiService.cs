@@ -180,6 +180,13 @@ public interface IApiService
     public Task<API.Areas.Services.Models.ContentReference.ContentReferenceModel?> FindContentReferenceAsync(string source, string uid);
 
     /// <summary>
+    /// Make a request to the API to find a page of content references that match the filter.
+    /// </summary>
+    /// <param name="filter"></param>
+    /// <returns></returns>
+    public Task<IEnumerable<API.Areas.Services.Models.ContentReference.ContentReferenceModel>> FindContentReferencesAsync(TNO.Models.Filters.ContentReferenceFilter filter);
+
+    /// <summary>
     /// Make a request to the API to add the specified content reference.
     /// </summary>
     /// <param name="contentReference"></param>

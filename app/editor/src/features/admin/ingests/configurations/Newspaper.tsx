@@ -4,7 +4,6 @@ import { useLookup } from 'store/hooks';
 import {
   Col,
   filterEnabledOptions,
-  FlexboxTable,
   FormikCheckbox,
   FormikSelect,
   FormikText,
@@ -14,12 +13,12 @@ import {
 } from 'tno-core';
 
 import { FileTypes, Languages, TimeZones } from './constants';
-import { columns } from './constants/columns';
 import { ImportContent } from './ImportContent';
+import { SourceMapping } from './SourceMapping';
 import * as styled from './styled';
 
 export const Newspaper: React.FC = (props) => {
-  const { values, setFieldValue } = useFormikContext<IIngestModel>();
+  const { values } = useFormikContext<IIngestModel>();
 
   const timeZone = TimeZones.find((t) => t.value === values.configuration.timeZone);
   const language = Languages.find((t) => t.value === values.configuration.language);
@@ -27,58 +26,6 @@ export const Newspaper: React.FC = (props) => {
   const [lookups] = useLookup();
   const sources = lookups.sources.map((s) => new OptionItem(s.name, s.code, !s.isEnabled));
   const source = sources.find((t) => t.value === values.configuration.defaultSource);
-
-  const initialItems = React.useCallback(() => {
-    const data: any[] = [];
-    let id = 0;
-    const keyValues = values.configuration.sources?.split('&') ?? [];
-    keyValues.forEach((x: string) => {
-      data.push({ id: ++id, name: x.split('=')[0], source: x.split('=')[1] });
-    });
-    data.push({ id: ++id, name: '', source: '' });
-    return data;
-  }, [values.configuration.sources]);
-
-  const [items, setItems] = React.useState<Array<{ id: number; name: string; source: string }>>(
-    initialItems(),
-  );
-
-  const updateItems = React.useCallback(
-    (updatedItems: any[]) => {
-      if (updatedItems.filter((x) => !x.name && !x.source).length === 0) {
-        updatedItems.push({ id: updatedItems.length + 1, name: '', source: '' });
-      }
-      setItems(updatedItems);
-      setFieldValue(
-        'configuration.sources',
-        updatedItems
-          .filter((t) => !!t.name)
-          .map((item) => `${item.name?.trim()}=${item.source?.trim()}`)
-          .join('&'),
-      );
-    },
-    [setFieldValue],
-  );
-
-  const handleRemove = async (id: number) => {
-    const item = items.find((i) => i.id === id);
-    if (!item) return;
-
-    const updatedItems = items.filter((i) => i.id !== id);
-    updateItems(updatedItems);
-  };
-
-  const onChange = (event: any, cell: any, isSource = true) => {
-    const pointer = event.target.selectionStart;
-    window.requestAnimationFrame(() => {
-      event.target.selectionEnd = pointer;
-    });
-    const updatedItem = isSource
-      ? { ...cell.original, source: event.target.value }
-      : { ...cell.original, name: event.target.value };
-    const updatedItems = items.map((item) => (item.id === cell.original.id ? updatedItem : item));
-    updateItems(updatedItems);
-  };
 
   return (
     <styled.IngestType>
@@ -287,15 +234,7 @@ export const Newspaper: React.FC = (props) => {
           />
         </Col>
       </Row>
-      <b>Source Mapping</b>
-      <FlexboxTable
-        rowId="id"
-        data={items}
-        columns={columns(handleRemove, onChange)}
-        showSort={true}
-        showActive={false}
-        pagingEnabled={false}
-      />
+      <SourceMapping />
       <FormikSelect
         label="Default Source"
         name="configuration.defaultSource"
