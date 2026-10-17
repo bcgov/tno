@@ -16,8 +16,10 @@ import {
   type IIngestModel,
   OptionItem,
   Row,
+  Show,
 } from 'tno-core';
 
+import { contentTypeOptions } from '../ingest-types/constants';
 import * as styled from './styled';
 
 interface IIngestDetailsProps {}
@@ -41,6 +43,11 @@ const IngestDetails: React.FC<IIngestDetailsProps> = () => {
     (i) => new OptionItem(`(${i.code}) ${i.name}`, i.id),
   );
   const mediaTypes = getSortableOptions(lookups.mediaTypes);
+  const ingestType = lookups.ingestTypes.find((type) => type.id === values.ingestTypeId);
+  const contentTypes = [
+    new OptionItem(`Use ingest type (${ingestType?.contentType ?? 'default'})`, ''),
+    ...contentTypeOptions,
+  ];
 
   React.useEffect(() => {
     if (loading && dataLocations.length === 0) {
@@ -145,6 +152,18 @@ const IngestDetails: React.FC<IIngestDetailsProps> = () => {
             checked={!!values.configuration.topicFromSource}
           />
         </Row>
+        <Show visible={ingestType?.name === 'Syndication'}>
+          <FormikSelect
+            label="Content Type"
+            name="configuration.contentType"
+            tooltip="Override the ingest type's content type for all feeds in this ingest. Select Use ingest type to inherit its default."
+            options={contentTypes}
+            value={contentTypes.find(
+              (option) => option.value === (values.configuration.contentType ?? ''),
+            )}
+            isClearable={false}
+          />
+        </Show>
         <FormikSelect
           label="Media Type"
           name="mediaTypeId"
