@@ -569,6 +569,13 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         var (title, summary, body) = HandleInvalidEncoding(item);
         var source = !String.IsNullOrWhiteSpace(feedSource) ? feedSource : DetermineSource(ingest, item);
         var contentType = ingest.IngestType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing ingest content type.");
+        var contentTypeOverride = ingest.GetConfigurationValue("contentType");
+        if (!String.IsNullOrWhiteSpace(contentTypeOverride))
+        {
+            if (!Enum.TryParse<ContentType>(contentTypeOverride, out var configuredContentType) || !Enum.IsDefined(configuredContentType))
+                throw new InvalidOperationException($"Ingest '{ingest.Name}' has an invalid content type override '{contentTypeOverride}'.");
+            contentType = configuredContentType;
+        }
         var publishedOn = item.PublishDate.UtcDateTime != DateTime.MinValue ? item.PublishDate.UtcDateTime : (DateTime?)null;
         var uid = Runners.BaseService.GetContentHash(source, title, publishedOn);
         var mediaTypeId = DetermineMediaType(ingest, source);
