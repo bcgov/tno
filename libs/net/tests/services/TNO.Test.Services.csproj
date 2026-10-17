@@ -25,6 +25,7 @@
   <ItemGroup>
     <ProjectReference Include="..\core\TNO.Test.Core.csproj" />
     <ProjectReference Include="..\..\services\TNO.Services.csproj" />
+    <ProjectReference Include="..\..\..\..\services\net\syndication\TNO.Services.Syndication.csproj" />
   </ItemGroup>
 
 </Project>
