@@ -169,6 +169,7 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> AddAsync([FromBody] ContentModel model, int? requestorId = null)
     {
+        RemoveIneligibleTopics(model);
         AddNewContentModelData(model);
 
         if (!model.PostedOn.HasValue)
@@ -202,6 +203,20 @@ public class ContentController : ControllerBase
         if (requestorId.HasValue) return _userService.FindById(requestorId.Value)?.Id;
         var username = User.GetUsername();
         return String.IsNullOrWhiteSpace(username) ? null : _userService.FindByUsername(username)?.Id;
+    }
+
+    /// <summary>
+    /// Ingest only gives a topic to content whose source scores topics (see ITopicScoreService.IsTopicEligible).
+    /// Topics the content already has are kept.
+    /// </summary>
+    /// <param name="model"></param>
+    private void RemoveIneligibleTopics(ContentModel model)
+    {
+        if (!model.Topics.Any() || _topicScoreService.IsTopicEligible(model.ContentType, model.SourceId, model.SeriesId)) return;
+        var savedTopicIds = model.Id == 0
+            ? new HashSet<int>()
+            : _contentService.FindById(model.Id)?.TopicsManyToMany.Select(t => t.TopicId).ToHashSet() ?? new HashSet<int>();
+        model.Topics = model.Topics.Where(t => t.Id != 0 && savedTopicIds.Contains(t.Id)).ToArray();
     }
 
     private void AddNewContentModelData(ContentModel model)
@@ -248,6 +263,7 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> UpdateAsync([FromBody] ContentModel model, bool index = false, int? requestorId = null)
     {
+        RemoveIneligibleTopics(model);
         AddNewContentModelData(model);
         // Published content should also have a posted date.
         if (!model.PostedOn.HasValue &&

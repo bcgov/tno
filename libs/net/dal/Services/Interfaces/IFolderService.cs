@@ -10,6 +10,7 @@ public interface IFolderService : IBaseService<Folder, int>
     Folder? FindById(int id, bool includeContent = false);
     IEnumerable<FolderContent> GetContentInFolder(int folderId);
     void RemoveContentFromFolders(long contentId);
+    void RemoveContentFromFolder(long contentId, int folderId);
     IEnumerable<Folder> GetFoldersWithFilters();
 
     void AddContentToFolder(long contentId, int folderId, bool toBottom = true);

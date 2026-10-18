@@ -231,16 +231,21 @@ public partial class AnalysisPopulator
 
     /// <summary>
     /// Assign the primary topic when the content has no topic (other than the system placeholder).
-    /// Scores come from the topic score rules, like any calculated score.
+    /// Only content whose source scores topics is given one. Scores come from the topic score
+    /// rules, like any calculated score.
     /// </summary>
     private void PopulateTopic(AnalysisTopic? registry, string? label)
     {
         const string field = ContentFieldOwnership.TopicField;
         if (String.IsNullOrWhiteSpace(label) || IsCleared(field)) return;
+        if (!_context.IsTopicEligible(_content.ContentType, _content.SourceId, _content.SeriesId)) return;
 
         var systemTopicIds = _context.Topics.AsNoTracking().Where(t => t.IsSystem).Select(t => t.Id).ToHashSet();
         var current = _content.TopicsManyToMany.ToArray();
         if (current.Any(t => !systemTopicIds.Contains(t.TopicId) && !IsAnalysisOwned(field, t.TopicId.ToString()))) return;
+        // Only the calculated placeholder is replaced; an editor's "Not Applicable" (overridden, or
+        // scored zero) excludes the story from Event of the Day and stays.
+        if (current.Any(t => systemTopicIds.Contains(t.TopicId) && (t.IsScoreOverridden || t.Score <= 0))) return;
 
         var topic = ResolveTopic(registry, label);
         if (topic == null) return;

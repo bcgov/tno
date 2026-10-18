@@ -16,7 +16,7 @@ export interface IEventOfDayInstance {
 export interface IEventOfDayPreviewRequest {
   /** Stories whose topics were edited; the preview waits until they are re-indexed. */
   changedContentIds: number[];
-  /** Stories to add to the folder sections; each must have a topic and be published that day. */
+  /** Stories to add to the folder sections; each must count in the report and be published that day. */
   addContentIds: number[];
   /** Rebuild the folder sections from the folder's collector filter instead of the saved links. */
   recollect: boolean;
@@ -57,6 +57,10 @@ export const useEventOfDayReports = () => {
       api.post<never, AxiosResponse<void>, any>(
         `/editor/reports/event-of-the-day/folder/${contentId}`,
       ),
+    removeFromFolder: (contentId: number) =>
+      api.delete<never, AxiosResponse<void>, any>(
+        `/editor/reports/event-of-the-day/folder/${contentId}`,
+      ),
     save: (preview: IEventOfDayPreview, date: string) =>
       preview.instanceId
         ? api.put<IEventOfDayPreview, AxiosResponse<IEventOfDayInstance>, any>(
@@ -78,6 +82,9 @@ export const useEventOfDayReports = () => {
           .data,
       addToFolder: async (contentId: number) => {
         await dispatch('add-event-of-day-folder', () => endpoints.addToFolder(contentId));
+      },
+      removeFromFolder: async (contentId: number) => {
+        await dispatch('remove-event-of-day-folder', () => endpoints.removeFromFolder(contentId));
       },
       save: async (preview: IEventOfDayPreview, date: string) =>
         (await dispatch('save-event-of-day-history', () => endpoints.save(preview, date))).data,
