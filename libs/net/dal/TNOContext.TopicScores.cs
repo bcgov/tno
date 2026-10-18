@@ -42,6 +42,29 @@ public partial class TNOContext
     }
 
     /// <summary>
+    /// Whether content with these values may be given a topic automatically: its source or series
+    /// uses topics, it is not Image content, and its source has a default score or a rule.
+    /// </summary>
+    /// <param name="contentType"></param>
+    /// <param name="sourceId"></param>
+    /// <param name="seriesId"></param>
+    /// <returns></returns>
+    public bool IsTopicEligible(ContentType contentType, int? sourceId, int? seriesId)
+    {
+        if (!sourceId.HasValue) return false;
+        var source = this.Sources.AsNoTracking().Where(s => s.Id == sourceId)
+            .Select(s => new
+            {
+                s.UseInTopics,
+                HasScoring = s.TopicDefaultScore != null || this.TopicScoreRules.Any(r => r.SourceId == s.Id),
+            })
+            .FirstOrDefault();
+        if (source == null) return false;
+        var seriesUseInTopics = seriesId.HasValue && this.Series.AsNoTracking().Any(s => s.Id == seriesId && s.UseInTopics);
+        return TopicScoreCalculator.IsTopicEligible(contentType, source.UseInTopics, seriesUseInTopics, source.HasScoring);
+    }
+
+    /// <summary>
     /// Recalculate the calculated topic scores of every content whose scoring inputs this save
     /// changes. Overridden scores are never touched.
     /// </summary>

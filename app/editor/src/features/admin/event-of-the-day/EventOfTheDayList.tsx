@@ -41,6 +41,10 @@ const sortStories = (data: IFolderContentModel[]) =>
       (a.content?.source?.sortOrder ?? 99999) - (b.content?.source?.sortOrder ?? 99999);
     return source || (a.content?.page ?? 'ZZZ').localeCompare(b.content?.page ?? 'ZZZ');
   });
+// A story counts in the report when it has topics, none is "Not Applicable", and each scores above zero.
+// The API also requires its source to have topic scoring.
+const countsInReport = (topics: IContentTopicModel[] = []) =>
+  !!topics.length && topics.every((t) => !t.isSystem && t.score > 0);
 
 /** Edit source topics by BC publication date and review historical report replacements. */
 const EventOfTheDayList: React.FC = () => {
@@ -181,6 +185,13 @@ const EventOfTheDayList: React.FC = () => {
     );
   };
 
+  // Today's report is sent from the folder, so a story that no longer counts leaves it.
+  const leaveFolder = async (contentId: number, topics: IContentTopicModel[]) => {
+    if (!live || countsInReport(topics)) return;
+    await history.removeFromFolder(contentId);
+    setItems((current) => current.filter((item) => item.contentId !== contentId));
+  };
+
   const handleSubmit = async (values: IFolderContentModel) => {
     invalidatePreview();
     setWorking(true);
@@ -188,6 +199,7 @@ const EventOfTheDayList: React.FC = () => {
       const result = await updateContentTopics(values.contentId, values.content!.topics);
       changedIds.current.add(values.contentId);
       storeTopics(values.contentId, result);
+      await leaveFolder(values.contentId, result);
     } catch {
       // Errors are displayed by the API wrapper; keep the last saved row.
     } finally {
@@ -202,6 +214,7 @@ const EventOfTheDayList: React.FC = () => {
       const result = await resetContentTopicScore(values.contentId, topic.id);
       changedIds.current.add(values.contentId);
       storeTopics(values.contentId, result);
+      await leaveFolder(values.contentId, result);
     } catch {
       // Errors are displayed by the API wrapper.
     } finally {
@@ -251,9 +264,14 @@ const EventOfTheDayList: React.FC = () => {
         const topics = await updateContentTopics(item.contentId, [{ ...systemTopic, score: 0 }]);
         changedIds.current.add(item.contentId);
         storeTopics(item.contentId, topics);
+        await leaveFolder(item.contentId, topics);
         setSelected((ids) => ids.filter((id) => id !== item.contentId));
       }
-      toast.success('Selected stories marked Not Applicable.');
+      toast.success(
+        live
+          ? "Selected stories marked Not Applicable and removed from today's folder."
+          : 'Selected stories marked Not Applicable.',
+      );
     } catch {
       // The remaining selection can be retried after an error.
     } finally {
@@ -345,12 +363,12 @@ const EventOfTheDayList: React.FC = () => {
     [item.content?.headline, item.content?.source?.code ?? item.content?.otherSource]
       .filter(Boolean)
       .join(' — ');
-  // Only this date's stories with a topic can join the report; those it already holds are left out.
+  // Only this date's stories that count in the report can join it; those it already holds are left out.
   const inReport = live
     ? items.map((item) => item.contentId)
     : [...(current?.contentIds ?? []), ...added];
   const addable: IOptionItem[] = dayStories
-    .filter((item) => !!item.content?.topics.length && !inReport.includes(item.contentId))
+    .filter((item) => countsInReport(item.content?.topics) && !inReport.includes(item.contentId))
     .map((item) => ({
       discriminator: 'IOption',
       label: storyLabel(item),
@@ -359,11 +377,7 @@ const EventOfTheDayList: React.FC = () => {
     }));
 
   const columns = useColumns(allTopics, handleSubmit, handleReset);
-  const included = items.filter(
-    (item) =>
-      item.content?.topics.some((t) => !t.isSystem) &&
-      item.content.topics.every((t) => !t.isSystem),
-  ).length;
+  const included = items.filter((item) => countsInReport(item.content?.topics)).length;
 
   return (
     <styled.EventOfTheDayList>
@@ -436,9 +450,10 @@ const EventOfTheDayList: React.FC = () => {
         </Show>
         <p className="history-help">
           Topic and score changes save immediately and affect future reports. Mark a story Not
-          Applicable to exclude it from topic charts. Regenerate and save to update a published
-          report. Re-collect rebuilds the report&apos;s story list from every story with a topic on
-          its date, the way the folder was collected.
+          Applicable to exclude it from the report and topic charts; stories scored zero are left
+          out too. Regenerate and save to update a published report. Re-collect rebuilds the
+          report&apos;s story list from every story that counts on its date, the way the folder was
+          collected.
         </p>
         <Show visible={!loading && !live && !instanceId}>
           <p role="status">
@@ -555,7 +570,7 @@ const EventOfTheDayList: React.FC = () => {
             <Select
               name="addStory"
               label={live ? 'Add a story to the folder' : 'Add a story to the report'}
-              placeholder="Search this date's stories with a topic"
+              placeholder="Search this date's stories that count in the report"
               options={addable}
               value=""
               isDisabled={busy}

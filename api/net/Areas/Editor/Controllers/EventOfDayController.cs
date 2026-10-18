@@ -120,6 +120,15 @@ public class EventOfDayController : ControllerBase
         ContentIds = contentIds.Distinct().OrderBy(id => id).ToArray()
     };
 
+    /// <summary>Whether a story counts in Event of the Day (see ITopicScoreService.IsEventOfDayContent).</summary>
+    private bool IsReportable(Entities.Content content)
+        => _scores.IsEventOfDayContent(content.ContentType, content.SourceId, content.SeriesId,
+            content.TopicsManyToMany.Select(t => (t.Topic?.IsSystem ?? false, t.Score)));
+
+    private bool IsReportable(Services.Models.Content.ContentModel content)
+        => _scores.IsEventOfDayContent(content.ContentType, content.SourceId, content.SeriesId,
+            content.Topics.Select(t => (t.IsSystem, t.Score)));
+
     /// <summary>
     /// The report instances published on the BC calendar 'date', and that day's stories with a topic
     /// or in one of those reports, with their calculated topic scores.
@@ -147,7 +156,7 @@ public class EventOfDayController : ControllerBase
 
     /// <summary>
     /// Add one of today's stories to the Event of the Day folder, so today's report includes it.
-    /// The story must have a topic and be published today (BC), like the folder's collector requires.
+    /// The story must count in the report and be published today (BC), like the folder's collector requires.
     /// </summary>
     /// <param name="contentId"></param>
     /// <returns></returns>
@@ -156,11 +165,26 @@ public class EventOfDayController : ControllerBase
     {
         var (start, end) = EventOfDayReportQuery.GetDayRange(EventOfDayReportQuery.GetDate(DateTime.UtcNow));
         var story = _instances.FindTopicContentInRange(ReportId, start, end)
-            .FirstOrDefault(c => c.Id == contentId && c.TopicsManyToMany.Count != 0);
-        if (story == null) return BadRequest("Only stories with a topic that were published today can be added to the folder.");
+            .FirstOrDefault(c => c.Id == contentId && IsReportable(c));
+        if (story == null) return BadRequest(NotReportableMessage("today"));
         _folders.AddContentToFolder(contentId, FolderId);
         return Ok();
     }
+
+    /// <summary>
+    /// Remove a story from the Event of the Day folder, so today's report leaves it out.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <returns></returns>
+    [HttpDelete("folder/{contentId:long}")]
+    public IActionResult RemoveFromFolder(long contentId)
+    {
+        _folders.RemoveContentFromFolder(contentId, FolderId);
+        return Ok();
+    }
+
+    private static string NotReportableMessage(string day)
+        => $"Only stories published {day} from a source with topic scoring, with a topic other than Not Applicable and a score above zero, can be added.";
 
     /// <summary>Regenerate a saved instance's output without saving it.</summary>
     /// <param name="id"></param>
@@ -188,12 +212,12 @@ public class EventOfDayController : ControllerBase
         var (start, end) = EventOfDayReportQuery.GetDayRange(EventOfDayReportQuery.GetDate(publishedOn));
         var dayStories = _instances.FindTopicContentInRange(instance.ReportId, start, end).ToArray();
         var changed = dayStories.Where(c => request.ChangedContentIds.Contains(c.Id)).ToArray();
-        // Stories an editor adds by hand must have a topic and be published on the report's day.
+        // Stories an editor adds by hand must count in the report and be published on the report's day.
         var added = request.AddContentIds.Distinct()
-            .Select(id => dayStories.FirstOrDefault(c => c.Id == id && c.TopicsManyToMany.Count != 0))
+            .Select(id => dayStories.FirstOrDefault(c => c.Id == id && IsReportable(c)))
             .ToArray();
         if (added.Any(c => c == null))
-            return BadRequest("Only stories with a topic that were published on this report's date can be added.");
+            return BadRequest(NotReportableMessage("on this report's date"));
         var checkedIndexes = new HashSet<string>();
         Entities.ReportInstanceContent[]? savedContent = null;
 
@@ -232,7 +256,7 @@ public class EventOfDayController : ControllerBase
 
                 // The collector sorts newest first; keep that order so the sections read like a collected folder.
                 var (hits, _) = await SearchAsync(index, folderFilter.Query, publishedOn);
-                foreach (var hit in hits.OrderByDescending(h => h.PublishedOn).ThenBy(h => h.Id))
+                foreach (var hit in hits.Where(IsReportable).OrderByDescending(h => h.PublishedOn).ThenBy(h => h.Id))
                 {
                     content.Add(new TemplateContent(hit, content.Count));
                     links.Add(new EventOfDayContentLink { ContentId = hit.Id, SectionName = section.Name, SortOrder = content.Count - 1 });
@@ -242,9 +266,10 @@ public class EventOfDayController : ControllerBase
             else if (instance.Id != 0)
             {
                 // A historical folder has already been cleared. Use its saved associations;
-                // never read today's live folder to rebuild an earlier report.
+                // never read today's live folder to rebuild an earlier report. Stories that no
+                // longer count (e.g. marked Not Applicable) are left out.
                 savedContent ??= _instances.GetContentForInstance(instance.Id).ToArray();
-                foreach (var link in savedContent.Where(c => c.SectionName == section.Name && c.Content != null))
+                foreach (var link in savedContent.Where(c => c.SectionName == section.Name && c.Content != null && IsReportable(c.Content)))
                 {
                     content.Add(new TemplateContent(link.Content!, link.SortOrder));
                     links.Add(new EventOfDayContentLink { ContentId = link.ContentId, SectionName = section.Name, SortOrder = link.SortOrder });
@@ -384,7 +409,7 @@ public class EventOfDayPreviewRequest
 {
     /// <summary>Stories whose topics were edited; the preview waits until they are re-indexed.</summary>
     public long[] ChangedContentIds { get; set; } = Array.Empty<long>();
-    /// <summary>Stories to add to the folder sections; each must have a topic and be published on the report's day.</summary>
+    /// <summary>Stories to add to the folder sections; each must count in the report and be published on the report's day.</summary>
     public long[] AddContentIds { get; set; } = Array.Empty<long>();
     /// <summary>Rebuild the folder sections from the folder's collector filter instead of the saved links.</summary>
     public bool Recollect { get; set; }
