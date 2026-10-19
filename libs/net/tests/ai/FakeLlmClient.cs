@@ -34,6 +34,21 @@ public partial class FakeLlmClient : ILlmClient
     /// <summary>Reduce requests return their input unchanged, so reduction never makes progress.</summary>
     public bool ReduceNeverShrinks { get; set; }
 
+    /// <summary>The first map responses (this many) are not findings JSON.</summary>
+    public int InvalidMapResponses { get; set; }
+
+    /// <summary>Every map response is not findings JSON.</summary>
+    public bool MapAlwaysInvalid { get; set; }
+
+    /// <summary>A map request carrying this story handle is blocked by the content filter.</summary>
+    public string? ContentFilterHandle { get; set; }
+
+    /// <summary>The content filter rejects the request itself (prompt filter) rather than the response.</summary>
+    public bool ContentFilterRejectsRequest { get; set; }
+
+    /// <summary>The final response is blocked by the content filter.</summary>
+    public bool FilterFinal { get; set; }
+
     /// <summary>The text the final request returns; null cites the handles given.</summary>
     public string? FinalOutput { get; set; }
 
@@ -48,6 +63,8 @@ public partial class FakeLlmClient : ILlmClient
 
     /// <summary>Story handles each map request carried, in order.</summary>
     public ConcurrentQueue<string[]> MapHandles { get; } = new();
+
+    private int _invalidMapResponses;
 
     public FakeLlmClient(int contextWindow)
     {
@@ -75,6 +92,13 @@ public partial class FakeLlmClient : ILlmClient
         {
             var handles = StoryHandleRegex().Matches(input).Select(m => m.Groups["handle"].Value).Distinct().ToArray();
             this.MapHandles.Enqueue(handles);
+            if (this.ContentFilterHandle != null && handles.Contains(this.ContentFilterHandle))
+            {
+                if (this.ContentFilterRejectsRequest) throw new LlmContentFilterException("The response was filtered due to the prompt triggering the content management policy.");
+                return Task.FromResult(new LlmResult("", size, 0, 1) { FinishReason = "content_filter" });
+            }
+            if (this.MapAlwaysInvalid || Interlocked.Increment(ref _invalidMapResponses) <= this.InvalidMapResponses)
+                return Task.FromResult(new LlmResult("I could not produce findings for these stories.", size, 10, 1) { FinishReason = "stop" });
             if (this.TruncateWhenStoriesExceed.HasValue && handles.Length > this.TruncateWhenStoriesExceed)
                 return Task.FromResult(new LlmResult("{\"findings\":[", size, 10, 1) { FinishReason = "length" });
             var findings = handles.Select(h => new { topic = h.StartsWith("P") ? "History" : "Topic " + (int.Parse(h[1..].Split('-')[0]) % 3), statement = $"Fact from {h}.", sources = new[] { h } });
@@ -90,6 +114,8 @@ public partial class FakeLlmClient : ILlmClient
         }
 
         // The final free-text request.
+        if (this.FilterFinal)
+            return Task.FromResult(new LlmResult("", size, 0, 1) { FinishReason = "content_filter", Choices = new[] { "" } });
         var cited = QuotedHandleRegex().Matches(input).Select(m => m.Groups["handle"].Value).Distinct().Take(3).ToArray();
         var text = this.FinalOutput ?? $"<p>Summary {String.Join("", cited.Select(h => $"[{h}]"))}</p>";
         var choices = Enumerable.Range(1, this.FinalChoices).Select(i => this.FinalChoices == 1 ? text : $"{text} choice {i}").ToArray();

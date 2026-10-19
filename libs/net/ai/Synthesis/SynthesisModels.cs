@@ -64,6 +64,9 @@ public record SynthesisHistoricalInstance(string Label, IReadOnlyList<SynthesisS
 /// <param name="ChoiceCount">The final request's number of choices.</param>
 /// <param name="ChoiceIndex">The choice to use; -1 joins every choice.</param>
 /// <param name="Sections">Every section of the report in order, with its anchor and the content it holds.</param>
+/// <param name="ReportId">The report the section belongs to, for logging.</param>
+/// <param name="ReportSectionId">The report section, for logging.</param>
+/// <param name="ReportInstanceId">The report instance being generated, for logging.</param>
 public record SynthesisRequest(
     string SectionLabel,
     string? SystemPrompt,
@@ -76,7 +79,10 @@ public record SynthesisRequest(
     float? Temperature = null,
     int? ChoiceCount = null,
     int? ChoiceIndex = null,
-    IReadOnlyList<SynthesisSection>? Sections = null);
+    IReadOnlyList<SynthesisSection>? Sections = null,
+    int? ReportId = null,
+    int? ReportSectionId = null,
+    long? ReportInstanceId = null);
 
 /// <summary>
 /// SynthesisOptions class, configuration for bounded synthesis.
@@ -114,6 +120,12 @@ public class SynthesisOptions
     /// get/set - Attempts per request for throttling and transient failures.
     /// </summary>
     public int RequestAttempts { get; set; } = 3;
+
+    /// <summary>
+    /// get/set - Extra attempts for a map or reduce request whose response is not valid findings,
+    /// before the batch is split. A response the content filter blocked is not retried.
+    /// </summary>
+    public int InvalidResponseAttempts { get; set; } = 2;
 
     /// <summary>
     /// get/set - How long a generator holds its claim on a result before another may take over.

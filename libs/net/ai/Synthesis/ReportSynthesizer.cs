@@ -93,6 +93,7 @@ public partial class ReportSynthesizer
             {
                 var instance = request.History[i];
                 var stories = instance.Stories.Select((story, n) => (Handle: $"P{i + 1}-{n + 1}", Story: story)).ToArray();
+                foreach (var (handle, story) in stories) run.Stories[handle] = story;
                 var label = HistoryStage(instance.Label);
                 var (previous, _) = await MapAsync(run, instructions, stories, $"{label} map", LlmExchangeKind.HistoryMap, cancellationToken);
                 history.Add((instance.Label, await ReduceAsync(run, instructions, previous, historyShare, false, $"{label} reduce", LlmExchangeKind.HistoryReduce, cancellationToken)));
@@ -124,7 +125,8 @@ public partial class ReportSynthesizer
         catch (Exception ex) when (ex is SynthesisException || ex is HttpRequestException || ex is JsonException
             || (ex is TaskCanceledException && !cancellationToken.IsCancellationRequested))
         {
-            _logger.LogWarning(ex, "Synthesis of section '{section}' failed", request.SectionLabel);
+            _logger.LogWarning(ex, "Synthesis of section '{section}' failed (report:{reportId}, instance:{instanceId}, section:{sectionId}): {error}",
+                request.SectionLabel, request.ReportId, request.ReportInstanceId, request.ReportSectionId, ex.Message);
             return new SynthesisResult(false, "", ex.Message, Array.Empty<Finding>(), run.Sources.Values.ToArray(), run.Usage(), run.Transcript?.Exchanges);
         }
     }
@@ -331,20 +333,39 @@ public partial class ReportSynthesizer
     }
 
     /// <summary>
-    /// Send one batch and parse its findings. A batch the provider rejects as too long, or whose
-    /// output is truncated or unreadable, is split in two and each half retried; a single story part
-    /// is split into smaller parts.
+    /// Send one batch and parse its findings. A response that is not valid findings is sent again
+    /// up to InvalidResponseAttempts times. A batch the provider rejects as too long, whose output is
+    /// truncated or stays unreadable, or that the content filter blocks, is split in two and each
+    /// half retried; a single story part is split into smaller parts, except a part the content
+    /// filter blocks, which fails the synthesis with the story named.
     /// </summary>
     private async Task<List<Finding>> ProcessAsync(Run run, string system, List<Item> batch, bool isMap, int allowance, string stage, string kind, CancellationToken cancellationToken)
     {
         var handles = batch.Select(i => i.Handle).ToHashSet();
         var input = BatchInput(batch);
-        string? problem;
-        try
+        var attempts = 1 + Math.Max(0, _options.InvalidResponseAttempts);
+        string problem;
+        var isFiltered = false;
+        string? filterDetail = null;
+        for (var attempt = 1; ; attempt++)
         {
-            var result = await SendAsync(run, new[] { ("system", system), ("user", input) }, true, null, null, run.BatchOutputTokens, stage, kind, cancellationToken);
-            if (!result.IsTruncated)
+            try
             {
+                var result = await SendAsync(run, new[] { ("system", system), ("user", input) }, true, null, null, run.BatchOutputTokens,
+                    attempt == 1 ? stage : $"{stage} (retry {attempt - 1})", kind, cancellationToken);
+                if (result.IsContentFiltered)
+                {
+                    problem = "the content filter blocked the response";
+                    isFiltered = true;
+                    filterDetail = $"finishReason:{result.FinishReason}";
+                    break;
+                }
+                if (result.IsTruncated)
+                {
+                    problem = "the response was truncated at the output limit";
+                    break;
+                }
+
                 var findings = ParseFindings(result.Content, handles);
                 if (findings != null)
                 {
@@ -354,13 +375,26 @@ public partial class ReportSynthesizer
                     if (isMap) run.RecordProcessed(batch.Select(i => i.Handle));
                     return findings;
                 }
+
                 problem = "the response was not valid findings";
+                _logger.LogWarning(
+                    "Synthesis of section '{section}' (report:{reportId}, instance:{instanceId}, section:{sectionId}) {stage}: the response was not valid findings on attempt {attempt} of {attempts} (finishReason:{finishReason}, items:{items}, content:{content}, refusal:{refusal}): {response}",
+                    run.Request.SectionLabel, run.Request.ReportId, run.Request.ReportInstanceId, run.Request.ReportSectionId, stage, attempt, attempts,
+                    result.FinishReason, batch.Count, DescribeContent(run, batch, isMap), result.Refusal, Excerpt(result.Content));
+                if (attempt >= attempts) break;
             }
-            else problem = "the response was truncated at the output limit";
-        }
-        catch (LlmContextLengthException)
-        {
-            problem = "the request exceeded the context window";
+            catch (LlmContentFilterException ex)
+            {
+                problem = "the content filter blocked the request";
+                isFiltered = true;
+                filterDetail = ex.Message;
+                break;
+            }
+            catch (LlmContextLengthException)
+            {
+                problem = "the request exceeded the context window";
+                break;
+            }
         }
 
         _logger.LogDebug("Splitting a synthesis batch of {count} item(s) because {problem}", batch.Count, problem);
@@ -373,6 +407,15 @@ public partial class ReportSynthesizer
         }
 
         var item = batch[0];
+        if (isFiltered)
+        {
+            // Logged once the batch is split down to the item the filter blocks.
+            _logger.LogWarning(
+                "Synthesis of section '{section}' (report:{reportId}, instance:{instanceId}, section:{sectionId}) {stage}: {problem} (content:{content}): {detail}",
+                run.Request.SectionLabel, run.Request.ReportId, run.Request.ReportInstanceId, run.Request.ReportSectionId, stage, problem,
+                DescribeContent(run, batch, isMap), filterDetail);
+            throw new SynthesisException($"Synthesis failed because {problem} for {DescribeItem(run, item, isMap)} at {stage}.");
+        }
         if (isMap && item.StoryText != null && item.Tokens > 64)
         {
             // Split the story part into smaller parts; each still carries the story's handle.
@@ -388,7 +431,40 @@ public partial class ReportSynthesizer
                 return await ProcessAsync(run, system, smaller, isMap, allowance, $"{stage} (split story)", kind, cancellationToken);
             }
         }
-        throw new SynthesisException($"Synthesis failed because {problem}, and the input cannot be split further.");
+        throw new SynthesisException($"Synthesis failed because {problem} for {DescribeItem(run, item, isMap)} at {stage}, and the input cannot be split further.");
+    }
+
+    /// <summary>
+    /// The content behind a batch, for log messages: each story's content id for a map batch, the
+    /// number of stories behind the findings for a reduce batch.
+    /// </summary>
+    private static string DescribeContent(Run run, IReadOnlyList<Item> batch, bool isMap)
+    {
+        var handles = batch.SelectMany(i => isMap ? new[] { i.Handle } : i.Sources).Distinct().ToArray();
+        if (!isMap) return $"{handles.Length} stories behind {batch.Count} findings";
+        return String.Join(",", handles.Select(h => run.Stories.TryGetValue(h, out var story) ? story.ContentId.ToString() : h));
+    }
+
+    /// <summary>
+    /// The story or finding an item stands for, for error messages.
+    /// </summary>
+    private static string DescribeItem(Run run, Item item, bool isMap)
+    {
+        if (isMap)
+            return run.Stories.TryGetValue(item.Handle, out var story) ? $"the story '{story.Headline}' (content {story.ContentId})" : $"the story {item.Handle}";
+        var content = item.Sources.Select(h => run.Stories.TryGetValue(h, out var story) ? story.ContentId.ToString() : h).Distinct().ToArray();
+        return content.Length <= 10
+            ? $"a finding from content {String.Join(", ", content)}"
+            : $"a finding from content {String.Join(", ", content.Take(10))} and {content.Length - 10} more";
+    }
+
+    /// <summary>
+    /// The start of a response, for log messages.
+    /// </summary>
+    private static string Excerpt(string? content)
+    {
+        if (String.IsNullOrEmpty(content)) return "(empty)";
+        return content.Length <= 500 ? content : $"{content[..500]}... ({content.Length} characters)";
     }
 
     /// <summary>
@@ -465,8 +541,14 @@ public partial class ReportSynthesizer
                 {
                     var result = await SendAsync(run, messages, false, request.Temperature, request.ChoiceCount, request.Limits.MaxOutputTokens,
                         round == 0 ? "Final" : $"Final (retry {round + 1})", LlmExchangeKind.Final, cancellationToken);
+                    if (result.IsContentFiltered)
+                        throw new SynthesisException("Synthesis failed because the content filter blocked the response to the final request.");
                     if (!result.IsTruncated) return (ValidateStoryLinks(run, Sanitize(LinkCitations(run, SelectChoice(result, request.ChoiceIndex)))), findings);
                     problem = "the section output was truncated at the output limit";
+                }
+                catch (LlmContentFilterException)
+                {
+                    throw new SynthesisException("Synthesis failed because the content filter blocked the final request.");
                 }
                 catch (LlmContextLengthException)
                 {
@@ -671,32 +753,75 @@ public partial class ReportSynthesizer
     /// <summary>
     /// Parse the findings a response returns. Handles not in the request are dropped, and so are
     /// findings left without a source. Returns null when the response is not findings JSON.
+    /// The response may wrap the JSON in a code fence or prose, name properties in any case, or
+    /// return the findings array without its object.
     /// </summary>
     public static List<Finding>? ParseFindings(string content, IReadOnlySet<string> allowedHandles)
     {
-        try
+        foreach (var json in JsonCandidates(content))
         {
-            using var document = JsonDocument.Parse(CodeFenceRegex().Replace(content.Trim(), ""));
-            if (!document.RootElement.TryGetProperty("findings", out var items) || items.ValueKind != JsonValueKind.Array) return null;
-            var findings = new List<Finding>();
-            foreach (var item in items.EnumerateArray())
+            try
             {
-                if (item.ValueKind != JsonValueKind.Object) continue;
-                var statement = item.TryGetProperty("statement", out var s) && s.ValueKind == JsonValueKind.String ? s.GetString()?.Trim() : null;
-                if (String.IsNullOrWhiteSpace(statement)) continue;
-                var topic = item.TryGetProperty("topic", out var t) && t.ValueKind == JsonValueKind.String ? t.GetString()?.Trim() ?? "" : "";
-                var sources = item.TryGetProperty("sources", out var src) && src.ValueKind == JsonValueKind.Array
-                    ? src.EnumerateArray().Where(x => x.ValueKind == JsonValueKind.String).Select(x => x.GetString()!.Trim().Trim('[', ']')).Where(allowedHandles.Contains).Distinct().ToArray()
-                    : Array.Empty<string>();
-                if (sources.Length == 0) continue;
-                findings.Add(new Finding(topic, statement, sources));
+                using var document = JsonDocument.Parse(json);
+                var root = document.RootElement;
+                var items = root.ValueKind == JsonValueKind.Array ? root
+                    : root.ValueKind == JsonValueKind.Object && TryGetProperty(root, "findings", out var array) && array.ValueKind == JsonValueKind.Array ? array
+                    : (JsonElement?)null;
+                if (items == null) continue;
+                var findings = new List<Finding>();
+                foreach (var item in items.Value.EnumerateArray())
+                {
+                    if (item.ValueKind != JsonValueKind.Object) continue;
+                    var statement = TryGetProperty(item, "statement", out var s) && s.ValueKind == JsonValueKind.String ? s.GetString()?.Trim() : null;
+                    if (String.IsNullOrWhiteSpace(statement)) continue;
+                    var topic = TryGetProperty(item, "topic", out var t) && t.ValueKind == JsonValueKind.String ? t.GetString()?.Trim() ?? "" : "";
+                    var sources = TryGetProperty(item, "sources", out var src) && src.ValueKind == JsonValueKind.Array
+                        ? src.EnumerateArray().Where(x => x.ValueKind == JsonValueKind.String).Select(x => x.GetString()!.Trim().Trim('[', ']')).Where(allowedHandles.Contains).Distinct().ToArray()
+                        : Array.Empty<string>();
+                    if (sources.Length == 0) continue;
+                    findings.Add(new Finding(topic, statement, sources));
+                }
+                return findings;
             }
-            return findings;
+            catch (JsonException)
+            {
+                // Try the next candidate.
+            }
         }
-        catch (JsonException)
+        return null;
+    }
+
+    /// <summary>
+    /// The text in a response that may be the findings JSON, in order: the whole text without a
+    /// code fence, then the outermost object within it, then the outermost array.
+    /// </summary>
+    private static IEnumerable<string> JsonCandidates(string content)
+    {
+        var text = CodeFenceRegex().Replace(content.Trim(), "");
+        yield return text;
+        foreach (var (open, close) in new[] { ('{', '}'), ('[', ']') })
         {
-            return null;
+            var start = text.IndexOf(open);
+            var end = text.LastIndexOf(close);
+            // The whole text was already tried.
+            if (start >= 0 && end > start && (start > 0 || end < text.Length - 1))
+                yield return text[start..(end + 1)];
         }
+    }
+
+    /// <summary>
+    /// Get a property by name, ignoring case when no property has the exact name.
+    /// </summary>
+    private static bool TryGetProperty(JsonElement element, string name, out JsonElement value)
+    {
+        if (element.TryGetProperty(name, out value)) return true;
+        foreach (var property in element.EnumerateObject())
+        {
+            if (!String.Equals(property.Name, name, StringComparison.OrdinalIgnoreCase)) continue;
+            value = property.Value;
+            return true;
+        }
+        return false;
     }
     #endregion
 
@@ -766,8 +891,16 @@ public partial class ReportSynthesizer
         public SynthesisTranscript? Transcript { get; }
         public Dictionary<string, SynthesisSource> Sources { get; } = new();
 
+        /// <summary>
+        /// Every story by its handle, current ("S1") and previous ("P1-1"), to name it in logs and errors.
+        /// </summary>
+        public Dictionary<string, SynthesisStory> Stories { get; } = new();
+
         public void AddSource(string handle, SynthesisStory story)
-            => this.Sources[handle] = new SynthesisSource(handle, story.ContentId, story.Headline, story.Url, story.Anchor, story.Fields);
+        {
+            this.Sources[handle] = new SynthesisSource(handle, story.ContentId, story.Headline, story.Url, story.Anchor, story.Fields);
+            this.Stories[handle] = story;
+        }
 
         /// <summary>
         /// Input tokens available beside the specified system prompt, in a two-message request.

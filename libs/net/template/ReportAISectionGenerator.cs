@@ -97,6 +97,7 @@ public class ReportAISectionGenerator
     {
         var (request, prepareError) = Prepare(report, section, sectionContent, previousReports, llm, viewContentUrlOverride);
         if (request == null) return (null, prepareError, AISectionStatus.Failed, null);
+        request = request with { ReportInstanceId = reportInstanceId };
 
         var manifest = BuildManifest(report, section, llm, request, previousReports);
         var hash = Hash(manifest);
@@ -185,9 +186,10 @@ public class ReportAISectionGenerator
             ReductionDepth = result.Usage.ReductionDepth,
         }, CancellationToken.None);
 
-        _logger.LogInformation(
-            "AI section '{section}' {outcome}: stories:{stories}, requests:{requests}, promptTokens:{promptTokens}, completionTokens:{completionTokens}, depth:{depth}, largestRequest:{largest}, durationMs:{duration}",
-            request.SectionLabel, result.IsSuccess ? "generated" : $"failed ({result.Error})", result.Usage.StoriesProcessed, result.Usage.Requests,
+        _logger.Log(result.IsSuccess ? LogLevel.Information : LogLevel.Warning,
+            "AI section '{section}' {outcome} (report:{reportId}, instance:{instanceId}, section:{sectionId}): stories:{stories}, requests:{requests}, promptTokens:{promptTokens}, completionTokens:{completionTokens}, depth:{depth}, largestRequest:{largest}, durationMs:{duration}",
+            request.SectionLabel, result.IsSuccess ? "generated" : $"failed ({result.Error})", request.ReportId, request.ReportInstanceId, request.ReportSectionId,
+            result.Usage.StoriesProcessed, result.Usage.Requests,
             result.Usage.PromptTokens, result.Usage.CompletionTokens, result.Usage.ReductionDepth, result.Usage.LargestRequestTokens, result.Usage.DurationMs);
 
         return result.IsSuccess ? (result.Output, null) : (null, result.Error);
@@ -254,7 +256,9 @@ public class ReportAISectionGenerator
             settings.Temperature,
             settings.ChoiceQty,
             settings.ChoiceIndex,
-            BuildSections(sectionContent.Values));
+            BuildSections(sectionContent.Values),
+            report.Id,
+            section.Id);
         return (request, null);
     }
 
