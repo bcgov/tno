@@ -631,6 +631,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// Determine if this request is a retry.
     /// A retry is due to a failure in the prior attempt.
     /// A retry will result in a report being sent only to failed subscribers.
+    /// A retry reuses the instance's output, so the output must exist; a failure before it was
+    /// generated (i.e. fetching content) requires generating it again.
     /// </summary>
     /// <param name="request"></param>
     /// <param name="instance"></param>
@@ -638,7 +640,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     private static bool IsRetry(ReportRequestModel request, API.Areas.Services.Models.ReportInstance.ReportInstanceModel? instance)
     {
         var errorStatus = request.Data.GetElementValue<ReportingErrors?>(".error");
-        return !IsResend(request, instance) && errorStatus.HasValue;
+        return !IsResend(request, instance) && errorStatus.HasValue && !String.IsNullOrWhiteSpace(instance?.Subject) && !String.IsNullOrWhiteSpace(instance?.Body);
     }
 
     /// <summary>
@@ -964,6 +966,17 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
             var (linkEmails, fullEmails) = await GetEmailAddressesAsync(request, report, instance, userReportInstances);
 
+            var sendLinkOnly = !report.Settings.DoNotSendEmail && String.IsNullOrEmpty(request.To) && (linkEmails[EmailSentTo.To].Any() || linkEmails[EmailSentTo.CC].Any() || linkEmails[EmailSentTo.BCC].Any());
+            var sendFullText = !report.Settings.DoNotSendEmail && (fullEmails[EmailSentTo.To].Any() || fullEmails[EmailSentTo.CC].Any() || fullEmails[EmailSentTo.BCC].Any() || !String.IsNullOrEmpty(request.To));
+
+            // CHES rejects an email without a subject or body.  Fail before anything is sent, or saved to the instance, so a retry generates the output again.
+            if ((sendLinkOnly || sendFullText) && String.IsNullOrWhiteSpace(subject))
+                throw new InvalidOperationException("The report output has no subject.");
+            if (sendLinkOnly && String.IsNullOrWhiteSpace(linkBody))
+                throw new InvalidOperationException("The report output has no link only body.");
+            if (sendFullText && String.IsNullOrWhiteSpace(fullBody))
+                throw new InvalidOperationException("The report output has no full text body.");
+
             if (instance != null && request.GenerateInstance)
             {
                 instance.Subject = subject;
@@ -973,7 +986,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                     instance.SentOn = DateTime.UtcNow; // We track when it was sent, even if it failed.
             }
 
-            if (!report.Settings.DoNotSendEmail && String.IsNullOrEmpty(request.To) && (linkEmails[EmailSentTo.To].Any() || linkEmails[EmailSentTo.CC].Any() || linkEmails[EmailSentTo.BCC].Any()))
+            if (sendLinkOnly)
             {
                 // Send the email.
                 var (linkOnlyStatus, responseLinkOnly) = await SendEmailAsync(
@@ -994,7 +1007,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 }
             }
 
-            if (!report.Settings.DoNotSendEmail && (fullEmails[EmailSentTo.To].Any() || fullEmails[EmailSentTo.CC].Any() || fullEmails[EmailSentTo.BCC].Any() || !String.IsNullOrEmpty(request.To)))
+            if (sendFullText)
             {
                 // Send the email.
                 var (fullTextStatus, responseFullText) = await SendEmailAsync(
