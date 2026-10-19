@@ -59,6 +59,26 @@ public class ReportServiceTest : IDisposable
         context.ChangeTracker.Clear();
         return report;
     }
+
+    private static void SeedContent(TNOContext context, params (long Id, string Headline)[] stories)
+    {
+        if (!context.MediaTypes.Any()) context.AddRange(new MediaType("Print") { Id = 1 }, new License("Public", 0) { Id = 1 });
+        foreach (var (id, headline) in stories)
+            context.Add(new Content(id.ToString(), headline, "Source", ContentType.PrintContent, 1, 1) { Id = id, PublishedOn = DateTime.UtcNow.AddHours(-1), Body = "story body" });
+    }
+
+    private static ReportInstance AddInstance(TNOContext context, long id, int reportId, int ownerId, DateTime? sentOn, params long[] contentIds)
+    {
+        var instance = new ReportInstance(id, reportId, ownerId)
+        {
+            PublishedOn = sentOn ?? DateTime.UtcNow,
+            SentOn = sentOn,
+            Body = "sent report output",
+        };
+        context.Add(instance);
+        context.AddRange(contentIds.Select((contentId, index) => new ReportInstanceContent(id, contentId, "section", index)));
+        return instance;
+    }
     #endregion
 
     #region Methods
@@ -195,6 +215,53 @@ public class ReportServiceTest : IDisposable
         // Act / Assert
         Assert.Throws<InvalidOperationException>(() =>
             service.UpdateSubscribersAndSave(report.Id, new[] { new UserReport(99, report.Id, true) }));
+    }
+
+    [Fact]
+    public void GetReportInstanceContentToExclude_ReturnsCurrentAndPreviousSentContent()
+    {
+        // Arrange
+        var service = helper.Provider.GetRequiredService<IReportService>();
+        var context = helper.Provider.GetRequiredService<TNOContext>();
+        var report = SeedReport(context);
+        SeedContent(context, (1, "one"), (2, "two"), (3, "three"), (4, "four"));
+        AddInstance(context, 1, report.Id, 1, DateTime.UtcNow.AddDays(-3), 1);
+        AddInstance(context, 2, report.Id, 1, DateTime.UtcNow.AddDays(-2), 2);
+        AddInstance(context, 3, report.Id, 1, DateTime.UtcNow.AddDays(-1), 3);
+        AddInstance(context, 4, report.Id, 1, null, 4);
+        context.SaveChanges();
+        context.ChangeTracker.Clear();
+
+        // Act
+        var result = service.GetReportInstanceContentToExclude(report.Id, 1);
+
+        // Assert
+        Assert.Equal(new long[] { 2, 3, 4 }, result.Order());
+    }
+
+    [Fact]
+    public async Task FindContentWithElasticsearchAsync_FolderSection_ExcludesHistoricalContentAndDuplicateTitles()
+    {
+        // Arrange
+        var service = helper.Provider.GetRequiredService<IReportService>();
+        var context = helper.Provider.GetRequiredService<TNOContext>();
+        var report = SeedReport(context);
+        SeedContent(context, (1, "Already sent"), (2, "Same headline"), (5, "same headline "), (6, "New story"));
+        context.Add(new Folder(1, "folder", 1));
+        context.AddRange(new FolderContent(1, 1, 0), new FolderContent(1, 5, 1), new FolderContent(1, 6, 2));
+        context.Add(new ReportSection("section", ReportSectionType.Content, report.Id, null, 1, null) { Id = 1 });
+        AddInstance(context, 1, report.Id, 1, DateTime.UtcNow.AddDays(-1), 1, 2);
+        var entity = context.Reports.Single(r => r.Id == report.Id);
+        entity.Settings = JsonDocument.Parse("{\"Content\":{\"ExcludeHistorical\":true,\"RemoveDuplicateTitles3Days\":true}}");
+        context.SaveChanges();
+        context.ChangeTracker.Clear();
+        var loaded = context.Reports.AsNoTracking().Include(r => r.Sections).Single(r => r.Id == report.Id);
+
+        // Act
+        var result = await service.FindContentWithElasticsearchAsync(loaded, null, 1);
+
+        // Assert
+        Assert.Equal(new long[] { 6 }, result["section"].Hits.Hits.Select(h => h.Source.Id));
     }
 
     public void Dispose()
