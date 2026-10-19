@@ -35,6 +35,16 @@ public record LlmResult(string Content, int? PromptTokens, int? CompletionTokens
     /// get - The response stopped at the output token limit, so its text is incomplete.
     /// </summary>
     public bool IsTruncated => FinishReason == "length" || FinishReason == "max_output_tokens";
+
+    /// <summary>
+    /// get - The provider's content filter blocked the response, so its text is empty or incomplete.
+    /// </summary>
+    public bool IsContentFiltered => FinishReason == "content_filter";
+
+    /// <summary>
+    /// get/init - The model's refusal message, when it declined to answer instead of responding.
+    /// </summary>
+    public string? Refusal { get; init; }
 }
 
 /// <summary>
@@ -56,6 +66,19 @@ public class LlmContextLengthException : HttpRequestException
     /// </summary>
     /// <param name="message"></param>
     public LlmContextLengthException(string message) : base(message, null, System.Net.HttpStatusCode.BadRequest) { }
+}
+
+/// <summary>
+/// LlmContentFilterException class, the provider's content filter rejected the request's input.
+/// Sending the same input again is rejected the same way.
+/// </summary>
+public class LlmContentFilterException : HttpRequestException
+{
+    /// <summary>
+    /// Creates a new instance of a LlmContentFilterException.
+    /// </summary>
+    /// <param name="message"></param>
+    public LlmContentFilterException(string message) : base(message, null, System.Net.HttpStatusCode.BadRequest) { }
 }
 
 /// <summary>
@@ -167,6 +190,8 @@ public class LlmDirectClient : ILlmClient
                 }
                 if (status == 400 && IsContextLengthError(responseJson))
                     throw new LlmContextLengthException($"LLM request exceeds the context window: {Truncate(responseJson, 500)}");
+                if (status == 400 && IsContentFilterError(responseJson))
+                    throw new LlmContentFilterException($"LLM request was blocked by the content filter: {Truncate(responseJson, 500)}");
 
                 // Some deployments reject optional parameters; drop the one named and retry.
                 if (status == 400 && TryRelax(ref request, responseJson))
@@ -209,6 +234,17 @@ public class LlmDirectClient : ILlmClient
             || responseJson.Contains("maximum context length", StringComparison.OrdinalIgnoreCase)
             || responseJson.Contains("too many tokens", StringComparison.OrdinalIgnoreCase)
             || responseJson.Contains("exceeds the context window", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Whether a 400 response says the provider's content filter rejected the request's input.
+    /// </summary>
+    /// <param name="responseJson"></param>
+    /// <returns></returns>
+    public static bool IsContentFilterError(string responseJson)
+    {
+        return responseJson.Contains("\"content_filter\"", StringComparison.OrdinalIgnoreCase)
+            || responseJson.Contains("ResponsibleAIPolicyViolation", StringComparison.OrdinalIgnoreCase);
     }
 
     private bool TryRelax(ref RequestShape request, string responseJson)
@@ -280,6 +316,7 @@ public class LlmDirectClient : ILlmClient
         var root = document.RootElement;
         var choices = new List<string>();
         string? finishReason = null;
+        string? refusal = null;
         int? promptTokens = null;
         int? completionTokens = null;
 
@@ -295,8 +332,12 @@ public class LlmDirectClient : ILlmClient
                 {
                     if (!item.TryGetProperty("content", out var itemContent) || itemContent.ValueKind != JsonValueKind.Array) continue;
                     foreach (var part in itemContent.EnumerateArray())
+                    {
                         if (part.TryGetProperty("text", out var text) && text.ValueKind == JsonValueKind.String)
                             parts.Add(text.GetString() ?? "");
+                        else if (part.TryGetProperty("refusal", out var declined) && declined.ValueKind == JsonValueKind.String)
+                            refusal ??= declined.GetString();
+                    }
                 }
                 choices.Add(String.Join("", parts));
             }
@@ -321,6 +362,8 @@ public class LlmDirectClient : ILlmClient
                     choices.Add(choice.TryGetProperty("message", out var inner) && inner.TryGetProperty("content", out var text) && text.ValueKind == JsonValueKind.String
                         ? text.GetString() ?? ""
                         : "");
+                    if (inner.ValueKind == JsonValueKind.Object && inner.TryGetProperty("refusal", out var declined) && declined.ValueKind == JsonValueKind.String)
+                        refusal ??= declined.GetString();
                     // A truncated choice makes the whole response incomplete.
                     if (choice.TryGetProperty("finish_reason", out var reason) && reason.ValueKind == JsonValueKind.String
                         && (finishReason == null || reason.GetString() == "length"))
@@ -338,6 +381,7 @@ public class LlmDirectClient : ILlmClient
         {
             FinishReason = finishReason,
             Choices = choices,
+            Refusal = refusal,
         };
     }
 

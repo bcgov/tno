@@ -282,6 +282,111 @@ public class ReportSynthesizerTest
     }
     #endregion
 
+    #region Invalid responses and content filter
+    private static ReportSynthesizer Synthesizer(FakeLlmClient client, SynthesisOptions options)
+        => new(client, options, NullLogger.Instance);
+
+    [Fact]
+    public async Task InvalidResponseIsRetriedBeforeSplitting()
+    {
+        var client = new FakeLlmClient(8000) { InvalidMapResponses = 2 };
+
+        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(5)));
+
+        result.IsSuccess.Should().BeTrue(result.Error);
+        result.Usage.StoriesProcessed.Should().Be(5);
+        // The same batch was sent three times (two retries), never split.
+        client.MapHandles.Should().HaveCount(3).And.OnlyContain(h => h.Length == 5);
+    }
+
+    [Fact]
+    public async Task InvalidResponseAttemptsAreConfigurable()
+    {
+        var client = new FakeLlmClient(8000) { InvalidMapResponses = 1 };
+
+        var result = await Synthesizer(client, new SynthesisOptions() { InvalidResponseAttempts = 0 }).SynthesizeAsync(Request(Stories(4)));
+
+        result.IsSuccess.Should().BeTrue(result.Error);
+        // Without retries the batch is split after its first invalid response.
+        client.MapHandles.First().Should().HaveCount(4);
+        client.MapHandles.Skip(1).Should().OnlyContain(h => h.Length == 2);
+    }
+
+    [Fact]
+    public async Task InvalidResponsesThatNeverRecoverNameTheStory()
+    {
+        var client = new FakeLlmClient(8000) { MapAlwaysInvalid = true };
+        var stories = Stories(1, 5);
+
+        var result = await Synthesizer(client).SynthesizeAsync(Request(stories));
+
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().Contain("not valid findings").And.Contain("'Headline 1' (content 1)").And.Contain("cannot be split further");
+        client.MapHandles.Should().HaveCount(3);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ContentFilterFailsNamingTheStoryWithoutRetrying(bool rejectsRequest)
+    {
+        var client = new FakeLlmClient(8000) { ContentFilterHandle = "S3", ContentFilterRejectsRequest = rejectsRequest };
+
+        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(8)));
+
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().Contain("content filter").And.Contain("'Headline 3' (content 3)");
+        // The batch was split to find the story; a blocked request is never sent again unchanged.
+        var blocked = client.MapHandles.Where(h => h.Contains("S3")).ToArray();
+        blocked.Select(h => String.Join(",", h)).Should().OnlyHaveUniqueItems();
+        blocked.Last().Should().Equal("S3");
+    }
+
+    [Fact]
+    public async Task ContentFilterOnTheFinalRequestFails()
+    {
+        var client = new FakeLlmClient(8000) { FilterFinal = true };
+
+        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(3)));
+
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().Contain("content filter").And.Contain("final request");
+    }
+
+    [Theory]
+    [InlineData("{\"findings\":[{\"topic\":\"T\",\"statement\":\"A fact.\",\"sources\":[\"S1\"]}]}")]
+    [InlineData("```json\n{\"findings\":[{\"topic\":\"T\",\"statement\":\"A fact.\",\"sources\":[\"S1\"]}]}\n```")]
+    [InlineData("Here are the findings for [S1]:\n```json\n{\"findings\":[{\"topic\":\"T\",\"statement\":\"A fact.\",\"sources\":[\"S1\"]}]}\n```\nLet me know if you need more.")]
+    [InlineData("{\"Findings\":[{\"Topic\":\"T\",\"Statement\":\"A fact.\",\"Sources\":[\"[S1]\"]}]}")]
+    [InlineData("[{\"topic\":\"T\",\"statement\":\"A fact.\",\"sources\":[\"S1\"]}]")]
+    public void ParseFindingsAcceptsWrappedOrLooselyShapedJson(string content)
+    {
+        var findings = ReportSynthesizer.ParseFindings(content, new HashSet<string> { "S1" });
+
+        findings.Should().NotBeNull();
+        var finding = findings!.Should().ContainSingle().Subject;
+        finding.Topic.Should().Be("T");
+        finding.Statement.Should().Be("A fact.");
+        finding.Sources.Should().Equal("S1");
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("I could not produce findings.")]
+    [InlineData("{\"summary\":\"no findings here\"}")]
+    [InlineData("{\"findings\":[{\"topic\":\"T\"")]
+    public void ParseFindingsRejectsResponsesThatAreNotFindings(string content)
+    {
+        ReportSynthesizer.ParseFindings(content, new HashSet<string> { "S1" }).Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseFindingsAcceptsAnEmptyFindingsArray()
+    {
+        ReportSynthesizer.ParseFindings("{\"findings\":[]}", new HashSet<string> { "S1" }).Should().BeEmpty();
+    }
+    #endregion
+
     #region History
     [Fact]
     public async Task HistoricalInstancesAreProcessedSeparatelyInOrder()
