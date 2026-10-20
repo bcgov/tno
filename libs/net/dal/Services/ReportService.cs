@@ -618,7 +618,7 @@ public class ReportService : BaseService<Report, int>, IReportService
         if (reportSettings.Content.RemoveDuplicateTitles3Days)
         {
             var titleHistory = BuildTitleHistory(
-                GetPreviousReportInstances(report.Id, instanceId, requestorId ?? report.OwnerId, includeContent: true, qty: 10),
+                GetPreviousReportInstanceHistory(report.Id, instanceId, requestorId ?? report.OwnerId, qty: 10),
                 DuplicateTitleWindow);
             instanceContent = FilterDuplicateTitlesWithinWindow(instanceContent, DuplicateTitleWindow, titleHistory);
         }
@@ -1049,6 +1049,83 @@ public class ReportService : BaseService<Report, int>, IReportService
     }
 
     /// <summary>
+    /// Find the history of the previous sent report instances for the specified report 'id' and 'ownerId'.
+    /// Only what is needed to exclude or deduplicate content is loaded, not the instance output or the story text.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="instanceId">The report instance id will be used to find the ones before this value.</param>
+    /// <param name="ownerId"></param>
+    /// <param name="qty">Number of prior instances.</param>
+    /// <returns></returns>
+    private ReportInstanceHistory[] GetPreviousReportInstanceHistory(int id, long? instanceId, int? ownerId = null, int qty = 2)
+    {
+        var query = this.Context.ReportInstances
+            .AsNoTracking()
+            .Where(i => i.ReportId == id
+                && i.SentOn != null);
+
+        if (instanceId.HasValue == true)
+            query = query.Where(ri => ri.Id < instanceId);
+
+        if (ownerId.HasValue == true)
+            query = query.Where(ri => ri.OwnerId == ownerId);
+
+        return SelectReportInstanceHistory(query.OrderByDescending(i => i.Id).Take(qty)).ToArray();
+    }
+
+    /// <summary>
+    /// Find the history of the current report instance for the specified report 'id' and 'ownerId'.
+    /// When 'instanceId' is specified it is the current instance.
+    /// Only what is needed to exclude or deduplicate content is loaded, not the instance output or the story text.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="instanceId"></param>
+    /// <param name="ownerId"></param>
+    /// <returns></returns>
+    private ReportInstanceHistory? GetCurrentReportInstanceHistory(int id, long? instanceId = null, int? ownerId = null)
+    {
+        var query = this.Context.ReportInstances.AsNoTracking();
+
+        if (instanceId.HasValue == true)
+            query = query.Where(ri => ri.Id == instanceId && ri.OwnerId == ownerId);
+        else
+        {
+            query = query.Where(ri => ri.ReportId == id);
+            if (ownerId.HasValue == true)
+                query = query.Where(ri => ri.OwnerId == ownerId);
+        }
+
+        return SelectReportInstanceHistory(query.OrderByDescending(i => i.Id).Take(1)).FirstOrDefault();
+    }
+
+    /// <summary>
+    /// Project the report instances to their history.
+    /// </summary>
+    /// <param name="query"></param>
+    /// <returns></returns>
+    private static IQueryable<ReportInstanceHistory> SelectReportInstanceHistory(IQueryable<ReportInstance> query)
+    {
+        return query
+            .AsSplitQuery()
+            .Select(i => new ReportInstanceHistory()
+            {
+                Id = i.Id,
+                PublishedOn = i.PublishedOn,
+                SentOn = i.SentOn,
+                Content = i.ContentManyToMany.Select(c => new ReportInstanceHistoryContent()
+                {
+                    ContentId = c.ContentId,
+                    SectionName = c.SectionName,
+                    Headline = c.Content!.Headline,
+                    PublishedOn = c.Content.PublishedOn,
+                    PostedOn = c.Content.PostedOn,
+                    UpdatedOn = c.Content.UpdatedOn,
+                    CreatedOn = c.Content.CreatedOn,
+                }).ToArray(),
+            });
+    }
+
+    /// <summary>
     /// Make a request to Elasticsearch to find content for the specified 'report'.
     /// It will generate content for each section.
     /// </summary>
@@ -1068,20 +1145,11 @@ public class ReportService : BaseService<Report, int>, IReportService
                 s => s.Name,
                 s => JsonSerializer.Deserialize<ReportSectionSettingsModel>(s.Settings.ToJson(), _serializerOptions) ?? new ReportSectionSettingsModel());
         var requiresDuplicateHistory = reportSettings.Content.RemoveDuplicateTitles3Days || sectionSettingsLookup.Values.Any(s => s.RemoveDuplicateTitles3Days);
-        var currentInstance = instanceId.HasValue ?
-            this.Context.ReportInstances
-                .AsNoTracking()
-                .AsSplitQuery()
-                .Include(ri => ri.ContentManyToMany)
-                    .ThenInclude(c => c.Content)
-                .Where(ri => ri.OwnerId == ownerId)
-                .FirstOrDefault(ri => ri.Id == instanceId) :
-            GetCurrentReportInstance(report.Id, ownerId, includeContent: true);
-        var previousInstances = GetPreviousReportInstances(
+        var currentInstance = GetCurrentReportInstanceHistory(report.Id, instanceId, ownerId);
+        var previousInstances = GetPreviousReportInstanceHistory(
             report.Id,
             instanceId ?? currentInstance?.Id,
             ownerId,
-            includeContent: true,
             qty: requiresDuplicateHistory ? 10 : 2);
         var instances = currentInstance?.SentOn.HasValue == true ? [currentInstance, .. previousInstances] : previousInstances;
         var previousInstance = instances.FirstOrDefault();
@@ -1099,13 +1167,13 @@ public class ReportService : BaseService<Report, int>, IReportService
 
         // Create an array of content from the previous instance to exclude.
         var excludeHistoricalContentIds = reportSettings.Content.ExcludeHistorical
-            ? [.. instances.SelectMany(pi => pi.ContentManyToMany.Select((c) => c.ContentId)).Distinct()]
+            ? [.. instances.SelectMany(pi => pi.Content.Select((c) => c.ContentId)).Distinct()]
             : Array.Empty<long>();
 
         // When an auto report runs it may need to exclude content in the currently unsent report.
         if (currentInstance != null && currentInstance.SentOn.HasValue == false
             && (reportSettings.Content.ExcludeContentInUnsentReport || !reportSettings.Content.ClearOnStartNewReport))
-            excludeHistoricalContentIds = [.. excludeHistoricalContentIds.AppendRange(currentInstance.ContentManyToMany.Select(c => c.ContentId)).Distinct()];
+            excludeHistoricalContentIds = [.. excludeHistoricalContentIds.AppendRange(currentInstance.Content.Select(c => c.ContentId)).Distinct()];
 
         // Fetch other reports to exclude any content within them.
         var excludeReportContentIds = reportSettings.Content.ExcludeReports.Any()
@@ -1239,7 +1307,7 @@ public class ReportService : BaseService<Report, int>, IReportService
             {
                 // When a section has no folder or filter, keep the existing or prior report content in the new or updated instance.
                 var copyInstance = previousInstance ?? currentInstance;
-                if (copyInstance != null && copyInstance.ContentManyToMany.Any(c => c.SectionName == section.Name))
+                if (copyInstance != null && copyInstance.Content.Any(c => c.SectionName == section.Name))
                 {
                     var query = this.Context.ReportInstanceContents
                         .Include(ric => ric.Content)
@@ -1320,11 +1388,10 @@ public class ReportService : BaseService<Report, int>, IReportService
         var sectionSettings = JsonSerializer.Deserialize<ReportSectionSettingsModel>(section.Settings.ToJson(), _serializerOptions) ?? new();
         var removeDuplicateTitles = sectionSettings.RemoveDuplicateTitles3Days || reportSettings.Content.RemoveDuplicateTitles3Days;
         var previousInstances = reportInstance != null
-            ? GetPreviousReportInstances(
+            ? GetPreviousReportInstanceHistory(
                 report.Id,
                 reportInstance.Id,
                 ownerId,
-                includeContent: true,
                 qty: removeDuplicateTitles ? 10 : 2)
             : null;
         var previousInstance = previousInstances?.FirstOrDefault();
@@ -1351,7 +1418,7 @@ public class ReportService : BaseService<Report, int>, IReportService
 
         // Create an array of content from the previous instance to exclude from the report.
         var excludeHistoricalContentIds = reportSettings.Content.ExcludeHistorical && previousInstances?.Length > 0
-            ? previousInstances?.SelectMany(pi => pi.ContentManyToMany.Select((c) => c.ContentId).ToArray()) ?? Array.Empty<long>()
+            ? previousInstances?.SelectMany(pi => pi.Content.Select((c) => c.ContentId).ToArray()) ?? Array.Empty<long>()
             : Array.Empty<long>();
 
         // Fetch other reports to exclude any content within them.
@@ -1367,7 +1434,7 @@ public class ReportService : BaseService<Report, int>, IReportService
             excludeAboveSectionContentIds.AddRange(contentAbove.Select(c => c.ContentId).ToArray());
 
         var historyInstances = BuildHistoryInstances(
-            previousInstances ?? Array.Empty<ReportInstance>(),
+            previousInstances ?? Array.Empty<ReportInstanceHistory>(),
             removeDuplicateTitles,
             report,
             reportInstance?.Id,
@@ -1377,7 +1444,7 @@ public class ReportService : BaseService<Report, int>, IReportService
             ? BuildTitleHistory(
                 historyInstances,
                 DuplicateTitleWindow,
-                reportInstance)
+                reportInstance != null ? new ReportInstanceHistory(reportInstance) : null)
             : null;
 
         if (section.FolderId.HasValue)
@@ -1485,19 +1552,19 @@ public class ReportService : BaseService<Report, int>, IReportService
             topic.IsSystem = systemTopicIds.Contains(topic.Id);
     }
 
-    private ISet<string> BuildTitleHistory(IEnumerable<ReportInstance> instances, TimeSpan window, ReportInstance? currentInstance = null)
+    private ISet<string> BuildTitleHistory(IEnumerable<ReportInstanceHistory> instances, TimeSpan window, ReportInstanceHistory? currentInstance = null)
     {
         var history = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var threshold = DateTime.UtcNow - window;
 
-        void AddTitles(IEnumerable<ReportInstanceContent> contents, bool ignoreThreshold)
+        void AddTitles(IEnumerable<ReportInstanceHistoryContent> contents, bool ignoreThreshold)
         {
             foreach (var item in contents)
             {
-                var title = NormalizeHeadline(item.Content?.Headline);
+                var title = NormalizeHeadline(item.Headline);
                 if (string.IsNullOrWhiteSpace(title)) continue;
 
-                var date = GetComparableDate(item.Content);
+                var date = GetComparableDate(item.PublishedOn, item.PostedOn, item.UpdatedOn, item.CreatedOn);
                 if (!ignoreThreshold && date < threshold) continue;
 
                 history.Add(title);
@@ -1508,7 +1575,7 @@ public class ReportService : BaseService<Report, int>, IReportService
         {
             var includeAll = currentInstance.SentOn.HasValue == false;
             if (includeAll || (currentInstance.SentOn ?? currentInstance.PublishedOn ?? DateTime.MinValue) >= threshold)
-                AddTitles(currentInstance.ContentManyToMany, includeAll);
+                AddTitles(currentInstance.Content, includeAll);
         }
 
         foreach (var instance in instances)
@@ -1517,14 +1584,14 @@ public class ReportService : BaseService<Report, int>, IReportService
             if (!includeAll && (instance.SentOn ?? instance.PublishedOn ?? DateTime.MinValue) < threshold)
                 continue;
 
-            AddTitles(instance.ContentManyToMany, includeAll);
+            AddTitles(instance.Content, includeAll);
         }
 
         return history;
     }
 
-    private IEnumerable<ReportInstance> BuildHistoryInstances(
-        IEnumerable<ReportInstance> baseInstances,
+    private IEnumerable<ReportInstanceHistory> BuildHistoryInstances(
+        IEnumerable<ReportInstanceHistory> baseInstances,
         bool dedupEnabled,
         Report report,
         long? instanceId,
@@ -1533,11 +1600,10 @@ public class ReportService : BaseService<Report, int>, IReportService
         if (!dedupEnabled || !report.OwnerId.HasValue) return baseInstances;
         if (requestorId.HasValue && requestorId.Value == report.OwnerId.Value) return baseInstances;
 
-        var ownerInstances = GetPreviousReportInstances(
+        var ownerInstances = GetPreviousReportInstanceHistory(
             report.Id,
             instanceId,
             report.OwnerId,
-            includeContent: true,
             qty: 10);
 
         if (ownerInstances.Length == 0) return baseInstances;
@@ -1818,9 +1884,9 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// <exception cref="InvalidOperationException"></exception>
     public IEnumerable<long> GetReportInstanceContentToExclude(int reportId, int? ownerId, int previousInstancesQty = 2)
     {
-        var instance = GetCurrentReportInstance(reportId, ownerId);
-        var previousInstances = GetPreviousReportInstances(reportId, instance?.Id, ownerId, false, previousInstancesQty);
-        return instance?.ContentManyToMany.Select(c => c.ContentId).AppendRange(previousInstances?.SelectMany(pi => pi.ContentManyToMany.Select((c) => c.ContentId)) ?? []) ?? [];
+        var instance = GetCurrentReportInstanceHistory(reportId, null, ownerId);
+        var previousInstances = GetPreviousReportInstanceHistory(reportId, instance?.Id, ownerId, previousInstancesQty);
+        return instance?.Content.Select(c => c.ContentId).AppendRange(previousInstances.SelectMany(pi => pi.Content.Select((c) => c.ContentId))) ?? [];
     }
 
     /// <summary>
