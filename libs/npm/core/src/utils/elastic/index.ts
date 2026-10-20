@@ -1,3 +1,5 @@
+export * from './generateCollapse';
+export * from './generateExtendedQuery';
 export * from './generateFilterQuery';
 export * from './generateFilterQuery';
 export * from './generateMultiMatch';

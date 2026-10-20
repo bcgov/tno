@@ -205,6 +205,7 @@ builder.Services
     .AddScoped<IConnectionHelper, ConnectionHelper>()
     .AddScoped<INotificationHelper, NotificationHelper>()
     .AddScoped<IReportHelper, ReportHelper>()
+    .AddScoped<IFilterAIHelper, FilterAIHelper>()
     .AddScoped<IWorkOrderHelper, WorkOrderHelper>()
     .AddScoped<IImpersonationHelper, ImpersonationHelper>()
     .AddChesService(config.GetSection("CHES"))

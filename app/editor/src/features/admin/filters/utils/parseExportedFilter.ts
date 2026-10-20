@@ -25,6 +25,9 @@ export const parseExportedFilter = (
   if ('isEnabled' in value) {
     importedModel = { ...importedModel, isEnabled: value.isEnabled };
   }
+  if ('prompt' in value) {
+    importedModel = { ...importedModel, prompt: value.prompt };
+  }
   let importedSettings = {};
   if ('size' in value.settings) {
     importedSettings = { ...importedSettings, size: value.settings.size ?? 10 };
@@ -100,6 +103,9 @@ export const parseExportedFilter = (
       .filter((x) => value.settings.contributorNames.some((y: string) => y === x.name))
       .map((x) => x.id);
     importedSettings = { ...importedSettings, contributorIds };
+  }
+  if ('extendedQuery' in value.settings) {
+    importedSettings = { ...importedSettings, extendedQuery: value.settings.extendedQuery };
   }
   importedModel = { ...importedModel, settings: importedSettings };
 

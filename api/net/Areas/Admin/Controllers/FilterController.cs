@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.Filter;
+using TNO.API.Helpers;
 using TNO.API.Models;
+using TNO.API.Models.FilterAI;
 using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Keycloak;
@@ -30,6 +32,7 @@ public class FilterController : ControllerBase
 {
     #region Variables
     private readonly IFilterService _filterService;
+    private readonly IFilterAIHelper _filterAIHelper;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -38,12 +41,15 @@ public class FilterController : ControllerBase
     /// Creates a new instance of a FilterController object, initializes with specified parameters.
     /// </summary>
     /// <param name="filterService"></param>
+    /// <param name="filterAIHelper"></param>
     /// <param name="serializerOptions"></param>
     public FilterController(
         IFilterService filterService,
+        IFilterAIHelper filterAIHelper,
         IOptions<JsonSerializerOptions> serializerOptions)
     {
         _filterService = filterService;
+        _filterAIHelper = filterAIHelper;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -129,6 +135,42 @@ public class FilterController : ControllerBase
     {
         _filterService.DeleteAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(model);
+    }
+
+    /// <summary>
+    /// Generate filter settings from a prompt with the AI model chosen for filters.
+    /// The settings are returned, not saved.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpPost("ai/generate")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(FilterAIGenerateResultModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Filter" })]
+    public async Task<IActionResult> GenerateAsync([FromBody] FilterAIGenerateRequestModel request, CancellationToken cancellationToken)
+    {
+        var result = await _filterAIHelper.GenerateAsync(request, false, cancellationToken);
+        return new JsonResult(result);
+    }
+
+    /// <summary>
+    /// Ask the AI model chosen for filters how to write a filter prompt. The first question has no
+    /// messages; later questions pass the returned conversation and nonce back.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpPost("ai/chat")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(FilterAIChatResultModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Filter" })]
+    public async Task<IActionResult> ChatAsync([FromBody] FilterAIChatRequestModel request, CancellationToken cancellationToken)
+    {
+        var result = await _filterAIHelper.ChatAsync(request, false, cancellationToken);
+        return new JsonResult(result);
     }
     #endregion
 }

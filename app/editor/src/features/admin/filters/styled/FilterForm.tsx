@@ -112,4 +112,15 @@ export const FilterForm = styled(FormPage)`
     border-radius: 0.15rem;
     padding: 0 0.25rem;
   }
+
+  .extended-query pre {
+    margin: 0 0 0.5rem;
+    padding: 0.5rem;
+    max-height: 20rem;
+    overflow: auto;
+    background: #f6f6f6;
+    border: 1px solid #ddd;
+    border-radius: 0.25rem;
+    font-size: 0.85rem;
+  }
 `;

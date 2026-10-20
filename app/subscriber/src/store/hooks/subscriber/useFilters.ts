@@ -1,7 +1,14 @@
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
 import { IProfileState, useProfileStore } from 'store/slices';
-import { IFilterModel, useApiSubscriberFilters } from 'tno-core';
+import {
+  IFilterAIChatRequestModel,
+  IFilterAIChatResultModel,
+  IFilterAIGenerateRequestModel,
+  IFilterAIGenerateResultModel,
+  IFilterModel,
+  useApiSubscriberFilters,
+} from 'tno-core';
 
 interface IFilterController {
   activeFilter?: IFilterModel;
@@ -10,6 +17,8 @@ interface IFilterController {
   addFilter: (model: IFilterModel) => Promise<IFilterModel>;
   updateFilter: (model: IFilterModel) => Promise<IFilterModel>;
   deleteFilter: (model: IFilterModel) => Promise<IFilterModel>;
+  generateFilter: (model: IFilterAIGenerateRequestModel) => Promise<IFilterAIGenerateResultModel>;
+  chatFilter: (model: IFilterAIChatRequestModel) => Promise<IFilterAIChatResultModel>;
 }
 
 export const useFilters = (): [IProfileState, IFilterController] => {
@@ -67,6 +76,25 @@ export const useFilters = (): [IProfileState, IFilterController] => {
         );
         store.storeMyFilters((filters) => filters.filter((ds) => ds.id !== response.data.id));
         store.storeFilter((state) => (state?.id === model.id ? undefined : state));
+        return response.data;
+      },
+      // The prompt shows its own progress, so these do not block the page.
+      generateFilter: async (model: IFilterAIGenerateRequestModel) => {
+        const response = await dispatch<IFilterAIGenerateResultModel>(
+          'generate-filter',
+          () => api.generateFilter(model),
+          undefined,
+          true,
+        );
+        return response.data;
+      },
+      chatFilter: async (model: IFilterAIChatRequestModel) => {
+        const response = await dispatch<IFilterAIChatResultModel>(
+          'chat-filter',
+          () => api.chatFilter(model),
+          undefined,
+          true,
+        );
         return response.data;
       },
     }),

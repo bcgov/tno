@@ -78,6 +78,7 @@ export const FilterFormImportExport: React.FC = () => {
                   series,
                   sources,
                   mediaTypes,
+                  values.prompt,
                 );
                 setRawFilter(JSON.stringify(exportedFilter));
               }}

@@ -2,6 +2,7 @@ export * from './box';
 export * from './breadcrumb';
 export * from './button';
 export * from './cell';
+export * from './filter-ai';
 export * from './flex';
 export * from './footer';
 export * from './form';

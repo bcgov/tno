@@ -18,10 +18,12 @@ export const exportFilter = (
   series: ISeriesModel[],
   sources: ISourceModel[],
   mediaTypes: IMediaTypeModel[],
+  prompt?: string,
 ): IFilterImportExportModel => {
   const exportFilter = new FilterImportExportModel();
   exportFilter.name = name;
   exportFilter.description = description;
+  if (prompt) exportFilter.prompt = prompt;
   let exportSettings = {};
   exportSettings = { ...exportSettings, size: currentSettings.size ?? 10 };
   if ('search' in currentSettings) {
@@ -95,6 +97,10 @@ export const exportFilter = (
       .filter((x) => currentSettings.contributorIds.some((y: number) => y === x.id))
       .map((x) => x.name);
     exportSettings = { ...exportSettings, contributorNames };
+  }
+  // AI conditions are raw Elasticsearch and are exported as they are.
+  if (currentSettings.extendedQuery) {
+    exportSettings = { ...exportSettings, extendedQuery: currentSettings.extendedQuery };
   }
   exportFilter.settings = exportSettings;
 

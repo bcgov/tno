@@ -1,5 +1,5 @@
 import { ContentStatusName, ContentTypeName } from '../constants';
-import { IFilterActionSettingsModel, ISortField } from '.';
+import { IFilterActionSettingsModel, IFilterExtendedQuery, ISortField } from '.';
 
 export interface IFilterSettingsModel {
   searchUnpublished: boolean;
@@ -52,4 +52,8 @@ export interface IFilterSettingsModel {
   queryType?: 'query-string' | 'simple-query-string';
   defaultOperator?: 'and' | 'or';
   sort?: ISortField[];
+  /** Return one story per distinct value of this field (an Elasticsearch collapse). */
+  collapseField?: string;
+  /** Raw Elasticsearch bool clauses for conditions the settings cannot express. */
+  extendedQuery?: IFilterExtendedQuery;
 }

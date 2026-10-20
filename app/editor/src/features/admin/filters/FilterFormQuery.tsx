@@ -7,7 +7,16 @@ import { useFormikContext } from 'formik';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
-import { Button, ButtonVariant, Col, type IFilterModel, Row } from 'tno-core';
+import { useFilters } from 'store/hooks/admin';
+import {
+  Button,
+  ButtonVariant,
+  Col,
+  FilterAIPrompt,
+  type IFilterModel,
+  type IFilterSettingsModel,
+  Row,
+} from 'tno-core';
 
 import { FilterSettingsForm } from './FilterSettingsForm';
 import { useElastic } from './hooks';
@@ -19,8 +28,15 @@ import { useElastic } from './hooks';
 export const FilterFormQuery: React.FC = () => {
   const { values, setFieldValue } = useFormikContext<IFilterModel>();
   const generateQuery = useElastic();
+  const [, { generateFilter, chatFilter }] = useFilters();
 
   const [filter, setFilter] = React.useState(JSON.stringify(values.query, null, 2));
+
+  const applySettings = (settings: IFilterSettingsModel) => {
+    const query = generateQuery(settings, values.query);
+    setFieldValue('query', query);
+    setFilter(JSON.stringify(query, null, 2));
+  };
 
   return (
     <>
@@ -41,14 +57,19 @@ export const FilterFormQuery: React.FC = () => {
             Clear Query
           </Button>
         </Row>
-        <FilterSettingsForm
-          path="settings"
-          onChange={(settings) => {
-            const query = generateQuery(settings, values.query);
-            setFieldValue('query', query);
-            setFilter(JSON.stringify(query, null, 2));
+        <FilterAIPrompt
+          prompt={values.prompt}
+          settings={values.settings}
+          onPromptChange={(prompt) => setFieldValue('prompt', prompt)}
+          onGenerate={generateFilter}
+          onChat={chatFilter}
+          onApply={(result, prompt) => {
+            setFieldValue('prompt', prompt);
+            setFieldValue('settings', result.settings);
+            applySettings(result.settings);
           }}
         />
+        <FilterSettingsForm path="settings" onChange={applySettings} />
       </Col>
       <Col className="code frm-in">
         <label htmlFor="txa-filter">Elasticsearch Query</label>

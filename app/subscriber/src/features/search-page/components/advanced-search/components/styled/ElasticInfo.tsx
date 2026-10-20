@@ -8,8 +8,10 @@ export const ElasticInfo = styled.div`
   }
 
   .react-draggable {
-    position: absolute;
-    width: 30em;
+    position: fixed;
+    width: min(30em, calc(100vw - 1rem));
+    max-height: calc(100vh - 1rem);
+    overflow-y: auto;
     background: ${(props) => props.theme.css.bkWhite};
     border: 1px solid ${(props) => props.theme.css.linePrimaryColor};
     border-radius: 0.25em;

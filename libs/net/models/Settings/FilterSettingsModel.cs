@@ -1,3 +1,4 @@
+using System.Text.Json;
 using TNO.Entities;
 
 namespace TNO.API.Models.Settings;
@@ -197,5 +198,19 @@ public class FilterSettingsModel
     /// get/set - An array of sort conditions (i.e. { name: 'desc' })
     /// </summary>
     public dynamic[]? Sort { get; set; }
+
+    /// <summary>
+    /// get/set - Return one story per distinct value of this field (an Elasticsearch 'collapse'),
+    /// i.e. one story per topic. The field must be a single-valued keyword, number or date field
+    /// outside nested objects.
+    /// </summary>
+    public string? CollapseField { get; set; }
+
+    /// <summary>
+    /// get/set - Additional Elasticsearch bool clauses for conditions the settings cannot express
+    /// (i.e. { "must": [], "filter": [], "must_not": [], "should": [], "minimum_should_match": 1 }).
+    /// They are merged into the generated query as a single named 'bool' filter clause.
+    /// </summary>
+    public JsonElement? ExtendedQuery { get; set; }
     #endregion
 }
