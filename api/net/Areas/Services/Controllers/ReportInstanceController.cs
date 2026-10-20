@@ -145,15 +145,16 @@ public class ReportInstanceController : ControllerBase
     /// Make a request to the database for all content assigned to the specified report instance 'id'.
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpGet("{id}/content")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<ReportInstanceContentModel>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult GetContentForReportInstanceIdAsync(long id)
+    public async Task<IActionResult> GetContentForReportInstanceIdAsync(long id, CancellationToken cancellationToken)
     {
-        var content = _reportInstanceService.GetContentForInstance(id);
+        var content = await _reportInstanceService.GetContentForInstanceAsync(id, cancellationToken);
         return new JsonResult(content.Select(c => new ReportInstanceContentModel(c)));
     }
 

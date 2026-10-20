@@ -67,6 +67,15 @@ public interface IReportInstanceService : IBaseService<ReportInstance, long>
     /// <param name="id"></param>
     /// <returns></returns>
     IEnumerable<ReportInstanceContent> GetContentForInstance(long id);
+
+    /// <summary>
+    /// Get all the content items for the specified instance.
+    /// Stops the query when the 'cancellationToken' is cancelled (i.e. the client disconnects).
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<IEnumerable<ReportInstanceContent>> GetContentForInstanceAsync(long id, CancellationToken cancellationToken = default);
     IEnumerable<ReportInstanceContent> GetContentForInstance(long id, IEnumerable<(long ContentId, string SectionName)> contentKeys);
     IEnumerable<ReportInstanceContent> GetContentForInstanceBasic(long id);
 
