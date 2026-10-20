@@ -186,14 +186,17 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
     }
 
     /// <summary>
-    /// Get all the content items for the specified instance.
+    /// Build a query for the content items of the specified instance, including everything a report needs to render them.
+    /// Split into one query per collection, because a single joined query multiplies the rows by every collection
+    /// (actions x topics x labels x tags x time trackings x file references x tone pools) and times out on large reports.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public IEnumerable<ReportInstanceContent> GetContentForInstance(long id)
+    private IQueryable<ReportInstanceContent> QueryContentForInstance(long id)
     {
         return this.Context.ReportInstanceContents
             .AsNoTracking()
+            .AsSplitQuery()
             .Include(cm2m => cm2m.Content)
             .Include(cm2m => cm2m.Content).ThenInclude(c => c!.Source)
             .Include(cm2m => cm2m.Content).ThenInclude(c => c!.MediaType)
@@ -206,9 +209,33 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
             .Include(cm2m => cm2m.Content).ThenInclude(c => c!.TimeTrackings)
             .Include(cm2m => cm2m.Content).ThenInclude(c => c!.FileReferences)
             .Include(cm2m => cm2m.Content).ThenInclude(c => c!.TonePoolsManyToMany).ThenInclude(t => t.TonePool)
-            .Where(ric => ric.InstanceId == id)
+            .Where(ric => ric.InstanceId == id);
+    }
+
+    /// <summary>
+    /// Get all the content items for the specified instance.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public IEnumerable<ReportInstanceContent> GetContentForInstance(long id)
+    {
+        return QueryContentForInstance(id)
             .OrderBy(ric => ric.SortOrder)
             .ToArray();
+    }
+
+    /// <summary>
+    /// Get all the content items for the specified instance.
+    /// Stops the query when the 'cancellationToken' is cancelled (i.e. the client disconnects).
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<ReportInstanceContent>> GetContentForInstanceAsync(long id, CancellationToken cancellationToken = default)
+    {
+        return await QueryContentForInstance(id)
+            .OrderBy(ric => ric.SortOrder)
+            .ToArrayAsync(cancellationToken);
     }
 
     /// <summary>
@@ -229,21 +256,8 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
         var contentIds = keys.Select(k => k.ContentId).Distinct().ToArray();
         var sections = keys.Select(k => k.Section).Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToArray();
 
-        var query = this.Context.ReportInstanceContents
-            .AsNoTracking()
-            .Include(cm2m => cm2m.Content)
-            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.Source)
-            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.MediaType)
-            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.Series)
-            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.Contributor)
-            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.ActionsManyToMany).ThenInclude(c => c.Action)
-            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.TopicsManyToMany).ThenInclude(c => c.Topic)
-            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.Labels)
-            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.TagsManyToMany)
-            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.TimeTrackings)
-            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.FileReferences)
-            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.TonePoolsManyToMany).ThenInclude(t => t.TonePool)
-            .Where(ric => ric.InstanceId == id && contentIds.Contains(ric.ContentId));
+        var query = QueryContentForInstance(id)
+            .Where(ric => contentIds.Contains(ric.ContentId));
 
         if (sections.Length > 0)
             query = query.Where(ric => sections.Contains(ric.SectionName));
