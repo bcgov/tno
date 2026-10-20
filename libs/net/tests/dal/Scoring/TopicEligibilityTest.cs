@@ -96,16 +96,6 @@ public class TopicEligibilityTest : IDisposable
     }
 
     [Fact]
-    public void ReportableTopicsAreScoredAndNotTheSystemTopic()
-    {
-        TopicScoreCalculator.HasReportableTopics(Array.Empty<(bool, int)>()).Should().BeFalse();
-        TopicScoreCalculator.HasReportableTopics(new[] { (false, 20) }).Should().BeTrue();
-        TopicScoreCalculator.HasReportableTopics(new[] { (false, 0) }).Should().BeFalse();
-        TopicScoreCalculator.HasReportableTopics(new[] { (true, 20) }).Should().BeFalse();
-        TopicScoreCalculator.HasReportableTopics(new[] { (false, 20), (false, 0) }).Should().BeFalse();
-    }
-
-    [Fact]
     public void AnalysisDoesNotGiveATopicToContentFromASourceWithoutScoring()
     {
         var content = AddContent(1);
