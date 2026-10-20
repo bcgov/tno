@@ -1,0 +1,125 @@
+using System.Text.Json;
+using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using TNO.DAL;
+using TNO.DAL.Services;
+using TNO.Elastic;
+using TNO.Entities;
+
+namespace TNO.Test.DAL.Integration;
+
+/// <summary>
+/// Database integration tests for the report instance history that excludes and deduplicates
+/// content in a new report instance. The history is a projection, so it must translate to SQL.
+/// Run with 'TNO_TEST_POSTGRES' set (see PostgresFactAttribute).
+/// </summary>
+[Collection(PostgresCollection.Name)]
+public class ReportHistoryIntegrationTest
+{
+    #region Variables
+    private readonly PostgresFixture _fixture;
+    #endregion
+
+    #region Constructors
+    public ReportHistoryIntegrationTest(PostgresFixture fixture)
+    {
+        _fixture = fixture;
+    }
+    #endregion
+
+    #region Helpers
+    private ReportService CreateService(TNOContext context)
+        => new(context, _fixture.Principal, null!, Options.Create(new ElasticOptions()), null!, _fixture.Services, Options.Create(new JsonSerializerOptions()), TestLogger.For<ReportService>());
+
+    private static Report AddReport(TNOContext context, int ownerId, string settings)
+    {
+        var templateId = context.ReportTemplates.AsNoTracking().Where(t => t.ReportType == ReportType.Content).OrderBy(t => t.Id).Select(t => t.Id).First();
+        var report = new Report($"it-{Guid.NewGuid():N}", templateId, ownerId) { Settings = JsonDocument.Parse(settings) };
+        context.Reports.Add(report);
+        context.SaveChanges();
+        return report;
+    }
+
+    private static ReportInstance AddInstance(TNOContext context, Report report, DateTime? sentOn, params Content[] content)
+    {
+        var instance = new ReportInstance(report.Id, report.OwnerId, content.Select((c, index) => new ReportInstanceContent(0, c.Id, "section", index)))
+        {
+            PublishedOn = sentOn ?? DateTime.UtcNow,
+            SentOn = sentOn,
+            Body = "<p>sent report output</p>",
+        };
+        context.ReportInstances.Add(instance);
+        context.SaveChanges();
+        return instance;
+    }
+
+    private static void Remove(TNOContext context, Report report, Folder? folder = null)
+    {
+        context.Reports.Where(r => r.Id == report.Id).ExecuteDelete();
+        if (folder != null) context.Folders.Where(f => f.Id == folder.Id).ExecuteDelete();
+    }
+    #endregion
+
+    #region Tests
+    [PostgresFact]
+    public void ContentToExclude_IsTheCurrentAndPreviousSentContent()
+    {
+        using var context = _fixture.CreateContext();
+        var ownerId = context.Users.AsNoTracking().OrderBy(u => u.Id).Select(u => u.Id).First();
+        var report = AddReport(context, ownerId, "{}");
+        try
+        {
+            var content = Enumerable.Range(0, 4).Select(_ => _fixture.AddContent(context)).ToArray();
+            AddInstance(context, report, DateTime.UtcNow.AddDays(-3), content[0]);
+            AddInstance(context, report, DateTime.UtcNow.AddDays(-2), content[1]);
+            AddInstance(context, report, DateTime.UtcNow.AddDays(-1), content[2]);
+            AddInstance(context, report, null, content[3]);
+            context.ChangeTracker.Clear();
+
+            var result = CreateService(context).GetReportInstanceContentToExclude(report.Id, ownerId);
+
+            result.Should().BeEquivalentTo(new[] { content[1].Id, content[2].Id, content[3].Id });
+        }
+        finally
+        {
+            Remove(context, report);
+        }
+    }
+
+    [PostgresFact]
+    public async Task FolderSection_ExcludesHistoricalContentAndDuplicateTitles()
+    {
+        using var context = _fixture.CreateContext();
+        var ownerId = context.Users.AsNoTracking().OrderBy(u => u.Id).Select(u => u.Id).First();
+        var report = AddReport(context, ownerId, "{\"Content\":{\"ExcludeHistorical\":true,\"RemoveDuplicateTitles3Days\":true}}");
+        var folder = new Folder(0, $"it-{Guid.NewGuid():N}", ownerId);
+        context.Folders.Add(folder);
+        context.SaveChanges();
+        try
+        {
+            var sent = _fixture.AddContent(context, configure: c => c.Headline = "Already sent");
+            var sentTitle = _fixture.AddContent(context, configure: c => c.Headline = $"Same headline {report.Id}");
+            var duplicate = _fixture.AddContent(context, configure: c => c.Headline = $"same headline {report.Id} ");
+            var fresh = _fixture.AddContent(context, configure: c => c.Headline = "New story");
+            context.FolderContents.AddRange(new FolderContent(folder.Id, sent.Id, 0), new FolderContent(folder.Id, duplicate.Id, 1), new FolderContent(folder.Id, fresh.Id, 2));
+            context.ReportSections.Add(new ReportSection("section", ReportSectionType.Content, report.Id, null, folder.Id, null));
+            context.SaveChanges();
+            AddInstance(context, report, DateTime.UtcNow.AddDays(-1), sent, sentTitle);
+            var current = AddInstance(context, report, null);
+            context.ChangeTracker.Clear();
+            var loaded = context.Reports.AsNoTracking().Include(r => r.Sections).Single(r => r.Id == report.Id);
+
+            var latest = await CreateService(context).FindContentWithElasticsearchAsync(loaded, null, ownerId);
+            var byInstance = await CreateService(context).FindContentWithElasticsearchAsync(loaded, current.Id, ownerId);
+
+            latest["section"].Hits.Hits.Select(h => h.Source.Id).Should().Equal(fresh.Id);
+            byInstance["section"].Hits.Hits.Select(h => h.Source.Id).Should().Equal(fresh.Id);
+        }
+        finally
+        {
+            Remove(context, report, folder);
+        }
+    }
+    #endregion
+}
