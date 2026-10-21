@@ -1,0 +1,38 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: oc-build
+  annotations:
+    tekton.dev/displayName: openshift client
+    tekton.dev/pipelines.minVersion: 0.12.1
+    tekton.dev/tags: cli
+  labels:
+    app.kubernetes.io/version: '0.1'
+    operator.tekton.dev/provider-type: redhat
+spec:
+  description: This task uses the specified BuildConfig to build an image.
+  params:
+    - description: The name of the application.
+      name: APP_NAME
+      type: string
+    - default: dev
+      description: Identify the git source.
+      name: GIT_SOURCE
+      type: string
+    - default: latest
+      description: The tag given to the built image.
+      name: IMAGE_TAG
+      type: string
+  steps:
+    - computeResources: {}
+      image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+      name: build
+      script: |
+        echo "Building image"
+        set -xe
+        oc start-build $(params.APP_NAME).$(params.GIT_SOURCE) --follow --wait
+
+        if [ "$(params.IMAGE_TAG)" != "latest" ]; then
+          echo "Tagging latest image"
+          oc tag $(params.APP_NAME):latest $(params.APP_NAME):$(params.IMAGE_TAG)
+        fi

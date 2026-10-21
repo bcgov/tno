@@ -1,0 +1,32 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: redirect-route
+  annotations:
+    description: Update route and point to specified service.
+    tags: oc,route
+spec:
+  params:
+    - default: 9b301c-dev
+      description: The project namespace name.
+      name: PROJECT_NAMESPACE
+      type: string
+    - default: editor-tls
+      description: The route name to update.
+      name: ROUTE
+      type: string
+    - description: The service to redirect traffic to.
+      name: SERVICE
+      type: string
+  tasks:
+    - name: redirect-route
+      params:
+        - name: PROJECT_NAMESPACE
+          value: $(params.PROJECT_NAMESPACE)
+        - name: ROUTE
+          value: $(params.ROUTE)
+        - name: SERVICE
+          value: $(params.SERVICE)
+      taskRef:
+        kind: Task
+        name: oc-update-route

@@ -1,4 +1,4 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: buildah-charts-api
@@ -7,90 +7,58 @@ metadata:
     tekton.dev/pipelines.minVersion: 0.17.0
     tekton.dev/tags: build deploy
   labels:
+    component: pipeline
+    managed-by: kustomize
     name: buildah-charts-api
     part-of: tno
     version: 1.0.0
-    component: pipeline
-    managed-by: kustomize
 spec:
   params:
-    - name: GIT_REF
-      description: >-
-        The git revision reference to build.
+    - default: dev
+      description: The git revision reference to build.
+      name: GIT_REF
       type: string
-      default: dev
-
-    - name: CONTEXT
-      description: >-
-        The root path to the git repo.
+    - default: tno
+      description: The root path to the git repo.
+      name: CONTEXT
       type: string
-      default: tno
-
-    - name: IMAGE_TAG
-      description: >-
-        The tag given to the built images. Use this to create versioned images.
+    - default: latest
+      description: The tag given to the built images. Use this to create versioned images.
+      name: IMAGE_TAG
       type: string
-      default: latest
-
-    - name: PROJECT_SHORTNAME
-      description: >-
-        The project namespace shortname. The part before the "-" (i.e.
-        9b301c-dev = 9b301c).
+    - default: 9b301c
+      description: The project namespace shortname. The part before the "-" (i.e. 9b301c-dev = 9b301c).
+      name: PROJECT_SHORTNAME
       type: string
-      default: 9b301c
-
-    - name: DEPLOY_TO
-      description: >-
-        Identify the environment to deploy the solution to [dev,test,prod,tools].
+    - default: dev
+      description: Identify the environment to deploy the solution to [dev,test,prod,tools].
+      name: DEPLOY_TO
       type: string
-      default: dev
-
-  workspaces:
-    - name: source
-      description: |
-        Git repo source code.
-    - name: conditions
-      description: |
-        Pipeline configuration file.
-    - name: owasp-settings
-      description: |
-        mounts /zap/wrk to store generated configs and results.
-    - name: build
-      description: |
-        Pipeline build volume
-
   tasks:
     - name: wait
-      taskRef:
-        name: pipeline-wait
-        kind: Task
       params:
         - name: PIPELINE_NAME
           value: $(context.pipelineRun.name)
-
-    - name: git
       taskRef:
-        name: git-conditions
         kind: Task
-      runAfter:
-        - wait
+        name: pipeline-wait
+    - name: git
       params:
         - name: GIT_REF
           value: $(params.GIT_REF)
         - name: CONTEXT
           value: $(params.CONTEXT)
+      runAfter:
+        - wait
+      taskRef:
+        kind: Task
+        name: git-conditions
       workspaces:
         - name: source
           workspace: source
         - name: output
           workspace: conditions
-
     - name: build-charts-api
-      taskRef:
-        name: buildah
-        kind: Task
-      runAfter:
-        - git
       params:
         - name: CONTEXT
           value: $(params.CONTEXT)/api/node
@@ -100,18 +68,17 @@ spec:
           value: charts-api
         - name: IMAGE_TAG
           value: $(params.IMAGE_TAG)
+      runAfter:
+        - git
+      taskRef:
+        kind: Task
+        name: buildah
       workspaces:
         - name: source
           workspace: source
         - name: build
           workspace: build
-
     - name: deploy-charts-api
-      runAfter:
-        - build-charts-api
-      taskRef:
-        name: oc-deploy-with-tag
-        kind: Task
       params:
         - name: PROJECT_SHORTNAME
           value: $(params.PROJECT_SHORTNAME)
@@ -123,3 +90,21 @@ spec:
           value: $(params.DEPLOY_TO)
         - name: OBJECT
           value: deployment
+      runAfter:
+        - build-charts-api
+      taskRef:
+        kind: Task
+        name: oc-deploy-with-tag
+  workspaces:
+    - description: |
+        Git repo source code.
+      name: source
+    - description: |
+        Pipeline configuration file.
+      name: conditions
+    - description: |
+        mounts /zap/wrk to store generated configs and results.
+      name: owasp-settings
+    - description: |
+        Pipeline build volume
+      name: build

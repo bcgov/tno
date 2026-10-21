@@ -1,79 +1,67 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: build-all
   annotations:
-    tekton.dev/displayName: Buildah Image
-    tekton.dev/pipelines.minVersion: 0.17.0
-    tekton.dev/tags: build
     description: |
       Using Buildah build a new image from source code and push the new images
       to the specified image registry.
       Only build the images that have been identified as updated by git.
+    tekton.dev/displayName: Buildah Image
+    tekton.dev/pipelines.minVersion: 0.17.0
+    tekton.dev/tags: build
   labels:
+    component: task
+    managed-by: kustomize
     name: build-all
     part-of: tno
     version: 1.0.0
-    component: task
-    managed-by: kustomize
 spec:
   params:
     - default: .
       description: The root path to the git repo.
       name: CONTEXT
       type: string
-
-    - name: IMAGE_REGISTRY
+    - default: bcgov-c4awhwfpcremdbga.azurecr.io
       description: The Root url of the image registry.
-      default: bcgov-c4awhwfpcremdbga.azurecr.io
-    - name: IMAGE_TAG
-      description: The tag given to the built image.
+      name: IMAGE_REGISTRY
       type: string
-      default: latest
-
-    - name: BUILD
+    - default: latest
+      description: The tag given to the built image.
+      name: IMAGE_TAG
+      type: string
+    - default: '*'
       description: Whether to force build a component, or all [*|all|[name]].
-      default: "*"
-
-    - name: STORAGE_DRIVER
+      name: BUILD
+      type: string
+    - default: vfs
       description: Set buildah storage driver
-      default: vfs
-  workspaces:
-    - name: source
-    - name: conditions
-      mountPath: /data
-    - name: build
-      mountPath: /var/lib/containers/storage/vfs/dir
+      name: STORAGE_DRIVER
+      type: string
   steps:
-    - name: build
-      image: bcgov-c4awhwfpcremdbga.azurecr.io/buildah:latest
-      securityContext:
-        capabilities:
-          add:
-            - SETFCAP
-        runAsUser: 0
-      workingDir: $(workspaces.source.path)
+    - computeResources:
+        limits:
+          cpu: '2'
+          memory: 8Gi
+        requests:
+          cpu: '1'
+          memory: 4Gi
       env:
         - name: IMAGE_REGISTRY_USER
           valueFrom:
             secretKeyRef:
-              name: pipelines
               key: username
+              name: pipelines
         - name: IMAGE_REGISTRY_PASS
           valueFrom:
             secretKeyRef:
-              name: pipelines
               key: password
-      resources:
-        requests:
-          memory: 4Gi
-          cpu: 1000m
-        limits:
-          memory: 7Gi
-          cpu: 2000m
+              name: pipelines
+      image: bcgov-c4awhwfpcremdbga.azurecr.io/buildah:latest
+      name: build
       script: |
         #!/usr/bin/env bash
-        # set -xe
+        set -xe
 
         # export TMPDIR="$(workspaces.source.path)/tmp/buildah"
         # mkdir -p "${TMPDIR}"
@@ -91,170 +79,156 @@ spec:
         # ***************************************************
 
         # Ingest Services
-        # Moved to GitHub Actions CI/CD — syndication-service-cicd.yml
-        # declare -A COMPONENT0=(
-        #   [id]="syndication"
-        #   [image]="syndication-service"
-        #   [context]=""
-        #   [dockerfile]="/services/net/syndication/Dockerfile"
-        # )
+        declare -A COMPONENT0=(
+          [id]="syndication"
+          [image]="syndication-service"
+          [context]=""
+          [dockerfile]="/services/net/syndication/Dockerfile"
+        )
 
-        # Moved to GitHub Actions CI/CD — filemonitor-service-cicd.yml
-        # declare -A COMPONENT1=(
-        #   [id]="filemonitor"
-        #   [image]="filemonitor-service"
-        #   [context]=""
-        #   [dockerfile]="/services/net/filemonitor/Dockerfile"
-        # )
+        declare -A COMPONENT1=(
+          [id]="filemonitor"
+          [image]="filemonitor-service"
+          [context]=""
+          [dockerfile]="/services/net/filemonitor/Dockerfile"
+        )
 
-        # Moved to GitHub Actions CI/CD — image-service-cicd.yml
-        # declare -A COMPONENT2=(
-        #   [id]="image"
-        #   [image]="image-service"
-        #   [context]=""
-        #   [dockerfile]="/services/net/image/Dockerfile"
-        # )
+        declare -A COMPONENT2=(
+          [id]="image"
+          [image]="image-service"
+          [context]=""
+          [dockerfile]="/services/net/image/Dockerfile"
+        )
 
         # Processing Services
 
-        # Moved to GitHub Actions CI/CD — content-service-cicd.yml
-        # declare -A COMPONENT3=(
-        #   [id]="content"
-        #   [image]="content-service"
-        #   [context]=""
-        #   [dockerfile]="/services/net/content/Dockerfile"
-        # )
+        declare -A COMPONENT3=(
+          [id]="content"
+          [image]="content-service"
+          [context]=""
+          [dockerfile]="/services/net/content/Dockerfile"
+        )
 
-        # Moved to GitHub Actions CI/CD — indexing-service-cicd.yml
-        # declare -A COMPONENT4=(
-        #   [id]="indexing"
-        #   [image]="indexing-service"
-        #   [context]=""
-        #   [dockerfile]="/services/net/indexing/Dockerfile"
-        # )
+        declare -A COMPONENT4=(
+          [id]="indexing"
+          [image]="indexing-service"
+          [context]=""
+          [dockerfile]="/services/net/indexing/Dockerfile"
+        )
 
-        # Moved to GitHub Actions CI/CD — transcription-service-cicd.yml
-        # declare -A COMPONENT5=(
-        #   [id]="transcription"
-        #   [image]="transcription-service"
-        #   [context]=""
-        #   [dockerfile]="/services/net/transcription/Dockerfile"
-        # )
+        declare -A COMPONENT5=(
+          [id]="transcription"
+          [image]="transcription-service"
+          [context]=""
+          [dockerfile]="/services/net/transcription/Dockerfile"
+        )
 
-        # Moved to GitHub Actions CI/CD — reporting-service-cicd.yml
-        # declare -A COMPONENT8=(
-        #   [id]="reporting"
-        #   [image]="reporting-service"
-        #   [context]=""
-        #   [dockerfile]="/services/net/reporting/Dockerfile"
-        # )
+        declare -A COMPONENT6=(
+          [id]="content-analysis"
+          [image]="content-analysis-service"
+          [context]=""
+          [dockerfile]="/services/net/content-analysis/Dockerfile"
+        )
 
-        # Moved to GitHub Actions CI/CD — notification-service-cicd.yml
-        # declare -A COMPONENT9=(
-        #   [id]="notification"
-        #   [image]="notification-service"
-        #   [context]=""
-        #   [dockerfile]="/services/net/notification/Dockerfile"
-        # )
+        declare -A COMPONENT7=(
+          [id]="reporting"
+          [image]="reporting-service"
+          [context]=""
+          [dockerfile]="/services/net/reporting/Dockerfile"
+        )
 
-        # Moved to GitHub Actions CI/CD — scheduler-service-cicd.yml
-        # declare -A COMPONENT10=(
-        #   [id]="scheduler"
-        #   [image]="scheduler-service"
-        #   [context]=""
-        #   [dockerfile]="/services/net/scheduler/Dockerfile"
-        # )
+        declare -A COMPONENT8=(
+          [id]="notification"
+          [image]="notification-service"
+          [context]=""
+          [dockerfile]="/services/net/notification/Dockerfile"
+        )
 
-        # Moved to GitHub Actions CI/CD — folder-collection-cicd.yml
-        # Moved to GitHub Actions CI/CD — folder-collection-cicd.yml
-        # declare -A COMPONENT11=(
-        #   [id]="folder-collection"
-        #   [image]="folder-collection-service"
-        #   [context]=""
-        #   [dockerfile]="/services/net/folder-collection/Dockerfile"
-        # )
+        declare -A COMPONENT9=(
+          [id]="scheduler"
+          [image]="scheduler-service"
+          [context]=""
+          [dockerfile]="/services/net/scheduler/Dockerfile"
+        )
 
-        # Moved to GitHub Actions CI/CD — ffmpeg-service-cicd.yml
-        # declare -A COMPONENT12=(
-        #   [id]="ffmpeg"
-        #   [image]="ffmpeg-service"
-        #   [context]=""
-        #   [dockerfile]="/services/net/ffmpeg/Dockerfile"
-        # )
+        declare -A COMPONENT10=(
+          [id]="folder-collection"
+          [image]="folder-collection-service"
+          [context]=""
+          [dockerfile]="/services/net/folder-collection/Dockerfile"
+        )
 
-        # Moved to GitHub Actions CI/CD — event-handler-cicd.yml
-        # declare -A COMPONENT13=(
-        #   [id]="event-handler"
-        #   [image]="event-handler-service"
-        #   [context]=""
-        #   [dockerfile]="/services/net/event-handler/Dockerfile"
-        # )
+        declare -A COMPONENT11=(
+          [id]="ffmpeg"
+          [image]="ffmpeg-service"
+          [context]=""
+          [dockerfile]="/services/net/ffmpeg/Dockerfile"
+        )
 
-        # Moved to GitHub Actions CI/CD — ches-retry-service-cicd.yml
-        # declare -A COMPONENT14=(
-        #   [id]="ches-retry"
-        #   [image]="ches-retry-service"
-        #   [context]=""
-        #   [dockerfile]="/services/net/ches-retry/Dockerfile"
-        # )
+        declare -A COMPONENT12=(
+          [id]="event-handler"
+          [image]="event-handler-service"
+          [context]=""
+          [dockerfile]="/services/net/event-handler/Dockerfile"
+        )
+
+        declare -A COMPONENT13=(
+          [id]="ches-retry"
+          [image]="ches-retry-service"
+          [context]=""
+          [dockerfile]="/services/net/ches-retry/Dockerfile"
+        )
 
         # Applications
 
-        # Moved to GitHub Actions CI/CD — api-services-cicd.yml
-        # declare -A COMPONENT15=(
-        #   [id]="api"
-        #   [image]="api"
-        #   [context]=""
-        #   [dockerfile]="/api/net/Dockerfile.openshift"
-        # )
+        declare -A COMPONENT14=(
+          [id]="api"
+          [image]="api"
+          [context]=""
+          [dockerfile]="/api/net/Dockerfile.openshift"
+        )
 
-        # Moved to GitHub Actions CI/CD — charts-api-cicd.yml
-        # declare -A COMPONENT16=(
-        #   [id]="charts-api"
-        #   [image]="charts-api"
-        #   [context]="/api/node"
-        #   [dockerfile]="/Dockerfile"
-        # )
+        declare -A COMPONENT15=(
+          [id]="charts-api"
+          [image]="charts-api"
+          [context]="/api/node"
+          [dockerfile]="/Dockerfile"
+        )
 
-        # Moved to GitHub Actions CI/CD — react-editor.yml
-        # declare -A COMPONENT17=(
-        #   [id]="editor"
-        #   [image]="editor"
-        #   [context]="/app/editor"
-        #   [dockerfile]="/Dockerfile.open"
-        # )
+        declare -A COMPONENT16=(
+          [id]="editor"
+          [image]="editor"
+          [context]="/app/editor"
+          [dockerfile]="/Dockerfile.open"
+        )
 
-        # Moved to GitHub Actions CI/CD — react-subscriber.yml
-        # declare -A COMPONENT18=(
-        #   [id]="subscriber"
-        #   [image]="subscriber"
-        #   [context]="/app/subscriber"
-        #   [dockerfile]="/Dockerfile.open"
-        # )
+        declare -A COMPONENT17=(
+          [id]="subscriber"
+          [image]="subscriber"
+          [context]="/app/subscriber"
+          [dockerfile]="/Dockerfile.open"
+        )
 
-        # Moved to GitHub Actions CI/CD — db-migration-cicd.yml
-        # declare -A COMPONENT19=(
-        #   [id]="db"
-        #   [image]="db-migration"
-        #   [context]="/libs/net"
-        #   [dockerfile]="/Dockerfile"
-        # )
+        declare -A COMPONENT18=(
+          [id]="db"
+          [image]="db-migration"
+          [context]="/libs/net"
+          [dockerfile]="/Dockerfile"
+        )
 
-        # Moved to GitHub Actions CI/CD — elastic-migration-cicd.yml
-        # declare -A COMPONENT20=(
-        #   [id]="elastic"
-        #   [image]="elastic-migration"
-        #   [context]=""
-        #   [dockerfile]="/tools/elastic/migration/Dockerfile"
-        # )
+        declare -A COMPONENT19=(
+          [id]="elastic"
+          [image]="elastic-migration"
+          [context]=""
+          [dockerfile]="/tools/elastic/migration/Dockerfile"
+        )
 
-        # Moved to GitHub Actions CI/CD — auto-clipper-cicd.yml
-        # declare -A COMPONENT21=(
-        #   [id]="auto-clipper"
-        #   [image]="auto-clipper-service"
-        #   [context]=""
-        #   [dockerfile]="/services/net/auto-clipper/Dockerfile"
-        # )
+        declare -A COMPONENT20=(
+          [id]="auto-clipper"
+          [image]="auto-clipper-service"
+          [context]=""
+          [dockerfile]="/services/net/auto-clipper/Dockerfile"
+        )
 
         declare -n component;
 
@@ -288,3 +262,15 @@ spec:
             echo "= Not building ${component[id]}"
           fi
         done
+      securityContext:
+        capabilities:
+          add:
+            - SETFCAP
+        runAsUser: 0
+      workingDir: $(workspaces.source.path)
+  workspaces:
+    - name: source
+    - mountPath: /data
+      name: conditions
+    - mountPath: /var/lib/containers/storage/vfs/dir
+      name: build

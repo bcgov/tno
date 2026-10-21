@@ -1,72 +1,85 @@
-apiVersion: triggers.tekton.dev/v1alpha1
+apiVersion: triggers.tekton.dev/v1beta1
 kind: EventListener
 metadata:
   name: git-webhook-dev
   annotations:
     component: app
 spec:
+  namespaceSelector: {}
+  resources: {}
   serviceAccountName: pipeline
   triggers:
-    - name: github-listener
-      bindings:
-        - ref: git-dev
+    - bindings:
+        - kind: TriggerBinding
+          ref: git-dev
+      interceptors:
+        - params:
+            - name: secretRef
+              value:
+                secretKey: webhook
+                secretName: tno-webhook
+            - name: eventTypes
+              value:
+                - push
+          ref:
+            kind: ClusterInterceptor
+            name: github
+        - params:
+            - name: filter
+              value: |-
+                body.ref == 'refs/heads/dev' && (body.commits.exists(c, c.added.exists(m, m.startsWith('app/editor')))
+                  || body.commits.exists(c, c.modified.exists(m, m.startsWith('app/editor')))
+                  || body.commits.exists(c, c.removed.exists(m, m.startsWith('app/editor')))
+                  || body.head_commit.added.exists(m, m.startsWith('app/editor'))
+                  || body.head_commit.modified.exists(m, m.startsWith('app/editor'))
+                  || body.head_commit.removed.exists(m, m.startsWith('app/editor'))
+
+                  || body.commits.exists(c, c.added.exists(m, m.startsWith('app/subscriber')))
+                  || body.commits.exists(c, c.modified.exists(m, m.startsWith('app/subscriber')))
+                  || body.commits.exists(c, c.removed.exists(m, m.startsWith('app/subscriber')))
+                  || body.head_commit.added.exists(m, m.startsWith('app/subscriber'))
+                  || body.head_commit.modified.exists(m, m.startsWith('app/subscriber'))
+                  || body.head_commit.removed.exists(m, m.startsWith('app/subscriber'))
+
+                  || body.commits.exists(c, c.added.exists(m, m.startsWith('api/net')))
+                  || body.commits.exists(c, c.modified.exists(m, m.startsWith('api/net')))
+                  || body.commits.exists(c, c.removed.exists(m, m.startsWith('api/net')))
+                  || body.head_commit.added.exists(m, m.startsWith('api/net'))
+                  || body.head_commit.modified.exists(m, m.startsWith('api/net'))
+                  || body.head_commit.removed.exists(m, m.startsWith('api/net'))
+
+                  || body.commits.exists(c, c.added.exists(m, m.startsWith('api/node')))
+                  || body.commits.exists(c, c.modified.exists(m, m.startsWith('api/node')))
+                  || body.commits.exists(c, c.removed.exists(m, m.startsWith('api/node')))
+                  || body.head_commit.added.exists(m, m.startsWith('api/node'))
+                  || body.head_commit.modified.exists(m, m.startsWith('api/node'))
+                  || body.head_commit.removed.exists(m, m.startsWith('api/node'))
+
+                  || body.commits.exists(c, c.added.exists(m, m.startsWith('libs/net')))
+                  || body.commits.exists(c, c.modified.exists(m, m.startsWith('libs/net')))
+                  || body.commits.exists(c, c.removed.exists(m, m.startsWith('libs/net')))
+                  || body.head_commit.added.exists(m, m.startsWith('libs/net'))
+                  || body.head_commit.modified.exists(m, m.startsWith('libs/net'))
+                  || body.head_commit.removed.exists(m, m.startsWith('libs/net'))
+
+                  || body.commits.exists(c, c.added.exists(m, m.startsWith('tools/elastic')))
+                  || body.commits.exists(c, c.modified.exists(m, m.startsWith('tools/elastic')))
+                  || body.commits.exists(c, c.removed.exists(m, m.startsWith('tools/elastic')))
+                  || body.head_commit.added.exists(m, m.startsWith('tools/elastic'))
+                  || body.head_commit.modified.exists(m, m.startsWith('tools/elastic'))
+                  || body.head_commit.removed.exists(m, m.startsWith('tools/elastic'))
+
+                  || body.commits.exists(c, c.added.exists(m, m.startsWith('services/net')))
+                  || body.commits.exists(c, c.modified.exists(m, m.startsWith('services/net')))
+                  || body.commits.exists(c, c.removed.exists(m, m.startsWith('services/net')))
+                  || body.head_commit.added.exists(m, m.startsWith('services/net'))
+                  || body.head_commit.modified.exists(m, m.startsWith('services/net'))
+                  || body.head_commit.removed.exists(m, m.startsWith('services/net')))
+            - name: overlays
+              value: null
+          ref:
+            kind: ClusterInterceptor
+            name: cel
+      name: github-listener
       template:
         ref: git-app
-      interceptors:
-        - github:
-            secretRef:
-              secretName: tno-webhook
-              secretKey: webhook
-            eventTypes:
-              - push
-        - cel:
-            filter: >-
-              body.ref == 'refs/heads/dev'
-              && (body.commits.exists(c, c.added.exists(m, m.startsWith('app/editor')))
-                || body.commits.exists(c, c.modified.exists(m, m.startsWith('app/editor')))
-                || body.commits.exists(c, c.removed.exists(m, m.startsWith('app/editor')))
-                || body.head_commit.added.exists(m, m.startsWith('app/editor'))
-                || body.head_commit.modified.exists(m, m.startsWith('app/editor'))
-                || body.head_commit.removed.exists(m, m.startsWith('app/editor'))
-
-                || body.commits.exists(c, c.added.exists(m, m.startsWith('app/subscriber')))
-                || body.commits.exists(c, c.modified.exists(m, m.startsWith('app/subscriber')))
-                || body.commits.exists(c, c.removed.exists(m, m.startsWith('app/subscriber')))
-                || body.head_commit.added.exists(m, m.startsWith('app/subscriber'))
-                || body.head_commit.modified.exists(m, m.startsWith('app/subscriber'))
-                || body.head_commit.removed.exists(m, m.startsWith('app/subscriber'))
-
-                || body.commits.exists(c, c.added.exists(m, m.startsWith('api/net')))
-                || body.commits.exists(c, c.modified.exists(m, m.startsWith('api/net')))
-                || body.commits.exists(c, c.removed.exists(m, m.startsWith('api/net')))
-                || body.head_commit.added.exists(m, m.startsWith('api/net'))
-                || body.head_commit.modified.exists(m, m.startsWith('api/net'))
-                || body.head_commit.removed.exists(m, m.startsWith('api/net'))
-
-                || body.commits.exists(c, c.added.exists(m, m.startsWith('api/node')))
-                || body.commits.exists(c, c.modified.exists(m, m.startsWith('api/node')))
-                || body.commits.exists(c, c.removed.exists(m, m.startsWith('api/node')))
-                || body.head_commit.added.exists(m, m.startsWith('api/node'))
-                || body.head_commit.modified.exists(m, m.startsWith('api/node'))
-                || body.head_commit.removed.exists(m, m.startsWith('api/node'))
-
-                || body.commits.exists(c, c.added.exists(m, m.startsWith('libs/net')))
-                || body.commits.exists(c, c.modified.exists(m, m.startsWith('libs/net')))
-                || body.commits.exists(c, c.removed.exists(m, m.startsWith('libs/net')))
-                || body.head_commit.added.exists(m, m.startsWith('libs/net'))
-                || body.head_commit.modified.exists(m, m.startsWith('libs/net'))
-                || body.head_commit.removed.exists(m, m.startsWith('libs/net'))
-
-                || body.commits.exists(c, c.added.exists(m, m.startsWith('tools/elastic')))
-                || body.commits.exists(c, c.modified.exists(m, m.startsWith('tools/elastic')))
-                || body.commits.exists(c, c.removed.exists(m, m.startsWith('tools/elastic')))
-                || body.head_commit.added.exists(m, m.startsWith('tools/elastic'))
-                || body.head_commit.modified.exists(m, m.startsWith('tools/elastic'))
-                || body.head_commit.removed.exists(m, m.startsWith('tools/elastic'))
-
-                || body.commits.exists(c, c.added.exists(m, m.startsWith('services/net')))
-                || body.commits.exists(c, c.modified.exists(m, m.startsWith('services/net')))
-                || body.commits.exists(c, c.removed.exists(m, m.startsWith('services/net')))
-                || body.head_commit.added.exists(m, m.startsWith('services/net'))
-                || body.head_commit.modified.exists(m, m.startsWith('services/net'))
-                || body.head_commit.removed.exists(m, m.startsWith('services/net')))

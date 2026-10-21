@@ -1,0 +1,109 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: buildah-content-service
+  annotations:
+    tekton.dev/displayName: Buildah content Service Pipeline
+    tekton.dev/pipelines.minVersion: 0.17.0
+    tekton.dev/tags: build deploy
+  labels:
+    component: pipeline
+    managed-by: kustomize
+    name: buildah-content-service
+    part-of: tno
+    version: 1.0.0
+spec:
+  params:
+    - default: dev
+      description: The git revision reference to build.
+      name: GIT_REF
+      type: string
+    - default: tno
+      description: The root path to the git repo.
+      name: CONTEXT
+      type: string
+    - default: content
+      description: The name of the service
+      name: SERVICE_NAME
+      type: string
+    - default: latest
+      description: The tag given to the built images. Use this to create versioned images.
+      name: IMAGE_TAG
+      type: string
+    - default: 9b301c
+      description: The project namespace shortname. The part before the "-" (i.e. 9b301c-dev = 9b301c).
+      name: PROJECT_SHORTNAME
+      type: string
+    - default: dev
+      description: Identify the environment to deploy the solution to [dev,test,prod,tools].
+      name: DEPLOY_TO
+      type: string
+  tasks:
+    - name: wait
+      params:
+        - name: PIPELINE_NAME
+          value: $(context.pipelineRun.name)
+      taskRef:
+        kind: Task
+        name: pipeline-wait
+    - name: git
+      params:
+        - name: GIT_REF
+          value: $(params.GIT_REF)
+        - name: CONTEXT
+          value: $(params.CONTEXT)
+      runAfter:
+        - wait
+      taskRef:
+        kind: Task
+        name: git-conditions
+      workspaces:
+        - name: source
+          workspace: source
+        - name: output
+          workspace: conditions
+    - name: build-service
+      params:
+        - name: CONTEXT
+          value: $(params.CONTEXT)
+        - name: DOCKERFILE
+          value: $(params.CONTEXT)/services/net/$(params.SERVICE_NAME)/Dockerfile
+        - name: IMAGE
+          value: $(params.SERVICE_NAME)-service
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+      runAfter:
+        - git
+      taskRef:
+        kind: Task
+        name: buildah
+      workspaces:
+        - name: source
+          workspace: source
+        - name: build
+          workspace: build
+    - name: deploy-service
+      params:
+        - name: PROJECT_SHORTNAME
+          value: $(params.PROJECT_SHORTNAME)
+        - name: IMAGE
+          value: $(params.SERVICE_NAME)-service
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+        - name: ENV
+          value: $(params.DEPLOY_TO)
+      runAfter:
+        - build-service
+      taskRef:
+        kind: Task
+        name: oc-deploy-with-tag
+  workspaces:
+    - description: |
+        Git repo source code.
+      name: source
+    - description: |
+        Pipeline configuration file.
+      name: conditions
+    - description: |
+        Pipeline build volume
+      name: build

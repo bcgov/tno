@@ -4,48 +4,32 @@ metadata:
   name: git-app
 spec:
   params:
-    - name: GIT_SOURCE
-      description: Identify the git source
-    - name: GIT_REF
-      description: Identify the git commit
-    - name: VERSION
-      description: The version to tag the image with
-    - name: DEPLOY_TO
-      description: The environment to deploy to
-    - name: COMPONENT
-      description: Which components to build/deploy [*|all|[name]]
-
-    - name: EDITOR_URL
-      description: The URL to the web application that will be ZAP scanned.
-      type: string
-      default: https://tno-dev.apps.silver.devops.gov.bc.ca
-
-    - name: SUBSCRIBER_URL
-      description: The URL to the web application that will be ZAP scanned.
-      type: string
-      default: https://mmi-dev.apps.silver.devops.gov.bc.ca
+    - description: Identify the git source
+      name: GIT_SOURCE
+    - description: Identify the git commit
+      name: GIT_REF
+    - description: The version to tag the image with
+      name: VERSION
+    - description: The environment to deploy to
+      name: DEPLOY_TO
+    - description: Which components to build/deploy [*|all|[name]]
+      name: COMPONENT
   resourcetemplates:
     - apiVersion: tekton.dev/v1beta1
       kind: PipelineRun
       metadata:
-        generateName: buildah-all-$(tt.params.VERSION)-
         annotations:
-          description: >-
-            Build an docker image from a GIT repository using an existing BuildConfig.
-            Then deploy to the specified environment.
-          tags: "oc,git,docker,build,deploy"
+          description: Build an docker image from a GIT repository using an existing BuildConfig. Then deploy to the specified environment.
+          tags: oc,git,docker,build,deploy
+        generateName: buildah-all-$(tt.params.VERSION)-
         labels:
-          name: buildah-all-$(tt.params.VERSION)
-          part-of: tno
-          version: $(tt.params.VERSION)
           component: pipeline
           managed-by: kustomize
+          name: buildah-all-$(tt.params.VERSION)
+          part-of: tno
           tekton.dev/pipeline: buildah-all
+          version: $(tt.params.VERSION)
       spec:
-        pipelineRef:
-          name: buildah-all
-        serviceAccountName: pipeline
-        timeout: 2h45m0s
         params:
           - name: GIT_SOURCE
             value: $(tt.params.GIT_SOURCE)
@@ -59,10 +43,10 @@ spec:
             value: $(tt.params.DEPLOY_TO)
           - name: COMPONENT
             value: $(tt.params.COMPONENT)
-          - name: EDITOR_URL
-            value: $(tt.params.EDITOR_URL)
-          - name: SUBSCRIBER_URL
-            value: $(tt.params.SUBSCRIBER_URL)
+        pipelineRef:
+          name: buildah-all
+        serviceAccountName: pipeline
+        timeout: 2h0m0s
         workspaces:
           - name: source
             persistentVolumeClaim:
@@ -77,7 +61,7 @@ spec:
                     storage: 50Mi
                 storageClassName: netapp-file-standard
                 volumeMode: Filesystem
-          - name: build
-            emptyDir: {}
-          - name: owasp-settings
-            emptyDir: {}
+          - emptyDir: {}
+            name: build
+          - emptyDir: {}
+            name: owasp-settings
