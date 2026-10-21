@@ -134,18 +134,6 @@ public static partial class TopicScoreCalculator
     }
 
     /// <summary>
-    /// Whether content's topics count in Event of the Day: it has a topic, none of its topics is
-    /// the system "Not Applicable" topic, and every topic scores more than zero.
-    /// </summary>
-    /// <param name="topics">Each topic's system flag and score.</param>
-    /// <returns></returns>
-    public static bool HasReportableTopics(IEnumerable<(bool IsSystem, int Score)> topics)
-    {
-        var values = topics.ToArray();
-        return values.Length > 0 && values.All(t => !t.IsSystem && t.Score > 0);
-    }
-
-    /// <summary>
     /// Calculate the score for the specified input.
     /// </summary>
     /// <param name="rules">Rules for the content's source; other sources' rules are ignored.</param>

@@ -59,24 +59,6 @@ public interface ITopicScoreService : IBaseService
     bool IsTopicEligible(ContentType contentType, int? sourceId, int? seriesId);
 
     /// <summary>
-    /// Whether saved content counts in Event of the Day: it may be given a topic, and it has topics
-    /// that are not "Not Applicable" and score more than zero.
-    /// </summary>
-    /// <param name="contentId"></param>
-    /// <returns></returns>
-    bool IsEventOfDayContent(long contentId);
-
-    /// <summary>
-    /// Whether content with these values counts in Event of the Day.
-    /// </summary>
-    /// <param name="contentType"></param>
-    /// <param name="sourceId"></param>
-    /// <param name="seriesId"></param>
-    /// <param name="topics">Each topic's system flag and score.</param>
-    /// <returns></returns>
-    bool IsEventOfDayContent(ContentType contentType, int? sourceId, int? seriesId, IEnumerable<(bool IsSystem, int Score)> topics);
-
-    /// <summary>
     /// Prepare the topics of content that is about to be added. When 'incomingScoresAreOverrides'
     /// (ingest), a topic arriving with a non-zero score keeps it as an override; every other score
     /// is calculated when the content is saved. Scored content that has no topics is given the

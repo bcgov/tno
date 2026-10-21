@@ -144,40 +144,6 @@ public class TopicScoreService : BaseService, ITopicScoreService
     }
 
     /// <summary>
-    /// Whether saved content counts in Event of the Day: it may be given a topic, and it has
-    /// topics that are not "Not Applicable" and score more than zero.
-    /// </summary>
-    /// <param name="contentId"></param>
-    /// <returns></returns>
-    public bool IsEventOfDayContent(long contentId)
-    {
-        var content = this.Context.Contents.AsNoTracking()
-            .Where(c => c.Id == contentId)
-            .Select(c => new
-            {
-                c.ContentType,
-                c.SourceId,
-                c.SeriesId,
-                Topics = c.TopicsManyToMany.Select(t => new { t.Topic!.IsSystem, t.Score }).ToArray(),
-            })
-            .FirstOrDefault();
-        return content != null && IsEventOfDayContent(content.ContentType, content.SourceId, content.SeriesId, content.Topics.Select(t => (t.IsSystem, t.Score)));
-    }
-
-    /// <summary>
-    /// Whether content with these values counts in Event of the Day.
-    /// </summary>
-    /// <param name="contentType"></param>
-    /// <param name="sourceId"></param>
-    /// <param name="seriesId"></param>
-    /// <param name="topics">Each topic's system flag and score.</param>
-    /// <returns></returns>
-    public bool IsEventOfDayContent(ContentType contentType, int? sourceId, int? seriesId, IEnumerable<(bool IsSystem, int Score)> topics)
-    {
-        return TopicScoreCalculator.HasReportableTopics(topics) && IsTopicEligible(contentType, sourceId, seriesId);
-    }
-
-    /// <summary>
     /// Prepare the topics of content that is about to be added.
     /// </summary>
     /// <param name="content"></param>
