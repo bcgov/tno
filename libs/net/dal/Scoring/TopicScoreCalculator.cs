@@ -10,7 +10,7 @@ namespace TNO.DAL.Scoring;
 /// <param name="SourceId">The content source.</param>
 /// <param name="SeriesId">The content series.</param>
 /// <param name="Section">The print section.</param>
-/// <param name="Page">The print page, a prefix plus a number ("A1").</param>
+/// <param name="Page">The print page: a prefix plus a number ("A1"), possibly among other words ("A1 / Front").</param>
 /// <param name="HasImage">Whether the content has an attached image file or an image in its body.</param>
 /// <param name="PublishedOn">The publication date and time (UTC).</param>
 /// <param name="CharacterCount">The length of the body's plain text.</param>
@@ -95,7 +95,12 @@ public record TopicScoreResult(int Score, int? RuleId, bool IsSourceDefault, IRe
 /// </summary>
 public static partial class TopicScoreCalculator
 {
-    [GeneratedRegex(@"^\s*(?<prefix>[a-zA-Z]*)\s*(?<number>\d+)")]
+    /// <summary>
+    /// A page token within a page value: a letter prefix (optionally separated by whitespace)
+    /// followed by a number, not preceded by a letter or digit so "Front1" is read as one token
+    /// and "FRONT A1" as two.
+    /// </summary>
+    [GeneratedRegex(@"(?<![a-zA-Z0-9])(?<prefix>[a-zA-Z]*)\s*(?<number>\d+)")]
     private static partial Regex PageRegex();
 
     [GeneratedRegex(@"^[a-zA-Z]*\d+$")]
@@ -222,16 +227,22 @@ public static partial class TopicScoreCalculator
     }
 
     /// <summary>
-    /// Parse a page as a prefix plus a number ("A12" is prefix "A", number 12).
+    /// Parse a page as a prefix plus a number ("A12" is prefix "A", number 12). A content page
+    /// may carry more than the page ("A1 / Front", "Front, A1", "A1 A3"), so the value is read
+    /// token by token (split on whitespace, commas, slashes and similar separators) and the first
+    /// token with a number is the page.
     /// </summary>
     /// <param name="page"></param>
     /// <returns>Null when the value has no page number.</returns>
     public static (string Prefix, int Number)? ParsePage(string? page)
     {
         if (String.IsNullOrWhiteSpace(page)) return null;
-        var match = PageRegex().Match(page);
-        if (!match.Success || !int.TryParse(match.Groups["number"].Value, out var number)) return null;
-        return (match.Groups["prefix"].Value, number);
+        foreach (Match match in PageRegex().Matches(page))
+        {
+            if (int.TryParse(match.Groups["number"].Value, out var number))
+                return (match.Groups["prefix"].Value, number);
+        }
+        return null;
     }
 
     /// <summary>
