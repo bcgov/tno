@@ -252,16 +252,6 @@ public class FolderService : BaseService<Folder, int>, IFolderService
     }
 
     /// <summary>
-    /// Remove the specified content from the specified folder.
-    /// </summary>
-    /// <param name="contentId"></param>
-    /// <param name="folderId"></param>
-    public void RemoveContentFromFolder(long contentId, int folderId)
-    {
-        this.Context.Database.ExecuteSql($"DELETE FROM public.folder_content WHERE content_id={contentId} AND folder_id={folderId};");
-    }
-
-    /// <summary>
     /// Get all folders that have enabled filters.
     /// </summary>
     /// <returns></returns>

@@ -16,7 +16,6 @@ const mocks = vi.hoisted(() => ({
   reset: vi.fn(),
   folder: vi.fn(),
   addFolder: vi.fn(),
-  removeFolder: vi.fn(),
   publish: vi.fn(),
 }));
 const history = {
@@ -24,7 +23,6 @@ const history = {
   preview: mocks.preview,
   save: mocks.save,
   addToFolder: mocks.addFolder,
-  removeFromFolder: mocks.removeFolder,
 };
 const settings = [
   { name: 'folder', value: '1' },
@@ -327,32 +325,31 @@ it("adds one of today's stories with a topic straight into the live folder", asy
   expect(mocks.preview).not.toHaveBeenCalled();
 });
 
-it('only offers stories that count in the report: not Not Applicable and scored above zero', async () => {
+it('offers every story with a topic, including Not Applicable and zero scores, but counts only scored topics', async () => {
+  const noTopic = { ...story(15), content: { headline: 'Story 15', topics: [] } };
   mocks.find.mockResolvedValue({
     instances: [instance],
-    content: [story(11), story(12), story(13, notApplicable), story(14, unscored)],
+    content: [story(11), story(12), story(13, notApplicable), story(14, unscored), noTopic],
   });
   open();
   await screen.findByText('Story 11');
   expect(screen.getByRole('option', { name: 'Story 12' })).toBeInTheDocument();
-  expect(screen.queryByRole('option', { name: 'Story 13' })).not.toBeInTheDocument();
-  expect(screen.queryByRole('option', { name: 'Story 14' })).not.toBeInTheDocument();
-  expect(screen.getByText(/4 stories loaded; 2 with a report topic/)).toBeInTheDocument();
+  expect(screen.getByRole('option', { name: 'Story 13' })).toBeInTheDocument();
+  expect(screen.getByRole('option', { name: 'Story 14' })).toBeInTheDocument();
+  expect(screen.queryByRole('option', { name: 'Story 15' })).not.toBeInTheDocument();
+  expect(screen.getByText(/5 stories loaded; 2 with a report topic/)).toBeInTheDocument();
 });
 
-it("removes a story marked Not Applicable from today's live folder", async () => {
+it("keeps a story marked Not Applicable in today's live folder", async () => {
   const today = moment.tz('America/Vancouver').format('YYYY-MM-DD');
   mocks.folder.mockResolvedValue([story(11), story(12)]);
   mocks.find.mockResolvedValue({ instances: [], content: [story(11), story(12)] });
-  mocks.removeFolder.mockResolvedValue(undefined);
   open(today);
   await screen.findByText('Story 12');
   await userEvent.click(screen.getByRole('checkbox', { name: 'Select story 12' }));
   await userEvent.click(screen.getByRole('button', { name: 'Mark selected Not Applicable' }));
-  await waitFor(() => expect(mocks.removeFolder).toHaveBeenCalledWith(12));
-  await waitFor(() =>
-    expect(screen.queryByRole('checkbox', { name: 'Select story 12' })).not.toBeInTheDocument(),
-  );
+  await waitFor(() => expect(mocks.update).toHaveBeenCalled());
+  expect(screen.getByRole('checkbox', { name: 'Select story 12' })).toBeInTheDocument();
   expect(screen.getByRole('checkbox', { name: 'Select story 11' })).toBeInTheDocument();
 });
 
@@ -362,6 +359,5 @@ it('keeps a past report story in the list when it is marked Not Applicable', asy
   await userEvent.click(screen.getByRole('checkbox', { name: 'Select story 12' }));
   await userEvent.click(screen.getByRole('button', { name: 'Mark selected Not Applicable' }));
   await waitFor(() => expect(mocks.update).toHaveBeenCalled());
-  expect(mocks.removeFolder).not.toHaveBeenCalled();
   expect(screen.getByRole('checkbox', { name: 'Select story 12' })).toBeInTheDocument();
 });

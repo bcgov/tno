@@ -28,8 +28,6 @@ public class FolderController : ControllerBase
 {
     #region Variables
     private readonly IFolderService _folderService;
-    private readonly ISettingService _settingService;
-    private readonly ITopicScoreService _topicScoreService;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -38,18 +36,12 @@ public class FolderController : ControllerBase
     /// Creates a new instance of a FolderController object, initializes with specified parameters.
     /// </summary>
     /// <param name="folderService"></param>
-    /// <param name="settingService"></param>
-    /// <param name="topicScoreService"></param>
     /// <param name="serializerOptions"></param>
     public FolderController(
         IFolderService folderService,
-        ISettingService settingService,
-        ITopicScoreService topicScoreService,
         IOptions<JsonSerializerOptions> serializerOptions)
     {
         _folderService = folderService;
-        _settingService = settingService;
-        _topicScoreService = topicScoreService;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -115,12 +107,6 @@ public class FolderController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Folder" })]
     public IActionResult AddContentToFolder(int folderId, long contentId, bool bottom = true)
     {
-        // The Event of the Day folder only collects stories that count in its report. A rejected
-        // story is not an error, so the collector does not retry it.
-        if (int.TryParse(_settingService.FindByName("EventOfTheDayFolderId")?.Value, out var eventOfDayFolderId)
-            && folderId == eventOfDayFolderId
-            && !_topicScoreService.IsEventOfDayContent(contentId))
-            return Ok();
         _folderService.AddContentToFolder(contentId, folderId, bottom);
         return Ok();
     }
