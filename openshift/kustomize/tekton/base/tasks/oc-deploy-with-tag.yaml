@@ -1,69 +1,61 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: oc-deploy-with-tag
-  description: >-
-    This task will tag a specific image with the environment name. This will
-    deploy the image if there is a DeployConfig trigger listening for the
-    environment tag.
   annotations:
     tekton.dev/displayName: openshift client
     tekton.dev/pipelines.minVersion: 0.12.1
     tekton.dev/tags: cli
+    description: This task will tag a specific image with the environment name. This will deploy the image if there is a DeployConfig trigger listening for the environment tag.
   labels:
+    component: task
+    managed-by: kustomize
     name: oc-deploy-with-tag
     part-of: tno
     version: 1.0.0
-    component: task
-    managed-by: kustomize
 spec:
   params:
-    - name: PROJECT_SHORTNAME
+    - default: 9b301c
       description: The project namespace.
+      name: PROJECT_SHORTNAME
       type: string
-      default: 9b301c
-    - name: IMAGE
-      description: The name given to the built image.
+    - description: The name given to the built image.
+      name: IMAGE
       type: string
-    - name: IMAGE_TAG
+    - default: latest
       description: The tag given to the built image.
+      name: IMAGE_TAG
       type: string
-      default: latest
-    - name: ENV
-      description: The environment to deploy to.
+    - description: The environment to deploy to.
+      name: ENV
       type: string
-    - name: TIMEOUT
+    - default: 600s
       description: The timeout before it will stop waiting for the pod to become available.
+      name: TIMEOUT
       type: string
-      default: "600s"
-    - name: OBJECT
+    - default: deployment
       description: The kubernetes object that will be deployed [dc|sts]
+      name: OBJECT
       type: string
-      default: deployment
-    - name: ACR_REGISTRY
+    - default: bcgov-c4awhwfpcremdbga.azurecr.io
       description: The Azure Container Registry URL (leave empty to skip ACR tagging).
+      name: ACR_REGISTRY
       type: string
-      default: "bcgov-c4awhwfpcremdbga.azurecr.io"
-
   steps:
-    - name: tag-acr
-      image: bcgov-c4awhwfpcremdbga.azurecr.io/buildah:latest
-      securityContext:
-        capabilities:
-          add:
-            - SETFCAP
-        runAsUser: 0
+    - computeResources: {}
       env:
         - name: IMAGE_REGISTRY_USER
           valueFrom:
             secretKeyRef:
-              name: pipelines
               key: username
+              name: pipelines
         - name: IMAGE_REGISTRY_PASS
           valueFrom:
             secretKeyRef:
-              name: pipelines
               key: password
+              name: pipelines
+      image: bcgov-c4awhwfpcremdbga.azurecr.io/buildah:latest
+      name: tag-acr
       script: |
         #!/usr/bin/env bash
         set -e
@@ -87,10 +79,15 @@ spec:
         buildah --storage-driver=vfs push $CREDS \
           $(params.ACR_REGISTRY)/$(params.IMAGE):$(params.ENV)
         buildah --storage-driver=vfs rmi --force $IMAGE_ID
-
-    - name: deploy
+        exit 0
+      securityContext:
+        capabilities:
+          add:
+            - SETFCAP
+        runAsUser: 0
+    - computeResources: {}
       image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
-      resources: {}
+      name: deploy
       script: |
         set -xe
 

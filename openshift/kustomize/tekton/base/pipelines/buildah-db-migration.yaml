@@ -1,10 +1,9 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
+  name: database-migration
   annotations:
     description: Run the database migration.
-  name: database-migration
-  namespace: 9b301c-tools
 spec:
   params:
     - default: dev
@@ -20,32 +19,21 @@ spec:
       name: IMAGE_TAG
       type: string
     - default: 9b301c
-      description: >-
-        The project namespace shortname. The part before the "-" (i.e.
-        9b301c-dev = 9b301c).
+      description: The project namespace shortname. The part before the "-" (i.e. 9b301c-dev = 9b301c).
       name: PROJECT_SHORTNAME
       type: string
     - default: dev
-      description: >-
-        Identify the environment to deploy the solution to
-        [dev,test,prod,tools].
+      description: Identify the environment to deploy the solution to [dev,test,prod,tools].
       name: DEPLOY_TO
       type: string
-    - name: FORCE_BUILD
+    - default: 'yes'
       description: Whether to force build the migration [yes|no].
+      name: FORCE_BUILD
       type: string
-      default: "yes"
-  workspaces:
-    - description: |
-        Git repo source code.
-      name: source
-    - description: |
-        Pipeline configuration file.
-      name: conditions
-    - name: build
-      description: |
-        Pipeline build volume
-
+    - default: montford
+      description: Database server name [montford, montford2, mooncrest, moonstep]
+      name: SERVER
+      type: string
   tasks:
     - name: wait
       params:
@@ -70,7 +58,6 @@ spec:
           workspace: source
         - name: output
           workspace: conditions
-
     - name: build-db-migration
       params:
         - name: COMPONENT
@@ -95,7 +82,6 @@ spec:
           workspace: conditions
         - name: build
           workspace: build
-
     - name: maintenance-on-editor
       params:
         - name: PROJECT
@@ -109,7 +95,6 @@ spec:
       taskRef:
         kind: Task
         name: oc-patch-route
-
     - name: maintenance-on-subscriber
       params:
         - name: PROJECT
@@ -123,7 +108,6 @@ spec:
       taskRef:
         kind: Task
         name: oc-patch-route
-
     - name: db-migration
       params:
         - name: DB_SECRET_NAME
@@ -138,6 +122,8 @@ spec:
           value: $(params.FORCE_BUILD)
         - name: DEPLOY_TO
           value: $(params.DEPLOY_TO)
+        - name: SERVER
+          value: $(params.SERVER)
       runAfter:
         - maintenance-on-editor
         - maintenance-on-subscriber
@@ -147,7 +133,6 @@ spec:
       workspaces:
         - name: conditions
           workspace: conditions
-
     - name: maintenance-off-editor
       params:
         - name: PROJECT
@@ -161,7 +146,6 @@ spec:
       taskRef:
         kind: Task
         name: oc-patch-route
-
     - name: maintenance-off-subscriber
       params:
         - name: PROJECT
@@ -175,3 +159,13 @@ spec:
       taskRef:
         kind: Task
         name: oc-patch-route
+  workspaces:
+    - description: |
+        Git repo source code.
+      name: source
+    - description: |
+        Pipeline configuration file.
+      name: conditions
+    - description: |
+        Pipeline build volume
+      name: build

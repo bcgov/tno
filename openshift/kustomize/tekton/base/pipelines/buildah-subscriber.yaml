@@ -1,4 +1,4 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: buildah-subscriber
@@ -7,101 +7,66 @@ metadata:
     tekton.dev/pipelines.minVersion: 0.17.0
     tekton.dev/tags: build deploy
   labels:
+    component: pipeline
+    managed-by: kustomize
     name: buildah-subscriber
     part-of: tno
     version: 1.0.0
-    component: pipeline
-    managed-by: kustomize
 spec:
   params:
-    - name: GIT_REF
-      description: >-
-        The git revision reference to build.
+    - default: dev
+      description: The git revision reference to build.
+      name: GIT_REF
       type: string
-      default: dev
-
-    - name: CONTEXT
-      description: >-
-        The root path to the git repo.
+    - default: tno
+      description: The root path to the git repo.
+      name: CONTEXT
       type: string
-      default: tno
-
-    - name: IMAGE_TAG
-      description: >-
-        The tag given to the built images.
-        Use this to create versioned images.
+    - default: latest
+      description: The tag given to the built images. Use this to create versioned images.
+      name: IMAGE_TAG
       type: string
-      default: latest
-
-    - name: PROJECT_SHORTNAME
-      description: >-
-        The project namespace shortname.
-        The part before the "-" (i.e. 9b301c-dev = 9b301c).
+    - default: 9b301c
+      description: The project namespace shortname. The part before the "-" (i.e. 9b301c-dev = 9b301c).
+      name: PROJECT_SHORTNAME
       type: string
-      default: 9b301c
-
-    - name: FORCE_BUILD
+    - default: 'yes'
       description: Whether to force build the app [yes|no].
+      name: FORCE_BUILD
       type: string
-      default: "yes"
-
-    - name: DEPLOY_TO
-      description: >-
-        Identify the environment to deploy the solution to [dev,test,prod,tools].
+    - default: dev
+      description: Identify the environment to deploy the solution to [dev,test,prod,tools].
+      name: DEPLOY_TO
       type: string
-      default: dev
-
-    - name: SUBSCRIBER_URL
+    - default: https://mmia-dev.apps.silver.devops.gov.bc.ca
       description: The URL to the web application that will be ZAP scanned.
+      name: SUBSCRIBER_URL
       type: string
-      default: https://mmi-dev.apps.silver.devops.gov.bc.ca
-
-  workspaces:
-    - name: source
-      description: |
-        Git repo source code.
-    - name: conditions
-      description: |
-        Pipeline configuration file.
-    - name: build
-      description: |
-        Pipeline build volume
-    - name: owasp-settings
-      description: |
-        mounts /zap/wrk to store generated configs and results.
-
   tasks:
     - name: wait
-      taskRef:
-        name: pipeline-wait
-        kind: Task
       params:
         - name: PIPELINE_NAME
           value: $(context.pipelineRun.name)
-
-    - name: git
       taskRef:
-        name: git-conditions
         kind: Task
-      runAfter:
-        - wait
+        name: pipeline-wait
+    - name: git
       params:
         - name: GIT_REF
           value: $(params.GIT_REF)
         - name: CONTEXT
           value: $(params.CONTEXT)
+      runAfter:
+        - wait
+      taskRef:
+        kind: Task
+        name: git-conditions
       workspaces:
         - name: source
           workspace: source
         - name: output
           workspace: conditions
-
     - name: build-subscriber
-      taskRef:
-        name: build-component
-        kind: Task
-      runAfter:
-        - git
       params:
         - name: COMPONENT
           value: subscriber
@@ -113,6 +78,13 @@ spec:
           value: subscriber
         - name: IMAGE_TAG
           value: $(params.IMAGE_TAG)
+        - name: BUILD
+          value: $(params.FORCE_BUILD)
+      runAfter:
+        - git
+      taskRef:
+        kind: Task
+        name: build-component
       workspaces:
         - name: source
           workspace: source
@@ -120,13 +92,7 @@ spec:
           workspace: conditions
         - name: build
           workspace: build
-
     - name: maintenance-on
-      runAfter:
-        - build-subscriber
-      taskRef:
-        name: oc-patch-route
-        kind: Task
       params:
         - name: PROJECT
           value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
@@ -134,13 +100,12 @@ spec:
           value: subscriber
         - name: SERVICE
           value: nginx
-
-    - name: deploy-subscriber
       runAfter:
-        - maintenance-on
+        - build-subscriber
       taskRef:
-        name: oc-deploy-with-tag
         kind: Task
+        name: oc-patch-route
+    - name: deploy-subscriber
       params:
         - name: PROJECT_SHORTNAME
           value: $(params.PROJECT_SHORTNAME)
@@ -150,13 +115,12 @@ spec:
           value: $(params.IMAGE_TAG)
         - name: ENV
           value: $(params.DEPLOY_TO)
-
-    - name: maintenance-off
       runAfter:
-        - deploy-subscriber
+        - maintenance-on
       taskRef:
-        name: oc-patch-route
         kind: Task
+        name: oc-deploy-with-tag
+    - name: maintenance-off
       params:
         - name: PROJECT
           value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
@@ -164,20 +128,37 @@ spec:
           value: subscriber
         - name: SERVICE
           value: subscriber
-
-    - name: owasp-scan
-      taskRef:
-        name: owasp-scanner
-        kind: Task
       runAfter:
-        - maintenance-off
+        - deploy-subscriber
+      taskRef:
+        kind: Task
+        name: oc-patch-route
+    - name: owasp-scan
       params:
         - name: TARGET_URL
           value: $(params.SUBSCRIBER_URL)
         - name: SCAN_TYPE
           value: quick
         - name: SCAN_DURATION
-          value: "1"
+          value: '1'
+      runAfter:
+        - maintenance-off
+      taskRef:
+        kind: Task
+        name: owasp-scanner
       workspaces:
         - name: owasp-settings
           workspace: owasp-settings
+  workspaces:
+    - description: |
+        Git repo source code.
+      name: source
+    - description: |
+        Pipeline configuration file.
+      name: conditions
+    - description: |
+        Pipeline build volume
+      name: build
+    - description: |
+        mounts /zap/wrk to store generated configs and results.
+      name: owasp-settings

@@ -1,10 +1,9 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
+  name: database-migration-only
   annotations:
     description: Run the database migration.
-  name: database-migration-only
-  namespace: 9b301c-tools
 spec:
   params:
     - default: latest
@@ -12,12 +11,13 @@ spec:
       name: IMAGE_TAG
       type: string
     - default: dev
-      description: >-
-        Identify the environment to deploy the solution to
-        [dev,test,prod,tools].
+      description: Identify the environment to deploy the solution to [dev,test,prod,tools].
       name: DEPLOY_TO
       type: string
-
+    - default: montford
+      description: The database server name
+      name: SERVER
+      type: string
   tasks:
     - name: db-migration
       params:
@@ -30,9 +30,11 @@ spec:
         - name: IMAGE_TAG
           value: $(params.IMAGE_TAG)
         - name: DEPLOY
-          value: "yes"
+          value: 'yes'
         - name: DEPLOY_TO
           value: $(params.DEPLOY_TO)
+        - name: SERVER
+          value: $(params.SERVER)
       taskRef:
         kind: Task
         name: db-migration

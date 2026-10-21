@@ -1,42 +1,30 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: pipeline-wait
-  description: |
-    Makes the pipeline wait until a prior pipeline completes.
   annotations:
     tekton.dev/displayName: Git Pull
     tekton.dev/pipelines.minVersion: 0.17.0
     tekton.dev/tags: git
+    description: Makes the pipeline wait until a prior pipeline completes.
   labels:
+    component: task
+    managed-by: kustomize
     name: pipeline-wait
     part-of: tno
     version: 1.0.0
-    component: task
-    managed-by: kustomize
 spec:
   params:
-    - name: PIPELINE_NAME
-      description: The name of current pipeline run
+    - description: The name of current pipeline run
+      name: PIPELINE_NAME
       type: string
-  workspaces:
-    - name: manifest-dir
-      description: >-
-        The workspace which contains kubernetes manifests which we want to apply
-        on the cluster.
-      optional: true
-    - name: kubeconfig-dir
-      description: >-
-        The workspace which contains the the kubeconfig file if in case we want
-        to run the oc command on another cluster.
-      optional: true
   steps:
-    - name: oc
+    - computeResources: {}
       image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
-      resources: {}
+      name: oc
       script: |
         #!/usr/bin/env bash
-        set -e
+        set -xe
         [[ "$(workspaces.manifest-dir.bound)" == "true" ]] && \
         cd $(workspaces.manifest-dir.path)
 
@@ -54,3 +42,10 @@ spec:
             sleep 1m
           fi
         done
+  workspaces:
+    - description: The workspace which contains kubernetes manifests which we want to apply on the cluster.
+      name: manifest-dir
+      optional: true
+    - description: The workspace which contains the the kubeconfig file if in case we want to run the oc command on another cluster.
+      name: kubeconfig-dir
+      optional: true

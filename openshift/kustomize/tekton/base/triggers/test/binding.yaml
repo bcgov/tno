@@ -11,12 +11,8 @@ spec:
     - name: GIT_REF
       value: $(body.head_commit.id)
     - name: VERSION
-      value: latest # TODO: Dynamically generate this somehow.
+      value: latest
     - name: DEPLOY_TO
       value: test
     - name: COMPONENT
       value: all
-    - name: EDITOR_URL
-      value: https://tno-test.apps.silver.devops.gov.bc.ca
-    - name: SUBSCRIBER_URL
-      value: https://mmi-test.apps.silver.devops.gov.bc.ca
