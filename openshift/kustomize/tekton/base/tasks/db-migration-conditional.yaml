@@ -1,58 +1,47 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: db-migration-conditional
-  description: >-
-    This task runs the database migration if the source code requires a new build.
   annotations:
     tekton.dev/displayName: Run Database Migration
     tekton.dev/pipelines.minVersion: 0.12.1
     tekton.dev/tags: docker
+    description: This task runs the database migration if the source code requires a new build.
   labels:
+    component: task
+    managed-by: kustomize
     name: db-migration-conditional
     part-of: tno
     version: 1.0.0
-    component: task
-    managed-by: kustomize
 spec:
   params:
-    - name: IMAGE
+    - default: db-migration
       description: The name of the database migration image.
+      name: IMAGE
       type: string
-      default: db-migration
-    - name: PROJECT_SHORTNAME
+    - default: 9b301c
       description: The shortname of the project namespace.
+      name: PROJECT_SHORTNAME
       type: string
-      default: 9b301c
-
-    - name: IMAGE_TAG
+    - default: latest
       description: The tag given to the built image.
+      name: IMAGE_TAG
       type: string
-      default: latest
-
-    - name: DEPLOY
+    - default: '*'
       description: Whether to force build the component [*|yes|all|db].
-      default: "*"
-
-    - name: DEPLOY_TO
-      description: Which environment to deploy to
+      name: DEPLOY
       type: string
-      default: dev
-
-  workspaces:
-    - name: conditions
-      mountPath: /data
-
+    - default: dev
+      description: Which environment to deploy to
+      name: DEPLOY_TO
+      type: string
   steps:
-    - name: run
-      image: "image-registry.openshift-image-registry.svc:5000/openshift/cli:latest"
-      resources:
-        limits:
-          cpu: "2"
-          memory: 2Gi
+    - computeResources:
         requests:
           cpu: 250m
           memory: 1Gi
+      image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+      name: run
       script: |
         #!/usr/bin/env bash
         # set -e
@@ -81,7 +70,6 @@ spec:
             --rm \
             --labels='role=migration,part-of=tno,component=database' \
             --restart=Never \
-            --timeout=10m \
             --override-type='merge' \
             --overrides='{
               "apiVersion":"v1",
@@ -104,8 +92,8 @@ spec:
                         "name":"DB_POSTGRES_USERNAME",
                         "valueFrom":{
                           "secretKeyRef":{
-                            "name":"crunchy-pguser-admin",
-                            "key":"user"
+                            "name":"montford",
+                            "key":"USERNAME"
                           }
                         }
                       },
@@ -113,8 +101,8 @@ spec:
                         "name":"DB_POSTGRES_PASSWORD",
                         "valueFrom":{
                           "secretKeyRef":{
-                            "name":"crunchy-pguser-admin",
-                            "key":"password"
+                            "name":"montford",
+                            "key":"PASSWORD"
                           }
                         }
                       }
@@ -126,10 +114,6 @@ spec:
                       "requests":{
                         "memory":"1Gi",
                         "cpu":"500m"
-                      },
-                      "limits":{
-                        "memory":"2Gi",
-                        "cpu":"1000m"
                       }
                     }
                   }
@@ -139,3 +123,6 @@ spec:
         else
           echo 'Do not run $(params.IMAGE)'
         fi
+  workspaces:
+    - mountPath: /data
+      name: conditions

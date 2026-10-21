@@ -1,4 +1,4 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: buildah-all
@@ -7,54 +7,53 @@ metadata:
     tekton.dev/pipelines.minVersion: 0.17.0
     tekton.dev/tags: build deploy deployment
   labels:
+    component: pipeline
+    managed-by: kustomize
     name: buildah-all
     part-of: tno
     version: 1.0.0
-    component: pipeline
-    managed-by: kustomize
 spec:
   params:
-    - name: GIT_SOURCE
+    - default: dev
       description: The git revision reference to build.
+      name: GIT_SOURCE
       type: string
-      default: dev
-    - name: GIT_REF
+    - default: ''
       description: The git revision reference to build.
+      name: GIT_REF
       type: string
-      default: ''
-    - name: CONTEXT
+    - default: tno
       description: The root path to the git repo.
+      name: CONTEXT
       type: string
-      default: tno
-    - name: COMPONENT
+    - default: '*'
       description: Identify the components to build and deploy [*|all|[name]].
+      name: COMPONENT
       type: string
-      default: '*'
-    - name: WAIT
+    - default: 'no'
       description: Whether to wait for each service pod to scale back up [yes|no].
+      name: WAIT
       type: string
-      default: 'no'
-    - name: IMAGE_TAG
+    - default: latest
       description: The tag given to the built images. Use this to create versioned images.
+      name: IMAGE_TAG
       type: string
-      default: latest
-    - name: PROJECT_SHORTNAME
+    - default: 9b301c
       description: The project namespace shortname. The part before the "-" (i.e. 9b301c-dev = 9b301c).
+      name: PROJECT_SHORTNAME
       type: string
-      default: 9b301c
-    - name: DEPLOY_TO
+    - default: dev
       description: Identify the environment to deploy the solution to [dev,test,prod,tools].
+      name: DEPLOY_TO
       type: string
-      default: dev
-    - name: EDITOR_URL
+    - default: https://dev.editor.mmi.gov.bc.ca
       description: The URL to the web application that will be ZAP scanned.
+      name: EDITOR_URL
       type: string
-      default: https://dev.editor.mmi.gov.bc.ca
-    - name: SUBSCRIBER_URL
+    - default: https://dev.mmi.gov.bc.ca
       description: The URL to the web application that will be ZAP scanned.
+      name: SUBSCRIBER_URL
       type: string
-      default: https://dev.mmi.gov.bc.ca
-
   tasks:
     - name: wait
       params:
@@ -63,7 +62,6 @@ spec:
       taskRef:
         kind: Task
         name: pipeline-wait
-
     - name: git
       params:
         - name: GIT_SOURCE
@@ -82,7 +80,6 @@ spec:
           workspace: source
         - name: output
           workspace: conditions
-
     - name: build-all
       params:
         - name: CONTEXT
@@ -103,35 +100,6 @@ spec:
           workspace: conditions
         - name: build
           workspace: build
-
-    - name: maintenance-on-editor
-      params:
-        - name: PROJECT
-          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
-        - name: ROUTE
-          value: editor-tls
-        - name: SERVICE
-          value: nginx
-      runAfter:
-        - build-all
-      taskRef:
-        kind: Task
-        name: oc-patch-route
-
-    - name: maintenance-on-subscriber
-      params:
-        - name: PROJECT
-          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
-        - name: ROUTE
-          value: subscriber-tls
-        - name: SERVICE
-          value: nginx
-      runAfter:
-        - build-all
-      taskRef:
-        kind: Task
-        name: oc-patch-route
-
     - name: deploy-all
       params:
         - name: PROJECT_SHORTNAME
@@ -145,43 +113,13 @@ spec:
         - name: WAIT
           value: $(params.WAIT)
       runAfter:
-        - maintenance-on-editor
-        - maintenance-on-subscriber
+        - build-all
       taskRef:
         kind: Task
         name: deploy-all
       workspaces:
         - name: conditions
           workspace: conditions
-
-    - name: maintenance-off-editor
-      params:
-        - name: PROJECT
-          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
-        - name: ROUTE
-          value: editor-tls
-        - name: SERVICE
-          value: nginx-editor
-      runAfter:
-        - deploy-all
-      taskRef:
-        kind: Task
-        name: oc-patch-route
-
-    - name: maintenance-off-subscriber
-      params:
-        - name: PROJECT
-          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
-        - name: ROUTE
-          value: subscriber-tls
-        - name: SERVICE
-          value: nginx-subscriber
-      runAfter:
-        - deploy-all
-      taskRef:
-        kind: Task
-        name: oc-patch-route
-
   workspaces:
     - description: Git repo source code.
       name: source

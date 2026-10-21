@@ -1,0 +1,100 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: deploy-all
+  annotations:
+    tekton.dev/displayName: Buildah Pipeline
+    tekton.dev/pipelines.minVersion: 0.17.0
+    tekton.dev/tags: build deploy
+  labels:
+    component: pipeline
+    managed-by: kustomize
+    name: buildah-all
+    part-of: tno
+    version: 1.0.0
+spec:
+  params:
+    - default: dev
+      description: The git revision reference to build.
+      name: GIT_SOURCE
+      type: string
+    - default: ''
+      description: The git revision reference to build.
+      name: GIT_REF
+      type: string
+    - default: tno
+      description: The root path to the git repo.
+      name: CONTEXT
+      type: string
+    - default: '*'
+      description: Identify the components to build and deploy [*|all|[name]].
+      name: COMPONENT
+      type: string
+    - default: latest
+      description: The tag given to the built images. Use this to create versioned images.
+      name: IMAGE_TAG
+      type: string
+    - default: 9b301c
+      description: The project namespace shortname. The part before the "-" (i.e. 9b301c-dev = 9b301c).
+      name: PROJECT_SHORTNAME
+      type: string
+    - default: dev
+      description: Identify the environment to deploy the solution to [dev,test,prod,tools].
+      name: DEPLOY_TO
+      type: string
+    - default: https://tno-dev.apps.silver.devops.gov.bc.ca
+      description: The URL to the web application that will be ZAP scanned.
+      name: EDITOR_URL
+      type: string
+    - default: https://mmi-dev.apps.silver.devops.gov.bc.ca
+      description: The URL to the web application that will be ZAP scanned.
+      name: SUBSCRIBER_URL
+      type: string
+  tasks:
+    - name: git
+      params:
+        - name: GIT_SOURCE
+          value: $(params.GIT_SOURCE)
+        - name: GIT_REF
+          value: $(params.GIT_REF)
+        - name: CONTEXT
+          value: $(params.CONTEXT)
+      taskRef:
+        kind: Task
+        name: git-conditions
+      workspaces:
+        - name: source
+          workspace: source
+        - name: output
+          workspace: conditions
+    - name: deploy-all
+      params:
+        - name: PROJECT_SHORTNAME
+          value: $(params.PROJECT_SHORTNAME)
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+        - name: ENV
+          value: $(params.DEPLOY_TO)
+        - name: DEPLOY
+          value: $(params.COMPONENT)
+      runAfter:
+        - git
+      taskRef:
+        kind: Task
+        name: deploy-all
+      workspaces:
+        - name: conditions
+          workspace: conditions
+  workspaces:
+    - description: |
+        Git repo source code.
+      name: source
+    - description: |
+        Pipeline configuration file.
+      name: conditions
+    - description: |
+        Pipeline build volume
+      name: build
+    - description: |
+        mounts /zap/wrk to store generated configs and results.
+      name: owasp-settings

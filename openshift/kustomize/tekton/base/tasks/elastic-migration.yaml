@@ -1,60 +1,55 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: elastic-migration
-  description: >-
-    This task runs the elastic migration.
   annotations:
     tekton.dev/displayName: Run Database Migration
     tekton.dev/pipelines.minVersion: 0.12.1
     tekton.dev/tags: docker
+    description: This task runs the elastic migration.
   labels:
+    component: task
+    managed-by: kustomize
     name: elastic-migration
     part-of: tno
     version: 1.0.0
-    component: task
-    managed-by: kustomize
 spec:
   params:
-    - name: IMAGE
+    - default: elastic-migration
       description: The name of the elastic migration image.
+      name: IMAGE
       type: string
-      default: elastic-migration
-    - name: DB_SECRET_NAME
+    - default: crunchy-pguser-admin
       description: The name of the database secrets.
+      name: DB_SECRET_NAME
       type: string
-      default: crunchy-pguser-admin
-    - name: ELASTIC_SECRET_NAME
+    - default: elastic
       description: The name of the elastic secrets.
+      name: ELASTIC_SECRET_NAME
       type: string
-      default: elastic
-    - name: API_NAME
+    - default: api
       description: The name of the api.
+      name: API_NAME
       type: string
-      default: api
-
-    - name: PROJECT_SHORTNAME
+    - default: 9b301c
       description: The shortname of the project namespace.
+      name: PROJECT_SHORTNAME
       type: string
-      default: 9b301c
-
-    - name: IMAGE_TAG
+    - default: latest
       description: The tag given to the built image.
+      name: IMAGE_TAG
       type: string
-      default: latest
-
-    - name: DEPLOY_TO
+    - default: dev
       description: Which environment to deploy to
+      name: DEPLOY_TO
       type: string
-      default: dev
-
   steps:
-    - name: run
-      image: "image-registry.openshift-image-registry.svc:5000/openshift/cli:latest"
-      resources: {}
+    - computeResources: {}
+      image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+      name: run
       script: |
         #!/usr/bin/env bash
-        set -e
+        set -xe
         echo "Fetching connection information"
 
         PROJECT=$(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)

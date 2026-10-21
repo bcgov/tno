@@ -1,76 +1,69 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: buildah
-  description: |
-    Using Buildah build a new image from source code and push the new image
-    to the specified image registry.
   annotations:
     tekton.dev/displayName: Buildah Image
     tekton.dev/pipelines.minVersion: 0.17.0
     tekton.dev/tags: build
+    description: |-
+      Using Buildah build a new image from source code and push the new image
+      to the specified image registry.
   labels:
+    component: task
+    managed-by: kustomize
     name: buildah
     part-of: tno
     version: 1.0.0
-    component: task
-    managed-by: kustomize
 spec:
   params:
-    - name: CONTEXT
+    - default: .
       description: Path to the source code to build.
-      default: .
-    - name: DOCKERFILE
-      description: Path to the Dockerfile to build.
-      default: ./Dockerfile
-
-    - name: IMAGE_REGISTRY
-      description: The Root url of the image registry.
-      default: bcgov-c4awhwfpcremdbga.azurecr.io
-    - name: IMAGE
-      description: Reference of the image buildah will produce.
-    - name: IMAGE_TAG
-      description: The tag given to the built image.
+      name: CONTEXT
       type: string
-      default: latest
-
-    - name: STORAGE_DRIVER
+    - default: ./Dockerfile
+      description: Path to the Dockerfile to build.
+      name: DOCKERFILE
+      type: string
+    - default: bcgov-c4awhwfpcremdbga.azurecr.io
+      description: The Root url of the image registry.
+      name: IMAGE_REGISTRY
+      type: string
+    - description: Reference of the image buildah will produce.
+      name: IMAGE
+      type: string
+    - default: latest
+      description: The tag given to the built image.
+      name: IMAGE_TAG
+      type: string
+    - default: vfs
       description: Set buildah storage driver
-      default: vfs
-  workspaces:
-    - name: source
-    - name: build
-      mountPath: /var/lib/containers/storage/vfs/dir
+      name: STORAGE_DRIVER
+      type: string
   steps:
-    - name: build
-      image: bcgov-c4awhwfpcremdbga.azurecr.io/buildah:latest
-      securityContext:
-        capabilities:
-          add:
-            - SETFCAP
-        runAsUser: 0
-      workingDir: $(workspaces.source.path)
+    - computeResources:
+        limits:
+          cpu: '2'
+          memory: 7Gi
+        requests:
+          cpu: '1'
+          memory: 4Gi
       env:
         - name: IMAGE_REGISTRY_USER
           valueFrom:
             secretKeyRef:
-              name: pipelines
               key: username
+              name: pipelines
         - name: IMAGE_REGISTRY_PASS
           valueFrom:
             secretKeyRef:
-              name: pipelines
               key: password
-      resources:
-        requests:
-          memory: 4Gi
-          cpu: 1000m
-        limits:
-          memory: 7Gi
-          cpu: 2000m
+              name: pipelines
+      image: bcgov-c4awhwfpcremdbga.azurecr.io/buildah:latest
+      name: build
       script: |
         #!/usr/bin/env bash
-        set -e
+        set -xe
 
         # export TMPDIR="$(workspaces.source.path)/tmp/buildah"
         # mkdir -p "${TMPDIR}"
@@ -87,3 +80,13 @@ spec:
 
         # Push the image to the registry.
         buildah --storage-driver=$(params.STORAGE_DRIVER) push $(params.IMAGE_REGISTRY)/$(params.IMAGE):$(params.IMAGE_TAG)
+      securityContext:
+        capabilities:
+          add:
+            - SETFCAP
+        runAsUser: 0
+      workingDir: $(workspaces.source.path)
+  workspaces:
+    - name: source
+    - mountPath: /var/lib/containers/storage/vfs/dir
+      name: build

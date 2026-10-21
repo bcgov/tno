@@ -1,42 +1,40 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: git-pull
-  description: |
-    Update the git repo in the shared workspace with the latest commits for the
-    specified branch reference.
   annotations:
     tekton.dev/displayName: Git Pull
     tekton.dev/pipelines.minVersion: 0.17.0
     tekton.dev/tags: git
+    description: |-
+      Update the git repo in the shared workspace with the latest commits for the
+      specified branch reference.
   labels:
+    component: task
+    managed-by: kustomize
     name: git-pull
     part-of: tno
     version: 1.0.0
-    component: task
-    managed-by: kustomize
 spec:
   params:
-    - name: GIT_REF
+    - default: dev
       description: Git reference or branch to build from.
-      default: dev
-
-    - name: CONTEXT
+      name: GIT_REF
+      type: string
+    - default: .
       description: Path to the source code to build.
-      default: .
-  workspaces:
-    - name: source
+      name: CONTEXT
+      type: string
   steps:
-    - name: git-pull
-      image: bitnami/git:latest
-      workingDir: $(workspaces.source.path)/$(params.CONTEXT)
-      resources:
-        requests:
-          memory: 100Mi
-          cpu: 50m
+    - computeResources:
         limits:
-          memory: 500Mi
           cpu: 100m
+          memory: 500Mi
+        requests:
+          cpu: 50m
+          memory: 100Mi
+      image: bitnami/git:latest
+      name: git-pull
       script: |
         #!/usr/bin/env bash
         set -xe
@@ -45,4 +43,9 @@ spec:
         # Update the git repo with the latest commit.
         git config --global --add safe.directory '*'
         git checkout $(params.GIT_REF)
+        #git fetch origin
+        #git reset --hard origin/$(params.GIT_REF)
         git pull
+      workingDir: $(workspaces.source.path)/$(params.CONTEXT)
+  workspaces:
+    - name: source
