@@ -143,6 +143,43 @@ public class TopicScoreCalculatorTest
         Calculate(Input(page: page), null, Rule(1, 10, 0, r => { r.PageMin = "A1"; r.PageMax = "A3"; })).Score.Should().Be(expected);
     }
 
+    [Theory]
+    [InlineData("A1 / Front", 10)]
+    [InlineData("Front / A1", 10)]
+    [InlineData("FRONT A1", 10)]
+    [InlineData("A1, A3", 10)]
+    [InlineData("A3,A4", 10)]
+    [InlineData("A 2", 10)]
+    [InlineData("NP1 / Fron", 0)]
+    [InlineData("Front / A4", 0)]
+    public void PageAmongOtherWords(string page, int expected)
+    {
+        Calculate(Input(page: page), null, Rule(1, 10, 0, r => { r.PageMin = "A1"; r.PageMax = "A3"; })).Score.Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("A1 / Front", "A", 1)]
+    [InlineData("Front / A1", "A", 1)]
+    [InlineData("Front, A12", "A", 12)]
+    [InlineData("A1 A3", "A", 1)]
+    [InlineData("Front1", "Front", 1)]
+    [InlineData("12", "", 12)]
+    [InlineData("A-1", "", 1)]
+    public void ParsePageReadsFirstNumberedToken(string page, string prefix, int number)
+    {
+        TopicScoreCalculator.ParsePage(page).Should().Be((prefix, number));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("Front")]
+    [InlineData("Front / News")]
+    public void ParsePageWithoutNumberIsNull(string page)
+    {
+        TopicScoreCalculator.ParsePage(page).Should().BeNull();
+    }
+
     [Fact]
     public void RuleWithoutPageMatchesLetteredPage()
     {
