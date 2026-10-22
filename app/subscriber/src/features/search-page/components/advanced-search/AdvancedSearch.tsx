@@ -8,14 +8,7 @@ import { useSearchPageContext } from 'features/search-page/SearchPageContext';
 import { filterFormat } from 'features/search-page/utils';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
-import { BsCalendarEvent, BsSun } from 'react-icons/bs';
-import {
-  FaCaretSquareDown,
-  FaCheckSquare,
-  FaExclamationCircle,
-  FaPlay,
-  FaRegSmile,
-} from 'react-icons/fa';
+import { FaCaretSquareDown, FaCheckSquare, FaExclamationCircle, FaPlay } from 'react-icons/fa';
 import { FaSave } from 'react-icons/fa';
 import {
   FaBookmark,
@@ -24,23 +17,18 @@ import {
   FaCircleXmark,
   FaDownLeftAndUpRightToCenter,
   FaGears,
-  FaIcons,
   FaMagnifyingGlass,
-  FaNewspaper,
   FaSquarePlus,
-  FaTag,
   FaToggleOff,
   FaToggleOn,
-  FaTv,
   FaUpRightAndDownLeftFromCenter,
-  FaUsers,
   FaWandMagicSparkles,
 } from 'react-icons/fa6';
 import { IoIosCog, IoMdRefresh } from 'react-icons/io';
 import { useNavigate } from 'react-router-dom';
 import Editor from 'react-simple-code-editor';
 import { toast } from 'react-toastify';
-import { useApp, useContent, useFilters, useLookup } from 'store/hooks';
+import { useApp, useContent, useFilters } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
 import {
   Button,
@@ -62,25 +50,22 @@ import {
 
 import {
   AccordionPanel,
-  ContentTypeSection,
-  ContributorSection,
-  DateSection,
+  AdvancedSearchSections,
   ElasticQueryHelp,
   ExpandableRow,
   InfoAdvancedQueryOperators,
   InfoDefaultOperator,
-  MediaSection,
-  MediaTypeSection,
   MoreOptions,
-  PaperSection,
   SearchInGroup,
-  SentimentSection,
-  SeriesSection,
-  TagSection,
   ToggleFilterStyleInfo,
 } from './components';
-import { defaultAdvancedSearch, defaultFilter } from './constants';
+import {
+  defaultAdvancedSearch,
+  defaultFilter,
+  displayFiltersAsDropdownCookieKey,
+} from './constants';
 import { AdvancedQueryOperatorOptions, SearchOperatorOptions } from './constants';
+import { ManualSearchForm } from './ManualSearchForm';
 import * as styled from './styled';
 
 export interface IAdvancedSearchProps {
@@ -111,7 +96,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
     {
       search: { filter: search },
     },
-    { storeSearchFilter },
+    { storeSearchFilter, findContentWithElasticsearch },
   ] = useContent();
 
   const genQuery = useElastic();
@@ -127,7 +112,6 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
   // The accordion at the top: search terms (open by default) or the AI prompt.
   const [openPanel, setOpenPanel] = React.useState<'search' | 'ai' | undefined>('search');
 
-  const displayFiltersAsDropdownCookieKey = 'advancedSearch:displayFiltersAsDropdown';
   const [displayFiltersAsDropdown, setDisplayFiltersAsDropdown] = React.useState<boolean>(() => {
     const cookieVal = getCookie(displayFiltersAsDropdownCookieKey);
     return !!cookieVal;
@@ -147,7 +131,6 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
   );
 
   const isAdmin = userInfo?.roles.includes(Claim.administrator);
-  const [{ sources, series, mediaTypes }] = useLookup();
   const [initialState, setInitialState] = React.useState<IFilterSettingsModel | null>(search);
   const [isFirstLoad, setIsFirstLoad] = React.useState<boolean>(true);
   const [searchTerms, setSearchTerms] = React.useState<string>(search?.search ?? '');
@@ -640,6 +623,12 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
                     onPromptChange={setPrompt}
                     onGenerate={generateFilter}
                     onChat={chatFilter}
+                    onBuildQuery={(settings) => genQuery(filterFormat(settings))}
+                    onSearch={(query, searchUnpublished) =>
+                      findContentWithElasticsearch(query, searchUnpublished)
+                    }
+                    renderManualFilter={(props) => <ManualSearchForm {...props} />}
+                    queryHint="Edits here only change the stories listed; the saved search rebuilds its query from its criteria."
                     onApply={applyAIResult}
                     buttonComponent={AppButton}
                   />
@@ -705,114 +694,10 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
                   <ToggleFilterStyleInfo />
                 </div>
               </div>
-              {/* DATE RANGE */}
-              <Col className={`date-range-group space-top`}>
-                <ExpandableRow
-                  icon={<BsCalendarEvent />}
-                  title="Date range"
-                  hasValues={!!search.startDate || !!search.dateOffset}
-                >
-                  <DateSection />
-                </ExpandableRow>
-              </Col>
-              {/* MEDIA SOURCE SECTION */}
-              <Col className={`media-group`}>
-                <ExpandableRow
-                  icon={<BsSun />}
-                  title="Media source"
-                  hasValues={!!search.sourceIds?.length}
-                  headerActions={
-                    <ToggleButton
-                      on={<FaToggleOn />}
-                      off={<FaToggleOff />}
-                      onClick={() =>
-                        storeSearchFilter({ ...search, sourceIdsNegate: !search.sourceIdsNegate })
-                      }
-                      value={!!search.sourceIdsNegate}
-                      width="25px"
-                      height="25px"
-                      label="NOT"
-                    />
-                  }
-                >
-                  <MediaSection
-                    displayFiltersAsDropdown={displayFiltersAsDropdown}
-                    sources={sources.filter((s) => s.isEnabled)}
-                    mediaTypes={mediaTypes.filter((s) => s.isEnabled)}
-                    series={series.filter((s) => s.isEnabled)}
-                  />
-                </ExpandableRow>
-              </Col>
-              {/* SENTIMENT SECTION */}
-              <Col className={`sentiment-group`}>
-                <ExpandableRow
-                  icon={<FaRegSmile />}
-                  title="Sentiment"
-                  hasValues={!!search.sentiment?.length}
-                >
-                  <SentimentSection />
-                </ExpandableRow>
-              </Col>
-              {/* PAPER SECTION */}
-              <Col className="paper-attributes">
-                <ExpandableRow
-                  icon={<FaNewspaper />}
-                  title="Paper attributes"
-                  hasValues={!!search.section || !!search.page || !!search.edition}
-                >
-                  <PaperSection />
-                </ExpandableRow>
-              </Col>
-              {/* CONTRIBUTOR SECTION */}
-              <Col className="expandable-section">
-                <ExpandableRow
-                  icon={<FaUsers />}
-                  title="Columnists/Anchors"
-                  hasValues={!!search.contributorIds?.length}
-                >
-                  <ContributorSection displayFiltersAsDropdown={displayFiltersAsDropdown} />
-                </ExpandableRow>
-              </Col>
-              {/* MEDIA TYPES SECTION */}
-              <Col className="expandable-section">
-                <ExpandableRow
-                  icon={<FaIcons />}
-                  title="Media Types"
-                  hasValues={!!search.mediaTypeIds?.length}
-                >
-                  <MediaTypeSection displayFiltersAsDropdown={displayFiltersAsDropdown} />
-                </ExpandableRow>
-              </Col>
-              {/* SHOW/PROGRAM SECTION */}
-              <Col className="expandable-section">
-                <ExpandableRow
-                  icon={<FaPlay />}
-                  title="Show/Program"
-                  hasValues={!!search.seriesIds?.length}
-                >
-                  <SeriesSection displayFiltersAsDropdown={displayFiltersAsDropdown} />
-                </ExpandableRow>
-              </Col>
-              {isAdmin && (
-                <>
-                  {/* CONTENT TYPE SECTION */}
-                  <Col className="expandable-section">
-                    <ExpandableRow
-                      icon={<FaTv />}
-                      title="Content Type"
-                      hasValues={!!search.contentTypes?.length}
-                    >
-                      <ContentTypeSection displayFiltersAsDropdown={displayFiltersAsDropdown} />
-                    </ExpandableRow>
-                  </Col>
-                  {/* TAG SECTION */}
-                  <Col className="expandable-section">
-                    <ExpandableRow icon={<FaTag />} title="Tags" hasValues={!!search.tags?.length}>
-                      <TagSection displayFiltersAsDropdown={displayFiltersAsDropdown} />
-                    </ExpandableRow>
-                  </Col>
-                </>
-              )}
+              <AdvancedSearchSections
+                displayFiltersAsDropdown={displayFiltersAsDropdown}
+                isAdmin={!!isAdmin}
+              />
             </Col>
 
             <Row>

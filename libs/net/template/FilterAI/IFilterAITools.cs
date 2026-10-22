@@ -51,6 +51,24 @@ public interface IFilterAITools
     Task<long?> CountUnpublishedAsync(JsonObject body, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Read a story from the index searches run against, as its _source JSON; null when it is
+    /// not there or this user may not see it.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<string?> GetStoryAsync(long id, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Explain which parts of the query a story matched, as the raw Elasticsearch explain response.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="query">The query clause.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<string> ExplainAsync(long id, JsonObject query, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Validate a query body ({ "query": ... }); returns null when it is valid, otherwise why not.
     /// </summary>
     /// <param name="body"></param>

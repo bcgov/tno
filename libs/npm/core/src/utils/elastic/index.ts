@@ -1,3 +1,4 @@
+export * from './elasticsearchQuerySchema';
 export * from './generateCollapse';
 export * from './generateExtendedQuery';
 export * from './generateFilterQuery';

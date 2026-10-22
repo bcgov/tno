@@ -161,6 +161,51 @@ public class FilterAITools : IFilterAITools
     }
 
     /// <summary>
+    /// Read a story from the index, without its large collections; null when it is not there or
+    /// comes from a source or media type this user may not search.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="FilterAIException"></exception>
+    public async Task<string?> GetStoryAsync(long id, CancellationToken cancellationToken)
+    {
+        var parameters = new GetRequestParameters() { SourceExcludes = ["versions", "fileReferences", "links", "labels", "timeTrackings", "notifications", "userNotifications", "quotes"] };
+        var response = await _elasticClient.LowLevel.GetAsync<StringResponse>(_index, id.ToString(), parameters, ctx: cancellationToken);
+        if (response.HttpStatusCode == 404) return null;
+        if (!response.Success)
+            throw new FilterAIException(ElasticError(response.Body) ?? response.OriginalException?.Message ?? "Elasticsearch did not return the story.");
+        using var document = JsonDocument.Parse(response.Body);
+        if (!document.RootElement.TryGetProperty("found", out var found) || found.ValueKind != JsonValueKind.True) return null;
+        if (!document.RootElement.TryGetProperty("_source", out var source) || source.ValueKind != JsonValueKind.Object) return null;
+        if (IsExcluded(source, "sourceId", _excludedSourceIds) || IsExcluded(source, "mediaTypeId", _excludedMediaTypeIds)) return null;
+        return source.GetRawText();
+    }
+
+    /// <summary>
+    /// Explain which parts of the query the story matched.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="query"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="FilterAIException"></exception>
+    public async Task<string> ExplainAsync(long id, JsonObject query, CancellationToken cancellationToken)
+    {
+        var body = new JsonObject() { ["query"] = query.DeepClone() };
+        var response = await _elasticClient.LowLevel.ExplainAsync<StringResponse>(_index, id.ToString(), PostData.String(body.ToJsonString()), ctx: cancellationToken);
+        if (!response.Success)
+            throw new FilterAIException(ElasticError(response.Body) ?? response.OriginalException?.Message ?? "Elasticsearch could not explain the match.");
+        return response.Body;
+    }
+
+    /// <summary>
+    /// Whether the story's field holds one of the excluded ids.
+    /// </summary>
+    private static bool IsExcluded(JsonElement source, string field, int[] excluded)
+        => excluded.Length > 0 && source.TryGetProperty(field, out var value) && value.TryGetInt32(out var id) && excluded.Contains(id);
+
+    /// <summary>
     /// Validate the query body; returns null when it is valid, otherwise why not.
     /// </summary>
     /// <param name="body"></param>

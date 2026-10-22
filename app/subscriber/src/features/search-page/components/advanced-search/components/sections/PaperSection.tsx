@@ -1,14 +1,10 @@
-import { useContent } from 'store/hooks';
 import { FieldSize, Row, Text } from 'tno-core';
+
+import { useSearchSettings } from '../../SearchSettingsContext';
 
 /** Section for advanced filter that allows users to select paper attributes they want to filter content off of. */
 export const PaperSection: React.FC = () => {
-  const [
-    {
-      search: { filter },
-    },
-    { storeSearchFilter: storeFilter },
-  ] = useContent();
+  const [filter, storeFilter] = useSearchSettings();
   return (
     <Row className="paper-attributes-container" justifyContent="center">
       <Text

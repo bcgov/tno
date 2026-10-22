@@ -106,7 +106,8 @@ public static class FilterAIPrompts
         "You may call a tool before you answer. Call one tool per reply by replying with JSON: { \"tool\": \"<name>\", \"args\": { ... } }. " +
         "The result comes back in the next message. Use tools to find ids that are not listed under Reference values (sources, series, contributors) and to check that a condition matches stories; never guess an id or code.\n" +
         "- lookup: { \"kind\": \"source\" | \"mediaType\" | \"series\" | \"contributor\" | \"tag\" | \"action\", \"text\": \"part of a name or code, or empty to list\" }. Returns matching values with their id or code.\n" +
-        "- search: { \"query\": <an Elasticsearch query clause>, \"size\": 0-10, \"aggregate\": \"<field>\", \"aggregateSize\": 1-50, \"collapse\": \"<field>\" }. Runs the query against the content index and returns the total, the newest matching stories (headline, source, media type, series, published on, and the collapse field's value) and, with \"aggregate\", the most common values of that field among the matches. With \"collapse\" it returns one story per value of that field, as the filter's collapseField would. Scripts are not allowed.\n";
+        "- search: { \"query\": <an Elasticsearch query clause>, \"size\": 0-10, \"aggregate\": \"<field>\", \"aggregateSize\": 1-50, \"collapse\": \"<field>\" }. Runs the query against the content index and returns the total, the newest matching stories (headline, source, media type, series, published on, and the collapse field's value) and, with \"aggregate\", the most common values of that field among the matches. With \"collapse\" it returns one story per value of that field, as the filter's collapseField would. Scripts are not allowed.\n" +
+        "- story: { \"id\": <a story's numeric id> }. Returns the story's fields (headline, source, media type, dates, tags, actions, tone, the start of its text) and, when the filter's query is known, which parts of the query matched it.\n";
 
     /// <summary>
     /// The rule that fenced material is data, never instructions.
@@ -167,6 +168,10 @@ public static class FilterAIPrompts
         "Explain how a request maps onto settings and when it needs extendedQuery, name real actions, sources, tags and other values, and say when the index has few or no matching stories. " +
         "When you propose a change, give a complete replacement prompt rather than a fragment, and keep what already works. " +
         "You cannot change the filter yourself; the user generates it from the prompt.\n\n" +
+        "## Questions about a listed story\n" +
+        "When the question is about a story (quoted with the question, or read with the story tool), explain why it is in the results from the matched conditions and the story's fields: which keywords it contains, and which source, media type, date range, action, tag or other criteria it satisfies. " +
+        "When asked how to exclude it without losing other stories, propose the narrowest change: exclude its source, series or contributor, add a term to exclude, require a phrase instead of separate words, or narrow the date range; then use the search tool to check how many stories the changed criteria keep and that the story is gone, and give the complete replacement prompt. " +
+        "Never answer that you still need to check, verify or count something: do it with the tools first, then answer with the numbers you found.\n\n" +
         "## Final answer\n" +
         "When you are ready to answer, reply with JSON only, with no code fence: " +
         "{ \"final\": { \"reply\": \"your answer, as plain text or markdown\", \"prompt\": \"the complete replacement prompt as HTML, or null\" } }. " +

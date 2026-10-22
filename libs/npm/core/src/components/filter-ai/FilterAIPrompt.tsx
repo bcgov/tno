@@ -6,12 +6,13 @@ import {
   IFilterAIChatResultModel,
   IFilterAIGenerateRequestModel,
   IFilterAIGenerateResultModel,
+  IFilterAISearchResultModel,
   IFilterSettingsModel,
 } from '../../hooks';
 import { Spinner } from '../spinners';
 import { FilterAIButton, FilterAIButtonComponent } from './FilterAIButton';
 import { FilterAIPromptEditor, FilterAIPromptEditorType } from './FilterAIPromptEditor';
-import { FilterAIWorkbench } from './FilterAIWorkbench';
+import { FilterAIWorkbench, IFilterAIManualFilterProps } from './FilterAIWorkbench';
 import * as styled from './styled';
 import { getFilterAIErrorMessage, htmlToPromptText } from './utils';
 
@@ -32,8 +33,16 @@ export interface IFilterAIPromptProps {
   onGenerate: (request: IFilterAIGenerateRequestModel) => Promise<IFilterAIGenerateResultModel>;
   /** Ask how to write the prompt. */
   onChat: (request: IFilterAIChatRequestModel) => Promise<IFilterAIChatResultModel>;
-  /** Apply the generated filter and the prompt it came from. */
-  onApply: (result: IFilterAIGenerateResultModel, prompt: string) => void;
+  /** Build the Elasticsearch query the app runs for the settings; undefined while the app is not ready. */
+  onBuildQuery: (settings: IFilterSettingsModel) => any;
+  /** Run a query and return the matching stories, for the workbench's list. */
+  onSearch: (query: any, searchUnpublished: boolean) => Promise<IFilterAISearchResultModel>;
+  /** Render the app's own filter form in the workbench, bound to the settings being worked on. */
+  renderManualFilter?: (props: IFilterAIManualFilterProps) => React.ReactNode;
+  /** What becomes of a query edited in the workbench when the filter is applied. */
+  queryHint?: string;
+  /** Apply the filter, the prompt it came from, and the query if it was edited by hand. */
+  onApply: (result: IFilterAIGenerateResultModel, prompt: string, query?: any) => void;
   /** The button to render, so the app's own button styling is used (default: tno-core Button). */
   buttonComponent?: FilterAIButtonComponent;
 }
@@ -51,6 +60,10 @@ export const FilterAIPrompt: React.FC<IFilterAIPromptProps> = ({
   onPromptChange,
   onGenerate,
   onChat,
+  onBuildQuery,
+  onSearch,
+  renderManualFilter,
+  queryHint,
   onApply,
   buttonComponent: ButtonComponent = FilterAIButton,
 }) => {
@@ -59,10 +72,10 @@ export const FilterAIPrompt: React.FC<IFilterAIPromptProps> = ({
   const [explanation, setExplanation] = React.useState<string>();
   const [showWorkbench, setShowWorkbench] = React.useState(false);
 
-  const apply = (result: IFilterAIGenerateResultModel, text: string) => {
-    setExplanation(result.explanation);
+  const apply = (result: IFilterAIGenerateResultModel, text: string, query?: any) => {
+    setExplanation(result.explanation || undefined);
     setError(undefined);
-    onApply(result, text);
+    onApply(result, text, query);
   };
 
   const generate = async () => {
@@ -125,6 +138,10 @@ export const FilterAIPrompt: React.FC<IFilterAIPromptProps> = ({
         explanation={explanation}
         onGenerate={onGenerate}
         onChat={onChat}
+        onBuildQuery={onBuildQuery}
+        onSearch={onSearch}
+        renderManualFilter={renderManualFilter}
+        queryHint={queryHint}
         onApply={apply}
         onClose={() => setShowWorkbench(false)}
         buttonComponent={ButtonComponent}

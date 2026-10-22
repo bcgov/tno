@@ -48,6 +48,7 @@ export * from './IFilterAIChatResultModel';
 export * from './IFilterAIGenerateRequestModel';
 export * from './IFilterAIGenerateResultModel';
 export * from './IFilterAIMessageModel';
+export * from './IFilterAISearchResultModel';
 export * from './IFilterAIStepModel';
 export * from './IFilterExtendedQuery';
 export * from './IFilterFilter';

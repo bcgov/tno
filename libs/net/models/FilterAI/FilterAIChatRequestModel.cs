@@ -1,3 +1,4 @@
+using System.Text.Json;
 using TNO.API.Models.Settings;
 
 namespace TNO.API.Models.FilterAI;
@@ -27,6 +28,16 @@ public class FilterAIChatRequestModel
     /// get/set - The explanation from the last generation, when there was one.
     /// </summary>
     public string? Explanation { get; set; }
+
+    /// <summary>
+    /// get/set - The id of a listed story the question is about, when there is one.
+    /// </summary>
+    public long? ContentId { get; set; }
+
+    /// <summary>
+    /// get/set - The query the filter runs, so the answer can say why a story matched it.
+    /// </summary>
+    public JsonElement? Query { get; set; }
 
     /// <summary>
     /// get/set - The fence nonce of the conversation, returned by the first answer.

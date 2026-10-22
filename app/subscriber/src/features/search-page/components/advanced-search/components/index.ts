@@ -1,4 +1,5 @@
 export * from './AccordionPanel';
+export * from './AdvancedSearchSections';
 export * from './ElasticQueryHelp';
 export * from './ExpandableRow';
 export * from './InfoAdvancedQueryOperators';
