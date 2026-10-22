@@ -165,6 +165,9 @@ public class TopicScoreCalculatorTest
     [InlineData("Front1", "Front", 1)]
     [InlineData("12", "", 12)]
     [InlineData("A-1", "", 1)]
+    [InlineData("A10", "A", 10)]
+    [InlineData("A11", "A", 11)]
+    [InlineData("A10 / Scene", "A", 10)]
     public void ParsePageReadsFirstNumberedToken(string page, string prefix, int number)
     {
         TopicScoreCalculator.ParsePage(page).Should().Be((prefix, number));
@@ -178,6 +181,37 @@ public class TopicScoreCalculatorTest
     public void ParsePageWithoutNumberIsNull(string page)
     {
         TopicScoreCalculator.ParsePage(page).Should().BeNull();
+    }
+
+    /// <summary>
+    /// The Vancouver Sun rules: A1 and A3 score high, A4 to A50 score low. A two digit page that
+    /// starts with 1 or 3 (A10, A11, A30) is in the A4 to A50 range, never A1 or A3.
+    /// </summary>
+    [Theory]
+    [InlineData("A1", false, 90)]
+    [InlineData("A1", true, 99)]
+    [InlineData("A1 / Front", false, 90)]
+    [InlineData("A3", false, 30)]
+    [InlineData("A10", false, 10)]
+    [InlineData("A10", true, 25)]
+    [InlineData("A11", false, 10)]
+    [InlineData("A12", false, 10)]
+    [InlineData("A13", false, 10)]
+    [InlineData("A30", false, 10)]
+    [InlineData("A51", false, 0)]
+    [InlineData("B1", false, 0)]
+    public void SinglePageRuleMatchesOnlyThatPage(string page, bool hasImage, int expected)
+    {
+        var rules = new[]
+        {
+            Rule(1, 99, 0, r => { r.PageMin = "A1"; r.PageMax = "A1"; r.HasImage = true; }),
+            Rule(2, 90, 1, r => { r.PageMin = "A1"; r.PageMax = "A1"; }),
+            Rule(3, 40, 2, r => { r.PageMin = "A3"; r.PageMax = "A3"; r.HasImage = true; }),
+            Rule(4, 30, 3, r => { r.PageMin = "A3"; r.PageMax = "A3"; }),
+            Rule(5, 25, 4, r => { r.PageMin = "A4"; r.PageMax = "A50"; r.HasImage = true; }),
+            Rule(6, 10, 5, r => { r.PageMin = "A4"; r.PageMax = "A50"; }),
+        };
+        Calculate(Input(page: page, hasImage: hasImage), null, rules).Score.Should().Be(expected);
     }
 
     [Fact]

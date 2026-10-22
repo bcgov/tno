@@ -1,7 +1,16 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
-import { defaultEnvelope, IFilterModel, ILifecycleToasts, useApi } from '../..';
+import {
+  defaultEnvelope,
+  IFilterAIChatRequestModel,
+  IFilterAIChatResultModel,
+  IFilterAIGenerateRequestModel,
+  IFilterAIGenerateResultModel,
+  IFilterModel,
+  ILifecycleToasts,
+  useApi,
+} from '../..';
 
 /**
  * Common hook to make requests to the API.
@@ -41,6 +50,19 @@ export const useApiSubscriberFilters = (
         {
           data: model,
         },
+      );
+    },
+    generateFilter: (model: IFilterAIGenerateRequestModel) => {
+      return api.post<
+        IFilterAIGenerateRequestModel,
+        AxiosResponse<IFilterAIGenerateResultModel>,
+        any
+      >(`/subscriber/filters/ai/generate`, model);
+    },
+    chatFilter: (model: IFilterAIChatRequestModel) => {
+      return api.post<IFilterAIChatRequestModel, AxiosResponse<IFilterAIChatResultModel>, any>(
+        `/subscriber/filters/ai/chat`,
+        model,
       );
     },
   }).current;

@@ -32,6 +32,9 @@ export const filterFormat = (filter: IFilterSettingsModel) => {
     startPostedDate: !!filter.startPostedDate ? filter.startPostedDate : undefined,
     endPostedDate: !!filter.endPostedDate ? filter.endPostedDate : undefined,
     tags: filter.tags ?? [],
+    sort: filter.sort,
+    collapseField: filter.collapseField,
+    extendedQuery: filter.extendedQuery,
   };
   return settings;
 };

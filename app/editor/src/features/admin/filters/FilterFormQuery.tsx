@@ -7,10 +7,21 @@ import { useFormikContext } from 'formik';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
-import { Button, ButtonVariant, Col, type IFilterModel, Row } from 'tno-core';
+import { useContent } from 'store/hooks';
+import { useFilters } from 'store/hooks/admin';
+import {
+  Button,
+  ButtonVariant,
+  Col,
+  FilterAIPrompt,
+  type IFilterModel,
+  type IFilterSettingsModel,
+  Row,
+} from 'tno-core';
 
 import { FilterSettingsForm } from './FilterSettingsForm';
 import { useElastic } from './hooks';
+import { ManualFilterForm } from './ManualFilterForm';
 
 /**
  * The page used to view and edit report filter.
@@ -19,8 +30,16 @@ import { useElastic } from './hooks';
 export const FilterFormQuery: React.FC = () => {
   const { values, setFieldValue } = useFormikContext<IFilterModel>();
   const generateQuery = useElastic();
+  const [, { generateFilter, chatFilter }] = useFilters();
+  const [, { findContentWithElasticsearch }] = useContent();
 
   const [filter, setFilter] = React.useState(JSON.stringify(values.query, null, 2));
+
+  const applySettings = (settings: IFilterSettingsModel) => {
+    const query = generateQuery(settings, values.query);
+    setFieldValue('query', query);
+    setFilter(JSON.stringify(query, null, 2));
+  };
 
   return (
     <>
@@ -41,14 +60,29 @@ export const FilterFormQuery: React.FC = () => {
             Clear Query
           </Button>
         </Row>
-        <FilterSettingsForm
-          path="settings"
-          onChange={(settings) => {
-            const query = generateQuery(settings, values.query);
-            setFieldValue('query', query);
-            setFilter(JSON.stringify(query, null, 2));
+        <FilterAIPrompt
+          prompt={values.prompt}
+          settings={values.settings}
+          onPromptChange={(prompt) => setFieldValue('prompt', prompt)}
+          onGenerate={generateFilter}
+          onChat={chatFilter}
+          onBuildQuery={(settings) => generateQuery(settings, values.query)}
+          onSearch={(query, searchUnpublished) =>
+            findContentWithElasticsearch(query, searchUnpublished)
+          }
+          renderManualFilter={(props) => <ManualFilterForm {...props} />}
+          queryHint="Edits to the query are kept when you apply the filter."
+          onApply={(result, prompt, query) => {
+            setFieldValue('prompt', prompt);
+            setFieldValue('settings', result.settings);
+            if (query) {
+              // The query was edited by hand in the workbench; keep it as written.
+              setFieldValue('query', query);
+              setFilter(JSON.stringify(query, null, 2));
+            } else applySettings(result.settings);
           }}
         />
+        <FilterSettingsForm path="settings" onChange={applySettings} />
       </Col>
       <Col className="code frm-in">
         <label htmlFor="txa-filter">Elasticsearch Query</label>

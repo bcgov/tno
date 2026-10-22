@@ -29,3 +29,6 @@ yarn-error.log*
 !.yarn/plugins
 !.yarn/sdks
 !.yarn/versions
+
+# monaco editor files copied by scripts/copy-monaco.js
+/public/monaco

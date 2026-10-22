@@ -14,9 +14,9 @@ import { IContentSearchResult } from 'features/utils/interfaces';
 import moment, { Moment } from 'moment';
 import React from 'react';
 import { FaBookmark, FaCaretLeft, FaCaretRight } from 'react-icons/fa6';
-import { useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApp, useContent, useFilters, useLookup } from 'store/hooks';
+import { useApp, useContent, useFilters, useSettings } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
 import {
   Col,
@@ -44,22 +44,17 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced, showDate: init
   const { id } = useParams();
   const [
     {
-      search: { filter, content },
+      search: { filter },
       searchResults: { filter: secondaryFilter },
     },
-    {
-      findContentWithElasticsearch,
-      storeSearchFilter,
-      storeSearchResultsFilter,
-      validateElasticsearchQuery,
-    },
+    { findContentWithElasticsearch, storeSearchFilter, validateElasticsearchQuery },
   ] = useContent();
-  const [{ frontPageImagesMediaTypeId }] = useLookup();
+  // The query can't be generated until this setting has been loaded.
+  const { frontPageImageMediaTypeId } = useSettings();
   const { width } = useWindowSize();
   const genQuery = useElastic();
   const [, { getFilter }] = useFilters();
   const [{ from, filter: activeFilter }, { storeFrom, storeFilter }] = useProfileStore();
-  const { pathname } = useLocation();
   const [{ requests }] = useApp();
   const [queryValidateResult, setQueryValidateResult] = React.useState<string[]>(['']);
 
@@ -69,7 +64,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced, showDate: init
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const { expanded } = useSearchPageContext();
   const [startDate, setStartDate] = React.useState<Moment>(moment());
-  const [filterId, setFilterId] = React.useState(0);
+  const filterId = React.useMemo(() => (id ? parseInt(id) : 0), [id]);
   const [searchFilter, setSearchFilter] = React.useState<IFilterSettingsModel | null>(null);
   const [showResults, setShowResults] = React.useState(false);
 
@@ -77,21 +72,20 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced, showDate: init
   const [selectedDate, setSelectedDate] = React.useState<string | undefined>(); // The selected date for the navigation component.
 
   React.useEffect(() => {
-    const parsedId = id ? parseInt(id) : 0;
-    setFilterId(parsedId);
     // Fetch the active filter if required.
     if (filterId && init && activeFilter?.id !== filterId) {
       setInit(false);
       getFilter(filterId)
         .then((filter) => {
-          storeFilter(filter);
+          // Store the settings first, the search runs as soon as the active filter matches the route.
           storeSearchFilter(filter.settings);
+          storeFilter(filter);
         })
         .catch(() => {});
     } else if (!filterId) {
       storeFilter(undefined);
     }
-  }, [activeFilter, getFilter, filterId, init, storeFilter, storeSearchFilter, id]);
+  }, [activeFilter, getFilter, filterId, init, storeFilter, storeSearchFilter]);
 
   React.useEffect(() => {
     setDateVisible(initShowDate);
@@ -297,29 +291,21 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced, showDate: init
     [genQuery, storeFrom, validateElasticsearchQuery, validationResults],
   );
 
+  // The search runs by itself once when the page is ready, and again whenever the result filter buttons change.
+  // Everything else (search button, paging, date navigation) calls fetchResults directly.
+  // The ref makes the effect idempotent, so React StrictMode replaying it on mount doesn't search twice.
+  const autoSearch = React.useRef<{ ran: boolean; secondaryFilter?: IFilterSettingsModel }>({
+    ran: false,
+  });
   React.useEffect(() => {
-    // only fetch this when there's no call to the elastic search
-    if (id && !activeFilter) return;
-    fetchResults(filter, content);
-    // Do not execute when changing the filters
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content, fetchResults, id]);
-
-  React.useEffect(() => {
-    storeSearchResultsFilter(secondaryFilter);
+    if (!frontPageImageMediaTypeId) return; // Settings are still loading, no query can be generated yet.
+    if (filterId && activeFilter?.id !== filterId) return; // A saved search is still loading.
+    if (autoSearch.current.ran && autoSearch.current.secondaryFilter === secondaryFilter) return;
+    autoSearch.current = { ran: true, secondaryFilter };
     fetchResults(filter);
+    // Typing in the search box changes `filter`; that must not search until the user asks for it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [secondaryFilter]);
-
-  React.useEffect(() => {
-    // Do not want it to fire on initial load of a user clicking "go advanced"
-    // Need to wait until front page images are in redux store before making a request.
-    if (frontPageImagesMediaTypeId && !pathname.includes('advanced')) {
-      fetchResults(filter);
-    }
-    // Only execute this on page load.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [frontPageImagesMediaTypeId]);
+  }, [frontPageImageMediaTypeId, filterId, activeFilter?.id, secondaryFilter, fetchResults]);
 
   const handleContentSelected = React.useCallback((content: IContentModel[]) => {
     setSelected(content);

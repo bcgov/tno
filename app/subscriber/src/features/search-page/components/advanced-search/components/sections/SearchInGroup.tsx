@@ -1,14 +1,10 @@
 import React from 'react';
-import { useContent } from 'store/hooks';
 import { Checkbox, CheckboxSize, Col, Row } from 'tno-core';
 
+import { useSearchSettings } from '../../SearchSettingsContext';
+
 export const SearchInGroup: React.FC = () => {
-  const [
-    {
-      search: { filter },
-    },
-    { storeSearchFilter: storeFilter },
-  ] = useContent();
+  const [filter, storeFilter] = useSearchSettings();
 
   return (
     <Col>

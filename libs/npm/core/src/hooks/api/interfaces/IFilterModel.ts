@@ -5,6 +5,8 @@ export interface IFilterModel extends ISortableModel<number> {
   owner?: IUserModel;
   query: any;
   settings: IFilterSettingsModel;
+  /** The AI prompt that was used to generate this filter. */
+  prompt?: string;
   reports: IReportModel[];
   folders: IFolderModel[];
 }

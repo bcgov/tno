@@ -2846,6 +2846,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@monaco-editor/loader@npm:^1.5.0":
+  version: 1.7.0
+  resolution: "@monaco-editor/loader@npm:1.7.0"
+  dependencies:
+    state-local: ^1.0.6
+  checksum: e3a4f095827101216d72d0a0dcb4e4d29ae2c911a7ed59210b00e9ad48680a4132983a31170668918dd9b486c98fe97996357d58cc76fda34f3217848a19befb
+  languageName: node
+  linkType: hard
+
+"@monaco-editor/react@npm:^4.7.0":
+  version: 4.7.0
+  resolution: "@monaco-editor/react@npm:4.7.0"
+  dependencies:
+    "@monaco-editor/loader": ^1.5.0
+  peerDependencies:
+    monaco-editor: ">= 0.25.0 < 1"
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 8b3bd8adfcd6af70dc5f965e986932269e1e2c2a0f6beb5a3c632c8c7942c1341f6086d9664f9a949983bdf4a04a706e529a93bfec3b5884642915dfcc0354c3
+  languageName: node
+  linkType: hard
+
 "@nicolo-ribaudo/eslint-scope-5-internals@npm:5.1.1-v1":
   version: 5.1.1-v1
   resolution: "@nicolo-ribaudo/eslint-scope-5-internals@npm:5.1.1-v1"
@@ -4336,7 +4358,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/trusted-types@npm:^2.0.2":
+"@types/trusted-types@npm:^2.0.2, @types/trusted-types@npm:^2.0.7":
   version: 2.0.7
   resolution: "@types/trusted-types@npm:2.0.7"
   checksum: 8e4202766a65877efcf5d5a41b7dd458480b36195e580a3b1085ad21e948bc417d55d6f8af1fd2a7ad008015d4117d5fdfe432731157da3c68678487174e4ba3
@@ -7449,6 +7471,18 @@ __metadata:
   dependencies:
     domelementtype: ^2.2.0
   checksum: 4c665ceed016e1911bf7d1dadc09dc888090b64dee7851cccd2fcf5442747ec39c647bb1cb8c8919f8bbdd0f0c625a6bafeeed4b2d656bbecdbae893f43ffaaa
+  languageName: node
+  linkType: hard
+
+"dompurify@npm:3.4.15":
+  version: 3.4.15
+  resolution: "dompurify@npm:3.4.15"
+  dependencies:
+    "@types/trusted-types": ^2.0.7
+  dependenciesMeta:
+    "@types/trusted-types":
+      optional: true
+  checksum: eed918cafb29624c71d53e3950b9166c9b6ec4a6cc0e1a7f48de722b67f39002d6b30b5703818294dacd62a6491243674b328425fc24db759ebcec55579c4c34
   languageName: node
   linkType: hard
 
@@ -11793,6 +11827,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"marked@npm:14.0.0":
+  version: 14.0.0
+  resolution: "marked@npm:14.0.0"
+  bin:
+    marked: bin/marked.js
+  checksum: 965405cde11d180e5da78cf51074b1947f1e5483ed99691d3ec990a078aa6ca9113cf19bbd44da45473d0e7eec7298255e7d860a650dd5e7aed78ca5a8e0161b
+  languageName: node
+  linkType: hard
+
 "material-colors@npm:^1.2.1":
   version: 1.2.6
   resolution: "material-colors@npm:1.2.6"
@@ -12113,6 +12156,7 @@ __metadata:
     "@fortawesome/react-fontawesome": 0.2.0
     "@headlessui/react": 2.0.4
     "@microsoft/signalr": 8.0.0
+    "@monaco-editor/react": ^4.7.0
     "@react-keycloak/web": 3.4.0
     "@reduxjs/toolkit": 2.2.5
     "@testing-library/jest-dom": 6.6.3
@@ -12168,6 +12212,7 @@ __metadata:
     lodash.throttle: 4.1.1
     moment: 2.30.1
     moment-timezone: 0.5.41
+    monaco-editor: ^0.57.0
     prettier: 2.8.4
     pretty-quick: 4.0.0
     prismjs: 1.30.0
@@ -12198,7 +12243,7 @@ __metadata:
     sheetjs: "file:packages/xlsx-0.20.1.tgz"
     styled-components: 6.1.11
     stylis: 4.3.6
-    tno-core: 1.0.41
+    tno-core: 1.0.43
     typescript: "*"
     vitest: 3.2.6
     yup: 1.1.1
@@ -12218,6 +12263,16 @@ __metadata:
   version: 2.30.1
   resolution: "moment@npm:2.30.1"
   checksum: 859236bab1e88c3e5802afcf797fc801acdbd0ee509d34ea3df6eea21eb6bcc2abd4ae4e4e64aa7c986aa6cba563c6e62806218e6412a765010712e5fa121ba6
+  languageName: node
+  linkType: hard
+
+"monaco-editor@npm:^0.57.0":
+  version: 0.57.0
+  resolution: "monaco-editor@npm:0.57.0"
+  dependencies:
+    dompurify: 3.4.15
+    marked: 14.0.0
+  checksum: dcf8598e1bb9f050af1858715d09c8a984e907f440214e80dc7c730d28ef2d9db6e540538f76dfc57f5b2137ac8777ba038b1e27bcb886e2b34754c0c942140f
   languageName: node
   linkType: hard
 
@@ -15922,6 +15977,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"state-local@npm:^1.0.6":
+  version: 1.0.7
+  resolution: "state-local@npm:1.0.7"
+  checksum: d1afcf1429e7e6eb08685b3a94be8797db847369316d4776fd51f3962b15b984dacc7f8e401ad20968e5798c9565b4b377afedf4e4c4d60fe7495e1cbe14a251
+  languageName: node
+  linkType: hard
+
 "static-eval@npm:2.0.2":
   version: 2.0.2
   resolution: "static-eval@npm:2.0.2"
@@ -16688,14 +16750,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@npm:1.0.41":
-  version: 1.0.41
-  resolution: "tno-core@npm:1.0.41"
+"tno-core@npm:1.0.43":
+  version: 1.0.43
+  resolution: "tno-core@npm:1.0.43"
   peerDependencies:
     "@elastic/elasticsearch": ^8.13.1
     "@fortawesome/free-solid-svg-icons": ^6.4.2
     "@fortawesome/react-fontawesome": ^0.2.0
     "@headlessui/react": ^2.0.4
+    "@monaco-editor/react": ^4.7.0
     "@react-keycloak/web": ^3.4.0
     axios: ^1.18.0
     dequal: ^2.0.3
@@ -16706,6 +16769,7 @@ __metadata:
     lodash.throttle: ^4.1.1
     moment: ^2.29.4
     moment-timezone: ^0.5.41
+    monaco-editor: ^0.57.0
     rc-slider: ^10.2.1
     react: ^18.3.1
     react-beautiful-dnd: ^13.1.1
@@ -16723,7 +16787,7 @@ __metadata:
     styled-components: ^6.1.11
     stylis: ^4.3.2
     yup: ^1.1.1
-  checksum: 632afc846589a0151b673b4f26b8f4aa45e6651e0bc9abe8ecaffbec484459fa4aa261756d398795e984450d7d8b67c8808a69c3c8a9837eef50e917c6d9b4ba
+  checksum: bbd94f2028e963f196de7b5c2a1654766f0b140d4185d80ae4af69235b7ce8ad24869f6e0e1d95485c17c44b7edfcbb567fb92d5d9e27d6d266b3b045ae20fbc
   languageName: node
   linkType: hard
 

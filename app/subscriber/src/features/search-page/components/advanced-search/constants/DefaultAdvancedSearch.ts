@@ -25,4 +25,6 @@ export const defaultAdvancedSearch = {
   topStory: false,
   searchUnpublished: false,
   size: 500,
+  collapseField: undefined,
+  extendedQuery: undefined,
 };

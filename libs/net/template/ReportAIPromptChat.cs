@@ -293,7 +293,7 @@ public static partial class ReportAIPromptChat
     /// <summary>
     /// Write one quoted artifact inside a nonce-fenced block.
     /// </summary>
-    private static void AppendFenced(StringBuilder sb, string nonce, string label, string? text, int maxChars)
+    internal static void AppendFenced(StringBuilder sb, string nonce, string label, string? text, int maxChars)
     {
         sb.AppendLine($"<<<{nonce} BEGIN {label}>>>");
         sb.AppendLine(Cap(Neutralize(text, nonce), maxChars));
@@ -303,13 +303,13 @@ public static partial class ReportAIPromptChat
     /// <summary>
     /// The nonce is the only thing that can close a fence, so quoted material never contains it.
     /// </summary>
-    private static string Neutralize(string? text, string nonce)
+    internal static string Neutralize(string? text, string nonce)
         => String.IsNullOrEmpty(text) ? "(empty)" : text.Replace(nonce, "[redacted-delimiter]", StringComparison.Ordinal);
 
     /// <summary>
     /// Cap a value, marking the truncation rather than applying it silently.
     /// </summary>
-    private static string Cap(string text, int maxChars)
+    internal static string Cap(string text, int maxChars)
         => text.Length <= maxChars ? text : $"{text[..maxChars]}\n...[truncated here; {text.Length - maxChars:N0} more character(s) were recorded but are not shown]";
     #endregion
 }

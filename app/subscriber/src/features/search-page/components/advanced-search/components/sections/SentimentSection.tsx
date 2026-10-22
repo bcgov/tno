@@ -1,14 +1,10 @@
-import { useContent } from 'store/hooks';
 import { Col, SentimentSlider } from 'tno-core';
+
+import { useSearchSettings } from '../../SearchSettingsContext';
 
 /** section that contains the sentiment slider to filter content on tone values */
 export const SentimentSection: React.FC = () => {
-  const [
-    {
-      search: { filter },
-    },
-    { storeSearchFilter: storeFilter },
-  ] = useContent();
+  const [filter, storeFilter] = useSearchSettings();
   return (
     <Col justifyItems="stretch">
       <SentimentSlider

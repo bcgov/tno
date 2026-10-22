@@ -1,7 +1,7 @@
-import { TooltipMenu } from 'components/tooltip-menu';
 import { FaCaretSquareDown, FaCheckSquare, FaInfoCircle } from 'react-icons/fa';
 import { Col, Row } from 'tno-core';
 
+import { InfoTooltip } from './InfoTooltip';
 import * as styled from './styled';
 
 /** Component that displays help text for elastic search queries */
@@ -9,7 +9,7 @@ export const ToggleFilterStyleInfo: React.FC = () => {
   return (
     <styled.ToggleFilterStyleInfo>
       <FaInfoCircle data-tooltip-id="toggle-filter-style-info" className="info-icon" />
-      <TooltipMenu openOnClick id="toggle-filter-style-info">
+      <InfoTooltip id="toggle-filter-style-info">
         <Col>
           <div>
             Switch between modes for display filter criteris:
@@ -25,7 +25,7 @@ export const ToggleFilterStyleInfo: React.FC = () => {
             </ul>
           </div>
         </Col>
-      </TooltipMenu>
+      </InfoTooltip>
     </styled.ToggleFilterStyleInfo>
   );
 };

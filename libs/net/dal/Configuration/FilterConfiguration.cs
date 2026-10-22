@@ -12,6 +12,7 @@ public class FilterConfiguration : BaseTypeConfiguration<Filter, int>
         builder.Property(m => m.OwnerId);
         builder.Property(m => m.Query).IsRequired().HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
         builder.Property(m => m.Settings).IsRequired().HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        builder.Property(m => m.Prompt).HasColumnType("text");
 
         builder.HasOne(m => m.Owner).WithMany(m => m.Filters).HasForeignKey(m => m.OwnerId).OnDelete(DeleteBehavior.Cascade);
 

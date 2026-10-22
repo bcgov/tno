@@ -32,6 +32,11 @@ public class FilterModel : BaseTypeWithAuditColumnsModel<int>
     public FilterSettingsModel Settings { get; set; } = new();
 
     /// <summary>
+    /// get/set - The AI prompt that was used to generate this filter.
+    /// </summary>
+    public string? Prompt { get; set; }
+
+    /// <summary>
     /// get - An array of reports that use this filter.
     /// </summary>
     public IEnumerable<ReportModel> Reports { get; set; } = Array.Empty<ReportModel>();
@@ -59,6 +64,7 @@ public class FilterModel : BaseTypeWithAuditColumnsModel<int>
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
         this.Query = entity.Query;
         this.Settings = JsonSerializer.Deserialize<FilterSettingsModel>(entity.Settings, options) ?? new();
+        this.Prompt = entity.Prompt;
         this.Reports = entity.ReportSections.Where(rs => rs.Report != null).Select(rs => new ReportModel(rs.Report!)).ToArray();
         this.Folders = entity.Folders.Select(f => new FolderModel(f));
     }
@@ -92,6 +98,7 @@ public class FilterModel : BaseTypeWithAuditColumnsModel<int>
             SortOrder = model.SortOrder,
             Query = model.Query,
             Settings = JsonSerializer.SerializeToDocument(model.Settings),
+            Prompt = model.Prompt,
             Version = model.Version ?? 0
         };
 
