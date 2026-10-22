@@ -562,4 +562,27 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     max-height: 100%;
     min-width: 15em;
   }
+
+  .ai-prompt-section {
+    .filter-ai-prompt {
+      padding: 0.5rem 0;
+    }
+
+    .ai-conditions {
+      gap: 0.5rem;
+      margin-top: 0.25rem;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.9rem;
+      border: 1px dashed ${(props) => props.theme.css.lineTertiaryColor};
+      border-radius: 0.25rem;
+
+      button {
+        background: transparent;
+        border: none;
+        color: ${(props) => props.theme.css.linkPrimaryColor};
+        cursor: pointer;
+        text-decoration: underline;
+      }
+    }
+  }
 `;

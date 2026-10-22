@@ -16,6 +16,7 @@ import {
   SortDirection,
 } from 'tno-core';
 
+import { FilterAISettings } from './FilterAISettings';
 import { ListFilter } from './ListFilter';
 import * as styled from './styled';
 import { handleCopyKeyWords } from './utils/handleCopyKeyWords';
@@ -85,6 +86,7 @@ export const FilterList: React.FC = () => {
             }}
           />
         </Row>
+        <FilterAISettings />
         <ListFilter onFilterChange={(filter) => {}} />
         <Grid
           items={items}

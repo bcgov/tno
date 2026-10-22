@@ -16,11 +16,18 @@ import {
   FormikTextArea,
   getUserOptions,
   type IReportModel,
+  type IUserModel,
   type OptionItem,
   Row,
   Show,
   UserAccountTypeName,
 } from 'tno-core';
+
+const accountTypes = [
+  UserAccountTypeName.Direct,
+  UserAccountTypeName.Indirect,
+  UserAccountTypeName.SystemAccount,
+];
 
 /**
  * The page used to view and edit reports.
@@ -29,46 +36,39 @@ import {
 export const ReportFormDetails: React.FC = () => {
   const { values, setFieldValue, setValues } = useFormikContext<IReportModel>();
   const [{ userInfo }] = useApp();
-  const [{ users }, { findUsers }] = useUsers();
+  const [, { findUsers }] = useUsers();
 
-  const [userOptions, setUserOptions] = React.useState(getUserOptions(users.items));
+  const [owners, setOwners] = React.useState<IUserModel[]>([]);
+  const [isSearching, setIsSearching] = React.useState(false);
+  const searchId = React.useRef(0);
 
-  React.useEffect(() => {
-    if (userInfo?.id) {
-      findUsers({
-        quantity: 50,
-        includeUserId: values.ownerId,
-        accountTypes: [
-          UserAccountTypeName.Direct,
-          UserAccountTypeName.Indirect,
-          UserAccountTypeName.SystemAccount,
-        ],
-      })
-        .then((results) => {
-          setUserOptions(getUserOptions(results.items));
-        })
-        .catch(() => {});
-    }
-    // Only fire on initial load.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userInfo?.id]);
+  // The owner arrives with the report, so it displays without being in the search results.
+  const ownerOption = React.useMemo(() => {
+    if (!values.ownerId) return null;
+    const owner =
+      values.owner?.id === values.ownerId
+        ? values.owner
+        : owners.find((u) => u.id === values.ownerId) ??
+          (userInfo?.id === values.ownerId ? (userInfo as unknown as IUserModel) : undefined);
+    return owner ? getUserOptions([owner])[0] : null;
+  }, [owners, userInfo, values.owner, values.ownerId]);
 
-  const handleFindUsers = debounce(async (text: string) => {
-    const results = await findUsers(
-      {
-        quantity: 50,
-        keyword: text,
-        accountTypes: [
-          UserAccountTypeName.Direct,
-          UserAccountTypeName.Indirect,
-          UserAccountTypeName.SystemAccount,
-        ],
-      },
-      true,
-    );
-    setUserOptions(getUserOptions(results.items));
-    return results;
-  }, 500);
+  const searchOwners = React.useMemo(
+    () =>
+      debounce(async (keyword: string) => {
+        const id = ++searchId.current;
+        try {
+          const results = await findUsers({ quantity: 50, keyword, accountTypes }, true);
+          if (id === searchId.current) setOwners(results.items);
+        } catch {
+        } finally {
+          if (id === searchId.current) setIsSearching(false);
+        }
+      }, 500),
+    [findUsers],
+  );
+
+  React.useEffect(() => () => searchOwners.cancel(), [searchOwners]);
 
   const handleReassignOwnership = React.useCallback(() => {
     const report = {
@@ -113,19 +113,34 @@ export const ReportFormDetails: React.FC = () => {
           <FormikSelect
             name="ownerId"
             label="Owner"
-            options={userOptions}
-            value={userOptions.find((u) => u.value === values.ownerId) || ''}
+            placeholder="Search by name, username or email"
+            options={getUserOptions(owners)}
+            value={ownerOption}
             width="50ch"
+            isLoading={isSearching}
+            // The API matches the keyword, including on email, which the labels do not show.
+            filterOption={null}
+            noOptionsMessage={({ inputValue }) =>
+              inputValue.trim() ? 'No users found' : 'Type to search for a user'
+            }
             onChange={(e) => {
-              const option = e as OptionItem;
+              const option = e as OptionItem | undefined;
               setFieldValue(
-                'values.ownerId',
-                option?.value ? parseInt(option.value.toString()) : undefined,
+                'owner',
+                owners.find((u) => u.id === option?.value),
               );
             }}
-            onInputChange={(newValue) => {
-              // TODO: Does not need to fire when an option is manually selected.
-              handleFindUsers(newValue);
+            onInputChange={(text, { action }) => {
+              if (action !== 'input-change') return;
+              if (text.trim()) {
+                setIsSearching(true);
+                searchOwners(text.trim());
+              } else {
+                searchOwners.cancel();
+                searchId.current++;
+                setIsSearching(false);
+                setOwners([]);
+              }
             }}
           />
           <Col className="frm-in">

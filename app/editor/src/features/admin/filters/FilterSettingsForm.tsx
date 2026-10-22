@@ -4,6 +4,8 @@ import React from 'react';
 import { FaToggleOff, FaToggleOn } from 'react-icons/fa';
 import { useLookupOptions } from 'store/hooks';
 import {
+  Button,
+  ButtonVariant,
   Col,
   FieldSize,
   FormikCheckbox,
@@ -488,6 +490,44 @@ export const FilterSettingsForm: React.FC<IFilterSEttingsFormProps> = ({
           </div>
         </Col>
       </Row>
+      <Show visible={!!settings.collapseField}>
+        <Row alignItems="flex-end" gap="0.5rem">
+          <FormikText
+            name={`${path}collapseField`}
+            label="One story per"
+            tooltip="Only the first story (in the filter's order) for each value of this field is returned, i.e. one story per topic. Stories with no value form one group of their own."
+            width="30ch"
+            value={settings.collapseField ?? ''}
+            onChange={(e) => updateSettings('collapseField', e.target.value || undefined)}
+          />
+          <Button
+            variant={ButtonVariant.secondary}
+            onClick={() => updateSettings('collapseField', undefined)}
+          >
+            Return every story
+          </Button>
+        </Row>
+      </Show>
+      <Show visible={!!settings.extendedQuery}>
+        <Row>
+          <Col flex="1" className="frm-in extended-query">
+            <label>Additional AI conditions</label>
+            <p>
+              Raw Elasticsearch conditions the AI added for the parts of the prompt the settings
+              above cannot express. They are added to the query and narrow its results.
+            </p>
+            <pre>{JSON.stringify(settings.extendedQuery, null, 2)}</pre>
+            <Row>
+              <Button
+                variant={ButtonVariant.secondary}
+                onClick={() => updateSettings('extendedQuery', undefined)}
+              >
+                Remove AI conditions
+              </Button>
+            </Row>
+          </Col>
+        </Row>
+      </Show>
     </>
   );
 };

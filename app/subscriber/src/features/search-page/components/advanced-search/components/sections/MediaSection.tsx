@@ -2,7 +2,6 @@ import { useSubMediaGroups } from 'features/hooks';
 import React from 'react';
 import { FaWater } from 'react-icons/fa';
 import { IoIosArrowDropdownCircle, IoIosArrowDroprightCircle } from 'react-icons/io';
-import { useContent } from 'store/hooks';
 import {
   Button,
   ButtonVariant,
@@ -17,6 +16,7 @@ import {
 } from 'tno-core';
 
 import { ISubMediaGroupExpanded } from '../../interfaces';
+import { useSearchSettings } from '../../SearchSettingsContext';
 import { IFilterDisplayProps } from './IFilterDisplayProps';
 import { determineSelectedMedia, sortableMediaOptions } from './utils';
 
@@ -36,12 +36,7 @@ export const MediaSection: React.FC<IMediaSectionProps> = ({
   const { subMediaGroups } = useSubMediaGroups(sources, series, mediaTypes);
   const [mediaGroupExpanded, setMediaGroupExpanded] = React.useState<ISubMediaGroupExpanded>({});
   const [uniqueId] = React.useState(new Date().getTime().toString(36));
-  const [
-    {
-      search: { filter },
-    },
-    { storeSearchFilter: storeFilter },
-  ] = useContent();
+  const [filter, storeFilter] = useSearchSettings();
 
   return (
     <Col className="expanded media-section space-top">

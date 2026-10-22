@@ -1,16 +1,12 @@
-import { useContent, useLookupOptions } from 'store/hooks';
+import { useLookupOptions } from 'store/hooks';
 import { Button, ButtonVariant, Checkbox, Row, Select, Show } from 'tno-core';
 
+import { useSearchSettings } from '../../SearchSettingsContext';
 import { IFilterDisplayProps } from './IFilterDisplayProps';
 
 /** allows user to filter based off of show/programs */
 export const TagSection: React.FC<IFilterDisplayProps> = ({ displayFiltersAsDropdown }) => {
-  const [
-    {
-      search: { filter },
-    },
-    { storeSearchFilter: storeFilter },
-  ] = useContent();
+  const [filter, storeFilter] = useSearchSettings();
   const [{ tags }] = useLookupOptions();
 
   const tagOptions = tags

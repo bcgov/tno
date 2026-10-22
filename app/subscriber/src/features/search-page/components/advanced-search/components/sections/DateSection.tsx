@@ -2,19 +2,14 @@ import moment from 'moment';
 import React from 'react';
 import ReactDatePicker from 'react-datepicker';
 import { FaX } from 'react-icons/fa6';
-import { useContent } from 'store/hooks';
 import { Row, ToggleGroup } from 'tno-core';
 
+import { useSearchSettings } from '../../SearchSettingsContext';
 import { QuickPickerNames } from './constants';
 import { determineActivePicker } from './utils';
 
 export const DateSection: React.FC = () => {
-  const [
-    {
-      search: { filter },
-    },
-    { storeSearchFilter: storeFilter },
-  ] = useContent();
+  const [filter, storeFilter] = useSearchSettings();
 
   const dateOption = determineActivePicker(filter);
 

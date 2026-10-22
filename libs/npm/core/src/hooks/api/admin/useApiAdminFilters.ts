@@ -3,7 +3,15 @@ import React from 'react';
 
 import { toQueryString } from '../../../utils';
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
-import { IFilterFilter, IFilterModel, useApi } from '..';
+import {
+  IFilterAIChatRequestModel,
+  IFilterAIChatResultModel,
+  IFilterAIGenerateRequestModel,
+  IFilterAIGenerateResultModel,
+  IFilterFilter,
+  IFilterModel,
+  useApi,
+} from '..';
 
 /**
  * Common hook to make requests to the API.
@@ -42,6 +50,19 @@ export const useApiAdminFilters = (
         {
           data: model,
         },
+      );
+    },
+    generateFilter: (model: IFilterAIGenerateRequestModel) => {
+      return api.post<
+        IFilterAIGenerateRequestModel,
+        AxiosResponse<IFilterAIGenerateResultModel>,
+        any
+      >(`/admin/filters/ai/generate`, model);
+    },
+    chatFilter: (model: IFilterAIChatRequestModel) => {
+      return api.post<IFilterAIChatRequestModel, AxiosResponse<IFilterAIChatResultModel>, any>(
+        `/admin/filters/ai/chat`,
+        model,
       );
     },
   }).current;

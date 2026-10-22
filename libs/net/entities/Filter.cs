@@ -34,6 +34,12 @@ public class Filter : BaseType<int>
     public JsonDocument Settings { get; set; } = JsonDocument.Parse("{}");
 
     /// <summary>
+    /// get/set - The AI prompt that was used to generate this filter.
+    /// </summary>
+    [Column("prompt")]
+    public string? Prompt { get; set; }
+
+    /// <summary>
     /// get - List of report sections that use this filter.
     /// </summary>
     public virtual List<ReportSection> ReportSections { get; } = new List<ReportSection>();
@@ -85,6 +91,7 @@ public class Filter : BaseType<int>
         this.OwnerId = ownerId;
         this.Query = filter.Query;
         this.Settings = filter.Settings;
+        this.Prompt = filter.Prompt;
         this.SortOrder = filter.SortOrder;
     }
     #endregion

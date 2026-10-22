@@ -1,18 +1,15 @@
 import { useActionFilters } from 'features/search-page/hooks';
 import React from 'react';
-import { useContent, useLookup, useSettings } from 'store/hooks';
+import { useLookup, useSettings } from 'store/hooks';
 import { Checkbox, Col, Row, Settings, Text } from 'tno-core';
+
+import { useSearchSettings } from '../../SearchSettingsContext';
 
 export const MoreOptions: React.FC = () => {
   const [{ settings }] = useLookup();
   const getActionFilters = useActionFilters();
   const { topStoryActionId } = useSettings();
-  const [
-    {
-      search: { filter: filterSettings },
-    },
-    { storeSearchFilter },
-  ] = useContent();
+  const [filterSettings, storeSearchFilter] = useSearchSettings();
 
   const actionFilters = getActionFilters();
   const topStoryAction = actionFilters.find((a) => a.id === topStoryActionId);

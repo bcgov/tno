@@ -2752,6 +2752,10 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("owner_id");
 
+                    b.Property<string>("Prompt")
+                        .HasColumnType("text")
+                        .HasColumnName("prompt");
+
                     b.Property<JsonDocument>("Query")
                         .IsRequired()
                         .ValueGeneratedOnAdd()

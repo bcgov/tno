@@ -1,7 +1,15 @@
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { type IAdminState, useAdminStore } from 'store/slices';
-import { type IFilterFilter, type IFilterModel, useApiAdminFilters } from 'tno-core';
+import {
+  type IFilterAIChatRequestModel,
+  type IFilterAIChatResultModel,
+  type IFilterAIGenerateRequestModel,
+  type IFilterAIGenerateResultModel,
+  type IFilterFilter,
+  type IFilterModel,
+  useApiAdminFilters,
+} from 'tno-core';
 
 interface IFilterController {
   findFilters: (filter: IFilterFilter, isSilent?: boolean) => Promise<IFilterModel[]>;
@@ -9,6 +17,8 @@ interface IFilterController {
   addFilter: (model: IFilterModel) => Promise<IFilterModel>;
   updateFilter: (model: IFilterModel) => Promise<IFilterModel>;
   deleteFilter: (model: IFilterModel) => Promise<IFilterModel>;
+  generateFilter: (model: IFilterAIGenerateRequestModel) => Promise<IFilterAIGenerateResultModel>;
+  chatFilter: (model: IFilterAIChatRequestModel) => Promise<IFilterAIChatResultModel>;
 }
 
 export const useFilters = (): [IAdminState & { initialized: boolean }, IFilterController] => {
@@ -74,6 +84,25 @@ export const useFilters = (): [IAdminState & { initialized: boolean }, IFilterCo
         );
         store.storeFilters((filters) => filters.filter((ds) => ds.id !== response.data.id));
         await lookup.getLookups();
+        return response.data;
+      },
+      // The prompt shows its own progress, so these do not block the page.
+      generateFilter: async (model: IFilterAIGenerateRequestModel) => {
+        const response = await dispatch<IFilterAIGenerateResultModel>(
+          'generate-filter',
+          async () => await api.generateFilter(model),
+          undefined,
+          true,
+        );
+        return response.data;
+      },
+      chatFilter: async (model: IFilterAIChatRequestModel) => {
+        const response = await dispatch<IFilterAIChatResultModel>(
+          'chat-filter',
+          async () => await api.chatFilter(model),
+          undefined,
+          true,
+        );
         return response.data;
       },
     }),

@@ -1,6 +1,6 @@
 export * from './AccountAuthState';
-export * from './AISectionStatusName';
 export * from './AccountAuthStateName';
+export * from './AISectionStatusName';
 export * from './AVOverviewItemType';
 export * from './AVOverviewItemTypeName';
 export * from './AVOverviewTemplateType';

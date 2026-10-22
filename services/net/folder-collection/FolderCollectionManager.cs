@@ -462,7 +462,8 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
             return false;
         }
 
-        if (!String.IsNullOrWhiteSpace(filter.Settings.Search))
+        // Keywords and extended query conditions are only evaluated by Elasticsearch.
+        if (!String.IsNullOrWhiteSpace(filter.Settings.Search) || HasExtendedQuery(filter.Settings))
         {
             var index = filter.Settings.SearchUnpublished ? this.ElasticOptions.ContentIndex : this.ElasticOptions.PublishedIndex;
             var query = ModifyElasticQuery(filter.Query, content.Id);
@@ -479,6 +480,18 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
 
         // We passed all filter values so this content should be added to the folder.
         return await Task.FromResult(true);
+    }
+
+    /// <summary>
+    /// Whether the filter has extended query conditions the settings cannot express.
+    /// </summary>
+    /// <param name="settings"></param>
+    /// <returns></returns>
+    private static bool HasExtendedQuery(API.Models.Settings.FilterSettingsModel settings)
+    {
+        return settings.ExtendedQuery is JsonElement extended
+            && extended.ValueKind == JsonValueKind.Object
+            && extended.EnumerateObject().Any();
     }
 
     /// <summary>

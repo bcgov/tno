@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useContent, useLookup } from 'store/hooks';
+import { useLookup } from 'store/hooks';
 import {
   Button,
   ButtonVariant,
@@ -11,16 +11,12 @@ import {
   Show,
 } from 'tno-core';
 
+import { useSearchSettings } from '../../SearchSettingsContext';
 import { IFilterDisplayProps } from './IFilterDisplayProps';
 
 /** allows user to filter based off of show/programs */
 export const SeriesSection: React.FC<IFilterDisplayProps> = ({ displayFiltersAsDropdown }) => {
-  const [
-    {
-      search: { filter },
-    },
-    { storeSearchFilter: storeFilter },
-  ] = useContent();
+  const [filter, storeFilter] = useSearchSettings();
   const [{ series }] = useLookup();
   const seriesOptions = useMemo(
     () =>

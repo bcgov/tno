@@ -30,6 +30,11 @@ public class FilterModel : BaseTypeWithAuditColumnsModel<int>
     /// get/set - The filter settings.
     /// </summary>
     public FilterSettingsModel Settings { get; set; } = new();
+
+    /// <summary>
+    /// get/set - The AI prompt that was used to generate this filter.
+    /// </summary>
+    public string? Prompt { get; set; }
     #endregion
 
     #region Constructors
@@ -49,6 +54,7 @@ public class FilterModel : BaseTypeWithAuditColumnsModel<int>
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
         this.Query = entity.Query;
         this.Settings = JsonSerializer.Deserialize<FilterSettingsModel>(entity.Settings, options) ?? new();
+        this.Prompt = entity.Prompt;
     }
     #endregion
 
@@ -80,6 +86,7 @@ public class FilterModel : BaseTypeWithAuditColumnsModel<int>
             SortOrder = model.SortOrder,
             Query = model.Query,
             Settings = JsonSerializer.SerializeToDocument(model.Settings),
+            Prompt = model.Prompt,
             Version = model.Version ?? 0
         };
 

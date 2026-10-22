@@ -1,17 +1,13 @@
 import React from 'react';
-import { useApp, useContent, useLookupOptions } from 'store/hooks';
+import { useApp, useLookupOptions } from 'store/hooks';
 import { Button, ButtonVariant, Checkbox, FieldSize, Row, Select, Show } from 'tno-core';
 
+import { useSearchSettings } from '../../SearchSettingsContext';
 import { IFilterDisplayProps } from './IFilterDisplayProps';
 
 /** component that allows user to filter down the advanced search based on products */
 export const MediaTypeSection: React.FC<IFilterDisplayProps> = ({ displayFiltersAsDropdown }) => {
-  const [
-    {
-      search: { filter },
-    },
-    { storeSearchFilter: storeFilter },
-  ] = useContent();
+  const [filter, storeFilter] = useSearchSettings();
   const [{ userInfo }] = useApp();
   const [{ mediaTypeOptions }] = useLookupOptions();
 

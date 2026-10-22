@@ -1,5 +1,6 @@
-import { useContent } from 'store/hooks';
 import { Button, ButtonVariant, Checkbox, ContentTypeName, Row, Select, Show } from 'tno-core';
+
+import { useSearchSettings } from '../../SearchSettingsContext';
 
 export interface IContentTypeSectionProps {
   /** whether to display filter choices as checkboxes or a select box */
@@ -10,12 +11,7 @@ export interface IContentTypeSectionProps {
 export const ContentTypeSection: React.FC<IContentTypeSectionProps> = ({
   displayFiltersAsDropdown,
 }) => {
-  const [
-    {
-      search: { filter },
-    },
-    { storeSearchFilter: storeFilter },
-  ] = useContent();
+  const [filter, storeFilter] = useSearchSettings();
 
   const typeOptions = [
     { label: 'Audio/Video', value: ContentTypeName.AudioVideo },

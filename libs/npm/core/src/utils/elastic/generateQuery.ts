@@ -1,6 +1,8 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 
 import { IFilterSettingsModel } from '../../hooks';
+import { generateCollapse } from './generateCollapse';
+import { generateExtendedQuery } from './generateExtendedQuery';
 import { generateFilterQuery } from './generateFilterQuery';
 import { generateMustNotQuery } from './generateMustNotQuery';
 import { generateMustQuery } from './generateMustQuery';
@@ -20,6 +22,8 @@ export const generateQuery = (
   if (condition === 'must') elastic = generateMustQuery(settings, query);
   else if (condition === 'filter') elastic = generateFilterQuery(settings, query);
   else if (condition === 'must_not') elastic = generateMustNotQuery(settings, query);
+  elastic = generateExtendedQuery(elastic, settings.extendedQuery);
+  elastic = generateCollapse(elastic, settings.collapseField);
 
   if (!elastic.query || Object.keys(elastic.query).length === 0) elastic.query = { match_all: {} };
 

@@ -1,20 +1,14 @@
 import 'prismjs/themes/prism.css';
 import 'prismjs/components/prism-sql';
 
+import { Button as AppButton } from 'components/button';
 import { PageSection } from 'components/section';
 import { useElastic } from 'features/my-searches/hooks';
 import { useSearchPageContext } from 'features/search-page/SearchPageContext';
 import { filterFormat } from 'features/search-page/utils';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
-import { BsCalendarEvent, BsSun } from 'react-icons/bs';
-import {
-  FaCaretSquareDown,
-  FaCheckSquare,
-  FaExclamationCircle,
-  FaPlay,
-  FaRegSmile,
-} from 'react-icons/fa';
+import { FaCaretSquareDown, FaCheckSquare, FaExclamationCircle, FaPlay } from 'react-icons/fa';
 import { FaSave } from 'react-icons/fa';
 import {
   FaBookmark,
@@ -23,27 +17,26 @@ import {
   FaCircleXmark,
   FaDownLeftAndUpRightToCenter,
   FaGears,
-  FaIcons,
-  FaNewspaper,
+  FaMagnifyingGlass,
   FaSquarePlus,
-  FaTag,
   FaToggleOff,
   FaToggleOn,
-  FaTv,
   FaUpRightAndDownLeftFromCenter,
-  FaUsers,
+  FaWandMagicSparkles,
 } from 'react-icons/fa6';
 import { IoIosCog, IoMdRefresh } from 'react-icons/io';
 import { useNavigate } from 'react-router-dom';
 import Editor from 'react-simple-code-editor';
 import { toast } from 'react-toastify';
-import { useApp, useContent, useFilters, useLookup } from 'store/hooks';
+import { useApp, useContent, useFilters } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
 import {
   Button,
   Claim,
   Col,
+  FilterAIPrompt,
   getCookie,
+  IFilterAIGenerateResultModel,
   IFilterModel,
   IFilterSettingsModel,
   RadioGroup,
@@ -56,25 +49,23 @@ import {
 } from 'tno-core';
 
 import {
-  ContentTypeSection,
-  ContributorSection,
-  DateSection,
+  AccordionPanel,
+  AdvancedSearchSections,
   ElasticQueryHelp,
   ExpandableRow,
   InfoAdvancedQueryOperators,
   InfoDefaultOperator,
-  MediaSection,
-  MediaTypeSection,
   MoreOptions,
-  PaperSection,
   SearchInGroup,
-  SentimentSection,
-  SeriesSection,
-  TagSection,
   ToggleFilterStyleInfo,
 } from './components';
-import { defaultAdvancedSearch, defaultFilter } from './constants';
+import {
+  defaultAdvancedSearch,
+  defaultFilter,
+  displayFiltersAsDropdownCookieKey,
+} from './constants';
 import { AdvancedQueryOperatorOptions, SearchOperatorOptions } from './constants';
+import { ManualSearchForm } from './ManualSearchForm';
 import * as styled from './styled';
 
 export interface IAdvancedSearchProps {
@@ -100,12 +91,12 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
   queryValidateResult,
 }) => {
   const navigate = useNavigate();
-  const [{ myFilters }, { addFilter, updateFilter }] = useFilters();
+  const [{ myFilters }, { addFilter, updateFilter, generateFilter, chatFilter }] = useFilters();
   const [
     {
       search: { filter: search },
     },
-    { storeSearchFilter },
+    { storeSearchFilter, findContentWithElasticsearch },
   ] = useContent();
 
   const genQuery = useElastic();
@@ -116,8 +107,11 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
     React.useState<IFilterSettingsModel>();
 
   const [searchName, setSearchName] = React.useState<string>(activeFilter?.name ?? '');
+  // The prompt that generates the search, saved with it.
+  const [prompt, setPrompt] = React.useState<string>(activeFilter?.prompt ?? '');
+  // The accordion at the top: search terms (open by default) or the AI prompt.
+  const [openPanel, setOpenPanel] = React.useState<'search' | 'ai' | undefined>('search');
 
-  const displayFiltersAsDropdownCookieKey = 'advancedSearch:displayFiltersAsDropdown';
   const [displayFiltersAsDropdown, setDisplayFiltersAsDropdown] = React.useState<boolean>(() => {
     const cookieVal = getCookie(displayFiltersAsDropdownCookieKey);
     return !!cookieVal;
@@ -137,7 +131,6 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
   );
 
   const isAdmin = userInfo?.roles.includes(Claim.administrator);
-  const [{ sources, series, mediaTypes }] = useLookup();
   const [initialState, setInitialState] = React.useState<IFilterSettingsModel | null>(search);
   const [isFirstLoad, setIsFirstLoad] = React.useState<boolean>(true);
   const [searchTerms, setSearchTerms] = React.useState<string>(search?.search ?? '');
@@ -176,9 +169,13 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
   React.useEffect(() => {
     if (activeFilter) {
       setSearchName(activeFilter.name);
+      setPrompt(activeFilter.prompt ?? '');
       // save default setting that can be reverted to...
       setOriginalFilterSettings(activeFilter.settings);
-    } else setSearchName('');
+    } else {
+      setSearchName('');
+      setPrompt('');
+    }
   }, [activeFilter, setOriginalFilterSettings]);
 
   React.useEffect(() => {
@@ -215,6 +212,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
         isEnabled: activeFilter?.isEnabled ?? true,
         query,
         settings,
+        prompt: prompt || undefined,
         reports: activeFilter?.reports ?? [],
         folders: activeFilter?.folders ?? [],
       };
@@ -238,7 +236,16 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
           .catch(() => {});
       }
     },
-    [search, genQuery, activeFilter, updateFilter, storeFilter, storeSearchFilter, searchTerms],
+    [
+      search,
+      genQuery,
+      activeFilter,
+      prompt,
+      updateFilter,
+      storeFilter,
+      storeSearchFilter,
+      searchTerms,
+    ],
   );
 
   const addSearch = React.useCallback(
@@ -249,7 +256,13 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
       };
       const settings = filterFormat(updatedSearch);
       const query = genQuery(settings);
-      const filter: IFilterModel = { ...defaultFilter, name, query, settings };
+      const filter: IFilterModel = {
+        ...defaultFilter,
+        name,
+        query,
+        settings,
+        prompt: prompt || undefined,
+      };
 
       if (!name) {
         toast.error('Please enter a name for your search.');
@@ -269,7 +282,34 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
         })
         .catch(() => {});
     },
-    [search, searchTerms, genQuery, myFilters, addFilter, storeFilter, storeSearchFilter, navigate],
+    [
+      search,
+      searchTerms,
+      prompt,
+      genQuery,
+      myFilters,
+      addFilter,
+      storeFilter,
+      storeSearchFilter,
+      navigate,
+    ],
+  );
+
+  /** Use the filter the AI generated from the prompt, and run it. */
+  const applyAIResult = React.useCallback(
+    (result: IFilterAIGenerateResultModel, text: string) => {
+      // Display preferences are not filter criteria; keep the user's.
+      const settings: IFilterSettingsModel = {
+        ...result.settings,
+        boldKeywords: search.boldKeywords,
+      };
+      setPrompt(text);
+      setSearchTerms(settings.search ?? '');
+      onSearch?.(settings);
+      storeSearchFilter(settings);
+      setSearchFilter(settings);
+    },
+    [search.boldKeywords, onSearch, storeSearchFilter, setSearchFilter],
   );
 
   const isAdvancedQueryType =
@@ -484,76 +524,150 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
                 </div>
               </div>
             </Show>
-            {/* SEARCH FOR: */}
-            <Row className="search-for-row">
-              <label className="search-in-label">Search for:</label>
-              <ElasticQueryHelp queryType={search.queryType} />
-              <Col className="text-area-container">
-                <Editor
-                  id="searchText"
-                  value={searchTerms}
-                  onValueChange={handleSearchTermsChanged}
-                  highlight={(code: any) => {
-                    return highlight(code, languages.sql, 'sql');
-                  }}
-                  className="text-area-editor"
-                  padding={8}
-                  style={{ overflow: 'hidden', resize: 'vertical' }}
-                />
-              </Col>
-            </Row>
-            <Col className="section">
-              <QueryValidateSection />
-            </Col>
-            <Row className="search-for-row">
-              <Col className="text-area-container space-top">
-                <SearchInGroup />
-              </Col>
-            </Row>
-            <Col className="section">
-              <ExpandableRow icon={<FaGears />} title="Advanced Options:" hasValues={false}>
-                <Row alignItems="center" justifyContent="space-between">
-                  Default operator:
-                  <div className="radio-group">
-                    <RadioGroup
-                      name="searchOperator"
-                      value={
-                        SearchOperatorOptions[
-                          search.defaultOperator as keyof typeof SearchOperatorOptions
-                        ] ?? SearchOperatorOptions.and
-                      }
-                      onChange={(val) => {
-                        storeSearchFilter({
-                          ...search,
-                          defaultOperator: val.target.value.toLocaleLowerCase() as
-                            | 'and'
-                            | 'or'
-                            | undefined,
-                        });
+            {/* SEARCH TERMS, OR AN AI PROMPT THAT GENERATES THE SEARCH */}
+            <Col className="section search-accordion">
+              <AccordionPanel
+                id="search-panel"
+                icon={<FaMagnifyingGlass />}
+                title="Search"
+                open={openPanel === 'search'}
+                hasValues={!!searchTerms}
+                onToggle={() => setOpenPanel(openPanel === 'search' ? undefined : 'search')}
+              >
+                {/* SEARCH FOR: */}
+                <Row className="search-for-row">
+                  <label className="search-in-label">Search for:</label>
+                  <ElasticQueryHelp queryType={search.queryType} />
+                  <Col className="text-area-container">
+                    <Editor
+                      id="searchText"
+                      value={searchTerms}
+                      onValueChange={handleSearchTermsChanged}
+                      highlight={(code: any) => {
+                        return highlight(code, languages.sql, 'sql');
                       }}
-                      options={[SearchOperatorOptions.and, SearchOperatorOptions.or]}
-                      required={true}
-                      direction={'row'}
+                      className="text-area-editor"
+                      padding={8}
+                      style={{ overflow: 'hidden', resize: 'vertical' }}
                     />
-                  </div>
-                  <InfoDefaultOperator />
+                  </Col>
                 </Row>
-                <Row alignItems="center" justifyContent="space-between">
-                  Advanced query operators:
-                  <div>
-                    <ToggleButton
-                      on={<FaToggleOn />}
-                      off={<FaToggleOff />}
-                      onClick={() => toggleAdvancedQueryOperator()}
-                      value={isAdvancedQueryType}
-                      width="25px"
-                      height="25px"
-                      label=""
-                    />
-                  </div>
-                  <InfoAdvancedQueryOperators />
+                <Col className="section">
+                  <QueryValidateSection />
+                </Col>
+                <Row className="search-for-row">
+                  <Col className="text-area-container space-top">
+                    <SearchInGroup />
+                  </Col>
                 </Row>
-              </ExpandableRow>
+                <Col className="section">
+                  <ExpandableRow icon={<FaGears />} title="Advanced Options:" hasValues={false}>
+                    <Row alignItems="center" justifyContent="space-between">
+                      Default operator:
+                      <div className="radio-group">
+                        <RadioGroup
+                          name="searchOperator"
+                          value={
+                            SearchOperatorOptions[
+                              search.defaultOperator as keyof typeof SearchOperatorOptions
+                            ] ?? SearchOperatorOptions.and
+                          }
+                          onChange={(val) => {
+                            storeSearchFilter({
+                              ...search,
+                              defaultOperator: val.target.value.toLocaleLowerCase() as
+                                | 'and'
+                                | 'or'
+                                | undefined,
+                            });
+                          }}
+                          options={[SearchOperatorOptions.and, SearchOperatorOptions.or]}
+                          required={true}
+                          direction={'row'}
+                        />
+                      </div>
+                      <InfoDefaultOperator />
+                    </Row>
+                    <Row alignItems="center" justifyContent="space-between">
+                      Advanced query operators:
+                      <div>
+                        <ToggleButton
+                          on={<FaToggleOn />}
+                          off={<FaToggleOff />}
+                          onClick={() => toggleAdvancedQueryOperator()}
+                          value={isAdvancedQueryType}
+                          width="25px"
+                          height="25px"
+                          label=""
+                        />
+                      </div>
+                      <InfoAdvancedQueryOperators />
+                    </Row>
+                  </ExpandableRow>
+                </Col>
+              </AccordionPanel>
+              <AccordionPanel
+                id="ai-prompt-panel"
+                icon={<FaWandMagicSparkles />}
+                title="AI Prompt"
+                open={openPanel === 'ai'}
+                hasValues={!!prompt || !!search.extendedQuery || !!search.collapseField}
+                onToggle={() => setOpenPanel(openPanel === 'ai' ? undefined : 'ai')}
+              >
+                <Col className="ai-prompt-section">
+                  <FilterAIPrompt
+                    label=""
+                    editor="textarea"
+                    prompt={prompt}
+                    settings={{ ...search, search: searchTerms }}
+                    onPromptChange={setPrompt}
+                    onGenerate={generateFilter}
+                    onChat={chatFilter}
+                    onBuildQuery={(settings) => genQuery(filterFormat(settings))}
+                    onSearch={(query, searchUnpublished) =>
+                      findContentWithElasticsearch(query, searchUnpublished)
+                    }
+                    renderManualFilter={(props) => <ManualSearchForm {...props} />}
+                    queryHint="Edits here only change the stories listed; the saved search rebuilds its query from its criteria."
+                    onApply={applyAIResult}
+                    buttonComponent={AppButton}
+                  />
+                  <Show visible={!!search.collapseField}>
+                    <Row
+                      className="ai-conditions"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <span>One story per {search.collapseField}</span>
+                      <button
+                        type="button"
+                        onClick={() => storeSearchFilter({ ...search, collapseField: undefined })}
+                        title="Return every matching story instead of one per value"
+                      >
+                        Remove
+                      </button>
+                    </Row>
+                  </Show>
+                  <Show visible={!!search.extendedQuery}>
+                    <Row
+                      className="ai-conditions"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <span title={JSON.stringify(search.extendedQuery, null, 2)}>
+                        Includes AI-added conditions
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => storeSearchFilter({ ...search, extendedQuery: undefined })}
+                        title="Remove the conditions the AI added that the options below cannot show"
+                      >
+                        Remove
+                      </button>
+                    </Row>
+                  </Show>
+                </Col>
+              </AccordionPanel>
             </Col>
             <div className="search-in-group space-top"></div>
             <Col className="section top-spacer">
@@ -580,114 +694,10 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
                   <ToggleFilterStyleInfo />
                 </div>
               </div>
-              {/* DATE RANGE */}
-              <Col className={`date-range-group space-top`}>
-                <ExpandableRow
-                  icon={<BsCalendarEvent />}
-                  title="Date range"
-                  hasValues={!!search.startDate || !!search.dateOffset}
-                >
-                  <DateSection />
-                </ExpandableRow>
-              </Col>
-              {/* MEDIA SOURCE SECTION */}
-              <Col className={`media-group`}>
-                <ExpandableRow
-                  icon={<BsSun />}
-                  title="Media source"
-                  hasValues={!!search.sourceIds?.length}
-                  headerActions={
-                    <ToggleButton
-                      on={<FaToggleOn />}
-                      off={<FaToggleOff />}
-                      onClick={() =>
-                        storeSearchFilter({ ...search, sourceIdsNegate: !search.sourceIdsNegate })
-                      }
-                      value={!!search.sourceIdsNegate}
-                      width="25px"
-                      height="25px"
-                      label="NOT"
-                    />
-                  }
-                >
-                  <MediaSection
-                    displayFiltersAsDropdown={displayFiltersAsDropdown}
-                    sources={sources.filter((s) => s.isEnabled)}
-                    mediaTypes={mediaTypes.filter((s) => s.isEnabled)}
-                    series={series.filter((s) => s.isEnabled)}
-                  />
-                </ExpandableRow>
-              </Col>
-              {/* SENTIMENT SECTION */}
-              <Col className={`sentiment-group`}>
-                <ExpandableRow
-                  icon={<FaRegSmile />}
-                  title="Sentiment"
-                  hasValues={!!search.sentiment?.length}
-                >
-                  <SentimentSection />
-                </ExpandableRow>
-              </Col>
-              {/* PAPER SECTION */}
-              <Col className="paper-attributes">
-                <ExpandableRow
-                  icon={<FaNewspaper />}
-                  title="Paper attributes"
-                  hasValues={!!search.section || !!search.page || !!search.edition}
-                >
-                  <PaperSection />
-                </ExpandableRow>
-              </Col>
-              {/* CONTRIBUTOR SECTION */}
-              <Col className="expandable-section">
-                <ExpandableRow
-                  icon={<FaUsers />}
-                  title="Columnists/Anchors"
-                  hasValues={!!search.contributorIds?.length}
-                >
-                  <ContributorSection displayFiltersAsDropdown={displayFiltersAsDropdown} />
-                </ExpandableRow>
-              </Col>
-              {/* MEDIA TYPES SECTION */}
-              <Col className="expandable-section">
-                <ExpandableRow
-                  icon={<FaIcons />}
-                  title="Media Types"
-                  hasValues={!!search.mediaTypeIds?.length}
-                >
-                  <MediaTypeSection displayFiltersAsDropdown={displayFiltersAsDropdown} />
-                </ExpandableRow>
-              </Col>
-              {/* SHOW/PROGRAM SECTION */}
-              <Col className="expandable-section">
-                <ExpandableRow
-                  icon={<FaPlay />}
-                  title="Show/Program"
-                  hasValues={!!search.seriesIds?.length}
-                >
-                  <SeriesSection displayFiltersAsDropdown={displayFiltersAsDropdown} />
-                </ExpandableRow>
-              </Col>
-              {isAdmin && (
-                <>
-                  {/* CONTENT TYPE SECTION */}
-                  <Col className="expandable-section">
-                    <ExpandableRow
-                      icon={<FaTv />}
-                      title="Content Type"
-                      hasValues={!!search.contentTypes?.length}
-                    >
-                      <ContentTypeSection displayFiltersAsDropdown={displayFiltersAsDropdown} />
-                    </ExpandableRow>
-                  </Col>
-                  {/* TAG SECTION */}
-                  <Col className="expandable-section">
-                    <ExpandableRow icon={<FaTag />} title="Tags" hasValues={!!search.tags?.length}>
-                      <TagSection displayFiltersAsDropdown={displayFiltersAsDropdown} />
-                    </ExpandableRow>
-                  </Col>
-                </>
-              )}
+              <AdvancedSearchSections
+                displayFiltersAsDropdown={displayFiltersAsDropdown}
+                isAdmin={!!isAdmin}
+              />
             </Col>
 
             <Row>

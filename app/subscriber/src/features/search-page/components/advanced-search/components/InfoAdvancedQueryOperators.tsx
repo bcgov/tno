@@ -1,7 +1,7 @@
-import { TooltipMenu } from 'components/tooltip-menu';
 import { FaInfoCircle } from 'react-icons/fa';
 import { Col } from 'tno-core';
 
+import { InfoTooltip } from './InfoTooltip';
 import * as styled from './styled';
 
 /** Component that displays help text for elastic search queries */
@@ -9,7 +9,7 @@ export const InfoAdvancedQueryOperators: React.FC = () => {
   return (
     <styled.InfoAdvancedQueryOperators>
       <FaInfoCircle data-tooltip-id="toggle-info-advanced-query-operator" className="info-icon" />
-      <TooltipMenu openOnClick id="toggle-info-advanced-query-operator">
+      <InfoTooltip id="toggle-info-advanced-query-operator">
         <Col>
           <div>
             <FaInfoCircle className="info-icon" />
@@ -184,7 +184,7 @@ export const InfoAdvancedQueryOperators: React.FC = () => {
             </table>
           </div>
         </Col>
-      </TooltipMenu>
+      </InfoTooltip>
     </styled.InfoAdvancedQueryOperators>
   );
 };

@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { useContent, useLookup } from 'store/hooks';
+import { useLookup } from 'store/hooks';
 import {
   Button,
   ButtonVariant,
@@ -11,13 +11,13 @@ import {
   Show,
 } from 'tno-core';
 
+import { useSearchSettings } from '../../SearchSettingsContext';
 import { IFilterDisplayProps } from './IFilterDisplayProps';
 
 /** Section for advanced filter that allows users to select contributors they want to filter content off of. */
 export const ContributorSection: React.FC<IFilterDisplayProps> = ({ displayFiltersAsDropdown }) => {
   const [{ contributors }] = useLookup();
-  const [{ search }, { storeSearchFilter: storeFilter }] = useContent();
-  const filter = search.filter;
+  const [filter, storeFilter] = useSearchSettings();
   const contributorOptions = useMemo(
     () =>
       contributors
@@ -90,7 +90,7 @@ export const ContributorSection: React.FC<IFilterDisplayProps> = ({ displayFilte
         <Select
           name="contributorIds"
           isMulti
-          key={search.filter.contributorIds?.join(',')}
+          key={filter.contributorIds?.join(',')}
           width={FieldSize.Stretch}
           className="contributors"
           options={contributorOptions}
