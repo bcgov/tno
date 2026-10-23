@@ -49,6 +49,7 @@ public static class FilterAIPrompts
         sb.AppendLine("- dateOffset (int): only stories published from the start of the day this many days ago; 0 means today, 1 means since the start of yesterday. Prefer this for relative periods such as \"today\" or \"last 7 days\".");
         sb.AppendLine("- startDate, endDate (ISO 8601 date-time): an absolute published-on range; use only for fixed dates. Do not combine with dateOffset.");
         sb.AppendLine("- startPostedDate, endPostedDate (ISO 8601 date-time): an absolute range on when the story was posted to the system.");
+        sb.AppendLine($"- A range on {String.Join(", ", FilterAISearch.DateFields)} in a search or extendedQuery is in Pacific time too: \"time_zone\": \"{FilterAISearch.TimeZone}\" is added when the range does not set one, so \"now/d\" is the start of today in Pacific time.");
         sb.AppendLine("Sources and classification (use the ids and codes listed under Reference values, or the lookup tool; never guess):");
         sb.AppendLine("- sourceIds (int[]): only these sources. sourceIdsNegate (bool): true excludes these sources instead.");
         sb.AppendLine("- mediaTypeIds (int[]): only these media types.");

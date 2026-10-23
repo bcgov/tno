@@ -83,6 +83,22 @@ public class FilterAISearchTest
         normalized!.ToJsonString().Should().Be("{\"must_not\":[{\"term\":{\"id\":1}}],\"minimum_should_match\":1}");
     }
 
+    [Fact]
+    public void SearchDateRangesAreInPacificTime()
+    {
+        var body = FilterAISearch.BuildSearchBody(Args("{\"query\":{\"bool\":{\"filter\":[{\"range\":{\"publishedOn\":{\"gte\":\"now/d\"}}},{\"range\":{\"postedOn\":{\"gte\":\"now-1d/d\",\"time_zone\":\"UTC\"}}},{\"range\":{\"sentiment\":{\"gte\":1}}}]}}}"));
+
+        body["query"]!.ToJsonString().Should().Be("{\"bool\":{\"filter\":[{\"range\":{\"publishedOn\":{\"gte\":\"now/d\",\"time_zone\":\"US/Pacific\"}}},{\"range\":{\"postedOn\":{\"gte\":\"now-1d/d\",\"time_zone\":\"UTC\"}}},{\"range\":{\"sentiment\":{\"gte\":1}}}]}}");
+    }
+
+    [Fact]
+    public void ExtendedQueryDateRangesAreInPacificTime()
+    {
+        var normalized = FilterAISearch.NormalizeExtendedQuery(JsonNode.Parse("{\"filter\":[{\"range\":{\"publishedOn\":{\"gte\":\"2026-10-22\"}}}]}"));
+
+        normalized!.ToJsonString().Should().Be("{\"filter\":[{\"range\":{\"publishedOn\":{\"gte\":\"2026-10-22\",\"time_zone\":\"US/Pacific\"}}}]}");
+    }
+
     [Theory]
     [InlineData("[]")]
     [InlineData("{\"match\":{\"headline\":\"x\"}}")]

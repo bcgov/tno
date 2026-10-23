@@ -116,7 +116,7 @@ describe('Filter prompt workbench', () => {
     expect(handlers.onSearch.mock.calls[1][1]).toBe(true);
   });
 
-  it('generates with the switch applied, shows the search criteria, and leaves out the tool steps', async () => {
+  it('generates with the switch applied, keeps the active tab, shows the search criteria, and leaves out the tool steps', async () => {
     handlers.onGenerate.mockResolvedValue({
       settings: { search: 'wildfire', size: 25, sourceIds: [3] },
       explanation: 'Wildfire stories from source 3.',
@@ -133,10 +133,12 @@ describe('Filter prompt workbench', () => {
     expect(handlers.onGenerate).toHaveBeenCalledTimes(1);
     expect(handlers.onGenerate.mock.calls[0][0].settings.searchUnpublished).toBe(false);
     expect(handlers.onGenerate.mock.calls[0][0].prompt).toBe('stories about fires');
-    expect(screen.getByRole('tab', { hidden: true, name: 'Result' })).toHaveAttribute(
+    // Generating leaves the user on the tab they were using.
+    expect(screen.getByRole('tab', { hidden: true, name: 'Chat' })).toHaveAttribute(
       'aria-selected',
       'true',
     );
+    fireEvent.click(screen.getByRole('tab', { hidden: true, name: 'Result' }));
     expect(screen.getByText('Search Criteria')).toBeInTheDocument();
     expect(screen.getByText('Wildfire stories from source 3.')).toBeInTheDocument();
     expect(screen.queryByText('How the AI built it')).not.toBeInTheDocument();

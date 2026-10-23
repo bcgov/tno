@@ -32,6 +32,12 @@ public static partial class FilterAISearch
     /// <summary>Query types and keys a model may not use: scripts, stored queries and wrappers run arbitrary code or hide what runs.</summary>
     public static readonly string[] ForbiddenKeys = ["script", "script_score", "scripted_metric", "wrapper", "percolate", "runtime_mappings", "stored_fields", "terms_lookup", "index", "_index"];
 
+    /// <summary>The time zone dates are written in; the same one the browser applies to a filter's date offset.</summary>
+    public const string TimeZone = "US/Pacific";
+
+    /// <summary>The date fields a range is applied to in the time zone, unless the range names its own.</summary>
+    public static readonly string[] DateFields = ["publishedOn", "postedOn", "createdOn", "updatedOn"];
+
     /// <summary>The keys an extended query may have.</summary>
     public static readonly string[] ExtendedQueryKeys = ["must", "filter", "must_not", "should", "minimum_should_match"];
 
@@ -60,6 +66,7 @@ public static partial class FilterAISearch
                 query = queryObject["query"]?.DeepClone();
             var forbidden = FindForbiddenKey(query);
             if (forbidden != null) throw new FilterAIException($"search 'query' may not use '{forbidden}'.");
+            ApplyTimeZone(query);
         }
 
         var size = DefaultSize;
@@ -216,6 +223,7 @@ public static partial class FilterAISearch
         }
         if (result.Count == 0) return null;
         if (source["minimum_should_match"] is JsonNode minimum) result["minimum_should_match"] = minimum.DeepClone();
+        ApplyTimeZone(result);
         return result;
     }
 
@@ -266,6 +274,32 @@ public static partial class FilterAISearch
                 return null;
             default:
                 return null;
+        }
+    }
+
+    /// <summary>
+    /// Write every range on a date field in the time zone, unless it names its own. Without one,
+    /// Elasticsearch reads "now/d" and dates without an offset as UTC, so late in the Pacific
+    /// evening "today" would start at 5 p.m.
+    /// </summary>
+    /// <param name="node"></param>
+    public static void ApplyTimeZone(JsonNode? node)
+    {
+        switch (node)
+        {
+            case JsonObject obj:
+                if (obj["range"] is JsonObject range)
+                {
+                    foreach (var field in DateFields)
+                    {
+                        if (range[field] is JsonObject bounds && !bounds.ContainsKey("time_zone")) bounds["time_zone"] = TimeZone;
+                    }
+                }
+                foreach (var property in obj) ApplyTimeZone(property.Value);
+                break;
+            case JsonArray array:
+                foreach (var item in array) ApplyTimeZone(item);
+                break;
         }
     }
 
