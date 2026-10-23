@@ -30,7 +30,11 @@ export const generateQuery = (
   if (settings.size) elastic = { ...elastic, size: settings.size };
   if (settings.from) elastic = { ...elastic, from: settings.from };
 
-  elastic = { ...elastic, sort: settings.sort ? settings.sort : [{ publishedOn: 'desc' }] };
+  // An empty sort would make Elasticsearch order by relevance, which is index order for a query without keywords.
+  elastic = {
+    ...elastic,
+    sort: settings.sort?.length ? settings.sort : [{ publishedOn: 'desc' }],
+  };
 
   return elastic;
 };

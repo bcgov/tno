@@ -240,7 +240,6 @@ export const FilterAIWorkbench: React.FC<IFilterAIWorkbenchProps> = ({
       setResult(generated);
       setResultPrompt(draftPrompt);
       replaceWorking({ ...generated.settings, searchUnpublished: !publishedOnly });
-      setTab('result');
     } catch (ex) {
       setError(getFilterAIErrorMessage(ex));
     } finally {
