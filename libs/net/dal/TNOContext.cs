@@ -48,6 +48,8 @@ public partial class TNOContext : DbContext
     #endregion
 
     #region Content
+    public DbSet<OrphanScan> OrphanScans => Set<OrphanScan>();
+    public DbSet<OrphanScanResult> OrphanScanResults => Set<OrphanScanResult>();
     public DbSet<Content> Contents => Set<Content>();
     public DbSet<ContentLog> ContentLogs => Set<ContentLog>();
     public DbSet<ContentReference> ContentReferences => Set<ContentReference>();

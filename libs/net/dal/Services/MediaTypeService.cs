@@ -17,6 +17,14 @@ public class MediaTypeService : BaseService<MediaType, int>, IMediaTypeService
     #endregion
 
     #region Methods
+    /// <summary>Prevent deleting a media type while content references it. The database also enforces this against concurrent changes.</summary>
+    public override void Delete(MediaType entity)
+    {
+        if (this.Context.Contents.Any(c => c.MediaTypeId == entity.Id))
+            throw new TNO.Core.Exceptions.BadRequestException("Cannot delete this media type because it is used by content.");
+        base.Delete(entity);
+    }
+
     public IEnumerable<MediaType> FindAll()
     {
         return this.Context.MediaTypes

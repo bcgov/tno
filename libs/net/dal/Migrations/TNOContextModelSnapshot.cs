@@ -1507,6 +1507,9 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "PublishedOn", "CreatedOn" }, "IX_content_dates");
 
+                    b.HasIndex(new[] { "PostedOn", "Id" }, "IX_content_posted_on_id")
+                        .HasAnnotation("Npgsql:CreatedConcurrently", true);
+
                     b.HasIndex(new[] { "PublishedOn" }, "IX_content_published_on")
                         .IsDescending();
 
@@ -4366,6 +4369,156 @@ namespace TNO.DAL.Migrations
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_organization_is_enabled");
 
                     b.ToTable("organization");
+                });
+
+            modelBuilder.Entity("TNO.Entities.OrphanScan", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<long>("After")
+                        .HasColumnType("bigint")
+                        .HasColumnName("after");
+
+                    b.Property<DateTime?>("AfterPostedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("after_posted_on");
+
+                    b.Property<bool>("CancelRequested")
+                        .HasColumnType("boolean")
+                        .HasColumnName("cancel_requested");
+
+                    b.Property<DateTime?>("CompletedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_on");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on");
+
+                    b.Property<DateOnly?>("EndPostedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("end_posted_on");
+
+                    b.Property<string>("Error")
+                        .HasColumnType("text")
+                        .HasColumnName("error");
+
+                    b.Property<long>("Found")
+                        .HasColumnType("bigint")
+                        .HasColumnName("found");
+
+                    b.Property<string>("Index")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("index");
+
+                    b.Property<long?>("MaxId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("max_id");
+
+                    b.Property<long>("MinId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("min_id");
+
+                    b.Property<DateTime>("NextBatchOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("next_batch_on");
+
+                    b.Property<long>("Pending")
+                        .HasColumnType("bigint")
+                        .HasColumnName("pending");
+
+                    b.Property<string>("PitId")
+                        .HasColumnType("text")
+                        .HasColumnName("pit_id");
+
+                    b.Property<long>("Scanned")
+                        .HasColumnType("bigint")
+                        .HasColumnName("scanned");
+
+                    b.Property<string>("SearchAfter")
+                        .HasColumnType("text")
+                        .HasColumnName("search_after");
+
+                    b.Property<string>("Side")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("side");
+
+                    b.Property<DateOnly?>("StartPostedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("start_posted_on");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on");
+
+                    b.Property<int>("WorkerSlot")
+                        .HasColumnType("integer")
+                        .HasColumnName("worker_slot");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedOn");
+
+                    b.HasIndex("WorkerSlot")
+                        .IsUnique()
+                        .HasFilter("completed_on IS NULL");
+
+                    b.ToTable("orphan_scan", "public");
+                });
+
+            modelBuilder.Entity("TNO.Entities.OrphanScanResult", b =>
+                {
+                    b.Property<Guid>("ScanId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("scan_id");
+
+                    b.Property<long>("ContentId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("content_id");
+
+                    b.Property<bool>("Confirmed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("confirmed");
+
+                    b.Property<DateTime>("DetectedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("detected_on");
+
+                    b.Property<string>("Headline")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("headline");
+
+                    b.Property<string>("Resolution")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("resolution");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.HasKey("ScanId", "ContentId");
+
+                    b.HasIndex("ScanId", "Confirmed", "ContentId");
+
+                    b.HasIndex("ScanId", "Confirmed", "DetectedOn");
+
+                    b.ToTable("orphan_scan_result", "public");
                 });
 
             modelBuilder.Entity("TNO.Entities.Product", b =>
@@ -7621,7 +7774,7 @@ namespace TNO.DAL.Migrations
                     b.HasOne("TNO.Entities.Contributor", "Contributor")
                         .WithMany("Contents")
                         .HasForeignKey("ContributorId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("TNO.Entities.IngestType", null)
                         .WithMany("Contents")
@@ -7630,13 +7783,13 @@ namespace TNO.DAL.Migrations
                     b.HasOne("TNO.Entities.License", "License")
                         .WithMany("Contents")
                         .HasForeignKey("LicenseId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("TNO.Entities.MediaType", "MediaType")
                         .WithMany("Contents")
                         .HasForeignKey("MediaTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("TNO.Entities.User", "Owner")
@@ -7647,12 +7800,12 @@ namespace TNO.DAL.Migrations
                     b.HasOne("TNO.Entities.Series", "Series")
                         .WithMany("Contents")
                         .HasForeignKey("SeriesId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("TNO.Entities.Source", "Source")
                         .WithMany("Contents")
                         .HasForeignKey("SourceId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Contributor");
 
@@ -8134,6 +8287,15 @@ namespace TNO.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("TNO.Entities.OrphanScanResult", b =>
+                {
+                    b.HasOne("TNO.Entities.OrphanScan", null)
+                        .WithMany()
+                        .HasForeignKey("ScanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("TNO.Entities.Quote", b =>

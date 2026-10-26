@@ -120,6 +120,14 @@ Uses `appsettings.Development.json` for local config. Requires a running Postgre
 - State management: **Redux** slices under `src/store/slices/`. API hooks under `src/store/hooks/`.
 - Use `Show` (from `tno-core`) for conditional rendering instead of inline ternaries where possible.
 
+#### Editor form alignment
+
+- Use the `tno-core` fields (`Select`, `SelectDate`, `Text`, or their Formik equivalents), including their `label` props, so each label and control share a `.frm-in` wrapper.
+- The global form rules in `app/editor/src/index.scss` own vertical spacing. Standalone `.frm-in` fields have `0.5em` bottom padding and zero bottom margin. Do not add field-specific margins, offsets, or transforms to align controls. The repeated `.frm-in` selector intentionally overrides later-injected component styles; `SelectDate` otherwise adds `0.25em` of bottom margin and shifts upward in a bottom-aligned row.
+- For rows of single-line labeled filters **and their action buttons**, use `<Row className="field-row" gap="1rem">`. Keep the fields and buttons as direct children (`Show` is fine because it renders no wrapper). The global `.field-row` rule aligns children to the bottom and removes the fields' bottom padding; `Row` provides wrapping and `gap` provides spacing. `alignItems="flex-end"` alone aligns wrapper boxes and leaves buttons `0.5em` below the input borders. Do not recreate this rule in feature styles or compensate with button margins.
+- For forms with validation messages or multiline labels, check the label, control, and error layout explicitly; aligning wrapper bottoms alone is insufficient.
+- Verify alignment in a real browser at wide and wrapped widths, including populated, empty, and disabled fields and every adjacent action button (including conditional buttons). Compare the visible control and button borders, not just wrapper boxes; jsdom tests do not measure layout. Run lint, relevant tests, and the Editor build before declaring the change complete.
+
 ### .NET / C#
 
 - API controllers live under `api/net/Controllers/`.

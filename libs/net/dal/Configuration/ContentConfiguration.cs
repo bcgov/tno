@@ -44,11 +44,11 @@ public class ContentConfiguration : AuditColumnsConfiguration<Content>
         builder.Property(m => m.Metadata).Metadata.SetBeforeSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior.Ignore);
         builder.Property(m => m.Metadata).Metadata.SetAfterSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior.Ignore);
 
-        builder.HasOne(m => m.Source).WithMany(m => m.Contents).HasForeignKey(m => m.SourceId).OnDelete(DeleteBehavior.Cascade);
-        builder.HasOne(m => m.MediaType).WithMany(m => m.Contents).HasForeignKey(m => m.MediaTypeId).OnDelete(DeleteBehavior.Cascade);
-        builder.HasOne(m => m.License).WithMany(m => m.Contents).HasForeignKey(m => m.LicenseId).OnDelete(DeleteBehavior.Cascade);
-        builder.HasOne(m => m.Series).WithMany(m => m.Contents).HasForeignKey(m => m.SeriesId).OnDelete(DeleteBehavior.Cascade);
-        builder.HasOne(m => m.Contributor).WithMany(m => m.Contents).HasForeignKey(m => m.ContributorId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(m => m.Source).WithMany(m => m.Contents).HasForeignKey(m => m.SourceId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(m => m.MediaType).WithMany(m => m.Contents).HasForeignKey(m => m.MediaTypeId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(m => m.License).WithMany(m => m.Contents).HasForeignKey(m => m.LicenseId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(m => m.Series).WithMany(m => m.Contents).HasForeignKey(m => m.SeriesId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(m => m.Contributor).WithMany(m => m.Contents).HasForeignKey(m => m.ContributorId).OnDelete(DeleteBehavior.SetNull);
         builder.HasOne(m => m.Owner).WithMany(m => m.Contents).HasForeignKey(m => m.OwnerId).OnDelete(DeleteBehavior.SetNull);
 
         builder.HasMany(m => m.Actions).WithMany(m => m.Contents).UsingEntity<ContentAction>();
@@ -56,6 +56,7 @@ public class ContentConfiguration : AuditColumnsConfiguration<Content>
         builder.HasMany(m => m.Tags).WithMany(m => m.Contents).UsingEntity<ContentTag>();
         builder.HasMany(m => m.TonePools).WithMany(m => m.Contents).UsingEntity<ContentTonePool>();
 
+        builder.HasIndex(m => new { m.PostedOn, m.Id }, "IX_content_posted_on_id").IsCreatedConcurrently();
         builder.HasIndex(m => new { m.PublishedOn, m.CreatedOn }, "IX_content_dates");
         builder.HasIndex(m => new { m.ContentType, m.OtherSource, m.Uid, m.Page, m.Status, m.IsHidden }, "IX_content");
         builder.HasIndex(m => new { m.Edition, m.Section, m.Byline }, "IX_print_content");

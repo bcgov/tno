@@ -13,6 +13,7 @@ public class IndexRequestFilter : IAsyncActionFilter
     #region Variables
     private readonly TNOContext _context;
     private readonly IIndexRequestSender _sender;
+    private readonly IIndexFailureNotifier _failureNotifier;
     #endregion
 
     #region Constructors
@@ -21,10 +22,12 @@ public class IndexRequestFilter : IAsyncActionFilter
     /// </summary>
     /// <param name="context"></param>
     /// <param name="sender"></param>
-    public IndexRequestFilter(TNOContext context, IIndexRequestSender sender)
+    /// <param name="failureNotifier">Support email alerts for unsent committed requests.</param>
+    public IndexRequestFilter(TNOContext context, IIndexRequestSender sender, IIndexFailureNotifier failureNotifier)
     {
         _context = context;
         _sender = sender;
+        _failureNotifier = failureNotifier;
     }
     #endregion
 
@@ -40,8 +43,9 @@ public class IndexRequestFilter : IAsyncActionFilter
         var executed = await next();
         if (executed.Exception != null && !executed.ExceptionHandled)
         {
-            // Nothing the failed action saved is sent.
-            _context.TakeIndexRequests();
+            // The action may have failed after committing. Alert support about any unsent committed changes.
+            var requests = _context.TakeIndexRequests();
+            if (requests.Count > 0) await _failureNotifier.NotifyAsync(requests, executed.Exception);
             return;
         }
         await _sender.SendAsync(_context);

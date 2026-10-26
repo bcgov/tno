@@ -213,6 +213,9 @@ builder.Services
     .AddSingleton<IS3StorageService, S3StorageService>()
     .AddTNOServices(config, env)
     .AddScoped<IIndexRequestSender, IndexRequestSender>()
+    .AddScoped<IIndexFailureNotifier, IndexFailureNotifier>()
+    .AddScoped<OrphanedContentService>()
+    .AddScoped<OrphanScanService>()
     .AddScoped<IAnalysisRequestSender, AnalysisRequestSender>()
     .AddScoped<IWorkOrderRequestSender, WorkOrderRequestSender>()
     .AddScoped<TNO.TemplateEngine.IReportAIResultStore, ReportAIResultStore>()
@@ -273,6 +276,13 @@ builder.Services.AddSignalR(options =>
     });
 
 builder.Services.AddHostedService<QueuedHostedService>();
+builder.Services.AddOptions<OrphanScanOptions>().Bind(builder.Configuration.GetSection("OrphanScan"))
+    .Validate(o => o.BatchSize >= 1 && o.BatchSize <= 500, "OrphanScan BatchSize must be from 1 to 500.")
+    .Validate(o => o.BatchDelayMilliseconds >= 1000 && o.BatchDelayMilliseconds <= 30000, "OrphanScan BatchDelayMilliseconds must be from 1000 to 30000.")
+    .Validate(o => o.GracePeriodSeconds >= 30 && o.GracePeriodSeconds <= 86400, "OrphanScan GracePeriodSeconds must be from 30 to 86400.")
+    .Validate(o => o.BatchTimeoutSeconds >= 5 && o.BatchTimeoutSeconds <= 60, "OrphanScan BatchTimeoutSeconds must be from 5 to 60.")
+    .ValidateOnStart();
+builder.Services.AddHostedService<OrphanScanWorker>();
 builder.Services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 
 var app = builder.Build();
