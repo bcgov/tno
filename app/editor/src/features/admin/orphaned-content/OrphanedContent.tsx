@@ -51,11 +51,13 @@ const Container = styled.div`
   display: flex;
   flex: 1;
   min-height: 0;
+  min-width: 0;
   padding: 1rem;
   > .form-page {
     display: flex;
     flex-direction: column;
     min-height: 0;
+    min-width: 0;
   }
   .scan-controls {
     flex: 0 1 auto;
@@ -75,7 +77,24 @@ const Container = styled.div`
   }
   table {
     width: 100%;
+    min-width: 54rem;
+    table-layout: fixed;
     border-collapse: collapse;
+  }
+  col.selection-column {
+    width: 3rem;
+  }
+  col.id-column {
+    width: 7rem;
+  }
+  col.source-column {
+    width: 12rem;
+  }
+  col.status-column {
+    width: 10rem;
+  }
+  col.actions-column {
+    width: 6rem;
   }
   th,
   td {
@@ -85,10 +104,14 @@ const Container = styled.div`
     vertical-align: middle;
   }
   th {
+    white-space: nowrap;
     background: #f2f2f2;
     position: sticky;
     top: 0;
     z-index: 1;
+  }
+  td {
+    overflow-wrap: anywhere;
   }
   .pagination {
     margin-left: auto;
@@ -112,7 +135,6 @@ const Container = styled.div`
     }
   }
   .selection {
-    width: 1%;
     white-space: nowrap;
   }
   .status {
@@ -513,6 +535,14 @@ const OrphanedContent: React.FC = () => {
             tabIndex={0}
           >
             <table>
+              <colgroup>
+                <col className="selection-column" />
+                <col className="id-column" />
+                <col className="source-column" />
+                <col />
+                <col className="status-column" />
+                <col className="actions-column" />
+              </colgroup>
               <thead>
                 <tr>
                   <th className="selection" scope="col">

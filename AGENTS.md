@@ -128,6 +128,11 @@ Uses `appsettings.Development.json` for local config. Requires a running Postgre
 - For forms with validation messages or multiline labels, check the label, control, and error layout explicitly; aligning wrapper bottoms alone is insufficient.
 - Verify alignment in a real browser at wide and wrapped widths, including populated, empty, and disabled fields and every adjacent action button (including conditional buttons). Compare the visible control and button borders, not just wrapper boxes; jsdom tests do not measure layout. Run lint, relevant tests, and the Editor build before declaring the change complete.
 
+#### Editor paginated tables
+
+- Keep column headers on one line and column widths stable across result pages. Use `table-layout: fixed` with a `colgroup` for bounded columns, leaving the main text column flexible; do not let each page's content determine the widths.
+- Give wide tables a minimum width and scroll inside their results panel on narrow screens. Allow body text to wrap, and verify header positions on first, next, and last pages as well as sticky headers and viewport bounds at narrow widths.
+
 ### .NET / C#
 
 - API controllers live under `api/net/Controllers/`.
