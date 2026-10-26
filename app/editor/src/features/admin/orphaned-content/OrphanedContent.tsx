@@ -41,11 +41,34 @@ const toDate = (day: string) => (day ? moment(day, DAY_FORMAT).toDate() : null);
 const toDay = (date: Date | null) => (date ? moment(date).format(DAY_FORMAT) : '');
 
 const Container = styled.div`
+  display: flex;
+  flex: 1;
+  min-height: 0;
   padding: 1rem;
+  > .form-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .scan-controls {
+    flex: 0 1 auto;
+    min-height: 0;
+    overflow: auto;
+    padding-bottom: 0.5rem;
+  }
+  .results-toolbar {
+    flex-shrink: 0;
+  }
+  .results-panel {
+    flex: 1 0 min(12rem, 35%);
+    min-height: 0;
+    overflow: auto;
+    margin-top: 1rem;
+    border: 1px solid #ddd;
+  }
   table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 1rem;
   }
   th,
   td {
@@ -56,6 +79,9 @@ const Container = styled.div`
   }
   th {
     background: #f2f2f2;
+    position: sticky;
+    top: 0;
+    z-index: 1;
   }
   .actions {
     display: flex;
@@ -294,105 +320,110 @@ const OrphanedContent: React.FC = () => {
   return (
     <Container>
       <FormPage>
-        <h1>Orphaned Content</h1>
-        <p>
-          Find content that exists in PostgreSQL or Elasticsearch but is missing from the other
-          store.
-        </p>
-        <Row className="field-row" gap="1rem">
-          <Select
-            name="side"
-            label="Find content"
-            width={FieldSize.Big}
-            options={sideOptions}
-            value={sideOptions.find((o) => o.value === side)}
-            isClearable={false}
-            isDisabled={busy || active || !loaded}
-            onChange={(newValue) => {
-              const option = newValue as OptionItem | undefined;
-              if (option) setSide(option.value as OrphanSide);
-            }}
-          />
-          <Select
-            name="index"
-            label="Compare with"
-            width={FieldSize.Big}
-            options={indexOptions}
-            value={indexOptions.find((o) => o.value === index)}
-            isClearable={false}
-            isDisabled={busy || active || !loaded}
-            onChange={(newValue) => {
-              const option = newValue as OptionItem | undefined;
-              if (option) setIndex(option.value as OrphanIndex);
-            }}
-          />
-          <SelectDate
-            id="txt-startPostedOn"
-            name="startPostedOn"
-            label="Start posted date (optional)"
-            width={FieldSize.Medium}
-            dateFormat="yyyy-MM-dd"
-            placeholderText="YYYY-MM-DD"
-            selected={toDate(startPostedOn)}
-            isClearable
-            disabled={busy || active || !loaded}
-            onChange={(date) => setStartPostedOn(toDay(date))}
-          />
-          <SelectDate
-            id="txt-endPostedOn"
-            name="endPostedOn"
-            label="End posted date (optional)"
-            width={FieldSize.Medium}
-            dateFormat="yyyy-MM-dd"
-            placeholderText="YYYY-MM-DD"
-            selected={toDate(endPostedOn)}
-            isClearable
-            disabled={busy || active || !loaded}
-            onChange={(date) => setEndPostedOn(toDay(date))}
-          />
-          <Button
-            variant={ButtonVariant.primary}
-            disabled={busy || active || !loaded}
-            onClick={start}
-          >
-            Start new scan
-          </Button>
-          <Show visible={active}>
-            <Button disabled={busy || job?.cancelRequested} onClick={cancel}>
-              Cancel scan
+        <div className="scan-controls">
+          <h1>Orphaned Content</h1>
+          <p>
+            Find content that exists in PostgreSQL or Elasticsearch but is missing from the other
+            store.
+          </p>
+          <Row className="field-row" gap="1rem">
+            <Select
+              name="side"
+              label="Find content"
+              width={FieldSize.Big}
+              options={sideOptions}
+              value={sideOptions.find((o) => o.value === side)}
+              isClearable={false}
+              isDisabled={busy || active || !loaded}
+              onChange={(newValue) => {
+                const option = newValue as OptionItem | undefined;
+                if (option) setSide(option.value as OrphanSide);
+              }}
+            />
+            <Select
+              name="index"
+              label="Compare with"
+              width={FieldSize.Big}
+              options={indexOptions}
+              value={indexOptions.find((o) => o.value === index)}
+              isClearable={false}
+              isDisabled={busy || active || !loaded}
+              onChange={(newValue) => {
+                const option = newValue as OptionItem | undefined;
+                if (option) setIndex(option.value as OrphanIndex);
+              }}
+            />
+            <SelectDate
+              id="txt-startPostedOn"
+              name="startPostedOn"
+              label="Start posted date (optional)"
+              width={FieldSize.Medium}
+              dateFormat="yyyy-MM-dd"
+              portalId="orphaned-content-datepicker"
+              placeholderText="YYYY-MM-DD"
+              selected={toDate(startPostedOn)}
+              isClearable
+              disabled={busy || active || !loaded}
+              onChange={(date) => setStartPostedOn(toDay(date))}
+            />
+            <SelectDate
+              id="txt-endPostedOn"
+              name="endPostedOn"
+              label="End posted date (optional)"
+              width={FieldSize.Medium}
+              dateFormat="yyyy-MM-dd"
+              portalId="orphaned-content-datepicker"
+              placeholderText="YYYY-MM-DD"
+              selected={toDate(endPostedOn)}
+              isClearable
+              disabled={busy || active || !loaded}
+              onChange={(date) => setEndPostedOn(toDay(date))}
+            />
+            <Button
+              variant={ButtonVariant.primary}
+              disabled={busy || active || !loaded}
+              onClick={start}
+            >
+              Start new scan
             </Button>
-          </Show>
-        </Row>
-        <p>
-          Private content is excluded from the PostgreSQL scan. The published index is compared only
-          with content marked for publication or already published.
-        </p>
-        <p>
-          Posted dates use Pacific time and include the entire end date. Leave either date blank for
-          an open-ended range. Content without a posted date is included only when both dates are
-          blank. Scans run in the background. Potential orphans are checked again after a grace
-          period to allow indexing to catch up. Recent PostgreSQL changes are excluded from this
-          run. Results reflect the time they were checked; each repair checks the content again.
-        </p>
-        <div className="status" role="status" aria-live="polite">
-          {notice}
-          <Show visible={!!job}>
-            <p>
-              {job?.status}: {job?.scanned.toLocaleString()} records checked;{' '}
-              {job?.pending.toLocaleString()} awaiting verification; {job?.found.toLocaleString()}{' '}
-              confirmed orphans.
-            </p>
-            <p>
-              Results for {job?.side} compared with the {job?.index} index. Started{' '}
-              {job && new Date(job.createdOn).toLocaleString()}. Posted dates (Pacific):{' '}
-              {job?.startPostedOn || 'Any'} through {job?.endPostedOn || 'Any'}.
-            </p>
-            <Show visible={!!job?.error}>
-              <p>{job?.error}</p>
+            <Show visible={active}>
+              <Button disabled={busy || job?.cancelRequested} onClick={cancel}>
+                Cancel scan
+              </Button>
             </Show>
-          </Show>
+          </Row>
+          <p>
+            Private content is excluded from the PostgreSQL scan. The published index is compared
+            only with content marked for publication or already published.
+          </p>
+          <p>
+            Posted dates use Pacific time and include the entire end date. Leave either date blank
+            for an open-ended range. Content without a posted date is included only when both dates
+            are blank. Scans run in the background. Potential orphans are checked again after a
+            grace period to allow indexing to catch up. Recent PostgreSQL changes are excluded from
+            this run. Results reflect the time they were checked; each repair checks the content
+            again.
+          </p>
+          <div className="status" role="status" aria-live="polite">
+            {notice}
+            <Show visible={!!job}>
+              <p>
+                {job?.status}: {job?.scanned.toLocaleString()} records checked;{' '}
+                {job?.pending.toLocaleString()} awaiting verification; {job?.found.toLocaleString()}{' '}
+                confirmed orphans.
+              </p>
+              <p>
+                Results for {job?.side} compared with the {job?.index} index. Started{' '}
+                {job && new Date(job.createdOn).toLocaleString()}. Posted dates (Pacific):{' '}
+                {job?.startPostedOn || 'Any'} through {job?.endPostedOn || 'Any'}.
+              </p>
+              <Show visible={!!job?.error}>
+                <p>{job?.error}</p>
+              </Show>
+            </Show>
+          </div>
         </div>
-        <Row gap="1rem" alignItems="center">
+        <Row className="results-toolbar" gap="1rem" alignItems="center">
           <Button
             disabled={busy || !job || selectedItems.length === 0}
             onClick={() =>
@@ -418,104 +449,111 @@ const OrphanedContent: React.FC = () => {
           </Show>
         </Row>
         <Show visible={items.length > 0}>
-          <table>
-            <thead>
-              <tr>
-                <th className="selection" scope="col">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    aria-label="Select all on this page"
-                    title="Select all unresolved content on this page"
-                    checked={allSelected}
-                    ref={(input) => {
-                      if (input) input.indeterminate = someSelected;
-                    }}
-                    disabled={busy || selectableItems.length === 0}
-                    onChange={(event) =>
-                      setSelected(
-                        event.target.checked
-                          ? new Set(selectableItems.map((item) => item.id))
-                          : new Set(),
-                      )
-                    }
-                  />
-                </th>
-                <th>ID</th>
-                <th>Headline</th>
-                <th>Content status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item) => (
-                <tr key={item.id}>
-                  <td className="selection">
+          <div
+            className="results-panel"
+            role="region"
+            aria-label="Orphaned content results"
+            tabIndex={0}
+          >
+            <table>
+              <thead>
+                <tr>
+                  <th className="selection" scope="col">
                     <input
                       className="form-check-input"
                       type="checkbox"
-                      aria-label={`Select content ${item.id}`}
-                      checked={!item.resolution && selected.has(item.id)}
-                      disabled={busy || !!item.resolution}
-                      onChange={(event) => {
-                        const checked = event.target.checked;
-                        setSelected((previous) => {
-                          const next = new Set(previous);
-                          if (checked) next.add(item.id);
-                          else next.delete(item.id);
-                          return next;
-                        });
+                      aria-label="Select all on this page"
+                      title="Select all unresolved content on this page"
+                      checked={allSelected}
+                      ref={(input) => {
+                        if (input) input.indeterminate = someSelected;
                       }}
+                      disabled={busy || selectableItems.length === 0}
+                      onChange={(event) =>
+                        setSelected(
+                          event.target.checked
+                            ? new Set(selectableItems.map((item) => item.id))
+                            : new Set(),
+                        )
+                      }
                     />
-                  </td>
-                  <td>{item.id}</td>
-                  <td>{item.headline}</td>
-                  <td>{item.status}</td>
-                  <td>
-                    <div className="actions">
-                      <Show visible={job?.side === 'elasticsearch' && !item.resolution}>
-                        <Button
-                          variant={ButtonVariant.link}
-                          title="Add to PostgreSQL"
-                          aria-label="Add to PostgreSQL"
-                          disabled={busy}
-                          onClick={() => setResolution({ items: [item], action: 'restore' })}
-                        >
-                          <FaSyncAlt aria-hidden="true" />
-                        </Button>
-                      </Show>
-                      <Show visible={job?.side === 'postgres' && !item.resolution}>
-                        <Button
-                          variant={ButtonVariant.link}
-                          title="Add to Elasticsearch"
-                          aria-label="Add to Elasticsearch"
-                          disabled={busy}
-                          onClick={() => setResolution({ items: [item], action: 'index' })}
-                        >
-                          <FaSyncAlt aria-hidden="true" />
-                        </Button>
-                      </Show>
-                      <Show visible={!!item.resolution}>
-                        <span>
-                          {item.resolution}. Start another scan to verify the current state.
-                        </span>
-                      </Show>
-                      <Button
-                        disabled={busy || !!item.resolution}
-                        variant={ButtonVariant.link}
-                        className="delete-content"
-                        title="Delete content"
-                        aria-label="Delete content"
-                        onClick={() => setResolution({ items: [item], action: 'delete' })}
-                      >
-                        <FaTrash aria-hidden="true" />
-                      </Button>
-                    </div>
-                  </td>
+                  </th>
+                  <th>ID</th>
+                  <th>Headline</th>
+                  <th>Content status</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {items.map((item) => (
+                  <tr key={item.id}>
+                    <td className="selection">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        aria-label={`Select content ${item.id}`}
+                        checked={!item.resolution && selected.has(item.id)}
+                        disabled={busy || !!item.resolution}
+                        onChange={(event) => {
+                          const checked = event.target.checked;
+                          setSelected((previous) => {
+                            const next = new Set(previous);
+                            if (checked) next.add(item.id);
+                            else next.delete(item.id);
+                            return next;
+                          });
+                        }}
+                      />
+                    </td>
+                    <td>{item.id}</td>
+                    <td>{item.headline}</td>
+                    <td>{item.status}</td>
+                    <td>
+                      <div className="actions">
+                        <Show visible={job?.side === 'elasticsearch' && !item.resolution}>
+                          <Button
+                            variant={ButtonVariant.link}
+                            title="Add to PostgreSQL"
+                            aria-label="Add to PostgreSQL"
+                            disabled={busy}
+                            onClick={() => setResolution({ items: [item], action: 'restore' })}
+                          >
+                            <FaSyncAlt aria-hidden="true" />
+                          </Button>
+                        </Show>
+                        <Show visible={job?.side === 'postgres' && !item.resolution}>
+                          <Button
+                            variant={ButtonVariant.link}
+                            title="Add to Elasticsearch"
+                            aria-label="Add to Elasticsearch"
+                            disabled={busy}
+                            onClick={() => setResolution({ items: [item], action: 'index' })}
+                          >
+                            <FaSyncAlt aria-hidden="true" />
+                          </Button>
+                        </Show>
+                        <Show visible={!!item.resolution}>
+                          <span>
+                            {item.resolution}. Start another scan to verify the current state.
+                          </span>
+                        </Show>
+                        <Button
+                          disabled={busy || !!item.resolution}
+                          variant={ButtonVariant.link}
+                          className="delete-content"
+                          title="Delete content"
+                          aria-label="Delete content"
+                          onClick={() => setResolution({ items: [item], action: 'delete' })}
+                        >
+                          <FaTrash aria-hidden="true" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </Show>
         <Show visible={job?.status === 'Completed' && job.found === 0}>
           <p>No orphaned content found for this comparison.</p>
