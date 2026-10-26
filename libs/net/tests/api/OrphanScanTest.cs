@@ -78,6 +78,45 @@ public partial class OrphanedContentTest
     }
 
     [DatabaseFact]
+    public async Task ResultNavigationUsesBoundedCursorsAndAlignsTheLastPage()
+    {
+        await using var context = Context();
+        var service = Scans(context);
+        foreach (var count in new[] { 0, 1, 3, 4, 6, 7 })
+        {
+            var job = new OrphanScan { Side = "postgres", Found = count, Status = "Completed", CompletedOn = DateTime.UtcNow };
+            context.OrphanScans.Add(job);
+            var ids = Enumerable.Range(1, count).Select(x => (long)x * 10).ToArray();
+            foreach (var id in ids)
+                context.OrphanScanResults.Add(new OrphanScanResult { ScanId = job.Id, ContentId = id, Confirmed = true, Resolution = "Restored" });
+            // Unconfirmed candidates must not affect page boundaries.
+            context.OrphanScanResults.Add(new OrphanScanResult { ScanId = job.Id, ContentId = 9999 });
+            await context.SaveChangesAsync();
+            var first = await service.ResultsAsync(job.Id, 0, 3, default);
+            Assert.Equal(ids.Take(3), first.Items.Select(x => x.Id));
+            Assert.False(first.HasPrevious);
+            Assert.Equal(count > 3, first.HasMore);
+            var last = await service.ResultsAsync(job.Id, 0, 3, default, last: true);
+            var lastSize = count == 0 ? 0 : (count - 1) % 3 + 1;
+            Assert.Equal(ids.TakeLast(lastSize), last.Items.Select(x => x.Id));
+            Assert.False(last.HasMore);
+            Assert.Equal(count > 3, last.HasPrevious);
+            if (last.HasPrevious)
+            {
+                var previous = await service.ResultsAsync(job.Id, 0, 3, default, before: last.Items[0].Id);
+                Assert.Equal(ids.SkipLast(lastSize).TakeLast(3), previous.Items.Select(x => x.Id));
+                Assert.True(previous.HasMore);
+                Assert.Equal(count - lastSize > 3, previous.HasPrevious);
+                var next = await service.ResultsAsync(job.Id, previous.NextAfter, 3, default);
+                Assert.Equal(last.Items.Select(x => x.Id), next.Items.Select(x => x.Id));
+            }
+        }
+        await Assert.ThrowsAsync<BadRequestException>(() => service.ResultsAsync(Guid.NewGuid(), 0, 3, default, before: 0));
+        await Assert.ThrowsAsync<BadRequestException>(() => service.ResultsAsync(Guid.NewGuid(), 1, 3, default, last: true));
+        await Assert.ThrowsAsync<BadRequestException>(() => service.ResultsAsync(Guid.NewGuid(), 0, 3, default, before: 10, last: true));
+    }
+
+    [DatabaseFact]
     public async Task ResultsLoadElasticsearchSourcesOnlyForTheDisplayedPage()
     {
         await using var context = Context();

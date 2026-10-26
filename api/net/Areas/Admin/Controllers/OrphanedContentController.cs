@@ -34,10 +34,10 @@ public class OrphanedContentController(OrphanedContentService service, OrphanSca
         return Accepted(new { message = "Cancellation requested." });
     }
 
-    /// <summary>Return a bounded page of confirmed orphan results after the supplied content ID.</summary>
+    /// <summary>Return a bounded page of confirmed results after or before a content ID, or the last page.</summary>
     [HttpGet("scans/{scanId:guid}/results")]
-    public Task<OrphanScanResults> Results(Guid scanId, long after = 0, int limit = 100, CancellationToken cancellationToken = default)
-        => scans.ResultsAsync(scanId, after, limit, cancellationToken);
+    public Task<OrphanScanResults> Results(Guid scanId, long after = 0, int limit = 100, CancellationToken cancellationToken = default, long? before = null, bool last = false)
+        => scans.ResultsAsync(scanId, after, limit, cancellationToken, before, last);
 
     /// <summary>Send a database-only item through the normal indexing workflow.</summary>
     [HttpPost("{id:long}/index")]

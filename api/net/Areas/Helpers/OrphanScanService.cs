@@ -38,7 +38,8 @@ public record OrphanScanStatus(Guid Id, string Side, string Index, string Status
 /// <param name="Items">Content items in this page.</param>
 /// <param name="NextAfter">Content ID cursor for requesting the next page.</param>
 /// <param name="HasMore">Whether further results exist after this page.</param>
-public record OrphanScanResults(OrphanedContentItem[] Items, long NextAfter, bool HasMore);
+/// <param name="HasPrevious">Whether results exist before this page.</param>
+public record OrphanScanResults(OrphanedContentItem[] Items, long NextAfter, bool HasMore, bool HasPrevious = false);
 
 /// <summary>
 /// Durable, single-batch reconciliation. No full content documents or unbounded result collections
@@ -88,18 +89,36 @@ public class OrphanScanService(TNOContext context, OrphanedContentService conten
     }
 
     /// <summary>Read a bounded page of confirmed results ordered by content ID.</summary>
-    public async Task<OrphanScanResults> ResultsAsync(Guid id, long after, int limit, CancellationToken ct)
+    public async Task<OrphanScanResults> ResultsAsync(Guid id, long after, int limit, CancellationToken ct, long? before = null, bool last = false)
     {
-        if (after < 0 || limit < 1 || limit > 200) throw new BadRequestException("Use a non-negative cursor and a page size from 1 to 200.");
-        var rows = await context.OrphanScanResults.AsNoTracking()
-            .Where(x => x.ScanId == id && x.Confirmed && x.ContentId > after).OrderBy(x => x.ContentId)
-            .Select(x => new OrphanedContentItem(x.ContentId, x.Headline, x.Status, x.Resolution, "")).Take(limit + 1).ToArrayAsync(ct);
-        var page = rows.Take(limit).ToArray();
+        if (after < 0 || before <= 0 || limit < 1 || limit > 200)
+            throw new BadRequestException("Use a non-negative after cursor, a positive before cursor, and a page size from 1 to 200.");
+        if (after > 0 && (before.HasValue || last) || before.HasValue && last)
+            throw new BadRequestException("Choose only one pagination direction.");
+        var job = await context.OrphanScans.AsNoTracking().SingleOrDefaultAsync(x => x.Id == id, ct);
+        if (job == null) return new([], 0, false, false);
+        var results = context.OrphanScanResults.AsNoTracking().Where(x => x.ScanId == id && x.Confirmed);
+        var backwards = before.HasValue || last;
+        // Found is maintained with confirmed results in the worker transaction. Use it to align
+        // the last page without COUNT/OFFSET or walking every preceding page.
+        var pageSize = last && job.Found % limit > 0 ? (int)(job.Found % limit) : limit;
+        var query = before.HasValue ? results.Where(x => x.ContentId < before.Value)
+            : last ? results : results.Where(x => x.ContentId > after);
+        var ordered = backwards ? query.OrderByDescending(x => x.ContentId) : query.OrderBy(x => x.ContentId);
+        var rows = await ordered.Select(x => new OrphanedContentItem(x.ContentId, x.Headline, x.Status, x.Resolution, ""))
+            .Take(pageSize + 1).ToArrayAsync(ct);
+        var page = rows.Take(pageSize).ToArray();
+        if (backwards) Array.Reverse(page);
+        var hasPrevious = backwards && rows.Length > pageSize;
+        var hasMore = !backwards && rows.Length > pageSize;
         if (page.Length > 0)
         {
+            var firstId = page[0].Id;
+            var lastId = page[^1].Id;
+            if (backwards) hasMore = await results.AnyAsync(x => x.ContentId > lastId, ct);
+            else hasPrevious = await results.AnyAsync(x => x.ContentId < firstId, ct);
             // Enrich only the displayed page, including results saved before this field was added.
             // Use OtherSource, as the Editor's other content lists do; no full documents are loaded.
-            var job = await context.OrphanScans.AsNoTracking().SingleAsync(x => x.Id == id, ct);
             var ids = page.Select(x => x.Id).ToArray();
             var sources = new Dictionary<long, string>();
             if (job.Side == "postgres")
@@ -122,7 +141,7 @@ public class OrphanScanService(TNOContext context, OrphanedContentService conten
             }
             page = page.Select(x => x with { OtherSource = sources.GetValueOrDefault(x.Id, "") }).ToArray();
         }
-        return new(page, page.LastOrDefault()?.Id ?? after, rows.Length > limit);
+        return new(page, page.LastOrDefault()?.Id ?? after, hasMore, hasPrevious);
     }
 
     /// <summary>Record the successful repair outcome on a confirmed scan result.</summary>

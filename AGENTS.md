@@ -200,7 +200,14 @@ After making any code changes, **always build the affected project and resolve a
 
 If the build fails: read the error output, fix the root cause, rebuild, and repeat until clean. Do not stop while there are build errors.
 
-A stop hook at `.claude/scripts/build-verify.sh` enforces this automatically by detecting changed files via `git status` and running the appropriate build.
+### Before committing, pushing, or creating a PR
+
+- Run the affected project's CI lint command as well as its build and relevant tests. For .NET projects, use `dotnet format <project.csproj> --verify-no-changes`; for Editor changes, run ESLint on changed TypeScript files (including tests) and `yarn build`. Use the SDK and Node versions required by the repository/CI.
+- For API changes, also run `dotnet build api/net/TNO.API.csproj -warnaserror:CS1591`. The API project treats CS1591 as an error by default, so missing XML documentation also fails ordinary local and CI builds. This includes public endpoints, records, configuration properties, and protected overrides. Add meaningful XML documentation or `inheritdoc` where appropriate; do not suppress the warning.
+- Review the build log for **new compiler warnings**, not only the exit code. A successful build can still produce GitHub warning annotations. Fix warnings introduced by the change before committing. Verify any claimed pre-existing warning against the base revision and report it separately; do not dismiss new warnings as existing noise.
+- After the final edit, rerun affected checks. Do not rely on a passing check from an earlier version of the files. After pushing, inspect the relevant GitHub checks and annotations for the current PR head SHA, and state explicitly if CI is still pending.
+
+The stop hook at `.claude/scripts/build-verify.sh` detects changed files via `git status` and runs the appropriate build. It does not replace the lint checks, tests, or warning review required above.
 
 ---
 

@@ -123,6 +123,7 @@ it('replaces the results page instead of accumulating records in memory', async 
           items: [{ ...orphan, id: 800, headline: 'Second page' }],
           nextAfter: 800,
           hasMore: false,
+          hasPrevious: true,
         },
   );
   renderPage();
@@ -134,10 +135,65 @@ it('replaces the results page instead of accumulating records in memory', async 
   expect(screen.getByRole('button', { name: 'Sync all' })).toBeDisabled();
   expect(screen.getByRole('checkbox', { name: 'Select content 800' })).not.toBeChecked();
   expect(screen.queryByText('Orphan story')).not.toBeInTheDocument();
-  expect(api.results).toHaveBeenLastCalledWith('scan-1', 700);
+  expect(api.results).toHaveBeenLastCalledWith('scan-1', 700, undefined, false);
   await user.click(screen.getByRole('button', { name: 'First results page' }));
   expect(await screen.findByText('Orphan story')).toBeInTheDocument();
   expect(screen.getByRole('checkbox', { name: 'Select content 700' })).not.toBeChecked();
+});
+
+it('navigates first, previous, next and last using accessible icon buttons', async () => {
+  const user = userEvent.setup();
+  api.latest.mockResolvedValue(completed);
+  api.results.mockImplementation(async (_id, after, before, last) => {
+    const id =
+      last || after === 200
+        ? 300
+        : before === 200
+        ? 100
+        : after === 100 || before === 300
+        ? 200
+        : 100;
+    return {
+      items: [{ ...orphan, id, headline: `Page ${id}` }],
+      nextAfter: id,
+      hasMore: id !== 300,
+      hasPrevious: id !== 100,
+    };
+  });
+  renderPage();
+  await screen.findByText('Page 100');
+  for (const direction of ['First', 'Previous', 'Next', 'Last']) {
+    const button = screen.getByRole('button', { name: `${direction} results page` });
+    expect(button.textContent).toBe('');
+    expect(button).toHaveAttribute('title', `${direction} page`);
+  }
+  expect(screen.getByRole('button', { name: 'First results page' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Previous results page' })).toBeDisabled();
+  await user.click(screen.getByRole('button', { name: 'Last results page' }));
+  await screen.findByText('Page 300');
+  expect(api.results).toHaveBeenLastCalledWith('scan-1', 0, undefined, true);
+  expect(screen.getByRole('button', { name: 'Next results page' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Last results page' })).toBeDisabled();
+  await user.click(screen.getByRole('button', { name: 'Previous results page' }));
+  await screen.findByText('Page 200');
+  expect(api.results).toHaveBeenLastCalledWith('scan-1', 0, 300, false);
+  await user.click(screen.getByRole('button', { name: 'Previous results page' }));
+  await screen.findByText('Page 100');
+  await user.click(screen.getByRole('button', { name: 'Next results page' }));
+  await screen.findByText('Page 200');
+  expect(api.results).toHaveBeenLastCalledWith('scan-1', 100, undefined, false);
+  await user.click(screen.getByRole('button', { name: 'First results page' }));
+  await screen.findByText('Page 100');
+  expect(api.results).toHaveBeenLastCalledWith('scan-1', 0, undefined, false);
+});
+
+it('disables all page navigation for a single results page', async () => {
+  api.latest.mockResolvedValue(completed);
+  renderPage();
+  await screen.findByText('Orphan story');
+  for (const direction of ['First', 'Previous', 'Next', 'Last']) {
+    expect(screen.getByRole('button', { name: `${direction} results page` })).toBeDisabled();
+  }
 });
 
 it('selects individual rows or all unresolved rows on the page and uses accessible icon actions', async () => {
@@ -316,6 +372,12 @@ it.each(['postgres', 'elasticsearch'])('shows the source for %s results', async 
   renderPage();
   expect(await screen.findByRole('columnheader', { name: 'Source' })).toBeInTheDocument();
   expect(screen.getByRole('cell', { name: 'Vancouver Sun' })).toBeInTheDocument();
+  expect(
+    screen
+      .getAllByRole('columnheader')
+      .slice(1, 4)
+      .map((cell) => cell.textContent),
+  ).toEqual(['ID', 'Source', 'Headline']);
   expect(screen.getByRole('cell', { name: '—' })).toBeInTheDocument();
 });
 

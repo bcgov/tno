@@ -32,6 +32,7 @@ export interface IOrphanScanResults {
   items: IOrphanedContent[];
   nextAfter: number;
   hasMore: boolean;
+  hasPrevious: boolean;
 }
 
 export const useOrphanedContent = () => {
@@ -66,11 +67,11 @@ export const useOrphanedContent = () => {
           api.post(`/admin/orphaned-content/scans/${id}/cancel`),
         );
       },
-      results: async (id: string, after: number) => {
+      results: async (id: string, after: number, before?: number, last?: boolean) => {
         const result = await dispatch('orphan-scan-results', () =>
           api.get<never, AxiosResponse<IOrphanScanResults>, any>(
             `/admin/orphaned-content/scans/${id}/results`,
-            { params: { after, limit: 100 } },
+            { params: { after, before, last, limit: 100 } },
           ),
         );
         return result.data;

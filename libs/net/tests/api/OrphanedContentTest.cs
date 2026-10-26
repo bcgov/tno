@@ -196,9 +196,15 @@ public partial class OrphanedContentTest : IAsyncLifetime
         Assert.Throws<BadRequestException>(() => new SeriesService(context, _user, _services, NullLogger<SeriesService>.Instance).Delete(series));
         Assert.Throws<BadRequestException>(() => new LicenseService(context, _user, _services, NullLogger<LicenseService>.Instance).Delete(context.Licenses.Find(_license)!));
         Assert.Throws<BadRequestException>(() => new MediaTypeService(context, _user, _services, NullLogger<MediaTypeService>.Instance).Delete(context.MediaTypes.Find(_media)!));
-        foreach (var table in new[] { ("source", source.Id), ("series", series.Id), ("license", _license), ("media_type", _media) })
+        foreach (var (sql, id) in new[]
         {
-            var error = await Assert.ThrowsAsync<PostgresException>(() => context.Database.ExecuteSqlRawAsync($"DELETE FROM public.{table.Item1} WHERE id = {{0}}", table.Item2));
+            ("DELETE FROM public.source WHERE id = {0}", source.Id),
+            ("DELETE FROM public.series WHERE id = {0}", series.Id),
+            ("DELETE FROM public.license WHERE id = {0}", _license),
+            ("DELETE FROM public.media_type WHERE id = {0}", _media),
+        })
+        {
+            var error = await Assert.ThrowsAsync<PostgresException>(() => context.Database.ExecuteSqlRawAsync(sql, id));
             Assert.Equal("23503", error.SqlState);
         }
         Assert.True(await context.Contents.AnyAsync(c => c.Id == content.Id));

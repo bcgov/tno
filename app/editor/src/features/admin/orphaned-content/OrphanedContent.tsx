@@ -1,7 +1,14 @@
 import { FormPage } from 'components/formpage';
 import moment from 'moment-timezone';
 import React from 'react';
-import { FaSyncAlt, FaTrash } from 'react-icons/fa';
+import {
+  FaAngleDoubleLeft,
+  FaAngleDoubleRight,
+  FaAngleLeft,
+  FaAngleRight,
+  FaSyncAlt,
+  FaTrash,
+} from 'react-icons/fa';
 import {
   IOrphanedContent,
   IOrphanScan,
@@ -83,7 +90,11 @@ const Container = styled.div`
     top: 0;
     z-index: 1;
   }
-  .actions {
+  .pagination {
+    margin-left: auto;
+  }
+  .actions,
+  .pagination {
     display: flex;
     gap: 0.5rem;
     align-items: center;
@@ -123,6 +134,9 @@ const OrphanedContent: React.FC = () => {
   const [selected, setSelected] = React.useState<Set<number>>(() => new Set());
   const [job, setJob] = React.useState<IOrphanScan | null>(null);
   const [pageAfter, setPageAfter] = React.useState(0);
+  const [pageBefore, setPageBefore] = React.useState<number>();
+  const [pageLast, setPageLast] = React.useState(false);
+  const [hasPrevious, setHasPrevious] = React.useState(false);
   const [nextAfter, setNextAfter] = React.useState(0);
   const [hasMore, setHasMore] = React.useState(false);
   // New-scan defaults use Pacific calendar dates, independent of the previous scan.
@@ -164,10 +178,18 @@ const OrphanedContent: React.FC = () => {
           setSide(latest.side);
           setIndex(latest.index);
           setPageAfter(0);
+          setPageBefore(undefined);
+          setPageLast(false);
+          setHasPrevious(false);
           setResolution(undefined);
         }
         if (latest) {
-          const result = await api.results(latest.id, changed ? 0 : pageAfter);
+          const result = await api.results(
+            latest.id,
+            changed ? 0 : pageAfter,
+            changed ? undefined : pageBefore,
+            changed ? false : pageLast,
+          );
           if (disposed || version !== refreshVersion.current) return;
           setItems(result.items);
           setSelected((previous) => {
@@ -178,6 +200,7 @@ const OrphanedContent: React.FC = () => {
           });
           setNextAfter(result.nextAfter);
           setHasMore(result.hasMore);
+          setHasPrevious(!!result.hasPrevious);
         }
       } catch (error) {
         if (!disposed && version === refreshVersion.current) {
@@ -205,7 +228,7 @@ const OrphanedContent: React.FC = () => {
       disposed = true;
       clearTimeout(timer);
     };
-  }, [api, pageAfter, busy]);
+  }, [api, pageAfter, pageBefore, pageLast, busy]);
 
   const start = async () => {
     if (startPostedOn && endPostedOn && endPostedOn < startPostedOn) {
@@ -224,6 +247,9 @@ const OrphanedContent: React.FC = () => {
       setItems([]);
       setSelected(new Set());
       setPageAfter(0);
+      setPageBefore(undefined);
+      setPageLast(false);
+      setHasPrevious(false);
       setHasMore(false);
       setNotice('Scan started. You can leave this page and return later.');
     } catch (error) {
@@ -308,13 +334,16 @@ const OrphanedContent: React.FC = () => {
     }
   };
 
-  const changePage = (after: number) => {
+  const changePage = (after: number, before?: number, last = false) => {
     refreshVersion.current++;
     setSelected(new Set());
     setItems([]);
     setHasMore(false);
     setResolution(undefined);
     setPageAfter(after);
+    setPageBefore(before);
+    setPageLast(last);
+    setHasPrevious(false);
   };
 
   return (
@@ -437,16 +466,44 @@ const OrphanedContent: React.FC = () => {
             Sync all
           </Button>
           <span>{selectedItems.length} selected on this page</span>
-          <Show visible={pageAfter > 0}>
-            <Button disabled={busy} onClick={() => changePage(0)}>
-              First results page
+          <nav className="pagination" aria-label="Results pages">
+            <Button
+              variant={ButtonVariant.secondary}
+              title="First page"
+              aria-label="First results page"
+              disabled={busy || !job || !items.length || !hasPrevious}
+              onClick={() => changePage(0)}
+            >
+              <FaAngleDoubleLeft aria-hidden="true" />
             </Button>
-          </Show>
-          <Show visible={hasMore}>
-            <Button disabled={busy} onClick={() => changePage(nextAfter)}>
-              Next results page
+            <Button
+              variant={ButtonVariant.secondary}
+              title="Previous page"
+              aria-label="Previous results page"
+              disabled={busy || !job || !items.length || !hasPrevious}
+              onClick={() => changePage(0, items[0]?.id)}
+            >
+              <FaAngleLeft aria-hidden="true" />
             </Button>
-          </Show>
+            <Button
+              variant={ButtonVariant.secondary}
+              title="Next page"
+              aria-label="Next results page"
+              disabled={busy || !job || !items.length || !hasMore}
+              onClick={() => changePage(nextAfter)}
+            >
+              <FaAngleRight aria-hidden="true" />
+            </Button>
+            <Button
+              variant={ButtonVariant.secondary}
+              title="Last page"
+              aria-label="Last results page"
+              disabled={busy || !job || !items.length || !hasMore}
+              onClick={() => changePage(0, undefined, true)}
+            >
+              <FaAngleDoubleRight aria-hidden="true" />
+            </Button>
+          </nav>
         </Row>
         <Show visible={items.length > 0}>
           <div
@@ -479,8 +536,8 @@ const OrphanedContent: React.FC = () => {
                     />
                   </th>
                   <th>ID</th>
-                  <th>Headline</th>
                   <th>Source</th>
+                  <th>Headline</th>
                   <th>Content status</th>
                   <th>Actions</th>
                 </tr>
@@ -507,8 +564,8 @@ const OrphanedContent: React.FC = () => {
                       />
                     </td>
                     <td>{item.id}</td>
-                    <td>{item.headline}</td>
                     <td>{item.otherSource || '—'}</td>
+                    <td>{item.headline}</td>
                     <td>{item.status}</td>
                     <td>
                       <div className="actions">
