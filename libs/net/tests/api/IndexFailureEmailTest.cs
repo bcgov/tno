@@ -5,6 +5,7 @@ using Elastic.Clients.Elasticsearch;
 using Elastic.Transport;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -40,13 +41,21 @@ public class IndexFailureEmailTest
     }
 
     [Fact]
-    public async Task ApiEmailFailureDoesNotReplaceOriginalError()
+    public async Task ApiEmailFailureDoesNotReplaceOriginalErrorOrLogPrivateDetails()
     {
         var ches = new Mock<IChesService>();
-        ches.Setup(c => c.SendEmailAsync(It.IsAny<IEmail>())).ThrowsAsync(new Exception("CHES unavailable"));
+        var privateDetails = "private-recipient@example.test\r\nConfidential email body";
+        ches.Setup(c => c.SendEmailAsync(It.IsAny<IEmail>())).ThrowsAsync(new Exception(privateDetails));
         var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?> { ["Service:EmailTo"] = "support@example.test" }).Build();
-        var notifier = new IndexFailureNotifier(ches.Object, Options.Create(new ChesOptions()), configuration, NullLogger<IndexFailureNotifier>.Instance);
+        var logger = new Mock<ILogger<IndexFailureNotifier>>();
+        var notifier = new IndexFailureNotifier(ches.Object, Options.Create(new ChesOptions()), configuration, logger.Object);
         await notifier.NotifyAsync([], new Exception("Kafka unavailable"));
+        var log = Assert.Single(logger.Invocations.Where(i => i.Method.Name == "Log"));
+        Assert.Equal(LogLevel.Error, log.Arguments[0]);
+        Assert.Null(log.Arguments[3]);
+        Assert.Contains("Failed to send index failure email", log.Arguments[2].ToString());
+        Assert.DoesNotContain("private-recipient", log.Arguments[2].ToString());
+        Assert.DoesNotContain("Confidential email body", log.Arguments[2].ToString());
     }
 
     [Theory]

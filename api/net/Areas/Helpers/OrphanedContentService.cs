@@ -174,7 +174,10 @@ public class OrphanedContentService(TNOContext context, IContentService contents
             }
         }
         await transaction.CommitAsync(cancellationToken);
-        logger.LogInformation("Administrator deleted content {ContentId} from orphan scan {ScanId} ({Side}).", id, scanId, side);
+        // Keep request-derived audit fields on one line and use fixed labels for the validated store.
+        var auditScanId = (scanId?.ToString("D") ?? "none").Replace("\r", "").Replace("\n", "");
+        var auditSide = side == "postgres" ? "postgres" : "elasticsearch";
+        logger.LogInformation("Administrator deleted content {ContentId} from orphan scan {ScanId} ({Side}).", id, auditScanId, auditSide);
     }
 
     private Task<int> LockAsync(long id, CancellationToken cancellationToken)

@@ -38,9 +38,10 @@ public class IndexFailureNotifier(IChesService ches, IOptions<ChesOptions> optio
                 "<p>Database changes committed, but their index requests were not delivered. Review Orphaned Content in the Editor.</p>" +
                 $"<pre>{WebUtility.HtmlEncode(changes)}\n{WebUtility.HtmlEncode(error.ToString())}</pre>"));
         }
-        catch (Exception emailError)
+        catch (Exception)
         {
-            logger.LogError(emailError, "Failed to send index failure email to support.");
+            // CHES exceptions can include recipients or the email body. Keep these out of application logs.
+            logger.LogError("Failed to send index failure email to support. Check email service health and configuration.");
         }
     }
 }

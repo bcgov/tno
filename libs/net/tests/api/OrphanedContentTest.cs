@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -87,7 +88,7 @@ public partial class OrphanedContentTest : IAsyncLifetime
         context.Contents.Add(content); context.SaveChanges(); return content;
     }
 
-    private (OrphanedContentService Service, Mock<ITNOElasticClient> Elastic) Service(TNOContext context, object[] documents, bool timedOut = false)
+    private (OrphanedContentService Service, Mock<ITNOElasticClient> Elastic) Service(TNOContext context, object[] documents, bool timedOut = false, ILogger<OrphanedContentService>? logger = null)
     {
         var body = JsonSerializer.Serialize(new { timed_out = timedOut, _shards = new { failed = 0 }, hits = new { hits = documents } }, _json);
         var connection = new InMemoryConnection(Encoding.UTF8.GetBytes(body));
@@ -95,7 +96,7 @@ public partial class OrphanedContentTest : IAsyncLifetime
         var elastic = new Mock<ITNOElasticClient>();
         elastic.SetupGet(c => c.LowLevel).Returns(client.LowLevel);
         var contentService = new ContentService(context, _user, _services, elastic.Object, NullLogger<ContentService>.Instance);
-        return (new OrphanedContentService(context, contentService, elastic.Object, Options.Create(new ElasticOptions()), Options.Create(_json), NullLogger<OrphanedContentService>.Instance), elastic);
+        return (new OrphanedContentService(context, contentService, elastic.Object, Options.Create(new ElasticOptions()), Options.Create(_json), logger ?? NullLogger<OrphanedContentService>.Instance), elastic);
     }
 
     private object Hit(ContentModel model, long revision = 5) => new { _id = model.Id.ToString(), _version = revision, _source = model };
@@ -150,12 +151,22 @@ public partial class OrphanedContentTest : IAsyncLifetime
     {
         await using var context = Context();
         var content = Content(context);
-        var (service, _) = Service(context, []);
+        var logger = new Mock<ILogger<OrphanedContentService>>();
+        var (service, _) = Service(context, [], logger: logger.Object);
+        foreach (var side in new[] { "postgres\r\nForged log entry", "elasticsearch\nForged log entry" })
+            await Assert.ThrowsAsync<BadRequestException>(() => service.DeleteAsync(content.Id, side, "content", default));
+        Assert.Empty(logger.Invocations);
+        Assert.True(await context.Contents.AnyAsync(c => c.Id == content.Id));
         await service.IndexAsync(content.Id, "content", default);
         Assert.Equal(IndexRequestAction.Publish, Assert.Single(context.TakeIndexRequests()).Action);
         await service.DeleteAsync(content.Id, "postgres", "content", default);
         Assert.Equal(IndexRequestAction.Delete, Assert.Single(context.TakeIndexRequests()).Action);
         Assert.False(await context.Contents.AnyAsync(c => c.Id == content.Id));
+        var log = logger.Invocations.Last(i => i.Method.Name == "Log");
+        var fields = Assert.IsAssignableFrom<IEnumerable<KeyValuePair<string, object?>>>(log.Arguments[2]).ToDictionary(x => x.Key, x => x.Value);
+        Assert.Equal(content.Id, fields["ContentId"]);
+        Assert.Equal("none", fields["ScanId"]);
+        Assert.Equal("postgres", fields["Side"]);
     }
 
     [DatabaseFact]
@@ -170,7 +181,8 @@ public partial class OrphanedContentTest : IAsyncLifetime
             var result = new OrphanScanResult { ScanId = job.Id, ContentId = item.Id, Confirmed = true };
             context.OrphanScanResults.Add(result);
             await context.SaveChangesAsync();
-            var (service, _) = Service(context, [Hit(new ContentModel { Id = item.Id })]);
+            var logger = new Mock<ILogger<OrphanedContentService>>();
+            var (service, _) = Service(context, [Hit(new ContentModel { Id = item.Id })], logger: logger.Object);
             await Assert.ThrowsAsync<BadRequestException>(() => service.DeleteAsync(item.Id, side, "content", default, job.Id));
             result.Resolution = side == "postgres" ? "Indexing queued" : "Restored";
             await context.SaveChangesAsync();
@@ -181,6 +193,13 @@ public partial class OrphanedContentTest : IAsyncLifetime
             var request = Assert.Single(context.TakeIndexRequests());
             Assert.Equal(item.Id, request.ContentId);
             Assert.Equal(IndexRequestAction.Delete, request.Action);
+            var log = Assert.Single(logger.Invocations.Where(i => i.Method.Name == "Log"));
+            var fields = Assert.IsAssignableFrom<IEnumerable<KeyValuePair<string, object?>>>(log.Arguments[2]).ToDictionary(x => x.Key, x => x.Value);
+            Assert.Equal(item.Id, fields["ContentId"]);
+            Assert.Equal(job.Id.ToString("D"), fields["ScanId"]);
+            Assert.Equal(side, fields["Side"]);
+            Assert.DoesNotContain("\r", log.Arguments[2].ToString());
+            Assert.DoesNotContain("\n", log.Arguments[2].ToString());
         }
     }
 
