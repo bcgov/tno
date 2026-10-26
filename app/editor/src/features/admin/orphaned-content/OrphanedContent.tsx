@@ -480,6 +480,7 @@ const OrphanedContent: React.FC = () => {
                   </th>
                   <th>ID</th>
                   <th>Headline</th>
+                  <th>Source</th>
                   <th>Content status</th>
                   <th>Actions</th>
                 </tr>
@@ -507,6 +508,7 @@ const OrphanedContent: React.FC = () => {
                     </td>
                     <td>{item.id}</td>
                     <td>{item.headline}</td>
+                    <td>{item.otherSource || '—'}</td>
                     <td>{item.status}</td>
                     <td>
                       <div className="actions">
@@ -532,16 +534,21 @@ const OrphanedContent: React.FC = () => {
                             <FaSyncAlt aria-hidden="true" />
                           </Button>
                         </Show>
-                        <Show visible={!!item.resolution}>
-                          <span>
-                            {item.resolution}. Start another scan to verify the current state.
-                          </span>
+                        <Show visible={!!item.resolution && item.resolution !== 'Deleted'}>
+                          <Button
+                            variant={ButtonVariant.link}
+                            disabled
+                            title="Synced"
+                            aria-label="Synced"
+                          >
+                            <FaSyncAlt aria-hidden="true" />
+                          </Button>
                         </Show>
                         <Button
-                          disabled={busy || !!item.resolution}
+                          disabled={busy || item.resolution === 'Deleted'}
                           variant={ButtonVariant.link}
                           className="delete-content"
-                          title="Delete content"
+                          title={item.resolution === 'Deleted' ? 'Deleted' : 'Delete content'}
                           aria-label="Delete content"
                           onClick={() => setResolution({ items: [item], action: 'delete' })}
                         >
@@ -585,7 +592,7 @@ const OrphanedContent: React.FC = () => {
               </Show>
               <Show visible={resolution?.action === 'delete'}>
                 <p>
-                  Delete this content from its existing store and remove its search copies? Deleting
+                  Delete this content from PostgreSQL and Elasticsearch wherever it exists? Deleting
                   from PostgreSQL also removes related content records, including report membership.
                   This cannot be undone.
                 </p>

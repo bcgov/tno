@@ -278,7 +278,7 @@ it('clears the previous selection when starting a new scan', async () => {
   expect(api.resolve).not.toHaveBeenCalled();
 });
 
-it('shows persisted indexing requests as queued and prevents repeated repair', async () => {
+it('shows a disabled synced icon after indexing and prevents repeated repair', async () => {
   const user = userEvent.setup();
   api.latest.mockResolvedValue({ ...completed, side: 'postgres' });
   api.resolve.mockImplementation(async () => {
@@ -292,11 +292,88 @@ it('shows persisted indexing requests as queued and prevents repeated repair', a
   renderPage();
   await user.click(await screen.findByRole('button', { name: 'Add to Elasticsearch' }));
   await user.click(screen.getByRole('button', { name: 'Confirm', hidden: true }));
+  const synced = await screen.findByRole('button', { name: 'Synced' });
+  expect(synced).toBeDisabled();
+  expect(synced).toHaveAttribute('title', 'Synced');
+  expect(synced.textContent).toBe('');
   expect(
-    await screen.findByText('Indexing queued. Start another scan to verify the current state.'),
-  ).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'Delete content' })).toBeDisabled();
+    screen.queryByText(/Start another scan to verify the current state/),
+  ).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Delete content' })).toBeEnabled();
   expect(api.resolve).toHaveBeenCalledWith(700, 'index', 'postgres', 'content', 'scan-1');
+});
+
+it.each(['postgres', 'elasticsearch'])('shows the source for %s results', async (side) => {
+  api.latest.mockResolvedValue({ ...completed, side });
+  api.results.mockResolvedValue({
+    items: [
+      { ...orphan, otherSource: 'Vancouver Sun' },
+      { ...orphan, id: 701 },
+    ],
+    nextAfter: 701,
+    hasMore: false,
+  });
+  renderPage();
+  expect(await screen.findByRole('columnheader', { name: 'Source' })).toBeInTheDocument();
+  expect(screen.getByRole('cell', { name: 'Vancouver Sun' })).toBeInTheDocument();
+  expect(screen.getByRole('cell', { name: '—' })).toBeInTheDocument();
+});
+
+it.each([
+  ['Restored', 'Synced'],
+  ['Deleted', 'Deleted'],
+])('shows a disabled icon for persisted %s results', async (resolution, tooltip) => {
+  api.latest.mockResolvedValue(completed);
+  api.results.mockResolvedValue({
+    items: [{ ...orphan, resolution }],
+    nextAfter: 700,
+    hasMore: false,
+  });
+  renderPage();
+  const icon = await screen.findByRole('button', {
+    name: resolution === 'Deleted' ? 'Delete content' : 'Synced',
+  });
+  expect(icon).toBeDisabled();
+  expect(icon).toHaveAttribute('title', tooltip);
+  expect(icon.textContent).toBe('');
+  expect(screen.getByRole('checkbox', { name: 'Select content 700' })).toBeDisabled();
+  if (resolution === 'Deleted') {
+    expect(screen.getByRole('button', { name: 'Delete content' })).toBeDisabled();
+  } else {
+    expect(screen.getByRole('button', { name: 'Delete content' })).toBeEnabled();
+  }
+});
+
+it.each([
+  ['postgres', 'Indexing queued'],
+  ['elasticsearch', 'Restored'],
+])('allows confirmed deletion after syncing %s content', async (side, resolution) => {
+  const user = userEvent.setup();
+  api.latest.mockResolvedValue({ ...completed, side });
+  api.results.mockResolvedValue({
+    items: [{ ...orphan, resolution }],
+    nextAfter: 700,
+    hasMore: false,
+  });
+  api.resolve.mockImplementation(async () => {
+    api.results.mockResolvedValue({
+      items: [{ ...orphan, resolution: 'Deleted' }],
+      nextAfter: 700,
+      hasMore: false,
+    });
+    return { message: 'Content deleted.' };
+  });
+  renderPage();
+  await user.click(await screen.findByRole('button', { name: 'Delete content' }));
+  expect(api.resolve).not.toHaveBeenCalled();
+  expect(
+    screen.getByText(/Delete this content from PostgreSQL and Elasticsearch wherever it exists/),
+  ).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Confirm', hidden: true }));
+  await waitFor(() =>
+    expect(screen.getByRole('button', { name: 'Delete content' })).toBeDisabled(),
+  );
+  expect(api.resolve).toHaveBeenCalledWith(700, 'delete', side, 'content', 'scan-1');
 });
 
 it.each([

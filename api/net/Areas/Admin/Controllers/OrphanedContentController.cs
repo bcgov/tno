@@ -26,6 +26,7 @@ public class OrphanedContentController(OrphanedContentService service, OrphanSca
     public async Task<IActionResult> Start(StartOrphanScan request, CancellationToken cancellationToken)
         => Accepted(await scans.StartAsync(request, cancellationToken));
 
+    /// <summary>Request cancellation of an active scan at its next batch boundary.</summary>
     [HttpPost("scans/{scanId:guid}/cancel")]
     public async Task<IActionResult> Cancel(Guid scanId, CancellationToken cancellationToken)
     {
@@ -33,6 +34,7 @@ public class OrphanedContentController(OrphanedContentService service, OrphanSca
         return Accepted(new { message = "Cancellation requested." });
     }
 
+    /// <summary>Return a bounded page of confirmed orphan results after the supplied content ID.</summary>
     [HttpGet("scans/{scanId:guid}/results")]
     public Task<OrphanScanResults> Results(Guid scanId, long after = 0, int limit = 100, CancellationToken cancellationToken = default)
         => scans.ResultsAsync(scanId, after, limit, cancellationToken);
@@ -57,12 +59,13 @@ public class OrphanedContentController(OrphanedContentService service, OrphanSca
         return Ok(new { message = "Content restored to PostgreSQL. Search refresh queued." });
     }
 
-    /// <summary>Delete a freshly verified orphan from its existing store and clean up its search copies.</summary>
+    /// <summary>Delete a current orphan or a previously synced result and clean up its search copies.</summary>
     [HttpDelete("{id:long}")]
     public async Task<IActionResult> Delete(long id, string side, string index = "content", Guid? scanId = null, CancellationToken cancellationToken = default)
     {
-        await service.DeleteAsync(id, side, index, cancellationToken);
+        await service.DeleteAsync(id, side, index, cancellationToken, scanId);
+        await sender.SendAsync(context);
         await scans.MarkResolvedAsync(scanId, id, "Deleted", cancellationToken);
-        return Ok(new { message = side == "postgres" ? "Content deleted. Search cleanup queued." : "Content deleted from Elasticsearch." });
+        return Ok(new { message = "Content deleted. Any queued search cleanup will be processed by the indexer." });
     }
 }

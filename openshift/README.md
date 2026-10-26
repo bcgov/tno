@@ -404,4 +404,10 @@ when available; a published-only copy may lack an unapproved transcript. Missing
 records block restoration (a missing optional contributor is cleared). Search documents
 cannot recover deleted media files, report membership, deliveries, or analysis history.
 Deleting a PostgreSQL orphan also deletes its related records through the existing cascades.
+The results show Source using the same `otherSource` field as the Editor content lists.
+Source lookups are limited to the displayed page; unavailable values display a dash.
+Synced results show a disabled sync icon. Delete remains available after syncing and removes
+the PostgreSQL record, if present, with search cleanup queued through the indexer. The API
+requires a saved successful repair for that scan result before allowing deletion of synced
+content; unresolved results still require a fresh orphan check.
 All scan and repair endpoints under `/api/admin/orphaned-content` require Administrator.

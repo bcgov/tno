@@ -8,6 +8,7 @@ export type OrphanIndex = 'content' | 'published';
 export interface IOrphanedContent {
   id: number;
   headline: string;
+  otherSource?: string;
   status: string;
   resolution?: string;
 }

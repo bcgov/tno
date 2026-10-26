@@ -8,10 +8,36 @@ using TNO.Entities;
 
 namespace TNO.API.Helpers;
 
+/// <summary>Store comparison and optional posted-date bounds for a new scan.</summary>
+/// <param name="Side">Store to search for content missing from the other store.</param>
+/// <param name="Index">Configured search index selector: content or published.</param>
+/// <param name="StartPostedOn">Inclusive first Pacific calendar day, or null for no lower bound.</param>
+/// <param name="EndPostedOn">Inclusive last Pacific calendar day, or null for no upper bound.</param>
 public record StartOrphanScan(string Side = "elasticsearch", string Index = "content", DateOnly? StartPostedOn = null, DateOnly? EndPostedOn = null);
+
+/// <summary>Persisted progress and outcome of a background orphan scan.</summary>
+/// <param name="Id">Scan identifier.</param>
+/// <param name="Side">Store being searched for orphaned content.</param>
+/// <param name="Index">Configured search index selector.</param>
+/// <param name="Status">Current scan lifecycle state.</param>
+/// <param name="StartPostedOn">Inclusive first Pacific calendar day, if restricted.</param>
+/// <param name="EndPostedOn">Inclusive last Pacific calendar day, if restricted.</param>
+/// <param name="Scanned">Number of content IDs examined.</param>
+/// <param name="Pending">Number of candidates awaiting confirmation.</param>
+/// <param name="Found">Number of confirmed orphans.</param>
+/// <param name="CancelRequested">Whether cancellation has been requested.</param>
+/// <param name="CreatedOn">UTC time the scan was created.</param>
+/// <param name="UpdatedOn">UTC time of the latest persisted progress.</param>
+/// <param name="CompletedOn">UTC time the scan finished, or null while active.</param>
+/// <param name="Error">Failure description, if the scan could not finish.</param>
 public record OrphanScanStatus(Guid Id, string Side, string Index, string Status, DateOnly? StartPostedOn, DateOnly? EndPostedOn,
     long Scanned, long Pending, long Found, bool CancelRequested, DateTime CreatedOn, DateTime UpdatedOn,
     DateTime? CompletedOn, string? Error);
+
+/// <summary>A bounded page of confirmed orphan results.</summary>
+/// <param name="Items">Content items in this page.</param>
+/// <param name="NextAfter">Content ID cursor for requesting the next page.</param>
+/// <param name="HasMore">Whether further results exist after this page.</param>
 public record OrphanScanResults(OrphanedContentItem[] Items, long NextAfter, bool HasMore);
 
 /// <summary>
@@ -27,12 +53,14 @@ public class OrphanScanService(TNOContext context, OrphanedContentService conten
         job.StartPostedOn, job.EndPostedOn, job.Scanned, job.Pending, job.Found, job.CancelRequested,
         job.CreatedOn, job.UpdatedOn, job.CompletedOn, job.Error);
 
+    /// <summary>Return the most recently created scan, or null if no scan exists.</summary>
     public async Task<OrphanScanStatus?> LatestAsync(CancellationToken ct)
     {
         var job = await context.OrphanScans.AsNoTracking().OrderByDescending(x => x.CreatedOn).FirstOrDefaultAsync(ct);
         return job == null ? null : Status(job);
     }
 
+    /// <summary>Validate and persist a scan, rejecting it if another scan is active.</summary>
     public async Task<OrphanScanStatus> StartAsync(StartOrphanScan request, CancellationToken ct)
     {
         OrphanedContentService.ValidateSide(request.Side);
@@ -52,22 +80,52 @@ public class OrphanScanService(TNOContext context, OrphanedContentService conten
         return Status(job);
     }
 
+    /// <summary>Record a cancellation request for an active scan.</summary>
     public async Task CancelAsync(Guid id, CancellationToken ct)
     {
         await context.OrphanScans.Where(x => x.Id == id && x.CompletedOn == null)
             .ExecuteUpdateAsync(s => s.SetProperty(x => x.CancelRequested, true), ct);
     }
 
+    /// <summary>Read a bounded page of confirmed results ordered by content ID.</summary>
     public async Task<OrphanScanResults> ResultsAsync(Guid id, long after, int limit, CancellationToken ct)
     {
         if (after < 0 || limit < 1 || limit > 200) throw new BadRequestException("Use a non-negative cursor and a page size from 1 to 200.");
         var rows = await context.OrphanScanResults.AsNoTracking()
             .Where(x => x.ScanId == id && x.Confirmed && x.ContentId > after).OrderBy(x => x.ContentId)
-            .Select(x => new OrphanedContentItem(x.ContentId, x.Headline, x.Status, x.Resolution)).Take(limit + 1).ToArrayAsync(ct);
+            .Select(x => new OrphanedContentItem(x.ContentId, x.Headline, x.Status, x.Resolution, "")).Take(limit + 1).ToArrayAsync(ct);
         var page = rows.Take(limit).ToArray();
+        if (page.Length > 0)
+        {
+            // Enrich only the displayed page, including results saved before this field was added.
+            // Use OtherSource, as the Editor's other content lists do; no full documents are loaded.
+            var job = await context.OrphanScans.AsNoTracking().SingleAsync(x => x.Id == id, ct);
+            var ids = page.Select(x => x.Id).ToArray();
+            var sources = new Dictionary<long, string>();
+            if (job.Side == "postgres")
+                sources = await context.Contents.AsNoTracking().Where(x => ids.Contains(x.Id))
+                    .Select(x => new { x.Id, x.OtherSource }).ToDictionaryAsync(x => x.Id, x => x.OtherSource, ct);
+            else
+            {
+                try
+                {
+                    var hits = await SearchIdsAsync(job.Index, ids, true, ct);
+                    sources = hits.ToDictionary(Id, hit =>
+                        hit.GetProperty("_source").TryGetProperty("otherSource", out var source) && source.ValueKind == JsonValueKind.String
+                            ? source.GetString() ?? "" : "");
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    // Saved results remain usable if the optional display lookup is unavailable.
+                    logger.LogWarning(ex, "Unable to load sources for orphan scan {ScanId} results", id);
+                }
+            }
+            page = page.Select(x => x with { OtherSource = sources.GetValueOrDefault(x.Id, "") }).ToArray();
+        }
         return new(page, page.LastOrDefault()?.Id ?? after, rows.Length > limit);
     }
 
+    /// <summary>Record the successful repair outcome on a confirmed scan result.</summary>
     public Task MarkResolvedAsync(Guid? scanId, long contentId, string resolution, CancellationToken ct)
         => context.OrphanScanResults.Where(x => x.ScanId == scanId && x.ContentId == contentId && x.Confirmed)
             .ExecuteUpdateAsync(s => s.SetProperty(x => x.Resolution, resolution), ct);
@@ -226,9 +284,9 @@ public class OrphanScanService(TNOContext context, OrphanedContentService conten
         var indexed = hits.ToDictionary(Id);
         var database = job.Side == "postgres"
             ? await PostedContent(job).Where(x => ids.Contains(x.Id) && x.UpdatedOn <= cutoff)
-                .Select(x => new OrphanedContentItem(x.Id, x.Headline, x.Status.ToString(), "")).ToArrayAsync(ct)
+                .Select(x => new OrphanedContentItem(x.Id, x.Headline, x.Status.ToString(), "", "")).ToArrayAsync(ct)
             : await context.Contents.AsNoTracking().Where(x => ids.Contains(x.Id))
-                .Select(x => new OrphanedContentItem(x.Id, "", "", "")).ToArrayAsync(ct);
+                .Select(x => new OrphanedContentItem(x.Id, "", "", "", "")).ToArrayAsync(ct);
         var existing = database.ToDictionary(x => x.Id);
         foreach (var candidate in candidates)
         {
@@ -285,7 +343,7 @@ public class OrphanScanService(TNOContext context, OrphanedContentService conten
         {
             size = ids.Length,
             track_total_hits = false,
-            _source = display ? (object)new[] { "id", "headline", "status" } : false,
+            _source = display ? (object)new[] { "id", "headline", "status", "otherSource" } : false,
             query = new
             {
                 @bool = new

@@ -13,7 +13,7 @@ using TNO.Entities;
 namespace TNO.API.Helpers;
 
 /// <summary>A content item present in only one of the stores being compared.</summary>
-public record OrphanedContentItem(long Id, string Headline, string Status, string Resolution = "");
+public record OrphanedContentItem(long Id, string Headline, string Status, string Resolution = "", string OtherSource = "");
 /// <summary>Compare the configured search indexes with PostgreSQL and repair individual items.</summary>
 public class OrphanedContentService(TNOContext context, IContentService contents, ITNOElasticClient elastic,
     IOptions<ElasticOptions> elasticOptions, IOptions<JsonSerializerOptions> jsonOptions,
@@ -144,15 +144,22 @@ public class OrphanedContentService(TNOContext context, IContentService contents
         logger.LogInformation("Administrator restored orphaned content {ContentId} to PostgreSQL from {Index}.", id, full != null ? "content" : "published");
     }
 
-    /// <summary>Delete an item only while it remains orphaned; never accept a client-supplied document.</summary>
-    public async Task DeleteAsync(long id, string side, string index, CancellationToken cancellationToken)
+    /// <summary>Delete a current orphan or an item previously synced through the specified scan.</summary>
+    public async Task DeleteAsync(long id, string side, string index, CancellationToken cancellationToken, Guid? scanId = null)
     {
+        ValidateSide(side);
+        _ = Index(index);
         await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
         await LockAsync(id, cancellationToken);
-        await RequireOrphanAsync(id, side, index, cancellationToken);
-        if (side == "postgres")
+        // Only a persisted successful repair allows this page to delete content that is now
+        // present in both stores. An unresolved or client-invented scan cannot bypass the orphan check.
+        var synced = scanId.HasValue && await context.OrphanScanResults.AnyAsync(x =>
+            x.ScanId == scanId && x.ContentId == id && x.Confirmed &&
+            (x.Resolution == "Indexing queued" || x.Resolution == "Restored"), cancellationToken);
+        if (!synced) await RequireOrphanAsync(id, side, index, cancellationToken);
+        var entity = side == "postgres" || synced ? contents.FindById(id) : null;
+        if (entity != null)
         {
-            var entity = contents.FindById(id) ?? throw new BadRequestException("Content no longer exists.");
             context.RequestIndex(id, IndexRequestAction.Delete);
             context.Contents.Remove(entity);
             context.SaveChanges();
@@ -167,7 +174,7 @@ public class OrphanedContentService(TNOContext context, IContentService contents
             }
         }
         await transaction.CommitAsync(cancellationToken);
-        logger.LogInformation("Administrator deleted orphaned content {ContentId} from {Side}.", id, side);
+        logger.LogInformation("Administrator deleted content {ContentId} from orphan scan {ScanId} ({Side}).", id, scanId, side);
     }
 
     private Task<int> LockAsync(long id, CancellationToken cancellationToken)

@@ -3,6 +3,7 @@ namespace TNO.API.Helpers;
 /// <summary>One small durable batch per scope; never retain content or results between batches.</summary>
 public class OrphanScanWorker(IServiceScopeFactory scopes, ILogger<OrphanScanWorker> logger) : BackgroundService
 {
+    /// <inheritdoc />
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)

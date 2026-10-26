@@ -72,8 +72,45 @@ public partial class OrphanedContentTest
         var first = await service.ResultsAsync(id, 0, 2, default);
         var second = await service.ResultsAsync(id, first.NextAfter, 2, default);
         Assert.Equal(2, first.Items.Length);
+        Assert.All(first.Items, x => Assert.Equal("Test", x.OtherSource));
         Assert.True(first.HasMore);
         Assert.All(second.Items, x => Assert.True(x.Id > first.NextAfter));
+    }
+
+    [DatabaseFact]
+    public async Task ResultsLoadElasticsearchSourcesOnlyForTheDisplayedPage()
+    {
+        await using var context = Context();
+        var job = new OrphanScan { Side = "elasticsearch", Index = "published", Status = "Completed", CompletedOn = DateTime.UtcNow };
+        context.OrphanScans.Add(job);
+        foreach (var id in new long[] { 9001, 9002, 9003 })
+            context.OrphanScanResults.Add(new OrphanScanResult { ScanId = job.Id, ContentId = id, Confirmed = true, Headline = "Saved result" });
+        await context.SaveChangesAsync();
+        var requests = new List<JsonElement>();
+        var service = Scans(context, request =>
+        {
+            using var stream = new MemoryStream();
+            request.PostData!.Write(stream, request.ConnectionSettings);
+            using var body = JsonDocument.Parse(stream.ToArray());
+            requests.Add(body.RootElement.Clone());
+            return Hits(new { _id = "9001", _source = new { otherSource = "Vancouver Sun" } }, new { _id = "9002", _source = new { } });
+        });
+        var results = await service.ResultsAsync(job.Id, 0, 2, default);
+        var request = Assert.Single(requests);
+        Assert.Equal(2, request.GetProperty("size").GetInt32());
+        Assert.Contains("otherSource", request.GetProperty("_source").EnumerateArray().Select(x => x.GetString()));
+        var ids = request.GetProperty("query").GetProperty("bool").GetProperty("filter")[0].GetProperty("ids").GetProperty("values");
+        Assert.Equal(new[] { "9001", "9002" }, ids.EnumerateArray().Select(x => x.GetString()));
+        Assert.Equal("Vancouver Sun", results.Items[0].OtherSource);
+        Assert.Equal("", results.Items[1].OtherSource);
+        Assert.True(results.HasMore);
+        Assert.Equal(9002, results.NextAfter);
+
+        var unavailable = Scans(context, _ => new { timed_out = true, _shards = new { failed = 0 }, hits = new { hits = Array.Empty<object>() } });
+        var saved = await unavailable.ResultsAsync(job.Id, 0, 2, default);
+        Assert.Equal(2, saved.Items.Length);
+        Assert.All(saved.Items, x => Assert.Equal("Saved result", x.Headline));
+        Assert.All(saved.Items, x => Assert.Equal("", x.OtherSource));
     }
 
     [DatabaseFact]

@@ -159,6 +159,32 @@ public partial class OrphanedContentTest : IAsyncLifetime
     }
 
     [DatabaseFact]
+    public async Task SyncedScanResultsCanDeleteDatabaseContentAndQueueSearchCleanup()
+    {
+        await using var context = Context();
+        foreach (var side in new[] { "postgres", "elasticsearch" })
+        {
+            var item = Content(context);
+            var job = new OrphanScan { Side = side, Status = "Completed", CompletedOn = DateTime.UtcNow };
+            context.OrphanScans.Add(job);
+            var result = new OrphanScanResult { ScanId = job.Id, ContentId = item.Id, Confirmed = true };
+            context.OrphanScanResults.Add(result);
+            await context.SaveChangesAsync();
+            var (service, _) = Service(context, [Hit(new ContentModel { Id = item.Id })]);
+            await Assert.ThrowsAsync<BadRequestException>(() => service.DeleteAsync(item.Id, side, "content", default, job.Id));
+            result.Resolution = side == "postgres" ? "Indexing queued" : "Restored";
+            await context.SaveChangesAsync();
+            await Assert.ThrowsAsync<BadRequestException>(() => service.DeleteAsync(item.Id, side, "content", default, Guid.NewGuid()));
+            context.TakeIndexRequests();
+            await service.DeleteAsync(item.Id, side, "content", default, job.Id);
+            Assert.False(await context.Contents.AnyAsync(x => x.Id == item.Id));
+            var request = Assert.Single(context.TakeIndexRequests());
+            Assert.Equal(item.Id, request.ContentId);
+            Assert.Equal(IndexRequestAction.Delete, request.Action);
+        }
+    }
+
+    [DatabaseFact]
     public async Task LookupGuardsAndDatabaseConstraintsPreserveContent()
     {
         await using var context = Context();
