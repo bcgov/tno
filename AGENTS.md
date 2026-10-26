@@ -120,6 +120,19 @@ Uses `appsettings.Development.json` for local config. Requires a running Postgre
 - State management: **Redux** slices under `src/store/slices/`. API hooks under `src/store/hooks/`.
 - Use `Show` (from `tno-core`) for conditional rendering instead of inline ternaries where possible.
 
+#### Editor form alignment
+
+- Use the `tno-core` fields (`Select`, `SelectDate`, `Text`, or their Formik equivalents), including their `label` props, so each label and control share a `.frm-in` wrapper.
+- The global form rules in `app/editor/src/index.scss` own vertical spacing. Standalone `.frm-in` fields have `0.5em` bottom padding and zero bottom margin. Do not add field-specific margins, offsets, or transforms to align controls. The repeated `.frm-in` selector intentionally overrides later-injected component styles; `SelectDate` otherwise adds `0.25em` of bottom margin and shifts upward in a bottom-aligned row.
+- For rows of single-line labeled filters **and their action buttons**, use `<Row className="field-row" gap="1rem">`. Keep the fields and buttons as direct children (`Show` is fine because it renders no wrapper). The global `.field-row` rule aligns children to the bottom and removes the fields' bottom padding; `Row` provides wrapping and `gap` provides spacing. `alignItems="flex-end"` alone aligns wrapper boxes and leaves buttons `0.5em` below the input borders. Do not recreate this rule in feature styles or compensate with button margins.
+- For forms with validation messages or multiline labels, check the label, control, and error layout explicitly; aligning wrapper bottoms alone is insufficient.
+- Verify alignment in a real browser at wide and wrapped widths, including populated, empty, and disabled fields and every adjacent action button (including conditional buttons). Compare the visible control and button borders, not just wrapper boxes; jsdom tests do not measure layout. Run lint, relevant tests, and the Editor build before declaring the change complete.
+
+#### Editor paginated tables
+
+- Keep column headers on one line and column widths stable across result pages. Use `table-layout: fixed` with a `colgroup` for bounded columns, leaving the main text column flexible; do not let each page's content determine the widths.
+- Give wide tables a minimum width and scroll inside their results panel on narrow screens. Allow body text to wrap, and verify header positions on first, next, and last pages as well as sticky headers and viewport bounds at narrow widths.
+
 ### .NET / C#
 
 - API controllers live under `api/net/Controllers/`.
@@ -129,7 +142,9 @@ Uses `appsettings.Development.json` for local config. Requires a running Postgre
 
 ### Database Migrations
 
-Migrations are SQL files in `db/postgres/`. Name new migrations with the current version prefix (e.g., `1.5.0-`). Run via the API on startup or manually via `make db-migrate`.
+EF Core migrations and their model snapshot live in `libs/net/dal/Migrations/`; database deployment assets live in `db/postgres/`. Use the current version as the migration name and keep **one new migration per PR**, including its designer and the final model snapshot.
+
+If the user requests consolidating migrations already applied locally, back up affected data and roll back with the existing migration files before replacing them. Reapply the consolidated migration, restore any backed-up feature data, and verify `__EFMigrationsHistory`, rollback/reapplication tests, and `dotnet ef migrations has-pending-model-changes`. Do not merely delete migration-history rows or rewrite migrations deployed to shared environments.
 
 ### Branch & PR Conventions
 
@@ -190,7 +205,14 @@ After making any code changes, **always build the affected project and resolve a
 
 If the build fails: read the error output, fix the root cause, rebuild, and repeat until clean. Do not stop while there are build errors.
 
-A stop hook at `.claude/scripts/build-verify.sh` enforces this automatically by detecting changed files via `git status` and running the appropriate build.
+### Before committing, pushing, or creating a PR
+
+- Run the affected project's CI lint command as well as its build and relevant tests. For .NET projects, use `dotnet format <project.csproj> --verify-no-changes`; for Editor changes, run ESLint on changed TypeScript files (including tests) and `yarn build`. Use the SDK and Node versions required by the repository/CI.
+- For API changes, run a fresh CI-equivalent build: `dotnet build api/net/TNO.API.csproj --configuration Release --no-incremental`. The API treats XML diagnostics CS1570, CS1572, CS1573, CS1574, CS1584, CS1587, and CS1591 as errors, covering missing summaries, malformed XML, parameter/signature mismatches, unresolved references, and misplaced comments. Document public endpoints, records, properties, and protected overrides; update parameter tags when signatures change. Do not suppress the diagnostics. Follow the [build verification skill](.codex/skills/build-verify.md), including current-head GitHub annotation checks.
+- Review the build log for **new compiler warnings**, not only the exit code. A successful build can still produce GitHub warning annotations. Fix warnings introduced by the change before committing. Verify any claimed pre-existing warning against the base revision and report it separately; do not dismiss new warnings as existing noise.
+- After the final edit, rerun affected checks. Do not rely on a passing check from an earlier version of the files. After pushing, inspect the relevant GitHub checks and annotations for the current PR head SHA, and state explicitly if CI is still pending.
+
+The stop hook at `.claude/scripts/build-verify.sh` detects changed files via `git status` and runs the appropriate build. It does not replace the lint checks, tests, or warning review required above.
 
 ---
 

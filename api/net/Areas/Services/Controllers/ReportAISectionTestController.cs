@@ -40,7 +40,7 @@ public class ReportAISectionTestController : ControllerBase
     /// <summary>
     /// Creates a new instance of a ReportAISectionTestController object, initializes with specified parameters.
     /// </summary>
-    /// <param name="cache"></param>
+    /// <param name="store">Persists AI section test results shared by API replicas.</param>
     /// <param name="userService"></param>
     /// <param name="kafkaMessenger"></param>
     /// <param name="kafkaHubOptions"></param>

@@ -362,6 +362,9 @@ public class IndexingManager : ServiceManager<IndexingOptions>
             {
                 this.Logger.LogError(ex, "Failed to {action} content after {attempts} attempt(s).  Content ID: {id}, Index: {index}, Revision: {revision}, Error: {error}",
                     action, attempt, contentId, index, revision, response.ElasticsearchServerError?.Error?.Reason ?? ex?.Message);
+                var failure = new InvalidOperationException(
+                    $"Failed to {action} content {contentId} in index '{index}' after {attempts} attempt(s). Revision: {revision}; HTTP status: {status}; Error: {response.ElasticsearchServerError?.Error?.Reason ?? ex?.Message}", ex);
+                await this.SendErrorEmailAsync("Elasticsearch write failed", failure);
                 return (false, false);
             }
             this.Logger.LogWarning(ex, "Failed to {action} content, retrying ({attempt} of {attempts}).  Content ID: {id}, Index: {index}", action, attempt, attempts, contentId, index);

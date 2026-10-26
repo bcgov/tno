@@ -1,6 +1,9 @@
 import React, { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
+const OrphanedContent = lazy(
+  async () => await import('features/admin/orphaned-content/OrphanedContent'),
+);
 const Dashboard = lazy(async () => await import('features/admin/dashboard/Dashboard'));
 const ActionForm = lazy(async () => await import('features/admin/actions/ActionForm'));
 const ActionList = lazy(async () => await import('features/admin/actions/ActionList'));
@@ -105,6 +108,7 @@ export const AdminRouter: React.FC = () => {
       <Routes>
         <Route index element={<Navigate to="users" />} />
         <Route path="dashboard" element={<Dashboard />} />
+        <Route path="orphaned-content" element={<OrphanedContent />} />
 
         <Route path="users" element={<UserList />} />
         <Route path="users/:id" element={<UserForm />} />

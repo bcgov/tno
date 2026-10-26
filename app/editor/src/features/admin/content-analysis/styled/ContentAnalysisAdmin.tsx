@@ -27,11 +27,6 @@ export const ContentAnalysisAdmin = styled.div`
     gap: 1rem;
   }
 
-  // Fields beside buttons: drop the form padding so they share a bottom edge.
-  .field-row .frm-in {
-    padding-bottom: 0;
-  }
-
   .failures {
     max-height: 50vh;
     overflow-y: auto;

@@ -263,6 +263,13 @@ spec:
                 configMapKeyRef:
                   name: ches
                   key: CHES_FROM
+            - name: Service__EmailTo
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: EMAIL_FAILURE_TO
+            - name: Service__SendEmailOnFailure
+              value: "true"
             - name: CHES__EmailEnabled
               valueFrom:
                 configMapKeyRef:

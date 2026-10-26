@@ -71,7 +71,7 @@ h4 {
 #root {
   height: 100%;
 
-  &>div:first-of-type {
+  & > div:first-of-type {
     height: 100%;
   }
 }
@@ -137,6 +137,13 @@ h4 {
 .frm-in {
   padding-bottom: 0.5em;
 
+  // The Editor owns field spacing, including tno-core's SelectDate wrapper.
+  // Repeat the class to override component margins regardless of injection order.
+  // Extra wrapper margins shift controls in bottom-aligned rows.
+  &.frm-in {
+    margin-bottom: 0;
+  }
+
   label {
     font-weight: bold;
   }
@@ -165,8 +172,18 @@ h4 {
     }
   }
 
-  input[type="number"] {
+  input[type='number'] {
     text-align: right;
+  }
+}
+
+// Mixed field/action rows align visible control borders. Row gap supplies spacing;
+// padding on individual fields would leave adjacent buttons below the inputs.
+.field-row {
+  align-items: flex-end;
+
+  > .frm-in {
+    padding-bottom: 0;
   }
 }
 

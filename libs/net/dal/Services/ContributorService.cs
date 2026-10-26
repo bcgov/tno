@@ -24,6 +24,14 @@ public class ContributorService : BaseService<Contributor, int>, IContributorSer
     #endregion
 
     #region Methods
+    /// <summary>Keep content when deleting a contributor, and refresh its search documents after the foreign key is cleared.</summary>
+    public override void Delete(Contributor entity)
+    {
+        var contentIds = this.Context.Contents.Where(c => c.ContributorId == entity.Id).Select(c => c.Id).ToArray();
+        foreach (var id in contentIds) this.Context.RequestIndex(id);
+        base.Delete(entity);
+    }
+
     /// <summary>
     /// Find all contributor.
     /// </summary>
