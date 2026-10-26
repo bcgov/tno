@@ -27,6 +27,9 @@ public class OrphanedContentController(OrphanedContentService service, OrphanSca
         => Accepted(await scans.StartAsync(request, cancellationToken));
 
     /// <summary>Request cancellation of an active scan at its next batch boundary.</summary>
+    /// <param name="scanId">The persisted scan to cancel.</param>
+    /// <param name="cancellationToken">Cancels the HTTP request while recording the cancellation request.</param>
+    /// <returns>An accepted response after the cancellation request has been recorded.</returns>
     [HttpPost("scans/{scanId:guid}/cancel")]
     public async Task<IActionResult> Cancel(Guid scanId, CancellationToken cancellationToken)
     {

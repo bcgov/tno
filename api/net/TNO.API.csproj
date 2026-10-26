@@ -5,7 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>TNO.API</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <WarningsAsErrors>$(WarningsAsErrors);CS1591</WarningsAsErrors>
+    <!-- Keep XML documentation valid in local builds and CI, including parameter and type references. -->
+    <WarningsAsErrors>$(WarningsAsErrors);CS1570;CS1572;CS1573;CS1574;CS1584;CS1587;CS1591</WarningsAsErrors>
     <Version>1.0.0</Version>
     <AssemblyVersion>1.0.0</AssemblyVersion>
   </PropertyGroup>

@@ -13,7 +13,9 @@
 - Use DI and options binding patterns already used in `api/net/Program.cs`.
 - Keep controllers under `api/net/Areas/**/Controllers` and business logic in services/helpers.
 - Use nullable reference types and async/await patterns consistently.
-- Build after changes: `dotnet build api/net/` or affected project.
+- Document public/protected members with meaningful XML summaries or appropriate `inheritdoc`. Keep comments immediately before the member or its attributes. When signatures change, update every `param`/`typeparam` tag to match the actual names and resolve `cref` references with an import or qualified type name.
+- API XML diagnostics CS1570, CS1572, CS1573, CS1574, CS1584, CS1587, and CS1591 are build errors. Do not suppress them or disable documentation generation.
+- Before committing, run the CI formatter, a fresh Release build, and relevant tests with the CI SDK. Inspect compiler warnings as well as errors; `dotnet format` alone does not validate XML documentation. See the [build verification workflow](../../.codex/skills/build-verify.md).
 - Database rule: add a new migration in `db/postgres/` for schema changes.
 
 ## TypeScript (React + Node)
