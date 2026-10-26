@@ -137,7 +137,9 @@ Uses `appsettings.Development.json` for local config. Requires a running Postgre
 
 ### Database Migrations
 
-Migrations are SQL files in `db/postgres/`. Name new migrations with the current version prefix (e.g., `1.5.0-`). Run via the API on startup or manually via `make db-migrate`.
+EF Core migrations and their model snapshot live in `libs/net/dal/Migrations/`; database deployment assets live in `db/postgres/`. Use the current version as the migration name and keep **one new migration per PR**, including its designer and the final model snapshot.
+
+If the user requests consolidating migrations already applied locally, back up affected data and roll back with the existing migration files before replacing them. Reapply the consolidated migration, restore any backed-up feature data, and verify `__EFMigrationsHistory`, rollback/reapplication tests, and `dotnet ef migrations has-pending-model-changes`. Do not merely delete migration-history rows or rewrite migrations deployed to shared environments.
 
 ### Branch & PR Conventions
 

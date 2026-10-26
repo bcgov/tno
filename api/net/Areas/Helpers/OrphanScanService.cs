@@ -169,10 +169,19 @@ public class OrphanScanService(TNOContext context, OrphanedContentService conten
             }
             var query = new Dictionary<string, object>
             {
-                ["size"] = _options.BatchSize, ["_source"] = false, ["track_total_hits"] = false,
-                ["sort"] = new[] { "_shard_doc" }, ["pit"] = new { id = job.PitId, keep_alive = "2m" },
-                ["query"] = new { @bool = new { filter = new object[] {
-                    new { range = new { id = new { gte = job.MinId, lte = job.MaxId ?? long.MaxValue } } }, PostedOnFilter(job) } } },
+                ["size"] = _options.BatchSize,
+                ["_source"] = false,
+                ["track_total_hits"] = false,
+                ["sort"] = new[] { "_shard_doc" },
+                ["pit"] = new { id = job.PitId, keep_alive = "2m" },
+                ["query"] = new
+                {
+                    @bool = new
+                    {
+                        filter = new object[] {
+                    new { range = new { id = new { gte = job.MinId, lte = job.MaxId ?? long.MaxValue } } }, PostedOnFilter(job) }
+                    }
+                },
             };
             if (job.SearchAfter != null) query["search_after"] = JsonSerializer.Deserialize<JsonElement>(job.SearchAfter);
             using var response = Read(await elastic.LowLevel.SearchAsync<StringResponse>(PostData.String(JsonSerializer.Serialize(query)), ctx: ct));
@@ -272,11 +281,21 @@ public class OrphanScanService(TNOContext context, OrphanedContentService conten
     private async Task<JsonElement[]> SearchIdsAsync(string index, long[] ids, bool display, CancellationToken ct, OrphanScan? scope = null)
     {
         if (ids.Length == 0) return [];
-        var query = new { size = ids.Length, track_total_hits = false,
+        var query = new
+        {
+            size = ids.Length,
+            track_total_hits = false,
             _source = display ? (object)new[] { "id", "headline", "status" } : false,
-            query = new { @bool = new { filter = new object[] {
+            query = new
+            {
+                @bool = new
+                {
+                    filter = new object[] {
                 new { ids = new { values = ids.Select(x => x.ToString(System.Globalization.CultureInfo.InvariantCulture)).ToArray() } },
-                scope == null ? new { match_all = new { } } : PostedOnFilter(scope) } } } };
+                scope == null ? new { match_all = new { } } : PostedOnFilter(scope) }
+                }
+            }
+        };
         using var response = Read(await elastic.LowLevel.SearchAsync<StringResponse>(content.Index(index), PostData.String(JsonSerializer.Serialize(query)), ctx: ct));
         return response.RootElement.GetProperty("hits").GetProperty("hits").EnumerateArray().Select(x => x.Clone()).ToArray();
     }

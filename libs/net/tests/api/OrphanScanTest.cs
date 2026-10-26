@@ -314,10 +314,12 @@ public partial class OrphanedContentTest
     public async Task MigrationCreatesDurableTablesWithOneActiveJobConstraint()
     {
         await using var context = Context();
-        await context.Database.ExecuteSqlRawAsync("DROP TABLE public.orphan_scan_result; DROP TABLE public.orphan_scan; DROP INDEX \"IX_content_posted_on_id\"");
-        var migrationSql = context.GetService<Microsoft.EntityFrameworkCore.Migrations.IMigrationsSqlGenerator>()
-            .Generate(new TNO.DAL.Migrations._1514().UpOperations.Concat(new TNO.DAL.Migrations._1515().UpOperations).Concat(new TNO.DAL.Migrations._1516().UpOperations).ToArray(), context.Model);
-        foreach (var sql in migrationSql) await context.Database.ExecuteSqlRawAsync(sql.CommandText);
+        var item = Content(context);
+        await ApplyMigrationAsync(context, new TNO.DAL.Migrations._1513().DownOperations);
+        await ApplyMigrationAsync(context, new TNO.DAL.Migrations._1513().UpOperations);
+        Assert.True(await context.Contents.AnyAsync(c => c.Id == item.Id));
+        Assert.True(await context.Database.SqlQueryRaw<bool>(
+            "SELECT indisvalid AS \"Value\" FROM pg_index WHERE indexrelid = '\"IX_content_posted_on_id\"'::regclass").SingleAsync());
         context.OrphanScans.Add(new OrphanScan());
         await context.SaveChangesAsync();
         context.OrphanScans.Add(new OrphanScan { Status = "Confirming" });

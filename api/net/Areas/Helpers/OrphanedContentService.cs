@@ -48,7 +48,11 @@ public class OrphanedContentService(TNOContext context, IContentService contents
     {
         var body = JsonSerializer.Serialize(new
         {
-            size, query, sort = new[] { new { id = "asc" } }, version = true, track_total_hits = false,
+            size,
+            query,
+            sort = new[] { new { id = "asc" } },
+            version = true,
+            track_total_hits = false,
             _source = fullDocument ? (object)true : new[] { "id", "headline", "status" },
         });
         var response = await elastic.LowLevel.SearchAsync<StringResponse>(Index(index), PostData.String(body), ctx: cancellationToken);

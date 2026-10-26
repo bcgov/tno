@@ -51,8 +51,10 @@ public partial class OrphanedContentTest : IAsyncLifetime
         _source = builder.Build();
         await using var context = Context();
         await context.Database.EnsureCreatedAsync();
-        var migrationSql = context.GetService<IMigrationsSqlGenerator>().Generate(new TNO.DAL.Migrations._1513().UpOperations, context.Model);
-        foreach (var sql in migrationSql) await context.Database.ExecuteSqlRawAsync(sql.CommandText);
+        // EnsureCreated uses the current model. Return to the pre-PR schema before
+        // applying the complete migration, including its concurrent content index.
+        await ApplyMigrationAsync(context, new TNO.DAL.Migrations._1513().DownOperations);
+        await ApplyMigrationAsync(context, new TNO.DAL.Migrations._1513().UpOperations);
         var license = new TNO.Entities.License("Test license", 0);
         var media = new MediaType("Test media");
         context.AddRange(license, media);
@@ -69,6 +71,12 @@ public partial class OrphanedContentTest : IAsyncLifetime
         await connection.OpenAsync();
         await using var command = new NpgsqlCommand($"DROP DATABASE {_database} WITH (FORCE)", connection);
         await command.ExecuteNonQueryAsync();
+    }
+
+    private static async Task ApplyMigrationAsync(TNOContext context, IReadOnlyList<Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation> operations)
+    {
+        var commands = context.GetService<IMigrationsSqlGenerator>().Generate(operations, context.Model);
+        foreach (var command in commands) await context.Database.ExecuteSqlRawAsync(command.CommandText);
     }
 
     private TNOContext Context() => new(new DbContextOptionsBuilder<TNOContext>().UseNpgsql(_source).UseInternalServiceProvider(_efServices).Options);

@@ -361,10 +361,9 @@ a durable outbox: a process terminated before sending an alert cannot deliver on
 Administrators can open **Data Import → Orphaned Content** in the Editor. Scans compare
 PostgreSQL with the configured all-content or published-content index in bounded batches.
 Private database content is excluded; the published comparison includes only Publish/Published
-content. Migration **1.5.14** adds durable scan progress and results. **1.5.15** adds posted-date
-filters and **1.5.16** adds the date cursor and a concurrent `(posted_on, id)` index. Apply
-these migrations before starting the updated API worker. Run the concurrent-index migration
-without wrapping it in an additional transaction.
+content. The same migration **1.5.13** adds durable scan progress and results, posted-date
+filters, the date cursor, and a concurrent `(posted_on, id)` index. Apply it before starting
+the updated API worker. Run the migration without wrapping it in an additional transaction.
 
 The scan runs inside the API as a hosted background service. PostgreSQL advisory locking and
 a unique active-job index coordinate replicas. Each worker creates a fresh dependency scope
