@@ -150,6 +150,9 @@ export const Menu: React.FC = () => {
                 <NavDropdown.Item as={Link} to="/admin/connections">
                   Data Connections
                 </NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/admin/orphaned-content">
+                  Orphaned Content
+                </NavDropdown.Item>
               </MenuDropdown>
               <MenuDropdown title="System Settings" claim={Claim.administrator}>
                 <NavDropdown.Item as={Link} to="/admin/users">

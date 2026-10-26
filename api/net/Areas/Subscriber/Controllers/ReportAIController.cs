@@ -50,7 +50,7 @@ public class ReportAIController : ControllerBase
     /// <param name="reportInstanceService"></param>
     /// <param name="reportHelper"></param>
     /// <param name="impersonateHelper"></param>
-    /// <param name="cache"></param>
+    /// <param name="store">Persists AI section test runs shared by API replicas.</param>
     /// <param name="serializerOptions"></param>
     public ReportAIController(
         IReportService reportService,

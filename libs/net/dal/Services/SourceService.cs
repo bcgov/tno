@@ -32,6 +32,14 @@ public class SourceService : BaseService<Source, int>, ISourceService
     #endregion
 
     #region Methods
+    /// <summary>Prevent deleting a source while content references it. The database also enforces this against concurrent changes.</summary>
+    public override void Delete(Source entity)
+    {
+        if (this.Context.Contents.Any(c => c.SourceId == entity.Id))
+            throw new TNO.Core.Exceptions.BadRequestException("Cannot delete this source because it is used by content.");
+        base.Delete(entity);
+    }
+
     /// <summary>
     /// Find and return all the data sources.
     /// </summary>

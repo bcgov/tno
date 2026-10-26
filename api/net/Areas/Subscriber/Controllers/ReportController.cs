@@ -76,7 +76,7 @@ public class ReportController : ControllerBase
     /// <param name="settingService"></param>
     /// <param name="chesOptions"></param>
     /// <param name="ches"></param>
-
+    /// <param name="watch">Detects report subscription changes and sends configured alerts.</param>
     public ReportController(
         IReportService reportService,
         IReportInstanceService reportInstanceService,

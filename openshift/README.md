@@ -344,3 +344,72 @@ az acr import \
 # Rollout deployment
 oc rollout restart deployment/transcription-service -n 9b301c-dev
 ```
+
+
+## Orphaned content administration
+
+Deploy database migration **1.5.13** with the API change. It prevents deleting sources,
+media types, licenses, and series referenced by content; deleting a contributor instead
+clears the content's contributor reference. The API also refreshes affected search documents.
+
+API deployments now use `services/EMAIL_FAILURE_TO` for `Service__EmailTo`, matching the
+indexing service. `Service__SendEmailOnFailure=true` enables API index-dispatch alerts;
+CHES configuration and email authorization still apply. Exhausted Elasticsearch write
+retries use the indexing service's existing error-email mechanism. Alerts do not provide
+a durable outbox: a process terminated before sending an alert cannot deliver one.
+
+Administrators can open **Data Import → Orphaned Content** in the Editor. Scans compare
+PostgreSQL with the configured all-content or published-content index in bounded batches.
+Private database content is excluded; the published comparison includes only Publish/Published
+content. The same migration **1.5.13** adds durable scan progress and results, posted-date
+filters, the date cursor, and a concurrent `(posted_on, id)` index. Apply it before starting
+the updated API worker. Run the migration without wrapping it in an additional transaction.
+
+The scan runs inside the API as a hosted background service. PostgreSQL advisory locking and
+a unique active-job index coordinate replicas. Each worker creates a fresh dependency scope
+per batch, compares IDs only, and stores candidates in PostgreSQL. Headlines are fetched only
+when candidates are confirmed. The Editor polls saved progress and displays 100 results per
+page; closing the browser does not stop the scan. Administrators can cancel a run or restrict
+it by start/end `postedOn` dates. Dates are inclusive Pacific calendar days; the API converts
+them to UTC boundaries, using an exclusive midnight after the end date. Either bound can be
+omitted. Content with no `postedOn` is excluded when a date bound is supplied. Each run checks one direction against one selected index.
+
+Default API settings (environment variables use double underscores):
+
+| Setting | Default | Allowed range |
+| --- | --- | --- |
+| `OrphanScan__BatchSize` | 200 | 1–500 |
+| `OrphanScan__BatchDelayMilliseconds` | 1000 | 1000–30000 |
+| `OrphanScan__GracePeriodSeconds` | 300 | 30–86400 |
+| `OrphanScan__BatchTimeoutSeconds` | 30 | 5–60 |
+
+The delay applies across replicas, not independently per worker. Batches have a time limit;
+API memory use scales with batch size, not dataset size. PostgreSQL traversal uses a `(posted_on, id)` cursor for date-filtered scans and a primary-key
+cursor otherwise, with a fixed upper ID bound; recently updated content is excluded. Elasticsearch traversal
+uses `search_after`, `_shard_doc`, and one point-in-time snapshot with a two-minute renewable
+expiry. Snapshots are closed after discovery, cancellation, or failure; expiry also releases them.
+A long scan retains Elasticsearch segments for its duration, so use targeted ranges when practical.
+
+Progress resumes after a short API interruption. If the Elasticsearch snapshot has expired,
+the run fails explicitly and needs a new scan. Partial/timed-out Elasticsearch results never
+become confirmed orphans. Candidates are rechecked against both live stores after the grace
+period (confirmation starts after discovery). Results are observations, not a transactionally
+consistent snapshot of both stores. Recent changes and indexing lag may require a later run.
+Completed and cancelled scan records/results are retained in PostgreSQL for review; they do not
+hold full content documents. Operators should include these tables in their metadata retention policy.
+
+Repairs recheck each item. Indexing uses the normal Kafka workflow and is shown as queued
+until a later scan verifies it. Restoration uses the original ID and the full search document
+when available; a published-only copy may lack an unapproved transcript. Missing lookup
+records block restoration (a missing optional contributor is cleared). Search documents
+cannot recover deleted media files, report membership, deliveries, or analysis history.
+Deleting a PostgreSQL orphan also deletes its related records through the existing cascades.
+The results show Source using the same `otherSource` field as the Editor content lists.
+Source lookups are limited to the displayed page; unavailable values display a dash.
+First, previous, next, and last page icons use indexed content-ID cursors. Last-page sizing
+uses the scan's saved confirmed count, avoiding deep offsets or loading earlier pages.
+Synced results show a disabled sync icon. Delete remains available after syncing and removes
+the PostgreSQL record, if present, with search cleanup queued through the indexer. The API
+requires a saved successful repair for that scan result before allowing deletion of synced
+content; unresolved results still require a fresh orphan check.
+All scan and repair endpoints under `/api/admin/orphaned-content` require Administrator.

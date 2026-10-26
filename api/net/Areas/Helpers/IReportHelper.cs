@@ -1,5 +1,6 @@
 
 using System.Text.Json;
+using TNO.Core.Exceptions;
 using TNO.TemplateEngine.Models.Charts;
 using TNO.TemplateEngine.Models.Reports;
 
@@ -116,7 +117,7 @@ public interface IReportHelper
     /// <param name="settingsOverride">Draft settings, or null for the saved ones.</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    /// <exception cref="NoContentException"></exception>
+    /// <exception cref="NoContentException">The requested report section does not exist.</exception>
     Task<Areas.Services.Models.ReportAIResult.ReportAISectionPromptModel> DescribeReportAISectionAsync(
         Areas.Services.Models.ReportInstance.ReportInstanceModel model,
         int sectionId,

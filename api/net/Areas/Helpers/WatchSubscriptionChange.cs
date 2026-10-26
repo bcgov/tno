@@ -348,6 +348,7 @@ public class WatchSubscriptionChange
     /// <param name="report"></param>
     /// <param name="identity"></param>
     /// <param name="traceInformation"></param>
+    /// <param name="missingIsRemoved">Treat subscribers absent from the supplied report as removed; set false for a partial subscriber list.</param>
     /// <returns></returns>
     public async Task AlertReportSubscriptionChangedAsync(Entities.Report report, ClaimsPrincipal identity, string traceInformation, bool missingIsRemoved = true)
     {
@@ -363,6 +364,7 @@ public class WatchSubscriptionChange
     /// <param name="report"></param>
     /// <param name="requestor"></param>
     /// <param name="traceInformation"></param>
+    /// <param name="missingIsRemoved">Treat subscribers absent from the supplied report as removed; set false for a partial subscriber list.</param>
     /// <returns></returns>
     public async Task AlertReportSubscriptionChangedAsync(Entities.Report report, Entities.User requestor, string traceInformation, bool missingIsRemoved = true)
     {
@@ -376,6 +378,7 @@ public class WatchSubscriptionChange
     /// <param name="report"></param>
     /// <param name="changeSource">The source of the change, generally the user who made the change.</param>
     /// <param name="traceInformation"></param>
+    /// <param name="missingIsRemoved">Treat subscribers absent from the supplied report as removed; set false for a partial subscriber list.</param>
     /// <returns></returns>
     public async Task AlertReportSubscriptionChangedAsync(Entities.Report report, string changeSource, string traceInformation, bool missingIsRemoved = true)
     {
@@ -603,6 +606,7 @@ public class WatchSubscriptionChange
     /// Identify all changes to the specified 'report' subscriptions.
     /// </summary>
     /// <param name="report"></param>
+    /// <param name="missingIsRemoved">Treat subscribers absent from the supplied report as removed; set false for a partial subscriber list.</param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     public SubscriptionChange[] IdentifyReportSubscriptionChange(Entities.Report report, bool missingIsRemoved = true)
