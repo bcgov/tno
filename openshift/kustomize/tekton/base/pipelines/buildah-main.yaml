@@ -194,42 +194,12 @@ spec:
         - name: build
           workspace: build
 
-    - name: maintenance-on-editor
+    - name: db-migration
       runAfter:
         - build-db-migration
         - build-api
         - build-editor
-      taskRef:
-        name: oc-patch-route
-        kind: Task
-      params:
-        - name: PROJECT
-          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
-        - name: ROUTE
-          value: editor
-        - name: SERVICE
-          value: nginx
-
-    - name: maintenance-on-subscriber
-      runAfter:
-        - build-db-migration
-        - build-api
         - build-subscriber
-      taskRef:
-        name: oc-patch-route
-        kind: Task
-      params:
-        - name: PROJECT
-          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
-        - name: ROUTE
-          value: subscriber
-        - name: SERVICE
-          value: nginx
-
-    - name: db-migration
-      runAfter:
-        - maintenance-on-editor
-        - maintenance-on-subscriber
       taskRef:
         name: db-migration-conditional
         kind: Task
@@ -298,44 +268,14 @@ spec:
         - name: ENV
           value: $(params.DEPLOY_TO)
 
-    - name: maintenance-off-editor
-      runAfter:
-        - deploy-api
-        - deploy-editor
-        - deploy-subscriber
-      taskRef:
-        name: oc-patch-route
-        kind: Task
-      params:
-        - name: PROJECT
-          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
-        - name: ROUTE
-          value: editor
-        - name: SERVICE
-          value: editor
-
-    - name: maintenance-off-subscriber
-      runAfter:
-        - deploy-api
-        - deploy-editor
-        - deploy-subscriber
-      taskRef:
-        name: oc-patch-route
-        kind: Task
-      params:
-        - name: PROJECT
-          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
-        - name: ROUTE
-          value: subscriber
-        - name: SERVICE
-          value: subscriber
-
     - name: owasp-scan
       taskRef:
         name: owasp-scanner
         kind: Task
       runAfter:
-        - maintenance-off-editor
+        - deploy-api
+        - deploy-editor
+        - deploy-subscriber
       params:
         - name: TARGET_URL
           value: $(params.EDITOR_URL)

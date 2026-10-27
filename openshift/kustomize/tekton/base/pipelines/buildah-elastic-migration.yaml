@@ -80,32 +80,6 @@ spec:
           workspace: conditions
         - name: build
           workspace: build
-    - name: maintenance-on-editor
-      params:
-        - name: PROJECT
-          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
-        - name: ROUTE
-          value: editor
-        - name: SERVICE
-          value: nginx
-      runAfter:
-        - build-elastic-migration
-      taskRef:
-        kind: Task
-        name: oc-patch-route
-    - name: maintenance-on-subscriber
-      params:
-        - name: PROJECT
-          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
-        - name: ROUTE
-          value: subscriber
-        - name: SERVICE
-          value: nginx
-      runAfter:
-        - build-elastic-migration
-      taskRef:
-        kind: Task
-        name: oc-patch-route
     - name: elastic-migration
       params:
         - name: DB_SECRET_NAME
@@ -121,37 +95,10 @@ spec:
         - name: DEPLOY_TO
           value: $(params.DEPLOY_TO)
       runAfter:
-        - maintenance-on-editor
-        - maintenance-on-subscriber
+        - build-elastic-migration
       taskRef:
         kind: Task
         name: elastic-migration
-    - name: maintenance-off-editor
-      params:
-        - name: PROJECT
-          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
-        - name: ROUTE
-          value: editor
-        - name: SERVICE
-          value: editor
-      runAfter:
-        - elastic-migration
-      taskRef:
-        kind: Task
-        name: oc-patch-route
-    - name: maintenance-off-subscriber
-      params:
-        - name: PROJECT
-          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
-        - name: ROUTE
-          value: subscriber
-        - name: SERVICE
-          value: subscriber
-      runAfter:
-        - elastic-migration
-      taskRef:
-        kind: Task
-        name: oc-patch-route
   workspaces:
     - description: |
         Git repo source code.

@@ -789,6 +789,8 @@ echo "Tagging images in ACR ($ACR_HOST): $tag → $env"
 acr_tag nginx
 acr_tag editor
 acr_tag subscriber
+acr_tag nginx-editor
+acr_tag nginx-subscriber
 acr_tag charts-api
 acr_tag api
 acr_tag ffmpeg-service
