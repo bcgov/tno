@@ -43,7 +43,8 @@ spec:
       schedulerName: default-scheduler
       securityContext: {}
       serviceAccountName: tno
-      terminationGracePeriodSeconds: 0
+      # Covers the preStop delay plus ASP.NET's 30 second graceful shutdown, which closes SignalR connections cleanly.
+      terminationGracePeriodSeconds: 45
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -338,6 +339,11 @@ spec:
               scheme: HTTP
             initialDelaySeconds: 30
             timeoutSeconds: 60
-            periodSeconds: 30
+            periodSeconds: 10
             successThreshold: 1
-            failureThreshold: 3
+            failureThreshold: 2
+          # Keep serving while the pod is removed from its service, so nginx stops sending it traffic before shutdown.
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sleep", "10"]
