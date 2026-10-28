@@ -2,6 +2,7 @@ import {
   HubConnection,
   HubConnectionBuilder,
   HubConnectionState,
+  IRetryPolicy,
   LogLevel,
 } from '@microsoft/signalr';
 import React from 'react';
@@ -10,6 +11,31 @@ import { MessageTargetKey, Settings, useKeycloakWrapper } from 'tno-core';
 
 const url = Settings.ApiPath + '/hub';
 let hub: HubConnection | null = null;
+
+/** Delay before each connection attempt; the last delay repeats so the hub never stops trying. */
+const retryDelays = [0, 2000, 5000, 10000, 30000];
+const retryDelay = (attempt: number) => retryDelays[Math.min(attempt, retryDelays.length - 1)];
+const retryPolicy: IRetryPolicy = {
+  nextRetryDelayInMilliseconds: (context) => retryDelay(context.previousRetryCount),
+};
+
+/**
+ * Rooms this client has joined. Groups belong to a connection, so a reconnect (which may land on
+ * another API pod) starts with none and they must be joined again.
+ */
+const rooms = new Set<string>();
+
+const trackRoom = (target: string, args: any[]) => {
+  const method = target.toLowerCase();
+  if (method === 'joinroom') rooms.add(args[0]);
+  else if (method === 'leaveroom') rooms.delete(args[0]);
+};
+
+const joinRooms = () => {
+  rooms.forEach((room) =>
+    hub?.send('JoinRoom', room).catch((error) => console.error('signalR', error)),
+  );
+};
 
 export interface IHubController {
   /** The state of the hub connection. */
@@ -49,40 +75,54 @@ export const useApiHub = (): IHubController => {
           accessTokenFactory: () => auth.instance.token ?? '',
         })
         .configureLogging(LogLevel.Error)
-        .withAutomaticReconnect()
+        .withAutomaticReconnect(retryPolicy)
         .build();
-      hub.onclose(() => {
+
+      // Automatic reconnect only covers a connection that was established, so retry a failed start here.
+      const start = (attempt: number) => {
+        changeHubState(HubConnectionState.Connecting);
+        hub!
+          .start()
+          .then(() => {
+            changeHubState(hub!.state);
+            joinRooms();
+          })
+          .catch((error) => {
+            changeHubState(hub!.state);
+            console.error('signalR', error);
+            if (attempt === 0)
+              addError({
+                statusText: error.errorType,
+                message: error.message,
+              });
+            setTimeout(() => start(attempt + 1), retryDelay(attempt + 1));
+          });
+      };
+
+      hub.onclose((error) => {
         changeHubState(hub!.state);
+        // Reconnecting never gives up, so an error here means the server closed the connection.
+        if (error) start(1);
       });
       hub.onreconnected(() => {
         changeHubState(hub!.state);
+        joinRooms();
       });
       hub.onreconnecting(() => {
         changeHubState(hub!.state);
       });
-      changeHubState(HubConnectionState.Connecting);
-      hub
-        .start()
-        .then(() => {
-          changeHubState(hub!.state);
-        })
-        .catch((error) => {
-          changeHubState(hub!.state);
-          console.error('signalR', error);
-          addError({
-            statusText: error.errorType,
-            message: error.message,
-          });
-        });
+      start(0);
     }
   }, [addError, auth.instance.token, changeHubState]);
 
   return {
     state: hubState,
     send: async (target: string, args: any[]) => {
+      trackRoom(target, args);
       if (hub?.state === HubConnectionState.Connected) await hub.send(target, ...args);
     },
     invoke: async (target: string, args: any[]) => {
+      trackRoom(target, args);
       if (hub?.state === HubConnectionState.Connected) await hub.invoke(target, ...args);
     },
     start: () => hub?.start() ?? Promise.resolve(),

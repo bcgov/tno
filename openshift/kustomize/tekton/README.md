@@ -148,6 +148,14 @@ Both `deploy-all` and `deploy-all-deployment` manage the following services:
 - **filemonitor-service** - File monitoring
 - **image-service** - Image processing
 
+### Reverse Proxies (2 services)
+
+- **nginx-editor** - Routes the editor host to the editor app and its `/api` to the api pods
+- **nginx-subscriber** - Routes the subscriber host to the subscriber app and its `/api` to the api pods
+
+Built when `network/reverse-proxy/<app>` changes, and rolled without stopping anything. The
+pipelines leave the routes alone: they keep pointing at these proxies throughout a deploy.
+
 ### API Service (1 service)
 
 - **api** - Main API (StatefulSet)

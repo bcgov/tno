@@ -92,19 +92,6 @@ spec:
           workspace: conditions
         - name: build
           workspace: build
-    - name: maintenance-on
-      params:
-        - name: PROJECT
-          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
-        - name: ROUTE
-          value: subscriber
-        - name: SERVICE
-          value: nginx
-      runAfter:
-        - build-subscriber
-      taskRef:
-        kind: Task
-        name: oc-patch-route
     - name: deploy-subscriber
       params:
         - name: PROJECT_SHORTNAME
@@ -116,23 +103,10 @@ spec:
         - name: ENV
           value: $(params.DEPLOY_TO)
       runAfter:
-        - maintenance-on
+        - build-subscriber
       taskRef:
         kind: Task
         name: oc-deploy-with-tag
-    - name: maintenance-off
-      params:
-        - name: PROJECT
-          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
-        - name: ROUTE
-          value: subscriber
-        - name: SERVICE
-          value: subscriber
-      runAfter:
-        - deploy-subscriber
-      taskRef:
-        kind: Task
-        name: oc-patch-route
     - name: owasp-scan
       params:
         - name: TARGET_URL
@@ -142,7 +116,7 @@ spec:
         - name: SCAN_DURATION
           value: '1'
       runAfter:
-        - maintenance-off
+        - deploy-subscriber
       taskRef:
         kind: Task
         name: owasp-scanner

@@ -230,6 +230,22 @@ spec:
           [dockerfile]="/services/net/auto-clipper/Dockerfile"
         )
 
+        # Reverse Proxies
+
+        declare -A COMPONENT21=(
+          [id]="nginx-editor"
+          [image]="nginx-editor"
+          [context]="/network/reverse-proxy/editor"
+          [dockerfile]="/Dockerfile"
+        )
+
+        declare -A COMPONENT22=(
+          [id]="nginx-subscriber"
+          [image]="nginx-subscriber"
+          [context]="/network/reverse-proxy/subscriber"
+          [dockerfile]="/Dockerfile"
+        )
+
         declare -n component;
 
         # Loop through each component and build if required.

@@ -106,6 +106,14 @@ spec:
           echo 'BUILD_SUBSCRIBER=true' >> build.env
         fi
 
+        if grep -s network/reverse-proxy/editor <<< $DIFF; then
+          echo 'BUILD_NGINX_EDITOR=true' >> build.env
+        fi
+
+        if grep -s network/reverse-proxy/subscriber <<< $DIFF; then
+          echo 'BUILD_NGINX_SUBSCRIBER=true' >> build.env
+        fi
+
         if grep -s api/net <<< $DIFF; then
           echo 'BUILD_API=true' >> build.env
         elif grep -s libs/net/ches <<< $DIFF; then
