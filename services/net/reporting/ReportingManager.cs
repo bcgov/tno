@@ -26,7 +26,7 @@ namespace TNO.Services.Reporting;
 /// <summary>
 /// ReportingManager class, provides a Kafka Consumer service which imports audio from all active topics.
 /// </summary>
-public class ReportingManager : ServiceManager<ReportingOptions>
+public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
 {
     #region Variables
     private CancellationTokenSource? _cancelToken;
@@ -35,6 +35,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     private int _retries = 0;
     private readonly JsonSerializerOptions _serializationOptions;
     private readonly ClaimsPrincipal _user;
+    private readonly ReportProcessingWatchdog _watchdog;
     static readonly ReportDistributionFormat[] LinkOnlyFormats = new[] { ReportDistributionFormat.LinkOnly, ReportDistributionFormat.ReceiveBoth };
     static readonly ReportDistributionFormat[] FullTextFormats = new[] { ReportDistributionFormat.FullText, ReportDistributionFormat.ReceiveBoth };
     static readonly ReportStatus[] _successfulEmailStatuses = new[] { ReportStatus.Accepted, ReportStatus.Completed };
@@ -50,6 +51,14 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// get - Razor report template engine.
     /// </summary>
     protected IReportEngine ReportEngine { get; }
+
+    /// <summary>
+    /// get - A latched processing failure that requires this worker to be replaced.
+    /// </summary>
+    public string? HealthFailureReason => _watchdog.Check(
+        this.State.Status == ServiceStatus.Running && !String.IsNullOrWhiteSpace(this.Options.Topics),
+        this.Listener.IsPaused,
+        _consumer?.IsCompleted == true);
     #endregion
 
     #region Constructors
@@ -65,6 +74,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <param name="serializationOptions"></param>
     /// <param name="reportOptions"></param>
     /// <param name="logger"></param>
+    /// <param name="timeProvider">Optional monotonic clock for processing deadlines.</param>
     public ReportingManager(
         IKafkaListener<string, ReportRequestModel> listener,
         IApiService api,
@@ -74,10 +84,12 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         IOptions<ChesOptions> chesOptions,
         IOptions<JsonSerializerOptions> serializationOptions,
         IOptions<ReportingOptions> reportOptions,
-        ILogger<ReportingManager> logger)
+        ILogger<ReportingManager> logger,
+        TimeProvider? timeProvider = null)
         : base(api, chesService, chesOptions, reportOptions, logger)
     {
         _user = user;
+        _watchdog = new ReportProcessingWatchdog(reportOptions.Value, timeProvider);
         this.ReportEngine = reportEngine;
         _serializationOptions = serializationOptions.Value;
         this.Listener = listener;
@@ -99,6 +111,16 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         // Always keep looping until an unexpected failure occurs.
         while (true)
         {
+            var failure = this.HealthFailureReason;
+            if (failure != null)
+            {
+                // Fail closed: do not resume or commit later offsets after a processing failure.
+                // Health remains failed even if the runner retries this singleton manager.
+                // OpenShift's liveness probe replaces the process with a fresh consumer.
+                this.Logger.LogCritical("Reporting worker requires restart: {reason}", failure);
+                _cancelToken?.Cancel();
+                throw new InvalidOperationException(failure);
+            }
             if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause || this.State.Status == ServiceStatus.RequestFailed)
             {
                 // An API request or failures have requested the service to stop.
@@ -177,13 +199,15 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     private async Task ListenerHandlerAsync()
     {
         while (this.State.Status == ServiceStatus.Running &&
-            _cancelToken?.IsCancellationRequested == false)
+            _cancelToken?.IsCancellationRequested == false && this.HealthFailureReason == null)
         {
             await this.Listener.ConsumeAsync(HandleMessageAsync, _cancelToken.Token);
+            _watchdog.PollCompleted();
         }
 
-        // The service is stopping or has stopped, consume should stop too.
-        this.Listener.Stop();
+        // On a health failure, keep the assignment until process replacement. Unassigning here
+        // could let another worker replay a report while this process still has an HTTP send in flight.
+        if (this.HealthFailureReason == null) this.Listener.Stop();
     }
 
     /// <summary>
@@ -199,10 +223,10 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         if (_retries == 0)
             this.State.RecordFailure();
 
-        if (e.GetException() is ConsumeException consume)
+        if (e.GetException() is KafkaException kafka && kafka.Error.IsFatal)
         {
-            if (consume.Error.IsFatal)
-                this.Listener.Stop();
+            _watchdog.Fail($"Fatal Kafka consumer error: {kafka.Error.Code}");
+            _cancelToken?.Cancel();
         }
     }
 
@@ -251,25 +275,27 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     }
 
     /// <summary>
-    /// Retrieve a file from storage and send to Microsoft Cognitive Services. Obtain
-    /// the report and update the content record accordingly.
+    /// Process one report and commit its offset only while the worker remains healthy.
     /// </summary>
     /// <param name="result"></param>
     /// <returns></returns>
-    private async Task HandleMessageAsync(ConsumeResult<string, ReportRequestModel> result)
+    protected async Task HandleMessageAsync(ConsumeResult<string, ReportRequestModel> result)
     {
-        var errorStatus = result.Message.Value.Data.GetElementValue<ReportingErrors?>(".error");
-        if (errorStatus != null)
-        {
-            var failureCount = result.Message.Value.Data.GetElementValue<int?>(".failureCount") ?? 0;
-            this.Logger.LogInformation("Retrying report after failure. ReportId:{reportId} InstanceId:{instanceId} FailureStatus:{status} RetryCount:{count}",
-                result.Message.Value.ReportId,
-                result.Message.Value.ReportInstanceId,
-                errorStatus,
-                failureCount);
-        }
+        if (this.HealthFailureReason != null) return;
+        if (!_watchdog.Started(result)) return;
+        var canCommit = false;
         try
         {
+            var errorStatus = result.Message.Value.Data.GetElementValue<ReportingErrors?>(".error");
+            if (errorStatus != null)
+            {
+                var failureCount = result.Message.Value.Data.GetElementValue<int?>(".failureCount") ?? 0;
+                this.Logger.LogInformation("Retrying report after failure. ReportId:{reportId} InstanceId:{instanceId} FailureStatus:{status} RetryCount:{count}",
+                    result.Message.Value.ReportId,
+                    result.Message.Value.ReportInstanceId,
+                    errorStatus,
+                    failureCount);
+            }
             // The service has stopped, so to should consuming messages.
             if (this.State.Status != ServiceStatus.Running)
             {
@@ -283,6 +309,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 // Successful run clears any errors.
                 this.State.ResetFailures();
                 _retries = 0;
+                canCommit = true;
             }
         }
         catch (ReportingException ex)
@@ -296,6 +323,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
             // Add the report request back to Kafka so that it runs again.
             await AddRequestToQueue(result.Message, ex);
+            canCommit = true;
         }
         catch (HttpClientRequestException ex)
         {
@@ -306,6 +334,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
             // Add the report request back to Kafka so that it runs again.
             await AddRequestToQueue(result.Message, ex);
+            canCommit = true;
         }
         catch (Exception ex)
         {
@@ -316,15 +345,43 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
             // Add the report request back to Kafka so that it runs again.
             await AddRequestToQueue(result.Message, ex);
+            canCommit = true;
         }
         finally
         {
-            // Inform Kafka this message is completed.
-            // We do this regardless of whether it failed or succeeded.
-            this.Listener.Commit(result);
-            if (State.Status == ServiceStatus.Running)
+            // Do not acknowledge a message if recording its retry failed.
+            if (!canCommit && State.Status == ServiceStatus.Running)
+                _watchdog.Fail($"Report handling did not complete. ReportId:{result.Message.Value.ReportId} Offset:{result.TopicPartitionOffset}");
+            try
             {
-                this.Listener.Resume();
+                if (canCommit && this.HealthFailureReason == null)
+                {
+                    _watchdog.Progress("Committing Kafka offset");
+                    this.Listener.Commit(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                _watchdog.Fail($"Kafka commit failed. ReportId:{result.Message.Value.ReportId} InstanceId:{result.Message.Value.ReportInstanceId} Offset:{result.TopicPartitionOffset} Error:{ex.GetType().Name}");
+                _cancelToken?.Cancel();
+                this.Logger.LogError("Reporting commit failed; worker will restart without advancing offsets. {error}", ex.GetDiagnosticSummary());
+            }
+            finally
+            {
+                _watchdog.Completed(result.TopicPartitionOffset);
+                if (this.HealthFailureReason == null && State.Status == ServiceStatus.Running)
+                {
+                    try
+                    {
+                        this.Listener.Resume();
+                    }
+                    catch (Exception ex)
+                    {
+                        _watchdog.Fail($"Kafka resume failed. Offset:{result.TopicPartitionOffset} Error:{ex.GetType().Name}");
+                        _cancelToken?.Cancel();
+                        this.Logger.LogError("Reporting resume failed; worker will restart. {error}", ex.GetDiagnosticSummary());
+                    }
+                }
             }
         }
     }
@@ -346,6 +403,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                     var instance = await this.Api.GetReportInstanceAsync(request.ReportInstanceId.Value);
                     if (instance != null && request.PrepareAISections)
                     {
+                        _watchdog.Progress("Generating AI sections");
                         if (request.AISectionTest != null) await TestAISectionAsync(request, instance);
                         else await PrepareAISectionsAsync(request, instance);
                     }
@@ -837,6 +895,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     {
         try
         {
+            _watchdog.Progress("Rendering report");
             var (subject, linkBody, fullBody) = await GenerateReportOutputAsync(request, report, instance, sectionContent);
 
             if (request.SendToSubscribers || !String.IsNullOrEmpty(request.To))
@@ -853,6 +912,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                     return;
                 }
 
+                _watchdog.Progress("Sending report emails");
                 await SendEmailsAsync(request, report, instance, subject, linkBody, fullBody);
             }
 
@@ -1084,6 +1144,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <exception cref="InvalidOperationException"></exception>
     private async Task UpdateReportInstanceAsync(API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance, bool updateContent)
     {
+        _watchdog.Progress("Saving report status");
         // Need to keep trying until successful.
         var isUpdated = false;
         var count = 0;

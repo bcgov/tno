@@ -35,9 +35,15 @@ public class HealthController : ControllerBase
     [HttpGet]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ServiceStateModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ServiceStateModel), (int)HttpStatusCode.ServiceUnavailable)]
     public IActionResult Health()
     {
-        return new JsonResult(_service.State);
+        // Services opt into processing-aware health without changing intentional pause/sleep behaviour.
+        var failure = (_service as IServiceHealth)?.HealthFailureReason;
+        return new JsonResult(_service.State)
+        {
+            StatusCode = failure == null ? (int)HttpStatusCode.OK : (int)HttpStatusCode.ServiceUnavailable,
+        };
     }
     #endregion
 }

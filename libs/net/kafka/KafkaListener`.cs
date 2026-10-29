@@ -87,7 +87,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     /// Build a new Kafka consumer based on configuration.
     /// </summary>
     /// <returns></returns>
-    private IConsumer<TKey, TValue> Build()
+    protected virtual IConsumer<TKey, TValue> Build()
     {
         var builder = new ConsumerBuilder<TKey, TValue>(_config);
         if (typeof(TKey).IsClass && typeof(TKey) != typeof(string))
@@ -160,11 +160,13 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
         {
             if (!_open) this.Open();
 
-            if (!this.IsPaused)
+            if (!this.IsPaused && _config.ConsumeTimeoutMs <= 0)
                 _logger.LogDebug("Waiting to receive message from Kafka topics: '{topic}'", String.Join(", ", this.Consumer?.Subscription ?? new List<string>()));
 
             // I don't understand why Kafka didn't use an async+await pattern here, but this function blocks until it receives a message.
-            var consumeResult = this.Consumer?.Consume(cancellationToken);
+            var consumeResult = _config.ConsumeTimeoutMs > 0
+                ? this.Consumer?.Consume(TimeSpan.FromMilliseconds(_config.ConsumeTimeoutMs))
+                : this.Consumer?.Consume(cancellationToken);
             if (consumeResult != null)
             {
                 _logger.LogDebug("Message received from Kafka topic: '{topic}' key:'{key}'", consumeResult.Topic, consumeResult.Message.Key);
@@ -192,7 +194,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
                 else
                     await action(consumeResult);
             }
-            else
+            else if (_config.ConsumeTimeoutMs <= 0)
             {
                 _logger.LogWarning("Unexpected consume containing no message");
             }
@@ -239,10 +241,19 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     /// <param name="result"></param>
     public void Commit(ConsumeResult<TKey, TValue> result)
     {
-        this.Consumer?.Commit(result);
-        _logger.LogDebug("Message committed from topic:'{topic}' key:'{key}'", result.Topic, result.Message.Key);
-
-        if (this.IsLongRunningJob) Interlocked.Decrement(ref _resultConsumerTracker);
+        var committed = false;
+        try
+        {
+            this.Consumer?.Commit(result);
+            committed = true;
+            _logger.LogDebug("Message committed from topic:'{topic}' key:'{key}'", result.Topic, result.Message.Key);
+        }
+        finally
+        {
+            // The handler has finished even when Kafka rejects its offset commit.
+            if (this.IsLongRunningJob && (committed || _config.ReleaseHandlerOnCommitFailure))
+                Interlocked.Decrement(ref _resultConsumerTracker);
+        }
     }
 
     /// <summary>

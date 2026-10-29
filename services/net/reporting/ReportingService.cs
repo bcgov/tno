@@ -40,6 +40,15 @@ public class ReportingService : KafkaConsumerService
         base.ConfigureServices(services);
         services
             .Configure<ReportingOptions>(this.Configuration.GetSection("Service"))
+            // One in-flight report prevents a later commit skipping an earlier failed message.
+            // Bounded polls let the watchdog distinguish an idle queue from a stopped consumer.
+            .PostConfigure<KafkaConsumerConfig>(options =>
+            {
+                options.MaxThreads = 1;
+                options.EnableAutoCommit = false;
+                options.ConsumeTimeoutMs = 1000;
+                options.ReleaseHandlerOnCommitFailure = true;
+            })
             .AddTransient<IKafkaListener<string, ReportRequestModel>, KafkaListener<string, ReportRequestModel>>()
             .AddSingleton<IServiceManager, ReportingManager>()
             .AddSingleton<TNO.TemplateEngine.IReportAIResultStore, ApiReportAIResultStore>()
