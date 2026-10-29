@@ -289,7 +289,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         {
             // Failures will require retrying the report.  However, depending on the error the report instance could be in a unique state.
             // Resending a failure can result in cascading failures however, so it should limit the number of attempts.
-            this.Logger.LogError(ex, "Failed to handle message");
+            this.Logger.LogError("Failed to handle report. ReportId:{reportId} InstanceId:{instanceId} Error:{error}",
+                ex.ReportId, ex.InstanceId, ex.GetDiagnosticSummary());
             await this.SendErrorEmailAsync("Failed to handle message", ex);
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
 
@@ -298,8 +299,9 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         }
         catch (HttpClientRequestException ex)
         {
-            this.Logger.LogError(ex, "HTTP exception while consuming. {response}", ex.Data["body"] ?? "");
-            await this.SendErrorEmailAsync("HTTP exception while consuming. {response}", ex);
+            this.Logger.LogError("HTTP exception while consuming report. ReportId:{reportId} InstanceId:{instanceId} Error:{error}",
+                result.Message.Value.ReportId, result.Message.Value.ReportInstanceId, ex.GetDiagnosticSummary());
+            await this.SendErrorEmailAsync("HTTP exception while consuming report", ex);
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
 
             // Add the report request back to Kafka so that it runs again.
@@ -307,7 +309,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         }
         catch (Exception ex)
         {
-            this.Logger.LogError(ex, "Failed to handle message");
+            this.Logger.LogError("Failed to handle report. ReportId:{reportId} InstanceId:{instanceId} Error:{error}",
+                result.Message.Value.ReportId, result.Message.Value.ReportInstanceId, ex.GetDiagnosticSummary());
             await this.SendErrorEmailAsync("Failed to handle message", ex);
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
 

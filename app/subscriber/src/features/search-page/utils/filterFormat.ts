@@ -2,6 +2,7 @@ import { IFilterSettingsModel } from 'tno-core';
 
 export const filterFormat = (filter: IFilterSettingsModel) => {
   const settings: IFilterSettingsModel = {
+    generatedPrompt: filter.generatedPrompt,
     queryType: filter.queryType ?? 'simple-query-string',
     defaultOperator: filter.defaultOperator ?? 'and',
     actions: filter.actions ?? [],

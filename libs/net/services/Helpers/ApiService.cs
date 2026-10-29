@@ -113,8 +113,9 @@ public class ApiService : IApiService
             }
 
             // Wait before retrying.
-            var response = ex.Response?.Content.ReadAsStringAsync().Result;
-            this.Logger.LogError(ex, "Retry attempt {count}.{newline}Error:{body}", this.FailureCount, Environment.NewLine, response);
+            this.Logger.LogError(ex, "Retry attempt {count}. Method:{method} Path:{path} Status:{status}",
+                this.FailureCount, ex.Response?.RequestMessage?.Method,
+                ex.Response?.RequestMessage?.RequestUri?.AbsolutePath, ex.StatusCode);
             await Task.Delay(this.Options.RetryDelayMS);
             return await RetryRequestAsync<T>(callbackDelegate);
         }

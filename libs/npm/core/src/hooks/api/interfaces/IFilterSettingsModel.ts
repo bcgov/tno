@@ -2,6 +2,8 @@ import { ContentStatusName, ContentTypeName } from '../constants';
 import { IFilterActionSettingsModel, IFilterExtendedQuery, ISortField } from '.';
 
 export interface IFilterSettingsModel {
+  /** The prompt used for the last successful generation of these settings. */
+  generatedPrompt?: string;
   searchUnpublished: boolean;
   activeSubGroup?: string;
   id?: number;

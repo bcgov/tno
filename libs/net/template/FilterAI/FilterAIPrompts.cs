@@ -16,6 +16,12 @@ public static class FilterAIPrompts
 
     /// <summary>The most stories a filter returns.</summary>
     public const int MaxSize = 10_000;
+
+    /// <summary>The JSON shape of a generated filter, repeated when a response needs correction.</summary>
+    public const string GenerateReplyFormat = "{ \"final\": { \"settings\": {}, \"extendedQuery\": null, \"explanation\": \"Explain how the filter meets the prompt.\" } }";
+
+    /// <summary>The JSON shape of a chat answer, repeated when a response needs correction.</summary>
+    public const string ChatReplyFormat = "{ \"final\": { \"reply\": \"Your answer as plain text or markdown.\", \"prompt\": null } }";
     #endregion
 
     #region Methods

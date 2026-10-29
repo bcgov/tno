@@ -46,6 +46,7 @@ import {
   Text,
   ToggleButton,
   ToggleGroup,
+  useFilterAIGenerationGuard,
 } from 'tno-core';
 
 import {
@@ -137,9 +138,10 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
 
   const isDiff = React.useMemo(
     () =>
+      prompt !== (activeFilter?.prompt ?? '') ||
       initialState?.search !== searchTerms ||
       JSON.stringify(initialState) !== JSON.stringify(search),
-    [initialState, search, searchTerms],
+    [initialState, search, searchTerms, prompt, activeFilter?.prompt],
   );
 
   const checkDisplayOptions = React.useCallback((): boolean => {
@@ -152,11 +154,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
     );
   }, [search]);
 
-  const handleSearch = async () => {
-    const updatedFilterSettings = {
-      ...search,
-      search: searchTerms,
-    };
+  const handleSearch = async (updatedFilterSettings: IFilterSettingsModel) => {
     onSearch?.(updatedFilterSettings);
     storeSearchFilter(updatedFilterSettings);
     setSearchFilter(updatedFilterSettings);
@@ -194,9 +192,9 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
   }, [initialState, isDiff, search, searchTerms]);
 
   const updateSearch = React.useCallback(
-    async (name?: string) => {
+    async (name?: string, generatedSettings?: IFilterSettingsModel) => {
       // Create a new search object with updated searchTerms
-      const updatedSearch = {
+      const updatedSearch = generatedSettings ?? {
         ...search,
         search: searchTerms ?? search.search,
       };
@@ -229,7 +227,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
             storeSearchFilter(data.settings);
             const updatedInitialState: IFilterSettingsModel = {
               ...data.settings,
-              search: searchTerms,
+              search: data.settings.search,
             };
             setInitialState(updatedInitialState);
           })
@@ -249,8 +247,8 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
   );
 
   const addSearch = React.useCallback(
-    async (name: string) => {
-      const updatedSearch = {
+    async (name: string, generatedSettings?: IFilterSettingsModel) => {
+      const updatedSearch = generatedSettings ?? {
         ...search,
         search: searchTerms ?? search.search,
       };
@@ -297,7 +295,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
 
   /** Use the filter the AI generated from the prompt, and run it. */
   const applyAIResult = React.useCallback(
-    (result: IFilterAIGenerateResultModel, text: string) => {
+    (result: IFilterAIGenerateResultModel, text: string, runSearch = true) => {
       // Display preferences are not filter criteria; keep the user's.
       const settings: IFilterSettingsModel = {
         ...result.settings,
@@ -305,11 +303,25 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
       };
       setPrompt(text);
       setSearchTerms(settings.search ?? '');
-      onSearch?.(settings);
+      if (runSearch) onSearch?.(settings);
       storeSearchFilter(settings);
       setSearchFilter(settings);
     },
     [search.boldKeywords, onSearch, storeSearchFilter, setSearchFilter],
+  );
+
+  const { confirmAction, confirmation } = useFilterAIGenerationGuard(
+    prompt,
+    { ...search, search: searchTerms },
+    async (request) => {
+      const generated = await generateFilter(request);
+      return {
+        ...generated,
+        settings: { ...generated.settings, boldKeywords: search.boldKeywords },
+      };
+    },
+    (result, text) => applyAIResult(result, text, false),
+    AppButton,
   );
 
   const isAdvancedQueryType =
@@ -459,6 +471,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
 
   return (
     <styled.AdvancedSearch expanded={expanded}>
+      {confirmation}
       <PageSection
         ignoreLastChildGap
         header={
@@ -515,7 +528,12 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
                       <span className="status_saved">Saved</span>
                     </>
                   ) : !isFirstLoad && isDiff ? (
-                    <button className="status_save_changes" onClick={() => updateSearch()}>
+                    <button
+                      className="status_save_changes"
+                      onClick={() =>
+                        confirmAction('save', (settings) => updateSearch(undefined, settings))
+                      }
+                    >
                       Save Changes
                     </button>
                   ) : (
@@ -629,7 +647,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
                     }
                     renderManualFilter={(props) => <ManualSearchForm {...props} />}
                     queryHint="Edits here only change the stories listed; the saved search rebuilds its query from its criteria."
-                    onApply={applyAIResult}
+                    onApply={(result, text) => applyAIResult(result, text)}
                     buttonComponent={AppButton}
                   />
                   <Show visible={!!search.collapseField}>
@@ -726,17 +744,27 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
             />
             <button
               className="save-cloud"
-              onClick={() => (activeFilter?.id ? updateSearch(searchName) : addSearch(searchName))}
+              onClick={() =>
+                confirmAction('save', (settings) =>
+                  activeFilter?.id
+                    ? updateSearch(searchName, settings)
+                    : addSearch(searchName, settings),
+                )
+              }
               title="Save"
             >
               <FaSave />
             </button>
             {activeFilter?.id && (
-              <button className="save-cloud" onClick={() => addSearch(searchName)} title="Add new">
+              <button
+                className="save-cloud"
+                onClick={() => confirmAction('save', (settings) => addSearch(searchName, settings))}
+                title="Add new"
+              >
                 <FaSquarePlus />
               </button>
             )}
-            <Button onClick={handleSearch} className="search-button">
+            <Button onClick={() => confirmAction('search', handleSearch)} className="search-button">
               Search
               <FaPlay />
             </Button>
