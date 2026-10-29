@@ -15,6 +15,17 @@ public class ReportingOptions : ServiceOptions
     public string Topics { get; set; } = "";
 
     /// <summary>
+    /// get/set - Seconds allowed without a consumer poll, or paused without an active report.
+    /// </summary>
+    public int ConsumerStallTimeoutSeconds { get; set; } = 60;
+
+    /// <summary>
+    /// get/set - Maximum seconds for one report message, including rendering, AI, email and retries.
+    /// This is a job deadline, not an idle-queue timeout.
+    /// </summary>
+    public int ReportProcessingTimeoutSeconds { get; set; } = 1800;
+
+    /// <summary>
     /// get/set- Whether a failure should make the report resend.
     /// </summary>
     public bool ResendOnFailure { get; set; }

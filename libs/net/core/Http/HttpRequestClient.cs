@@ -90,10 +90,11 @@ namespace TNO.Core.Http
             }
             catch (Exception ex)
             {
-                // Catch deserialization errors and log the response data.
-                var data = responseStream.ReadAllBytes();
-                var body = Encoding.Default.GetString(data);
-                _logger.LogError(ex, "Failed to deserialize response: {body}", body);
+                // Report responses can contain every story and embedded images. Log the
+                // request and JSON error path, never the response payload.
+                _logger.LogError(ex, "Failed to deserialize {model} response. Method:{method} Path:{path} Status:{status} ContentLength:{length}",
+                    typeof(TModel).Name, response.RequestMessage?.Method, response.RequestMessage?.RequestUri?.AbsolutePath,
+                    (int)response.StatusCode, response.Content.Headers.ContentLength);
                 throw;
             }
 

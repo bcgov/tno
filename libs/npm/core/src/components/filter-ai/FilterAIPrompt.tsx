@@ -84,7 +84,7 @@ export const FilterAIPrompt: React.FC<IFilterAIPromptProps> = ({
     setError(undefined);
     try {
       const result = await onGenerate({ prompt, settings });
-      apply(result, prompt);
+      apply({ ...result, settings: { ...result.settings, generatedPrompt: prompt } }, prompt);
     } catch (ex) {
       setError(getFilterAIErrorMessage(ex));
     } finally {
@@ -101,6 +101,7 @@ export const FilterAIPrompt: React.FC<IFilterAIPromptProps> = ({
         placeholder={placeholder}
         value={editor === 'textarea' ? htmlToPromptText(prompt) : prompt ?? ''}
         onChange={onPromptChange}
+        disabled={isGenerating}
       />
       <div className="filter-ai-actions">
         <ButtonComponent
@@ -114,6 +115,7 @@ export const FilterAIPrompt: React.FC<IFilterAIPromptProps> = ({
         <ButtonComponent
           variant="secondary"
           onClick={() => setShowWorkbench(true)}
+          disabled={isGenerating}
           title="Iterate on the prompt and ask the AI how to describe the filter"
         >
           <FaToolbox /> Workbench
