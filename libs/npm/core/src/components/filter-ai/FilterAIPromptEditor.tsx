@@ -11,6 +11,7 @@ export interface IFilterAIPromptEditorProps {
   placeholder?: string;
   value: string;
   editor: FilterAIPromptEditorType;
+  disabled?: boolean;
   onChange: (value: string) => void;
 }
 
@@ -24,10 +25,13 @@ export const FilterAIPromptEditor: React.FC<IFilterAIPromptEditorProps> = ({
   value,
   editor,
   onChange,
+  disabled,
 }) =>
   editor === 'textarea' ? (
     <TextArea
+      id={name}
       name={name}
+      disabled={disabled}
       label={label || undefined}
       placeholder={placeholder}
       value={value}
@@ -37,6 +41,7 @@ export const FilterAIPromptEditor: React.FC<IFilterAIPromptEditorProps> = ({
   ) : (
     <Wysiwyg
       name={name}
+      disabled={disabled}
       label={label}
       placeholder={placeholder}
       value={value}

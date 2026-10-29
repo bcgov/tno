@@ -33,7 +33,12 @@ const stories = {
   },
 };
 
-const settings: IFilterSettingsModel = { search: 'fire', size: 10, searchUnpublished: true } as any;
+const settings: IFilterSettingsModel = {
+  search: 'fire',
+  size: 10,
+  searchUnpublished: true,
+  generatedPrompt: 'stories about fires',
+};
 
 const handlers = {
   onGenerate: vi.fn(),
@@ -212,5 +217,136 @@ describe('Filter prompt workbench', () => {
     // Clearing the selection drops the story from later questions.
     fireEvent.click(screen.getAllByRole('button', { hidden: true, name: 'Clear' })[0]);
     expect(screen.queryByText(/Asking about/)).not.toBeInTheDocument();
+  });
+  it('closes an unchanged workbench without asking to apply', () => {
+    renderWorkbench();
+    fireEvent.click(screen.getByRole('button', { hidden: true, name: 'Close' }));
+    expect(handlers.onClose).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText('Apply the current prompt before closing?')).not.toBeInTheDocument();
+  });
+
+  it('asks before discarding a changed prompt and can keep editing or discard', () => {
+    renderWorkbench();
+    fireEvent.change(screen.getByLabelText('Draft prompt'), { target: { value: 'Flood stories' } });
+    fireEvent.click(screen.getByRole('button', { hidden: true, name: 'Close' }));
+    expect(handlers.onClose).not.toHaveBeenCalled();
+    expect(screen.getByText('Apply the current prompt before closing?')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { hidden: true, name: 'Keep editing' }));
+    expect(screen.getByLabelText('Draft prompt')).toHaveValue('Flood stories');
+    fireEvent.click(screen.getByRole('button', { hidden: true, name: 'Close' }));
+    fireEvent.click(screen.getByRole('button', { hidden: true, name: 'Discard and close' }));
+    expect(handlers.onClose).toHaveBeenCalledTimes(1);
+    expect(handlers.onApply).not.toHaveBeenCalled();
+  });
+
+  it('generates the changed prompt before applying and closing', async () => {
+    handlers.onGenerate.mockResolvedValue({
+      settings: { ...settings, search: 'flood' },
+      explanation: '',
+      steps: [],
+    });
+    renderWorkbench();
+    fireEvent.change(screen.getByLabelText('Draft prompt'), { target: { value: 'Flood stories' } });
+    fireEvent.click(screen.getByRole('button', { hidden: true, name: 'Close' }));
+    fireEvent.click(
+      screen.getByRole('button', { hidden: true, name: 'Generate, apply and close' }),
+    );
+    await act(async () => {});
+    expect(handlers.onApply).toHaveBeenCalledWith(
+      expect.objectContaining({
+        settings: expect.objectContaining({ search: 'flood', generatedPrompt: 'Flood stories' }),
+      }),
+      'Flood stories',
+    );
+    expect(handlers.onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('asks to apply an already generated filter without generating it twice', async () => {
+    handlers.onGenerate.mockResolvedValue({ settings, explanation: '', steps: [] });
+    renderWorkbench();
+    fireEvent.click(screen.getByRole('button', { hidden: true, name: /Generate/ }));
+    await act(async () => {});
+    fireEvent.click(screen.getByRole('button', { hidden: true, name: 'Close' }));
+    fireEvent.click(screen.getByRole('button', { hidden: true, name: 'Apply and close' }));
+    await act(async () => {});
+    expect(handlers.onGenerate).toHaveBeenCalledTimes(1);
+    expect(handlers.onApply).toHaveBeenCalledTimes(1);
+    expect(handlers.onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the workbench and prompt open when generation before closing fails', async () => {
+    handlers.onGenerate.mockRejectedValue(new Error('Unable to generate'));
+    renderWorkbench();
+    fireEvent.change(screen.getByLabelText('Draft prompt'), { target: { value: 'Flood stories' } });
+    fireEvent.click(screen.getByRole('button', { hidden: true, name: 'Close' }));
+    fireEvent.click(
+      screen.getByRole('button', { hidden: true, name: 'Generate, apply and close' }),
+    );
+    await act(async () => {});
+    expect(handlers.onClose).not.toHaveBeenCalled();
+    expect(handlers.onApply).not.toHaveBeenCalled();
+    expect(screen.getByLabelText('Draft prompt')).toHaveValue('Flood stories');
+    expect(screen.getAllByText('Unable to generate').length).toBeGreaterThan(0);
+  });
+  it('asks to apply an ungenerated prompt even when it was not edited inside the workbench', () => {
+    render(
+      <TestWrapper>
+        <FilterAIWorkbench
+          open
+          prompt="New prompt"
+          editor="textarea"
+          settings={settings}
+          {...handlers}
+        />
+      </TestWrapper>,
+    );
+    fireEvent.click(screen.getByRole('button', { hidden: true, name: 'Close' }));
+    expect(screen.getByText('Apply the current prompt before closing?')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { hidden: true, name: 'Generate, apply and close' }),
+    ).toBeEnabled();
+    expect(handlers.onClose).not.toHaveBeenCalled();
+  });
+
+  it('regenerates when the prompt changes after generating a draft', async () => {
+    handlers.onGenerate.mockResolvedValue({ settings, explanation: '', steps: [] });
+    renderWorkbench();
+    fireEvent.click(screen.getByRole('button', { hidden: true, name: /Generate/ }));
+    await act(async () => {});
+    fireEvent.change(screen.getByLabelText('Draft prompt'), { target: { value: 'Flood stories' } });
+    fireEvent.click(screen.getByRole('button', { hidden: true, name: 'Apply filter' }));
+    await act(async () => {});
+    expect(handlers.onGenerate).toHaveBeenCalledTimes(2);
+    expect(handlers.onGenerate.mock.calls[1][0].prompt).toBe('Flood stories');
+    expect(handlers.onApply.mock.calls[0][0].settings.generatedPrompt).toBe('Flood stories');
+  });
+
+  it('clears a discarded result on reopening', async () => {
+    handlers.onGenerate.mockResolvedValue({
+      settings: { ...settings, search: 'discard me' },
+      explanation: '',
+      steps: [],
+    });
+    const content = (open: boolean) => (
+      <TestWrapper>
+        <FilterAIWorkbench
+          open={open}
+          prompt="stories about fires"
+          editor="textarea"
+          settings={settings}
+          {...handlers}
+        />
+      </TestWrapper>
+    );
+    const view = render(content(true));
+    fireEvent.click(screen.getByRole('button', { hidden: true, name: /Generate/ }));
+    await act(async () => {});
+    fireEvent.click(screen.getByRole('button', { hidden: true, name: 'Close' }));
+    fireEvent.click(screen.getByRole('button', { hidden: true, name: 'Discard and close' }));
+    view.rerender(content(false));
+    view.rerender(content(true));
+    expect(screen.getByRole('button', { hidden: true, name: 'Apply filter' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { hidden: true, name: 'Close' }));
+    expect(screen.queryByText('Apply the current prompt before closing?')).not.toBeInTheDocument();
   });
 });

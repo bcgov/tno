@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using TNO.Ches;
 using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
 using TNO.Services.Config;
 
 namespace TNO.Services.Managers;
@@ -151,9 +152,7 @@ public abstract class ServiceManager<TOption> : IServiceManager
         string errorMsg = $"<div>An error occurred while executing the {serviceName} service.</div>{Environment.NewLine}" +
         $"<div>Environment: {env}</div>{Environment.NewLine}" +
         $"<div>Error Message:</div>{Environment.NewLine}" +
-        $"<div>{ex.Message}</div>{Environment.NewLine}" +
-        $"<div>StackTrace:</div>{Environment.NewLine}" +
-        $"<div>{ex.StackTrace}</div>";
+        $"<pre>{System.Net.WebUtility.HtmlEncode(ex.GetDiagnosticSummary())}</pre>";
         await this.SendEmailAsync($"{env} - {serviceName} Service - {subject}", errorMsg, EmailToType.Error);
     }
 

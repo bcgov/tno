@@ -10,6 +10,11 @@ public class FilterSettingsModel
 {
     #region Properties
     /// <summary>
+    /// get/set - The prompt used for the last successful generation of these settings.
+    /// </summary>
+    public string? GeneratedPrompt { get; set; }
+
+    /// <summary>
     /// get/set - Whether to search the unpublished index (which includes published content).
     /// </summary>
     public bool SearchUnpublished { get; set; }

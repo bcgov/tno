@@ -22,6 +22,7 @@ import { FilterAIButton, FilterAIButtonComponent } from './FilterAIButton';
 import { FilterAIPromptEditor, FilterAIPromptEditorType } from './FilterAIPromptEditor';
 import * as styled from './styled';
 import {
+  filterPromptNeedsGeneration,
   getFilterAIErrorMessage,
   getFilterAIStoryStats,
   getFilterSettingsSummary,
@@ -127,6 +128,8 @@ export const FilterAIWorkbench: React.FC<IFilterAIWorkbenchProps> = ({
   onClose,
   buttonComponent: ButtonComponent = FilterAIButton,
 }) => {
+  const [confirmClose, setConfirmClose] = React.useState(false);
+  const generating = React.useRef(false);
   const [draftPrompt, setDraftPrompt] = React.useState('');
   const [tab, setTab] = React.useState<WorkbenchTab>('chat');
   const [result, setResult] = React.useState<IFilterAIGenerateResultModel>();
@@ -180,9 +183,21 @@ export const FilterAIWorkbench: React.FC<IFilterAIWorkbenchProps> = ({
   const wasOpen = React.useRef(false);
   React.useEffect(() => {
     if (open && !wasOpen.current) {
+      setConfirmClose(false);
+      setResult(undefined);
+      setResultPrompt(settings.generatedPrompt);
+      setMessages([]);
+      setNonce(undefined);
+      setThread([]);
+      setQuestion('');
+      setChatError(undefined);
       setDraftPrompt(editor === 'textarea' ? htmlToPromptText(prompt) : prompt ?? '');
       // The stories listed are published ones unless the toggle is switched.
-      replaceWorking({ ...settings, searchUnpublished: false });
+      const initialWorking = { ...settings, searchUnpublished: false };
+      replaceWorking(initialWorking);
+      const initialQuery = onBuildQueryRef.current(initialWorking);
+      setQueryText(initialQuery ? JSON.stringify(initialQuery, null, 2) : '');
+      setIsQueryEdited(false);
       setStories(undefined);
       setSelectedStory(undefined);
       setSearchError(undefined);
@@ -231,18 +246,29 @@ export const FilterAIWorkbench: React.FC<IFilterAIWorkbenchProps> = ({
     return () => clearTimeout(timer);
   }, [open, parsedQuery, publishedOnly]);
 
-  const generate = async () => {
-    if (isGenerating) return;
+  const generate = async (): Promise<IFilterAIGenerateResultModel | undefined> => {
+    if (generating.current) return;
+    generating.current = true;
     setIsGenerating(true);
     setError(undefined);
     try {
       const generated = await onGenerate({ prompt: draftPrompt, settings: working });
-      setResult(generated);
+      const next = {
+        ...generated,
+        settings: {
+          ...generated.settings,
+          searchUnpublished: !publishedOnly,
+          generatedPrompt: draftPrompt,
+        },
+      };
+      setResult(next);
       setResultPrompt(draftPrompt);
-      replaceWorking({ ...generated.settings, searchUnpublished: !publishedOnly });
+      replaceWorking(next.settings);
+      return next;
     } catch (ex) {
       setError(getFilterAIErrorMessage(ex));
     } finally {
+      generating.current = false;
       setIsGenerating(false);
     }
   };
@@ -283,17 +309,41 @@ export const FilterAIWorkbench: React.FC<IFilterAIWorkbenchProps> = ({
     }
   };
 
-  const apply = () => {
-    onApply(
-      { settings: working, explanation: result?.explanation ?? '', steps: result?.steps ?? [] },
-      draftPrompt,
-      isQueryEdited && parsedQuery.value ? parsedQuery.value : undefined,
-    );
+  const draftChanged = htmlToPromptText(draftPrompt).trim() !== htmlToPromptText(prompt).trim();
+  const isStale = !!result && filterPromptNeedsGeneration(draftPrompt, resultPrompt);
+  const hasUngeneratedPrompt = filterPromptNeedsGeneration(draftPrompt, working.generatedPrompt);
+  const canApply =
+    (!!result || isEdited || draftChanged || hasUngeneratedPrompt) &&
+    !isGenerating &&
+    !isAsking &&
+    !parsedQuery.error;
+  const needsGeneration =
+    filterPromptNeedsGeneration(draftPrompt, working.generatedPrompt) &&
+    (draftChanged || !!result || !isEdited);
+
+  const apply = async () => {
+    if (!canApply || generating.current) return;
+    if (needsGeneration) {
+      const generated = await generate();
+      if (!generated) return;
+      onApply(generated, draftPrompt);
+    } else {
+      onApply(
+        { settings: working, explanation: result?.explanation ?? '', steps: result?.steps ?? [] },
+        draftPrompt,
+        isQueryEdited && parsedQuery.value ? parsedQuery.value : undefined,
+      );
+    }
+    setConfirmClose(false);
     onClose();
   };
 
-  const isStale = !!result && resultPrompt !== draftPrompt;
-  const canApply = !!result || isEdited;
+  const requestClose = () => {
+    if (generating.current || isAsking) return;
+    if (draftChanged || result || isEdited || hasUngeneratedPrompt) setConfirmClose(true);
+    else onClose();
+  };
+
   const summary = getFilterSettingsSummary(working);
   const hits = React.useMemo(
     () =>
@@ -311,10 +361,10 @@ export const FilterAIWorkbench: React.FC<IFilterAIWorkbenchProps> = ({
     { id: 'query', label: 'Elasticsearch Query' },
   ];
 
-  return (
+  const workbench = (
     <Modal
       isShowing={open}
-      hide={onClose}
+      hide={requestClose}
       headerText="Filter prompt workbench"
       type="custom"
       component={
@@ -326,6 +376,7 @@ export const FilterAIWorkbench: React.FC<IFilterAIWorkbenchProps> = ({
               label="Draft prompt"
               value={draftPrompt}
               onChange={setDraftPrompt}
+              disabled={isGenerating}
             />
             <div className="actions">
               <ButtonComponent
@@ -541,6 +592,7 @@ export const FilterAIWorkbench: React.FC<IFilterAIWorkbenchProps> = ({
                             <div dangerouslySetInnerHTML={{ __html: turn.suggestedPrompt }} />
                             <ButtonComponent
                               variant="secondary"
+                              disabled={isGenerating}
                               onClick={() =>
                                 setDraftPrompt(
                                   editor === 'textarea'
@@ -712,15 +764,68 @@ export const FilterAIWorkbench: React.FC<IFilterAIWorkbenchProps> = ({
                 ? 'Use this filter with the current draft prompt'
                 : 'Use this filter and prompt'
             }
-            onClick={apply}
+            onClick={() => void apply()}
           >
             Apply filter
           </ButtonComponent>
-          <ButtonComponent variant="secondary" onClick={onClose}>
+          <ButtonComponent
+            variant="secondary"
+            disabled={isGenerating || isAsking}
+            onClick={requestClose}
+          >
             Close
           </ButtonComponent>
         </>
       }
     />
+  );
+
+  return (
+    <>
+      {workbench}
+      <Modal
+        isShowing={open && confirmClose}
+        headerText="Apply the current prompt before closing?"
+        type="custom"
+        component={
+          <div>
+            <p>
+              {needsGeneration
+                ? 'The prompt has not been applied. Generate its filter and apply it before closing?'
+                : 'You have unapplied changes. Apply the current filter and prompt before closing?'}
+            </p>
+            {error && <p role="alert">{error}</p>}
+            {parsedQuery.error && (
+              <p role="alert">Fix the query JSON before applying, or keep editing.</p>
+            )}
+            {isGenerating && <p role="status">Generating the filter…</p>}
+          </div>
+        }
+        customButtons={
+          <>
+            <ButtonComponent variant="primary" disabled={!canApply} onClick={() => void apply()}>
+              {needsGeneration ? 'Generate, apply and close' : 'Apply and close'}
+            </ButtonComponent>
+            <ButtonComponent
+              variant="secondary"
+              disabled={isGenerating}
+              onClick={() => {
+                setConfirmClose(false);
+                onClose();
+              }}
+            >
+              Discard and close
+            </ButtonComponent>
+            <ButtonComponent
+              variant="secondary"
+              disabled={isGenerating}
+              onClick={() => setConfirmClose(false)}
+            >
+              Keep editing
+            </ButtonComponent>
+          </>
+        }
+      />
+    </>
   );
 };

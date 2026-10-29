@@ -6,6 +6,24 @@ namespace TNO.Core.Extensions;
 public static class ExceptionExtensions
 {
     /// <summary>
+    /// Describe a failure without dumping exception data or unbounded payloads. Include the
+    /// root cause first so it survives truncation, followed by its stack and the outer context.
+    /// </summary>
+    /// <param name="ex">The failure to describe.</param>
+    /// <returns>A diagnostic of at most 6,000 characters.</returns>
+    public static string GetDiagnosticSummary(this Exception ex)
+    {
+        static string Cap(string? value, int length)
+            => value == null ? "" : value.Length <= length ? value : value[..(length - 14)] + "...[truncated]";
+
+        var root = ex.GetBaseException();
+        var summary = $"{root.GetType().Name}: {Cap(root.Message, 1000)}\n{Cap(root.StackTrace, 2000)}";
+        if (!ReferenceEquals(root, ex))
+            summary += $"\nContext: {ex.GetType().Name}: {Cap(ex.Message, 1000)}\n{Cap(ex.StackTrace, 1800)}";
+        return Cap(summary, 6000);
+    }
+
+    /// <summary>
     /// Get all inner error messages
     /// </summary>
     /// <param name="ex"></param>

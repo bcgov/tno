@@ -469,20 +469,35 @@ public static partial class StringExtensions
     /// <returns></returns>
     public static string RemoveInvalidUtf8Characters(this string input)
     {
-        // Convert the input string to a byte array
-        byte[] bytes = Encoding.UTF8.GetBytes(input);
-        // Use a StringBuilder to construct the valid string
-        var validString = new StringBuilder();
+        ArgumentNullException.ThrowIfNull(input);
+        // A .NET string already contains Unicode. A UTF-8 round trip changes only unpaired
+        // UTF-16 surrogates (to U+FFFD); valid report HTML needs no buffers or copies.
+        var firstInvalid = -1;
+        for (var i = 0; i < input.Length; i++)
+        {
+            if (!char.IsSurrogate(input[i])) continue;
+            if (char.IsHighSurrogate(input[i]) && i + 1 < input.Length && char.IsLowSurrogate(input[i + 1]))
+                i++;
+            else
+            {
+                firstInvalid = i;
+                break;
+            }
+        }
+        if (firstInvalid < 0) return input;
 
-        // Decode the byte array while ignoring invalid bytes
-        Decoder utf8Decoder = Encoding.UTF8.GetDecoder();
-        int charCount = utf8Decoder.GetCharCount(bytes, 0, bytes.Length, true);
-        char[] chars = new char[charCount];
-        utf8Decoder.GetChars(bytes, 0, bytes.Length, chars, 0, true);
-
-        // Construct a string from the valid characters
-        validString.Append(chars);
-        return validString.ToString();
+        return string.Create(input.Length, (input, firstInvalid), (output, state) =>
+        {
+            state.input.AsSpan().CopyTo(output);
+            for (var i = state.firstInvalid; i < output.Length; i++)
+            {
+                if (!char.IsSurrogate(output[i])) continue;
+                if (char.IsHighSurrogate(output[i]) && i + 1 < output.Length && char.IsLowSurrogate(output[i + 1]))
+                    i++;
+                else
+                    output[i] = '\uFFFD';
+            }
+        });
     }
 
     /// <summary>

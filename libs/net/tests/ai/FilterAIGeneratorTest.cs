@@ -34,6 +34,7 @@ public class FilterAIGeneratorTest
     {
         private readonly Queue<string> _replies;
         public List<List<(string Role, string Content)>> Requests { get; } = new();
+        public string? FirstFinishReason { get; init; }
 
         public ScriptedLlmClient(params string[] replies)
         {
@@ -44,7 +45,7 @@ public class FilterAIGeneratorTest
         {
             Requests.Add(messages.ToList());
             var reply = _replies.Count > 0 ? _replies.Dequeue() : throw new InvalidOperationException("No scripted reply left.");
-            return Task.FromResult(new LlmResult(reply, 10, 10, 1));
+            return Task.FromResult(new LlmResult(reply, 10, 10, 1) { FinishReason = Requests.Count == 1 ? FirstFinishReason : null });
         }
     }
 
@@ -137,6 +138,7 @@ public class FilterAIGeneratorTest
 
         var result = await Generator(client, tools).GenerateAsync(Endpoint, null, Request(), Today);
 
+        result.Settings.GeneratedPrompt.Should().Be(Request().Prompt);
         result.Settings.Search.Should().Be("wildfire*");
         result.Settings.SourceIds.Should().Equal(1);
         result.Settings.DateOffset.Should().Be(7);
@@ -214,6 +216,73 @@ public class FilterAIGeneratorTest
         extended.GetProperty("should").GetArrayLength().Should().Be(2);
         extended.GetProperty("minimum_should_match").GetInt32().Should().Be(1);
         extended.TryGetProperty("bool", out _).Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData("not json", "not JSON")]
+    [InlineData("{", "not valid JSON")]
+    [InlineData("""{"settings":{}}""", "inside 'final'")]
+    [InlineData("""{"tool":42}""", "'tool' must be a string")]
+    [InlineData("""{"tool":"search","args":[]}""", "'args' must be a JSON object")]
+    [InlineData("""{"tool":"search","args":{},"final":{}}""", "both 'tool' and 'final'")]
+    [InlineData("""{"final":[]}""", "'final' must be an object")]
+    [InlineData("""{"final":{"settings":[]}}""", "'final.settings'")]
+    [InlineData("""{"final":{"settings":null}}""", "'final.settings'")]
+    [InlineData("""{"final":{"settings":{}}}""", "'final.explanation'")]
+    [InlineData("""{"final":{"settings":{"sourceIds":"CBC"},"explanation":"x"}}""", "sourceIds")]
+    [InlineData("""{"final":{"settings":{"sources":[1]},"explanation":"x"}}""", "sources")]
+    [InlineData("""{"final":{"settings":{"actions":[null]},"explanation":"x"}}""", "'settings.actions'")]
+    [InlineData("""{"final":{"settings":{"size":1,"size":2},"explanation":"x"}}""", "duplicate property '$.final.settings.size'")]
+    public async Task MalformedResponsesReceiveSpecificFeedbackAndCanRecover(string malformed, string problem)
+    {
+        var client = new ScriptedLlmClient(malformed, FinalSettings);
+        var result = await Generator(client, new FakeTools()).GenerateAsync(Endpoint, null, Request(), Today);
+
+        result.Settings.SourceIds.Should().Equal(1);
+        client.Requests.Should().HaveCount(2);
+        client.Requests[1][^2].Should().Be(("assistant", malformed));
+        client.Requests[1].Last().Role.Should().Be("user");
+        client.Requests[1].Last().Content.Should().Contain(problem).And.Contain(FilterAIPrompts.GenerateReplyFormat);
+    }
+
+    [Fact]
+    public async Task ChatFormatRepairsDescribeTheChatAnswerShape()
+    {
+        var client = new ScriptedLlmClient("not json", """{"final":{"reply":"Use keywords.","prompt":null}}""");
+        var result = await Generator(client, new FakeTools()).ChatAsync(Endpoint, null,
+            new FilterAIChatRequestModel() { Question = "How can I improve the prompt?" }, Today);
+
+        result.Answer.Should().Be("Use keywords.");
+        client.Requests[1].Last().Content.Should().Contain(FilterAIPrompts.ChatReplyFormat);
+    }
+
+    [Fact]
+    public async Task TruncatedRepliesAreSentBackWithInstructionsToFitTheTokenLimit()
+    {
+        var client = new ScriptedLlmClient(FinalSettings, FinalSettings) { FirstFinishReason = "length" };
+
+        await Generator(client, new FakeTools()).GenerateAsync(Endpoint, null, Request(), Today);
+
+        client.Requests.Should().HaveCount(2);
+        client.Requests[1].Last().Content.Should().Contain("output token limit").And.Contain("without dropping filter conditions");
+    }
+
+    [Fact]
+    public async Task FormatRepairsAndTheRequiredSearchCompleteWithinOneRequest()
+    {
+        var client = new ScriptedLlmClient(
+            """{"final":{"settings":[]}}""",
+            FinalSettings,
+            """{"tool":"search","args":{"query":{"match":{"headline":"wildfire"}}}}""",
+            FinalSettings);
+
+        var result = await Generator(client, new FakeTools(), requireSearch: true).GenerateAsync(Endpoint, null, Request(), Today);
+
+        client.Requests.Should().HaveCount(4);
+        client.Requests[1].Last().Content.Should().Contain("'final.settings'");
+        client.Requests[2].Last().Content.Should().Contain("The filter was not checked");
+        result.Steps.Should().ContainSingle(s => s.Tool == "search");
+        result.Settings.Search.Should().Be("wildfire*");
     }
 
     [Fact]
