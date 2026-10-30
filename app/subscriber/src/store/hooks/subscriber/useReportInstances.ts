@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
@@ -22,10 +23,14 @@ interface IReportInstanceController {
   exportReport: (id: number, reportName: string, groupBy?: string) => Promise<IReportInstanceModel>;
 }
 
+// Preview requests share one cache across viewers and refresh buttons. Only the latest
+// request may publish its result, including size errors from a report left behind.
+let previewRequestId = 0;
+
 export const useReportInstances = (): [IReportInstanceController] => {
   const api = useApiSubscriberReportInstances();
   const dispatch = useAjaxWrapper();
-  const [, { storeMyReports, storeReportContent }] = useProfileStore();
+  const [, { storeMyReports, storeReportContent, storeReportOutput }] = useProfileStore();
 
   const controller = React.useMemo(
     () => ({
@@ -124,13 +129,36 @@ export const useReportInstances = (): [IReportInstanceController] => {
         return response.data;
       },
       viewReportInstance: async (id: number, regenerate: boolean = false) => {
-        const response = await dispatch<IReportResultModel>(
-          'view-report-instance',
-          () => api.viewReportInstance(id, regenerate),
-          'view-report',
-          true,
-        );
-        return response.data;
+        const requestId = ++previewRequestId;
+        try {
+          const response = await dispatch<IReportResultModel>(
+            'view-report-instance',
+            () => api.viewReportInstance(id, regenerate),
+            'view-report',
+            true,
+          );
+          if (requestId === previewRequestId) {
+            storeReportOutput(response.data ? { ...response.data, instanceId: id } : undefined);
+          }
+          return response.data;
+        } catch (error) {
+          const data = (error as AxiosError<{ type?: string; error?: string }>).response?.data;
+          if (
+            requestId === previewRequestId &&
+            data?.type === 'ReportTooLargeException' &&
+            data.error
+          ) {
+            // Replace any cached preview so stale HTML cannot look like a successful run.
+            storeReportOutput({
+              instanceId: id,
+              reportId: 0,
+              subject: '',
+              body: '',
+              sizeError: data.error,
+            });
+          }
+          throw error;
+        }
       },
       sendReportInstance: async (id: number, to: string) => {
         const response = await dispatch<IReportInstanceModel>('send-report-instance', () =>
@@ -151,7 +179,7 @@ export const useReportInstances = (): [IReportInstanceController] => {
         return response.data;
       },
     }),
-    [api, dispatch, storeMyReports, storeReportContent],
+    [api, dispatch, storeMyReports, storeReportContent, storeReportOutput],
   );
 
   return [controller];

@@ -201,12 +201,14 @@ public class ReportInstanceController : ControllerBase
             if (instance.OwnerId != user.Id && // User does not own the report instance
                 !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&  // User is not subscribed to the report
                 !report.IsPublic) throw new NotAuthorizedException("Not authorized to preview this report"); // Report is not public
+            _reportInstanceService.ValidateReportSize(instance);
             instance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(id));
             // AI sections are not waited for; the user is notified when they are ready.
             var result = await _reportHelper.PreviewReportInstanceAsync(new Services.Models.ReportInstance.ReportInstanceModel(instance, _serializerOptions), user.Id);
             return new JsonResult(result);
         }
 
+        _reportInstanceService.ValidateReportSize(instance, true);
         return new JsonResult(new ReportResultModel(instance));
     }
 
@@ -255,6 +257,7 @@ public class ReportInstanceController : ControllerBase
         var user = _impersonate.GetCurrentUser();
         var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException("Report does not exist");
         if (instance.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to send this report"); // User does not own the report
+        _reportInstanceService.ValidateReportSize(instance);
 
         var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, instance.ReportId, instance.Id, JsonDocument.Parse("{}"))
         {
@@ -284,6 +287,7 @@ public class ReportInstanceController : ControllerBase
         var user = _impersonate.GetCurrentUser();
         var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException("Report does not exist");
         if (instance.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to publish this report"); // User does not own the report
+        _reportInstanceService.ValidateReportSize(instance, resend && !String.IsNullOrWhiteSpace(instance.Subject));
 
         instance.Status = new[] { Entities.ReportStatus.Pending, Entities.ReportStatus.Reopen }.Contains(instance.Status) ? Entities.ReportStatus.Submitted : instance.Status;
         instance = _reportInstanceService.UpdateAndSave(instance);

@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.Core.Extensions;
+using TNO.Core.Reporting;
 using TNO.DAL.Extensions;
 using TNO.Entities;
 
@@ -20,6 +21,20 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
     #endregion
 
     #region Methods
+    /// <inheritdoc />
+    public long EstimateReportSize(long id, string[] sectionNames)
+    {
+        var query = this.Context.ReportInstanceContents
+            .Where(c => c.InstanceId == id && sectionNames.Contains(c.SectionName) && c.Content != null);
+        // Large accumulated reports can be rejected using indexed relationships alone,
+        // without asking PostgreSQL to decompress every stored story body.
+        var overhead = query.LongCount() * ReportSizeLimit.StoryOverheadCharacters;
+        if (overhead > ReportSizeLimit.MaximumCharacters) return overhead;
+
+        return query.Sum(c => (long?)((long)c.Content!.Body.Length + c.Content.Summary.Length
+                + c.Content.Headline.Length + ReportSizeLimit.StoryOverheadCharacters)) ?? 0;
+    }
+
     /// <summary>
     /// Find the instances of the report published within [start, end), newest first, with their content links.
     /// </summary>

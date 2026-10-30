@@ -464,6 +464,16 @@ public interface IApiService
     Task<API.Areas.Services.Models.Report.ReportInstanceModel[]> GetPreviousReportInstancesAsync(int reportId, int? ownerId, int qty, long? instanceId = null);
 
     /// <summary>
+    /// Get historical story input without saved report output or repeated story bodies.
+    /// </summary>
+    /// <param name="reportId">The report ID.</param>
+    /// <param name="ownerId">The instance owner.</param>
+    /// <param name="qty">The number of prior sent instances.</param>
+    /// <param name="instanceId">Only include older instances.</param>
+    /// <returns>Shared stories and section definitions with per-instance references.</returns>
+    Task<API.Areas.Services.Models.Report.ReportHistoryModel> GetPreviousReportHistoryAsync(int reportId, int? ownerId, int qty, long? instanceId = null);
+
+    /// <summary>
     /// Get the LLM for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>

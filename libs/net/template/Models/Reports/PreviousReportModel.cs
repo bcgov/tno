@@ -42,4 +42,19 @@ public class PreviousReportModel
         this.Sections = sections;
     }
     #endregion
+
+    /// <summary>
+    /// Reconstruct the same AI history for API previews and the reporting worker.
+    /// Each occurrence has its own ordering metadata while sharing the transferred story strings.
+    /// </summary>
+    /// <param name="history">The history response with unique stories.</param>
+    /// <returns>Instances with every section occurrence preserved.</returns>
+    public static PreviousReportModel[] FromHistory(API.Areas.Services.Models.Report.ReportHistoryModel history)
+    {
+        var stories = history.Content.ToDictionary(c => c.Id);
+        return history.Instances.Select(instance => new PreviousReportModel(instance.Id, instance.PublishedOn,
+            history.Sections.ToDictionary(section => section.Name, section => new ReportSectionModel(section,
+                instance.Content.Where(c => c.SectionName == section.Name)
+                    .Select(c => new ContentModel(stories[c.ContentId], c.SortOrder, c.SectionName, section.Settings.Label)))))).ToArray();
+    }
 }
