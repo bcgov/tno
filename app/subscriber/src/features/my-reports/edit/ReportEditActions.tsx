@@ -51,7 +51,7 @@ export const ReportEditActions = ({
   const { values, isSubmitting, submitForm, setValues, active, setSubmitting } =
     useReportEditContext();
   const [{ viewReportInstance }] = useReportInstances();
-  const [{ reportOutput }, { storeReportOutput }] = useProfileStore();
+  const [{ reportOutput }] = useProfileStore();
   const [{ requests }] = useApp();
   const navigate = useNavigate();
   const { toggle: toggleRemove, isShowing: isShowingRemove } = useModal();
@@ -78,11 +78,10 @@ export const ReportEditActions = ({
   const handleViewReport = React.useCallback(
     async (instanceId: number, regenerate?: boolean | undefined) => {
       try {
-        const response = await viewReportInstance(instanceId, regenerate);
-        storeReportOutput({ ...response, instanceId });
+        await viewReportInstance(instanceId, regenerate);
       } catch {}
     },
-    [viewReportInstance, storeReportOutput],
+    [viewReportInstance],
   );
 
   React.useEffect(() => {

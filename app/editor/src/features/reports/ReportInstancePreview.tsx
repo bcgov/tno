@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import React from 'react';
 import { FaPaperPlane } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
@@ -33,6 +34,7 @@ const ReportInstancePreview: React.FC = () => {
   const [isLoading, setIsLoading] = React.useState(true);
   const [view, setView] = React.useState<IReportResultModel | undefined>();
   const [report, setReport] = React.useState<IReportModel>();
+  const [sizeError, setSizeError] = React.useState<string>();
 
   console.error('ReportInstancePreview ');
 
@@ -46,11 +48,17 @@ const ReportInstancePreview: React.FC = () => {
       try {
         isRequesting.current = true;
         setIsLoading(true);
+        setSizeError(undefined);
         const response = await viewReportInstance(instanceId);
         const report = await getReport(response.reportId);
         setView(response);
         setReport(report);
-      } catch {
+      } catch (error) {
+        const data = (error as AxiosError<{ type?: string; error?: string }>).response?.data;
+        if (data?.type === 'ReportTooLargeException' && data.error) {
+          setView(undefined);
+          setSizeError(data.error);
+        }
       } finally {
         isRequesting.current = false;
         setIsLoading(false);
@@ -125,6 +133,12 @@ const ReportInstancePreview: React.FC = () => {
 
   return (
     <styled.ReportPreview>
+      <Show visible={!!sizeError}>
+        <div role="alert">
+          <strong>Report too large</strong>
+          <p>{sizeError}</p>
+        </div>
+      </Show>
       <Show visible={isLoading && !view}>
         <Loading />
       </Show>

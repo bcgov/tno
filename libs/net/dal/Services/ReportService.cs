@@ -1048,6 +1048,51 @@ public class ReportService : BaseService<Report, int>, IReportService
         return query.Take(qty).ToArray();
     }
 
+    /// <inheritdoc />
+    public API.Areas.Services.Models.Report.ReportHistoryModel GetPreviousReportHistory(int id, long? instanceId, int? ownerId = null, int qty = 2)
+    {
+        var query = this.Context.ReportInstances.AsNoTracking()
+            .Where(i => i.ReportId == id && i.SentOn != null);
+        if (instanceId.HasValue) query = query.Where(i => i.Id < instanceId.Value);
+        if (ownerId.HasValue) query = query.Where(i => i.OwnerId == ownerId.Value);
+
+        // Project before materializing: even one saved instance can contain hundreds of MB of HTML.
+        var instances = query.OrderByDescending(i => i.Id).Take(Math.Max(0, qty))
+            .AsSplitQuery()
+            .Select(i => new API.Areas.Services.Models.Report.ReportHistoryInstanceModel
+            {
+                Id = i.Id,
+                PublishedOn = i.PublishedOn,
+                Content = i.ContentManyToMany.OrderBy(c => c.SectionName).ThenBy(c => c.SortOrder)
+                    .Select(c => new API.Areas.Services.Models.Report.ReportHistoryContentReferenceModel
+                    {
+                        ContentId = c.ContentId,
+                        SectionName = c.SectionName,
+                        SortOrder = c.SortOrder,
+                    }).ToArray(),
+            }).ToArray();
+        if (instances.Length == 0) return new();
+
+        var contentIds = instances.SelectMany(i => i.Content.Select(c => c.ContentId)).Distinct().ToArray();
+        // Preserve the same story fields as the existing history endpoint, once per story.
+        var content = this.Context.Contents.AsNoTracking().Where(c => contentIds.Contains(c.Id))
+            .ToArray().Select(c => new API.Areas.Services.Models.Report.ContentModel(c)).ToArray();
+        var sections = this.Context.ReportSections.AsNoTracking().Where(s => s.ReportId == id)
+            .Select(s => new { s.Id, s.Name, s.Description, s.SectionType, s.IsEnabled, s.SortOrder, s.Settings })
+            .ToArray().Select(s => new API.Areas.Services.Models.Report.ReportSectionModel
+            {
+                Id = s.Id,
+                ReportId = id,
+                Name = s.Name,
+                Description = s.Description,
+                SectionType = s.SectionType,
+                IsEnabled = s.IsEnabled,
+                SortOrder = s.SortOrder,
+                Settings = JsonSerializer.Deserialize<ReportSectionSettingsModel>(s.Settings, _serializerOptions) ?? new(),
+            }).ToArray();
+        return new() { Instances = instances, Sections = sections, Content = content };
+    }
+
     /// <summary>
     /// Find the history of the previous sent report instances for the specified report 'id' and 'ownerId'.
     /// Only what is needed to exclude or deduplicate content is loaded, not the instance output or the story text.
