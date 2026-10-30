@@ -207,6 +207,24 @@ public class ReportController : ControllerBase
     }
 
     /// <summary>
+    /// Get historical story input without saved report HTML or delivery details.
+    /// Stories and section definitions are returned once across all requested instances.
+    /// </summary>
+    /// <param name="id">The report ID.</param>
+    /// <param name="ownerId">The instance owner.</param>
+    /// <param name="qty">The number of prior sent instances.</param>
+    /// <param name="instanceId">Only include instances older than this instance.</param>
+    /// <returns>Historical instances referencing shared stories and section definitions.</returns>
+    [HttpGet("{id}/history")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ReportHistoryModel), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult GetHistory(int id, int? ownerId, int qty = 1, long? instanceId = null)
+    {
+        return new JsonResult(_service.GetPreviousReportHistory(id, instanceId, ownerId, qty));
+    }
+
+    /// <summary>
     /// Clears all content from folders within this report.
     /// </summary>
     /// <param name="id"></param>

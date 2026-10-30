@@ -155,6 +155,16 @@ public interface IReportService : IBaseService<Report, int>
     ReportInstance[] GetPreviousReportInstances(int id, long? instanceId, int? ownerId = null, bool includeContent = false, int qty = 2);
 
     /// <summary>
+    /// Get prior sent instances for analysis without loading saved output or repeated story bodies.
+    /// </summary>
+    /// <param name="id">The report ID.</param>
+    /// <param name="instanceId">Only include older instances.</param>
+    /// <param name="ownerId">The instance owner.</param>
+    /// <param name="qty">The number of prior sent instances.</param>
+    /// <returns>Shared stories and section definitions with per-instance references.</returns>
+    API.Areas.Services.Models.Report.ReportHistoryModel GetPreviousReportHistory(int id, long? instanceId, int? ownerId = null, int qty = 2);
+
+    /// <summary>
     /// Get the content from the current report instance for the specified 'reportId'.
     /// </summary>
     /// <param name="reportId"></param>

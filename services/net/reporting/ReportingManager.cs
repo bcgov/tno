@@ -491,16 +491,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
     /// <returns></returns>
     public async Task<IEnumerable<PreviousReportModel>> GetPreviousReportsAsync(int reportId, int? instanceId, int? ownerId = null, int qty = 1)
     {
-        var instances = await this.Api.GetPreviousReportInstancesAsync(reportId, ownerId, qty, instanceId);
-
-        return instances.Select(instance => new PreviousReportModel(
-            instance.Id,
-            instance.PublishedOn,
-            instance.Report?.Sections.ToDictionary(section => section.Name, section =>
-            {
-                var content = instance.Content.Where(c => c.SectionName == section.Name && c.Content != null).Select(c => new ContentModel(c.Content!, c.SortOrder, c.SectionName, section.Settings.Label));
-                return new ReportSectionModel(section, content);
-            }) ?? [])).ToArray();
+        var history = await this.Api.GetPreviousReportHistoryAsync(reportId, ownerId, qty, instanceId);
+        return PreviousReportModel.FromHistory(history);
     }
 
     /// <summary>

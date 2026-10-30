@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.Data.Common;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -62,6 +64,86 @@ public class ReportHistoryIntegrationTest
     #endregion
 
     #region Tests
+    private sealed class Commands : DbCommandInterceptor
+    {
+        public List<string> Sql { get; } = [];
+        public override InterceptionResult<DbDataReader> ReaderExecuting(DbCommand command, CommandEventData eventData, InterceptionResult<DbDataReader> result)
+        {
+            Sql.Add(command.CommandText);
+            return result;
+        }
+    }
+
+    [PostgresFact]
+    public void AnalysisHistoryProjectsNoSavedOutputAndTransfersEachStoryOnce()
+    {
+        var commands = new Commands();
+        using var context = _fixture.CreateContext(commands);
+        var owners = context.Users.AsNoTracking().OrderBy(u => u.Id).Select(u => u.Id).Take(2).ToArray();
+        var report = AddReport(context, owners[0], "{}");
+        try
+        {
+            context.ReportSections.AddRange(
+                new ReportSection("section", ReportSectionType.Content, report.Id, null, null, null)
+                { IsEnabled = true, Settings = JsonDocument.Parse("{\"label\":\"News\"}") },
+                new ReportSection("headlines", ReportSectionType.Content, report.Id, null, null, null)
+                { IsEnabled = false, SortOrder = 1, Settings = JsonDocument.Parse("{\"label\":\"Headlines\"}") });
+            context.SaveChanges();
+            var story = _fixture.AddContent(context, configure: c =>
+            {
+                c.Body = "Complete article text";
+                c.Summary = "Article summary";
+                c.Versions[owners[0]] = new() { Body = "Custom article text", Summary = "Custom summary" };
+            });
+            var old = AddInstance(context, report, DateTime.UtcNow.AddDays(-3), story);
+            var previous = new ReportInstance(report.Id, owners[0],
+                [new ReportInstanceContent(0, story.Id, "section"), new ReportInstanceContent(0, story.Id, "headlines", 4)])
+            {
+                PublishedOn = DateTime.UtcNow.AddDays(-2), SentOn = DateTime.UtcNow.AddDays(-2),
+                Body = new string('x', 1_000_000), Subject = "Unused historical subject",
+            };
+            context.ReportInstances.Add(previous);
+            context.SaveChanges();
+            var otherOwner = new ReportInstance(report.Id, owners[1], [new ReportInstanceContent(0, story.Id, "section")])
+            { PublishedOn = DateTime.UtcNow.AddDays(-1), SentOn = DateTime.UtcNow.AddDays(-1) };
+            context.ReportInstances.Add(otherOwner);
+            context.SaveChanges();
+            AddInstance(context, report, null, story);
+            var current = AddInstance(context, report, DateTime.UtcNow, story);
+            AddInstance(context, report, DateTime.UtcNow, story);
+            context.ChangeTracker.Clear();
+            commands.Sql.Clear();
+
+            var service = CreateService(context);
+            var result = service.GetPreviousReportHistory(report.Id, current.Id, owners[0], 2);
+
+            result.Instances.Select(i => i.Id).Should().Equal(previous.Id, old.Id);
+            result.Content.Should().ContainSingle();
+            result.Content[0].Body.Should().Be(story.Body);
+            result.Content[0].Summary.Should().Be(story.Summary);
+            result.Content[0].Versions[owners[0]].Body.Should().Be("Custom article text");
+            result.Instances[0].Content.Should().HaveCount(2);
+            result.Instances[0].Content.Single(c => c.SectionName == "headlines").SortOrder.Should().Be(4);
+            result.Sections.Should().HaveCount(2);
+            result.Sections.Single(s => s.Name == "headlines").IsEnabled.Should().BeFalse();
+            context.ChangeTracker.Entries().Should().BeEmpty();
+            var instanceQueries = commands.Sql.Where(sql => System.Text.RegularExpressions.Regex.IsMatch(sql, @"\breport_instance\b")).ToArray();
+            instanceQueries.Should().NotBeEmpty();
+            foreach (var sql in instanceQueries)
+                sql.Should().NotMatchRegex(@"\b(body|subject|response)\b");
+            var json = JsonSerializer.Serialize(result);
+            json.Should().NotContain("Unused historical subject");
+            json.Length.Should().BeLessThan(20_000);
+            service.GetPreviousReportHistory(report.Id, current.Id, owners[0], 1).Instances.Select(i => i.Id).Should().Equal(previous.Id);
+            service.GetPreviousReportHistory(report.Id, current.Id, owners[1], 2).Instances.Select(i => i.Id).Should().Equal(otherOwner.Id);
+            service.GetPreviousReportHistory(report.Id, current.Id, owners[0], 0).Instances.Should().BeEmpty();
+        }
+        finally
+        {
+            Remove(context, report);
+        }
+    }
+
     [PostgresFact]
     public void ContentToExclude_IsTheCurrentAndPreviousSentContent()
     {
