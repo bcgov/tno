@@ -23,6 +23,10 @@ interface IReportInstanceController {
   exportReport: (id: number, reportName: string, groupBy?: string) => Promise<IReportInstanceModel>;
 }
 
+// Preview requests share one cache across viewers and refresh buttons. Only the latest
+// request may publish its result, including size errors from a report left behind.
+let previewRequestId = 0;
+
 export const useReportInstances = (): [IReportInstanceController] => {
   const api = useApiSubscriberReportInstances();
   const dispatch = useAjaxWrapper();
@@ -125,6 +129,7 @@ export const useReportInstances = (): [IReportInstanceController] => {
         return response.data;
       },
       viewReportInstance: async (id: number, regenerate: boolean = false) => {
+        const requestId = ++previewRequestId;
         try {
           const response = await dispatch<IReportResultModel>(
             'view-report-instance',
@@ -132,10 +137,17 @@ export const useReportInstances = (): [IReportInstanceController] => {
             'view-report',
             true,
           );
+          if (requestId === previewRequestId) {
+            storeReportOutput(response.data ? { ...response.data, instanceId: id } : undefined);
+          }
           return response.data;
         } catch (error) {
           const data = (error as AxiosError<{ type?: string; error?: string }>).response?.data;
-          if (data?.type === 'ReportTooLargeException' && data.error) {
+          if (
+            requestId === previewRequestId &&
+            data?.type === 'ReportTooLargeException' &&
+            data.error
+          ) {
             // Replace any cached preview so stale HTML cannot look like a successful run.
             storeReportOutput({
               instanceId: id,

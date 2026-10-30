@@ -45,4 +45,38 @@ describe('Report size feedback', () => {
       body: 'Reduced content',
     });
   });
+
+  it.each(['success', 'size error'])(
+    'ignores a late %s from another viewer after a newer preview completes',
+    async (outcome) => {
+      let resolveOld!: (value: unknown) => void;
+      let rejectOld!: (reason: unknown) => void;
+      state.api.viewReportInstance
+        .mockImplementationOnce(
+          () =>
+            new Promise((resolve, reject) => {
+              resolveOld = resolve;
+              rejectOld = reject;
+            }),
+        )
+        .mockResolvedValueOnce({ data: { reportId: 2, subject: 'New report', body: 'New body' } });
+      const first = renderHook(useReportInstances);
+      const second = renderHook(useReportInstances);
+      const oldRequest = first.result.current[0].viewReportInstance(31).catch(() => {});
+      await second.result.current[0].viewReportInstance(32);
+      if (outcome === 'success') resolveOld({ data: { reportId: 1, body: 'Old body' } });
+      else
+        rejectOld({
+          response: { data: { type: 'ReportTooLargeException', error: 'Old size error' } },
+        });
+      await oldRequest;
+      expect(state.store.storeReportOutput).toHaveBeenCalledTimes(1);
+      expect(state.store.storeReportOutput).toHaveBeenLastCalledWith({
+        instanceId: 32,
+        reportId: 2,
+        subject: 'New report',
+        body: 'New body',
+      });
+    },
+  );
 });

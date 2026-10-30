@@ -18,9 +18,10 @@ export const ReportInstanceView: React.FC<IReportInstanceViewProps> = ({
 }) => {
   const [{ viewReportInstance }] = useReportInstances();
   const [{ requests }] = useApp();
-  const [{ reportOutput }, { storeReportOutput }] = useProfileStore();
+  const [{ reportOutput }] = useProfileStore();
   const [notFoundId, setNotFoundId] = React.useState<number>();
 
+  const output = reportOutput?.instanceId === instanceId ? reportOutput : undefined;
   const isLoading = requests.some((r) => r.group.includes('view-report'));
 
   const handleViewReport = React.useCallback(
@@ -29,26 +30,25 @@ export const ReportInstanceView: React.FC<IReportInstanceViewProps> = ({
         const response = await viewReportInstance(instanceId, regenerate);
         // The API answers 204 (no content) for a report instance that no longer exists.
         if (!response) setNotFoundId(instanceId);
-        else storeReportOutput({ ...response, instanceId });
       } catch {}
     },
-    [viewReportInstance, regenerate, storeReportOutput],
+    [viewReportInstance, regenerate],
   );
 
   React.useEffect(() => {
-    if (instanceId && reportOutput?.instanceId !== instanceId) {
+    if (instanceId && notFoundId !== instanceId && reportOutput?.instanceId !== instanceId) {
       handleViewReport(instanceId);
     }
     // The functions will result in infinite loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [instanceId, reportOutput]);
+  }, [instanceId, notFoundId, reportOutput?.instanceId]);
 
   if (notFoundId === instanceId) return <NotFound />;
-  if (reportOutput?.sizeError && reportOutput.instanceId === instanceId)
+  if (output?.sizeError)
     return (
       <div role="alert">
         <strong>Report too large</strong>
-        <p>{reportOutput.sizeError}</p>
+        <p>{output.sizeError}</p>
       </div>
     );
 
@@ -60,13 +60,13 @@ export const ReportInstanceView: React.FC<IReportInstanceViewProps> = ({
       <Col className="preview-report">
         <div
           className="preview-subject"
-          dangerouslySetInnerHTML={{ __html: reportOutput?.subject ?? '' }}
+          dangerouslySetInnerHTML={{ __html: output?.subject ?? '' }}
         ></div>
         {/* Rendered without ReportBody's deferred rendering, which leaves WebKit (all iOS browsers)
             unable to scroll to the report's story anchors. */}
         <div
           className="preview-body"
-          dangerouslySetInnerHTML={{ __html: reportOutput?.body ?? '' }}
+          dangerouslySetInnerHTML={{ __html: output?.body ?? '' }}
         ></div>
       </Col>
     </styled.ReportInstanceView>
