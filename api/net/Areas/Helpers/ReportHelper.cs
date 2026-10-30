@@ -145,17 +145,8 @@ public class ReportHelper : IReportHelper
     /// <returns></returns>
     public Task<IEnumerable<PreviousReportModel>> GetPreviousReportsAsync(int reportId, int? instanceId, int? ownerId = null, int qty = 1)
     {
-        var report = _reportService.FindById(reportId) ?? throw new NoContentException($"Report does not exist: ${reportId}");
-        var instances = _reportService.GetPreviousReportInstances(reportId, instanceId, ownerId, true, qty) ?? Array.Empty<Entities.ReportInstance>();
-        var previous = instances.Select(instance => new PreviousReportModel(
-            instance.Id,
-            instance.PublishedOn,
-            report.Sections.ToDictionary(s => s.Name, s =>
-            {
-                var content = instance.ContentManyToMany.Where(c => c.Content != null && c.SectionName == s.Name).ToArray();
-                return new ReportSectionModel(s, content, _serializerOptions);
-            }))).ToArray();
-        return Task.FromResult<IEnumerable<PreviousReportModel>>(previous);
+        var history = _reportService.GetPreviousReportHistory(reportId, instanceId, ownerId, qty);
+        return Task.FromResult<IEnumerable<PreviousReportModel>>(PreviousReportModel.FromHistory(history));
     }
 
     /// <summary>

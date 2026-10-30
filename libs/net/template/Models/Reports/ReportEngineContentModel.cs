@@ -1,5 +1,6 @@
 ﻿using TNO.API.Models.Settings;
 using TNO.Core.Extensions;
+using TNO.Core.Reporting;
 
 namespace TNO.TemplateEngine.Models.Reports;
 
@@ -8,6 +9,54 @@ namespace TNO.TemplateEngine.Models.Reports;
 /// </summary>
 public class ReportEngineContentModel : BaseTemplateModel<IEnumerable<ContentModel>>
 {
+    private long _writtenCharacters;
+    private string? _attributeSuffix;
+
+    private void Reserve(long characters)
+    {
+        ReportSizeLimit.Validate(_writtenCharacters + characters);
+        _writtenCharacters += characters;
+    }
+
+    /// <inheritdoc />
+    public override void Write(object? obj = null)
+    {
+        var text = obj?.ToString();
+        Reserve(text?.Length ?? 0);
+        base.Write(text);
+    }
+
+    /// <inheritdoc />
+    public override void WriteLiteral(string? literal = null)
+    {
+        Reserve(literal?.Length ?? 0);
+        base.WriteLiteral(literal);
+    }
+
+    /// <inheritdoc />
+    public override void BeginWriteAttribute(string name, string prefix, int prefixOffset, string suffix, int suffixOffset, int attributeValuesCount)
+    {
+        Reserve(prefix.Length);
+        _attributeSuffix = suffix;
+        base.BeginWriteAttribute(name, prefix, prefixOffset, suffix, suffixOffset, attributeValuesCount);
+    }
+
+    /// <inheritdoc />
+    public override void WriteAttributeValue(string prefix, int prefixOffset, object value, int valueOffset, int valueLength, bool isLiteral)
+    {
+        var text = value?.ToString();
+        Reserve((long)prefix.Length + (text?.Length ?? 0));
+        base.WriteAttributeValue(prefix, prefixOffset, text, valueOffset, valueLength, isLiteral);
+    }
+
+    /// <inheritdoc />
+    public override void EndWriteAttribute()
+    {
+        Reserve(_attributeSuffix?.Length ?? 0);
+        _attributeSuffix = null;
+        base.EndWriteAttribute();
+    }
+
     #region Properties
     /// <summary>
     /// get/set - A dictionary with each section.

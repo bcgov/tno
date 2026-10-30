@@ -9,7 +9,6 @@ import { FaArrowsRotate, FaFileCirclePlus, FaPaperPlane, FaPen, FaX } from 'reac
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useReportInstances, useReports } from 'store/hooks';
-import { useProfileStore } from 'store/slices';
 import {
   Col,
   getReportKind,
@@ -36,7 +35,6 @@ export interface IReportPreviewProps {
 export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps) => {
   const navigate = useNavigate();
   const [{ viewReportInstance, publishReportInstance }] = useReportInstances();
-  const [, { storeReportOutput }] = useProfileStore();
   const [, { getReport, generateReport }] = useReports();
   const { isShowing: showSend, toggle: toggleSend } = useModal();
   const { isShowing: showResend, toggle: toggleResend } = useModal();
@@ -101,14 +99,13 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
     async (instanceId: number, regenerate?: boolean) => {
       try {
         setIsSubmitting(true);
-        const response = await viewReportInstance(instanceId, regenerate);
-        storeReportOutput({ ...response, instanceId });
+        await viewReportInstance(instanceId, regenerate);
       } catch {
       } finally {
         setIsSubmitting(false);
       }
     },
-    [viewReportInstance, storeReportOutput],
+    [viewReportInstance],
   );
 
   const handleGenerate = React.useCallback(

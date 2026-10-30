@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Npgsql;
@@ -49,12 +50,14 @@ public sealed class PostgresFixture : IDisposable
     /// <summary>
     /// A new context on the integration database.
     /// </summary>
+    /// <param name="interceptor">Optional command observer for SQL projection tests.</param>
     /// <returns></returns>
-    public TNOContext CreateContext()
+    public TNOContext CreateContext(DbCommandInterceptor? interceptor = null)
     {
         if (_dataSource == null) throw new InvalidOperationException($"{PostgresFactAttribute.Variable} is not set.");
-        var options = new DbContextOptionsBuilder<TNOContext>().UseNpgsql(_dataSource).Options;
-        return new TNOContext(options);
+        var options = new DbContextOptionsBuilder<TNOContext>().UseNpgsql(_dataSource);
+        if (interceptor != null) options.AddInterceptors(interceptor);
+        return new TNOContext(options.Options);
     }
 
     /// <summary>

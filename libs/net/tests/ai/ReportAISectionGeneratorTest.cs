@@ -98,6 +98,88 @@ public class ReportAISectionGeneratorTest
         => new(store, client, new TemplateOptions(), NullLogger.Instance);
     #endregion
 
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public async Task CompactHistoryPreservesAIInputAndCachedResults(bool includeBody, bool sectionScope)
+    {
+        var options = new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web);
+        var definitions = new[]
+        {
+            new ServicesReport.ReportSectionModel { Id = 1, Name = "news", IsEnabled = true, SectionType = ReportSectionType.Content,
+                SortOrder = 0, Settings = new() { Label = "News", ShowFullStory = true } },
+            new ServicesReport.ReportSectionModel { Id = 2, Name = "headlines", IsEnabled = true, SectionType = ReportSectionType.Content,
+                SortOrder = 1, Settings = new() { Label = "Headlines", ShowHeadlines = true } },
+            new ServicesReport.ReportSectionModel { Id = 3, Name = "disabled", IsEnabled = false, SectionType = ReportSectionType.Content,
+                SortOrder = 2, Settings = new() { Label = "Disabled" } },
+        };
+        var stories = new[]
+        {
+            new ServicesReport.ContentModel { Id = 1, Headline = "Budget", Summary = "Budget summary", Body = "Full budget article",
+                OtherSource = "Paper", Byline = "Reporter", PublishedOn = DateTime.UtcNow.Date.AddDays(-3) },
+            new ServicesReport.ContentModel { Id = 2, Headline = "Transit", Summary = "", Body = "Fallback transit article" },
+        };
+        var dates = new[] { DateTime.UtcNow.Date.AddDays(-2), DateTime.UtcNow.Date.AddDays(-1) };
+        var legacy = dates.Select((date, index) => new ServicesReport.ReportInstanceModel
+        {
+            Id = index + 3, PublishedOn = date, Body = new string('x', 100_000), Subject = "Unused saved subject",
+            Report = new ServicesReport.ReportModel { Sections = definitions },
+            Content = new[]
+            {
+                new ServicesReport.ReportInstanceContentModel { ContentId = 1, Content = stories[0], SectionName = "news", SortOrder = 2 },
+                new ServicesReport.ReportInstanceContentModel { ContentId = 2, Content = stories[1], SectionName = "news", SortOrder = 1 },
+                new ServicesReport.ReportInstanceContentModel { ContentId = 1, Content = stories[0], SectionName = "headlines", SortOrder = 0 },
+                new ServicesReport.ReportInstanceContentModel { ContentId = 2, Content = stories[1], SectionName = "disabled", SortOrder = 4 },
+            },
+        }).ToArray();
+        var history = new ServicesReport.ReportHistoryModel
+        {
+            Sections = definitions, Content = stories,
+            Instances = legacy.Select(i => new ServicesReport.ReportHistoryInstanceModel
+            {
+                Id = i.Id, PublishedOn = i.PublishedOn,
+                Content = i.Content.Select(c => new ServicesReport.ReportHistoryContentReferenceModel
+                { ContentId = c.ContentId, SectionName = c.SectionName, SortOrder = c.SortOrder }).ToArray(),
+            }).ToArray(),
+        };
+        var json = System.Text.Json.JsonSerializer.Serialize(history, options);
+        json.Length.Should().BeLessThan(System.Text.Json.JsonSerializer.Serialize(legacy, options).Length / 5);
+        json.Should().NotContain("Unused saved subject");
+        var compact = PreviousReportModel.FromHistory(System.Text.Json.JsonSerializer.Deserialize<ServicesReport.ReportHistoryModel>(json, options)!);
+        var old = legacy.Select(i => new PreviousReportModel(i.Id, i.PublishedOn,
+            definitions.ToDictionary(s => s.Name, s => new ReportSectionModel(s,
+                i.Content.Where(c => c.SectionName == s.Name).Select(c => new ContentModel(c.Content!, c.SortOrder, c.SectionName, s.Settings.Label)))))).ToArray();
+        compact.Should().BeEquivalentTo(old, config => config.WithStrictOrdering());
+        var (report, section) = Report(new ReportSectionSettingsModel
+        {
+            Label = "Summary", UserPrompt = "Compare all prior reports", IncludePreviousReports = 2,
+            AIScope = sectionScope ? ReportAISectionGenerator.ScopeSections : "All",
+            SourceSections = ["news"],
+            AIInputFields = includeBody ? ReportAISectionGenerator.AllowedInputFields.ToArray() : null,
+        });
+        var current = new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(10, "Current article")) };
+        var store = new MemoryStore();
+        var client = new FakeLlmClient(8000);
+        var generator = Generator(store, client);
+        var original = generator.Prepare(report, section, current, old, Llm());
+        var optimized = generator.Prepare(report, section, current, compact, Llm());
+        optimized.Error.Should().BeNull();
+        optimized.Request.Should().BeEquivalentTo(original.Request, config => config.WithStrictOrdering());
+        var requestJson = System.Text.Json.JsonSerializer.Serialize(optimized.Request, options);
+        requestJson.Should().Contain("Fallback transit article");
+        requestJson.Should().Contain(includeBody ? "Full budget article" : "Budget summary");
+        var first = await generator.GenerateAsync(report, 5, section, current, old, Llm());
+        var calls = client.Requests.Count;
+        var second = await generator.GenerateAsync(report, 5, section, current, compact, Llm(), AISectionWait.NoWait);
+        first.Status.Should().Be(AISectionStatus.Ready);
+        second.Output.Should().Be(first.Output);
+        second.Status.Should().Be(AISectionStatus.Ready);
+        client.Requests.Count.Should().Be(calls);
+        store.Results.Should().ContainSingle();
+    }
+
     [Fact]
     public async Task UnchangedManifestIsGeneratedOnce()
     {

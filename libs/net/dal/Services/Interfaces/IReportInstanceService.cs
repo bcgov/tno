@@ -5,6 +5,14 @@ namespace TNO.DAL.Services;
 public interface IReportInstanceService : IBaseService<ReportInstance, long>
 {
     /// <summary>
+    /// Estimate report size in the database without loading story bodies into application memory.
+    /// </summary>
+    /// <param name="id">Report instance.</param>
+    /// <param name="sectionNames">Enabled sections.</param>
+    /// <returns>Source character count including a markup allowance per section entry.</returns>
+    long EstimateReportSize(long id, string[] sectionNames);
+
+    /// <summary>
     /// Find the instances of the report published within [start, end), newest first, with their content links.
     /// </summary>
     /// <param name="reportId"></param>

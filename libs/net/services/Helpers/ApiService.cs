@@ -971,6 +971,24 @@ public class ApiService : IApiService
     }
 
     /// <summary>
+    /// Get historical story input without saved report output or repeated story bodies.
+    /// </summary>
+    /// <param name="reportId">The report ID.</param>
+    /// <param name="ownerId">The instance owner.</param>
+    /// <param name="qty">The number of prior sent instances.</param>
+    /// <param name="instanceId">Only include older instances.</param>
+    /// <returns>Shared stories and section definitions with per-instance references.</returns>
+    public async Task<API.Areas.Services.Models.Report.ReportHistoryModel> GetPreviousReportHistoryAsync(int reportId, int? ownerId, int qty, long? instanceId = null)
+    {
+        var queryParams = new List<string> { $"qty={qty}" };
+        if (ownerId.HasValue) queryParams.Add($"ownerId={ownerId}");
+        if (instanceId.HasValue) queryParams.Add($"instanceId={instanceId}");
+        var url = this.Options.ApiUrl.Append($"services/reports/{reportId}/history?{string.Join("&", queryParams)}");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.Report.ReportHistoryModel>(url))
+            ?? throw new InvalidOperationException("The report history response was empty.");
+    }
+
+    /// <summary>
     /// Get the LLM for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
