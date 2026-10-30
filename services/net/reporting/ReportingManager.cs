@@ -255,6 +255,11 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
     private async Task AddRequestToQueue<ET>(Message<string, ReportRequestModel> message, ET? ex = null)
         where ET : Exception
     {
+        // Retrying the same oversized content cannot succeed. Keep the actionable failure
+        // on the instance so the owner can reduce the report before running it again.
+        for (Exception? error = ex; error != null; error = error.InnerException)
+            if (error is ReportTooLargeException) return;
+
         var failureCount = message.Value.Data.GetElementValue<int?>(".failureCount") ?? 0;
         if (this.Options.ResendOnFailure && failureCount < this.Options.ResendAttemptLimit)
         {
@@ -955,6 +960,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
         {
             var resend = IsResend(request, instance);
             var retry = IsRetry(request, instance);
+            if (resend || retry) TNO.Core.Reporting.ReportSizeLimit.Validate(instance!.Body.Length);
+            else ReportSizeValidator.Validate(sectionContent.Values);
             var subject = resend || retry ? instance!.Subject : await this.ReportEngine.GenerateReportSubjectAsync(report, instance, sectionContent, false, false);
             // We regenerate the link only email because we don't save it.  This could be an issue if the template needed content information in it.
             var linkOnlyFormatBody = await this.ReportEngine.GenerateReportBodyAsync(
@@ -1144,6 +1151,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
     /// <exception cref="InvalidOperationException"></exception>
     private async Task UpdateReportInstanceAsync(API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance, bool updateContent)
     {
+        // Do not serialize a legacy oversized body again just to record a failed send.
+        TNO.Core.Reporting.ReportSizeLimit.Validate(instance.Body.Length);
         _watchdog.Progress("Saving report status");
         // Need to keep trying until successful.
         var isUpdated = false;

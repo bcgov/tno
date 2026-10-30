@@ -151,6 +151,24 @@ public class ReportingRecoveryTest
     }
 
     [Fact]
+    public async Task OversizedReportIsAcknowledgedWithoutRetryingTheSameContent()
+    {
+        using var http = new HttpClient();
+        var api = new Mock<IApiService>();
+        api.Setup(a => a.OpenClient.Client).Returns(http);
+        api.Setup(a => a.GetReportInstanceAsync(It.IsAny<long>())).ThrowsAsync(
+            new ReportingException(591, 66842, ReportingErrors.FailedToGenerateOutput, "Report failed",
+                new TNO.Core.Exceptions.ReportTooLargeException()));
+        var listener = new Mock<IKafkaListener<string, ReportRequestModel>>();
+        var manager = new Manager(listener.Object, api.Object, new Clock(), true);
+        await manager.Handle(Message());
+        api.Verify(a => a.SendMessageAsync(It.IsAny<ReportRequestModel>()), Times.Never);
+        listener.Verify(l => l.Commit(It.IsAny<ConsumeResult<string, ReportRequestModel>>()), Times.Once);
+        listener.Verify(l => l.Resume(), Times.Once);
+        Assert.Null(manager.HealthFailureReason);
+    }
+
+    [Fact]
     public async Task CommitFailureReturns503AndNeverResumesOrCommitsLaterMessages()
     {
         using var http = new HttpClient();

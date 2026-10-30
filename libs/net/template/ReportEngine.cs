@@ -12,6 +12,7 @@ using Microsoft.Extensions.Options;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Core.Http;
+using TNO.Core.Reporting;
 using TNO.TemplateEngine.Config;
 using TNO.TemplateEngine.Models;
 using TNO.TemplateEngine.Models.Charts;
@@ -360,6 +361,7 @@ public partial class ReportEngine : IReportEngine
         if (report.Template == null) throw new InvalidOperationException("Report template is missing from model");
         if (report.Template.ReportType != Entities.ReportType.Content) throw new InvalidOperationException("The report does not use a evening overview template.");
 
+        if (!viewOnWebOnly) ReportSizeValidator.Validate(sectionContent.Values);
         var key = (isPreview ? "PREVIEW" : "FINAL") + $"-report-template-{report.Template.Id}-subject";
         var template = this.ReportEngineContent.GetOrAddTemplateInMemory(key, report.Template.Subject)
             ?? throw new InvalidOperationException("Template does not exist");
@@ -440,6 +442,7 @@ public partial class ReportEngine : IReportEngine
         if (report.Template == null) throw new InvalidOperationException("Report template is missing from model");
         if (report.Template.ReportType != Entities.ReportType.Content) throw new InvalidOperationException("The report does not use a evening overview template.");
 
+        if (!viewOnWebOnly) ReportSizeValidator.Validate(sectionContent.Values);
         var key = (isPreview ? "PREVIEW" : "FINAL") + $"-report-template-{report.Template.Id}-body";
         var template = this.ReportEngineContent.GetOrAddTemplateInMemory(key, report.Template.Body)
             ?? throw new InvalidOperationException("Template does not exist");
@@ -521,7 +524,7 @@ public partial class ReportEngine : IReportEngine
                     this.Logger.LogDebug("Chart generated, reportId:{reportId} instanceId:{instanceId} sectionId:{sectionId} chartId:{chartId}", report.Id, reportInstance?.Id, section.Id, chart.Id);
 
                     // Replace Chart Stubs with the generated image.
-                    body = body.Replace(ReportSectionModel.GenerateChartUid(section.Id, chart.Id), base64Image);
+                    body = ReportSizeLimit.Replace(body, ReportSectionModel.GenerateChartUid(section.Id, chart.Id), base64Image);
                 });
             });
         }

@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
@@ -25,7 +26,7 @@ interface IReportInstanceController {
 export const useReportInstances = (): [IReportInstanceController] => {
   const api = useApiSubscriberReportInstances();
   const dispatch = useAjaxWrapper();
-  const [, { storeMyReports, storeReportContent }] = useProfileStore();
+  const [, { storeMyReports, storeReportContent, storeReportOutput }] = useProfileStore();
 
   const controller = React.useMemo(
     () => ({
@@ -124,13 +125,28 @@ export const useReportInstances = (): [IReportInstanceController] => {
         return response.data;
       },
       viewReportInstance: async (id: number, regenerate: boolean = false) => {
-        const response = await dispatch<IReportResultModel>(
-          'view-report-instance',
-          () => api.viewReportInstance(id, regenerate),
-          'view-report',
-          true,
-        );
-        return response.data;
+        try {
+          const response = await dispatch<IReportResultModel>(
+            'view-report-instance',
+            () => api.viewReportInstance(id, regenerate),
+            'view-report',
+            true,
+          );
+          return response.data;
+        } catch (error) {
+          const data = (error as AxiosError<{ type?: string; error?: string }>).response?.data;
+          if (data?.type === 'ReportTooLargeException' && data.error) {
+            // Replace any cached preview so stale HTML cannot look like a successful run.
+            storeReportOutput({
+              instanceId: id,
+              reportId: 0,
+              subject: '',
+              body: '',
+              sizeError: data.error,
+            });
+          }
+          throw error;
+        }
       },
       sendReportInstance: async (id: number, to: string) => {
         const response = await dispatch<IReportInstanceModel>('send-report-instance', () =>
@@ -151,7 +167,7 @@ export const useReportInstances = (): [IReportInstanceController] => {
         return response.data;
       },
     }),
-    [api, dispatch, storeMyReports, storeReportContent],
+    [api, dispatch, storeMyReports, storeReportContent, storeReportOutput],
   );
 
   return [controller];

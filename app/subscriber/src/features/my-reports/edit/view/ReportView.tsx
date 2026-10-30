@@ -67,6 +67,14 @@ export const ReportView = () => {
     return () => clearTimeout(timer);
   }, [isWaitingForAI, isLoading, instanceId, instance?.sentOn, handleViewReport, aiSections]);
 
+  if (reportOutput?.sizeError && reportOutput.instanceId === instanceId)
+    return (
+      <div role="alert">
+        <strong>Report too large</strong>
+        <p>{reportOutput.sizeError}</p>
+      </div>
+    );
+
   return (
     <styled.ReportView className="report-edit-section">
       <div>

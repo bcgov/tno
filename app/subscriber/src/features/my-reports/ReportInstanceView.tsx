@@ -44,6 +44,13 @@ export const ReportInstanceView: React.FC<IReportInstanceViewProps> = ({
   }, [instanceId, reportOutput]);
 
   if (notFoundId === instanceId) return <NotFound />;
+  if (reportOutput?.sizeError && reportOutput.instanceId === instanceId)
+    return (
+      <div role="alert">
+        <strong>Report too large</strong>
+        <p>{reportOutput.sizeError}</p>
+      </div>
+    );
 
   return (
     <styled.ReportInstanceView className="preview-section">

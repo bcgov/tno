@@ -1,4 +1,4 @@
-import { act, render } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -6,7 +6,12 @@ import { ReportView } from '../../../features/my-reports/edit/view/ReportView';
 
 const state = vi.hoisted(() => ({
   requests: [] as { group: string[] }[],
-  reportOutput: { instanceId: 7, aiSections: [{ status: 'NotStarted' }] },
+  reportOutput: { instanceId: 7, aiSections: [{ status: 'NotStarted' }] } as {
+    instanceId: number;
+    aiSections?: { status: string }[];
+    sizeError?: string;
+    body?: string;
+  },
   view: vi.fn(),
   store: vi.fn(),
   context: {
@@ -90,5 +95,29 @@ describe('Report preview background refresh', () => {
       await vi.advanceTimersByTimeAsync(60000);
     });
     expect(state.view).not.toHaveBeenCalled();
+  });
+
+  it('keeps size feedback visible, hides stale output, and clears it after a successful refresh', async () => {
+    state.reportOutput = {
+      instanceId: 7,
+      body: 'Old report output',
+      sizeError: 'This report has grown too large to run. Remove stories and refresh the report.',
+    };
+    const { rerender } = render(<ReportView />);
+    expect(screen.getByRole('alert')).toHaveTextContent('Remove stories and refresh');
+    expect(screen.queryByText('Old report output')).not.toBeInTheDocument();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(60000);
+    });
+    expect(state.view).not.toHaveBeenCalled();
+    state.reportOutput = { instanceId: 7, body: 'Reduced report' };
+    rerender(<ReportView />);
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it("does not show another instance's size error", () => {
+    state.reportOutput = { instanceId: 8, sizeError: 'Another report is too large' };
+    render(<ReportView />);
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 });
