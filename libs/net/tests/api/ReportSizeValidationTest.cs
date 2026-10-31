@@ -40,7 +40,7 @@ public class ReportSizeValidationTest
         var instance = Instance();
         var service = new Mock<IReportInstanceService>();
         service.Setup(s => s.FindById(31)).Returns(instance);
-        service.Setup(s => s.EstimateReportSize(31, It.Is<string[]>(names => names.Length == 1 && names[0] == "enabled")))
+        service.Setup(s => s.EstimateReportSize(31, It.Is<string[]>(names => names.Length == 1 && names[0] == "enabled"), It.IsAny<string[]>()))
             .Returns(ReportSizeLimit.MaximumCharacters + 1L);
         var kafka = new Mock<IKafkaMessenger>(MockBehavior.Strict);
         var controller = Create(service, kafka);
@@ -63,7 +63,7 @@ public class ReportSizeValidationTest
         var service = new Mock<IReportInstanceService>();
         service.Setup(s => s.FindById(31)).Returns(Instance());
         await Assert.ThrowsAsync<NotAuthorizedException>(() => Create(service, new Mock<IKafkaMessenger>(), 2).PublishAsync(31, false));
-        service.Verify(s => s.EstimateReportSize(It.IsAny<long>(), It.IsAny<string[]>()), Times.Never);
+        service.Verify(s => s.EstimateReportSize(It.IsAny<long>(), It.IsAny<string[]>(), It.IsAny<string[]>()), Times.Never);
     }
 
     [Fact]
@@ -71,7 +71,7 @@ public class ReportSizeValidationTest
     {
         var service = new Mock<IReportInstanceService>();
         service.Setup(s => s.FindById(31)).Returns(Instance());
-        service.SetupSequence(s => s.EstimateReportSize(31, It.IsAny<string[]>()))
+        service.SetupSequence(s => s.EstimateReportSize(31, It.IsAny<string[]>(), It.IsAny<string[]>()))
             .Returns(ReportSizeLimit.MaximumCharacters + 1L).Returns(1000);
         var kafka = new Mock<IKafkaMessenger>();
         var controller = Create(service, kafka);
@@ -92,10 +92,25 @@ public class ReportSizeValidationTest
         instance.Body = "Old small output";
         var service = new Mock<IReportInstanceService>();
         service.Setup(s => s.FindById(31)).Returns(instance);
-        service.Setup(s => s.EstimateReportSize(31, It.IsAny<string[]>())).Returns(ReportSizeLimit.MaximumCharacters + 1L);
+        service.Setup(s => s.EstimateReportSize(31, It.IsAny<string[]>(), It.IsAny<string[]>())).Returns(ReportSizeLimit.MaximumCharacters + 1L);
         var kafka = new Mock<IKafkaMessenger>(MockBehavior.Strict);
         await Assert.ThrowsAsync<ReportTooLargeException>(() => Create(service, kafka).PublishAsync(31, resend));
         Assert.Empty(kafka.Invocations);
+    }
+
+    [Fact]
+    public void OnlyEnabledFullStorySectionsCountTheStoryBody()
+    {
+        var instance = Instance();
+        instance.Report!.Sections.First(s => s.Name == "enabled").Settings = JsonDocument.Parse("{\"showFullStory\":true}");
+        instance.Report.Sections.Add(new ReportSection("headlines", ReportSectionType.Content, instance.Report) { IsEnabled = true, Settings = JsonDocument.Parse("{\"showFullStory\":false}") });
+        instance.Report.Sections.First(s => s.Name == "disabled").Settings = JsonDocument.Parse("{\"showFullStory\":true}");
+        var service = new Mock<IReportInstanceService>(MockBehavior.Strict);
+        service.Setup(s => s.EstimateReportSize(31,
+            It.Is<string[]>(names => names.SequenceEqual(new[] { "enabled", "headlines" })),
+            It.Is<string[]>(names => names.SequenceEqual(new[] { "enabled" })))).Returns(1000);
+        service.Object.ValidateReportSize(instance);
+        service.VerifyAll();
     }
 
     [Fact]
@@ -103,7 +118,7 @@ public class ReportSizeValidationTest
     {
         var instance = Instance();
         var service = new Mock<IReportInstanceService>();
-        service.SetupSequence(s => s.EstimateReportSize(31, It.IsAny<string[]>()))
+        service.SetupSequence(s => s.EstimateReportSize(31, It.IsAny<string[]>(), It.IsAny<string[]>()))
             .Returns(ReportSizeLimit.MaximumCharacters + 1L).Returns(1000);
         Assert.Throws<ReportTooLargeException>(() => service.Object.ValidateReportSize(instance));
         service.Object.ValidateReportSize(instance);
