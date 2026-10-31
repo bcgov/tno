@@ -22,13 +22,45 @@ public class ReportSizeLimitTest
     public void PreflightCountsRepeatedStoriesButIgnoresDisabledSections()
     {
         var content = new ContentModel { Body = new string('x', 6_000_000) };
-        var first = new ReportSectionModel { IsEnabled = true, Content = [content] };
-        var second = new ReportSectionModel { IsEnabled = false, Content = [content] };
+        var first = new ReportSectionModel { IsEnabled = true, Content = [content], Settings = new() { ShowFullStory = true } };
+        var second = new ReportSectionModel { IsEnabled = false, Content = [content], Settings = new() { ShowFullStory = true } };
         ReportSizeValidator.Validate([first, second]);
         second.IsEnabled = true;
         Assert.Throws<ReportTooLargeException>(() => ReportSizeValidator.Validate([first, second]));
         Assert.Same(content, first.Content.Single());
         Assert.Equal(6_000_000, content.Body.Length);
+    }
+
+    [Fact]
+    public void PreflightOnlyCountsTheBodyAndImageWhereTheSectionRendersThem()
+    {
+        // An aggregation report (Event of the Day) reads thousands of full stories over a month
+        // but writes none of their text, so their bodies must not count against the output budget.
+        var stories = Enumerable.Range(0, 3000).Select(i => new ContentModel
+        {
+            Headline = $"Headline {i}",
+            Summary = new string('s', 500),
+            Body = new string('x', 5_000),
+            ImageContent = new string('i', 4_000),
+        }).ToArray();
+        var section = new ReportSectionModel { IsEnabled = true, Content = stories, Settings = new() };
+        ReportSizeValidator.Validate([section]);
+
+        section.Settings.ShowFullStory = true;
+        Assert.Throws<ReportTooLargeException>(() => ReportSizeValidator.Validate([section]));
+
+        section.Settings.ShowFullStory = false;
+        section.Settings.ShowImage = true;
+        Assert.Throws<ReportTooLargeException>(() => ReportSizeValidator.Validate([section]));
+    }
+
+    [Fact]
+    public void PreflightMarkupAllowanceStaysBelowTheOutputOfAHeadlineList()
+    {
+        // The allowance is a lower bound: a report of 30,000 headline-only entries must reach the
+        // template, which bounds the real output exactly.
+        var stories = Enumerable.Range(0, 30_000).Select(i => new ContentModel { Headline = "Headline" }).ToArray();
+        ReportSizeValidator.Validate([new ReportSectionModel { IsEnabled = true, Content = stories, Settings = new() }]);
     }
 
     [Fact]

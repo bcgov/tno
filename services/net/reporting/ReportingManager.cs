@@ -321,9 +321,9 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
         {
             // Failures will require retrying the report.  However, depending on the error the report instance could be in a unique state.
             // Resending a failure can result in cascading failures however, so it should limit the number of attempts.
-            this.Logger.LogError("Failed to handle report. ReportId:{reportId} InstanceId:{instanceId} Error:{error}",
-                ex.ReportId, ex.InstanceId, ex.GetDiagnosticSummary());
-            await this.SendErrorEmailAsync("Failed to handle message", ex);
+            this.Logger.LogError("Failed to handle report. Report:'{reportName}' ReportId:{reportId} InstanceId:{instanceId} Error:{error}",
+                ex.ReportName, ex.ReportId, ex.InstanceId, ex.GetDiagnosticSummary());
+            await this.SendErrorEmailAsync($"Failed to handle message - {ex.Describe()}", ex, ex.Describe());
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
 
             // Add the report request back to Kafka so that it runs again.
@@ -525,7 +525,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
         }
         catch (Exception ex)
         {
-            throw new ReportingException(report.Id, reportInstanceModel?.Id, ReportingErrors.FailedToGetInstance, $"Failed to fetch current report instance. ReportId:{report.Id}", ex);
+            throw new ReportingException(report.Id, report.Name, reportInstanceModel?.Id, ReportingErrors.FailedToGetInstance, $"Failed to fetch current report instance. Report:'{report.Name}' ReportId:{report.Id}", ex);
         }
 
         try
@@ -608,7 +608,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
         }
         catch (Exception ex)
         {
-            throw new ReportingException(report.Id, null, ReportingErrors.FailedToGetContent, $"Failed to fetch content for report. ReportId:{report.Id}", ex);
+            throw new ReportingException(report.Id, report.Name, null, ReportingErrors.FailedToGetContent, $"Failed to fetch content for report. Report:'{report.Name}' ReportId:{report.Id}", ex);
         }
 
         API.Areas.Services.Models.ReportInstance.ReportInstanceModel? instanceModel = null;
@@ -632,7 +632,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
             }
             catch (Exception ex)
             {
-                throw new ReportingException(report.Id, instanceModel?.Id, ReportingErrors.FailedToAddInstance, $"Failed to add instance to report. ReportId:{report.Id}", ex);
+                throw new ReportingException(report.Id, report.Name, instanceModel?.Id, ReportingErrors.FailedToAddInstance, $"Failed to add instance to report. Report:'{report.Name}' ReportId:{report.Id}", ex);
             }
         }
         else
@@ -650,7 +650,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
             }
             catch (Exception ex)
             {
-                throw new ReportingException(report.Id, instanceModel?.Id, ReportingErrors.FailedToUpdateInstance, $"Failed to updated instance for report. ReportId:{report.Id}, InstanceId:{instanceModel?.Id}", ex);
+                throw new ReportingException(report.Id, report.Name, instanceModel?.Id, ReportingErrors.FailedToUpdateInstance, $"Failed to update instance for report. Report:'{report.Name}' ReportId:{report.Id}, InstanceId:{instanceModel?.Id}", ex);
             }
         }
 
@@ -987,7 +987,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
                 instance.Response = JsonSerializer.SerializeToDocument(new { Error = ex.GetAllMessages() }, _serializationOptions);
             }
 
-            throw new ReportingException(report.Id, instance?.Id, ReportingErrors.FailedToGenerateOutput, $"Failed to generate output for report.  ReportId:{report.Id}, InstanceId:{instance?.Id}", ex);
+            throw new ReportingException(report.Id, report.Name, instance?.Id, ReportingErrors.FailedToGenerateOutput, $"Failed to generate output for report. Report:'{report.Name}' ReportId:{report.Id}, InstanceId:{instance?.Id}", ex);
         }
     }
 
@@ -1119,7 +1119,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
                 instance.Status = ReportStatus.Failed;
                 instance.Response = JsonSerializer.SerializeToDocument(responseModel, _serializationOptions);
             }
-            throw new ReportingException(report.Id, instance?.Id, ReportingErrors.FailedToEmail, $"Failed to email report.  ReportId:{report.Id}, InstanceId:{instance?.Id}", ex);
+            throw new ReportingException(report.Id, report.Name, instance?.Id, ReportingErrors.FailedToEmail, $"Failed to email report. Report:'{report.Name}' ReportId:{report.Id}, InstanceId:{instance?.Id}", ex);
         }
         catch (Exception ex)
         {
@@ -1129,7 +1129,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
                 instance.Status = ReportStatus.Failed;
                 instance.Response = JsonSerializer.SerializeToDocument(responseModel, _serializationOptions);
             }
-            throw new ReportingException(report.Id, instance?.Id, ReportingErrors.FailedToEmail, $"Failed to email report.  ReportId:{report.Id}, InstanceId:{instance?.Id}", ex);
+            throw new ReportingException(report.Id, report.Name, instance?.Id, ReportingErrors.FailedToEmail, $"Failed to email report. Report:'{report.Name}' ReportId:{report.Id}, InstanceId:{instance?.Id}", ex);
         }
     }
 

@@ -144,13 +144,15 @@ public abstract class ServiceManager<TOption> : IServiceManager
     /// </summary>
     /// <param name="subject"></param>
     /// <param name="ex"></param>
+    /// <param name="details">What the failure concerns (for example the report and instance), shown before the error.</param>
     /// <returns></returns>
-    public async Task SendErrorEmailAsync(string subject, Exception ex)
+    public async Task SendErrorEmailAsync(string subject, Exception ex, string? details = null)
     {
         string env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? PRODUCTION_ENV;
         string? serviceName = GetType().FullName ?? "Service";
         string errorMsg = $"<div>An error occurred while executing the {serviceName} service.</div>{Environment.NewLine}" +
         $"<div>Environment: {env}</div>{Environment.NewLine}" +
+        (String.IsNullOrWhiteSpace(details) ? "" : $"<div>Details: {System.Net.WebUtility.HtmlEncode(details)}</div>{Environment.NewLine}") +
         $"<div>Error Message:</div>{Environment.NewLine}" +
         $"<pre>{System.Net.WebUtility.HtmlEncode(ex.GetDiagnosticSummary())}</pre>";
         await this.SendEmailAsync($"{env} - {serviceName} Service - {subject}", errorMsg, EmailToType.Error);

@@ -10,7 +10,7 @@ public static class SynthesisPrompts
     /// <summary>
     /// The version of the prompts and pipeline. Changing it invalidates stored results.
     /// </summary>
-    public const string PipelineVersion = "8";
+    public const string PipelineVersion = "9";
 
     /// <summary>
     /// The shape every map and reduce step returns.
@@ -27,7 +27,9 @@ public static class SynthesisPrompts
     /// <returns></returns>
     public static string Map(string sectionInstructions) => $"""
         You read a batch of news stories for one section of a media monitoring report and extract the
-        findings that section needs. The section's instructions decide what matters:
+        findings that section needs. Every story in the batch was selected as input for this section,
+        so each one is in scope unless the section's instructions narrow what to cover. The section's
+        instructions decide what matters:
 
         <section-instructions>
         {sectionInstructions}
@@ -38,10 +40,12 @@ public static class SynthesisPrompts
         - Each story starts with an evidence handle in brackets, e.g. [S12]. Cite the handles of every
           story that supports a statement in "sources". Never cite a handle that is not in the batch.
         - A story may arrive in parts; treat its parts as one story.
-        - The metadata line under a story's handle names the report section(s) it belongs to as
-          "section: ...". Use it when the instructions refer to sections.
+        - The metadata line under a story's handle names the content section(s) of the report where
+          the story is shown as "section: ...". That is normally a different section from this one;
+          it never puts a story out of scope. Use it only when the instructions refer to sections.
         - Merge statements that say the same thing, and keep distinct facts separate.
-        - Leave out stories that are not relevant to the section.
+        - Leave out a story only when the instructions narrow what to cover and the story falls
+          outside it. When the instructions do not narrow the scope, extract findings from every story.
         {FindingsSchema}
         """;
 
@@ -82,7 +86,8 @@ public static class SynthesisPrompts
         given in an earlier message, lists the same counts and its findings for comparison.
         Findings for this report were synthesized from the report's stories. Each finding starts with
         its topic in parentheses, states one fact, and ends with the references of the stories that
-        support it, e.g. [S3].
+        support it, e.g. [S3]. When no findings are listed, the report's stories (listed under Report
+        sections) yielded none for the instructions.
         The Report sections array lists every section of this report in order: its "label", its
         "anchor" (a link to the section within this report, or null when the section is not rendered)
         and "stories", the references of the stories it holds.

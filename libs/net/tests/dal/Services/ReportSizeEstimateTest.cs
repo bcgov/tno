@@ -33,10 +33,13 @@ public class ReportSizeEstimateTest
         context.ChangeTracker.Clear();
         var service = new ReportInstanceService(context, new ClaimsPrincipal(), helper.Provider, NullLogger<ReportInstanceService>.Instance);
 
-        var expected = 2L * (ReportSizeLimit.StoryOverheadCharacters + content.Body.Length + content.Summary.Length + content.Headline.Length);
-        Assert.Equal(expected, service.EstimateReportSize(31, ["first", "second"]));
-        Assert.Equal(0, service.EstimateReportSize(31, []));
-        Assert.Equal(0, service.EstimateReportSize(99, ["first"]));
+        var entry = ReportSizeLimit.StoryOverheadCharacters + content.Summary.Length + content.Headline.Length;
+        // The body counts only in a section that shows the full story.
+        Assert.Equal(2L * entry + content.Body.Length, service.EstimateReportSize(31, ["first", "second"], ["first"]));
+        Assert.Equal(2L * entry, service.EstimateReportSize(31, ["first", "second"], []));
+        Assert.Equal(2L * (entry + content.Body.Length), service.EstimateReportSize(31, ["first", "second"], ["first", "second"]));
+        Assert.Equal(0, service.EstimateReportSize(31, [], []));
+        Assert.Equal(0, service.EstimateReportSize(99, ["first"], []));
         Assert.Empty(context.ChangeTracker.Entries());
         Assert.Equal(4, context.ReportInstanceContents.Count());
 
@@ -46,7 +49,7 @@ public class ReportSizeEstimateTest
         context.ReportInstanceContents.AddRange(sections.Select(section => new ReportInstanceContent(33, 1, section)));
         context.SaveChanges();
         context.ChangeTracker.Clear();
-        Assert.True(service.EstimateReportSize(33, sections) > ReportSizeLimit.MaximumCharacters);
+        Assert.True(service.EstimateReportSize(33, sections, []) > ReportSizeLimit.MaximumCharacters);
         Assert.Empty(context.ChangeTracker.Entries());
     }
 }

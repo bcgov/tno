@@ -1,3 +1,4 @@
+using System.Text.Json;
 using TNO.Core.Reporting;
 using TNO.DAL.Services;
 using TNO.Entities;
@@ -18,9 +19,22 @@ public static class ReportSizeValidation
     public static void ValidateReportSize(this IReportInstanceService service, ReportInstance instance, bool useStoredOutput = false)
     {
         if (useStoredOutput && !string.IsNullOrWhiteSpace(instance.Body))
+        {
             ReportSizeLimit.Validate(instance.Body.Length);
-        else
-            ReportSizeLimit.Validate(service.EstimateReportSize(instance.Id,
-                instance.Report?.Sections.Where(s => s.IsEnabled).Select(s => s.Name).ToArray() ?? []));
+            return;
+        }
+
+        var sections = instance.Report?.Sections.Where(s => s.IsEnabled).ToArray() ?? [];
+        ReportSizeLimit.Validate(service.EstimateReportSize(instance.Id,
+            sections.Select(s => s.Name).ToArray(),
+            sections.Where(ShowsFullStory).Select(s => s.Name).ToArray()));
     }
+
+    /// <summary>
+    /// Whether the section's settings show the full story, which is when its template renders the body.
+    /// </summary>
+    private static bool ShowsFullStory(ReportSection section)
+        => section.Settings.RootElement.ValueKind == JsonValueKind.Object
+            && section.Settings.RootElement.TryGetProperty("showFullStory", out var value)
+            && value.ValueKind == JsonValueKind.True;
 }

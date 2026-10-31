@@ -5,6 +5,8 @@ namespace TNO.Core.Reporting;
 /// <summary>
 /// Shared limits for report preflight, rendering and delivery. Ten million UTF-16 characters
 /// leave room for source models, Razor buffers and JSON escaping in a reporting worker.
+/// The rendered output is bounded exactly while the template writes it; the preflight estimate
+/// is a lower bound of that output, so it only rejects a report that cannot possibly fit.
 /// </summary>
 public static class ReportSizeLimit
 {
@@ -14,10 +16,11 @@ public static class ReportSizeLimit
     public const int MaximumCharacters = 10_000_000;
 
     /// <summary>
-    /// Allowance per section entry for template markup, navigation and metadata.
+    /// Allowance per section entry for template markup, navigation and metadata, kept below what
+    /// the smallest story template writes so the estimate never exceeds the real output.
     /// Entries repeated in different sections count separately.
     /// </summary>
-    public const int StoryOverheadCharacters = 4096;
+    public const int StoryOverheadCharacters = 256;
 
     /// <summary>
     /// Reject an oversized estimate or output before allocating another report-sized buffer.
