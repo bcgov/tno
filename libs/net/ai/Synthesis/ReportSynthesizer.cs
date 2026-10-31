@@ -104,6 +104,9 @@ public partial class ReportSynthesizer
             // nearly every story had its own topic.
             var current = OrderStories(request);
             var (mapped, batches) = await MapAsync(run, instructions, current, "Map", LlmExchangeKind.Map, cancellationToken);
+            if (mapped.Count == 0 && current.Length > 0)
+                _logger.LogWarning("Synthesis of section '{section}' (report:{reportId}, instance:{instanceId}, section:{sectionId}): the map step returned no findings from {count} stories in {batches} batch(es); the final output will have no findings or story data",
+                    request.SectionLabel, request.ReportId, request.ReportInstanceId, request.ReportSectionId, current.Length, batches);
             // Findings from a single batch are already consolidated.
             var consolidate = request.Mode == SynthesisOutputMode.TopicSummary && batches > 1;
             var findings = await ReduceAsync(run, instructions, mapped, run.ReduceAllowance(instructions), consolidate, "Reduce", LlmExchangeKind.Reduce, cancellationToken);
