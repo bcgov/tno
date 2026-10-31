@@ -22,7 +22,7 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
 
     #region Methods
     /// <inheritdoc />
-    public long EstimateReportSize(long id, string[] sectionNames)
+    public long EstimateReportSize(long id, string[] sectionNames, string[] fullStorySectionNames)
     {
         var query = this.Context.ReportInstanceContents
             .Where(c => c.InstanceId == id && sectionNames.Contains(c.SectionName) && c.Content != null);
@@ -31,8 +31,9 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
         var overhead = query.LongCount() * ReportSizeLimit.StoryOverheadCharacters;
         if (overhead > ReportSizeLimit.MaximumCharacters) return overhead;
 
-        return query.Sum(c => (long?)((long)c.Content!.Body.Length + c.Content.Summary.Length
-                + c.Content.Headline.Length + ReportSizeLimit.StoryOverheadCharacters)) ?? 0;
+        // The body is only rendered, and therefore only counted, in a section that shows the full story.
+        return query.Sum(c => (long?)((fullStorySectionNames.Contains(c.SectionName) ? (long)c.Content!.Body.Length : 0L)
+                + c.Content!.Summary.Length + c.Content.Headline.Length + ReportSizeLimit.StoryOverheadCharacters)) ?? 0;
     }
 
     /// <summary>

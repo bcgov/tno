@@ -9,8 +9,9 @@ public interface IReportInstanceService : IBaseService<ReportInstance, long>
     /// </summary>
     /// <param name="id">Report instance.</param>
     /// <param name="sectionNames">Enabled sections.</param>
-    /// <returns>Source character count including a markup allowance per section entry.</returns>
-    long EstimateReportSize(long id, string[] sectionNames);
+    /// <param name="fullStorySectionNames">The enabled sections that show the full story, whose entries count the story body.</param>
+    /// <returns>Rendered character count lower bound: headline and summary, the body in full-story sections, and a markup allowance per section entry.</returns>
+    long EstimateReportSize(long id, string[] sectionNames, string[] fullStorySectionNames);
 
     /// <summary>
     /// Find the instances of the report published within [start, end), newest first, with their content links.
