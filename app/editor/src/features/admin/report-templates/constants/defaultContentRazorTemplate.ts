@@ -8,7 +8,7 @@ export const defaultContentBodyRazorTemplate = `@inherits RazorEngineCore.RazorE
 @using TNO.TemplateEngine
 @{
   var pageBreak = Settings.Sections.UsePageBreaks ? "page-break-after: always;" : "";
-  var utcOffset = ReportExtensions.GetUtcOffset(System.DateTime.Now, "Pacific Standard Time");
+  var utcOffset = ReportExtensions.GetUtcOffset(System.DateTime.Now, "America/Vancouver");
 }
 
 <style>

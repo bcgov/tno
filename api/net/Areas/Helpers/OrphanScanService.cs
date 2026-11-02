@@ -329,7 +329,7 @@ public class OrphanScanService(TNOContext context, OrphanedContentService conten
     // Date inputs are Pacific calendar days. An exclusive next-midnight bound includes the
     // entire end date and correctly covers 23/25-hour days when daylight saving time changes.
     private static DateTime MidnightUtc(DateOnly date)
-        => TimeZoneInfo.ConvertTimeToUtc(date.ToDateTime(TimeOnly.MinValue), TimeZoneInfo.FindSystemTimeZoneById("US/Pacific"));
+        => TimeZoneInfo.ConvertTimeToUtc(date.ToDateTime(TimeOnly.MinValue), TimeZoneInfo.FindSystemTimeZoneById("America/Vancouver"));
 
     private IQueryable<Content> PostedContent(OrphanScan job)
     {

@@ -191,7 +191,7 @@ else
 echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8080
-TZ=America/Los_Angeles
+TZ=America/Vancouver
 
 ConnectionStrings__TNO=Host=database:5432;Database=$dbName;Include Error Detail=true;Log Parameters=true;
 

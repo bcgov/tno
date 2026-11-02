@@ -67,7 +67,7 @@ public static class JsonDocumentExtensions
         }
         if (previousPublishedOn != null)
         {
-            var jIncludeOnlyLatestPosted = JsonNode.Parse($"{{ \"range\": {{ \"postedOn\": {{ \"gte\": \"{previousPublishedOn.Value:yyyy-MM-ddTHH:mm:ss}\", \"time_zone\": \"US/Pacific\" }} }} }}")?.AsObject();
+            var jIncludeOnlyLatestPosted = JsonNode.Parse($"{{ \"range\": {{ \"postedOn\": {{ \"gte\": \"{previousPublishedOn.Value:yyyy-MM-ddTHH:mm:ss}\", \"time_zone\": \"America/Vancouver\" }} }} }}")?.AsObject();
             if (jIncludeOnlyLatestPosted != null)
             {
                 if (jShouldQuery != null)
@@ -120,7 +120,7 @@ public static class JsonDocumentExtensions
         var json = JsonNode.Parse(query.ToJson())?.AsObject();
         if (json == null || previousInstancePublishedOn == null) return query;
 
-        var jIncludeOnlyLatestPosted = JsonNode.Parse($"{{ \"range\": {{ \"postedOn\": {{ \"gte\": \"{previousInstancePublishedOn.Value:yyyy-MM-ddTHH:mm:ssZ}\", \"time_zone\": \"US/Pacific\" }} }} }}");
+        var jIncludeOnlyLatestPosted = JsonNode.Parse($"{{ \"range\": {{ \"postedOn\": {{ \"gte\": \"{previousInstancePublishedOn.Value:yyyy-MM-ddTHH:mm:ssZ}\", \"time_zone\": \"America/Vancouver\" }} }} }}");
         if (json.TryGetPropertyValue("query", out JsonNode? jQuery))
         {
             if (jQuery?.AsObject().TryGetPropertyValue("bool", out JsonNode? jQueryBool) == true)

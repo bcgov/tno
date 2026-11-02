@@ -5,7 +5,7 @@
 @using TNO.TemplateEngine
 @{
     var pageBreak = Settings.Sections.UsePageBreaks ? "page-break-after: always;" : "";
-    var utcOffset = ReportExtensions.GetUtcOffset(System.DateTime.Now, "Pacific Standard Time");
+    var utcOffset = ReportExtensions.GetUtcOffset(System.DateTime.Now, "America/Vancouver");
     var subscriberAppUrl = @SubscriberAppUrl?.ToString();
 }
 <h1 id="top" style="margin: 0; padding: 0;">@Settings.Subject.Text</h1>

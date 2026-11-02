@@ -83,7 +83,7 @@ public class EventOfDayReportTest : IDisposable
     {
         using var filter = JsonDocument.Parse("""
             {"size":1024,"_source":["id"],"query":{"bool":{"must":[
-              {"range":{"publishedOn":{"gte":"now-28d/d","time_zone":"US/Pacific"}}},
+              {"range":{"publishedOn":{"gte":"now-28d/d","time_zone":"America/Vancouver"}}},
               {"match":{"headline":"now"}}]}},
              "aggs":{"topics":{"terms":{"field":"topics.name","size":5}}}}
             """);

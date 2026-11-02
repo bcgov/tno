@@ -18,7 +18,7 @@ data:
   MAX_FAILURE_LIMIT: "5"
   # Kafka topic the service consumes automation run requests from.
   TOPICS: automation
-  TIME_ZONE: Pacific Standard Time
+  TIME_ZONE: America/Vancouver
   # Maximum content items processed concurrently within a single step.
   MAX_PARALLEL_CONTENT_ITEMS: "8"
   # A run with no responses for this many minutes is reconciled as failed.

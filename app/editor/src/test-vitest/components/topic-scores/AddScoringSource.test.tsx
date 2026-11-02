@@ -25,7 +25,7 @@ const added = {
   name: 'New to scoring',
   useInTopics: false,
   version: 5,
-  configuration: { timeZone: 'Pacific Standard Time' },
+  configuration: { timeZone: 'America/Vancouver' },
 };
 
 beforeEach(() => {

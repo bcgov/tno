@@ -12,7 +12,7 @@ export const generateRangeForDates = (
         [field]: {
           gte: moment(gte),
           lte: moment(lte),
-          time_zone: 'US/Pacific',
+          time_zone: 'America/Vancouver',
         },
       },
     };
@@ -21,7 +21,7 @@ export const generateRangeForDates = (
       range: {
         [field]: {
           gte: moment(gte),
-          time_zone: 'US/Pacific',
+          time_zone: 'America/Vancouver',
         },
       },
     };
@@ -30,7 +30,7 @@ export const generateRangeForDates = (
       range: {
         [field]: {
           lte: moment(lte),
-          time_zone: 'US/Pacific',
+          time_zone: 'America/Vancouver',
         },
       },
     };

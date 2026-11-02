@@ -11,7 +11,7 @@ public class TopicScoreCalculatorTest
 {
     #region Variables
     private const int SourceId = 1;
-    private static readonly TimeZoneInfo Pacific = TNO.Core.Extensions.DateTimeExtensions.ResolveTimeZone("Pacific Standard Time");
+    private static readonly TimeZoneInfo Pacific = TNO.Core.Extensions.DateTimeExtensions.ResolveTimeZone("America/Vancouver");
     #endregion
 
     #region Helpers

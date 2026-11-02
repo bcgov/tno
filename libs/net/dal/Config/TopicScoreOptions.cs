@@ -9,6 +9,6 @@ public class TopicScoreOptions
     /// <summary>
     /// get/set - The time zone topic score rule times are expressed in.
     /// </summary>
-    public string TimeZone { get; set; } = "Pacific Standard Time";
+    public string TimeZone { get; set; } = "America/Vancouver";
     #endregion
 }
