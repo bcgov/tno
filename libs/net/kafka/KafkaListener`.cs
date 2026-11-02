@@ -20,6 +20,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     private bool _disposed = false;
     private bool _open = false;
     private int _resultConsumerTracker = 0;
+    private readonly HashSet<TopicPartition> _backlogSkipped = new();
     #endregion
 
     #region Properties
@@ -94,7 +95,23 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
             builder.SetKeyDeserializer(new DefaultJsonSerializer<TKey>(_serializerOptions));
         if (typeof(TValue).IsClass && typeof(TValue) != typeof(string))
             builder.SetValueDeserializer(new DefaultJsonSerializer<TValue>(_serializerOptions));
+        if (_config.SkipBacklogOnStart) builder.SetPartitionsAssignedHandler((_, partitions) => SkipBacklog(partitions));
         return builder.Build();
+    }
+
+    /// <summary>
+    /// Position partitions this listener has not been assigned before at their newest message (SkipBacklogOnStart).
+    /// Partitions it has seen before resume from the committed offset.
+    /// </summary>
+    /// <param name="partitions"></param>
+    /// <returns></returns>
+    private IEnumerable<TopicPartitionOffset> SkipBacklog(List<TopicPartition> partitions)
+    {
+        var skip = partitions.Where(_backlogSkipped.Add).ToArray();
+        if (skip.Length > 0)
+            _logger.LogWarning("Skipping the backlog (Kafka:Consumer:SkipBacklogOnStart): consuming {partitions} from the newest message.",
+                String.Join(", ", skip.Select(p => $"{p.Topic}[{p.Partition.Value}]")));
+        return partitions.Select(p => new TopicPartitionOffset(p, skip.Contains(p) ? Offset.End : Offset.Unset));
     }
 
     /// <summary>

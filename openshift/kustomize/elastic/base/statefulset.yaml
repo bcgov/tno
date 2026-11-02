@@ -59,7 +59,7 @@ spec:
         #     claimName: tno-database-backup
       containers:
         - name: elastic
-          image: docker.elastic.co/elasticsearch/elasticsearch:7.17.9
+          image: docker.elastic.co/elasticsearch/elasticsearch:8.19.21
           resources:
             requests:
               cpu: 100m
@@ -95,16 +95,8 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
-            - name: CLUSTER_INITIAL_MASTER_NODES
-              value: "elastic-0,elastic-1,elastic-2"
             - name: DISCOVERY_SEED_HOSTS
               value: "elastic-headless"
-            - name: NODE_DATA
-              value: "true"
-            - name: NODE_INGEST
-              value: "true"
-            - name: NODE_MASTER
-              value: "true"
             # - name: discovery.zen.ping.unicast.hosts
             #   value: "elastic-0.elastic,elastic-1.elastic,elastic-2.elastic"
             # - name: discovery.zen.minimum_master_nodes

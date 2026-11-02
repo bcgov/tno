@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
@@ -39,7 +40,7 @@ public partial class OrphanedContentTest : IAsyncLifetime
     private readonly JsonSerializerOptions _json = new(JsonSerializerDefaults.Web);
     private int _license, _media;
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         _admin = Environment.GetEnvironmentVariable("TNO_ORPHAN_TEST_POSTGRES") ?? "";
         if (_admin.Length == 0) return;
@@ -63,7 +64,7 @@ public partial class OrphanedContentTest : IAsyncLifetime
         _license = license.Id; _media = media.Id;
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         if (_admin.Length == 0) return;
         await _efServices.DisposeAsync();
@@ -193,13 +194,13 @@ public partial class OrphanedContentTest : IAsyncLifetime
             var request = Assert.Single(context.TakeIndexRequests());
             Assert.Equal(item.Id, request.ContentId);
             Assert.Equal(IndexRequestAction.Delete, request.Action);
-            var log = Assert.Single(logger.Invocations.Where(i => i.Method.Name == "Log"));
+            var log = Assert.Single(logger.Invocations, i => i.Method.Name == "Log");
             var fields = Assert.IsAssignableFrom<IEnumerable<KeyValuePair<string, object?>>>(log.Arguments[2]).ToDictionary(x => x.Key, x => x.Value);
             Assert.Equal(item.Id, fields["ContentId"]);
             Assert.Equal(job.Id.ToString("D"), fields["ScanId"]);
             Assert.Equal(side, fields["Side"]);
-            Assert.DoesNotContain("\r", log.Arguments[2].ToString());
-            Assert.DoesNotContain("\n", log.Arguments[2].ToString());
+            Assert.DoesNotContain("\r", log.Arguments[2]?.ToString());
+            Assert.DoesNotContain("\n", log.Arguments[2]?.ToString());
         }
     }
 
@@ -263,7 +264,8 @@ public partial class OrphanedContentTest : IAsyncLifetime
 
 public sealed class DatabaseFactAttribute : FactAttribute
 {
-    public DatabaseFactAttribute()
+    public DatabaseFactAttribute([CallerFilePath] string? sourceFilePath = null, [CallerLineNumber] int sourceLineNumber = -1)
+        : base(sourceFilePath, sourceLineNumber)
     {
         if (String.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("TNO_ORPHAN_TEST_POSTGRES")))
             Skip = "Set TNO_ORPHAN_TEST_POSTGRES to a PostgreSQL admin connection for disposable test databases.";

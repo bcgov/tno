@@ -1,4 +1,4 @@
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace TNO.API.Config.Swagger
@@ -34,6 +34,7 @@ namespace TNO.API.Config.Swagger
         /// <param name="context"></param>
         public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
         {
+            swaggerDoc.Servers ??= [];
             swaggerDoc.Servers.Add(new OpenApiServer() { Url = $"{_context.HttpContext?.Request.Scheme}://{_context.HttpContext?.Request.Host}{_basePath}" });
         }
         #endregion

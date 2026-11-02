@@ -28,6 +28,8 @@ node:
 path:
   # Path to directory where to store the data (separate multiple locations by comma):
   data: /usr/share/elasticsearch/data
+  # Snapshot repository location (see openshift/kustomize/elastic/SNAPSHOTS.md):
+  repo: /usr/share/elasticsearch/snapshots
   # Path to log files:
   # logs: /var/log/elasticsearch
 #
@@ -67,8 +69,8 @@ http:
 #
 discovery:
   type: ${DISCOVERY_TYPE}
-  seed_hosts: ${DISCOVERY_SEED_HOSTS}
-  seed_providers: ${DISCOVERY_SEED_PROVIDERS}
+  # seed_hosts / seed_providers are not set: single-node discovery needs neither, and 8.x refuses to start
+  # when a setting resolves to an empty value.
 # Pass an initial list of hosts to perform discovery when new node is started:
 # The default list of hosts is ["127.0.0.1", "[::1]"]
 #
@@ -100,7 +102,3 @@ xpack:
     transport:
       ssl:
         enabled: false
-  monitoring:
-    enabled: true
-    collection:
-      enabled: true

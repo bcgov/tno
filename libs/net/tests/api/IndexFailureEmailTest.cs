@@ -50,12 +50,12 @@ public class IndexFailureEmailTest
         var logger = new Mock<ILogger<IndexFailureNotifier>>();
         var notifier = new IndexFailureNotifier(ches.Object, Options.Create(new ChesOptions()), configuration, logger.Object);
         await notifier.NotifyAsync([], new Exception("Kafka unavailable"));
-        var log = Assert.Single(logger.Invocations.Where(i => i.Method.Name == "Log"));
+        var log = Assert.Single(logger.Invocations, i => i.Method.Name == "Log");
         Assert.Equal(LogLevel.Error, log.Arguments[0]);
         Assert.Null(log.Arguments[3]);
-        Assert.Contains("Failed to send index failure email", log.Arguments[2].ToString());
-        Assert.DoesNotContain("private-recipient", log.Arguments[2].ToString());
-        Assert.DoesNotContain("Confidential email body", log.Arguments[2].ToString());
+        Assert.Contains("Failed to send index failure email", log.Arguments[2]?.ToString());
+        Assert.DoesNotContain("private-recipient", log.Arguments[2]?.ToString());
+        Assert.DoesNotContain("Confidential email body", log.Arguments[2]?.ToString());
     }
 
     [Theory]
@@ -75,7 +75,7 @@ public class IndexFailureEmailTest
         var manager = new IndexingManager(Mock.Of<IKafkaAdmin>(), Mock.Of<IKafkaListener<string, IndexRequestModel>>(), api.Object, ches.Object,
             Options.Create(new ElasticOptions { Url = new Uri("http://localhost:9200") }), Options.Create(new ChesOptions { From = "mmi@example.test" }),
             Options.Create(new IndexingOptions { SendEmailOnFailure = true, EmailTo = "support@example.test", IndexRetryLimit = 2, IndexRetryDelayMs = 0 }), NullLogger<IndexingManager>.Instance, cache);
-        var connection = new global::Elastic.Transport.InMemoryConnection(Encoding.UTF8.GetBytes("{\"error\":{\"type\":\"test_error\",\"reason\":\"test failure\"},\"status\":" + status + "}"), status);
+        var connection = new global::Elastic.Transport.InMemoryRequestInvoker(Encoding.UTF8.GetBytes("{\"error\":{\"type\":\"test_error\",\"reason\":\"test failure\"},\"status\":" + status + "}"), status);
         var client = new ElasticsearchClient(new ElasticsearchClientSettings(new SingleNodePool(new Uri("http://localhost:9200")), connection).DisablePing().MaximumRetries(0));
         typeof(IndexingManager).GetProperty("Client", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(manager, client);
         var method = typeof(IndexingManager).GetMethod("DeleteContentAsync", BindingFlags.NonPublic | BindingFlags.Instance, [typeof(long), typeof(string), typeof(long?)])!;

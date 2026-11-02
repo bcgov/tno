@@ -5,16 +5,16 @@ using System.Security.Authentication;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
+using Asp.Versioning;
+using Asp.Versioning.ApiExplorer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Prometheus;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using TNO.API.BackgroundWorkItem;
@@ -176,23 +176,9 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Please enter into field the word 'Bearer' following by space and JWT",
         Type = SecuritySchemeType.ApiKey
     });
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement()
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement()
     {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                },
-                Scheme = "oauth2",
-                Name = "Bearer",
-                In = ParameterLocation.Header,
-
-            },
-            new List<string>()
-        }
+        [new OpenApiSecuritySchemeReference("Bearer", document)] = []
     });
 
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -238,8 +224,9 @@ builder.Services.AddApiVersioning(options =>
     options.AssumeDefaultVersionWhenUnspecified = true;
     options.ApiVersionReader = new HeaderApiVersionReader("api-version");
     // options.DefaultApiVersion = new ApiVersion(1, 0);
-});
-builder.Services.AddVersionedApiExplorer(options =>
+})
+.AddMvc()
+.AddApiExplorer(options =>
 {
     // add the versioned api explorer, which also adds IApiVersionDescriptionProvider service
     // note: the specified format code will format the version as "'v'major[.minor][-status]"
@@ -248,7 +235,6 @@ builder.Services.AddVersionedApiExplorer(options =>
     // note: this option is only necessary when versioning by url segment. the SubstitutionFormat
     // can also be used to control the format of the API version in route templates
     options.SubstituteApiVersionInUrl = true;
-
 });
 builder.Services.AddMemoryCache();
 

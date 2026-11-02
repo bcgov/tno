@@ -33,13 +33,11 @@ data:
 
     cluster:
       name: ${CLUSTER_NAME}
-      initial_master_nodes: ${CLUSTER_INITIAL_MASTER_NODES}
 
+    # Every node has every role (the 8.x default), so node.roles is not set.
+    # cluster.initial_master_nodes is only for bootstrapping a new cluster; DEV formed long ago.
     node:
       name: ${NODE_NAME}
-      data: ${NODE_DATA}
-      ingest: ${NODE_INGEST}
-      master: ${NODE_MASTER}
     #
     # Add custom attributes to the node:
     #node.attr.rack: r1
@@ -79,7 +77,7 @@ data:
       port: 9200
       cors:
         allow-origin: /https?:\/\/(.*\.gov\.bc\.ca)/
-        # allow-origin: https://tno-dev.apps.silver.devops.gov.bc.ca,https://tno-dev-elastic.apps.silver.devops.gov.bc.ca
+        # allow-origin: https://tno-dev.apps.silver.devops.gov.bc.ca
         enabled: true
         allow-headers: X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization,x-search-query,x-search-state,x-search-filters
         allow-credentials: true
@@ -125,7 +123,3 @@ data:
         transport:
           ssl:
             enabled: false
-      monitoring:
-        enabled: true
-        collection:
-          enabled: true

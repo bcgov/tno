@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -30,7 +30,7 @@ public class SyndicationContentTypeTest
     {
         var (action, manager, messages) = CreateImport(overrideJson);
 
-        await action.PerformActionAsync<object>(manager);
+        await action.PerformActionAsync<object>(manager, cancellationToken: TestContext.Current.CancellationToken);
 
         messages.Should().HaveCount(2);
         messages.Should().OnlyContain(content => content.ContentType == expected);

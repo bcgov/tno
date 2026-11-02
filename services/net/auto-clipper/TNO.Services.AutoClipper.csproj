@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>TNO.Services.AutoClipper</RootNamespace>
@@ -16,17 +16,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Identity" Version="1.17.2" />
-    <PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.50.0" />
-    <PackageReference Include="YamlDotNet" Version="18.0.0" />
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.28.0" />
+    <PackageReference Include="Azure.Identity" Version="1.21.0" />
+    <PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.53.0" />
+    <PackageReference Include="YamlDotNet" Version="18.1.0" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.30.1" />
 
-    <!-- Force latest to remove warnings -->
-    <PackageReference Include="System.Formats.Asn1" Version="10.0.8" />
 
-    <!-- Force removal of old ASP.NET Core 2.2 packages -->
-    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel.Core" Version="2.3.6" ExcludeAssets="All" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.3.0" ExcludeAssets="All" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,8 +1,6 @@
 using System.Text.Json;
-using NPOI.SS.UserModel;
-using NPOI.SS.Util;
-using NPOI.XSSF.UserModel;
 using TNO.API.Areas.Services.Models.ReportInstance;
+using TNO.Core.Excel;
 
 namespace TNO.Reports;
 
@@ -12,12 +10,11 @@ namespace TNO.Reports;
 public class ReportXlsExport
 {
     #region Variables
-    private readonly XSSFWorkbook _workbook;
+    private readonly ExcelWorkbook _workbook;
     private readonly JsonSerializerOptions _serializerOptions;
-    private readonly XSSFSheet _sheet;
-    private readonly XSSFColor _green = new();
-    private readonly ICellStyle _regularStyle;
-    private readonly ICellStyle _boldStyle;
+    private readonly ExcelSheet _sheet;
+    private readonly ExcelCellStyle _regularStyle;
+    private readonly ExcelCellStyle _boldStyle;
     #endregion
 
     #region Constructors
@@ -29,11 +26,10 @@ public class ReportXlsExport
     public ReportXlsExport(string sheetName, JsonSerializerOptions serializerOptions)
     {
         _serializerOptions = serializerOptions;
-        _workbook = new XSSFWorkbook();
-        _green.ARGBHex = "008000";
-        _sheet = (XSSFSheet)_workbook.CreateSheet(sheetName);
-        _regularStyle = CreateStyle(10, false, false, HorizontalAlignment.Right);
-        _boldStyle = CreateStyle(10, true, false, HorizontalAlignment.Right);
+        _workbook = new ExcelWorkbook();
+        _sheet = _workbook.CreateSheet(sheetName);
+        _regularStyle = CreateStyle(10, false, false, ExcelHorizontalAlignment.Right);
+        _boldStyle = CreateStyle(10, true, false, ExcelHorizontalAlignment.Right);
     }
     #endregion
 
@@ -43,8 +39,8 @@ public class ReportXlsExport
     /// </summary>
     /// <param name="instance"></param>
     /// <param name="groupBy">Whether to group by month, otherwise it will be grouped by day.</param>
-    /// <returns>XSSFWorkbook</returns>
-    public XSSFWorkbook GenerateExcel(Entities.ReportInstance instance, string? groupBy = "yyyy-MM")
+    /// <returns>ExcelWorkbook</returns>
+    public ExcelWorkbook GenerateExcel(Entities.ReportInstance instance, string? groupBy = "yyyy-MM")
     {
         if (instance == null) throw new ArgumentNullException(nameof(instance));
 
@@ -183,7 +179,8 @@ public class ReportXlsExport
         //Set Columns width
         for (int i = 0; i <= (totalColumns * 2 + 10); i++)
         {
-            _sheet.SetColumnWidth(i, 13 * 256 + 200);
+            // 13 characters plus 200/256ths of a character.
+            _sheet.SetColumnWidth(i, (13 * 256 + 200) / 256d);
         }
 
         return _workbook;
@@ -197,20 +194,18 @@ public class ReportXlsExport
         }
 
         string[] headlineHeaders = { "Tone", "Date", "Headline", "Type", "Source", "Show/Program" };
-        IRow rowHeader = _sheet.CreateRow(rowIndex);
+        ExcelRow rowHeader = _sheet.CreateRow(rowIndex);
         int cellIndex = 0;
         foreach (string h in headlineHeaders)
         {
-            ICell cellA = rowHeader.CreateCell(cellIndex);
-            cellA.CellStyle = _boldStyle;
-            cellA.SetCellValue(h);
+            rowHeader.CreateCell(cellIndex, _boldStyle).SetValue(h);
             cellIndex++;
         }
         rowIndex++;
         foreach (HeadlineResult r in headlines)
         {
             cellIndex = 0;
-            IRow row1 = _sheet.CreateRow(rowIndex);
+            ExcelRow row1 = _sheet.CreateRow(rowIndex);
             if (r.Tone.HasValue)
                 AddNumberCell(row1, cellIndex, _regularStyle, r.Tone.Value);
             cellIndex++;
@@ -227,71 +222,46 @@ public class ReportXlsExport
         }
     }
 
-    private IFont CreateFont(double size, bool bold, XSSFColor color)
+    private static ExcelCellStyle CreateStyle(double size, bool bold, bool wrap, ExcelHorizontalAlignment horizontalAlignment)
     {
-        IFont font = _workbook.CreateFont();
-        font.FontName = "Verdana";
-        font.FontHeightInPoints = size;
-        font.IsBold = bold;
-        font.Color = color.Index;
-        return font;
-    }
-
-    private ICellStyle CreateStyle(double size, bool bold, bool wrap, HorizontalAlignment horizontalAlignment, XSSFColor? color = null)
-    {
-        color ??= new XSSFColor
+        return new ExcelCellStyle()
         {
-            ARGBHex = "000000"
+            FontName = "Verdana",
+            FontSize = size,
+            Bold = bold,
+            WrapText = wrap,
+            HorizontalAlignment = horizontalAlignment,
         };
-
-        IFont font = CreateFont(size, bold, color);
-        ICellStyle style = _workbook.CreateCellStyle();
-        style.SetFont(font);
-        style.WrapText = wrap;
-        style.Alignment = horizontalAlignment;
-        return style;
     }
 
     private void AddTitle(int index, string? text)
     {
-        ICellStyle titleStyle = CreateStyle(14, true, false, HorizontalAlignment.Center);
+        ExcelCellStyle titleStyle = CreateStyle(14, true, false, ExcelHorizontalAlignment.Center);
 
-        IRow titleRow = _sheet.CreateRow(index);
-        _ = _sheet.AddMergedRegion(CellRangeAddress.ValueOf("A1:E1"));
-        ICell titleCell = titleRow.CreateCell(0);
-        titleCell.CellStyle = titleStyle;
-        titleCell.SetCellValue(text);
+        ExcelRow titleRow = _sheet.CreateRow(index);
+        _sheet.AddMergedRegion("A1:E1");
+        titleRow.CreateCell(0, titleStyle).SetValue(text);
     }
 
-    private static ICell AddTextCell(IRow row, int cellIndex, ICellStyle style, string? value)
+    private static ExcelCell AddTextCell(ExcelRow row, int cellIndex, ExcelCellStyle style, string? value)
     {
-        ICell cellT = row.CreateCell(cellIndex);
-        cellT.CellStyle = style;
-        cellT.SetCellValue(value);
-        return cellT;
+        return row.CreateCell(cellIndex, style).SetValue(value);
     }
 
-    private static ICell AddNumberCell(IRow row, int cellIndex, ICellStyle style, double value)
+    private static ExcelCell AddNumberCell(ExcelRow row, int cellIndex, ExcelCellStyle style, double value)
     {
-        ICell cellT = row.CreateCell(cellIndex);
-        cellT.CellStyle = style;
-        cellT.SetCellValue(value);
-        return cellT;
+        return row.CreateCell(cellIndex, style).SetValue(value);
     }
 
-    private static ICell AddFormulaCell(IRow row, int cellIndex, ICellStyle style, string formula)
+    private static ExcelCell AddFormulaCell(ExcelRow row, int cellIndex, ExcelCellStyle style, string formula)
     {
-        ICell cellT = row.CreateCell(cellIndex);
-        cellT.CellStyle = style;
-        cellT.SetCellType(CellType.Formula);
-        cellT.SetCellFormula(formula);
-        return cellT;
+        return row.CreateCell(cellIndex, style).SetFormula(formula);
     }
 
     private void AddHeader(int rowIndex, int columnIndex, List<string> headers)
     {
         int cellIndex = columnIndex;
-        IRow row1 = _sheet.CreateRow(rowIndex);
+        ExcelRow row1 = _sheet.CreateRow(rowIndex);
 
         AddTextCell(row1, cellIndex, _regularStyle, "Date");
         cellIndex++;
@@ -337,7 +307,7 @@ public class ReportXlsExport
         foreach (var date in dates)
         {
             int index = 0;
-            IRow row1 = _sheet.CreateRow(rowIndex);
+            ExcelRow row1 = _sheet.CreateRow(rowIndex);
             AddTextCell(row1, index, _regularStyle, date);
             bool isFirstCell = true;
             foreach (var h in headers)
@@ -351,13 +321,13 @@ public class ReportXlsExport
                     }
                 }
                 index++;
-                ICell cellA = AddNumberCell(row1, index, _regularStyle, count);
+                ExcelCell cellA = AddNumberCell(row1, index, _regularStyle, count);
                 if (isFirstCell)
                 {
-                    firstCellCount = cellA.Address;
+                    firstCellCount = new(cellA.RowIndex, cellA.ColumnIndex);
                     isFirstCell = false;
                 }
-                lastCellCount = cellA.Address;
+                lastCellCount = new(cellA.RowIndex, cellA.ColumnIndex);
             }
             // Set the cells to apply formulas
             CellAddress formulaTopAddress = new(lastCellCount.Row, firstCellCount.Column);
@@ -395,13 +365,13 @@ public class ReportXlsExport
                     }
                 }
                 index++;
-                ICell cellA = AddNumberCell(row1, index, _regularStyle, tone);
+                ExcelCell cellA = AddNumberCell(row1, index, _regularStyle, tone);
                 if (isFirstCell)
                 {
-                    firstCellTone = cellA.Address;
+                    firstCellTone = new(cellA.RowIndex, cellA.ColumnIndex);
                     isFirstCell = false;
                 }
-                lastCellTone = cellA.Address;
+                lastCellTone = new(cellA.RowIndex, cellA.ColumnIndex);
             }
             // Set the cells to apply formulas
             formulaTopAddress = new(lastCellTone.Row, firstCellTone.Column);
@@ -417,11 +387,11 @@ public class ReportXlsExport
             AddFormulaCell(row1, index, _regularStyle, string.Format("MEDIAN({0}:{1})", formulaTopAddress.ToString(), formulaBottomAddress.ToString()));
         }
         int cellIndex = 0;
-        IRow rowTotal = _sheet.CreateRow(rowIndex);
+        ExcelRow rowTotal = _sheet.CreateRow(rowIndex);
         rowIndex++;
-        IRow rowAverage = _sheet.CreateRow(rowIndex);
+        ExcelRow rowAverage = _sheet.CreateRow(rowIndex);
         rowIndex++;
-        IRow rowMedian = _sheet.CreateRow(rowIndex);
+        ExcelRow rowMedian = _sheet.CreateRow(rowIndex);
         rowIndex++;
         AddTextCell(rowTotal, cellIndex, _boldStyle, "Total");
         AddTextCell(rowAverage, cellIndex, _boldStyle, "Average");
@@ -491,12 +461,12 @@ public class ReportXlsExport
             cellIndex++;
         }
 
-        IRow toneCountLabels = _sheet.CreateRow(rowIndex);
+        ExcelRow toneCountLabels = _sheet.CreateRow(rowIndex);
         AddTextCell(toneCountLabels, combinedCellIndex, _boldStyle, "Positive");
         AddTextCell(toneCountLabels, combinedCellIndex + 1, _boldStyle, "Neutral");
         AddTextCell(toneCountLabels, combinedCellIndex + 2, _boldStyle, "Negative");
         rowIndex++;
-        IRow toneCount = _sheet.CreateRow(rowIndex);
+        ExcelRow toneCount = _sheet.CreateRow(rowIndex);
         AddNumberCell(toneCount, combinedCellIndex, _regularStyle, tonesCount.Positive);
         AddNumberCell(toneCount, combinedCellIndex + 1, _regularStyle, tonesCount.Neutral);
         AddNumberCell(toneCount, combinedCellIndex + 2, _regularStyle, tonesCount.Negative);
@@ -504,5 +474,14 @@ public class ReportXlsExport
         return rowIndex;
     }
 
+    /// <summary>
+    /// A zero-based cell position that formats as an A1 reference.
+    /// </summary>
+    /// <param name="Row"></param>
+    /// <param name="Column"></param>
+    private readonly record struct CellAddress(int Row, int Column)
+    {
+        public override string ToString() => ExcelWorkbook.GetCellReference(this.Row, this.Column);
+    }
     #endregion
 }

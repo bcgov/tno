@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.EntityFrameworkCore;
 using TNO.API.Areas.Services.Models.ContentAnalysis;
 using TNO.DAL;

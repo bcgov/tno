@@ -4,7 +4,7 @@
 
 - Node: `18.x` (repo targets `>=18.11.0 <19.0.0`)
 - Yarn: `3.x` (Berry); use Yarn in `app/*`, `libs/npm`, and `api/node`
-- .NET: `net9.0` projects across API/services/libs
+- .NET: `net10.0` projects across API/services/libs
 - Bash: scripts under `tools/scripts/**` and build helpers
 - Python: utility scripts only (keep dependencies minimal)
 

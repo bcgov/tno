@@ -1,5 +1,5 @@
 using System.Text.Json;
-using FluentAssertions;
+using AwesomeAssertions;
 using TNO.API.Areas.Services.Models.ReportAIResult;
 using TNO.Entities;
 

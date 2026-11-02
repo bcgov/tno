@@ -1,5 +1,5 @@
 using System.Net;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using TNO.AI;
 
@@ -45,7 +45,7 @@ public class LlmDirectClientTest
     {
         var (client, _) = Client(HttpStatusCode.OK, "{\"choices\":[{\"message\":{\"role\":\"assistant\",\"content\":null},\"finish_reason\":\"content_filter\"}]}");
 
-        var result = await client.InvokeAsync(Endpoint, new[] { ("user", "hi") }, true, 3);
+        var result = await client.InvokeAsync(Endpoint, new[] { ("user", "hi") }, true, 3, cancellationToken: TestContext.Current.CancellationToken);
 
         result.IsContentFiltered.Should().BeTrue();
         result.IsTruncated.Should().BeFalse();
@@ -69,7 +69,7 @@ public class LlmDirectClientTest
     {
         var (client, _) = Client(HttpStatusCode.OK, "{\"choices\":[{\"message\":{\"role\":\"assistant\",\"content\":null,\"refusal\":\"I can't help with that.\"},\"finish_reason\":\"stop\"}]}");
 
-        var result = await client.InvokeAsync(Endpoint, new[] { ("user", "hi") }, true, 3);
+        var result = await client.InvokeAsync(Endpoint, new[] { ("user", "hi") }, true, 3, cancellationToken: TestContext.Current.CancellationToken);
 
         result.Refusal.Should().Be("I can't help with that.");
         result.Content.Should().BeEmpty();
