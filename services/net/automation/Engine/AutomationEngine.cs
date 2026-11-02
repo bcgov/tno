@@ -1918,7 +1918,7 @@ public class AutomationEngine
 
     /// <summary>
     /// The digest renders publishedOn as a bare date (yyyy-MM-dd). Midnight UTC would read as the
-    /// previous day in the editorial timezone - date-scoped searches (US/Pacific) would exclude the
+    /// previous day in the editorial timezone - date-scoped searches (America/Vancouver) would exclude the
     /// item - so a bare date means local midnight in the configured timezone, converted to UTC.
     /// A value carrying a time parses as UTC (postgres rejects Kind=Unspecified for timestamptz).
     /// </summary>

@@ -6,7 +6,7 @@
 @using TNO.TemplateEngine
 @{
   var pageBreak = Settings.Sections.UsePageBreaks ? "page-break-after: always;" : "";
-  var utcOffset = ReportExtensions.GetUtcOffset(System.DateTime.Now, "Pacific Standard Time");
+  var utcOffset = ReportExtensions.GetUtcOffset(System.DateTime.Now, "America/Vancouver");
   var hasImages = Sections.Any(section => section.Value.SectionType == TNO.Entities.ReportSectionType.Image || section.Value.SectionType == TNO.Entities.ReportSectionType.Data);
   var hasAI = Sections.Any(section => section.Value.SectionType == TNO.Entities.ReportSectionType.AI);
   var subscriberAppUrl = @SubscriberAppUrl?.ToString();

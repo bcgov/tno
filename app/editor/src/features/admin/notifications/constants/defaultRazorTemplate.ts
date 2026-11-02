@@ -47,7 +47,7 @@ export const defaultRazorTemplate = {
   body = body.Replace("\r\n", replaceWith).Replace("\n", replaceWith).Replace("\r", replaceWith);
   var filePath = @Content.FileReferences.FirstOrDefault()?.Path;
 
-  var tz = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
+  var tz = TimeZoneInfo.FindSystemTimeZoneById("America/Vancouver");
   var utcOffset = tz.GetUtcOffset(System.DateTime.Now).Hours;
 }
 @if (!string.IsNullOrWhiteSpace(@Content.Source?.Name))

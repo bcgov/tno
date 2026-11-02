@@ -11,7 +11,9 @@ export const TimeZones = [
   new OptionItem('(UTC-09:00) Coordinated Universal Time-09', 'UTC-09'),
   new OptionItem('(UTC-08:00) Baja California', 'Pacific Standard Time (Mexico)'),
   new OptionItem('(UTC-08:00) Coordinated Universal Time-08', 'UTC-08'),
-  new OptionItem('(UTC-08:00) Pacific Time (US & Canada)', 'Pacific Standard Time'),
+  new OptionItem('(UTC-08:00) Pacific Time (US)', 'Pacific Standard Time'),
+  // BC stays on UTC-07:00 all year from 2026-11-01. The Windows 'Pacific Standard Time' id resolves to Los Angeles.
+  new OptionItem('(UTC-07:00) British Columbia', 'America/Vancouver'),
   new OptionItem('(UTC-07:00) Arizona', 'US Mountain Standard Time'),
   new OptionItem('(UTC-07:00) Chihuahua, La Paz, Mazatlan', 'Mountain Standard Time (Mexico)'),
   new OptionItem('(UTC-07:00) Mountain Time (US & Canada)', 'Mountain Standard Time'),

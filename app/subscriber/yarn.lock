@@ -12211,7 +12211,7 @@ __metadata:
     lodash: 4.18.1
     lodash.throttle: 4.1.1
     moment: 2.30.1
-    moment-timezone: 0.5.41
+    moment-timezone: 0.6.6
     monaco-editor: ^0.57.0
     prettier: 2.8.4
     pretty-quick: 4.0.0
@@ -12250,12 +12250,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"moment-timezone@npm:0.5.41":
-  version: 0.5.41
-  resolution: "moment-timezone@npm:0.5.41"
+"moment-timezone@npm:0.6.6":
+  version: 0.6.6
+  resolution: "moment-timezone@npm:0.6.6"
   dependencies:
     moment: ^2.29.4
-  checksum: 30bf42265f749d4d17e78cf94f49d8354d9fbf2dea060a5b89895979642035734512a23cb7a90c0e93593bc11eb698b78b601b7dd5d9a708eb7c4f733a927a71
+  checksum: a01983e23465a13d42041ee7c042d632137161d36dd5b3f34dc11b084136fcf0c2a8340c963cebfcddaaa31728e09f1648e558488c8a426afbc2ee2f1b37fecd
   languageName: node
   linkType: hard
 

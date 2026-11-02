@@ -29,7 +29,7 @@ public static partial class ReportExtensions
     /// <param name="date"></param>
     /// <param name="timezoneId"></param>
     /// <returns></returns>
-    public static int GetUtcOffset(DateTime? date = null, string timezoneId = "Pacific Standard Time")
+    public static int GetUtcOffset(DateTime? date = null, string timezoneId = "America/Vancouver")
     {
         date ??= DateTime.Now;
         var tz = TimeZoneInfo.FindSystemTimeZoneById(timezoneId);
@@ -41,7 +41,7 @@ public static partial class ReportExtensions
     /// </summary>
     /// <param name="timezoneId"></param>
     /// <returns></returns>
-    public static DateTime GetTodaysDate(string timezoneId = "Pacific Standard Time")
+    public static DateTime GetTodaysDate(string timezoneId = "America/Vancouver")
     {
         var now = DateTime.Now;
         return now.AddHours(GetUtcOffset(now, timezoneId));

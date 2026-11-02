@@ -11,7 +11,7 @@ public class AutomationOptions : ServiceOptions
     /// <summary>
     /// get/set - Optional fallback time zone for profile schedules.
     /// </summary>
-    public string DefaultTimeZone { get; set; } = "Pacific Standard Time";
+    public string DefaultTimeZone { get; set; } = "America/Vancouver";
 
     /// <summary>
     /// get/set - Minutes a Running run may go without posting a response record (its activity

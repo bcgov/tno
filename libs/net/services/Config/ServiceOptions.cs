@@ -46,7 +46,7 @@ public class ServiceOptions
     public Uri ApiUrl { get; set; } = default!;
 
     /// <summary>
-    /// get/set - The service timezone. This is set in appsettings.json as 'Pacific Standard Time'.
+    /// get/set - The service timezone. This is set in appsettings.json as 'America/Vancouver'.
     /// </summary>
     public string TimeZone { get; set; } = "UTC";
 
