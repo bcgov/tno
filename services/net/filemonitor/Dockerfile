@@ -21,7 +21,7 @@ RUN fix_permissions() { while [ $# -gt 0 ] ; do chgrp -R 0 "$1" && chmod -R g=u 
 WORKDIR /src/services/net/filemonitor
 RUN dotnet build -c $ASPNETCORE_ENVIRONMENT -o /build
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 as deploy
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS deploy
 
 # [Optional] Uncomment this section to install additional OS packages.
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
@@ -40,4 +40,4 @@ RUN chmod -R 0777 /data
 # Run container by default as user with id 1001 (default)
 USER 1001
 
-ENTRYPOINT dotnet TNO.Services.FileMonitor.dll
+ENTRYPOINT ["dotnet", "TNO.Services.FileMonitor.dll"]
