@@ -38,6 +38,7 @@ public abstract class KafkaProducerService : BaseService
         base.ConfigureServices(services);
         services
             .Configure<ProducerConfig>(this.Configuration.GetSection("Kafka:Producer"))
+            .AddKafkaProducerProvider()
             .AddTransient<IKafkaMessenger, KafkaMessenger>();
 
         return services;

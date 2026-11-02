@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using TNO.API.Models.Settings;
 using TNO.DAL.Services;
 using TNO.Entities;

@@ -25,5 +25,13 @@ public class KafkaConsumerConfig : ConsumerConfig
     /// leave this false because Seek releases their slot.
     /// </summary>
     public bool ReleaseHandlerOnCommitFailure { get; set; }
+
+    /// <summary>
+    /// get/set - Start each partition at its newest message the first time this listener is assigned it,
+    /// skipping everything already waiting (later rebalances resume from the committed offset as usual).
+    /// For local development, where a service is often not running and its backlog is not wanted.
+    /// Leave false in shared environments: skipped messages are never processed.
+    /// </summary>
+    public bool SkipBacklogOnStart { get; set; }
     #endregion
 }

@@ -20,6 +20,10 @@ spec:
     kind: Service
     name: elastic
     weight: 100
+  # The service also exposes 9300 (node-to-node transport, not HTTP). Without a target port the router
+  # balances across both, and requests that land on 9300 fail with 502.
+  port:
+    targetPort: 9200-tcp
   tls:
     insecureEdgeTerminationPolicy: Redirect
     termination: edge

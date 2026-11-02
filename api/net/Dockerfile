@@ -1,5 +1,5 @@
 ARG BUILD_CONFIGURATION=Release
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 
 # RUN apt-get update --fix-missing && apt-get -y upgrade
 # RUN apt -y install curl libc6-dev libgdiplus ffmpeg
@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl && apt-get
 EXPOSE 443 8080
 
 # Copy csproj and restore as distinct layers
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 
 # ENV PATH="$PATH:/root/.dotnet/tools"
 # RUN dotnet tool install --global dotnet-ef --version 7.0.13

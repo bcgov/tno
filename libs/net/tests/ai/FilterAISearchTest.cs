@@ -1,6 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using FluentAssertions;
+using AwesomeAssertions;
 using TNO.TemplateEngine.FilterAI;
 
 namespace TNO.Test.AI;

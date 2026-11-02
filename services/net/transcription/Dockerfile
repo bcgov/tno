@@ -1,5 +1,5 @@
 
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 
 ENV DOTNET_CLI_HOME=/tmp
 ENV PATH="$PATH:/tmp/.dotnet/tools"
@@ -18,7 +18,7 @@ RUN fix_permissions() { while [ $# -gt 0 ] ; do chgrp -R 0 "$1" && chmod -R g=u 
 WORKDIR /src/services/net/transcription
 RUN dotnet build -c $ASPNETCORE_ENVIRONMENT -o /build
 
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS deploy
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS deploy
 
 WORKDIR /app
 COPY --from=build /build .

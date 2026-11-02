@@ -45,7 +45,11 @@ public class S3StorageService : IS3StorageService
                 new AmazonS3Config
                 {
                     ServiceURL = _s3Options.ServiceUrl,
-                    ForcePathStyle = true
+                    ForcePathStyle = true,
+                    // AWSSDK v4 adds CRC32 checksums to every request and validates them on every response by default.
+                    // S3-compatible object stores do not all support these, so only send/validate them when an operation requires it (the v3 behaviour).
+                    RequestChecksumCalculation = RequestChecksumCalculation.WHEN_REQUIRED,
+                    ResponseChecksumValidation = ResponseChecksumValidation.WHEN_REQUIRED,
                 });
         }
         catch

@@ -73,7 +73,7 @@ public abstract class TNOMigration : Migration
                         {
                             if (response.TryGetOriginalException(out Exception? ex))
                                 throw ex!;
-                            throw new Exception($"Failed to index. Error {response.ElasticsearchServerError?.Error.Reason}");
+                            throw new Exception($"Failed to index. Error {response.ElasticsearchServerError?.Error?.Reason}");
                         }
 
                         if (item.Status == Entities.ContentStatus.Published)
@@ -85,7 +85,7 @@ public abstract class TNOMigration : Migration
                             {
                                 if (response.TryGetOriginalException(out Exception? ex))
                                     throw ex!;
-                                throw new Exception($"Failed to index. Error {response.ElasticsearchServerError?.Error.Reason}");
+                                throw new Exception($"Failed to index. Error {response.ElasticsearchServerError?.Error?.Reason}");
                             }
                         }
 
@@ -97,7 +97,7 @@ public abstract class TNOMigration : Migration
                     {
                         builder.Logger.LogError(ex, "Failed to index content ID: {id}", item.Id);
                         // Ignore 502 gateway error, for some reason our cluster has intermittent issues.
-                        if (ex.ApiCallDetails.HttpStatusCode != 502)
+                        if (ex.ApiCallDetails?.HttpStatusCode != 502)
                         {
                             if (++this.Failures >= builder.MigrationOptions.ReindexFailureLimit) throw;
                         }

@@ -6,6 +6,9 @@ namespace: 9b301c-dev
 resources:
   - ../../base
 
+components:
+  - ../../components/snapshots
+
 generatorOptions:
   disableNameSuffixHash: true
 

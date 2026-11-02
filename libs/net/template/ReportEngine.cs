@@ -6,7 +6,6 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Xml;
-using CsvHelper.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Core.Exceptions;
@@ -710,20 +709,7 @@ public partial class ReportEngine : IReportEngine
 
                              using var reader = new StreamReader(readStream, detectEncodingFromByteOrderMarks: true);
 
-                             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-                             {
-                                 // These fields have commas/JSON → ensure proper parsing
-                                 ShouldQuote = (args) => true, // or customize per field
-                                 BadDataFound = args =>
-                                 {
-                                     this.Logger.LogWarning("Bad CSV row: {Raw}", args.RawRecord);
-                                     // or set to null to skip silently: args = null;
-                                 },
-                                 // If dates are DD/MM/YY inconsistent → add custom converter later
-                             };
-
-                             using var csv = new CsvHelper.CsvReader(reader, config);
-                             var records = csv.GetRecords<dynamic>().ToList();
+                             var records = CsvDynamicReader.ReadRecords(reader, raw => this.Logger.LogWarning("Bad CSV row: {Raw}", raw));
                              var dataEngineModel = new ReportEngineDataModel<dynamic>(records);
                              if (!String.IsNullOrWhiteSpace(settings.DataTemplate))
                              {

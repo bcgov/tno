@@ -1,6 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using FluentAssertions;
+using AwesomeAssertions;
 using TNO.API.Models.Settings;
 using TNO.Entities;
 using TNO.Kafka.Models;

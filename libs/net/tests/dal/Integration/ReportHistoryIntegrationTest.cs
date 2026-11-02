@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using TNO.DAL;

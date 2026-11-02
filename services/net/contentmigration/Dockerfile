@@ -1,5 +1,5 @@
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 
 ENV DOTNET_CLI_HOME=/tmp
 ENV PATH="$PATH:/tmp/.dotnet/tools"
@@ -23,7 +23,7 @@ WORKDIR /src/services/net/contentmigration
 RUN dotnet restore
 RUN dotnet build -c $ASPNETCORE_ENVIRONMENT -o /build
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS deploy
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS deploy
 
 WORKDIR /app
 COPY --from=build /build .

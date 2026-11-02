@@ -71,6 +71,10 @@ db-connect: ## Port forward to the database (e=environment {dev,test,prod,tools}
 	$(info Port forward to the database [e=$(if $(e),$(e),dev)] $(l):$(r))
 	@cd ./scripts; ./database-connect.sh $(if $(e),$(e),dev) $(l) $(r)
 
+release: ## Build and push every image to ACR, then deploy the whole environment (e=environment {dev,test,prod} [dev], t=tag [short git commit], n="components" to build [all], m=1 run db-migration first, d=1 dry run, y=1 skip confirmation).
+	$(info Release to [e=$(if $(e),$(e),dev), t=$(if $(t),$(t),<commit>), n=$(if $(n),$(n),all)])
+	@cd ./scripts; MIGRATE="$(m)" DRY_RUN="$(d)" YES="$(y)" ./release.sh "$(if $(e),$(e),dev)" "$(t)" $(n)
+
 deploy: ## Deploy to environment - retags images to e and restarts (e=environment {dev,test,prod} [dev], t=source tag to promote [latest], n=single workload name, e.g. charts-api, db-migration, or elastic-migration [all], m=migration target/version, 0 reverts all for db-migration only [apply all pending], s=db credential secret for either migration job, e.g. montford [whatever the api uses], p=elastic-migration step {prepare,copy,verify,cutover} of migration m [all]).
 	$(info Deploy to environment (e=environment) [e=$(if $(e),$(e),dev), t=$(if $(t),$(t),latest), n=$(if $(n),$(n),all)$(if $(m), m=$(m),)$(if $(s), s=$(s),)$(if $(p), p=$(p),)])
 	@cd ./scripts; ./deploy.sh "$(if $(e),$(e),dev)" "$(if $(t),$(t),latest)" "$(n)" "$(m)" "$(s)" "$(p)"
@@ -121,6 +125,6 @@ tag: ## Retag an image in ACR so both tags point at the same image (n=component 
 	$(info Tag image [n=$(n), f=$(if $(f),$(f),latest), t=$(t), $(if $(r),$(r),remote)])
 	@cd ./scripts; ./tag.sh "$(n)" "$(if $(f),$(f),latest)" "$(t)" "$(if $(r),$(r),remote)"
 
-.PHONY: build push pull tag
+.PHONY: build push pull tag release
 
 .PHONY: local

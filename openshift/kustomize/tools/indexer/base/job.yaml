@@ -51,12 +51,12 @@ spec:
             - name: DB_POSTGRES_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: database
+                  name: montford
                   key: USERNAME
             - name: DB_POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: database
+                  name: montford
                   key: PASSWORD
             - name: Elastic__Url
               valueFrom:

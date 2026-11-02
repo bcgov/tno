@@ -1,0 +1,24 @@
+---
+# Shared filesystem for the Elasticsearch `fs` snapshot repository. Every node mounts it (ReadWriteMany),
+# and netapp-file-backup volumes are also backed up off-site by the platform.
+# Snapshots are incremental, so this holds the primary data (~24 GB in DEV) plus changed segments.
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: elastic-snapshots
+  annotations:
+    description: Elasticsearch snapshot repository (fs).
+  labels:
+    name: elastic-snapshots
+    part-of: tno
+    version: 1.0.0
+    component: elastic
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: netapp-file-backup
+  resources:
+    requests:
+      storage: 50Gi

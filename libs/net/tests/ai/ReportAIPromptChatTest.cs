@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using TNO.AI.Synthesis;
 using TNO.API.Areas.Services.Models.ReportAIResult;
 using TNO.API.Models.Settings;

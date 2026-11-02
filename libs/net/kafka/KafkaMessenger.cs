@@ -1,21 +1,19 @@
-using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using TNO.Kafka.Models;
-using TNO.Kafka.Serializers;
 using TNO.Kafka.SignalR;
 
 namespace TNO.Kafka;
 
 /// <summary>
 /// KafkaMessenger class, provides a way to publish messages to Kafka.
+/// Messages are sent with the process-wide producer from <see cref="IKafkaProducerProvider"/>, so this class is
+/// cheap to create and can be registered with any lifetime.
 /// </summary>
 public class KafkaMessenger : IKafkaMessenger
 {
     #region Variable
-    private readonly ProducerConfig _config;
-    private readonly JsonSerializerOptions _serializerOptions;
+    private readonly IKafkaProducerProvider _producers;
     private readonly ILogger _logger;
     #endregion
 
@@ -23,13 +21,11 @@ public class KafkaMessenger : IKafkaMessenger
     /// <summary>
     /// Creates new instance of a KafkaMessenger object, initializes with specified parameters.
     /// </summary>
-    /// <param name="serializerOptions"></param>
-    /// <param name="producerConfigOptions"></param>
+    /// <param name="producers"></param>
     /// <param name="logger"></param>
-    public KafkaMessenger(IOptions<JsonSerializerOptions> serializerOptions, IOptions<ProducerConfig> producerConfigOptions, ILogger<KafkaMessenger> logger)
+    public KafkaMessenger(IKafkaProducerProvider producers, ILogger<KafkaMessenger> logger)
     {
-        _serializerOptions = serializerOptions.Value;
-        _config = producerConfigOptions.Value;
+        _producers = producers;
         _logger = logger;
     }
     #endregion
@@ -50,24 +46,19 @@ public class KafkaMessenger : IKafkaMessenger
         if (key == null) throw new ArgumentNullException(nameof(key));
         if (value == null) throw new ArgumentNullException(nameof(value));
 
-        var builder = new ProducerBuilder<TKey, TValue>(_config);
-        builder.SetKeySerializer(new DefaultJsonSerializer<TKey>(_serializerOptions));
-        builder.SetValueSerializer(new DefaultJsonSerializer<TValue>(_serializerOptions));
-        using var producer = builder.Build();
-
         _logger.LogDebug("Sending message to Kafka topic:'{topic}' key:'{key}'", topic, key);
         var message = new Message<TKey, TValue>()
         {
             Key = key,
             Value = value
         };
-        var result = await producer.ProduceAsync(topic, message);
+        var result = await ProduceAsync<TKey, TValue, DeliveryResult<TKey, TValue>>(producer => producer.ProduceAsync(topic, message));
         _logger.LogDebug("Message received by Kafka topic:'{topic}' key:'{key}'", topic, key);
         return result;
     }
 
     /// <summary>
-    /// Send the messages to Kafka with one producer, waiting until every message is accepted.
+    /// Send the messages to Kafka, waiting until every message is accepted.
     /// Throws when any message is not.
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
@@ -80,14 +71,27 @@ public class KafkaMessenger : IKafkaMessenger
         if (String.IsNullOrWhiteSpace(topic)) throw new ArgumentException("Parameter cannot be null, empty, or whitespace", nameof(topic));
         ArgumentNullException.ThrowIfNull(messages);
 
-        var builder = new ProducerBuilder<TKey, TValue>(_config);
-        builder.SetKeySerializer(new DefaultJsonSerializer<TKey>(_serializerOptions));
-        builder.SetValueSerializer(new DefaultJsonSerializer<TValue>(_serializerOptions));
-        using var producer = builder.Build();
-
-        var results = await Task.WhenAll(messages.Select(m => producer.ProduceAsync(topic, new Message<TKey, TValue>() { Key = m.Key, Value = m.Value })));
+        var results = await ProduceAsync<TKey, TValue, DeliveryResult<TKey, TValue>[]>(producer =>
+            Task.WhenAll(messages.Select(m => producer.ProduceAsync(topic, new Message<TKey, TValue>() { Key = m.Key, Value = m.Value }))));
         _logger.LogDebug("Messages received by Kafka topic:'{topic}' count:{count}", topic, results.Length);
         return results;
+    }
+
+    /// <summary>
+    /// Send with the shared producer. A fatal error leaves a Kafka producer unusable, so it is discarded and
+    /// the next send creates a new one; the error is still thrown to the caller.
+    /// </summary>
+    private async Task<TResult> ProduceAsync<TKey, TValue, TResult>(Func<IProducer<TKey, TValue>, Task<TResult>> send)
+    {
+        try
+        {
+            return await send(_producers.GetProducer<TKey, TValue>());
+        }
+        catch (KafkaException ex) when (ex.Error.IsFatal)
+        {
+            _producers.Reset();
+            throw;
+        }
     }
 
     /// <summary>

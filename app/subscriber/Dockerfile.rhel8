@@ -1,4 +1,4 @@
-FROM rhel8/nodejs-18 as build-deps
+FROM rhel8/nodejs-18 AS build-deps
 
 USER root
 

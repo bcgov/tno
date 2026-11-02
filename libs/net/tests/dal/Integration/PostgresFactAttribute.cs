@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace TNO.Test.DAL.Integration;
 
 /// <summary>
@@ -16,7 +18,10 @@ public sealed class PostgresFactAttribute : FactAttribute
     /// <summary>
     /// Creates a new instance of a PostgresFactAttribute object.
     /// </summary>
-    public PostgresFactAttribute()
+    /// <param name="sourceFilePath">Supplied by the compiler so the runner can link the test to its source.</param>
+    /// <param name="sourceLineNumber">Supplied by the compiler so the runner can link the test to its source.</param>
+    public PostgresFactAttribute([CallerFilePath] string? sourceFilePath = null, [CallerLineNumber] int sourceLineNumber = -1)
+        : base(sourceFilePath, sourceLineNumber)
     {
         if (String.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(Variable)))
             Skip = $"Set {Variable} to a PostgreSQL connection string to run database integration tests.";

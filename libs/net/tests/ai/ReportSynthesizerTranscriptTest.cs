@@ -1,5 +1,5 @@
 using System.Text.Json;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using TNO.AI;
 using TNO.AI.Synthesis;
@@ -40,7 +40,7 @@ public class ReportSynthesizerTranscriptTest
         var client = new FakeLlmClient(8000);
         var transcript = new SynthesisTranscript();
 
-        var result = await Synthesizer(client, 2000).SynthesizeAsync(Request(Stories(60)), transcript);
+        var result = await Synthesizer(client, 2000).SynthesizeAsync(Request(Stories(60)), transcript, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue(result.Error);
         result.Transcript.Should().NotBeNull();
@@ -67,7 +67,7 @@ public class ReportSynthesizerTranscriptTest
         var client = new FakeLlmClient(limits.ContextWindow);
         var transcript = new SynthesisTranscript();
 
-        var result = await Synthesizer(client, 1500).SynthesizeAsync(Request(Stories(300), limits), transcript);
+        var result = await Synthesizer(client, 1500).SynthesizeAsync(Request(Stories(300), limits), transcript, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue(result.Error);
         result.Usage.ReductionDepth.Should().BeGreaterThan(0);
@@ -80,7 +80,7 @@ public class ReportSynthesizerTranscriptTest
     {
         var client = new FakeLlmClient(8000);
 
-        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(5)));
+        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(5)), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue(result.Error);
         result.Transcript.Should().BeNull();
@@ -94,7 +94,7 @@ public class ReportSynthesizerTranscriptTest
         var client = new FakeLlmClient(5000);
         var transcript = new SynthesisTranscript();
 
-        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(200), limits), transcript);
+        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(200), limits), transcript, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue(result.Error);
         result.Transcript!.Count.Should().Be(client.Requests.Count);
@@ -109,7 +109,7 @@ public class ReportSynthesizerTranscriptTest
         var transcript = new SynthesisTranscript();
         var history = new[] { new SynthesisHistoricalInstance("Report of 2026-09-28", Stories(3)) };
 
-        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(2), history: history), transcript);
+        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(2), history: history), transcript, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue(result.Error);
         result.Transcript.Should().Contain(e => e.Kind == LlmExchangeKind.HistoryMap && e.Stage == "Previous report 'Report of 2026-09-28' map batch 1/1");
@@ -123,7 +123,7 @@ public class ReportSynthesizerTranscriptTest
         var client = new FakeLlmClient(8000);
         var transcript = new SynthesisTranscript() { MaxMessageChars = 200 };
 
-        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(20)), transcript);
+        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(20)), transcript, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue(result.Error);
         result.Transcript.Should().Contain(e => e.Messages.Any(m => m.Content.Contains("more characters omitted")));
@@ -155,7 +155,7 @@ public class ReportSynthesizerTranscriptTest
             .And.EndWith("Summarize the key issues as HTML.");
 
         var transcript = new SynthesisTranscript();
-        await synthesizer.SynthesizeAsync(request, transcript);
+        await synthesizer.SynthesizeAsync(request, transcript, TestContext.Current.CancellationToken);
         var planned = first.Where(e => e.Kind == LlmExchangeKind.Map).ToDictionary(e => e.Stage, e => e.Messages);
         var actual = transcript.Exchanges.Where(e => e.Kind == LlmExchangeKind.Map).ToDictionary(e => e.Stage, e => e.Messages);
         actual.Keys.Should().BeEquivalentTo(planned.Keys);
