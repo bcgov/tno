@@ -2,6 +2,7 @@ using Confluent.Kafka;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using TNO.Kafka.SignalR;
 
 namespace TNO.Kafka;
@@ -21,7 +22,20 @@ public static class ServiceCollectionExtensions
     {
         return services
             .Configure<ProducerConfig>(config.GetSection("Kafka:Producer"))
+            .AddKafkaProducerProvider()
             .AddScoped<IKafkaMessenger, KafkaMessenger>();
+    }
+
+    /// <summary>
+    /// Add the process-wide Kafka producer that every KafkaMessenger sends with.
+    /// Configure the ProducerConfig options ("Kafka:Producer") before it is first used.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddKafkaProducerProvider(this IServiceCollection services)
+    {
+        services.TryAddSingleton<IKafkaProducerProvider, KafkaProducerProvider>();
+        return services;
     }
 
     /// <summary>

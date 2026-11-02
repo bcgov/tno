@@ -803,6 +803,8 @@ Service__ApiUrl=http://api:8080/api
 
 Kafka__Admin__BootstrapServers=broker:29092
 Kafka__Consumer__BootstrapServers=broker:29092
+# Locally the service is often not running; start from the newest analysis request instead of its backlog.
+Kafka__Consumer__SkipBacklogOnStart=true
 
 CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
 CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
