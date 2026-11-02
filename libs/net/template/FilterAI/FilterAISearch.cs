@@ -33,7 +33,7 @@ public static partial class FilterAISearch
     public static readonly string[] ForbiddenKeys = ["script", "script_score", "scripted_metric", "wrapper", "percolate", "runtime_mappings", "stored_fields", "terms_lookup", "index", "_index"];
 
     /// <summary>The time zone dates are written in; the same one the browser applies to a filter's date offset.</summary>
-    public const string TimeZone = "US/Pacific";
+    public const string TimeZone = "America/Vancouver";
 
     /// <summary>The date fields a range is applied to in the time zone, unless the range names its own.</summary>
     public static readonly string[] DateFields = ["publishedOn", "postedOn", "createdOn", "updatedOn"];

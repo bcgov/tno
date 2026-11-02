@@ -12400,7 +12400,7 @@ __metadata:
     lodash: 4.18.1
     lodash.throttle: 4.1.1
     moment: 2.30.1
-    moment-timezone: 0.5.45
+    moment-timezone: 0.6.6
     monaco-editor: ^0.57.0
     prettier: 2.8.4
     pretty: 2.0.0
@@ -12435,19 +12435,19 @@ __metadata:
     sass-extract-loader: 1.1.0
     styled-components: 6.1.11
     stylis: 4.3.6
-    tno-core: 1.0.45
+    tno-core: 1.0.47
     typescript: "*"
     vitest: 3.2.6
     yup: 1.1.1
   languageName: unknown
   linkType: soft
 
-"moment-timezone@npm:0.5.45":
-  version: 0.5.45
-  resolution: "moment-timezone@npm:0.5.45"
+"moment-timezone@npm:0.6.6":
+  version: 0.6.6
+  resolution: "moment-timezone@npm:0.6.6"
   dependencies:
     moment: ^2.29.4
-  checksum: a22e9f983fbe1a01757ce30685bce92e3f6efa692eb682afd47b82da3ff960b3c8c2c3883ec6715c124bc985a342b57cba1f6ba25a1c8b4c7ad766db3cd5e1d0
+  checksum: a01983e23465a13d42041ee7c042d632137161d36dd5b3f34dc11b084136fcf0c2a8340c963cebfcddaaa31728e09f1648e558488c8a426afbc2ee2f1b37fecd
   languageName: node
   linkType: hard
 
@@ -17038,9 +17038,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@npm:1.0.45":
-  version: 1.0.45
-  resolution: "tno-core@npm:1.0.45"
+"tno-core@npm:1.0.47":
+  version: 1.0.47
+  resolution: "tno-core@npm:1.0.47"
   peerDependencies:
     "@elastic/elasticsearch": ^8.13.1
     "@fortawesome/free-solid-svg-icons": ^6.4.2
@@ -17075,7 +17075,7 @@ __metadata:
     styled-components: ^6.1.11
     stylis: ^4.3.2
     yup: ^1.1.1
-  checksum: 906fe7f2f8d9e4d022bc631b8a50a2d21226b932e07f0201a92696136e5e0e3605f962e9e95e56fdf1d8ff95ab7ce7eee847632cbf5d519d046e3913fdef36c6
+  checksum: 7f42599a8e86229d445379e4c6e113d3da3057700ce5acbd5a5c71adc50f23e0388038ce393f83e3a068f4524952bd2e9ee07473d97c9b9322de25d1f547666c
   languageName: node
   linkType: hard
 

@@ -84,7 +84,7 @@ order) and Kafka topic migration `1.0.1`.
 | API | `API:NotificationPublishedBeforeOffset` | from the notification service config map (optional) |
 | API / reporting | `Reporting:Synthesis:*` | margin 10%, depth 8, 8 concurrent, 16,000 input / 8,000 output tokens per map or reduce request, 3 attempts, 900s claim, 300s timeout |
 | API | `Kafka:AnalysisTopic`, `AnalysisBackfillTopic`, `AnalysisRetryTopic`, `AnalysisDeadLetterTopic`, `AnalysisConsumerGroup`, `WorkOrderTopic` | `analysis`, `analysis-backfill`, `analysis-retry`, `analysis-dlq`, `ContentAnalysis`, `work-order` |
-| DAL (API) | `TopicScore:TimeZone` | `Pacific Standard Time` |
+| DAL (API) | `TopicScore:TimeZone` | `America/Vancouver` |
 | Indexing service | `Elastic:EvidenceIndex`, `Service:IndexRetryLimit`, `Service:IndexRetryDelayMs` | `content_evidence`, 3, 1000 |
 | Content-Analysis service | `Service:Processes` | `Metadata,Summary,Quotes,Tags,Contributor,Topics` |
 | Content-Analysis service | `Service:Topics`, `BackfillTopic`, `RetryTopic`, `DeadLetterTopic` (empty consumes none, e.g. a backfill-only instance) | `analysis`, `analysis-backfill`, `analysis-retry`, `analysis-dlq` |
