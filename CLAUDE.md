@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-TNO / MMI (Media Monitoring Insights) — a BC Government news aggregation and media monitoring platform. Microservices architecture with a .NET 9 REST API, two React frontends, ~18 .NET background services, Kafka for inter-service messaging, PostgreSQL, and Elasticsearch.
+TNO / MMI (Media Monitoring Insights) — a BC Government news aggregation and media monitoring platform. Microservices architecture with a .NET 10 REST API, two React frontends, ~18 .NET background services, Kafka for inter-service messaging, PostgreSQL, and Elasticsearch.
 
 ## Build & Run Commands
 
@@ -115,7 +115,7 @@ yarn lint:fix
 
 | Path                   | Role                                                                                      |
 | ---------------------- | ----------------------------------------------------------------------------------------- |
-| `api/net/`             | ASP.NET Core 9 REST API — JWT auth, Swagger at `/api-docs`, versioned routes under `/api` |
+| `api/net/`             | ASP.NET Core 10 REST API — JWT auth, Swagger at `/api-docs`, versioned routes under `/api` |
 | `app/editor/`          | React editor UI — content creation, review, publishing                                    |
 | `app/subscriber/`      | React subscriber UI — report consumption, alerts                                          |
 | `services/net/{name}/` | ~18 console microservices, each a Kafka consumer/producer                                 |

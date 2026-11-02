@@ -60,7 +60,7 @@ public class AIAgentClient : IAIAgentClient
             tokenProvider: credential);
 
         var agentReference = new AgentReference(name: request.AgentName);
-        var responseClient = projectClient.OpenAI.GetProjectResponsesClientForAgent(agentReference);
+        var responseClient = projectClient.ProjectOpenAIClient.GetProjectResponsesClientForAgent(agentReference);
 
         ResponseResult response = await Task.Run(
             () => responseClient.CreateResponse(request.Prompt),

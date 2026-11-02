@@ -105,6 +105,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         var password = manager.Ingest.SourceConnection?.GetConfigurationValue("password");
         var port = manager.Ingest.SourceConnection?.GetConfigurationValue<int?>("port");
         if (String.IsNullOrWhiteSpace(hostname)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'hostname'.");
+        if (String.IsNullOrWhiteSpace(username)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'username'.");
 
         // The ingest configuration may have a different path than the root connection path.
         remotePath = remotePath.CombineWith(manager.Ingest.GetConfigurationValue("path")?.MakeRelativePath() ?? "");
@@ -127,6 +128,8 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                 throw new ConfigurationException($"SSH Private key file does not exist: {sshKeyFile}");
             }
         }
+
+        if (authMethod == null) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection requires a 'password' or 'keyFileName'.");
 
         var connectionInfo = port.HasValue ? new ConnectionInfo(hostname, port.Value, username, authMethod) : new ConnectionInfo(hostname, username, authMethod);
         await FetchFiles(connectionInfo, remotePath, manager);

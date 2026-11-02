@@ -1,6 +1,4 @@
-using NPOI.SS.UserModel;
-using NPOI.SS.Util;
-using NPOI.XSSF.UserModel;
+using TNO.Core.Excel;
 using TNO.DAL.Services;
 
 namespace TNO.Reports;
@@ -12,11 +10,8 @@ public class CBRAReport
 {
     #region Variables
     private readonly ITimeTrackingService timeTrackingService;
-    private readonly XSSFWorkbook workbook;
-    private readonly XSSFSheet sheet;
-
-    private readonly XSSFColor green = new();
-
+    private readonly ExcelWorkbook workbook;
+    private readonly ExcelSheet sheet;
     #endregion
 
     #region Constructors
@@ -27,15 +22,15 @@ public class CBRAReport
     public CBRAReport(ITimeTrackingService timeTrackingService)
     {
         this.timeTrackingService = timeTrackingService;
-        workbook = new XSSFWorkbook();
-        green.ARGBHex = "008000";
-        sheet = (XSSFSheet)workbook.CreateSheet("CBRA");
-        sheet.SetColumnWidth(0, 8000);
-        sheet.SetColumnWidth(1, 4000);
-        sheet.SetColumnWidth(2, 6000);
-        sheet.SetColumnWidth(3, 4000);
-        sheet.SetColumnWidth(4, 4000);
-        sheet.SetColumnWidth(5, 4000);
+        workbook = new ExcelWorkbook();
+        sheet = workbook.CreateSheet("CBRA");
+        // Widths are in characters (the former NPOI widths were in 1/256ths of a character).
+        sheet.SetColumnWidth(0, 8000 / 256d);
+        sheet.SetColumnWidth(1, 4000 / 256d);
+        sheet.SetColumnWidth(2, 6000 / 256d);
+        sheet.SetColumnWidth(3, 4000 / 256d);
+        sheet.SetColumnWidth(4, 4000 / 256d);
+        sheet.SetColumnWidth(5, 4000 / 256d);
     }
     #endregion
 
@@ -46,7 +41,7 @@ public class CBRAReport
     /// <param name="from"></param>
     /// <param name="to"></param>
     /// <returns></returns>
-    public XSSFWorkbook GenerateReport(DateTime from, DateTime? to)
+    public ExcelWorkbook GenerateReport(DateTime from, DateTime? to)
     {
         DateTime utcFrom = from.ToUniversalTime();
         DateTime utcTo = to?.ToUniversalTime() ?? DateTime.Now.ToUniversalTime();
@@ -73,40 +68,25 @@ public class CBRAReport
         return workbook;
     }
 
-    private IFont CreateFont(double size, bool bold, XSSFColor color)
+    private static ExcelCellStyle CreateStyle(double size, bool bold, bool wrap, ExcelHorizontalAlignment horizontalAlignment, string? numberFormat = null)
     {
-        var font = workbook.CreateFont();
-        font.FontName = "Calibri";
-        font.FontHeightInPoints = size;
-        font.IsBold = bold;
-        font.Color = color.Index;
-        return font;
-    }
-
-    private ICellStyle CreateStyle(double size, bool bold, bool wrap, HorizontalAlignment horizontalAlignment, XSSFColor? color = null)
-    {
-        color ??= new XSSFColor
+        return new ExcelCellStyle()
         {
-            ARGBHex = "000000"
+            FontName = "Calibri",
+            FontSize = size,
+            Bold = bold,
+            WrapText = wrap,
+            HorizontalAlignment = horizontalAlignment,
+            NumberFormat = numberFormat,
         };
-
-        var font = CreateFont(size, bold, color);
-        var style = workbook.CreateCellStyle();
-        style.SetFont(font);
-        style.WrapText = wrap;
-        style.Alignment = horizontalAlignment;
-        return style;
     }
 
     private int AddSpacerRow(int startRowIndex)
     {
-        var style = workbook.CreateCellStyle();
-        style.FillForegroundColor = IndexedColors.Grey25Percent.Index;
-        style.FillPattern = FillPattern.SolidForeground;
-
         var row = sheet.CreateRow(startRowIndex);
-        row.RowStyle = style;
-        row.Height = 50;
+        // Grey 25% fill; 2.5pt tall.
+        row.Style = new ExcelCellStyle() { FillColor = "C0C0C0" };
+        row.Height = 2.5;
 
         return startRowIndex;
     }
@@ -116,26 +96,21 @@ public class CBRAReport
         var localFrom = from.ToLocalTime();
         var localTo = to.ToLocalTime();
 
-        var titleStyle = CreateStyle(14, true, false, HorizontalAlignment.Center);
+        var titleStyle = CreateStyle(14, true, false, ExcelHorizontalAlignment.Center);
 
         var titleRow = sheet.CreateRow(1);
-        sheet.AddMergedRegion(CellRangeAddress.ValueOf("A2:E2"));
-        var titleCell = titleRow.CreateCell(0);
-        titleCell.CellStyle = titleStyle;
-        titleCell.SetCellValue($"CBRA Summary for {localFrom:MM-dd-yyyy} to {localTo:MM-dd-yyyy}");
+        sheet.AddMergedRegion("A2:E2");
+        titleRow.CreateCell(0, titleStyle).SetValue($"CBRA Summary for {localFrom:MM-dd-yyyy} to {localTo:MM-dd-yyyy}");
     }
 
     private int AddTotalExcerpts(int startRowIndex, DateTime from, DateTime to)
     {
-        var titleStyle = CreateStyle((short)12, true, true, HorizontalAlignment.Left);
-        var labelStyle = CreateStyle((short)12, false, true, HorizontalAlignment.Left);
-        var valueStyle = CreateStyle((short)12, false, false, HorizontalAlignment.Right, green);
-        valueStyle.DataFormat = workbook.CreateDataFormat().GetFormat("#,##0");
+        var titleStyle = CreateStyle(12, true, true, ExcelHorizontalAlignment.Left);
+        var labelStyle = CreateStyle(12, false, true, ExcelHorizontalAlignment.Left);
+        var valueStyle = CreateStyle(12, false, false, ExcelHorizontalAlignment.Right, "#,##0");
 
         var titleRow = sheet.CreateRow(++startRowIndex);
-        var titleCell = titleRow.CreateCell(0);
-        titleCell.CellStyle = titleStyle;
-        titleCell.SetCellValue("% of Excerpts which Exceed 10 minutes and/or which do not meet the definition of Qualified Subject Matter");
+        titleRow.CreateCell(0, titleStyle).SetValue("% of Excerpts which Exceed 10 minutes and/or which do not meet the definition of Qualified Subject Matter");
         sheet.CreateRow(++startRowIndex);
 
         var totalExcerpts = timeTrackingService.GetTotalExcerpts(from, to);
@@ -145,47 +120,32 @@ public class CBRAReport
             var row = sheet.CreateRow(++startRowIndex);
             var userKey = totalExcerpt.Category;
 
-            var cellA = row.CreateCell(0);
-            cellA.CellStyle = labelStyle;
-            cellA.SetCellValue(userKey);
+            row.CreateCell(0, labelStyle).SetValue(userKey);
 
-            var cellB = row.CreateCell(1);
-            cellB.CellStyle = valueStyle;
-            cellB.SetCellValue((int)totalExcerpt.Totals);
+            row.CreateCell(1, valueStyle).SetValue((int)totalExcerpt.Totals);
         }
         return startRowIndex;
     }
 
     private int AddStaffSummary(int startRowIndex, DateTime from, DateTime to)
     {
-        var titleStyle = CreateStyle((short)14, true, false, HorizontalAlignment.Left);
-        var headingStyle = CreateStyle((short)12, true, false, HorizontalAlignment.Center);
-        var labelStyle = CreateStyle((short)12, false, true, HorizontalAlignment.Center);
-        var nameStyle = CreateStyle((short)12, false, false, HorizontalAlignment.Left, green);
-        var valueStyle = CreateStyle((short)12, false, false, HorizontalAlignment.Right, green);
-        valueStyle.DataFormat = workbook.CreateDataFormat().GetFormat("0.00");
+        var titleStyle = CreateStyle(14, true, false, ExcelHorizontalAlignment.Left);
+        var headingStyle = CreateStyle(12, true, false, ExcelHorizontalAlignment.Center);
+        var labelStyle = CreateStyle(12, false, true, ExcelHorizontalAlignment.Center);
+        var nameStyle = CreateStyle(12, false, false, ExcelHorizontalAlignment.Left);
+        var valueStyle = CreateStyle(12, false, false, ExcelHorizontalAlignment.Right, "0.00");
 
         var titleRow = sheet.CreateRow(startRowIndex);
-        sheet.AddMergedRegion(CellRangeAddress.ValueOf($"A{startRowIndex + 1}:E{startRowIndex + 1}"));
-        var titleCell = titleRow.CreateCell(0);
-        titleCell.CellStyle = titleStyle;
-        titleCell.SetCellValue("Staff Summary");
+        sheet.AddMergedRegion($"A{startRowIndex + 1}:E{startRowIndex + 1}");
+        titleRow.CreateCell(0, titleStyle).SetValue("Staff Summary");
 
         var row1 = sheet.CreateRow(++startRowIndex);
-        var cellA = row1.CreateCell(0);
-        cellA.CellStyle = headingStyle;
-        cellA.SetCellValue("Staff");
-        var cellB = row1.CreateCell(1);
-        cellB.CellStyle = headingStyle;
-        cellB.SetCellValue("CBRA Hours");
+        row1.CreateCell(0, headingStyle).SetValue("Staff");
+        row1.CreateCell(1, headingStyle).SetValue("CBRA Hours");
 
         var row2 = sheet.CreateRow(++startRowIndex);
-        cellA = row2.CreateCell(0);
-        cellA.CellStyle = labelStyle;
-        cellA.SetCellValue("[Username]");
-        cellB = row2.CreateCell(1);
-        cellB.CellStyle = labelStyle;
-        cellB.SetCellValue("[hours]");
+        row2.CreateCell(0, labelStyle).SetValue("[Username]");
+        row2.CreateCell(1, labelStyle).SetValue("[hours]");
 
         var timeTracking = timeTrackingService.GetStaffSummary(from, to);
 
@@ -194,52 +154,32 @@ public class CBRAReport
             var row = sheet.CreateRow(++startRowIndex);
             var userKey = timeTrack.Staff;
 
-            cellA = row.CreateCell(0);
-            cellA.CellStyle = nameStyle;
-            cellA.SetCellValue(userKey);
+            row.CreateCell(0, nameStyle).SetValue(userKey);
 
-            cellB = row.CreateCell(1);
-            cellB.CellStyle = valueStyle;
-            cellB.SetCellValue(timeTrack.CbraHours);
+            row.CreateCell(1, valueStyle).SetValue(timeTrack.CbraHours);
         }
         return startRowIndex;
     }
 
     private int AddTotalsByProgram(int startRowIndex, DateTime from, DateTime to)
     {
-        var titleStyle = CreateStyle((short)14, true, false, HorizontalAlignment.Left);
-        var headerStyle = CreateStyle((short)12, true, true, HorizontalAlignment.Center);
-        var nameStyle = CreateStyle((short)12, false, false, HorizontalAlignment.Left, green);
-        var valueStyle = CreateStyle((short)12, false, false, HorizontalAlignment.Right, green);
-        valueStyle.DataFormat = workbook.CreateDataFormat().GetFormat("0.00");
-        var percentageStyle = CreateStyle((short)12, false, false, HorizontalAlignment.Right, green);
-        percentageStyle.DataFormat = workbook.CreateDataFormat().GetFormat("0.00%");
+        var titleStyle = CreateStyle(14, true, false, ExcelHorizontalAlignment.Left);
+        var headerStyle = CreateStyle(12, true, true, ExcelHorizontalAlignment.Center);
+        var nameStyle = CreateStyle(12, false, false, ExcelHorizontalAlignment.Left);
+        var valueStyle = CreateStyle(12, false, false, ExcelHorizontalAlignment.Right, "0.00");
+        var percentageStyle = CreateStyle(12, false, false, ExcelHorizontalAlignment.Right, "0.00%");
 
         var titleRow = sheet.CreateRow(startRowIndex);
-        sheet.AddMergedRegion(CellRangeAddress.ValueOf($"A{startRowIndex + 1}:E{startRowIndex + 1}"));
-        var titleCell = titleRow.CreateCell(0);
-        titleCell.CellStyle = titleStyle;
-        titleCell.SetCellValue("Total Excerpts and Running Time by Program");
+        sheet.AddMergedRegion($"A{startRowIndex + 1}:E{startRowIndex + 1}");
+        titleRow.CreateCell(0, titleStyle).SetValue("Total Excerpts and Running Time by Program");
 
         var row1 = sheet.CreateRow(++startRowIndex);
-        var col1 = row1.CreateCell(0);
-        col1.CellStyle = headerStyle;
-        col1.SetCellValue("Type");
-        var col2 = row1.CreateCell(1);
-        col2.CellStyle = headerStyle;
-        col2.SetCellValue("Source");
-        var col3 = row1.CreateCell(2);
-        col3.CellStyle = headerStyle;
-        col3.SetCellValue("Series");
-        var col4 = row1.CreateCell(3);
-        col4.CellStyle = headerStyle;
-        col4.SetCellValue("Count");
-        var col5 = row1.CreateCell(4);
-        col5.CellStyle = headerStyle;
-        col5.SetCellValue("Running Time");
-        var col6 = row1.CreateCell(5);
-        col6.CellStyle = headerStyle;
-        col6.SetCellValue("% of Total Running Time");
+        row1.CreateCell(0, headerStyle).SetValue("Type");
+        row1.CreateCell(1, headerStyle).SetValue("Source");
+        row1.CreateCell(2, headerStyle).SetValue("Series");
+        row1.CreateCell(3, headerStyle).SetValue("Count");
+        row1.CreateCell(4, headerStyle).SetValue("Running Time");
+        row1.CreateCell(5, headerStyle).SetValue("% of Total Running Time");
 
         var totalsByProgram = timeTrackingService.GetTotalsByProgram(from, to);
 
@@ -247,59 +187,37 @@ public class CBRAReport
         {
             var row = sheet.CreateRow(++startRowIndex);
 
-            var colCell1 = row.CreateCell(0);
-            colCell1.CellStyle = nameStyle;
-            colCell1.SetCellValue(totalCount.MediaType);
+            row.CreateCell(0, nameStyle).SetValue(totalCount.MediaType);
 
-            var colCell2 = row.CreateCell(1);
-            colCell2.CellStyle = nameStyle;
-            colCell2.SetCellValue(totalCount.SourceType.Trim());
+            row.CreateCell(1, nameStyle).SetValue(totalCount.SourceType.Trim());
 
-            var colCell3 = row.CreateCell(2);
-            colCell3.CellStyle = nameStyle;
-            colCell3.SetCellValue(totalCount.Series.Trim());
+            row.CreateCell(2, nameStyle).SetValue(totalCount.Series.Trim());
 
-            var colCel4 = row.CreateCell(3);
-            colCel4.CellStyle = valueStyle;
-            colCel4.SetCellValue((double)totalCount.TotalCount);
+            row.CreateCell(3, valueStyle).SetValue((double)totalCount.TotalCount);
 
-            var colCell5 = row.CreateCell(4);
-            colCell5.CellStyle = valueStyle;
-            colCell5.SetCellValue(totalCount.TotalRunningTime);
+            row.CreateCell(4, valueStyle).SetValue(totalCount.TotalRunningTime);
 
-            var colCel6 = row.CreateCell(5);
-            colCel6.CellStyle = percentageStyle;
-            colCel6.SetCellValue((double)totalCount.PercentageOfTotalRunningTime);
+            row.CreateCell(5, percentageStyle).SetValue((double)totalCount.PercentageOfTotalRunningTime);
         }
         return startRowIndex;
     }
 
     private int AddTotalsByBroadcaster(int startRowIndex, DateTime from, DateTime to)
     {
-        var titleStyle = CreateStyle((short)14, true, false, HorizontalAlignment.Left);
-        var headerStyle = CreateStyle((short)12, true, true, HorizontalAlignment.Center);
-        var nameStyle = CreateStyle((short)12, false, false, HorizontalAlignment.Left, green);
-        var valueStyle = CreateStyle((short)12, false, false, HorizontalAlignment.Right, green);
-        valueStyle.DataFormat = workbook.CreateDataFormat().GetFormat("0.00");
-        var percentageStyle = CreateStyle((short)12, false, false, HorizontalAlignment.Right, green);
-        percentageStyle.DataFormat = workbook.CreateDataFormat().GetFormat("0.00%");
+        var titleStyle = CreateStyle(14, true, false, ExcelHorizontalAlignment.Left);
+        var headerStyle = CreateStyle(12, true, true, ExcelHorizontalAlignment.Center);
+        var nameStyle = CreateStyle(12, false, false, ExcelHorizontalAlignment.Left);
+        var valueStyle = CreateStyle(12, false, false, ExcelHorizontalAlignment.Right, "0.00");
+        var percentageStyle = CreateStyle(12, false, false, ExcelHorizontalAlignment.Right, "0.00%");
 
         var titleRow = sheet.CreateRow(startRowIndex);
-        sheet.AddMergedRegion(CellRangeAddress.ValueOf($"A{startRowIndex + 1}:E{startRowIndex + 1}"));
-        var titleCell = titleRow.CreateCell(0);
-        titleCell.CellStyle = titleStyle;
-        titleCell.SetCellValue("% of Total Running Time by Broadcaster");
+        sheet.AddMergedRegion($"A{startRowIndex + 1}:E{startRowIndex + 1}");
+        titleRow.CreateCell(0, titleStyle).SetValue("% of Total Running Time by Broadcaster");
 
         var row1 = sheet.CreateRow(++startRowIndex);
-        var col1 = row1.CreateCell(0);
-        col1.CellStyle = headerStyle;
-        col1.SetCellValue("Source");
-        var col2 = row1.CreateCell(1);
-        col2.CellStyle = headerStyle;
-        col2.SetCellValue("Running Time");
-        var col3 = row1.CreateCell(2);
-        col3.CellStyle = headerStyle;
-        col3.SetCellValue("% of Total Running Time");
+        row1.CreateCell(0, headerStyle).SetValue("Source");
+        row1.CreateCell(1, headerStyle).SetValue("Running Time");
+        row1.CreateCell(2, headerStyle).SetValue("% of Total Running Time");
 
         var totalsByProgram = timeTrackingService.GetTotalsByBroadcaster(from, to);
 
@@ -307,44 +225,29 @@ public class CBRAReport
         {
             var row = sheet.CreateRow(++startRowIndex);
 
-            col1 = row.CreateCell(0);
-            col1.CellStyle = nameStyle;
-            col1.SetCellValue(totalCount.SourceType);
+            row.CreateCell(0, nameStyle).SetValue(totalCount.SourceType);
 
-            col2 = row.CreateCell(1);
-            col2.CellStyle = valueStyle;
-            col2.SetCellValue(totalCount.TotalRunningTime);
+            row.CreateCell(1, valueStyle).SetValue(totalCount.TotalRunningTime);
 
-            col3 = row.CreateCell(2);
-            col3.CellStyle = percentageStyle;
-            col3.SetCellValue((double)totalCount.PercentageOfTotalRunningTime);
+            row.CreateCell(2, percentageStyle).SetValue((double)totalCount.PercentageOfTotalRunningTime);
         }
         return startRowIndex;
     }
 
     private int AddDatabaseEntries(int startRowIndex, DateTime from, DateTime to)
     {
-        var titleStyle = CreateStyle((short)14, true, false, HorizontalAlignment.Left);
+        var titleStyle = CreateStyle(14, true, false, ExcelHorizontalAlignment.Left);
         var titleRow = sheet.CreateRow(startRowIndex);
-        sheet.AddMergedRegion(CellRangeAddress.ValueOf($"A{startRowIndex + 1}:E{startRowIndex + 1}"));
-        var titleCell = titleRow.CreateCell(0);
-        titleCell.CellStyle = titleStyle;
-        titleCell.SetCellValue("Database Entries");
+        sheet.AddMergedRegion($"A{startRowIndex + 1}:E{startRowIndex + 1}");
+        titleRow.CreateCell(0, titleStyle).SetValue("Database Entries");
 
-        var headerStyle = CreateStyle((short)12, true, true, HorizontalAlignment.Center);
-        var nameStyle = CreateStyle((short)12, false, false, HorizontalAlignment.Left, green);
-        var valueStyle = CreateStyle((short)12, false, false, HorizontalAlignment.Right, green);
-        valueStyle.DataFormat = workbook.CreateDataFormat().GetFormat("#,##0");
+        var headerStyle = CreateStyle(12, true, true, ExcelHorizontalAlignment.Center);
+        var nameStyle = CreateStyle(12, false, false, ExcelHorizontalAlignment.Left);
+        var valueStyle = CreateStyle(12, false, false, ExcelHorizontalAlignment.Right, "#,##0");
         var row1 = sheet.CreateRow(++startRowIndex);
-        var col1 = row1.CreateCell(0);
-        col1.CellStyle = headerStyle;
-        col1.SetCellValue("Day Of Week");
-        var col2 = row1.CreateCell(1);
-        col2.CellStyle = headerStyle;
-        col2.SetCellValue("Total");
-        var col3 = row1.CreateCell(2);
-        col3.CellStyle = headerStyle;
-        col3.SetCellValue("CBRA");
+        row1.CreateCell(0, headerStyle).SetValue("Day Of Week");
+        row1.CreateCell(1, headerStyle).SetValue("Total");
+        row1.CreateCell(2, headerStyle).SetValue("CBRA");
 
         var totalEntries = timeTrackingService.GetTotalEntries(from, to);
 
@@ -352,17 +255,11 @@ public class CBRAReport
         {
             var row = sheet.CreateRow(++startRowIndex);
 
-            col1 = row.CreateCell(0);
-            col1.CellStyle = nameStyle;
-            col1.SetCellValue(totalCount.DayOfWeek);
+            row.CreateCell(0, nameStyle).SetValue(totalCount.DayOfWeek);
 
-            col2 = row.CreateCell(1);
-            col2.CellStyle = valueStyle;
-            col2.SetCellValue((double)totalCount.TotalCount);
+            row.CreateCell(1, valueStyle).SetValue((double)totalCount.TotalCount);
 
-            col3 = row.CreateCell(2);
-            col3.CellStyle = valueStyle;
-            col3.SetCellValue((double)totalCount.TotalCbra);
+            row.CreateCell(2, valueStyle).SetValue((double)totalCount.TotalCbra);
         }
         return startRowIndex;
     }

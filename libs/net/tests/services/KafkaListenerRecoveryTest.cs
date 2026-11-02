@@ -52,18 +52,18 @@ public class KafkaListenerRecoveryTest
             completed.SetResult();
             return Task.CompletedTask;
         }, CancellationToken.None);
-        await completed.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await completed.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
 
         var second = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         await listener.ConsumeAsync(_ => { second.SetResult(); return Task.CompletedTask; }, CancellationToken.None);
-        await second.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await second.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
 
         // With a leaked slot, the second message would reach MaxThreads and pause the consumer.
         consumer.Verify(c => c.Pause(It.IsAny<IEnumerable<TopicPartition>>()), Times.Never);
 
         var third = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         await listener.ConsumeAsync(_ => { third.SetResult(); return Task.CompletedTask; }, CancellationToken.None);
-        await third.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await third.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
         // Releasing the first slot twice would incorrectly allow this extra message without pausing.
         consumer.Verify(c => c.Pause(It.IsAny<IEnumerable<TopicPartition>>()), Times.Once);
     }

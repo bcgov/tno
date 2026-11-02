@@ -7,7 +7,7 @@ Use this skill when validating TNO changes before a commit, push, or PR, or inve
 - Read the affected GitHub workflow and use its SDK, configuration, lint command, and build command. Run relevant tests after the final edit.
 - Fix lint, build, and test failures and rerun affected checks before committing. For database coverage, provide `TNO_ORPHAN_TEST_POSTGRES` pointing to a disposable test server; do not count skipped integration tests as passed.
 - The stop hook (`bash .claude/scripts/build-verify.sh`) runs builds only. It does not replace lint, tests, or compiler-warning review, and may detect no changes after a commit.
-- For API changes, run with .NET 9:
+- For API changes, run with .NET 10:
 
   ```bash
   dotnet format api/net/TNO.API.csproj --verify-no-changes

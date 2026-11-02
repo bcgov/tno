@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>TNO.Reports</RootNamespace>
@@ -14,8 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NPOI" Version="2.7.4" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
   </ItemGroup>
 
 </Project>

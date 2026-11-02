@@ -67,7 +67,7 @@ public sealed class NativeReindexTests : IAsyncLifetime
         return JsonNode.Parse(text)!;
     }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         await Request(HttpMethod.Put, Source, JsonNode.Parse("""{"settings":{"number_of_replicas":0},"mappings":{"properties":{"id":{"type":"long"}}}}"""));
         // Map the fields the copies add up front. A dynamic mapping update from a running copy can
@@ -76,7 +76,7 @@ public sealed class NativeReindexTests : IAsyncLifetime
         await Request(HttpMethod.Put, Target, JsonNode.Parse("""{"settings":{"number_of_replicas":0},"mappings":{"_meta":{"owner":"tno-native-1.0.11"},"properties":{"id":{"type":"long"},"projectionRevision":{"type":"long"},"body":{"type":"text"}}}}"""));
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         var indexes = await Request(HttpMethod.Get, $"_cat/indices/{_prefix}*?format=json&h=index");
         foreach (var index in indexes.AsArray())

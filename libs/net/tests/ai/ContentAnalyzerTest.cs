@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 using System.Text.Json;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using TNO.AI;
 using TNO.AI.Analysis;

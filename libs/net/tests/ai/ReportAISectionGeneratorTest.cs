@@ -1,5 +1,5 @@
 using System.Collections.Concurrent;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using TNO.API.Areas.Services.Models.ReportAIResult;
 using TNO.API.Models.Settings;
@@ -170,9 +170,9 @@ public class ReportAISectionGeneratorTest
         var requestJson = System.Text.Json.JsonSerializer.Serialize(optimized.Request, options);
         requestJson.Should().Contain("Fallback transit article");
         requestJson.Should().Contain(includeBody ? "Full budget article" : "Budget summary");
-        var first = await generator.GenerateAsync(report, 5, section, current, old, Llm());
+        var first = await generator.GenerateAsync(report, 5, section, current, old, Llm(), cancellationToken: TestContext.Current.CancellationToken);
         var calls = client.Requests.Count;
-        var second = await generator.GenerateAsync(report, 5, section, current, compact, Llm(), AISectionWait.NoWait);
+        var second = await generator.GenerateAsync(report, 5, section, current, compact, Llm(), AISectionWait.NoWait, TestContext.Current.CancellationToken);
         first.Status.Should().Be(AISectionStatus.Ready);
         second.Output.Should().Be(first.Output);
         second.Status.Should().Be(AISectionStatus.Ready);
@@ -188,9 +188,9 @@ public class ReportAISectionGeneratorTest
         var (report, section) = Report(new ReportSectionSettingsModel() { Label = "Summary", UserPrompt = "Summarize" });
         var sections = new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(1, "Budget news."), Story(2, "Transit news.")) };
 
-        var first = await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm());
+        var first = await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm(), cancellationToken: TestContext.Current.CancellationToken);
         var requests = client.Requests.Count;
-        var second = await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm());
+        var second = await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm(), cancellationToken: TestContext.Current.CancellationToken);
 
         first.Error.Should().BeNull();
         second.Output.Should().Be(first.Output);
@@ -222,9 +222,9 @@ public class ReportAISectionGeneratorTest
         var previewHistory = new[] { new PreviousReportModel(4, date,
             new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, first, third, second) }) };
 
-        var generated = await Generator(store, client).GenerateAsync(report, 5, section, sections, workerHistory, Llm());
+        var generated = await Generator(store, client).GenerateAsync(report, 5, section, sections, workerHistory, Llm(), cancellationToken: TestContext.Current.CancellationToken);
         var requests = client.Requests.Count;
-        var preview = await Generator(store, client).GenerateAsync(report, 5, section, sections, previewHistory, Llm(), AISectionWait.NoWait);
+        var preview = await Generator(store, client).GenerateAsync(report, 5, section, sections, previewHistory, Llm(), AISectionWait.NoWait, TestContext.Current.CancellationToken);
 
         generated.Status.Should().Be(AISectionStatus.Ready);
         preview.Status.Should().Be(AISectionStatus.Ready);
@@ -240,10 +240,8 @@ public class ReportAISectionGeneratorTest
         var client = new FakeLlmClient(8000);
         var (report, section) = Report(new ReportSectionSettingsModel() { Label = "Summary", UserPrompt = "Summarize" });
 
-        await Generator(store, client).GenerateAsync(report, 5, section,
-            new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(1, "Budget news.")) }, Array.Empty<PreviousReportModel>(), Llm());
-        await Generator(store, client).GenerateAsync(report, 5, section,
-            new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(1, "Budget news, updated.")) }, Array.Empty<PreviousReportModel>(), Llm());
+        await Generator(store, client).GenerateAsync(report, 5, section, new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(1, "Budget news.")) }, Array.Empty<PreviousReportModel>(), Llm(), cancellationToken: TestContext.Current.CancellationToken);
+        await Generator(store, client).GenerateAsync(report, 5, section, new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(1, "Budget news, updated.")) }, Array.Empty<PreviousReportModel>(), Llm(), cancellationToken: TestContext.Current.CancellationToken);
 
         store.Results.Should().HaveCount(2);
     }
@@ -266,7 +264,7 @@ public class ReportAISectionGeneratorTest
             ["transit"] = ContentSection("transit", 1, Story(2, "Transit news.")),
         };
 
-        await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm());
+        await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm(), cancellationToken: TestContext.Current.CancellationToken);
 
         var mapped = client.Requests.Where(r => r[0].Content.Contains("You read a batch")).Select(r => r[^1].Content).ToArray();
         String.Join("\n", mapped).Should().Contain("Headline 1").And.NotContain("Headline 2");
@@ -277,8 +275,7 @@ public class ReportAISectionGeneratorTest
     {
         var (report, section) = Report(new ReportSectionSettingsModel() { Label = "Summary", AIScope = ReportAISectionGenerator.ScopeSections });
 
-        var result = await Generator(new MemoryStore(), new FakeLlmClient(8000)).GenerateAsync(report, 5, section,
-            new Dictionary<string, ReportSectionModel>(), Array.Empty<PreviousReportModel>(), Llm());
+        var result = await Generator(new MemoryStore(), new FakeLlmClient(8000)).GenerateAsync(report, 5, section, new Dictionary<string, ReportSectionModel>(), Array.Empty<PreviousReportModel>(), Llm(), cancellationToken: TestContext.Current.CancellationToken);
 
         result.Error.Should().Contain("Choose the content sections");
     }
@@ -288,8 +285,7 @@ public class ReportAISectionGeneratorTest
     {
         var (report, section) = Report(new ReportSectionSettingsModel() { Label = "Summary" });
 
-        var result = await Generator(new MemoryStore(), new FakeLlmClient(8000)).GenerateAsync(report, 5, section,
-            new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(1, "News.")) }, Array.Empty<PreviousReportModel>(), Llm(null));
+        var result = await Generator(new MemoryStore(), new FakeLlmClient(8000)).GenerateAsync(report, 5, section, new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(1, "News.")) }, Array.Empty<PreviousReportModel>(), Llm(null), cancellationToken: TestContext.Current.CancellationToken);
 
         result.Error.Should().Contain("context window");
     }
@@ -442,8 +438,7 @@ public class ReportAISectionGeneratorTest
         var contentSection = ContentSection("news", 0, Story(1, "Transit news."));
         contentSection.Settings.ShowFullStory = true;
 
-        var result = await generator.GenerateAsync(report, 5, section,
-            new Dictionary<string, ReportSectionModel> { ["news"] = contentSection }, Array.Empty<PreviousReportModel>(), Llm());
+        var result = await generator.GenerateAsync(report, 5, section, new Dictionary<string, ReportSectionModel> { ["news"] = contentSection }, Array.Empty<PreviousReportModel>(), Llm(), cancellationToken: TestContext.Current.CancellationToken);
 
         result.Error.Should().BeNull();
         result.Output.Should().Contain("Requested format").And.Contain("href=\"#item-1\"").And.NotContain("target=").And.Contain("View story");
@@ -477,8 +472,7 @@ public class ReportAISectionGeneratorTest
         {
             var client = new FakeLlmClient(8000);
             var (report, section) = Report(new ReportSectionSettingsModel() { AIInputFields = fields });
-            var result = await Generator(new MemoryStore(), client).GenerateAsync(report, 5, section,
-                new Dictionary<string, ReportSectionModel>(), Array.Empty<PreviousReportModel>(), Llm());
+            var result = await Generator(new MemoryStore(), client).GenerateAsync(report, 5, section, new Dictionary<string, ReportSectionModel>(), Array.Empty<PreviousReportModel>(), Llm(), cancellationToken: TestContext.Current.CancellationToken);
             result.Error.Should().Contain("Choose at least one data field");
             client.Requests.Should().BeEmpty();
         }
@@ -491,9 +485,9 @@ public class ReportAISectionGeneratorTest
         var client = new FakeLlmClient(8000);
         var (report, section) = Report(new ReportSectionSettingsModel() { Label = "Summary", AIInputFields = new[] { "body" } });
         var sections = new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(1, "Transit news.")) };
-        await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm());
+        await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm(), cancellationToken: TestContext.Current.CancellationToken);
         section.Settings.AIInputFields = new[] { "body", "headline" };
-        await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm());
+        await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm(), cancellationToken: TestContext.Current.CancellationToken);
         store.Results.Should().HaveCount(2);
     }
 
@@ -507,8 +501,7 @@ public class ReportAISectionGeneratorTest
         var previous = Story(2, "Excluded historical body");
         previous.Summary = "Historical summary";
         var history = new[] { new PreviousReportModel(4, null, new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, previous) }) };
-        var result = await Generator(new MemoryStore(), client).GenerateAsync(report, 5, section,
-            new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, story) }, history, Llm());
+        var result = await Generator(new MemoryStore(), client).GenerateAsync(report, 5, section, new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, story) }, history, Llm(), cancellationToken: TestContext.Current.CancellationToken);
         result.Error.Should().BeNull();
         var sent = String.Join("\n", client.Requests.SelectMany(r => r.Select(m => m.Content)));
         sent.Should().Contain("Historical summary").And.Contain("Current summary")
@@ -528,12 +521,12 @@ public class ReportAISectionGeneratorTest
         var sections = new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, current) };
         var history = new[] { new PreviousReportModel(4, null, new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, previous) }) };
         var generator = Generator(store, client);
-        await generator.GenerateAsync(report, 5, section, sections, history, Llm());
+        await generator.GenerateAsync(report, 5, section, sections, history, Llm(), cancellationToken: TestContext.Current.CancellationToken);
         String.Join("\n", client.Requests.SelectMany(r => r.Select(m => m.Content))).Should().NotContain("Full current article").And.NotContain("Full prior article");
 
         section.Settings.AIInputFields = new[] { "summary", "body" };
         var previousRequests = client.Requests.Count;
-        var result = await generator.GenerateAsync(report, 5, section, sections, history, Llm());
+        var result = await generator.GenerateAsync(report, 5, section, sections, history, Llm(), cancellationToken: TestContext.Current.CancellationToken);
         result.Error.Should().BeNull();
         store.Results.Should().HaveCount(2);
         String.Join("\n", client.Requests.Skip(previousRequests).SelectMany(r => r.Select(m => m.Content))).Should()
@@ -564,9 +557,9 @@ public class ReportAISectionGeneratorTest
         var story = Story(1, "Budget news.");
         var sections = new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, story) };
 
-        await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm());
+        await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm(), cancellationToken: TestContext.Current.CancellationToken);
         story.Evidence = new API.Areas.Services.Models.Content.ContentEvidenceModel() { ContentId = 1, AnalysisId = 8, IsApproved = true, Summary = "The budget adds $1B." };
-        await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm());
+        await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm(), cancellationToken: TestContext.Current.CancellationToken);
 
         store.Results.Should().HaveCount(2);
     }
@@ -579,7 +572,7 @@ public class ReportAISectionGeneratorTest
         var (report, section) = Report(new ReportSectionSettingsModel() { Label = "Summary", UserPrompt = "Summarize" });
         var sections = new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(1, "Budget news.")) };
 
-        var result = await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm(), AISectionWait.NoWait);
+        var result = await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm(), AISectionWait.NoWait, TestContext.Current.CancellationToken);
 
         result.Status.Should().Be(AISectionStatus.NotStarted);
         result.Output.Should().BeNull();
@@ -595,9 +588,9 @@ public class ReportAISectionGeneratorTest
         var (report, section) = Report(new ReportSectionSettingsModel() { Label = "Summary", UserPrompt = "Summarize" });
         var sections = new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(1, "Budget news.")) };
 
-        var prepared = await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm(), AISectionWait.Prepare);
+        var prepared = await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm(), AISectionWait.Prepare, TestContext.Current.CancellationToken);
         var requests = client.Requests.Count;
-        var preview = await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm(), AISectionWait.NoWait);
+        var preview = await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm(), AISectionWait.NoWait, TestContext.Current.CancellationToken);
 
         prepared.Status.Should().Be(AISectionStatus.Ready);
         preview.Status.Should().Be(AISectionStatus.Ready);
@@ -619,7 +612,7 @@ public class ReportAISectionGeneratorTest
         var workerOptions = new TemplateOptions() { ViewContentUrl = new Uri("https://dev.example.test/view/") };
         var previewGenerator = new ReportAISectionGenerator(store, client, previewOptions, NullLogger.Instance);
         var workerGenerator = new ReportAISectionGenerator(store, client, workerOptions, NullLogger.Instance);
-        var pending = await previewGenerator.GenerateAsync(report, 5, section, sections, history, Llm(), AISectionWait.NoWait);
+        var pending = await previewGenerator.GenerateAsync(report, 5, section, sections, history, Llm(), AISectionWait.NoWait, TestContext.Current.CancellationToken);
         pending.Status.Should().Be(AISectionStatus.NotStarted);
 
         // Preserve even an empty URL across the Kafka message: it explicitly disables links.
@@ -628,14 +621,14 @@ public class ReportAISectionGeneratorTest
         var json = System.Text.Json.JsonSerializer.Serialize(message, jsonOptions);
         var received = System.Text.Json.JsonSerializer.Deserialize<TNO.Kafka.Models.ReportRequestModel>(json, jsonOptions)!;
         var prepared = await workerGenerator.GenerateAsync(report, 5, section, sections, history, Llm(), AISectionWait.Prepare,
-            viewContentUrlOverride: received.AIViewContentUrl);
+            viewContentUrlOverride: received.AIViewContentUrl, cancellationToken: TestContext.Current.CancellationToken);
         prepared.Status.Should().Be(AISectionStatus.Ready);
         var requests = client.Requests.Count;
 
         // Completion notifications and repeated browser refreshes must find the prepared result.
         for (var refresh = 0; refresh < 3; refresh++)
         {
-            var preview = await previewGenerator.GenerateAsync(report, 5, section, sections, history, Llm(), AISectionWait.NoWait);
+            var preview = await previewGenerator.GenerateAsync(report, 5, section, sections, history, Llm(), AISectionWait.NoWait, TestContext.Current.CancellationToken);
             preview.Status.Should().Be(AISectionStatus.Ready);
             preview.Output.Should().Be(prepared.Output);
         }
@@ -644,7 +637,7 @@ public class ReportAISectionGeneratorTest
         workerOptions.ViewContentUrl.Should().Be(new Uri("https://dev.example.test/view/"));
 
         // Older jobs still use the worker configuration, and cannot reuse different links.
-        var workerPreview = await workerGenerator.GenerateAsync(report, 5, section, sections, history, Llm(), AISectionWait.NoWait);
+        var workerPreview = await workerGenerator.GenerateAsync(report, 5, section, sections, history, Llm(), AISectionWait.NoWait, TestContext.Current.CancellationToken);
         workerPreview.Status.Should().Be(AISectionStatus.NotStarted);
     }
 
@@ -657,8 +650,8 @@ public class ReportAISectionGeneratorTest
         var (report, section) = Report(new ReportSectionSettingsModel() { Label = "Summary", UserPrompt = "Summarize" });
         var sections = new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(1, "Budget news.")) };
 
-        var preview = await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm(), AISectionWait.NoWait);
-        var prepare = await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm(), AISectionWait.Prepare);
+        var preview = await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm(), AISectionWait.NoWait, TestContext.Current.CancellationToken);
+        var prepare = await Generator(store, client).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm(), AISectionWait.Prepare, TestContext.Current.CancellationToken);
 
         preview.Status.Should().Be(AISectionStatus.Generating);
         preview.ClaimExpiresOn.Should().Be(claimExpiresOn, "the preview checks again when the claim lapses");
@@ -673,7 +666,7 @@ public class ReportAISectionGeneratorTest
         var (report, section) = Report(new ReportSectionSettingsModel() { Label = "Summary", UserPrompt = "Summarize" });
         var sections = new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(1, "Budget news.")) };
 
-        var preview = await Generator(store, new FakeLlmClient(8000)).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm(), AISectionWait.NoWait);
+        var preview = await Generator(store, new FakeLlmClient(8000)).GenerateAsync(report, 5, section, sections, Array.Empty<PreviousReportModel>(), Llm(), AISectionWait.NoWait, TestContext.Current.CancellationToken);
 
         preview.Status.Should().Be(AISectionStatus.Failed);
         preview.Error.Should().Be("The model refused.");
@@ -784,7 +777,7 @@ public class ReportAISectionGeneratorTest
         var (report, section) = Report(new ReportSectionSettingsModel() { Label = "Summary", UserPrompt = "Summarize" });
         var sections = new Dictionary<string, ReportSectionModel> { ["news"] = ContentSection("news", 0, Story(1, "Budget news."), Story(2, "Transit news.")) };
 
-        var outcome = await Generator(store, client).TestAsync(report, section, sections, Array.Empty<PreviousReportModel>(), Llm());
+        var outcome = await Generator(store, client).TestAsync(report, section, sections, Array.Empty<PreviousReportModel>(), Llm(), cancellationToken: TestContext.Current.CancellationToken);
 
         outcome.IsSuccess.Should().BeTrue(outcome.Error);
         outcome.Output.Should().Contain("Summary");
@@ -800,7 +793,7 @@ public class ReportAISectionGeneratorTest
         var client = new FakeLlmClient(8000);
         var (report, section) = Report(new ReportSectionSettingsModel() { AIScope = "Sections", SourceSections = Array.Empty<string>() });
 
-        var outcome = await Generator(new MemoryStore(), client).TestAsync(report, section, new Dictionary<string, ReportSectionModel>(), Array.Empty<PreviousReportModel>(), Llm());
+        var outcome = await Generator(new MemoryStore(), client).TestAsync(report, section, new Dictionary<string, ReportSectionModel>(), Array.Empty<PreviousReportModel>(), Llm(), cancellationToken: TestContext.Current.CancellationToken);
 
         outcome.IsSuccess.Should().BeFalse();
         outcome.Error.Should().Contain("Choose the content sections");

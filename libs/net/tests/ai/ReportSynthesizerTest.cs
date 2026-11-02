@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using TNO.AI;
 using TNO.AI.Synthesis;
@@ -39,7 +39,7 @@ public class ReportSynthesizerTest
         var limits = Limits();
         var client = new FakeLlmClient(limits.ContextWindow);
 
-        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(count), limits: limits));
+        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(count), limits: limits), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue(result.Error);
         result.Usage.StoriesProcessed.Should().Be(count);
@@ -56,7 +56,7 @@ public class ReportSynthesizerTest
         var words = Enumerable.Range(1, 6000).Select(i => $"w{i}").ToArray();
         var story = new SynthesisStory(1, "A very long transcript", "Radio | 2026-09-30", String.Join(" ", words) + ".");
 
-        var result = await Synthesizer(client).SynthesizeAsync(Request(new[] { story }, limits: limits));
+        var result = await Synthesizer(client).SynthesizeAsync(Request(new[] { story }, limits: limits), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue(result.Error);
         var mapInputs = client.Requests.Where(r => r[0].Content.Contains("You read a batch")).Select(r => r[^1].Content).ToArray();
@@ -74,7 +74,7 @@ public class ReportSynthesizerTest
         var limits = Limits(8000, 1000);
         var client = new FakeLlmClient(5000);
 
-        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(200), limits: limits));
+        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(200), limits: limits), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue(result.Error);
         result.Usage.StoriesProcessed.Should().Be(200);
@@ -85,7 +85,7 @@ public class ReportSynthesizerTest
     {
         var client = new FakeLlmClient(8000) { TruncateWhenStoriesExceed = 5 };
 
-        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(60)));
+        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(60)), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue(result.Error);
         result.Usage.StoriesProcessed.Should().Be(60);
@@ -99,7 +99,7 @@ public class ReportSynthesizerTest
     {
         var client = new FakeLlmClient(8000) { ReduceNeverShrinks = true };
 
-        var result = await Synthesizer(client, 2).SynthesizeAsync(Request(Stories(2000)));
+        var result = await Synthesizer(client, 2).SynthesizeAsync(Request(Stories(2000)), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeFalse();
         result.Error.Should().Contain("rounds");
@@ -111,7 +111,7 @@ public class ReportSynthesizerTest
     {
         var client = new FakeLlmClient(8000);
 
-        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(3), limits: new LlmLimits(0, 0, null, null, null)));
+        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(3), limits: new LlmLimits(0, 0, null, null, null)), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeFalse();
         result.Error.Should().Contain("context window");
@@ -133,7 +133,7 @@ public class ReportSynthesizerTest
             new SynthesisStory(2, "Second", "", "Second story", "https://mmi.test/view/2"),
             new SynthesisStory(3, "Third", "", "Third story"),
         };
-        var result = await Synthesizer(client).SynthesizeAsync(Request(stories));
+        var result = await Synthesizer(client).SynthesizeAsync(Request(stories), TestContext.Current.CancellationToken);
         result.IsSuccess.Should().BeTrue(result.Error);
         var finalInput = client.Requests.Last()[^1].Content;
         finalInput.Should().Contain("\"reference\":\"S1\",\"url\":\"https://mmi.test/view/1\",\"anchor\":\"#item-1\"")
@@ -155,7 +155,7 @@ public class ReportSynthesizerTest
         stories[0] = stories[0] with { Fields = new Dictionary<string, string> { ["source"] = "Globe and Mail", ["mediaType"] = "Print" } };
         stories[1] = stories[1] with { Fields = new Dictionary<string, string>() };
 
-        var result = await Synthesizer(client).SynthesizeAsync(Request(stories));
+        var result = await Synthesizer(client).SynthesizeAsync(Request(stories), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue(result.Error);
         var finalInput = client.Requests.Last()[^1].Content;
@@ -173,7 +173,7 @@ public class ReportSynthesizerTest
     {
         var client = new FakeLlmClient(8000) { FinalOutput = "<script>alert(1)</script><p onclick=\"x()\">Budget [S2] and [S999]</p>" };
 
-        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(3)));
+        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(3)), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue(result.Error);
         result.Output.Should().NotContain("<script");
@@ -189,7 +189,7 @@ public class ReportSynthesizerTest
         var stories = Stories(4);
         stories[0] = stories[0] with { Headline = "<b>Bold</b> & co" };
 
-        var result = await Synthesizer(client).SynthesizeAsync(Request(stories, SynthesisOutputMode.TopicSummary));
+        var result = await Synthesizer(client).SynthesizeAsync(Request(stories, SynthesisOutputMode.TopicSummary), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue(result.Error);
         result.Output.Should().Contain("<h3>");
@@ -206,7 +206,7 @@ public class ReportSynthesizerTest
         // Every story has its own analysis topic, as most do in a large report.
         var stories = Stories(100).Select(s => s with { Group = $"Topic {s.ContentId}" }).ToList();
 
-        var result = await Synthesizer(client).SynthesizeAsync(Request(stories, SynthesisOutputMode.TopicSummary));
+        var result = await Synthesizer(client).SynthesizeAsync(Request(stories, SynthesisOutputMode.TopicSummary), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue(result.Error);
         result.Usage.StoriesProcessed.Should().Be(100);
@@ -221,7 +221,7 @@ public class ReportSynthesizerTest
         var client = new FakeLlmClient(limits.ContextWindow);
         var synthesizer = new ReportSynthesizer(client, new SynthesisOptions() { MaxBatchInputTokens = 2000, MaxBatchOutputTokens = 500 }, NullLogger.Instance);
 
-        var result = await synthesizer.SynthesizeAsync(Request(Stories(300), limits: limits));
+        var result = await synthesizer.SynthesizeAsync(Request(Stories(300), limits: limits), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue(result.Error);
         result.Usage.StoriesProcessed.Should().Be(300);
@@ -235,7 +235,7 @@ public class ReportSynthesizerTest
     {
         var client = new FakeLlmClient(8000) { FinalOutput = "<p>text</p>", FinalChoices = 2 };
 
-        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(2), choiceIndex: -1, choiceCount: 2));
+        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(2), choiceIndex: -1, choiceCount: 2), TestContext.Current.CancellationToken);
 
         result.Output.Should().Contain("Choice 1");
         result.Output.Should().Contain("Choice 2");
@@ -254,7 +254,7 @@ public class ReportSynthesizerTest
             new SynthesisSection(14, "Hidden", null, Array.Empty<long>()),
         };
 
-        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(3)) with { Sections = sections });
+        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(3)) with { Sections = sections }, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue(result.Error);
         var finalInput = client.Requests.Last()[^1].Content;
@@ -272,7 +272,7 @@ public class ReportSynthesizerTest
         };
         var sections = new[] { new SynthesisSection(12, "Top Stories", "#section-12", new long[] { 1 }) };
 
-        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(2)) with { Sections = sections });
+        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(2)) with { Sections = sections }, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue(result.Error);
         result.Output.Should().Contain("<a href=\"#section-12\">Top Stories</a>")
@@ -291,7 +291,7 @@ public class ReportSynthesizerTest
     {
         var client = new FakeLlmClient(8000) { InvalidMapResponses = 2 };
 
-        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(5)));
+        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(5)), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue(result.Error);
         result.Usage.StoriesProcessed.Should().Be(5);
@@ -304,7 +304,7 @@ public class ReportSynthesizerTest
     {
         var client = new FakeLlmClient(8000) { InvalidMapResponses = 1 };
 
-        var result = await Synthesizer(client, new SynthesisOptions() { InvalidResponseAttempts = 0 }).SynthesizeAsync(Request(Stories(4)));
+        var result = await Synthesizer(client, new SynthesisOptions() { InvalidResponseAttempts = 0 }).SynthesizeAsync(Request(Stories(4)), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue(result.Error);
         // Without retries the batch is split after its first invalid response.
@@ -318,7 +318,7 @@ public class ReportSynthesizerTest
         var client = new FakeLlmClient(8000) { MapAlwaysInvalid = true };
         var stories = Stories(1, 5);
 
-        var result = await Synthesizer(client).SynthesizeAsync(Request(stories));
+        var result = await Synthesizer(client).SynthesizeAsync(Request(stories), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeFalse();
         result.Error.Should().Contain("not valid findings").And.Contain("'Headline 1' (content 1)").And.Contain("cannot be split further");
@@ -332,7 +332,7 @@ public class ReportSynthesizerTest
     {
         var client = new FakeLlmClient(8000) { ContentFilterHandle = "S3", ContentFilterRejectsRequest = rejectsRequest };
 
-        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(8)));
+        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(8)), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeFalse();
         result.Error.Should().Contain("content filter").And.Contain("'Headline 3' (content 3)");
@@ -347,7 +347,7 @@ public class ReportSynthesizerTest
     {
         var client = new FakeLlmClient(8000) { FilterFinal = true };
 
-        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(3)));
+        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(3)), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeFalse();
         result.Error.Should().Contain("content filter").And.Contain("final request");
@@ -398,7 +398,7 @@ public class ReportSynthesizerTest
             new SynthesisHistoricalInstance("Report of 2026-09-29", Stories(2)),
         };
 
-        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(2), history: history));
+        var result = await Synthesizer(client).SynthesizeAsync(Request(Stories(2), history: history), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue(result.Error);
         var maps = client.MapHandles.ToArray();

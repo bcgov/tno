@@ -1,5 +1,4 @@
-using NPOI.SS.UserModel;
-using NPOI.XSSF.UserModel;
+using TNO.Core.Excel;
 using TNO.Entities;
 
 namespace TNO.DAL.Services;
@@ -12,9 +11,6 @@ public class UserBillingReport
     #region Variables
     private readonly IUserService userService;
     private readonly IOrganizationService organizationService;
-
-    private readonly XSSFColor green = new();
-
     #endregion
 
     #region Constructors
@@ -35,86 +31,54 @@ public class UserBillingReport
     /// Generates user billing Excel Report.
     /// </summary>
     /// <returns></returns>
-    public XSSFWorkbook GenerateReport()
+    public ExcelWorkbook GenerateReport()
     {
-        XSSFWorkbook workbook = new XSSFWorkbook();
-        green.ARGBHex = "008000";
-        XSSFSheet sheet = (XSSFSheet)workbook.CreateSheet("AccountBilling");
-        sheet.SetColumnWidth(0, 4000); //name
-        sheet.SetColumnWidth(1, 7000); //email
-        sheet.SetColumnWidth(2, 4000); //account type
-        sheet.SetColumnWidth(3, 6000); //ministry
-        sheet.SetColumnWidth(4, 8000); //reports
-        sheet.SetColumnWidth(5, 4000); //start date
-        sheet.SetColumnWidth(6, 4000); //end date
-        sheet.SetColumnWidth(7, 11000); //history
-        sheet.SetColumnWidth(8, 10000); //notes
-        AddDataSheet(0, workbook, sheet);
+        var workbook = new ExcelWorkbook();
+        var sheet = workbook.CreateSheet("AccountBilling");
+        // Widths are in characters (the former NPOI widths were in 1/256ths of a character).
+        sheet.SetColumnWidth(0, 4000 / 256d); //name
+        sheet.SetColumnWidth(1, 7000 / 256d); //email
+        sheet.SetColumnWidth(2, 4000 / 256d); //account type
+        sheet.SetColumnWidth(3, 6000 / 256d); //ministry
+        sheet.SetColumnWidth(4, 8000 / 256d); //reports
+        sheet.SetColumnWidth(5, 4000 / 256d); //start date
+        sheet.SetColumnWidth(6, 4000 / 256d); //end date
+        sheet.SetColumnWidth(7, 11000 / 256d); //history
+        sheet.SetColumnWidth(8, 10000 / 256d); //notes
+        AddDataSheet(0, sheet);
 
         return workbook;
     }
 
-    private IFont CreateFont(double size, bool bold, XSSFColor color, XSSFWorkbook workbook)
+    private static ExcelCellStyle CreateStyle(double size, bool bold, bool wrap, ExcelHorizontalAlignment horizontalAlignment,
+        ExcelVerticalAlignment verticalAlignment)
     {
-        var font = workbook.CreateFont();
-        font.FontName = "Calibri";
-        font.FontHeightInPoints = size;
-        font.IsBold = bold;
-        font.Color = color.Index;
-        return font;
-    }
-
-    private ICellStyle CreateStyle(double size, bool bold, bool wrap, HorizontalAlignment horizontalAlignment,
-        VerticalAlignment verticalAlignment, XSSFWorkbook workbook, XSSFColor? color = null)
-    {
-        color ??= new XSSFColor
+        return new ExcelCellStyle()
         {
-            ARGBHex = "000000"
+            FontName = "Calibri",
+            FontSize = size,
+            Bold = bold,
+            WrapText = wrap,
+            HorizontalAlignment = horizontalAlignment,
+            VerticalAlignment = verticalAlignment,
         };
-
-        var font = CreateFont(size, bold, color, workbook);
-        var style = workbook.CreateCellStyle();
-        style.SetFont(font);
-        style.WrapText = wrap;
-        style.Alignment = horizontalAlignment;
-        style.VerticalAlignment = verticalAlignment;
-        return style;
     }
 
-    private int AddDataSheet(int startRowIndex, XSSFWorkbook workbook, XSSFSheet sheet)
+    private int AddDataSheet(int startRowIndex, ExcelSheet sheet)
     {
-        var headerStyle = CreateStyle((short)12, true, true, HorizontalAlignment.Center, VerticalAlignment.Top, workbook);
-        var cellStyle = CreateStyle((short)12, false, true, HorizontalAlignment.Left, VerticalAlignment.Top, workbook, green);
-        cellStyle.WrapText = true;
+        var headerStyle = CreateStyle(12, true, true, ExcelHorizontalAlignment.Center, ExcelVerticalAlignment.Top);
+        var cellStyle = CreateStyle(12, false, true, ExcelHorizontalAlignment.Left, ExcelVerticalAlignment.Top);
         var rowIndex = startRowIndex;
         var row1 = sheet.CreateRow(rowIndex);
-        var col1 = row1.CreateCell(0);
-        col1.CellStyle = headerStyle;
-        col1.SetCellValue("Name");
-        var col2 = row1.CreateCell(1);
-        col2.CellStyle = headerStyle;
-        col2.SetCellValue("Email");
-        var col3 = row1.CreateCell(2);
-        col3.CellStyle = headerStyle;
-        col3.SetCellValue("Account Type");
-        var col4 = row1.CreateCell(3);
-        col4.CellStyle = headerStyle;
-        col4.SetCellValue("Ministry");
-        var col5 = row1.CreateCell(4);
-        col5.CellStyle = headerStyle;
-        col5.SetCellValue("Reports");
-        var col6 = row1.CreateCell(5);
-        col6.CellStyle = headerStyle;
-        col6.SetCellValue("Billing Start Date");
-        var col7 = row1.CreateCell(6);
-        col7.CellStyle = headerStyle;
-        col7.SetCellValue("Billing End Date");
-        var col8 = row1.CreateCell(7);
-        col8.CellStyle = headerStyle;
-        col8.SetCellValue("Billing History");
-        var col9 = row1.CreateCell(8);
-        col9.CellStyle = headerStyle;
-        col9.SetCellValue("Notes");
+        row1.CreateCell(0, headerStyle).SetValue("Name");
+        row1.CreateCell(1, headerStyle).SetValue("Email");
+        row1.CreateCell(2, headerStyle).SetValue("Account Type");
+        row1.CreateCell(3, headerStyle).SetValue("Ministry");
+        row1.CreateCell(4, headerStyle).SetValue("Reports");
+        row1.CreateCell(5, headerStyle).SetValue("Billing Start Date");
+        row1.CreateCell(6, headerStyle).SetValue("Billing End Date");
+        row1.CreateCell(7, headerStyle).SetValue("Billing History");
+        row1.CreateCell(8, headerStyle).SetValue("Notes");
 
         var userList = userService.GetUserUpdateHistory();
         var orgList = organizationService.FindAll();
@@ -124,43 +88,29 @@ public class UserBillingReport
             rowIndex = ++rowIndex;
             var row = sheet.CreateRow(rowIndex);
 
-            col1 = row.CreateCell(0);
-            col1.CellStyle = cellStyle;
-            col1.SetCellValue(user.Username);
+            row.CreateCell(0, cellStyle).SetValue(user.Username);
 
-            col2 = row.CreateCell(1);
-            col2.CellStyle = cellStyle;
-            col2.SetCellValue(user.Email);
+            row.CreateCell(1, cellStyle).SetValue(user.Email);
 
-            col3 = row.CreateCell(2);
-            col3.CellStyle = cellStyle;
-            col3.SetCellValue(user.AccountType.ToString());
+            row.CreateCell(2, cellStyle).SetValue(user.AccountType.ToString());
 
-            col4 = row.CreateCell(3);
-            col4.CellStyle = cellStyle;
-            col4.SetCellValue(user.Organizations.Select(x => x.Name).ToList().FirstOrDefault());
+            row.CreateCell(3, cellStyle).SetValue(user.Organizations.Select(x => x.Name).ToList().FirstOrDefault());
 
-            col5 = row.CreateCell(4);
-            col5.CellStyle = cellStyle;
-            col5.SetCellValue(String.Join(", ", user.Reports.Select(x => x.Name).ToList()));
+            row.CreateCell(4, cellStyle).SetValue(String.Join(", ", user.Reports.Select(x => x.Name).ToList()));
 
-            col6 = row.CreateCell(5);
-            col6.CellStyle = cellStyle;
-            col6.SetCellValue(user.CreatedOn.ToString("dd-MMM-yyyy"));
+            row.CreateCell(5, cellStyle).SetValue(user.CreatedOn.ToString("dd-MMM-yyyy"));
 
-            col7 = row.CreateCell(6);
-            col7.CellStyle = cellStyle;
+            var col7 = row.CreateCell(6, cellStyle);
             if (user.UserUpdateHistory?.Count() > 0 && user.UserUpdateHistory.Any(x => x.ChangeType == UserChangeType.Disable))
             {
-                col7.SetCellValue(user.UserUpdateHistory.LastOrDefault(x => x.ChangeType == UserChangeType.Disable)?.DateOfChange.ToString("dd-MMM-yyyy") ?? "");
+                col7.SetValue(user.UserUpdateHistory.LastOrDefault(x => x.ChangeType == UserChangeType.Disable)?.DateOfChange.ToString("dd-MMM-yyyy") ?? "");
             }
             else
             {
-                col7.SetCellValue("");
+                col7.SetValue("");
             }
 
-            col8 = row.CreateCell(7);
-            col8.CellStyle = cellStyle;
+            var col8 = row.CreateCell(7, cellStyle);
             var historyList = user.UserUpdateHistory?.OrderBy(x => x.DateOfChange);
 
             var historyQuery =
@@ -199,11 +149,9 @@ public class UserBillingReport
                     }
                 }
             }
-            col8.SetCellValue(historyString);
+            col8.SetValue(historyString);
 
-            col9 = row.CreateCell(8);
-            col9.CellStyle = cellStyle;
-            col9.SetCellValue(user.Note);
+            row.CreateCell(8, cellStyle).SetValue(user.Note);
         }
         return startRowIndex;
     }

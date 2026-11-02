@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using TNO.Services.Dedup;
 
 namespace TNO.Test.Services.Dedup;

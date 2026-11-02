@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>TNO.API</RootNamespace>
@@ -12,23 +12,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetEnv" Version="3.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.0.0" />
-    <PackageReference Include="Microsoft.AspnetCore.Authentication.jwtBearer" Version="9.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel.Core" Version="2.3.9" />
-    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.2.1" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="7.0.0" />
+    <PackageReference Include="DotNetEnv" Version="3.2.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.3.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.14" />
+    <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="10.2.1" />
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.23.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="10.3.1" />
     <PackageReference Include="prometheus-net.AspNetCore" Version="8.2.1" />
-    <PackageReference Include="FTTLib.dll" Version="1.1.7" />
-    <PackageReference Include="SSH.NET" Version="2024.2.0" />
+    <PackageReference Include="FTTLib.dll" Version="1.1.9" />
+    <PackageReference Include="SSH.NET" Version="2026.0.0" />
 
-    <!-- Force latest to remove warnings -->
-    <PackageReference Include="System.Formats.Asn1" Version="10.0.1" />
 
-    <!-- Force removal of old ASP.NET Core 2.2 packages -->
-    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.3.0" ExcludeAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- [ApiVersion] on every controller resolves from Asp.Versioning. -->
+    <Using Include="Asp.Versioning" />
   </ItemGroup>
 
   <ItemGroup>

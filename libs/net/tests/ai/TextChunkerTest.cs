@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using TNO.AI.Text;
 using TNO.AI.Tokens;
 

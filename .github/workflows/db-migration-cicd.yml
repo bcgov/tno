@@ -33,15 +33,15 @@ permissions:
 
 jobs:
   ci:
-    name: CI — Validate (.NET 9)
+    name: CI — Validate (.NET 10)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup .NET 9
+      - name: Setup .NET 10
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 9.x
+          dotnet-version: 10.x
 
       - name: Restore
         run: dotnet restore "libs/net/TNO.sln" --configfile NuGet.Config
