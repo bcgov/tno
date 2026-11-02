@@ -11,6 +11,28 @@ patchesStrategicMerge:
   - route-subscriber.env
 
 patches:
+  # Database credentials: DEV uses the base 'montford' secret; this environment has its own.
+  - patch: |-
+      apiVersion: apps/v1
+      kind: StatefulSet
+      metadata:
+        name: api
+      spec:
+        template:
+          spec:
+            containers:
+              - name: api
+                env:
+                  - name: DB_POSTGRES_USERNAME
+                    valueFrom:
+                      secretKeyRef:
+                        name: mooncrest
+                        key: USERNAME
+                  - name: DB_POSTGRES_PASSWORD
+                    valueFrom:
+                      secretKeyRef:
+                        name: mooncrest
+                        key: PASSWORD
   - target:
       kind: Route
       name: api-editor

@@ -10,6 +10,28 @@ generatorOptions:
   disableNameSuffixHash: true
 
 patches:
+  # Database credentials: DEV uses the base 'montford' secret; this environment has its own.
+  - patch: |-
+      apiVersion: batch/v1
+      kind: Job
+      metadata:
+        name: indexer-service
+      spec:
+        template:
+          spec:
+            containers:
+              - name: indexer-service
+                env:
+                  - name: DB_POSTGRES_USERNAME
+                    valueFrom:
+                      secretKeyRef:
+                        name: mooncrest
+                        key: USERNAME
+                  - name: DB_POSTGRES_PASSWORD
+                    valueFrom:
+                      secretKeyRef:
+                        name: mooncrest
+                        key: PASSWORD
   - target:
       kind: Job
       name: indexer-service
