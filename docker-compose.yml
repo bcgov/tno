@@ -122,6 +122,7 @@ services:
       - ${ELASTIC_COM_PORT:-40004}:9300
     volumes:
       - tno-elastic-data:/usr/share/elasticsearch/data
+      - tno-elastic-snapshots:/usr/share/elasticsearch/snapshots
     networks:
       - tno
     # healthcheck:
@@ -444,6 +445,8 @@ volumes:
     name: tno-database-data
   tno-elastic-data:
     name: tno-elastic-data
+  tno-elastic-snapshots:
+    name: tno-elastic-snapshots
   tno-api-data:
     name: tno-api-data
   tno-av-data:
