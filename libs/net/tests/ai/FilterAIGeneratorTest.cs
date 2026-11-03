@@ -16,7 +16,7 @@ namespace TNO.Test.AI;
 /// write that prompt: the tool loop, the fencing of quoted material, and how unusable answers are
 /// sent back or rejected.
 /// </summary>
-public class FilterAIGeneratorTest
+public partial class FilterAIGeneratorTest
 {
     #region Helpers
     private static readonly LlmEndpoint Endpoint = new(new Uri("https://example.test/openai/deployments/x/chat/completions"), "key", "x");

@@ -131,6 +131,12 @@ const LLMForm: React.FC = () => {
                   label="Is Enabled"
                   name="isEnabled"
                 />
+                <FormikCheckbox
+                  labelPosition={LabelPosition.Top}
+                  label="Supports Function Calling"
+                  name="supportsFunctionCalling"
+                  tooltip="The deployment supports native function calling (tools). Advanced search AI prompts use it when set, and a JSON reply protocol when not. Only set it when the deployment supports it."
+                />
               </Row>
               <FormikTextArea name="description" label="Description" width={FieldSize.Large} />
               <Row gap="1rem">

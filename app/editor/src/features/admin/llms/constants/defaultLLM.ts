@@ -1,6 +1,6 @@
-import { type ILLMModel } from 'tno-core';
+import { type ILLMConnectionModel } from '../interfaces';
 
-export const defaultLLM: ILLMModel = {
+export const defaultLLM: ILLMConnectionModel = {
   id: 0,
   name: '',
   description: '',
@@ -15,4 +15,5 @@ export const defaultLLM: ILLMModel = {
   maxTemperature: undefined,
   apiKey: '',
   projectEndpoint: '',
+  supportsFunctionCalling: false,
 };

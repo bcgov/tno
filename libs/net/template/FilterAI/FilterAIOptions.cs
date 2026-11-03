@@ -10,7 +10,9 @@ namespace TNO.TemplateEngine.FilterAI;
 /// <param name="Attempts">Attempts per request to the model.</param>
 /// <param name="SupportsBodyLength">Whether the filter page applies minBodyLength and minBodyWords (the editor does; the subscriber does not).</param>
 /// <param name="RequireSearch">Whether a generated filter must be checked with at least one search before it is accepted.</param>
-public record FilterAIOptions(int MaxRounds, int MaxRepairs, TimeSpan Budget, int Attempts, bool SupportsBodyLength = false, bool RequireSearch = true)
+/// <param name="UseFunctionCalling">Whether the model calls the tools through native function calling (the LLM connection says it
+/// supports it) rather than the JSON reply protocol.</param>
+public record FilterAIOptions(int MaxRounds, int MaxRepairs, TimeSpan Budget, int Attempts, bool SupportsBodyLength = false, bool RequireSearch = true, bool UseFunctionCalling = false)
 {
     /// <summary>The limits used when none are given.</summary>
     public static readonly FilterAIOptions Default = new(8, 2, TimeSpan.FromSeconds(100), 2);

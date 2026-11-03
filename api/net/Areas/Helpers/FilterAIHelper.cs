@@ -111,13 +111,14 @@ public class FilterAIHelper : IFilterAIHelper
     /// <exception cref="BadRequestException"></exception>
     public async Task<FilterAIGenerateResultModel> GenerateAsync(FilterAIGenerateRequestModel request, bool forSubscriber, CancellationToken cancellationToken = default)
     {
-        var (endpoint, options) = GetModel();
+        var (endpoint, options, name, useFunctions) = GetModel();
         try
         {
-            return await CreateGenerator(forSubscriber, request.Settings?.SearchUnpublished == true).GenerateAsync(endpoint, options, request, Today(), cancellationToken);
+            return await CreateGenerator(forSubscriber, request.Settings?.SearchUnpublished == true, useFunctions).GenerateAsync(endpoint, options, request, Today(), cancellationToken);
         }
         catch (FilterAIException ex)
         {
+            _logger.LogWarning(ex, "Filter AI {Action} failed with model '{Model}' ({Protocol}): {Message}", "generate", name, useFunctions ? "function calling" : "JSON replies", ex.Message);
             throw new BadRequestException(ex.Message, ex);
         }
     }
@@ -132,13 +133,14 @@ public class FilterAIHelper : IFilterAIHelper
     /// <exception cref="BadRequestException"></exception>
     public async Task<FilterAIChatResultModel> ChatAsync(FilterAIChatRequestModel request, bool forSubscriber, CancellationToken cancellationToken = default)
     {
-        var (endpoint, options) = GetModel();
+        var (endpoint, options, name, useFunctions) = GetModel();
         try
         {
-            return await CreateGenerator(forSubscriber, request.Settings?.SearchUnpublished == true).ChatAsync(endpoint, options, request, Today(), cancellationToken);
+            return await CreateGenerator(forSubscriber, request.Settings?.SearchUnpublished == true, useFunctions).ChatAsync(endpoint, options, request, Today(), cancellationToken);
         }
         catch (FilterAIException ex)
         {
+            _logger.LogWarning(ex, "Filter AI {Action} failed with model '{Model}' ({Protocol}): {Message}", "chat", name, useFunctions ? "function calling" : "JSON replies", ex.Message);
             throw new BadRequestException(ex.Message, ex);
         }
     }
@@ -149,7 +151,7 @@ public class FilterAIHelper : IFilterAIHelper
     /// </summary>
     /// <returns></returns>
     /// <exception cref="BadRequestException"></exception>
-    private (LlmEndpoint Endpoint, LlmRequestOptions Options) GetModel()
+    private (LlmEndpoint Endpoint, LlmRequestOptions Options, string Name, bool UseFunctionCalling) GetModel()
     {
         var setting = _settingService.FindByName(IFilterAIHelper.LLMSettingName);
         if (setting == null || !int.TryParse(setting.Value, out var llmId))
@@ -163,7 +165,7 @@ public class FilterAIHelper : IFilterAIHelper
         if (llm.ProjectEndpoint == null || String.IsNullOrWhiteSpace(deploymentName)) throw new BadRequestException($"The AI model '{llm.Name}' requires a project endpoint and a deployment name.");
         if (String.IsNullOrWhiteSpace(apiKey)) throw new BadRequestException($"The AI model '{llm.Name}' has no API key configured.");
 
-        return (new LlmEndpoint(llm.ProjectEndpoint, apiKey, deploymentName), new LlmRequestOptions(llm.MaxOutputTokens));
+        return (new LlmEndpoint(llm.ProjectEndpoint, apiKey, deploymentName), new LlmRequestOptions(llm.MaxOutputTokens), llm.Name, llm.SupportsFunctionCalling);
     }
 
     /// <summary>
@@ -172,8 +174,9 @@ public class FilterAIHelper : IFilterAIHelper
     /// </summary>
     /// <param name="forSubscriber"></param>
     /// <param name="searchUnpublished">Whether the filter searches unpublished content (drafts) too.</param>
+    /// <param name="useFunctionCalling">Whether the model's LLM connection supports native function calling.</param>
     /// <returns></returns>
-    private FilterAIGenerator CreateGenerator(bool forSubscriber, bool searchUnpublished)
+    private FilterAIGenerator CreateGenerator(bool forSubscriber, bool searchUnpublished, bool useFunctionCalling)
     {
         var excludedSourceIds = Array.Empty<int>();
         var excludedMediaTypeIds = Array.Empty<int>();
@@ -199,7 +202,7 @@ public class FilterAIHelper : IFilterAIHelper
         var client = _httpClientFactory.CreateClient();
         client.Timeout = RequestTimeout;
         // Only the editor's filter page applies the body length settings.
-        var options = FilterAIOptions.Default with { SupportsBodyLength = !forSubscriber };
+        var options = FilterAIOptions.Default with { SupportsBodyLength = !forSubscriber, UseFunctionCalling = useFunctionCalling };
         return new FilterAIGenerator(new LlmDirectClient(client, _logger), tools, _serializerOptions, _logger, options);
     }
 

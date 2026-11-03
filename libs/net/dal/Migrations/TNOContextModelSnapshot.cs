@@ -3377,6 +3377,12 @@ namespace TNO.DAL.Migrations
                         .HasDefaultValue(0)
                         .HasColumnName("sort_order");
 
+                    b.Property<bool>("SupportsFunctionCalling")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("supports_function_calling");
+
                     b.Property<string>("SystemPrompt")
                         .IsRequired()
                         .HasColumnType("text")

@@ -103,6 +103,29 @@ public interface ILlmClient
         int attempts = 3,
         LlmRequestOptions? options = null,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Send a function-calling conversation and return the model's text and function calls. Every
+    /// function call in the conversation must be followed by its output before the next request.
+    /// </summary>
+    /// <param name="llm">The endpoint to call.</param>
+    /// <param name="items">The conversation: messages, function calls, their outputs, and provider items.</param>
+    /// <param name="functions">The functions the model may call.</param>
+    /// <param name="requireFunctionCall">Whether the model must call a function rather than reply with text.</param>
+    /// <param name="attempts">Total attempts before the last failure is thrown.</param>
+    /// <param name="options">Optional request settings.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="LlmFunctionCallingException">The deployment rejected function calling.</exception>
+    Task<LlmFunctionResult> InvokeWithFunctionsAsync(
+        LlmEndpoint llm,
+        IReadOnlyList<LlmItem> items,
+        IReadOnlyList<LlmFunction> functions,
+        bool requireFunctionCall = true,
+        int attempts = 3,
+        LlmRequestOptions? options = null,
+        CancellationToken cancellationToken = default)
+        => throw new NotSupportedException("This client does not support function calling.");
 }
 
 /// <summary>
@@ -164,9 +187,76 @@ public class LlmDirectClient : ILlmClient
         LlmRequestOptions? options = null,
         CancellationToken cancellationToken = default)
     {
-        var isResponsesApi = llm.Endpoint.AbsolutePath.Contains("/responses", StringComparison.OrdinalIgnoreCase);
+        var isResponsesApi = IsResponsesApi(llm);
         var request = new RequestShape(jsonMode, options?.MaxOutputTokens, options?.Temperature, isResponsesApi ? null : options?.ChoiceCount);
-        var requestJson = BuildRequest(llm.DeploymentName, messages, isResponsesApi, request);
+        return await SendAsync(
+            llm,
+            request,
+            shape => BuildRequest(llm.DeploymentName, messages, isResponsesApi, shape),
+            (responseJson, attempt) => Parse(responseJson, isResponsesApi, attempt),
+            isFunctionRequest: false,
+            attempts,
+            cancellationToken);
+    }
+
+    /// <summary>
+    /// Send a function-calling conversation and return the model's text and function calls.
+    /// The Responses API is called statelessly (store: false) and asked for encrypted reasoning,
+    /// which is returned as provider items to send back on the next request.
+    /// </summary>
+    /// <param name="llm">The endpoint to call.</param>
+    /// <param name="items">The conversation: messages, function calls, their outputs, and provider items.</param>
+    /// <param name="functions">The functions the model may call.</param>
+    /// <param name="requireFunctionCall">Whether the model must call a function rather than reply with text.</param>
+    /// <param name="attempts">Total attempts before the last failure is thrown.</param>
+    /// <param name="options">Optional request settings.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="LlmFunctionCallingException">The deployment rejected function calling.</exception>
+    public async Task<LlmFunctionResult> InvokeWithFunctionsAsync(
+        LlmEndpoint llm,
+        IReadOnlyList<LlmItem> items,
+        IReadOnlyList<LlmFunction> functions,
+        bool requireFunctionCall = true,
+        int attempts = 3,
+        LlmRequestOptions? options = null,
+        CancellationToken cancellationToken = default)
+    {
+        var isResponsesApi = IsResponsesApi(llm);
+        var request = new RequestShape(false, options?.MaxOutputTokens, options?.Temperature, null)
+        {
+            ParallelToolCalls = true,
+            Stateless = isResponsesApi,
+        };
+        return await SendAsync(
+            llm,
+            request,
+            shape => LlmFunctionRequests.Build(llm.DeploymentName, items, functions, requireFunctionCall, isResponsesApi, shape.ToFunctionShape()),
+            (responseJson, attempt) => LlmFunctionRequests.Parse(responseJson, isResponsesApi, attempt),
+            isFunctionRequest: true,
+            attempts,
+            cancellationToken);
+    }
+
+    /// <summary>
+    /// Whether the endpoint is the Responses API ('input') rather than chat completions ('messages').
+    /// </summary>
+    private static bool IsResponsesApi(LlmEndpoint llm) => llm.Endpoint.AbsolutePath.Contains("/responses", StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Send a request, retrying throttling, server errors, timeouts and connection failures, and
+    /// relaxing optional parameters a deployment rejects.
+    /// </summary>
+    private async Task<T> SendAsync<T>(
+        LlmEndpoint llm,
+        RequestShape request,
+        Func<RequestShape, string> build,
+        Func<string, int, T> parse,
+        bool isFunctionRequest,
+        int attempts,
+        CancellationToken cancellationToken)
+    {
+        var requestJson = build(request);
         attempts = Math.Max(1, attempts);
 
         for (var attempt = 1; ; attempt++)
@@ -196,13 +286,15 @@ public class LlmDirectClient : ILlmClient
                 // Some deployments reject optional parameters; drop the one named and retry.
                 if (status == 400 && TryRelax(ref request, responseJson))
                 {
-                    requestJson = BuildRequest(llm.DeploymentName, messages, isResponsesApi, request);
+                    requestJson = build(request);
                     continue;
                 }
+                if (status == 400 && isFunctionRequest && IsFunctionCallingError(responseJson))
+                    throw new LlmFunctionCallingException($"LLM rejected function calling: {Truncate(ErrorMessage(responseJson), 500)}");
                 if (!response.IsSuccessStatusCode)
                     throw new HttpRequestException($"LLM request failed ({status}): {Truncate(responseJson, 500)}", null, response.StatusCode);
 
-                return Parse(responseJson, isResponsesApi, attempt);
+                return parse(responseJson, attempt);
             }
             catch (TaskCanceledException) when (attempt < attempts && !cancellationToken.IsCancellationRequested)
             {
@@ -221,7 +313,48 @@ public class LlmDirectClient : ILlmClient
     /// <summary>
     /// The optional parts of a request, relaxed one at a time when a deployment rejects them.
     /// </summary>
-    private record RequestShape(bool JsonMode, int? MaxOutputTokens, float? Temperature, int? ChoiceCount, bool UseLegacyMaxTokens = false);
+    private record RequestShape(bool JsonMode, int? MaxOutputTokens, float? Temperature, int? ChoiceCount, bool UseLegacyMaxTokens = false)
+    {
+        /// <summary>Function requests only: let the model call several functions in one reply.</summary>
+        public bool ParallelToolCalls { get; init; }
+
+        /// <summary>Function requests to the Responses API only: store: false, with encrypted reasoning returned.</summary>
+        public bool Stateless { get; init; }
+
+        /// <summary>Function requests to the Responses API only: whether 'include' asks for encrypted reasoning.</summary>
+        public bool IncludeReasoning { get; init; } = true;
+
+        public LlmFunctionRequestShape ToFunctionShape()
+            => new(MaxOutputTokens, Temperature, UseLegacyMaxTokens, ParallelToolCalls, Stateless, Stateless && IncludeReasoning);
+    }
+
+    /// <summary>
+    /// Whether a 400 response to a function request says the deployment rejected the functions or
+    /// the request to call them.
+    /// </summary>
+    /// <param name="responseJson"></param>
+    /// <returns></returns>
+    public static bool IsFunctionCallingError(string responseJson)
+    {
+        return responseJson.Contains("tool", StringComparison.OrdinalIgnoreCase)
+            || responseJson.Contains("function", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// The provider's error message, or the whole response when it has none.
+    /// </summary>
+    private static string ErrorMessage(string responseJson)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(responseJson);
+            if (document.RootElement.TryGetProperty("error", out var error) && error.ValueKind == JsonValueKind.Object
+                && error.TryGetProperty("message", out var message) && message.ValueKind == JsonValueKind.String)
+                return message.GetString() ?? responseJson;
+        }
+        catch (JsonException) { }
+        return responseJson;
+    }
 
     /// <summary>
     /// Whether a 400 response says the request exceeds the model's context window.
@@ -271,6 +404,24 @@ public class LlmDirectClient : ILlmClient
         {
             _logger.LogWarning("LLM rejected several choices; retrying with one.");
             request = request with { ChoiceCount = null };
+            return true;
+        }
+        if (request.ParallelToolCalls && responseJson.Contains("parallel_tool_calls", StringComparison.OrdinalIgnoreCase))
+        {
+            _logger.LogWarning("LLM rejected 'parallel_tool_calls'; retrying without it.");
+            request = request with { ParallelToolCalls = false };
+            return true;
+        }
+        if (request.Stateless && request.IncludeReasoning && (responseJson.Contains("include", StringComparison.OrdinalIgnoreCase) || responseJson.Contains("encrypted_content", StringComparison.OrdinalIgnoreCase)))
+        {
+            _logger.LogWarning("LLM rejected encrypted reasoning; retrying without it.");
+            request = request with { IncludeReasoning = false };
+            return true;
+        }
+        if (request.Stateless && responseJson.Contains("store", StringComparison.OrdinalIgnoreCase))
+        {
+            _logger.LogWarning("LLM rejected 'store'; retrying with the provider's default.");
+            request = request with { Stateless = false };
             return true;
         }
         return false;
