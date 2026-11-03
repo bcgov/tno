@@ -23,12 +23,11 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/memory
         value: 3Gi
-      - op: replace
-        path: /spec/template/spec/containers/0/resources/limits/cpu
-        value: 100m
-      - op: replace
-        path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 5Gi
+      - op: add
+        path: /spec/template/spec/containers/0/resources/limits
+        value:
+          cpu: 100m
+          memory: 5Gi
       - op: replace
         path: /spec/volumeClaimTemplates/0/spec/resources/requests/storage
         value: 3Gi

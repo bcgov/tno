@@ -6,6 +6,7 @@ resources:
   - config-map.yaml
   - services.yaml
   - statefulset.yaml
+  - pdb.yaml
 
 generatorOptions:
   disableNameSuffixHash: true
