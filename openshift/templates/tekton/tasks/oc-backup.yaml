@@ -32,7 +32,7 @@ spec:
       default: '-1'
   steps:
     - name: build
-      image: "image-registry.openshift-image-registry.svc:5000/openshift/cli:latest"
+      image: "bcgov-c4awhwfpcremdbga.azurecr.io/openshift-cli:latest"
       resources: {}
       script: |
         echo "Running Database Backup"

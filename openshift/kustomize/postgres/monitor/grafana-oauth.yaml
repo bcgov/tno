@@ -13,6 +13,8 @@ metadata:
 spec:
   template:
     spec:
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: grafana
           volumeMounts:
@@ -24,7 +26,7 @@ spec:
               containerPort: 9091
               protocol: TCP
           imagePullPolicy: IfNotPresent
-          image: image-registry.openshift-image-registry.svc:5000/openshift/oauth-proxy:v4.4
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/openshift-oauth-proxy:v4.4
           args:
             - "--provider=openshift"
             - "--pass-basic-auth=false"
