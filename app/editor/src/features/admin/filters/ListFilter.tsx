@@ -11,7 +11,12 @@ export const ListFilter: React.FC<IAdminFilterProps> = ({ onFilterChange, onSear
   const [{ filterFilter }, { storeFilterFilter }] = useAdminStore();
 
   return (
-    <Row className="filter-bar" justifyContent="center">
+    <Row
+      className="filter-bar field-row"
+      justifyContent="center"
+      alignItems="flex-end"
+      gap="0.5rem"
+    >
       <Text
         onChange={(e) => {
           storeFilterFilter(e.target.value);
@@ -23,18 +28,19 @@ export const ListFilter: React.FC<IAdminFilterProps> = ({ onFilterChange, onSear
         placeholder="Search by keyword"
         name="search"
         value={filterFilter}
-      >
-        {!!onSearch && (
-          <IconButton
-            iconType="search"
-            onClick={() => {
-              onSearch?.(filterFilter);
-            }}
-          />
-        )}
-      </Text>
+      />
+      {!!onSearch && (
+        <IconButton
+          iconType="search"
+          title="Search"
+          onClick={() => {
+            onSearch?.(filterFilter);
+          }}
+        />
+      )}
       <IconButton
         iconType="reset"
+        title="Clear the search"
         onClick={() => {
           storeFilterFilter('');
           onFilterChange?.('');

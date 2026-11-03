@@ -76,6 +76,11 @@ public class LLMModel : BaseTypeWithAuditColumnsModel<int>
     /// get/set - Tokens allowed per minute; null is unlimited.
     /// </summary>
     public int? TokensPerMinute { get; set; }
+
+    /// <summary>
+    /// get/set - Whether the deployment supports native function calling (tools).
+    /// </summary>
+    public bool SupportsFunctionCalling { get; set; }
     #endregion
 
     #region Constructors
@@ -104,6 +109,7 @@ public class LLMModel : BaseTypeWithAuditColumnsModel<int>
         this.TokenEstimation = entity.TokenEstimation;
         this.RequestsPerMinute = entity.RequestsPerMinute;
         this.TokensPerMinute = entity.TokensPerMinute;
+        this.SupportsFunctionCalling = entity.SupportsFunctionCalling;
     }
     #endregion
 
@@ -141,6 +147,7 @@ public class LLMModel : BaseTypeWithAuditColumnsModel<int>
             TokenEstimation = model.TokenEstimation,
             RequestsPerMinute = model.RequestsPerMinute,
             TokensPerMinute = model.TokensPerMinute,
+            SupportsFunctionCalling = model.SupportsFunctionCalling,
             IsEnabled = model.IsEnabled,
             Version = model.Version ?? 0
         };
