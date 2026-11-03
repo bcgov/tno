@@ -95,6 +95,13 @@ public class LLM : BaseType<int>
     /// </summary>
     [Column("tokens_per_minute")]
     public int? TokensPerMinute { get; set; }
+
+    /// <summary>
+    /// get/set - Whether the deployment supports native function calling (tools). Features that
+    /// call tools use it when set, and fall back to a JSON reply protocol when not.
+    /// </summary>
+    [Column("supports_function_calling")]
+    public bool SupportsFunctionCalling { get; set; }
     #endregion
 
     #region Constructors

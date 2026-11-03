@@ -11,67 +11,69 @@ import {
   Grid,
   IconButton,
   type IFilterModel,
+  type IPaged,
   Link,
   Row,
   SortDirection,
 } from 'tno-core';
 
 import { FilterAISettings } from './FilterAISettings';
+import { useGridBodyHeight } from './hooks';
 import { ListFilter } from './ListFilter';
 import * as styled from './styled';
 import { handleCopyKeyWords } from './utils/handleCopyKeyWords';
 import { truncateString } from './utils/truncateString';
 
+/** The filters shown per page until the user picks another quantity. */
+const DefaultPageSize = 50;
+
+/**
+ * Lists the filters a page at a time. The keyword search, sort and paging run on the server; the
+ * table fills the viewable area and scrolls.
+ */
 export const FilterList: React.FC = () => {
   const navigate = useNavigate();
-  const [{ initialized, filters }, { findFilters }] = useFilters();
+  const [, { findFilterPage }] = useFilters();
   const [{ filterFilter }] = useAdminStore();
 
-  const [items, setItems] = React.useState<IFilterModel[]>(filters);
-  const [sort, setSort] = React.useState('name');
+  const [keyword, setKeyword] = React.useState(filterFilter);
+  const [pageIndex, setPageIndex] = React.useState(0);
+  const [pageSize, setPageSize] = React.useState(DefaultPageSize);
+  const [sort, setSort] = React.useState<string[]>([]);
+  const [page, setPage] = React.useState<IPaged<IFilterModel>>({
+    page: 1,
+    quantity: DefaultPageSize,
+    total: 0,
+    items: [],
+  });
+  const [isLoading, setIsLoading] = React.useState(false);
+  const gridRef = React.useRef<HTMLDivElement>(null);
+  const bodyHeight = useGridBodyHeight(gridRef);
+
+  // The controller is rebuilt with the store; keep the latest without refetching on every render.
+  const findRef = React.useRef(findFilterPage);
+  findRef.current = findFilterPage;
+  // Only the latest request updates the table, so a slow earlier response cannot overwrite it.
+  const requestRef = React.useRef(0);
 
   React.useEffect(() => {
-    if (!initialized) {
-      findFilters({ sort: [sort] }).catch(() => {});
-    }
-    // The api will cause a double render because findAllFilters(...) updates the store.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialized]);
-
-  React.useEffect(() => {
-    if (filterFilter && filterFilter.length) {
-      const value = filterFilter.toLocaleLowerCase();
-      setItems(
-        filters.filter(
-          (i) =>
-            i.name.toLocaleLowerCase().includes(value) ||
-            i.description.toLocaleLowerCase().includes(value) ||
-            i.owner?.username.toLocaleLowerCase().includes(value) ||
-            i.owner?.displayName.toLocaleLowerCase().includes(value) ||
-            i.owner?.firstName.toLocaleLowerCase().includes(value) ||
-            i.owner?.lastName.toLocaleLowerCase().includes(value),
-        ),
-      );
-    } else {
-      setItems(filters);
-    }
-  }, [filters, filterFilter]);
-
-  React.useEffect(() => {
-    setItems((items) => {
-      if (!sort) return items;
-      const parts = sort.split(' ');
-      const desc = parts.length === 2 ? parts[1] === SortDirection.Descending : false;
-      return [...items].sort((a, b) => {
-        if (!sort) return 0;
-        const aValue = (a as any)[parts[0]];
-        const bValue = (b as any)[parts[0]];
-        if (aValue < bValue) return desc ? 1 : -1;
-        if (aValue > bValue) return desc ? -1 : 1;
-        return 0;
+    const request = ++requestRef.current;
+    setIsLoading(true);
+    findRef
+      .current({
+        keyword: keyword.trim() || undefined,
+        page: pageIndex + 1,
+        quantity: pageSize,
+        sort: sort.length ? sort : undefined,
+      })
+      .then((result) => {
+        if (request === requestRef.current) setPage(result);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (request === requestRef.current) setIsLoading(false);
       });
-    });
-  }, [sort]);
+  }, [keyword, pageIndex, pageSize, sort]);
 
   return (
     <styled.FilterList>
@@ -87,42 +89,71 @@ export const FilterList: React.FC = () => {
           />
         </Row>
         <FilterAISettings />
-        <ListFilter onFilterChange={(filter) => {}} />
-        <Grid
-          items={items}
-          onSortChange={async (column, direction) => {
-            if (direction === SortDirection.None) setSort('name');
-            else setSort(`${column.name} ${direction}`);
+        <ListFilter
+          onSearch={(value) => {
+            setPageIndex(0);
+            setKeyword(value);
           }}
-          renderHeader={() => [
-            { name: 'name', label: 'Name', sortable: true },
-            { name: 'description', label: 'Description', sortable: true },
-            { name: 'ownerId', label: 'Owner', sortable: true },
-            { name: 'keywords', label: 'Keywords', sortable: false },
-            { name: 'isEnabled', label: 'Enabled', size: '120px', sortable: true },
-          ]}
-          renderColumns={(row: IFilterModel, rowIndex) => [
-            <CellEllipsis key="1">
-              <Link to={`/admin/filters/${row.id}`}>{row.name}</Link>
-            </CellEllipsis>,
-            <CellEllipsis key="2">{row.description}</CellEllipsis>,
-            <CellEllipsis key="3">{row.owner?.username}</CellEllipsis>,
-            <div key="4" className="keyword-cell">
-              <CellEllipsis>{truncateString(row.settings?.search)}</CellEllipsis>
-              {row.settings?.search ? (
-                <FaRegClipboard
-                  className="clipboard-icon"
-                  title="Copy keywords to clipboard"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCopyKeyWords(e, row.settings.search);
-                  }}
-                />
-              ) : null}
-            </div>,
-            <CellCheckbox key="5" checked={row.isEnabled} />,
-          ]}
         />
+        <div
+          ref={gridRef}
+          className="filter-grid"
+          style={
+            {
+              '--grid-body-height': bodyHeight ? `${bodyHeight}px` : undefined,
+            } as React.CSSProperties
+          }
+        >
+          <Grid
+            items={page.items}
+            pageIndex={pageIndex}
+            itemsPerPage={pageSize}
+            totalItems={page.total}
+            isLoading={isLoading}
+            showPaging
+            onNavigatePage={async (index) => setPageIndex(index)}
+            onQuantityChange={async (quantity) => {
+              setPageIndex(0);
+              setPageSize(quantity);
+            }}
+            onSortChange={async (column, direction) => {
+              setPageIndex(0);
+              setSort(
+                direction === SortDirection.None || !column.name
+                  ? []
+                  : [`${column.name}${direction === SortDirection.Descending ? ' desc' : ''}`],
+              );
+            }}
+            renderHeader={() => [
+              { name: 'name', label: 'Name', sortable: true },
+              { name: 'description', label: 'Description', sortable: true },
+              { name: 'owner.username', label: 'Owner', sortable: true },
+              { name: 'keywords', label: 'Keywords', sortable: false },
+              { name: 'isEnabled', label: 'Enabled', size: '120px', sortable: true },
+            ]}
+            renderColumns={(row: IFilterModel, rowIndex) => [
+              <CellEllipsis key="1">
+                <Link to={`/admin/filters/${row.id}`}>{row.name}</Link>
+              </CellEllipsis>,
+              <CellEllipsis key="2">{row.description}</CellEllipsis>,
+              <CellEllipsis key="3">{row.owner?.username}</CellEllipsis>,
+              <div key="4" className="keyword-cell">
+                <CellEllipsis>{truncateString(row.settings?.search)}</CellEllipsis>
+                {row.settings?.search ? (
+                  <FaRegClipboard
+                    className="clipboard-icon"
+                    title="Copy keywords to clipboard"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCopyKeyWords(e, row.settings.search);
+                    }}
+                  />
+                ) : null}
+              </div>,
+              <CellCheckbox key="5" checked={row.isEnabled} />,
+            ]}
+          />
+        </div>
       </FormPage>
     </styled.FilterList>
   );

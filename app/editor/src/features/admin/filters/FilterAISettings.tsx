@@ -1,19 +1,21 @@
 import React from 'react';
 import { toast } from 'react-toastify';
 import { useLLMs, useSettings } from 'store/hooks/admin';
-import { type ILLMModel, type ISettingModel, OptionItem, Row, Select } from 'tno-core';
+import { type ISettingModel, OptionItem, Row, Select } from 'tno-core';
 
+import { type ILLMConnectionModel } from '../llms/interfaces';
 import { FilterAILlmSettingName } from './constants';
 
 /**
  * Chooses the AI model that generates filters from prompts, in the editor and the subscriber app.
- * Agent-backed models are left out; filters need a deployment-based model.
+ * Agent-backed models are left out; filters need a deployment-based model. A model whose LLM
+ * connection supports function calling calls the tools natively; the others reply with JSON text.
  */
 export const FilterAISettings: React.FC = () => {
   const [, { findAllLLMs }] = useLLMs();
   const [, { findAllSettings, addSetting, updateSetting }] = useSettings();
 
-  const [llms, setLLMs] = React.useState<ILLMModel[]>([]);
+  const [llms, setLLMs] = React.useState<ILLMConnectionModel[]>([]);
   const [setting, setSetting] = React.useState<ISettingModel>();
   const [isSaving, setIsSaving] = React.useState(false);
 
@@ -28,8 +30,12 @@ export const FilterAISettings: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const options = llms.map((m) => new OptionItem(m.name, m.id));
+  const options = llms.map(
+    (m) =>
+      new OptionItem(m.supportsFunctionCalling ? `${m.name} (function calling)` : m.name, m.id),
+  );
   const selectedId = setting?.value ? +setting.value : undefined;
+  const selected = llms.find((m) => m.id === selectedId);
 
   const save = async (llmId?: number) => {
     setIsSaving(true);
@@ -70,6 +76,13 @@ export const FilterAISettings: React.FC = () => {
         onChange={(o) => save((o as OptionItem)?.value as number | undefined)}
       />
       {!selectedId && <span>Choose a model to let users generate filters from a prompt.</span>}
+      {selected && !selected.supportsFunctionCalling && (
+        <span>
+          This model answers with JSON text, which fails when it does not follow the format. Choose
+          a model with &apos;Supports Function Calling&apos; set on its LLM connection for more
+          reliable results.
+        </span>
+      )}
     </Row>
   );
 };

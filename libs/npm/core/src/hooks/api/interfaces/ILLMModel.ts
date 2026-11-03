@@ -20,4 +20,6 @@ export interface ILLMModel extends ISortableModel<number> {
   requestsPerMinute?: number;
   /** Tokens allowed per minute; undefined is unlimited. */
   tokensPerMinute?: number;
+  /** Whether the deployment supports native function calling (tools). */
+  supportsFunctionCalling?: boolean;
 }

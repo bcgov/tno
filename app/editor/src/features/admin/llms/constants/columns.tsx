@@ -1,6 +1,8 @@
 import { FaCopy, FaTrash } from 'react-icons/fa';
 import { CellCheckbox, CellEllipsis, type ILLMModel, type ITableHookColumn } from 'tno-core';
 
+import { type ILLMConnectionModel } from '../interfaces';
+
 /**
  * LLM grid columns. The action buttons stop their click from bubbling so they do not also open the
  * LLM (row click).
@@ -38,6 +40,15 @@ export const getColumns = (
     width: 1,
     hAlign: 'center',
     cell: (cell) => <CellCheckbox checked={!!cell.original.isPublic} />,
+  },
+  {
+    label: 'Functions',
+    accessor: 'supportsFunctionCalling',
+    width: 1,
+    hAlign: 'center',
+    cell: (cell) => (
+      <CellCheckbox checked={!!(cell.original as ILLMConnectionModel).supportsFunctionCalling} />
+    ),
   },
   {
     label: 'Enabled',

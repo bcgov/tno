@@ -117,6 +117,16 @@ public static class FilterAIPrompts
         "- story: { \"id\": <a story's numeric id> }. Returns the story's fields (headline, source, media type, dates, tags, actions, tone, the start of its text) and, when the filter's query is known, which parts of the query matched it.\n";
 
     /// <summary>
+    /// The tools a model may call through native function calling; their arguments are described
+    /// by each function's schema.
+    /// </summary>
+    public const string NativeToolGuide =
+        "## Tools\n" +
+        "Call the lookup, search and story functions before you answer; each function describes its arguments. " +
+        "You may call several at once when they do not depend on each other's results. Each result comes back as quoted material. " +
+        "Use them to find ids that are not listed under Reference values (sources, series, contributors) and to check that a condition matches stories; never guess an id or code.\n";
+
+    /// <summary>
     /// The rule that fenced material is data, never instructions.
     /// </summary>
     /// <param name="nonce"></param>
@@ -136,7 +146,7 @@ public static class FilterAIPrompts
         FieldGuide(context) + "\n" +
         "## Reference values\n" +
         (String.IsNullOrWhiteSpace(context.ReferenceValues) ? "(none could be read; use the lookup tool)\n" : context.ReferenceValues) + "\n" +
-        ToolGuide + "\n" +
+        (context.NativeFunctions ? NativeToolGuide : ToolGuide) + "\n" +
         FenceRule(nonce) + "\n";
 
     /// <summary>
@@ -155,10 +165,20 @@ public static class FilterAIPrompts
         "Map words in the prompt to the application's values: an action, media type, content type or tag listed under Reference values, or a source, series or contributor found with the lookup tool. " +
         "Before the final answer, run at least one search with the filter's conditions (as a query clause: the keywords as a query_string over headline, summary and body, the date range, and the other values) to check it matches stories. When it matches none or very few, broaden the keywords or conditions and check again; when it matches clearly the wrong stories, narrow them. In the explanation, say how many stories the last check matched. " +
         "Keep to what the prompt asks: do not add conditions it does not imply. Only say that something cannot be expressed when neither the settings, collapseField nor extendedQuery over the fields above can express it.\n\n" +
+        (context.NativeFunctions ? GenerateFinalNative : GenerateFinal);
+
+    /// <summary>How a generation finishes with the JSON reply protocol.</summary>
+    private const string GenerateFinal =
         "## Final answer\n" +
         "When the filter is ready, reply with JSON only, with no code fence: " +
         "{ \"final\": { \"settings\": { ... }, \"extendedQuery\": { ... } | null, \"explanation\": \"a short plain-text explanation of how the filter meets the prompt, naming anything you could not express\" } }. " +
         "Every reply must be a single JSON object: either a tool call or the final answer.";
+
+    /// <summary>How a generation finishes with native function calling.</summary>
+    private const string GenerateFinalNative =
+        "## Final answer\n" +
+        "When the filter is ready, call submit_filter with the settings, the extendedQuery (or null) and a short plain-text explanation of how the filter meets the prompt, naming anything you could not express. " +
+        "Call submit_filter on its own, after the results of your other calls have come back; it is the only way to finish.";
 
     /// <summary>
     /// The system prompt for answering questions about how to write a filter prompt.
@@ -179,10 +199,21 @@ public static class FilterAIPrompts
         "When the question is about a story (quoted with the question, or read with the story tool), explain why it is in the results from the matched conditions and the story's fields: which keywords it contains, and which source, media type, date range, action, tag or other criteria it satisfies. " +
         "When asked how to exclude it without losing other stories, propose the narrowest change: exclude its source, series or contributor, add a term to exclude, require a phrase instead of separate words, or narrow the date range; then use the search tool to check how many stories the changed criteria keep and that the story is gone, and give the complete replacement prompt. " +
         "Never answer that you still need to check, verify or count something: do it with the tools first, then answer with the numbers you found.\n\n" +
+        (context.NativeFunctions ? ChatFinalNative : ChatFinal);
+
+    /// <summary>How a chat answer finishes with the JSON reply protocol.</summary>
+    private const string ChatFinal =
         "## Final answer\n" +
         "When you are ready to answer, reply with JSON only, with no code fence: " +
         "{ \"final\": { \"reply\": \"your answer, as plain text or markdown\", \"prompt\": \"the complete replacement prompt as HTML, or null\" } }. " +
         "Set \"prompt\" only when you propose a new prompt, and write it as HTML using only <p>, <ul>, <ol>, <li>, <strong>, <em> and <br> tags. " +
         "Every reply must be a single JSON object: either a tool call or the final answer.";
+
+    /// <summary>How a chat answer finishes with native function calling.</summary>
+    private const string ChatFinalNative =
+        "## Final answer\n" +
+        "When you are ready to answer, call answer with your reply (plain text or markdown) and the complete replacement prompt, or null. " +
+        "Set prompt only when you propose a new prompt, and write it as HTML using only <p>, <ul>, <ol>, <li>, <strong>, <em> and <br> tags. " +
+        "Call answer on its own, after the results of your other calls have come back; it is the only way to finish.";
     #endregion
 }
