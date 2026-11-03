@@ -11,6 +11,7 @@ using TNO.API.Models;
 using TNO.API.Models.FilterAI;
 using TNO.Core.Exceptions;
 using TNO.DAL.Services;
+using TNO.Entities.Models;
 using TNO.Keycloak;
 
 namespace TNO.API.Areas.Admin.Controllers;
@@ -69,6 +70,24 @@ public class FilterController : ControllerBase
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
         var result = _filterService.Find(new TNO.Models.Filters.FilterFilter(query));
         return new JsonResult(result.Select(ds => new FilterModel(ds, _serializerOptions)));
+    }
+
+    /// <summary>
+    /// Find a page of filters, with the total that match. Supports 'keyword' (name, description or
+    /// owner), 'ownerId', 'page', 'quantity' and 'sort'.
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("page")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IPaged<FilterModel>), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Filter" })]
+    public IActionResult FindPage()
+    {
+        var uri = new Uri(this.Request.GetDisplayUrl());
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+        var result = _filterService.FindPage(new TNO.Models.Filters.FilterFilter(query));
+        var items = result.Items.Select(ds => new FilterModel(ds, _serializerOptions));
+        return new JsonResult(new Paged<FilterModel>(items, result.Page, result.Quantity, result.Total));
     }
 
     /// <summary>

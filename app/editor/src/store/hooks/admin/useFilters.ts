@@ -1,3 +1,4 @@
+import { type IFilterPageFilter } from 'features/admin/filters/interfaces';
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { type IAdminState, useAdminStore } from 'store/slices';
@@ -8,11 +9,15 @@ import {
   type IFilterAIGenerateResultModel,
   type IFilterFilter,
   type IFilterModel,
+  type IPaged,
   useApiAdminFilters,
 } from 'tno-core';
 
+import { useApiAdminFilterPage } from './useApiAdminFilterPage';
+
 interface IFilterController {
   findFilters: (filter: IFilterFilter, isSilent?: boolean) => Promise<IFilterModel[]>;
+  findFilterPage: (filter: IFilterPageFilter) => Promise<IPaged<IFilterModel>>;
   getFilter: (id: number) => Promise<IFilterModel>;
   addFilter: (model: IFilterModel) => Promise<IFilterModel>;
   updateFilter: (model: IFilterModel) => Promise<IFilterModel>;
@@ -23,6 +28,7 @@ interface IFilterController {
 
 export const useFilters = (): [IAdminState & { initialized: boolean }, IFilterController] => {
   const api = useApiAdminFilters();
+  const pageApi = useApiAdminFilterPage();
   const dispatch = useAjaxWrapper();
   const [state, store] = useAdminStore();
   const [, lookup] = useLookup();
@@ -39,6 +45,16 @@ export const useFilters = (): [IAdminState & { initialized: boolean }, IFilterCo
         );
         store.storeFilters(response.data);
         setInitialized(true);
+        return response.data;
+      },
+      // One page for the admin list; it does not replace the full list other pages pick from.
+      findFilterPage: async (filter: IFilterPageFilter) => {
+        const response = await dispatch<IPaged<IFilterModel>>(
+          'find-filter-page',
+          async () => await pageApi.findFilterPage(filter),
+          undefined,
+          true,
+        );
         return response.data;
       },
       getFilter: async (id: number) => {
@@ -106,7 +122,7 @@ export const useFilters = (): [IAdminState & { initialized: boolean }, IFilterCo
         return response.data;
       },
     }),
-    [api, dispatch, lookup, store],
+    [api, pageApi, dispatch, lookup, store],
   );
 
   return [{ ...state, initialized }, controller];
