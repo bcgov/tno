@@ -52,7 +52,7 @@ public sealed class NativeReindex(MigrationBuilder builder)
     }
 
     /// <summary>Copy once, reconnect to an existing task, or safely replay an interrupted copy.</summary>
-    public async Task CopyAsync(string sourceAlias, string destination, bool published, bool includeAnalysis)
+    public async Task CopyAsync(string sourceAlias, string destination, bool published, bool includeAnalysis, bool keepAnalysis = false)
     {
         var mapping = await ReadAsync($"{destination}/_mapping");
         var state = mapping[destination]?["mappings"]?["_meta"]?.DeepClone().AsObject()
@@ -96,7 +96,7 @@ public sealed class NativeReindex(MigrationBuilder builder)
             if (taskId == null)
             {
                 // Replays are safe: external versions stop older revisions replacing newer writes.
-                var body = CreateRequest(source, destination, published, includeAnalysis);
+                var body = CreateRequest(source, destination, published, includeAnalysis, keepAnalysis);
                 var response = await RequestAsync(Elasticsearch.Net.HttpMethod.POST, "_reindex", body,
                     new ReindexOnServerRequestParameters
                     {
@@ -147,7 +147,7 @@ public sealed class NativeReindex(MigrationBuilder builder)
     }
 
     /// <summary>Build the ES 7/8 compatible transformation, including external revision zero for legacy data.</summary>
-    public static JsonObject CreateRequest(string source, string destination, bool published, bool includeAnalysis) => new()
+    public static JsonObject CreateRequest(string source, string destination, bool published, bool includeAnalysis, bool keepAnalysis = false) => new()
     {
         ["source"] = new JsonObject { ["index"] = source },
         ["dest"] = new JsonObject { ["index"] = destination, ["version_type"] = "external_gte" },
@@ -159,7 +159,7 @@ public sealed class NativeReindex(MigrationBuilder builder)
                 long revision = ctx._source.projectionRevision == null ? 0L : (long)ctx._source.projectionRevision;
                 ctx._source.projectionRevision = revision;
                 ctx._version = revision;
-                ctx._source.remove('analysis');
+                if (!params.keepAnalysis) { ctx._source.remove('analysis'); }
                 if (ctx._source.topics != null) {
                     for (def topic : ctx._source.topics) {
                         if (params.includeAnalysis) {
@@ -174,7 +174,7 @@ public sealed class NativeReindex(MigrationBuilder builder)
                     }
                 }
                 """,
-            ["params"] = new JsonObject { ["published"] = published, ["includeAnalysis"] = includeAnalysis },
+            ["params"] = new JsonObject { ["published"] = published, ["includeAnalysis"] = includeAnalysis, ["keepAnalysis"] = keepAnalysis },
         },
     };
 }
