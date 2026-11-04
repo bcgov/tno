@@ -189,47 +189,28 @@ oc -n bcgov get is
 oc -n bcgov get imagestreamtag | grep $imageName
 ```
 
-## Import an Image from Redhat
+## Container Images
 
-Some Redhat images are only accessible if they are first imported through Openshift.
+All images are stored in ACR (`bcgov-c4awhwfpcremdbga.azurecr.io`) and pulled with the `acr-secret` pull secret. Don't push to or reference the OpenShift internal image registry.
+
+Run these from `./openshift`. ACR credentials come from `openshift/.env` (`ACR_USERNAME` / `ACR_PASSWORD`; see `.env.sample`).
 
 ```bash
-oc import-image postgresql-13 --from=registry.redhat.io/rhel8/postgresql-13 --confirm -n 9b301c-tools
+# Push a locally built image to ACR
+make push n=$component t=latest
+# Promote a tag inside ACR (no download)
+make tag n=$component f=latest t=dev r=true
+# Pull an image from ACR
+make pull n=$component t=dev
 ```
 
-## Push/Pull Images with Docker
+## Mirror a Third-Party Image into ACR
 
-Login first.
-
-```bash
-# Login with Docker (insecure)
-docker login -u $(oc whoami) -p $(oc whoami -t) image-registry.apps.silver.devops.gov.bc.ca
-# Or login securely
-oc whoami -t | docker login -u $(oc whoami) --password-stdin image-registry.apps.silver.devops.gov.bc.ca
-```
-
-## Push Image
-
-If you have a local image you can push up to Openshift.
+Images such as the Red Hat `oc` CLI or `oauth-proxy` are copied into ACR so workloads only pull from one registry.
 
 ```bash
-# List images
-docker images
-# Tag the image you want to push
-docker tag $imageName:$tag image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/$imageName:$tag
-# Push to image registry in Openshift
-docker push image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/$imageName:$tag
-```
-
-## Pull Image
-
-If you want to pull down an image from Openshift.
-
-```bash
-# List image
-oc get is -n 9b301c-tools
-# Pull image from Openshift
-docker pull image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/$imageName:$tag
+docker login bcgov-c4awhwfpcremdbga.azurecr.io
+docker buildx imagetools create --tag bcgov-c4awhwfpcremdbga.azurecr.io/$imageName:$tag $sourceImage:$tag
 ```
 
 ## Test Network in Container

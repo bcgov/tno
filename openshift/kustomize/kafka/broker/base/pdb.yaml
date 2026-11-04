@@ -1,8 +1,11 @@
 ---
-apiVersion: policy/v1beta1
+# Stops a voluntary disruption (node drain during cluster maintenance) from taking a second broker
+# while another is still unavailable. The brokers run KRaft in combined broker+controller mode with
+# 4 voters, so losing 2 at once loses the controller quorum.
+apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: kafka
+  name: kafka-broker
   labels:
     name: kafka-broker
     part-of: tno
@@ -13,6 +16,5 @@ metadata:
 spec:
   selector:
     matchLabels:
-    part-of: tno
-    component: kafka-broker
+      statefulset: kafka-broker-cluster
   maxUnavailable: 1

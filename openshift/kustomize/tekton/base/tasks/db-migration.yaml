@@ -40,14 +40,14 @@ spec:
         requests:
           cpu: '1'
           memory: 2Gi
-      image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+      image: bcgov-c4awhwfpcremdbga.azurecr.io/openshift-cli:latest
       name: run
       script: |-
         #!/usr/bin/env bash
 
         PROJECT=$(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
 
-        IMAGE=image-registry.apps.silver.devops.gov.bc.ca/$(params.PROJECT_SHORTNAME)-tools/$(params.IMAGE):$(params.IMAGE_TAG)
+        IMAGE=bcgov-c4awhwfpcremdbga.azurecr.io/$(params.IMAGE):$(params.IMAGE_TAG)
 
         echo "Running database migration in $PROJECT"
 
@@ -62,10 +62,11 @@ spec:
           --overrides='{
             "apiVersion":"v1",
             "spec":{
+              "imagePullSecrets":[{"name":"acr-secret"}],
               "containers":[
                 {
                   "name":"$(params.IMAGE)",
-                  "image":"image-registry.apps.silver.devops.gov.bc.ca/$(params.PROJECT_SHORTNAME)-tools/$(params.IMAGE):$(params.IMAGE_TAG)",
+                  "image":"bcgov-c4awhwfpcremdbga.azurecr.io/$(params.IMAGE):$(params.IMAGE_TAG)",
                   "env":[
                     {
                       "name":"ConnectionStrings__TNO",

@@ -38,9 +38,11 @@ spec:
         - name: backup-verification
           persistentVolumeClaim:
             claimName: backup-verification
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: psql
-          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/psql:latest
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/psql:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080

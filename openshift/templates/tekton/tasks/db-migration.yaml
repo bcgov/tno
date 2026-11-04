@@ -39,14 +39,14 @@ spec:
 
   steps:
     - name: run
-      image: "image-registry.openshift-image-registry.svc:5000/openshift/cli:latest"
+      image: "bcgov-c4awhwfpcremdbga.azurecr.io/openshift-cli:latest"
       resources: {}
       script: |
         #!/usr/bin/env bash
         echo "Fetching connection information"
 
         PROJECT=$(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
-        IMAGE=image-registry.apps.silver.devops.gov.bc.ca/$(params.PROJECT_SHORTNAME)-tools/$(params.MIGRATION_IMAGE):$(params.IMAGE_TAG)
+        IMAGE=bcgov-c4awhwfpcremdbga.azurecr.io/$(params.MIGRATION_IMAGE):$(params.IMAGE_TAG)
         CONNECTION_STRING=$(oc -n $PROJECT get configmap $(params.API_NAME) -o jsonpath='{.data.CONNECTION_STRING}')
         DB_USERNAME=$(oc -n $PROJECT get secret $(params.DB_SECRET_NAME) -o jsonpath='{.data.user}' | base64 -d)
         DB_PASSWORD=$(oc -n $PROJECT get secret $(params.DB_SECRET_NAME) -o jsonpath='{.data.password}' | base64 -d)
@@ -63,4 +63,5 @@ spec:
           --env=ConnectionStrings__TNO="$CONNECTION_STRING" \
           --env=DB_POSTGRES_USERNAME="$DB_USERNAME" \
           --env=DB_POSTGRES_PASSWORD="$DB_PASSWORD" \
+          --overrides='{"apiVersion":"v1","spec":{"imagePullSecrets":[{"name":"acr-secret"}]}}' \
           --timeout=10m

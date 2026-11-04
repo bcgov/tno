@@ -35,7 +35,7 @@ spec:
 
   steps:
     - name: deploy
-      image: "image-registry.openshift-image-registry.svc:5000/openshift/cli:latest"
+      image: "bcgov-c4awhwfpcremdbga.azurecr.io/openshift-cli:latest"
       resources: {}
       script: |
         echo "Tagging image to trigger deployment to $(params.ENV)"

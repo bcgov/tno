@@ -38,9 +38,11 @@ spec:
         - name: oracle-db
           persistentVolumeClaim:
             claimName: oracle-db
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: oracle
-          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/oracle:latest
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/oracle:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
