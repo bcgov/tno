@@ -827,6 +827,7 @@ public class ReportService : BaseService<Report, int>, IReportService
 
         var additions = content
             .Where(c => !string.IsNullOrWhiteSpace(c.SectionName) && validSections.Contains(c.SectionName))
+            .DistinctBy(c => (c.ContentId, c.SectionName))
             .Select(c => new ReportInstanceContent(instance.Id, c.ContentId, c.SectionName, c.SortOrder))
             .ToList();
 

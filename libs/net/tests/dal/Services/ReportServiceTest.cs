@@ -79,6 +79,28 @@ public class ReportServiceTest : IDisposable
         context.AddRange(contentIds.Select((contentId, index) => new ReportInstanceContent(id, contentId, "section", index)));
         return instance;
     }
+    [Fact]
+    public async Task FastAddContentToReport_DuplicateInRequest_AddsOnce()
+    {
+        var context = helper.Provider.GetRequiredService<TNOContext>();
+        var report = SeedReport(context);
+        SeedContent(context, (1, "first"), (2, "second"));
+        context.Add(new ReportSection(1, "section", ReportSectionType.Content, report.Id));
+        AddInstance(context, 1, report.Id, 1, null);
+        context.SaveChanges();
+        context.ChangeTracker.Clear();
+
+        var service = helper.Provider.GetRequiredService<IReportService>();
+        await service.FastAddContentToReportAsync(report.Id, 1,
+        [
+            new ReportInstanceContent(0, 1, "section"),
+            new ReportInstanceContent(0, 2, "section"),
+            new ReportInstanceContent(0, 1, "section"),
+        ]);
+
+        var added = context.ReportInstanceContents.AsNoTracking().Where(c => c.InstanceId == 1).OrderBy(c => c.SortOrder).ToArray();
+        Assert.Equal([1L, 2L], added.Select(c => c.ContentId));
+    }
     #endregion
 
     #region Methods
