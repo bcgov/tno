@@ -10,6 +10,12 @@ public class ChartPreviewRequestModel
 {
     #region Properties
     /// <summary>
+    /// get/set - An Elasticsearch 'aggs' block. When set, the template renders from the buckets of
+    /// the filter instead of its stories.
+    /// </summary>
+    public JsonDocument? Aggregations { get; set; }
+
+    /// <summary>
     /// get/set - Chart settings.
     /// </summary>
     public ChartSectionSettingsModel Settings { get; set; } = new();

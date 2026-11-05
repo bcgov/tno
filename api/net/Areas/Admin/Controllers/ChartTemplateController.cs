@@ -167,9 +167,9 @@ public class ChartTemplateController : ControllerBase
 
         // Merge content passed to request and also get content from Elasticsearch if a filter is provided.
         var content = model.Content?.Select(c => new TemplateEngine.Models.ContentModel(c)) ?? Array.Empty<TemplateEngine.Models.ContentModel>();
-        if (model.Filter != null && model.Filter.ToJson() != "{}")
+        if (model.Aggregations == null && model.Filter != null && model.Filter.ToJson() != "{}")
             content = content.AppendRange(await _reportHelper.FindContentAsync(model.Filter, model.Index));
-        else if (model.FilterId.HasValue)
+        else if (model.Aggregations == null && model.FilterId.HasValue)
         {
             var filter = _filterService.FindById(model.FilterId.Value);
             if (filter != null)
@@ -186,6 +186,7 @@ public class ChartTemplateController : ControllerBase
         var sections = model.LinkedReportId.HasValue ? _reportHelper.GetLinkedReportContentAsync(model.LinkedReportId.Value, null).Result : new();
 
         var chartTemplate = new TemplateEngine.Models.Reports.ChartEngineContentModel("test", chart, sections, content);
+        await ApplyPreviewAggregationsAsync(model, chartTemplate);
         var preview = await _reportHelper.GenerateJsonAsync(new TemplateEngine.Models.Charts.ChartRequestModel(chartTemplate, model.ChartData), true);
         return new JsonResult(preview);
     }
@@ -221,15 +222,43 @@ public class ChartTemplateController : ControllerBase
 
         // Merge content passed to request and also get content from Elasticsearch if a filter is provided.
         var content = model.Content?.Select(c => new TemplateEngine.Models.ContentModel(c)) ?? Array.Empty<TemplateEngine.Models.ContentModel>();
-        if (model.Filter != null && model.Filter.ToJson() != "{}")
+        if (model.Aggregations == null && model.Filter != null && model.Filter.ToJson() != "{}")
             content = content.AppendRange(await _reportHelper.FindContentAsync(model.Filter, model.Index));
 
         // If this chart pulls data from a linked report add this content.
         var sections = model.LinkedReportId.HasValue ? _reportHelper.GetLinkedReportContentAsync(model.LinkedReportId.Value, null).Result : new();
 
         var chartTemplate = new TemplateEngine.Models.Reports.ChartEngineContentModel("test", chart, sections, content);
+        await ApplyPreviewAggregationsAsync(model, chartTemplate);
         var base64Image = await _reportHelper.GenerateBase64ImageAsync(new TemplateEngine.Models.Charts.ChartRequestModel(chartTemplate, model.ChartData), true);
         return Ok(base64Image);
+    }
+    #endregion
+
+    #region Helpers
+    /// <summary>
+    /// Give a template in bucket mode the buckets of the filter being previewed.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="chartTemplate"></param>
+    /// <returns></returns>
+    private async Task ApplyPreviewAggregationsAsync(ChartPreviewRequestModel model, TemplateEngine.Models.Reports.ChartEngineContentModel chartTemplate)
+    {
+        if (model.Aggregations == null) return;
+        var query = model.Filter != null && model.Filter.ToJson() != "{}" ? model.Filter : null;
+        var index = model.Index;
+        if (query == null && model.FilterId.HasValue)
+        {
+            var filter = _filterService.FindById(model.FilterId.Value);
+            if (filter != null)
+            {
+                var filterSettings = JsonSerializer.Deserialize<API.Models.Settings.FilterSettingsModel>(filter.Settings);
+                index = filterSettings?.SearchUnpublished == true ? _elasticOptions.ContentIndex : _elasticOptions.PublishedIndex;
+                query = filter.Query;
+            }
+        }
+        if (query == null) throw new BadRequestException("A filter is required to preview aggregations.");
+        chartTemplate.ChartAggregations = await _reportHelper.FindAggregationsAsync(query, index, model.Aggregations);
     }
     #endregion
 }

@@ -240,6 +240,35 @@ public class ReportServiceTest : IDisposable
     }
 
     [Fact]
+    public async Task FindContentWithElasticsearchAsync_AnalyticsOnlySection_FetchesNoStories()
+    {
+        var service = helper.Provider.GetRequiredService<IReportService>();
+        var context = helper.Provider.GetRequiredService<TNOContext>();
+        var report = SeedReport(context);
+        SeedContent(context, (1, "In the folder"));
+        context.Add(new Folder(1, "folder", 1));
+        context.Add(new FolderContent(1, 1, 0));
+        var aggregate = new ChartTemplate(1, "Custom", "") { Settings = JsonDocument.Parse("{\"Aggregate\":true}") };
+        var legacy = new ChartTemplate(2, "Count", "") { Settings = JsonDocument.Parse("{}") };
+        context.AddRange(aggregate, legacy);
+        context.Add(new ReportSection(1, "analytics", ReportSectionType.MediaAnalytics, report.Id, null, 1, null) { Settings = JsonDocument.Parse("{}") });
+        context.Add(new ReportSection(2, "legacy", ReportSectionType.MediaAnalytics, report.Id, null, 1, null) { Settings = JsonDocument.Parse("{}") });
+        context.Add(new ReportSectionChartTemplate(1, 1, 0) { Settings = JsonDocument.Parse("{}") });
+        context.Add(new ReportSectionChartTemplate(2, 2, 0) { Settings = JsonDocument.Parse("{}") });
+        context.SaveChanges();
+        context.ChangeTracker.Clear();
+        var loaded = context.Reports.AsNoTracking()
+            .Include(r => r.Sections).ThenInclude(s => s.ChartTemplatesManyToMany).ThenInclude(c => c.ChartTemplate)
+            .Single(r => r.Id == report.Id);
+
+        var result = await service.FindContentWithElasticsearchAsync(loaded, null, 1);
+
+        // A chart that aggregates needs no stories. One that renders from stories must still get them.
+        Assert.False(result.ContainsKey("analytics"));
+        Assert.Single(result["legacy"].Hits.Hits);
+    }
+
+    [Fact]
     public async Task FindContentWithElasticsearchAsync_FolderSection_ExcludesHistoricalContentAndDuplicateTitles()
     {
         // Arrange

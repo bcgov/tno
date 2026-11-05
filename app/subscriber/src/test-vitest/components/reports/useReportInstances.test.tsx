@@ -10,7 +10,10 @@ const state = vi.hoisted(() => ({
 }));
 vi.mock('store/hooks', () => ({ useAjaxWrapper: () => state.dispatch }));
 vi.mock('store/slices', () => ({ useProfileStore: () => [{}, state.store] }));
-vi.mock('tno-core', () => ({ useApiSubscriberReportInstances: () => state.api }));
+vi.mock('tno-core', () => ({
+  useApi: () => ({ get: vi.fn() }),
+  useApiSubscriberReportInstances: () => state.api,
+}));
 
 describe('Report size feedback', () => {
   beforeEach(() => vi.clearAllMocks());

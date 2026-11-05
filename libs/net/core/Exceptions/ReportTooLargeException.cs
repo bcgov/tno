@@ -8,7 +8,7 @@ public class ReportTooLargeException : BadRequestException
     /// <summary>
     /// The actionable message shown when previewing or sending an oversized report.
     /// </summary>
-    public const string UserMessage = "This report has grown too large to run. Remove stories or narrow the date range and filters, then refresh the report before previewing or sending it again. Existing stories have not been removed.";
+    public const string UserMessage = "This report has grown too large to run. Remove stories or narrow the date range and filters, then refresh the report before previewing or sending it again. If a section only feeds a chart, point the media analytics section at the filter directly and remove the story section; charts have no size limit. Existing stories have not been removed.";
 
     /// <summary>
     /// Creates a report size validation failure.

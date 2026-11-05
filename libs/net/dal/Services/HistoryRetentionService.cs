@@ -180,6 +180,7 @@ LIMIT @batchSize";
             after = ids[^1];
 
             result.Add("report_instance_content", this.Context.ReportInstanceContents.Count(c => ids.Contains(c.InstanceId)));
+            result.Add("report_instance_chart", this.Context.ReportInstanceCharts.Count(c => ids.Contains(c.InstanceId)));
             result.Add("user_report_instance", this.Context.UserReportInstances.Count(c => ids.Contains(c.InstanceId)));
             result.Add("report_ai_result", this.Context.ReportAIResults.Count(r => r.ReportInstanceId.HasValue && ids.Contains(r.ReportInstanceId.Value)));
             result.Add("report_instance", dryRun

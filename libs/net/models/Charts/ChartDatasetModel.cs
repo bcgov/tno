@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace TNO.TemplateEngine.Models.Charts;
+namespace TNO.API.Models.Charts;
 
 /// <summary>
 /// ChartDatasetModel class, provides a model that represents Chart.js data.
@@ -9,9 +9,9 @@ public class ChartDatasetModel
 {
     #region Properties
     /// <summary>
-    /// get/set -
+    /// get/set - The dataset label. Chart.js reads 'label'.
     /// </summary>
-    [JsonPropertyName("labels")]
+    [JsonPropertyName("label")]
     public string? Label { get; set; }
 
     /// <summary>

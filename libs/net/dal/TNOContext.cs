@@ -117,6 +117,7 @@ public partial class TNOContext : DbContext
     public DbSet<Report> Reports => Set<Report>();
     public DbSet<ReportInstance> ReportInstances => Set<ReportInstance>();
     public DbSet<ReportInstanceContent> ReportInstanceContents => Set<ReportInstanceContent>();
+    public DbSet<ReportInstanceChart> ReportInstanceCharts => Set<ReportInstanceChart>();
     public DbSet<UserReport> UserReports => Set<UserReport>();
     public DbSet<UserReportInstance> UserReportInstances => Set<UserReportInstance>();
     public DbSet<ReportAIResult> ReportAIResults => Set<ReportAIResult>();

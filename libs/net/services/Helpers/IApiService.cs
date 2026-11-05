@@ -502,6 +502,30 @@ public interface IApiService
     Task<IEnumerable<API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel>> GetContentForReportInstanceIdAsync(long id);
 
     /// <summary>
+    /// Make a request to the API to get the chart data of the report instance. What is missing is computed and stored.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <param name="requestorId"></param>
+    /// <returns></returns>
+    Task<IEnumerable<API.Areas.Services.Models.ReportInstance.ReportInstanceChartModel>> GetReportInstanceChartsAsync(long instanceId, int? requestorId);
+
+    /// <summary>
+    /// Make a request to the API to compute and store the chart data of the report instance.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <param name="requestorId"></param>
+    /// <returns></returns>
+    Task<IEnumerable<API.Areas.Services.Models.ReportInstance.ReportInstanceChartModel>> GenerateReportInstanceChartsAsync(long instanceId, int? requestorId);
+
+    /// <summary>
+    /// Make a request to the API to compute the chart data of a report that will not have an instance.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="requestorId"></param>
+    /// <returns></returns>
+    Task<IEnumerable<API.Areas.Services.Models.ReportInstance.ReportInstanceChartModel>> ComputeReportChartsAsync(int reportId, int? requestorId);
+
+    /// <summary>
     /// Make a request to the API and add a new notification instance.
     /// </summary>
     /// <param name="instance"></param>

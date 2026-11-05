@@ -14,6 +14,7 @@ using TNO.Core.Http;
 using TNO.Core.Reporting;
 using TNO.TemplateEngine.Config;
 using TNO.TemplateEngine.Models;
+using TNO.API.Models.Charts;
 using TNO.TemplateEngine.Models.Charts;
 using TNO.TemplateEngine.Models.Charts.Options;
 using TNO.TemplateEngine.Models.Reports;
@@ -181,6 +182,7 @@ public partial class ReportEngine : IReportEngine
             instance.Settings = model.ChartTemplate.Settings;
             instance.SectionSettings = model.ChartTemplate.SectionSettings;
             instance.Sections = model.ChartTemplate.Sections;
+            instance.ChartAggregations = model.ChartTemplate.ChartAggregations;
         });
 
         return new ChartResultModel(json);
@@ -495,16 +497,21 @@ public partial class ReportEngine : IReportEngine
                 var settings = section.Settings;
                 List<ContentModel> content = new();
                 var linkedReport = new Dictionary<string, ReportSectionModel>();
+                var chartData = sectionContent.TryGetValue(section.Name, out ReportSectionModel? chartSection) ? chartSection?.ChartData : null;
 
-                // If the section has content add it to the chart request.
-                if (!settings.UseAllContent && sectionContent.TryGetValue(section.Name, out ReportSectionModel? sectionData) && sectionData != null)
+                // A section whose charts have all been computed touches no content.
+                if (section.ChartTemplates.Any(chart => chartData?.ContainsKey(chart.Id) != true))
                 {
-                    content.AddRange(sectionData.Content);
-                }
-                if (section.LinkedReportId.HasValue)
-                {
-                    // Make request for linked report content if the current instance doesn't have any content for this section.
-                    linkedReport = await getReportAsync(section.LinkedReportId.Value, report.OwnerId);
+                    // If the section has content add it to the chart request.
+                    if (!settings.UseAllContent && sectionContent.TryGetValue(section.Name, out ReportSectionModel? sectionData) && sectionData != null)
+                    {
+                        content.AddRange(sectionData.Content);
+                    }
+                    if (section.LinkedReportId.HasValue)
+                    {
+                        // Make request for linked report content if the current instance doesn't have any content for this section.
+                        linkedReport = await getReportAsync(section.LinkedReportId.Value, report.OwnerId);
+                    }
                 }
 
                 await section.ChartTemplates.ForEachAsync(async chart =>
@@ -513,12 +520,18 @@ public partial class ReportEngine : IReportEngine
                     chart.SectionSettings.Options = MergeChartOptions(chart.Settings, chart.SectionSettings);
                     // var chartOptions = chart.SectionSettings.Options.ToJson();
 
-                    var chartModel = new ChartEngineContentModel(
-                        ReportSectionModel.GenerateChartUid(section.Id, chart.Id),
-                        chart,
-                        settings.UseAllContent ? aggregateSection : linkedReport,
-                        settings.UseAllContent ? null : content);
-                    var chartRequestModel = new ChartRequestModel(chartModel);
+                    var uid = ReportSectionModel.GenerateChartUid(section.Id, chart.Id);
+                    JsonDocument? data = null;
+                    var hasData = chartData?.TryGetValue(chart.Id, out data) == true;
+                    this.Logger.LogInformation("Chart data source, reportId:{reportId} instanceId:{instanceId} sectionId:{sectionId} chartId:{chartId} path:{path}", report.Id, reportInstance?.Id, section.Id, chart.Id, hasData ? "aggregation" : "content");
+                    var chartModel = hasData
+                        ? new ChartEngineContentModel(uid, chart) { ChartData = data }
+                        : new ChartEngineContentModel(
+                            uid,
+                            chart,
+                            settings.UseAllContent ? aggregateSection : linkedReport,
+                            settings.UseAllContent ? null : content);
+                    var chartRequestModel = new ChartRequestModel(chartModel, chartModel.ChartData);
                     var base64Image = await this.GenerateBase64ImageAsync(chartRequestModel);
                     this.Logger.LogDebug("Chart generated, reportId:{reportId} instanceId:{instanceId} sectionId:{sectionId} chartId:{chartId}", report.Id, reportInstance?.Id, section.Id, chart.Id);
 

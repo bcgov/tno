@@ -56,6 +56,9 @@ public class ReportController : ControllerBase
     private readonly ChesOptions _chesOptions;
     private readonly IChesService _ches;
     private readonly WatchSubscriptionChange _watch;
+    private readonly IFilterService _filterService;
+    private readonly IFolderService _folderService;
+    private readonly IChartTemplateService _chartTemplateService;
     #endregion
 
     #region Constructors
@@ -77,6 +80,9 @@ public class ReportController : ControllerBase
     /// <param name="chesOptions"></param>
     /// <param name="ches"></param>
     /// <param name="watch">Detects report subscription changes and sends configured alerts.</param>
+    /// <param name="filterService"></param>
+    /// <param name="folderService"></param>
+    /// <param name="chartTemplateService"></param>
     public ReportController(
         IReportService reportService,
         IReportInstanceService reportInstanceService,
@@ -92,9 +98,15 @@ public class ReportController : ControllerBase
         ISettingService settingService,
         IOptions<ChesOptions> chesOptions,
         IChesService ches,
-        WatchSubscriptionChange watch
+        WatchSubscriptionChange watch,
+        IFilterService filterService,
+        IFolderService folderService,
+        IChartTemplateService chartTemplateService
         )
     {
+        _filterService = filterService;
+        _folderService = folderService;
+        _chartTemplateService = chartTemplateService;
         _reportService = reportService;
         _reportInstanceService = reportInstanceService;
         _userService = userService;
@@ -421,6 +433,7 @@ public class ReportController : ControllerBase
             currentInstance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(currentInstance.Id));
             report.Instances.Clear();
             report.Instances.AddRange(instances);
+            await _reportHelper.GenerateInstanceChartsAsync(currentInstance.Id, user.Id);
         }
         else if (regenerate && currentInstance.SentOn.HasValue)
         {
@@ -433,6 +446,7 @@ public class ReportController : ControllerBase
             currentInstance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(currentInstance.Id));
             report.Instances.Clear();
             report.Instances.AddRange(instances);
+            await _reportHelper.GenerateInstanceChartsAsync(currentInstance.Id, user.Id);
         }
         else if (regenerate && currentInstance.SentOn.HasValue == false)
         {
@@ -453,6 +467,7 @@ public class ReportController : ControllerBase
             currentInstance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(currentInstance.Id));
             report.Instances.Clear();
             report.Instances.AddRange(instances);
+            await _reportHelper.GenerateInstanceChartsAsync(currentInstance.Id, user.Id);
         }
         else
         {
@@ -487,8 +502,75 @@ public class ReportController : ControllerBase
         instance = _reportInstanceService.UpdateAndSave(instance, true);
         instance.ContentManyToMany.Clear();
         instance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(instance.Id));
+        await _reportHelper.GenerateInstanceChartsAsync(instance.Id, user.Id, sectionId);
 
         return new JsonResult(new ReportInstanceModel(instance));
+    }
+
+    /// <summary>
+    /// Compute chart data for the unsaved values of a chart being edited. Nothing is stored.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="sectionId">The section, or 0 when it has not been saved yet.</param>
+    /// <param name="chartTemplateId"></param>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    /// <exception cref="NotAuthorizedException"></exception>
+    /// <exception cref="NoContentException"></exception>
+    [HttpPost("{id}/sections/{sectionId}/charts/{chartTemplateId}/data")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(API.Models.Charts.ChartDataModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public async Task<IActionResult> GetChartDataAsync(int id, int sectionId, int chartTemplateId, [FromBody] ChartDataPreviewRequestModel model)
+    {
+        var user = _impersonate.GetCurrentUser();
+        var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
+        if (report.OwnerId != user.Id && !report.IsPublic) throw new NotAuthorizedException("Not authorized to view this report");
+
+        var saved = report.Sections.FirstOrDefault(s => s.Id == sectionId);
+        // The body names what to count, so it may only name what this user can already see.
+        if (model.FilterId.HasValue && !report.Sections.Any(s => s.FilterId == model.FilterId))
+        {
+            var ownerId = _filterService.FindById(model.FilterId.Value)?.OwnerId;
+            if (ownerId != user.Id) throw new NotAuthorizedException("Not authorized to use this filter");
+        }
+        if (model.FolderId.HasValue && !report.Sections.Any(s => s.FolderId == model.FolderId))
+        {
+            var ownerId = _folderService.FindById(model.FolderId.Value)?.OwnerId;
+            if (ownerId != user.Id) throw new NotAuthorizedException("Not authorized to use this folder");
+        }
+        if (model.LinkedReportId.HasValue && !report.Sections.Any(s => s.LinkedReportId == model.LinkedReportId))
+        {
+            var linked = _reportService.Find(new ReportFilter { Ids = [model.LinkedReportId.Value] }, false).FirstOrDefault();
+            if (linked == null || (linked.OwnerId != user.Id && !linked.IsPublic)) throw new NotAuthorizedException("Not authorized to use this report");
+        }
+
+        var section = new Entities.ReportSection(sectionId, saved?.Name ?? $"draft-{sectionId}", Entities.ReportSectionType.MediaAnalytics, id, model.FilterId, model.FolderId, model.LinkedReportId)
+        {
+            Id = sectionId,
+            Filter = model.FilterId.HasValue ? _filterService.FindById(model.FilterId.Value) : null,
+            Settings = saved?.Settings ?? JsonDocument.Parse("{}"),
+        };
+        var sectionSettings = JsonSerializer.Deserialize<API.Models.Settings.ReportSectionSettingsModel>(section.Settings.RootElement.GetRawText(), _serializerOptions) ?? new();
+        sectionSettings.UseAllContent = model.UseAllContent;
+        section.Settings = JsonSerializer.SerializeToDocument(sectionSettings, _serializerOptions);
+
+        var template = _chartTemplateService.FindById(chartTemplateId) ?? throw new NoContentException("Chart template does not exist");
+        var chart = new Entities.ReportSectionChartTemplate(sectionId, chartTemplateId, 0) { ChartTemplate = template };
+
+        long? instanceId = null;
+        if (model.InstanceId.HasValue)
+        {
+            var instance = _reportInstanceService.FindById(model.InstanceId.Value);
+            if (instance?.ReportId != id) throw new NotAuthorizedException("Not authorized to view this report instance");
+            instanceId = instance.Id;
+        }
+        else if (model.UseAllContent) instanceId = _reportService.GetLatestInstances(id, user.Id).FirstOrDefault()?.Id;
+
+        var data = await _reportHelper.ComputeDraftChartAsync(report, section, chart, model.SectionSettings, instanceId, user.Id);
+        return data == null ? NoContent() : new JsonResult(data);
     }
 
     /// <summary>
