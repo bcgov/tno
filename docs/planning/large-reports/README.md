@@ -207,6 +207,11 @@ charts (`Topic Analysis - Topic Score`, `Topic Type - last 28 days`). They stay 
 and under the size limit. The subscriber app only offers `Custom`, so no other template needs the
 aggregate path.
 
+Removed: **chart templates no report template offers.** 1.5.16 deletes `Count`, `Stacked Published
+On`, `Average Sentiment`, `Sentiment Count`, `Coverage Count`, `Pre-grouped by Report Section - Over
+time` and `Earned Media`, unless an environment still links one to a report template or section.
+Those are kept, so no saved report loses a chart. `Down` restores the deleted templates as seeded.
+
 ### Rollout
 
 1. Deploy the API and worker, then run `make db-update` (EF 1.5.16).
