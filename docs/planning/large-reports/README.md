@@ -201,9 +201,11 @@ Where the build differs from the phase documents, because the repository require
 | ES 1.0.12 rollback | `rollback/` index files, through the same steps as 1.0.11 | Matches the current tool rather than the older `down/` scripts. |
 | Tno-core | App code calls `useApi` directly, and reads the new settings with a local type | The interface change in `libs/npm/core` is unpublished, and the apps build against the published package. |
 
-Not done: **Event of the Day and Topic Analysis keep their Razor templates** (see phase 3). Their
-output depends on each story's first topic, which a nested aggregation cannot reproduce, so "output
-must match" cannot be guaranteed. They keep working on the legacy path.
+Decided: **Event of the Day and Topic Analysis keep their Razor templates and are not rewritten.**
+The `Event of the Day` report template, which `MMI Morning Media Analysis` uses, has its own two
+charts (`Topic Analysis - Topic Score`, `Topic Type - last 28 days`). They stay on the legacy path
+and under the size limit. The subscriber app only offers `Custom`, so no other template needs the
+aggregate path.
 
 ### Rollout
 

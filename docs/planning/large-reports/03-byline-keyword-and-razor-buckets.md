@@ -89,6 +89,9 @@ Save-time validation from phase 2 accepts modes 1 and 2 for analytics-only sourc
 
 ### Rewriting the seeded templates
 
+> **Decided: not doing this.** The seeded templates keep their Razor bodies and run on the legacy
+> path. The rewrite below and the `Event of the Day` line under Acceptance are out of scope.
+
 - `Event of the Day` (`1.0.153/Up/PostUp/01-ChartTemplate-EventOfTheDay.sql`): declares a
   `nested` `topics` aggregation with `terms` on `topicType` and `name`, `sum` on `score`, and a
   `filter` excluding `name: "Not Applicable"`; the Razor body is rewritten over
