@@ -168,7 +168,7 @@ public sealed class NativeReindex(MigrationBuilder builder)
                     }
                 }
                 if (params.published) {
-                    ctx._source.status = 2;
+                    ctx._source.status = 'Published';
                     if ((ctx._source.contentType == null || ctx._source.contentType == 0 || ctx._source.contentType == 'AudioVideo') && ctx._source.isApproved != true) {
                         ctx._source.body = '';
                     }
