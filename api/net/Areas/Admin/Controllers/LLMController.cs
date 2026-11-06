@@ -10,6 +10,7 @@ using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Entities.Models;
 using TNO.Keycloak;
+using TNO.TemplateEngine.Config;
 
 namespace TNO.API.Areas.Admin.Controllers;
 
@@ -31,6 +32,7 @@ public class LLMController : ControllerBase
     #region Variables
     private readonly ILLMService _service;
     private readonly JsonSerializerOptions _serializerOptions;
+    private readonly AzureOptions _azureOptions;
     #endregion
 
     #region Constructors
@@ -39,10 +41,12 @@ public class LLMController : ControllerBase
     /// </summary>
     /// <param name="service"></param>
     /// <param name="serializerOptions"></param>
-    public LLMController(ILLMService service, IOptions<JsonSerializerOptions> serializerOptions)
+    /// <param name="azureOptions"></param>
+    public LLMController(ILLMService service, IOptions<JsonSerializerOptions> serializerOptions, IOptions<AzureOptions> azureOptions)
     {
         _service = service;
         _serializerOptions = serializerOptions.Value;
+        _azureOptions = azureOptions.Value;
     }
     #endregion
 
@@ -74,6 +78,51 @@ public class LLMController : ControllerBase
     {
         var result = _service.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new LLMModel(result));
+    }
+
+    /// <summary>
+    /// Find everything that uses the LLM connection for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/usage")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(LLMUsageModel), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "LLM" })]
+    public IActionResult FindUsage(int id)
+    {
+        return new JsonResult(_service.FindUsage(id));
+    }
+
+    /// <summary>
+    /// Check whether everything using the LLM connection can move to the target connection.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="targetId"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/migrate/{targetId}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(LLMMigrationCheckModel), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "LLM" })]
+    public IActionResult CheckMigration(int id, int targetId)
+    {
+        return new JsonResult(_service.CheckMigration(id, targetId, HasDefaultApiKey, HasDefaultDeployment));
+    }
+
+    /// <summary>
+    /// Move everything using the LLM connection to the target connection.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="targetId"></param>
+    /// <returns></returns>
+    [HttpPost("{id}/migrate/{targetId}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(LLMMigrationResultModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "LLM" })]
+    public IActionResult Migrate(int id, int targetId)
+    {
+        return new JsonResult(_service.Migrate(id, targetId, HasDefaultApiKey, HasDefaultDeployment));
     }
 
     /// <summary>
@@ -128,6 +177,9 @@ public class LLMController : ControllerBase
     #endregion
 
     #region Methods
+    private bool HasDefaultApiKey => !String.IsNullOrWhiteSpace(_azureOptions.AI?.ApiKey);
+    private bool HasDefaultDeployment => !String.IsNullOrWhiteSpace(_azureOptions.AI?.DefaultModelDeploymentName);
+
     /// <summary>
     /// Validate the token and rate limits a direct-model LLM needs for bounded requests.
     /// </summary>

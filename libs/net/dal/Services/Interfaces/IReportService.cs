@@ -7,6 +7,24 @@ namespace TNO.DAL.Services;
 public interface IReportService : IBaseService<Report, int>
 {
     /// <summary>
+    /// Compute what is needed once per report to build the Elasticsearch query of a section.
+    /// </summary>
+    /// <param name="report"></param>
+    /// <param name="instanceId"></param>
+    /// <param name="requestorId"></param>
+    /// <returns></returns>
+    SectionQueryContext BuildSectionQueryContext(Report report, long? instanceId, int? requestorId);
+
+    /// <summary>
+    /// Build the Elasticsearch query of a section with a filter, along with the index it searches.
+    /// </summary>
+    /// <param name="report"></param>
+    /// <param name="section"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    (string Index, System.Text.Json.JsonDocument Query) BuildSectionQuery(Report report, ReportSection section, SectionQueryContext context);
+
+    /// <summary>
     /// Find all reports that match the filter.
     /// </summary>
     /// <param name="filter"></param>

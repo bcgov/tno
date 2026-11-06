@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace TNO.TemplateEngine.Models.Charts;
+namespace TNO.API.Models.Charts;
 
 /// <summary>
 /// ChartDataModel class, provides a model that represents Chart.js data.

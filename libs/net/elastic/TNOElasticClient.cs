@@ -144,6 +144,28 @@ namespace TNO.Elastic
             }
         }
 
+        /// <summary>
+        /// Make a request to Elasticsearch 'index' with the specified 'query' and return the unparsed response.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="query"></param>
+        /// <returns></returns>
+        public async Task<JsonDocument> SearchRawAsync(string index, JsonDocument query)
+        {
+            var url = this.Options.Url!.Append($"/{index}/_search");
+            var content = JsonContent.Create(query);
+            try
+            {
+                var response = await this.Client.PostAsync<JsonDocument>(url, content);
+                return response ?? JsonDocument.Parse("{}");
+            }
+            catch (Exception ex)
+            {
+                LogSearchFailure(ex, index, query.RootElement);
+                throw;
+            }
+        }
+
         /// <summary>The most of a rejected query to copy into the log.</summary>
         private const int MaxLoggedQueryChars = 4000;
 

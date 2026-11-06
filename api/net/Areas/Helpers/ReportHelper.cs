@@ -28,6 +28,9 @@ public class ReportHelper : IReportHelper
     #region Variables
     private readonly IReportEngine _reportEngine;
     private readonly IReportService _reportService;
+    private readonly IReportInstanceService _reportInstanceService;
+    private readonly IReportChartDataService _reportChartDataService;
+    private readonly ITNOElasticClient _elasticClient;
     private readonly ILLMService _llmService;
     private readonly IAVOverviewTemplateService _overviewTemplateService;
     private readonly IContentService _contentService;
@@ -56,6 +59,9 @@ public class ReportHelper : IReportHelper
     /// </summary>
     /// <param name="reportEngine"></param>
     /// <param name="reportService"></param>
+    /// <param name="reportInstanceService"></param>
+    /// <param name="reportChartDataService"></param>
+    /// <param name="elasticClient"></param>
     /// <param name="llmService"></param>
     /// <param name="overviewTemplateService"></param>
     /// <param name="contentService"></param>
@@ -71,6 +77,9 @@ public class ReportHelper : IReportHelper
     public ReportHelper(
         IReportEngine reportEngine,
         IReportService reportService,
+        IReportInstanceService reportInstanceService,
+        IReportChartDataService reportChartDataService,
+        ITNOElasticClient elasticClient,
         ILLMService llmService,
         IAVOverviewTemplateService overviewTemplateService,
         IContentService contentService,
@@ -89,6 +98,9 @@ public class ReportHelper : IReportHelper
         _logger = logger;
         _reportEngine = reportEngine;
         _reportService = reportService;
+        _reportInstanceService = reportInstanceService;
+        _reportChartDataService = reportChartDataService;
+        _elasticClient = elasticClient;
         _llmService = llmService;
         _overviewTemplateService = overviewTemplateService;
         _contentService = contentService;
@@ -102,6 +114,142 @@ public class ReportHelper : IReportHelper
     #endregion
 
     #region Methods
+    /// <inheritdoc />
+    public async Task<Dictionary<string, TNO.TemplateEngine.Models.Reports.AggregationRootModel>> FindAggregationsAsync(JsonDocument filter, string? index, JsonDocument aggregations)
+    {
+        var query = System.Text.Json.Nodes.JsonNode.Parse(filter.RootElement.GetRawText())!.AsObject();
+        foreach (var property in new[] { "sort", "from", "_source", "highlight", "collapse", "aggs", "aggregations", "search_after" }) query.Remove(property);
+        query["size"] = 0;
+        query["aggs"] = System.Text.Json.Nodes.JsonNode.Parse(aggregations.RootElement.GetRawText());
+        var result = await _elasticClient.SearchAsync<object>(index ?? _elasticOptions.PublishedIndex, JsonDocument.Parse(query.ToJsonString()));
+        return (result.Aggregations ?? []).ToDictionary(a => a.Key, a => a.Value.Convert());
+    }
+
+    /// <inheritdoc />
+    public async Task<IEnumerable<Entities.ReportInstanceChart>> GenerateInstanceChartsAsync(long instanceId, int? requestorId, int? sectionId = null)
+    {
+        // Callers rearrange the entities they hold before responding. Saving the charts must not save those too.
+        _reportInstanceService.ClearChangeTracker();
+        var instance = _reportInstanceService.FindById(instanceId) ?? throw new NoContentException("Report instance does not exist");
+        var report = instance.Report ?? throw new InvalidOperationException("Report instance is missing its report");
+        var rows = await _reportChartDataService.ComputeChartsAsync(report, instanceId, null, requestorId ?? instance.OwnerId, sectionId, RenderBucketsAsync);
+        return _reportInstanceService.SaveCharts(instanceId, rows, sectionId.HasValue ? [sectionId.Value] : null);
+    }
+
+    /// <inheritdoc />
+    public async Task<IEnumerable<Entities.ReportInstanceChart>> GetInstanceChartsAsync(long instanceId, int? requestorId)
+    {
+        // Callers rearrange the entities they hold before responding. Saving the charts must not save those too.
+        _reportInstanceService.ClearChangeTracker();
+        var instance = _reportInstanceService.FindById(instanceId) ?? throw new NoContentException("Report instance does not exist");
+        var report = instance.Report ?? throw new InvalidOperationException("Report instance is missing its report");
+        var stored = _reportInstanceService.FindCharts(instanceId).ToList();
+
+        var byLine = _reportChartDataService.ByLineAggregationEnabled;
+        foreach (var section in report.Sections.Where(s => s.SectionType == Entities.ReportSectionType.MediaAnalytics && s.IsEnabled))
+        {
+            if (TNO.DAL.Models.ReportChartSupport.GetSource(section, _serializerOptions) == null) continue;
+            var charts = section.ChartTemplatesManyToMany.Where(c => TNO.DAL.Models.ReportChartSupport.SupportsAggregation(c, _serializerOptions, byLine)).ToArray();
+            var isCurrent = charts.All(chart =>
+            {
+                var row = stored.FirstOrDefault(r => r.SectionId == section.Id && r.ChartTemplateId == chart.ChartTemplateId);
+                if (row == null) return false;
+                // A sent instance is a record of what went out. An unsent one follows the owner's edits.
+                return instance.SentOn.HasValue || (row.GeneratedOn >= chart.UpdatedOn && row.GeneratedOn >= section.UpdatedOn);
+            });
+            if (isCurrent) continue;
+
+            var rows = await _reportChartDataService.ComputeChartsAsync(report, instanceId, null, requestorId ?? instance.OwnerId, section.Id, RenderBucketsAsync);
+            stored.RemoveAll(r => r.SectionId == section.Id);
+            stored.AddRange(_reportInstanceService.SaveCharts(instanceId, rows, [section.Id]));
+        }
+        return stored;
+    }
+
+    /// <inheritdoc />
+    public async Task<IEnumerable<Entities.ReportInstanceChart>> ComputeReportChartsAsync(int reportId, int? requestorId)
+    {
+        var report = _reportService.FindById(reportId) ?? throw new NoContentException("Report does not exist");
+        return await _reportChartDataService.ComputeChartsAsync(report, null, null, requestorId, null, RenderBucketsAsync);
+    }
+
+    /// <inheritdoc />
+    public async Task<JsonDocument?> ComputeDraftChartAsync(Entities.Report report, Entities.ReportSection section, Entities.ReportSectionChartTemplate chart, Models.Settings.ChartSectionSettingsModel settings, long? instanceId, int? requestorId)
+    {
+        var source = TNO.DAL.Models.ReportChartSupport.GetSource(section, _serializerOptions) ?? throw new BadRequestException("The section has no data source for this chart.");
+        var template = TNO.DAL.Models.ReportChartSupport.GetTemplateSettings(chart, _serializerOptions) ?? throw new BadRequestException("The chart template does not exist.");
+        if (!template.Aggregate && template.Aggregations == null) throw new BadRequestException("This chart template renders from stories, so it has no aggregated data.");
+        if (source == TNO.DAL.Models.ReportChartSource.InstanceIds && !instanceId.HasValue) return null;
+
+        var request = _reportChartDataService.BuildRequest(report, section, chart, source, instanceId, null, requestorId);
+        if (source is TNO.DAL.Models.ReportChartSource.InstanceIds or TNO.DAL.Models.ReportChartSource.LinkedInstanceIds && request.SectionIds.Count == 0) return null;
+        request.SettingsOverride = settings;
+
+        if (!template.Aggregate)
+            return await RenderBucketsAsync(section, chart, await _reportChartDataService.AggregateAsync(request, template.Aggregations!), settings);
+        if (!TNO.DAL.Models.ReportChartSupport.SupportsDimensions(settings, _reportChartDataService.ByLineAggregationEnabled))
+            throw new BadRequestException("Grouping by byline is not available for this chart yet.");
+        return JsonSerializer.SerializeToDocument((await _reportChartDataService.GetChartDataAsync(request)).Data);
+    }
+
+    /// <summary>
+    /// Run the Razor template of a chart in bucket mode to produce its Chart.js data.
+    /// </summary>
+    private Task<JsonDocument> RenderBucketsAsync(Entities.ReportSection section, Entities.ReportSectionChartTemplate chart, Dictionary<string, Elastic.Models.AggregationRootModel> aggregations)
+    {
+        return RenderBucketsAsync(section, chart, aggregations, null);
+    }
+
+    private async Task<JsonDocument> RenderBucketsAsync(Entities.ReportSection section, Entities.ReportSectionChartTemplate chart, Dictionary<string, Elastic.Models.AggregationRootModel> aggregations, Models.Settings.ChartSectionSettingsModel? settings)
+    {
+        var template = chart.ChartTemplate ?? throw new InvalidOperationException("Chart template is required");
+        var model = new Areas.Services.Models.Report.ChartTemplateModel(template, _serializerOptions)
+        {
+            SectionSettings = settings ?? JsonSerializer.Deserialize<Models.Settings.ChartSectionSettingsModel>(chart.Settings.RootElement.GetRawText(), _serializerOptions) ?? new(),
+        };
+        var engineModel = new ChartEngineContentModel(ReportSectionModel.GenerateChartUid(section.Id, chart.ChartTemplateId), model)
+        {
+            ChartAggregations = aggregations.ToDictionary(a => a.Key, a => a.Value.Convert()),
+        };
+        var result = await _reportEngine.GenerateJsonAsync(new ChartRequestModel(engineModel));
+        return result.Json;
+    }
+
+    /// <summary>
+    /// Convert the model to an entity with what chart data needs, the chart templates and each
+    /// chart's section settings, which the model's own conversion does not carry.
+    /// </summary>
+    private Entities.Report ToChartEntity(Areas.Services.Models.Report.ReportModel model)
+    {
+        var entity = model.ToEntity(_serializerOptions);
+        foreach (var section in entity.Sections)
+        {
+            var sectionModel = model.Sections.First(s => s.Name == section.Name);
+            foreach (var chart in section.ChartTemplatesManyToMany)
+            {
+                var chartModel = sectionModel.ChartTemplates.First(c => c.Id == chart.ChartTemplateId);
+                chart.Settings = JsonSerializer.SerializeToDocument(chartModel.SectionSettings ?? new(), _serializerOptions);
+                chart.ChartTemplate = new Entities.ChartTemplate(chartModel.Name, chartModel.Template)
+                {
+                    Id = chartModel.Id,
+                    Settings = JsonSerializer.SerializeToDocument(chartModel.Settings, _serializerOptions),
+                };
+            }
+        }
+        return entity;
+    }
+
+    /// <summary>
+    /// Give the sections the chart data that has been computed.
+    /// </summary>
+    private static void ApplyChartData(Dictionary<string, ReportSectionModel> sections, IEnumerable<Entities.ReportInstanceChart> charts)
+    {
+        foreach (var chart in charts)
+        {
+            if (sections.TryGetValue(chart.SectionName, out var section)) section.ChartData[chart.ChartTemplateId] = chart.Data;
+        }
+    }
+
     /// <summary>
     /// If a filter is provided make a request to Elasticsearch for content.
     /// </summary>
@@ -211,7 +359,9 @@ public class ReportHelper : IReportHelper
         bool isPreview = false)
     {
         var reportModel = model.Report ?? throw new ArgumentException("Parameter 'model.Report' is required");
-        return await GenerateReportAsync(reportModel, model, GetInstanceSections(model), viewOnWebOnly, isPreview);
+        var instanceSections = GetInstanceSections(model);
+        if (!viewOnWebOnly && model.Id > 0) ApplyChartData(instanceSections, await GetInstanceChartsAsync(model.Id, model.OwnerId));
+        return await GenerateReportAsync(reportModel, model, instanceSections, viewOnWebOnly, isPreview);
     }
 
     /// <summary>
@@ -232,6 +382,7 @@ public class ReportHelper : IReportHelper
     {
         var reportModel = model.Report ?? throw new ArgumentException("Parameter 'model.Report' is required");
         var sections = GetInstanceSections(model);
+        ApplyChartData(sections, await GetInstanceChartsAsync(model.Id, requestorId));
         var result = await GenerateReportAsync(reportModel, model, sections, false, isPreview, AISectionWait.NoWait);
 
         // A section already being generated will notify when it is done.
@@ -452,7 +603,8 @@ public class ReportHelper : IReportHelper
         if (model.Template == null) throw new ArgumentException("Parameter 'model.Template' is required");
 
         // Fetch all content for this report.
-        var elasticResults = await _reportService.FindContentWithElasticsearchAsync(model.ToEntity(_serializerOptions), null, requestorId);
+        var entity = ToChartEntity(model);
+        var elasticResults = await _reportService.FindContentWithElasticsearchAsync(entity, null, requestorId);
 
         // Link each result with the section name.
         var sections = model.Sections.OrderBy(s => s.SortOrder).ToDictionary(section => section.Name, section =>
@@ -471,6 +623,13 @@ public class ReportHelper : IReportHelper
             }
             return new ReportSectionModel(section, content, aggregations);
         });
+
+        if (!viewOnWebOnly)
+        {
+            // There is no instance, so the stories just fetched stand in for its content.
+            var contentBySection = sections.ToDictionary(s => s.Key, s => s.Value.Content.Select(c => c.Id).ToArray());
+            ApplyChartData(sections, await _reportChartDataService.ComputeChartsAsync(entity, null, contentBySection, requestorId, null, RenderBucketsAsync));
+        }
 
         var result = await GenerateReportAsync(model, null, sections, viewOnWebOnly, isPreview);
         result.Data = JsonSerializer.SerializeToDocument(elasticResults);

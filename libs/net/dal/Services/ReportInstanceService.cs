@@ -22,6 +22,38 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
 
     #region Methods
     /// <inheritdoc />
+    public IEnumerable<ReportInstanceChart> FindCharts(long instanceId)
+    {
+        return this.Context.ReportInstanceCharts
+            .AsNoTracking()
+            .Where(c => c.InstanceId == instanceId)
+            .OrderBy(c => c.SectionId).ThenBy(c => c.ChartTemplateId)
+            .ToArray();
+    }
+
+    /// <inheritdoc />
+    public IEnumerable<ReportInstanceChart> SaveCharts(long instanceId, IEnumerable<ReportInstanceChart> charts, int[]? sectionIds = null)
+    {
+        var rows = charts.ToArray();
+        // Every row of an affected section is replaced, so a chart removed from the section loses its row too.
+        var query = this.Context.ReportInstanceCharts.Where(c => c.InstanceId == instanceId);
+        if (sectionIds != null)
+        {
+            var affected = sectionIds.Union(rows.Select(r => r.SectionId)).ToArray();
+            query = query.Where(c => affected.Contains(c.SectionId));
+        }
+        this.Context.ReportInstanceCharts.RemoveRange(query);
+        foreach (var row in rows)
+        {
+            row.InstanceId = instanceId;
+            this.Context.ReportInstanceCharts.Add(row);
+        }
+        // One SaveChanges is one transaction, so a reader never finds the rows half replaced.
+        this.CommitTransaction();
+        return rows;
+    }
+
+    /// <inheritdoc />
     public long EstimateReportSize(long id, string[] sectionNames, string[] fullStorySectionNames)
     {
         var query = this.Context.ReportInstanceContents

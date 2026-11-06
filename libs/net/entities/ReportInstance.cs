@@ -84,6 +84,11 @@ public class ReportInstance : AuditColumns
     public virtual List<ReportInstanceContent> ContentManyToMany { get; } = new List<ReportInstanceContent>();
 
     /// <summary>
+    /// get - The chart data computed for this instance.
+    /// </summary>
+    public virtual List<ReportInstanceChart> Charts { get; } = new List<ReportInstanceChart>();
+
+    /// <summary>
     /// get - Collection of content associated with this report instance.
     /// </summary>
     public virtual List<Content> Content { get; } = new List<Content>();

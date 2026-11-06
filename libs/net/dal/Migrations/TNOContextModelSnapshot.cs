@@ -5127,6 +5127,83 @@ namespace TNO.DAL.Migrations
                     b.ToTable("report_instance");
                 });
 
+            modelBuilder.Entity("TNO.Entities.ReportInstanceChart", b =>
+                {
+                    b.Property<long>("InstanceId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("instance_id");
+
+                    b.Property<int>("SectionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("section_id");
+
+                    b.Property<int>("ChartTemplateId")
+                        .HasColumnType("integer")
+                        .HasColumnName("chart_template_id");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<JsonDocument>("Data")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("data");
+
+                    b.Property<long>("DocCount")
+                        .HasColumnType("bigint")
+                        .HasColumnName("doc_count");
+
+                    b.Property<DateTime>("GeneratedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("generated_on");
+
+                    b.Property<bool>("IsTruncated")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_truncated");
+
+                    b.Property<string>("SectionName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("section_name");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("InstanceId", "SectionId", "ChartTemplateId");
+
+                    b.HasIndex("ChartTemplateId");
+
+                    b.HasIndex("SectionId");
+
+                    b.ToTable("report_instance_chart");
+                });
+
             modelBuilder.Entity("TNO.Entities.ReportInstanceContent", b =>
                 {
                     b.Property<long>("InstanceId")
@@ -8417,6 +8494,33 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Report");
                 });
 
+            modelBuilder.Entity("TNO.Entities.ReportInstanceChart", b =>
+                {
+                    b.HasOne("TNO.Entities.ChartTemplate", "ChartTemplate")
+                        .WithMany()
+                        .HasForeignKey("ChartTemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TNO.Entities.ReportInstance", "Instance")
+                        .WithMany("Charts")
+                        .HasForeignKey("InstanceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TNO.Entities.ReportSection", "Section")
+                        .WithMany()
+                        .HasForeignKey("SectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ChartTemplate");
+
+                    b.Navigation("Instance");
+
+                    b.Navigation("Section");
+                });
+
             modelBuilder.Entity("TNO.Entities.ReportInstanceContent", b =>
                 {
                     b.HasOne("TNO.Entities.Content", "Content")
@@ -9123,6 +9227,8 @@ namespace TNO.DAL.Migrations
 
             modelBuilder.Entity("TNO.Entities.ReportInstance", b =>
                 {
+                    b.Navigation("Charts");
+
                     b.Navigation("ContentManyToMany");
 
                     b.Navigation("UserInstances");

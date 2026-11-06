@@ -1,7 +1,14 @@
+import {
+  type ILLMMigrationCheckModel,
+  type ILLMMigrationResultModel,
+  type ILLMUsageModel,
+} from 'features/admin/llms/interfaces';
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { type IAdminState, useAdminStore } from 'store/slices';
 import { type ILLMModel, useApiAdminLLMs } from 'tno-core';
+
+import { useApiAdminLLMUsage } from './useApiAdminLLMUsage';
 
 interface ILLMController {
   findAllLLMs: () => Promise<ILLMModel[]>;
@@ -9,10 +16,14 @@ interface ILLMController {
   addLLM: (model: ILLMModel) => Promise<ILLMModel>;
   updateLLM: (model: ILLMModel) => Promise<ILLMModel>;
   deleteLLM: (model: ILLMModel) => Promise<ILLMModel>;
+  getLLMUsage: (id: number) => Promise<ILLMUsageModel>;
+  checkLLMMigration: (id: number, targetId: number) => Promise<ILLMMigrationCheckModel>;
+  migrateLLM: (id: number, targetId: number) => Promise<ILLMMigrationResultModel>;
 }
 
 export const useLLMs = (): [IAdminState, ILLMController] => {
   const api = useApiAdminLLMs();
+  const usageApi = useApiAdminLLMUsage();
   const dispatch = useAjaxWrapper();
   const [state, store] = useAdminStore();
   const [, lookup] = useLookup();
@@ -66,8 +77,29 @@ export const useLLMs = (): [IAdminState, ILLMController] => {
         await lookup.getLookups();
         return response.data;
       },
+      getLLMUsage: async (id: number) => {
+        const response = await dispatch<ILLMUsageModel>(
+          'get-llm-usage',
+          async () => await usageApi.getLLMUsage(id),
+        );
+        return response.data;
+      },
+      checkLLMMigration: async (id: number, targetId: number) => {
+        const response = await dispatch<ILLMMigrationCheckModel>(
+          'check-llm-migration',
+          async () => await usageApi.checkLLMMigration(id, targetId),
+        );
+        return response.data;
+      },
+      migrateLLM: async (id: number, targetId: number) => {
+        const response = await dispatch<ILLMMigrationResultModel>(
+          'migrate-llm',
+          async () => await usageApi.migrateLLM(id, targetId),
+        );
+        return response.data;
+      },
     }),
-    [dispatch, store, api, lookup],
+    [dispatch, store, api, usageApi, lookup],
   );
 
   return [state, controller];

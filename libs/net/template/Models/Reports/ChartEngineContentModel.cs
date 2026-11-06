@@ -51,6 +51,16 @@ public class ChartEngineContentModel : RazorEngineTemplateBase
     /// get/set - A dictionary with each section.
     /// </summary>
     public Dictionary<string, ReportSectionModel> Sections { get; set; } = new();
+
+    /// <summary>
+    /// get/set - Chart.js data that has already been computed. The template is not run when it is provided.
+    /// </summary>
+    public System.Text.Json.JsonDocument? ChartData { get; set; }
+
+    /// <summary>
+    /// get/set - The aggregations a template in bucket mode renders from, by source section name.
+    /// </summary>
+    public Dictionary<string, AggregationRootModel> ChartAggregations { get; set; } = new();
     #endregion
 
     #region Constructors

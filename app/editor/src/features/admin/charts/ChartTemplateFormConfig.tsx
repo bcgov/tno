@@ -27,6 +27,15 @@ export const ChartTemplateFormConfig: React.FC<IChartTemplateFormConfigProps> = 
   const [chartOptions, setChartOptions] = React.useState(
     JSON.stringify(values.settings?.options ?? '{}', null, 2),
   );
+  // tno-core does not publish these settings yet.
+  const settings = values.settings as typeof values.settings & {
+    aggregate?: boolean;
+    aggregations?: any;
+  };
+  const [aggregations, setAggregations] = React.useState(
+    settings?.aggregations ? JSON.stringify(settings.aggregations, null, 2) : '',
+  );
+  const [aggregationsError, setAggregationsError] = React.useState('');
 
   React.useEffect(() => {
     // Initializes settings if the DB has no value.
@@ -69,6 +78,12 @@ export const ChartTemplateFormConfig: React.FC<IChartTemplateFormConfigProps> = 
           </Button>
         </Row>
         <Row gap="1rem">
+          <Checkbox
+            name="aggregate"
+            label="Data comes from aggregations (no template)"
+            checked={!!settings?.aggregate}
+            onChange={(e) => setFieldValue('settings.aggregate', e.target.checked)}
+          />
           <Checkbox
             name="horizontal"
             label="Flip X and Y axis"
@@ -146,6 +161,32 @@ export const ChartTemplateFormConfig: React.FC<IChartTemplateFormConfigProps> = 
             }}
           />
         </Col>
+        <label htmlFor="txa-aggregations">Elasticsearch aggregations</label>
+        <p>
+          An Elasticsearch <code>aggs</code> block. When set, this template renders from the buckets
+          in <code>ChartAggregations</code> and receives no stories.
+        </p>
+        <Editor
+          id="txa-aggregations"
+          className="editor"
+          value={aggregations}
+          onValueChange={(code) => {
+            setAggregations(code);
+            if (!code.trim()) {
+              setAggregationsError('');
+              setFieldValue('settings.aggregations', undefined);
+              return;
+            }
+            try {
+              setFieldValue('settings.aggregations', JSON.parse(code));
+              setAggregationsError('');
+            } catch (ex) {
+              setAggregationsError('Must be valid JSON.');
+            }
+          }}
+          highlight={(code) => highlight(code, languages.json, 'json')}
+        />
+        {aggregationsError && <p className="error">{aggregationsError}</p>}
       </Col>
     </>
   );

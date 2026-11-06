@@ -4,6 +4,7 @@ import React from 'react';
 import { Col, FormikCheckbox, Row, Show } from 'tno-core';
 
 import { useReportEditContext } from '../../ReportEditContext';
+import { isAggregateChart } from '../template/utils';
 
 export interface IReportSectionMediaAnalyticsProps {
   index: number;
@@ -23,6 +24,13 @@ export const ReportSectionMediaAnalytics = React.forwardRef<
   const { values, setFieldValue } = useReportEditContext();
 
   const section = values.sections[index];
+  // These sections fetch no stories, so options about which stories to keep do not apply.
+  const analyticsOnly =
+    !section.settings.useAllContent &&
+    !section.linkedReportId &&
+    (!!section.filterId || !!section.folderId) &&
+    section.chartTemplates.length > 0 &&
+    section.chartTemplates.every(isAggregateChart);
 
   return (
     <Col gap="0.5rem">
@@ -40,7 +48,13 @@ export const ReportSectionMediaAnalytics = React.forwardRef<
       />
       <Col className="frm-in">
         <label>Report Section Options</label>
-        <Show visible={!section.settings.useAllContent}>
+        <Show visible={analyticsOnly}>
+          <span className="info">
+            Charts count every story the filter matches. Stories in this section are not listed in
+            the report.
+          </span>
+        </Show>
+        <Show visible={!section.settings.useAllContent && !analyticsOnly}>
           <Row>
             <FormikCheckbox
               name={`sections.${index}.settings.removeDuplicates`}

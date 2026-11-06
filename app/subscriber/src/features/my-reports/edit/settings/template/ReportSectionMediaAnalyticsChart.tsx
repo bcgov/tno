@@ -10,12 +10,13 @@ import {
   FaTrash,
   FaWandMagicSparkles,
 } from 'react-icons/fa6';
+import { useReports } from 'store/hooks';
 import { Col, IReportInstanceContentModel, Row, Show, ToggleButton } from 'tno-core';
 
 import { useReportEditContext } from '../../ReportEditContext';
 import { ReportSectionMediaAnalyticsChartAdvanced } from './ReportSectionMediaAnalyticsChartAdvanced';
 import { ReportSectionMediaAnalyticsChartWizard } from './ReportSectionMediaAnalyticsChartWizard';
-import { convertToChart, IChartData } from './utils';
+import { convertToChart, IChartData, isAggregateChart, normalizeChartData } from './utils';
 
 export interface IReportSectionMediaAnalyticsChartProps {
   sectionIndex: number;
@@ -42,8 +43,13 @@ export const ReportSectionMediaAnalyticsChart = React.forwardRef<
     setLinkedReportContent,
   } = useReportEditContext();
 
+  const [, { getSectionChartData }] = useReports();
+
   const section = values.sections[sectionIndex];
   const chart = section.chartTemplates[chartIndex];
+  const aggregate = isAggregateChart(chart);
+  const instanceId = values.instances.length ? values.instances[0].id : undefined;
+  const sectionSettings = JSON.stringify(chart.sectionSettings);
   const [showAdvanced, setShowAdvanced] = React.useState(false);
   const [showConfig, setShowConfig] = React.useState(initShowConfig ?? true);
   const [data, setData] = React.useState<IChartData>();
@@ -51,17 +57,20 @@ export const ReportSectionMediaAnalyticsChart = React.forwardRef<
     values.instances.length ? values.instances[0].content : [],
   );
   const [showReportData, setShowReportData] = React.useState(
-    values.instances.length > 0 && values.instances[0].content.length > 0,
+    aggregate || (values.instances.length > 0 && values.instances[0].content.length > 0),
   );
+  const [error, setError] = React.useState('');
 
   const toggleReportData = React.useCallback(() => setShowReportData((show) => !show), []);
 
   React.useEffect(() => {
     // If there is data, then show it in the charts.
-    setShowReportData(values.instances.length > 0 && values.instances[0].content.length > 0);
-  }, [values.instances]);
+    setShowReportData(
+      aggregate || (values.instances.length > 0 && values.instances[0].content.length > 0),
+    );
+  }, [aggregate, values.instances]);
 
-  React.useEffect(() => {
+  const convertContent = React.useCallback(() => {
     let sectionContent: IReportInstanceContentModel[] = [];
     if (section.linkedReportId) {
       sectionContent = linkedReportContent[section.name] ?? [];
@@ -71,8 +80,11 @@ export const ReportSectionMediaAnalyticsChart = React.forwardRef<
           ? reportContent.filter((rc) => rc.sectionName === section.name)
           : reportContent;
     }
-    setData(
-      convertToChart(section, chart, showReportData ? sectionContent : testData, values.sections),
+    return convertToChart(
+      section,
+      chart,
+      showReportData ? sectionContent : testData,
+      values.sections,
     );
   }, [
     section,
@@ -82,6 +94,57 @@ export const ReportSectionMediaAnalyticsChart = React.forwardRef<
     testData,
     values.sections,
     linkedReportContent,
+  ]);
+
+  // A chart template that aggregates shows what the report would, without any stories in the browser.
+  const fromApi = aggregate && showReportData && !!values.id;
+
+  React.useEffect(() => {
+    if (fromApi) return;
+    setError('');
+    setData(convertContent());
+  }, [fromApi, convertContent]);
+
+  React.useEffect(() => {
+    if (!fromApi) return;
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      try {
+        const result = await getSectionChartData(values.id, section.id, chart.id, {
+          sectionSettings: JSON.parse(sectionSettings),
+          useAllContent: !!section.settings.useAllContent,
+          filterId: section.filterId,
+          folderId: section.folderId,
+          linkedReportId: section.linkedReportId,
+          instanceId,
+        });
+        if (cancelled) return;
+        setError('');
+        if (result) setData(normalizeChartData(result, chart.sectionSettings));
+        else setShowReportData(false); // There are no stories to take data from yet.
+      } catch (ex: any) {
+        if (cancelled) return;
+        setError(ex?.response?.data?.error ?? 'Unable to load the chart data.');
+        setData(undefined);
+      }
+    }, 400);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+    // Settings are compared by value, as the form creates new objects on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    fromApi,
+    values.id,
+    section.id,
+    chart.id,
+    sectionSettings,
+    section.settings.useAllContent,
+    section.filterId,
+    section.folderId,
+    section.linkedReportId,
+    instanceId,
   ]);
 
   React.useEffect(() => {
@@ -142,6 +205,9 @@ export const ReportSectionMediaAnalyticsChart = React.forwardRef<
         </Row>
       </Row>
       <Show visible={showConfig}>
+        <Show visible={!!error}>
+          <p className="error">{error}</p>
+        </Show>
         <Row className="chart-settings">
           <Show visible={!showAdvanced}>
             <ReportSectionMediaAnalyticsChartWizard

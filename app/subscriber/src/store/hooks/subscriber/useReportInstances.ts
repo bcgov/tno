@@ -5,8 +5,11 @@ import { useProfileStore } from 'store/slices';
 import {
   IReportInstanceModel,
   IReportResultModel,
+  useApi,
   useApiSubscriberReportInstances,
 } from 'tno-core';
+
+import { IReportInstanceChartModel } from './interfaces';
 
 interface IReportInstanceController {
   getReportInstance: (
@@ -21,6 +24,7 @@ interface IReportInstanceController {
   sendReportInstance: (id: number, to: string) => Promise<IReportInstanceModel>;
   publishReportInstance: (id: number, resend: boolean) => Promise<IReportInstanceModel>;
   exportReport: (id: number, reportName: string, groupBy?: string) => Promise<IReportInstanceModel>;
+  getReportInstanceCharts: (id: number) => Promise<IReportInstanceChartModel[]>;
 }
 
 // Preview requests share one cache across viewers and refresh buttons. Only the latest
@@ -29,11 +33,18 @@ let previewRequestId = 0;
 
 export const useReportInstances = (): [IReportInstanceController] => {
   const api = useApiSubscriberReportInstances();
+  const http = React.useRef(useApi());
   const dispatch = useAjaxWrapper();
   const [, { storeMyReports, storeReportContent, storeReportOutput }] = useProfileStore();
 
   const controller = React.useMemo(
     () => ({
+      getReportInstanceCharts: async (id: number) => {
+        const response = await http.current.get<IReportInstanceChartModel[]>(
+          `/subscriber/report/instances/${id}/charts`,
+        );
+        return response.data;
+      },
       getReportInstance: async (
         id: number,
         includeContent: boolean = false,

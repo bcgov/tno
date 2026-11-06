@@ -10,9 +10,11 @@ import {
   IUserModel,
   IUserReportModel,
   sortable,
+  useApi,
   useApiSubscriberReports,
 } from 'tno-core';
 
+import { IChartDataPreviewRequestModel } from './interfaces/IChartDataPreviewRequestModel';
 import { IReportContentMutationModel } from './interfaces/IReportContentMutationModel';
 import { mergeReportWithContentMutation } from './utils/reportContentMutationHelpers';
 
@@ -29,6 +31,13 @@ interface IReportController {
   previewReport: (id: number) => Promise<IReportResultModel>;
   generateReport: (id: number, regenerate?: boolean) => Promise<IReportModel>;
   regenerateSection: (id: number, sectionId: number) => Promise<IReportInstanceModel>;
+  /** Fetch chart data for unsaved chart values. Resolves with undefined when there are no stories to take data from yet. */
+  getSectionChartData: (
+    id: number,
+    sectionId: number,
+    chartTemplateId: number,
+    model: IChartDataPreviewRequestModel,
+  ) => Promise<any | undefined>;
   addContentToReport: (
     id: number,
     content: IReportInstanceContentModel[],
@@ -40,6 +49,7 @@ interface IReportController {
 
 export const useReports = (): [IProfileState, IReportController] => {
   const api = useApiSubscriberReports();
+  const http = React.useRef(useApi());
   const dispatch = useAjaxWrapper();
   const [state, { storeMyReports, storeReportContent }] = useProfileStore();
 
@@ -211,6 +221,19 @@ export const useReports = (): [IProfileState, IReportController] => {
           });
         }
         return response.data;
+      },
+      getSectionChartData: async (
+        id: number,
+        sectionId: number,
+        chartTemplateId: number,
+        model: IChartDataPreviewRequestModel,
+      ) => {
+        // Called while typing, so a failure must not raise the global error toast.
+        const response = await http.current.post(
+          `/subscriber/reports/${id}/sections/${sectionId}/charts/${chartTemplateId}/data`,
+          model,
+        );
+        return response.status === 200 ? response.data : undefined;
       },
       regenerateSection: async (id: number, sectionId: number) => {
         const response = await dispatch<IReportInstanceModel>('generate-report-section', () =>

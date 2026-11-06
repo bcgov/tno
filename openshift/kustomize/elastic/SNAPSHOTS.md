@@ -21,11 +21,15 @@ setup is only for the self-hosted Local and DEV clusters.
 | ------------- | ----------------------------------------------------------------------------- | ------------------------------ |
 | Indexes       | `content*`, `unpublished_content*`, `migrations` (no system indexes or cluster state) | `INDICES`                      |
 | Schedule      | `0 30 9 * * ?`: 09:30 UTC, 01:30 Pacific standard time                        | `SCHEDULE`                     |
-| Retention     | expire after 14 days, always keep at least 3, never more than 14              | `RETAIN_DAYS`, `RETAIN_MIN`, `RETAIN_MAX` |
+| Retention     | keep only the latest nightly (`max_count` and `min_count` are 1)              | `RETAIN_DAYS`, `RETAIN_MIN`, `RETAIN_MAX` |
 
 Overrides take effect when `setup` is run again. Snapshots are incremental: the first one copies every segment,
 and later ones copy only new segments. Aliases are not part of a restore; the indexes are versioned, and the
 aliases are recreated as part of a recovery.
+
+Retention runs at 01:30 UTC and the nightly at 09:30 UTC, so two nightlies exist for about 16 hours each day, until
+retention removes the older one. Retention only deletes snapshots the `nightly` policy created. Snapshots taken with
+`now` stay until they are deleted with `delete`, and they keep their segments on the volume until then.
 
 ## How it is wired
 
@@ -43,8 +47,13 @@ ownership, so Elasticsearch can write to it.
 
 After the 1.0.10 indexes were removed on 2026-11-01, the primary data is about 24 GB (`unpublished_content`
 about 21 GB, `content` about 2.7 GB). A full snapshot is roughly that size, and nightly increments are small. The
-PVC is 50 Gi, leaving room for 14 days of changes and growth. Measured on 2026-11-01: the first full snapshot (`initial-2026-11-01`, 5 indexes) took 10.4 minutes with
-indexing running and used 25 GB (49%) of the volume. Check usage with:
+PVC is 50 Gi. Measured on 2026-11-01: the first full snapshot (`initial-2026-11-01`, 5 indexes) took 10.4 minutes with
+indexing running and used 25 GB (49%) of the volume.
+
+A reindex (an Elasticsearch migration) creates new indexes that share no segments with the old ones, so the next
+nightly copies everything again: 22.8 GB and 8.6 minutes on 2026-11-05. The old copy stays until retention removes the
+last snapshot that references it, so 50 Gi holds the two copies that exist during that window and little more.
+Delete any snapshot taken with `now` before a reindex. Check usage with:
 
 ```bash
 oc exec -n 9b301c-dev elastic-0 -c elastic -- df -h /usr/share/elasticsearch/snapshots
@@ -145,5 +154,5 @@ Treat this as an option, not a requirement.
 | `setup`: `repository_verification_exception … access_denied_exception` | Elasticsearch cannot write to the mount. Check with `oc exec … elastic-0 -c elastic -- sh -c 'id; ls -ld /usr/share/elasticsearch/snapshots; touch /usr/share/elasticsearch/snapshots/x && rm /usr/share/elasticsearch/snapshots/x'`. For NFS the directory must be writable by the pod's UID or GID 0; ask the platform team for group 0 write if needed. Locally, recreate the volume after `make refresh n=elastic`. |
 | `setup`: `path.repo` / `location … doesn't match any of the locations` | The pod has not restarted since the component was applied. Run `rolling-update.sh run`.         |
 | Snapshot `PARTIAL` or `FAILED`                                          | `$S status <name>` and `GET _snapshot/snapshots/<name>`. Usually a red index or a full volume.  |
-| A VolumeSnapshot's `status.creationTime` is years old although it was just created | Seen on `data-elastic-0`, which still has a 2023 VolumeSnapshot (`data-elastic-0-snapshot`); the new one appears to resolve to that old snapshot. Do not rely on it. Delete the stale snapshot and take a new one, or rely on the Elasticsearch snapshot and the other nodes' volumes (every index has two replicas). |
+| A VolumeSnapshot's `status.creationTime` is years old although it was just created | Seen on `data-elastic-0` while it had a 2023 VolumeSnapshot (`data-elastic-0-snapshot`, deleted 2026-11-06); the new one appeared to resolve to that old snapshot. Do not rely on it. Delete any stale snapshot and take a new one, or rely on the Elasticsearch snapshot and the other nodes' volumes (every index has two replicas). |
 | 8.x first start logs `failed to retrieve password hash for reserved user [elastic]` | Expected while the security index recovers; it clears on its own.                       |

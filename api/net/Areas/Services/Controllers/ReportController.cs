@@ -137,6 +137,25 @@ public class ReportController : ControllerBase
     }
 
     /// <summary>
+    /// Compute the chart data of a report that will not have an instance.
+    /// Only sections with their own filter or folder have data without one.
+    /// </summary>
+    /// <param name="reportHelper"></param>
+    /// <param name="id"></param>
+    /// <param name="requestorId"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/charts")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<API.Areas.Services.Models.ReportInstance.ReportInstanceChartModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public async Task<IActionResult> ComputeChartsAsync([FromServices] TNO.API.Helpers.IReportHelper reportHelper, int id, int? requestorId)
+    {
+        var charts = await reportHelper.ComputeReportChartsAsync(id, requestorId);
+        return new JsonResult(charts.Select(c => new API.Areas.Services.Models.ReportInstance.ReportInstanceChartModel(c)));
+    }
+
+    /// <summary>
     /// Get the current instance for the specified report 'id'.
     /// </summary>
     /// <param name="id"></param>
