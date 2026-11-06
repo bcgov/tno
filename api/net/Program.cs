@@ -215,6 +215,7 @@ builder.Services
     .AddScoped<JwtSecurityTokenHandler>()
     .AddTransient<IHttpRequestClient, HttpRequestClient>()
     .AddScoped<IKeycloakHelper, KeycloakHelper>()
+    .AddSingleton<OpenIdConnectTokenCache>()
     .AddScoped<IOpenIdConnectRequestClient, OpenIdConnectRequestClient>()
     .AddKeycloakService(config.GetSection("Keycloak:ServiceAccount"));
 

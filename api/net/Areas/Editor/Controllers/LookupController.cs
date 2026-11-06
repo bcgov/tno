@@ -38,6 +38,10 @@ public class LookupController : ControllerBase
     private const string HolidaysFallbackCacheKey = "lookup:bc-holidays:last-known-good";
     private static readonly TimeSpan HolidaysCacheDuration = TimeSpan.FromHours(12);
     private static readonly TimeSpan HolidaysRequestTimeout = TimeSpan.FromSeconds(5);
+    private const string RolesCacheKey = "lookup:keycloak-roles";
+    private const string RolesFallbackCacheKey = "lookup:keycloak-roles:last-known-good";
+    private static readonly TimeSpan RolesCacheDuration = TimeSpan.FromHours(1);
+    private static readonly TimeSpan RolesRetryDelay = TimeSpan.FromMinutes(1);
 
     private readonly JsonSerializerOptions _serializerOptions;
     private readonly IHttpRequestClient _httpClient;
@@ -162,7 +166,7 @@ public class LookupController : ControllerBase
         var sources = _sourceService.FindAll();
         var license = _licenseService.FindAll();
         var ingestTypes = _ingestTypeService.FindAll();
-        var roles = (await _keycloakService.GetRolesAsync(_keycloakOptions.ClientId.Value)).Select(r => r.Name!);
+        var roles = await GetRolesAsync(_keycloakOptions.ClientId.Value);
         var series = _seriesService.FindAll();
         var contributors = _contributorService.FindAll();
         var metrics = _metricService.FindAll();
@@ -192,6 +196,39 @@ public class LookupController : ControllerBase
             _serializerOptions,
             organizations
             ));
+    }
+
+    /// <summary>
+    /// Fetch the role names from Keycloak, cached because lookups are requested often and roles
+    /// rarely change. When Keycloak fails the last fetched roles are served, and it is not asked
+    /// again until the retry delay passes, so an outage does not slow every lookup.
+    /// With no roles to fall back on the error is thrown: an empty list would be a valid looking
+    /// response without roles or editors.
+    /// </summary>
+    /// <param name="clientId"></param>
+    /// <returns></returns>
+    private async Task<string[]> GetRolesAsync(Guid clientId)
+    {
+        if (_cache.TryGetValue(RolesCacheKey, out string[]? cached) && cached != null)
+            return cached;
+
+        try
+        {
+            var roles = (await _keycloakService.GetRolesAsync(clientId)).Select(r => r.Name!).ToArray();
+            if (roles.Length > 0)
+            {
+                _cache.Set(RolesCacheKey, roles, RolesCacheDuration);
+                _cache.Set(RolesFallbackCacheKey, roles);
+            }
+            return roles;
+        }
+        catch (Exception ex)
+        {
+            if (!_cache.TryGetValue(RolesFallbackCacheKey, out string[]? fallback) || fallback == null) throw;
+            _logger.LogWarning(ex, "Failed to fetch roles from Keycloak; serving last-known-good value.");
+            _cache.Set(RolesCacheKey, fallback, RolesRetryDelay);
+            return fallback;
+        }
     }
 
     /// <summary>
