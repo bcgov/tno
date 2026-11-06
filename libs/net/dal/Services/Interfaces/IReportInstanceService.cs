@@ -5,6 +5,22 @@ namespace TNO.DAL.Services;
 public interface IReportInstanceService : IBaseService<ReportInstance, long>
 {
     /// <summary>
+    /// Find the chart data stored for the report instance.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <returns></returns>
+    IEnumerable<ReportInstanceChart> FindCharts(long instanceId);
+
+    /// <summary>
+    /// Replace the chart data stored for the report instance.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <param name="charts"></param>
+    /// <param name="sectionIds">Limit the replacement to these sections, along with those in 'charts'. When null every row is replaced.</param>
+    /// <returns></returns>
+    IEnumerable<ReportInstanceChart> SaveCharts(long instanceId, IEnumerable<ReportInstanceChart> charts, int[]? sectionIds = null);
+
+    /// <summary>
     /// Estimate report size in the database without loading story bodies into application memory.
     /// </summary>
     /// <param name="id">Report instance.</param>

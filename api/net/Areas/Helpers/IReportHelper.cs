@@ -11,6 +11,53 @@ namespace TNO.API.Helpers;
 /// </summary>
 public interface IReportHelper
 {
+    /// <summary>
+    /// Run the 'aggs' block against the filter, for previewing a chart template in bucket mode.
+    /// </summary>
+    /// <param name="filter"></param>
+    /// <param name="index"></param>
+    /// <param name="aggregations"></param>
+    /// <returns></returns>
+    Task<Dictionary<string, TNO.TemplateEngine.Models.Reports.AggregationRootModel>> FindAggregationsAsync(JsonDocument filter, string? index, JsonDocument aggregations);
+
+    /// <summary>
+    /// Compute and store the chart data of the report instance, replacing what is stored.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <param name="requestorId"></param>
+    /// <param name="sectionId">Limit the work to this section.</param>
+    /// <returns></returns>
+    Task<IEnumerable<Entities.ReportInstanceChart>> GenerateInstanceChartsAsync(long instanceId, int? requestorId, int? sectionId = null);
+
+    /// <summary>
+    /// Get the stored chart data of the report instance. A chart without a row, or an unsent
+    /// instance's chart whose settings changed after it was computed, is computed and stored.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <param name="requestorId"></param>
+    /// <returns></returns>
+    Task<IEnumerable<Entities.ReportInstanceChart>> GetInstanceChartsAsync(long instanceId, int? requestorId);
+
+    /// <summary>
+    /// Compute the chart data of a report without an instance. Only own filter and folder sources are available.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="requestorId"></param>
+    /// <returns></returns>
+    Task<IEnumerable<Entities.ReportInstanceChart>> ComputeReportChartsAsync(int reportId, int? requestorId);
+
+    /// <summary>
+    /// Compute chart data for unsaved settings. Nothing is stored.
+    /// </summary>
+    /// <param name="report"></param>
+    /// <param name="section"></param>
+    /// <param name="chart"></param>
+    /// <param name="settings"></param>
+    /// <param name="instanceId"></param>
+    /// <param name="requestorId"></param>
+    /// <returns>The Chart.js data, or null if there are no stories to take data from yet.</returns>
+    Task<JsonDocument?> ComputeDraftChartAsync(Entities.Report report, Entities.ReportSection section, Entities.ReportSectionChartTemplate chart, Models.Settings.ChartSectionSettingsModel settings, long? instanceId, int? requestorId);
+
     #region Properties
     #endregion
 

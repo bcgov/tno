@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Models.Settings;
@@ -658,6 +659,11 @@ public class ReportService : BaseService<Report, int>, IReportService
         };
         currentInstance.Report = report;
 
+        // Its charts are recomputed by the caller; the stories of the other sections stay as they are.
+        var reportSection = report.Sections.FirstOrDefault(s => s.Id == sectionId);
+        if (reportSection != null && ReportChartSupport.IsAnalyticsOnly(reportSection, _serializerOptions, this.ByLineAggregationEnabled))
+            return currentInstance;
+
         var searchResults = await FindContentWithElasticsearchAsync(currentInstance, section, requestorId);
         var instanceContent = new List<ReportInstanceContent>(searchResults.SelectMany(sr => sr.Value.Hits.Hits).Count());
         report.Sections.ForEach(section =>
@@ -821,6 +827,7 @@ public class ReportService : BaseService<Report, int>, IReportService
 
         var additions = content
             .Where(c => !string.IsNullOrWhiteSpace(c.SectionName) && validSections.Contains(c.SectionName))
+            .DistinctBy(c => (c.ContentId, c.SectionName))
             .Select(c => new ReportInstanceContent(instance.Id, c.ContentId, c.SectionName, c.SortOrder))
             .ToList();
 
@@ -1227,9 +1234,20 @@ public class ReportService : BaseService<Report, int>, IReportService
 
         var excludeAboveSectionContentIds = new List<long>();
 
+        var queryContext = new SectionQueryContext(
+            excludeHistoricalContentIds,
+            excludeReportContentIds,
+            excludeAboveSectionContentIds,
+            previousInstance?.PublishedOn,
+            reportSettings,
+            ownerId);
+
         foreach (var section in report.Sections.OrderBy(s => s.SortOrder))
         {
             var sectionSettings = sectionSettingsLookup[section.Name];
+
+            // Its charts count stories with aggregations, so no story is fetched or stored.
+            if (ReportChartSupport.IsAnalyticsOnly(section, _serializerOptions, this.ByLineAggregationEnabled)) continue;
 
             // Content in a folder is added first.
             if (section.FolderId.HasValue)
@@ -1290,30 +1308,7 @@ public class ReportService : BaseService<Report, int>, IReportService
             else if (section.FilterId.HasValue)
             {
                 if (section.Filter == null) throw new InvalidOperationException($"Section '{section.Name}' filter is missing from report object.");
-                var filterSettings = JsonSerializer.Deserialize<FilterSettingsModel>(section.Filter.Settings.ToJson(), _serializerOptions) ?? new();
-
-                // Modify the query to exclude content.
-                var excludeContentIds = excludeHistoricalContentIds.AppendRange(excludeReportContentIds).Distinct().ToArray();
-                var excludeOnlyTheseContentIds = !sectionSettings.OverrideExcludeHistorical ? excludeContentIds : excludeReportContentIds;
-                var excludeAboveAndHistorical = sectionSettings.RemoveDuplicates ? [.. excludeOnlyTheseContentIds.AppendRange(excludeAboveSectionContentIds).Distinct()] : excludeOnlyTheseContentIds;
-                var query = excludeAboveAndHistorical.Length != 0
-                    ? section.Filter.Query.AddExcludeContent(excludeAboveAndHistorical)
-                    : section.Filter.Query;
-
-                // Exclude sources and media types that the user cannot see.
-                var excludeSources = this.Context.UserSources.Where(us => us.UserId == ownerId).Select(us => us.SourceId).ToArray();
-                var excludeMediaTypes = this.Context.UserMediaTypes.Where(us => us.UserId == ownerId).Select(us => us.MediaTypeId).ToArray();
-                query = query.AddExcludeSources(excludeSources);
-                query = query.AddExcludeMediaTypes(excludeMediaTypes);
-
-                // Only include content that has been posted since the last report instance.
-                if (reportSettings.Content.OnlyNewContent)
-                    query = query.IncludeOnlyLatestPosted(previousInstance?.PublishedOn);
-                if (reportSettings.Content.OmitBCUpdates)
-                    query = query.ExcludeBCUpdates();
-
-                // Determine index.
-                var defaultIndex = filterSettings.SearchUnpublished ? _elasticOptions.ContentIndex : _elasticOptions.PublishedIndex;
+                var (defaultIndex, query) = BuildSectionQuery(report, section, queryContext);
 
                 // Add retry logic for Elasticsearch query to handle failures
                 var content = await RetryElasticsearchQueryAsync(async () =>
@@ -1387,6 +1382,67 @@ public class ReportService : BaseService<Report, int>, IReportService
 
         MarkSystemTopics(searchResults.Values);
         return searchResults;
+    }
+
+    /// <summary>
+    /// get - Whether byline charts can aggregate, which requires 'byline.keyword' in the index.
+    /// </summary>
+    private bool ByLineAggregationEnabled => (this.Services.GetService(typeof(Microsoft.Extensions.Configuration.IConfiguration)) as Microsoft.Extensions.Configuration.IConfiguration)
+        ?.GetValue<bool>(ReportChartSupport.ByLineAggregationKey) ?? false;
+
+    /// <inheritdoc />
+    public SectionQueryContext BuildSectionQueryContext(Report report, long? instanceId, int? requestorId)
+    {
+        var reportSettings = JsonSerializer.Deserialize<ReportSettingsModel>(report.Settings.ToJson(), _serializerOptions) ?? new();
+        var ownerId = requestorId ?? report.OwnerId;
+        var currentInstance = GetCurrentReportInstanceHistory(report.Id, instanceId, ownerId);
+        var previousInstances = GetPreviousReportInstanceHistory(report.Id, instanceId ?? currentInstance?.Id, ownerId, qty: 2);
+        var instances = currentInstance?.SentOn.HasValue == true ? [currentInstance, .. previousInstances] : previousInstances;
+
+        var excludeHistoricalContentIds = reportSettings.Content.ExcludeHistorical
+            ? [.. instances.SelectMany(pi => pi.Content.Select((c) => c.ContentId)).Distinct()]
+            : Array.Empty<long>();
+        if (currentInstance != null && currentInstance.SentOn.HasValue == false
+            && (reportSettings.Content.ExcludeContentInUnsentReport || !reportSettings.Content.ClearOnStartNewReport))
+            excludeHistoricalContentIds = [.. excludeHistoricalContentIds.AppendRange(currentInstance.Content.Select(c => c.ContentId)).Distinct()];
+        var excludeReportContentIds = reportSettings.Content.ExcludeReports.Any()
+            ? [.. reportSettings.Content.ExcludeReports.SelectMany((reportId) => this.GetReportInstanceContentToExclude(reportId, ownerId)).Distinct()]
+            : Array.Empty<long>();
+
+        // Analytics-only sections are not de-duplicated against each other, so there are no sections above.
+        return new SectionQueryContext(excludeHistoricalContentIds, excludeReportContentIds, [], instances.FirstOrDefault()?.PublishedOn, reportSettings, ownerId);
+    }
+
+    /// <inheritdoc />
+    public (string Index, JsonDocument Query) BuildSectionQuery(Report report, ReportSection section, SectionQueryContext context)
+    {
+        if (section.Filter == null) throw new InvalidOperationException($"Section '{section.Name}' filter is missing from report object.");
+        var filterSettings = JsonSerializer.Deserialize<FilterSettingsModel>(section.Filter.Settings.ToJson(), _serializerOptions) ?? new();
+        var sectionSettings = JsonSerializer.Deserialize<ReportSectionSettingsModel>(section.Settings.ToJson(), _serializerOptions) ?? new();
+
+        // Modify the query to exclude content.
+        var excludeContentIds = context.ExcludeHistoricalContentIds.AppendRange(context.ExcludeReportContentIds).Distinct().ToArray();
+        var excludeOnlyTheseContentIds = !sectionSettings.OverrideExcludeHistorical ? excludeContentIds : context.ExcludeReportContentIds;
+        var excludeAboveAndHistorical = sectionSettings.RemoveDuplicates ? [.. excludeOnlyTheseContentIds.AppendRange(context.ExcludeAboveSectionContentIds).Distinct()] : excludeOnlyTheseContentIds;
+        var query = excludeAboveAndHistorical.Length != 0
+            ? section.Filter.Query.AddExcludeContent(excludeAboveAndHistorical)
+            : section.Filter.Query;
+
+        // Exclude sources and media types that the user cannot see.
+        var excludeSources = this.Context.UserSources.Where(us => us.UserId == context.OwnerId).Select(us => us.SourceId).ToArray();
+        var excludeMediaTypes = this.Context.UserMediaTypes.Where(us => us.UserId == context.OwnerId).Select(us => us.MediaTypeId).ToArray();
+        query = query.AddExcludeSources(excludeSources);
+        query = query.AddExcludeMediaTypes(excludeMediaTypes);
+
+        // Only include content that has been posted since the last report instance.
+        if (context.ReportSettings.Content.OnlyNewContent)
+            query = query.IncludeOnlyLatestPosted(context.PreviousPublishedOn);
+        if (context.ReportSettings.Content.OmitBCUpdates)
+            query = query.ExcludeBCUpdates();
+
+        // Determine index.
+        var index = filterSettings.SearchUnpublished ? _elasticOptions.ContentIndex : _elasticOptions.PublishedIndex;
+        return (index, query);
     }
 
     /// <summary>

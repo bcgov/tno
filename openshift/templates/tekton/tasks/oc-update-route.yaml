@@ -26,7 +26,7 @@ spec:
 
   steps:
     - name: update-route
-      image: "image-registry.openshift-image-registry.svc:5000/openshift/cli:latest"
+      image: "bcgov-c4awhwfpcremdbga.azurecr.io/openshift-cli:latest"
       resources: {}
       script: |
         echo "Pointing route '$(params.ROUTE)' to '$(params.SERVICE)' in $(params.PROJECT_NAMESPACE)"

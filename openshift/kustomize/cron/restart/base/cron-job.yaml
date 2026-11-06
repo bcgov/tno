@@ -22,9 +22,11 @@ spec:
         spec:
           serviceAccountName: pipeline
           restartPolicy: OnFailure
+          imagePullSecrets:
+            - name: acr-secret
           containers:
             - name: restart-service
-              image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+              image: bcgov-c4awhwfpcremdbga.azurecr.io/openshift-cli:latest
               imagePullPolicy: IfNotPresent
               resources:
                 requests:

@@ -72,6 +72,12 @@ public class ReportSectionModel : RazorEngineTemplateBase
     public IEnumerable<ChartEngineContentModel> ChartTemplates { get; set; } = Array.Empty<ChartEngineContentModel>();
 
     /// <summary>
+    /// get/set - Chart.js data that has already been computed, by chart template id.
+    /// A chart without an entry renders from the stories instead.
+    /// </summary>
+    public Dictionary<int, JsonDocument> ChartData { get; set; } = new();
+
+    /// <summary>
     /// get/set - An array of content.
     /// </summary>
     public IEnumerable<ContentModel> Content { get; set; }

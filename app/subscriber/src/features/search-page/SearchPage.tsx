@@ -382,7 +382,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced, showDate: init
                 const values = currDateResults.map((c) => c.id);
                 const oldSelected = selected.filter((s) => !values.includes(s.id));
                 e.target.checked
-                  ? setSelected([...selected, ...currDateResults])
+                  ? setSelected([...oldSelected, ...currDateResults])
                   : setSelected(oldSelected);
               }}
               className="search"

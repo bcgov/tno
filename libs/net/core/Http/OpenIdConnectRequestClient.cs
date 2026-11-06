@@ -15,11 +15,18 @@ namespace TNO.Core.Http
     public class OpenIdConnectRequestClient : HttpRequestClient, IOpenIdConnectRequestClient
     {
         #region Variables
-        public Models.TokenModel? _accessToken = null;
         private readonly JwtSecurityTokenHandler _tokenHandler;
+        private readonly OpenIdConnectTokenCache _tokenCache;
+        private readonly ILogger<OpenIdConnectRequestClient> _logger;
+        private const string BearerPrefix = "Bearer ";
         #endregion
 
         #region Properties
+        /// <summary>
+        /// get - Identifies the credentials a cached token belongs to.
+        /// </summary>
+        private string TokenCacheKey => $"{this.AuthClientOptions.Authority}|{this.AuthClientOptions.Audience}";
+
         /// <summary>
         /// get - The configuration options.
         /// </summary>
@@ -41,18 +48,22 @@ namespace TNO.Core.Http
         /// <param name="openIdConnectOptions"></param>
         /// <param name="serializerOptions"></param>
         /// <param name="logger"></param>
+        /// <param name="tokenCache">Shares the token with other clients. Without it this client keeps its own token.</param>
         public OpenIdConnectRequestClient(
             IHttpClientFactory clientFactory,
             JwtSecurityTokenHandler tokenHandler,
             IOptionsMonitor<AuthClientOptions> authClientOptions,
             IOptionsMonitor<OpenIdConnectOptions> openIdConnectOptions,
             IOptionsMonitor<JsonSerializerOptions> serializerOptions,
-            ILogger<OpenIdConnectRequestClient> logger)
+            ILogger<OpenIdConnectRequestClient> logger,
+            OpenIdConnectTokenCache? tokenCache = null)
             : base(clientFactory, serializerOptions, logger)
         {
             this.AuthClientOptions = authClientOptions.CurrentValue;
             this.OpenIdConnectOptions = openIdConnectOptions.CurrentValue;
             _tokenHandler = tokenHandler;
+            _tokenCache = tokenCache ?? new OpenIdConnectTokenCache();
+            _logger = logger;
         }
         #endregion
 
@@ -91,40 +102,56 @@ namespace TNO.Core.Http
         /// <returns></returns>
         public async Task<string> RequestAccessToken()
         {
-            HttpResponseMessage response;
-            var now = DateTime.UtcNow;
-            var accessToken = _accessToken?.AccessToken != null ? _tokenHandler.ReadJwtToken(_accessToken.AccessToken) : null;
-            var refreshToken = _accessToken?.RefreshToken != null ? _tokenHandler.ReadJwtToken(_accessToken.RefreshToken) : null;
-            if (accessToken == null ||
-                (accessToken?.ValidTo <= now && (refreshToken == null || refreshToken?.ValidTo <= now))
-            )
-            {
-                // If there is no access token, or the refresh token has expired.
-                response = await RequestToken();
-            }
-            else if (accessToken?.ValidTo <= now && refreshToken?.ValidTo > now)
-            {
-                // If the access token has expired, but not the refresh token has not expired.
-                response = await RefreshToken(refreshToken.RawData);
-            }
-            else if (accessToken != null)
-            {
-                // We have a valid token, keep on using it.
-                return $"Bearer {accessToken.RawData}";
-            }
-            else return String.Empty;
+            return $"{BearerPrefix}{await _tokenCache.GetAccessTokenAsync(TokenCacheKey, RenewTokenAsync)}";
+        }
 
-            // Extract the JWT token to use when making the request.
-            if (response.IsSuccessStatusCode)
+        /// <summary>
+        /// Fetch a new token, with the 'refreshToken' when there is one. A rejected refresh token,
+        /// such as one from a session the server has ended, falls back to the service account.
+        /// </summary>
+        /// <param name="refreshToken"></param>
+        /// <returns></returns>
+        private async Task<OpenIdConnectCachedToken> RenewTokenAsync(string? refreshToken)
+        {
+            try
             {
-                var body = await response.Content.ReadAsStringAsync();
-                _accessToken = JsonSerializer.Deserialize<Models.TokenModel>(body, _serializeOptions);
-                return $"Bearer {_accessToken?.AccessToken}";
+                if (refreshToken != null)
+                {
+                    using var refreshResponse = await RefreshToken(refreshToken);
+                    if (refreshResponse.IsSuccessStatusCode) return await ReadTokenAsync(refreshResponse);
+                    _logger.LogWarning("Refreshing the access token failed with status {status}. Requesting a new token.", refreshResponse.StatusCode);
+                }
+
+                var response = await RequestToken();
+                if (!response.IsSuccessStatusCode) throw new HttpClientRequestException(response);
+                using (response) return await ReadTokenAsync(response);
             }
-            else
+            catch (Exception ex)
             {
-                throw new HttpClientRequestException(response);
+                _logger.LogWarning(ex, "Unable to renew the access token from {authority}.", this.AuthClientOptions.Authority);
+                throw;
             }
+        }
+
+        /// <summary>
+        /// Read the token and its expiry from the specified 'response'.
+        /// </summary>
+        /// <param name="response"></param>
+        /// <returns></returns>
+        private async Task<OpenIdConnectCachedToken> ReadTokenAsync(HttpResponseMessage response)
+        {
+            var body = await response.Content.ReadAsStringAsync();
+            var token = JsonSerializer.Deserialize<Models.TokenModel>(body, _serializeOptions);
+            if (String.IsNullOrWhiteSpace(token?.AccessToken))
+                throw new InvalidOperationException("The token response does not include an access token.");
+
+            // Only a refresh token with a known expiry can be reused.
+            var refreshToken = token.RefreshToken != null && _tokenHandler.CanReadToken(token.RefreshToken) ? token.RefreshToken : null;
+            return new OpenIdConnectCachedToken(
+                token.AccessToken,
+                _tokenHandler.ReadJwtToken(token.AccessToken).ValidTo,
+                refreshToken,
+                refreshToken != null ? _tokenHandler.ReadJwtToken(refreshToken).ValidTo : null);
         }
 
         #region Service Account Requests
@@ -255,8 +282,13 @@ namespace TNO.Core.Http
                     headers.Authorization = new AuthenticationHeaderValue(token.ToString());
             }
 
-            return await base.SendAsync(url, method, headers, content, etag);
+            var response = await base.SendAsync(url, method, headers, content, etag);
 
+            // The server can stop accepting a token before it expires, the next request needs a new one.
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+                _tokenCache.Invalidate(TokenCacheKey, token[BearerPrefix.Length..]);
+
+            return response;
         }
         #endregion
         #endregion

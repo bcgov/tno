@@ -84,6 +84,27 @@ public class ReportInstanceController : ControllerBase
 
     #region Endpoints
     /// <summary>
+    /// Get the chart data stored for the report instance.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    /// <exception cref="NoContentException"></exception>
+    /// <exception cref="NotAuthorizedException"></exception>
+    [HttpGet("{id}/charts")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<API.Areas.Subscriber.Models.Report.ReportInstanceChartModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "ReportInstance" })]
+    public IActionResult GetCharts(long id)
+    {
+        var user = _impersonate.GetCurrentUser();
+        var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException("Report instance does not exist");
+        if (instance.OwnerId != user.Id && instance.Report?.OwnerId != user.Id && instance.Report?.IsPublic != true)
+            throw new NotAuthorizedException("Not authorized to view this report instance");
+        return new JsonResult(_reportInstanceService.FindCharts(id).Select(c => new API.Areas.Subscriber.Models.Report.ReportInstanceChartModel(c)));
+    }
+
+    /// <summary>
     /// Find report instance for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>

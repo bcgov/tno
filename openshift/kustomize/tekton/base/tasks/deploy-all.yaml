@@ -132,7 +132,7 @@ spec:
         runAsUser: 0
       workingDir: $(workspaces.conditions.path)
     - computeResources: {}
-      image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+      image: bcgov-c4awhwfpcremdbga.azurecr.io/openshift-cli:latest
       name: deploy
       script: |
         # set -xe

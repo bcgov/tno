@@ -1034,6 +1034,30 @@ public class ApiService : IApiService
             ?? Array.Empty<API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel>();
     }
 
+    /// <inheritdoc />
+    public async Task<IEnumerable<API.Areas.Services.Models.ReportInstance.ReportInstanceChartModel>> GetReportInstanceChartsAsync(long instanceId, int? requestorId)
+    {
+        var url = this.Options.ApiUrl.Append($"services/report/instances/{instanceId}/charts{(requestorId.HasValue ? $"?requestorId={requestorId}" : "")}");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Services.Models.ReportInstance.ReportInstanceChartModel>>(url))
+            ?? Array.Empty<API.Areas.Services.Models.ReportInstance.ReportInstanceChartModel>();
+    }
+
+    /// <inheritdoc />
+    public async Task<IEnumerable<API.Areas.Services.Models.ReportInstance.ReportInstanceChartModel>> GenerateReportInstanceChartsAsync(long instanceId, int? requestorId)
+    {
+        var url = this.Options.ApiUrl.Append($"services/report/instances/{instanceId}/charts{(requestorId.HasValue ? $"?requestorId={requestorId}" : "")}");
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<IEnumerable<API.Areas.Services.Models.ReportInstance.ReportInstanceChartModel>>(url))
+            ?? Array.Empty<API.Areas.Services.Models.ReportInstance.ReportInstanceChartModel>();
+    }
+
+    /// <inheritdoc />
+    public async Task<IEnumerable<API.Areas.Services.Models.ReportInstance.ReportInstanceChartModel>> ComputeReportChartsAsync(int reportId, int? requestorId)
+    {
+        var url = this.Options.ApiUrl.Append($"services/reports/{reportId}/charts{(requestorId.HasValue ? $"?requestorId={requestorId}" : "")}");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Services.Models.ReportInstance.ReportInstanceChartModel>>(url))
+            ?? Array.Empty<API.Areas.Services.Models.ReportInstance.ReportInstanceChartModel>();
+    }
+
     /// <summary>
     /// Make a request to the API and add a new report instance.
     /// </summary>

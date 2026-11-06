@@ -45,9 +45,11 @@ spec:
         - name: subscriber-public-storage
           persistentVolumeClaim:
             claimName: subscriber-public-storage
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: subscriber-validator
-          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/subscriber:latest
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/subscriber:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080

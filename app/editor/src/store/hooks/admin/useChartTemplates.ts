@@ -1,3 +1,4 @@
+import { type IChartTemplateUsageModel } from 'features/admin/charts/interfaces';
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { type IAdminState, useAdminStore } from 'store/slices';
@@ -8,9 +9,12 @@ import {
   useApiAdminChartTemplates,
 } from 'tno-core';
 
+import { useApiAdminChartTemplateUsage } from './useApiAdminChartTemplateUsage';
+
 interface IChartTemplateController {
   findAllChartTemplates: () => Promise<IChartTemplateModel[]>;
   getChartTemplate: (id: number) => Promise<IChartTemplateModel>;
+  getChartTemplateUsage: (id: number) => Promise<IChartTemplateUsageModel[]>;
   addChartTemplate: (model: IChartTemplateModel) => Promise<IChartTemplateModel>;
   updateChartTemplate: (model: IChartTemplateModel) => Promise<IChartTemplateModel>;
   deleteChartTemplate: (model: IChartTemplateModel) => Promise<IChartTemplateModel>;
@@ -24,6 +28,7 @@ export const useChartTemplates = (): [
   IChartTemplateController,
 ] => {
   const api = useApiAdminChartTemplates();
+  const usageApi = useApiAdminChartTemplateUsage();
   const dispatch = useAjaxWrapper();
   const [state, store] = useAdminStore();
   const [, lookup] = useLookup();
@@ -50,6 +55,13 @@ export const useChartTemplates = (): [
             if (ds.id === response.data.id) return response.data;
             return ds;
           }),
+        );
+        return response.data;
+      },
+      getChartTemplateUsage: async (id: number) => {
+        const response = await dispatch<IChartTemplateUsageModel[]>(
+          'get-chart-template-usage',
+          async () => await usageApi.getChartTemplateUsage(id),
         );
         return response.data;
       },
@@ -109,7 +121,7 @@ export const useChartTemplates = (): [
         return response.data;
       },
     }),
-    [api, dispatch, lookup, store],
+    [api, usageApi, dispatch, lookup, store],
   );
 
   return [{ ...state, initialized }, controller];

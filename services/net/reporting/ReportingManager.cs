@@ -654,7 +654,33 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
             }
         }
 
+        // The stories are in place, so the charts over them can be computed and stored with the instance.
+        try
+        {
+            var charts = instanceModel != null
+                ? await this.Api.GenerateReportInstanceChartsAsync(instanceModel.Id, request.RequestorId)
+                : await this.Api.ComputeReportChartsAsync(report.Id, request.RequestorId);
+            ApplyChartData(sectionContent, charts);
+        }
+        catch (Exception ex)
+        {
+            throw new ReportingException(report.Id, report.Name, instanceModel?.Id, ReportingErrors.FailedToGenerateOutput, $"Failed to generate charts for report. Report:'{report.Name}' ReportId:{report.Id}, InstanceId:{instanceModel?.Id}", ex);
+        }
+
         return (instanceModel, sectionContent);
+    }
+
+    /// <summary>
+    /// Give the sections the chart data that has been computed. A chart without data renders from stories.
+    /// </summary>
+    /// <param name="sectionContent"></param>
+    /// <param name="charts"></param>
+    private static void ApplyChartData(Dictionary<string, ReportSectionModel> sectionContent, IEnumerable<API.Areas.Services.Models.ReportInstance.ReportInstanceChartModel> charts)
+    {
+        foreach (var chart in charts)
+        {
+            if (sectionContent.TryGetValue(chart.SectionName, out var section)) section.ChartData[chart.ChartTemplateId] = chart.Data;
+        }
     }
 
     /// <summary>
@@ -728,6 +754,15 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
                 {
                     content.ImageContent = await this.Api.GetImageFile(content.Id);
                 }
+            }
+
+            try
+            {
+                ApplyChartData(sectionContent, await this.Api.GetReportInstanceChartsAsync(instance.Id, request.RequestorId));
+            }
+            catch (Exception ex)
+            {
+                throw new ReportingException(report.Id, report.Name, instance.Id, ReportingErrors.FailedToGenerateOutput, $"Failed to get charts for report. Report:'{report.Name}' ReportId:{report.Id}, InstanceId:{instance.Id}", ex);
             }
         }
 

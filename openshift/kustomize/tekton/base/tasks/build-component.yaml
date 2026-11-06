@@ -35,7 +35,7 @@ spec:
         This must match the component names setup in the git-conditions Task.
       name: COMPONENT
       type: string
-    - default: image-registry.openshift-image-registry.svc:5000/9b301c-tools
+    - default: bcgov-c4awhwfpcremdbga.azurecr.io
       description: The Root url of the image registry.
       name: IMAGE_REGISTRY
       type: string
@@ -70,7 +70,7 @@ spec:
             secretKeyRef:
               key: password
               name: pipelines
-      image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/buildah:latest
+      image: bcgov-c4awhwfpcremdbga.azurecr.io/buildah:latest
       name: build
       script: |
         #!/usr/bin/env bash

@@ -5,6 +5,8 @@ import { sortContent, sortReportContent } from 'features/my-reports/utils';
 import React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { FaArrowsRotate } from 'react-icons/fa6';
+import { useReportInstances } from 'store/hooks';
+import { IReportInstanceChartModel } from 'store/hooks/subscriber/interfaces';
 import {
   Col,
   FormikText,
@@ -19,6 +21,7 @@ import {
 } from 'tno-core';
 
 import { useReportEditContext } from '../../ReportEditContext';
+import { isAggregateChart } from '../../settings/template/utils';
 import { ReportContentSectionRow } from './ReportContentSectionRow';
 
 export interface IReportSectionMediaAnalyticsProps extends React.AllHTMLAttributes<HTMLDivElement> {
@@ -48,6 +51,8 @@ export const ReportSectionMediaAnalytics: React.FC<IReportSectionMediaAnalyticsP
 }) => {
   const { values, isSubmitting, setFieldValue, onRegenerateSection } = useReportEditContext();
   const { isShowing, toggle } = useModal();
+  const [{ getReportInstanceCharts }] = useReportInstances();
+  const [charts, setCharts] = React.useState<IReportInstanceChartModel[]>([]);
 
   const section = values.sections[sectionIndex];
   const instance = values.instances.length ? values.instances[0] : null;
@@ -63,6 +68,31 @@ export const ReportSectionMediaAnalytics: React.FC<IReportSectionMediaAnalyticsP
             ),
           } as IReportInstanceContentForm),
       ) ?? [];
+  // These sections fetch no stories, their charts count them instead.
+  const analyticsOnly =
+    !section.settings.useAllContent &&
+    !section.linkedReportId &&
+    (!!section.filterId || !!section.folderId) &&
+    section.chartTemplates.length > 0 &&
+    section.chartTemplates.every(isAggregateChart);
+  const instanceId = instance?.id;
+
+  React.useEffect(() => {
+    if (!analyticsOnly || !instanceId) return;
+    let cancelled = false;
+    getReportInstanceCharts(instanceId)
+      .then((results) => {
+        if (!cancelled) setCharts(results.filter((c) => c.sectionId === section.id));
+      })
+      .catch(() => {
+        if (!cancelled) setCharts([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [analyticsOnly, instanceId, section.id]);
+
   const sectionOptions = values.sections
     .filter((s) => s.sectionType === ReportSectionTypeName.Content)
     .map((s) => new OptionItem(s.settings.label, s.name));
@@ -135,7 +165,28 @@ export const ReportSectionMediaAnalytics: React.FC<IReportSectionMediaAnalyticsP
           </Row>
         </Col>
       )}
-      <Show visible={!!instance.content.length}>
+      <Show visible={analyticsOnly}>
+        <Col gap="0.5rem" className="analytics-summary">
+          {section.chartTemplates.map((chart) => {
+            const row = charts.find((c) => c.chartTemplateId === chart.id);
+            return (
+              <Row key={chart.id} gap="1rem" alignItems="center">
+                <b>{chart.name}</b>
+                <span>
+                  {row
+                    ? `${row.docCount.toLocaleString()} stories counted, ${new Date(
+                        row.generatedOn,
+                      ).toLocaleString()}`
+                    : 'Not generated yet'}
+                </span>
+                {row?.isTruncated && <span className="info">Truncated</span>}
+              </Row>
+            );
+          })}
+          <p>Charts refresh when the report is regenerated.</p>
+        </Col>
+      </Show>
+      <Show visible={!!instance.content.length && !analyticsOnly}>
         <Droppable droppableId={section.name} isDropDisabled={disabled}>
           {(droppableProvided) => (
             <div {...droppableProvided.droppableProps} ref={droppableProvided.innerRef}>
@@ -183,10 +234,10 @@ export const ReportSectionMediaAnalytics: React.FC<IReportSectionMediaAnalyticsP
           )}
         </Droppable>
       </Show>
-      <Show visible={!!section.filterId && !sectionContent.length}>
+      <Show visible={!analyticsOnly && !!section.filterId && !sectionContent.length}>
         <p>No content was returned by the filter, or duplicate content was removed.</p>
       </Show>
-      <Show visible={!!section.folderId && !sectionContent.length}>
+      <Show visible={!analyticsOnly && !!section.folderId && !sectionContent.length}>
         <p>Folder is empty, or duplicate content was removed.</p>
       </Show>
       <Show visible={section.settings.useAllContent}>

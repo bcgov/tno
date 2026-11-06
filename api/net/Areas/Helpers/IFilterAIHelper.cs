@@ -1,3 +1,4 @@
+using TNO.DAL.Services;
 using TNO.API.Models.FilterAI;
 
 namespace TNO.API.Helpers;
@@ -11,7 +12,7 @@ public interface IFilterAIHelper
     /// <summary>
     /// The name of the setting holding the id of the AI model used for filters.
     /// </summary>
-    const string LLMSettingName = "FilterAILlmId";
+    const string LLMSettingName = ILLMService.FilterAISettingName;
 
     /// <summary>
     /// Generate filter settings from the prompt.

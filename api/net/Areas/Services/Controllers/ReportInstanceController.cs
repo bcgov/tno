@@ -37,6 +37,7 @@ public class ReportInstanceController : ControllerBase
     private readonly KafkaHubConfig _kafkaHubOptions;
     private readonly JsonSerializerOptions _serializerOptions;
     private readonly Helpers.WatchSubscriptionChange _watch;
+    private readonly TNO.API.Helpers.IReportHelper _reportHelper;
     #endregion
 
     #region Constructors
@@ -49,14 +50,17 @@ public class ReportInstanceController : ControllerBase
     /// <param name="kafkaHubOptions"></param>
     /// <param name="watch"></param>
     /// <param name="serializerOptions"></param>
+    /// <param name="reportHelper"></param>
     public ReportInstanceController(
         IReportInstanceService reportInstanceService,
         IUserService userService,
         IKafkaMessenger kafkaMessenger,
         IOptions<KafkaHubConfig> kafkaHubOptions,
         Helpers.WatchSubscriptionChange watch,
-        IOptions<JsonSerializerOptions> serializerOptions)
+        IOptions<JsonSerializerOptions> serializerOptions,
+        TNO.API.Helpers.IReportHelper reportHelper)
     {
+        _reportHelper = reportHelper;
         _reportInstanceService = reportInstanceService;
         _userService = userService;
         _kafkaMessenger = kafkaMessenger;
@@ -67,6 +71,40 @@ public class ReportInstanceController : ControllerBase
     #endregion
 
     #region Endpoints
+    /// <summary>
+    /// Get the chart data of the report instance. What is missing is computed and stored.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="requestorId"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/charts")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<ReportInstanceChartModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "ReportInstance" })]
+    public async Task<IActionResult> GetChartsAsync(long id, int? requestorId)
+    {
+        var charts = await _reportHelper.GetInstanceChartsAsync(id, requestorId);
+        return new JsonResult(charts.Select(c => new ReportInstanceChartModel(c)));
+    }
+
+    /// <summary>
+    /// Compute and store the chart data of the report instance, replacing what is stored.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="requestorId"></param>
+    /// <returns></returns>
+    [HttpPost("{id}/charts")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<ReportInstanceChartModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "ReportInstance" })]
+    public async Task<IActionResult> GenerateChartsAsync(long id, int? requestorId)
+    {
+        var charts = await _reportHelper.GenerateInstanceChartsAsync(id, requestorId);
+        return new JsonResult(charts.Select(c => new ReportInstanceChartModel(c)));
+    }
+
     /// <summary>
     /// Find report instance for the specified 'id'.
     /// </summary>
