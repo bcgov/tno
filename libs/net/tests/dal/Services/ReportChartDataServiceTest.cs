@@ -458,6 +458,18 @@ public class ReportChartDataServiceTest : IDisposable
         section.ChartTemplatesManyToMany[0].ChartTemplate!.Settings = JsonDocument.Parse("""{"aggregations":{"topics":{"nested":{"path":"topics"}}}}""");
         Assert.True(ReportChartSupport.IsAnalyticsOnly(section, Options, false));
     }
+    [Fact]
+    public void Convert_SmallNegativeSentiment_IsNotNegativeZero()
+    {
+        var reader = new ChartAggregationReader(["sentiment"], (_, key) => key);
+        reader.Cells[("", "a")] = new ChartCell { Count = 5, SentimentSum = -1, SentimentCount = 5 };
+
+        var value = ReportChartDataService.Convert(new ChartSectionSettingsModel { DatasetValue = "sentiment" }, reader, [], new Dictionary<string, string?>()).Datasets[0].Data[0];
+
+        Assert.False(double.IsNegative(value!.Value));
+        Assert.Equal(0, value);
+    }
+
     #endregion
 
     public void Dispose()

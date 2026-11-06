@@ -285,8 +285,7 @@ public partial class ReportEngine : IReportEngine
 
         var optionsJson = model.ChartTemplate.SectionSettings.Options != null ? JsonSerializer.Serialize(MergeChartOptions(model.ChartTemplate.Settings, model.ChartTemplate.SectionSettings)) : "{}";
         // Modify the chart options based on section settings.
-        var optionsBytes = Encoding.UTF8.GetBytes(optionsJson);
-        var optionsBase64 = Convert.ToBase64String(optionsBytes);
+        var optionsBase64 = ReportExtensions.EncodeChartOptions(optionsJson);
 
         // Send request to Charts API to generate base64
         var body = new StringContent(dataJson, Encoding.UTF8, System.Net.Mime.MediaTypeNames.Application.Json);
@@ -1209,8 +1208,9 @@ public partial class ReportEngine : IReportEngine
 
             if (sectionJson.TryGetPropertyValue("plugins", out JsonNode? sectionPlugins))
             {
+                var plugins = ReportExtensions.MergeChartPlugins(defaultJson["plugins"], sectionPlugins);
                 defaultJson.Remove("plugins");
-                defaultJson.Add("plugins", sectionPlugins.CopyNode());
+                defaultJson.Add("plugins", plugins);
             }
 
             return JsonDocument.Parse(defaultJson.ToJsonString());

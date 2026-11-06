@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 namespace TNO.TemplateEngine;
 
 using System.Text.RegularExpressions;
@@ -534,6 +535,34 @@ public static partial class ReportExtensions
     public static string GetSourceUrl(this ContentModel content, ReportEngineContentModel context)
     {
         return context.OwnerId.HasValue && content.Versions.TryGetValue(context.OwnerId.Value, out Entities.Models.ContentVersion? value) ? value.SourceUrl : content.SourceUrl;
+    }
+
+    /// <summary>
+    /// The section's chart plugins replace the template's. A template's data label formatter stays
+    /// unless the section has its own, because options saved on a section do not carry one, and
+    /// without it a chart shows its raw values (i.e. 0.0754 instead of 7.55%).
+    /// </summary>
+    /// <param name="templatePlugins"></param>
+    /// <param name="sectionPlugins"></param>
+    /// <returns></returns>
+    public static JsonNode? MergeChartPlugins(JsonNode? templatePlugins, JsonNode? sectionPlugins)
+    {
+        var plugins = sectionPlugins?.DeepClone();
+        var formatter = templatePlugins?["datalabels"]?["formatter"];
+        if (formatter != null && plugins?["datalabels"] is JsonObject dataLabels && !dataLabels.ContainsKey("formatter"))
+            dataLabels["formatter"] = formatter.DeepClone();
+        return plugins;
+    }
+
+    /// <summary>
+    /// Encode chart options for the query string of the Charts API. Base64 may contain '+', which a
+    /// query string reads as a space, and that corrupts the options.
+    /// </summary>
+    /// <param name="optionsJson"></param>
+    /// <returns></returns>
+    public static string EncodeChartOptions(string optionsJson)
+    {
+        return Uri.EscapeDataString(Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(optionsJson)));
     }
 
     /// <summary>

@@ -357,7 +357,8 @@ public class ReportChartDataService : BaseService, IReportChartDataService
                 {
                     cells.TryGetValue((datasetKey, labelKey), out var cell);
                     if (!isSentiment) return (double?)(cell?.Count ?? 0);
-                    return cell?.SentimentCount > 0 ? Math.Round(cell.SentimentSum / cell.SentimentCount, MidpointRounding.AwayFromZero) : null;
+                    // Through an int, because rounding a small negative gives -0, which a chart would label.
+                    return cell?.SentimentCount > 0 ? (int)Math.Round(cell.SentimentSum / cell.SentimentCount, MidpointRounding.AwayFromZero) : null;
                 }).ToArray(),
                 BackgroundColor = ParseColors(settings.DatasetColors, colorIndex, settings, datasetKey),
                 BorderColor = ParseColors(settings.DatasetBorderColors, colorIndex, settings, datasetKey),
