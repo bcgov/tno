@@ -96,6 +96,21 @@ public class ChartTemplateController : ControllerBase
     }
 
     /// <summary>
+    /// Find the reports that use the chart template for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/usage")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<ChartTemplateUsageModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Chart" })]
+    public IActionResult FindUsage(int id)
+    {
+        return new JsonResult(_chartTemplateService.FindUsage(id));
+    }
+
+    /// <summary>
     /// Add content for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>

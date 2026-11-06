@@ -50,6 +50,14 @@ export const ChartForm = styled(FormPage)`
     margin-top: 1rem;
   }
 
+  .chart-usage {
+    padding: 1rem;
+
+    div.row {
+      cursor: pointer;
+    }
+  }
+
   .enable-options {
     & .chk {
       margin-right: 1em;

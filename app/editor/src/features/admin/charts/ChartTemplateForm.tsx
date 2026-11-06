@@ -21,6 +21,7 @@ import { ChartTemplateFormConfig } from './ChartTemplateFormConfig';
 import { ChartTemplateFormDetails } from './ChartTemplateFormDetails';
 import { ChartTemplateFormPreview } from './ChartTemplateFormPreview';
 import { ChartTemplateFormTemplate } from './ChartTemplateFormTemplate';
+import { ChartTemplateFormUsage } from './ChartTemplateFormUsage';
 import { defaultChartRequestForm, defaultChartTemplate } from './constants';
 import * as styled from './styled';
 
@@ -131,6 +132,15 @@ const ChartTemplateForm: React.FC = () => {
                       }}
                       active={active === 'preview'}
                     />
+                    <Show visible={!!values.id}>
+                      <Tab
+                        label="Usage"
+                        onClick={() => {
+                          setActive('usage');
+                        }}
+                        active={active === 'usage'}
+                      />
+                    </Show>
                   </>
                 }
               >
@@ -147,20 +157,25 @@ const ChartTemplateForm: React.FC = () => {
                   <Show visible={active === 'preview'}>
                     <ChartTemplateFormPreview />
                   </Show>
-                  <Row justifyContent="center" className="form-inputs">
-                    <Button type="submit" disabled={isSubmitting}>
-                      Save
-                    </Button>
-                    <Show visible={!!values.id}>
-                      <Button
-                        onClick={toggle}
-                        variant={ButtonVariant.danger}
-                        disabled={isSubmitting}
-                      >
-                        Delete
+                  <Show visible={active === 'usage'}>
+                    <ChartTemplateFormUsage chartTemplateId={values.id} />
+                  </Show>
+                  <Show visible={active !== 'usage'}>
+                    <Row justifyContent="center" className="form-inputs">
+                      <Button type="submit" disabled={isSubmitting}>
+                        Save
                       </Button>
-                    </Show>
-                  </Row>
+                      <Show visible={!!values.id}>
+                        <Button
+                          onClick={toggle}
+                          variant={ButtonVariant.danger}
+                          disabled={isSubmitting}
+                        >
+                          Delete
+                        </Button>
+                      </Show>
+                    </Row>
+                  </Show>
                   <Modal
                     headerText="Confirm Removal"
                     body="Are you sure you wish to remove this chart template?"

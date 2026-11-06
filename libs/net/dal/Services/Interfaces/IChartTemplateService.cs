@@ -1,3 +1,4 @@
+using TNO.API.Areas.Admin.Models.ChartTemplate;
 using TNO.Entities;
 
 namespace TNO.DAL.Services;
@@ -16,4 +17,11 @@ public interface IChartTemplateService : IBaseService<ChartTemplate, int>
     /// <param name="id"></param>
     /// <returns></returns>
     bool IsInUse(int id);
+
+    /// <summary>
+    /// Find the reports that have a section using this chart template.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    IEnumerable<ChartTemplateUsageModel> FindUsage(int id);
 }
