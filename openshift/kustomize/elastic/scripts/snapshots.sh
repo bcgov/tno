@@ -39,8 +39,8 @@ SCHEDULE="${SCHEDULE:-0 30 9 * * ?}"
 # Snapshot only the application indices; system indices and cluster state are not needed to recover them.
 INDICES="${INDICES:-content*,unpublished_content*,migrations}"
 RETAIN_DAYS="${RETAIN_DAYS:-14d}"
-RETAIN_MIN="${RETAIN_MIN:-3}"
-RETAIN_MAX="${RETAIN_MAX:-14}"
+RETAIN_MIN="${RETAIN_MIN:-1}"
+RETAIN_MAX="${RETAIN_MAX:-1}"
 
 LOCAL=false
 if [ "${1:-}" = "--local" ]; then
