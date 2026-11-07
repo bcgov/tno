@@ -45,6 +45,11 @@ export const ReportOptions = () => {
             label="Exclude content found in unsent report"
             tooltip="Excluding content in the current unsent report ensures each time the report is generated it will only have new content."
           />
+          <FormikCheckbox
+            name={'settings.collectionOnly'}
+            label="Collection only"
+            tooltip="The report only collects content for other reports (e.g. media analytics). It still runs on its schedule, but it is never sent, and its preview lists headlines only."
+          />
           <label>Send options</label>
           <FormikCheckbox name={'settings.doNotSendEmail'} label="Do not send email" />
         </Col>

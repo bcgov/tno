@@ -40,6 +40,12 @@ public class ReportSettingsModel
     /// get/set - Omit BC Update content.
     /// </summary>
     public bool OmitBCUpdates { get; set; } = false;
+
+    /// <summary>
+    /// get/set - The report only collects content for other reports (e.g. media analytics).
+    /// It is never rendered with its template or sent; its preview lists headlines only.
+    /// </summary>
+    public bool CollectionOnly { get; set; } = false;
     #endregion
 
     #region Constructors
@@ -54,6 +60,7 @@ public class ReportSettingsModel
         this.Sections = settings.GetDictionaryJsonValue<ReportSectionsSettingsModel>("sections", new(), options)!;
         this.DoNotSendEmail = settings.GetDictionaryJsonValue<bool>("doNotSendEmail", false, options)!;
         this.OmitBCUpdates = settings.GetDictionaryJsonValue<bool>("omitBCUpdates", false, options)!;
+        this.CollectionOnly = settings.GetDictionaryJsonValue<bool>("collectionOnly", false, options)!;
     }
     #endregion
 }

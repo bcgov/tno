@@ -15,6 +15,7 @@ export * from './isAutoSendDisabled';
 export * from './moveContent';
 export * from './sanitizeReport';
 export * from './setAutoSend';
+export * from './shouldSaveContent';
 export * from './sortContent';
 export * from './sortReportContent';
 export * from './toForm';

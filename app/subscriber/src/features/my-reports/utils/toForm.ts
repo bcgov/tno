@@ -10,11 +10,18 @@ import { sortContent } from './sortContent';
  * Converts a report model into a form.
  * @param report Latest report information.
  * @param updateSortOrder Whether to update sort order.
+ * @param contentLoaded Whether the report includes the current instance's stories. By default
+ * an instance with stories is treated as loaded, and one without as not yet loaded.
  * @returns a new form.
  */
-export const toForm = (report: IReportModel, updateSortOrder: boolean = false): IReportForm => {
+export const toForm = (
+  report: IReportModel,
+  updateSortOrder: boolean = false,
+  contentLoaded: boolean = !!report.instances[0]?.content?.length,
+): IReportForm => {
   const form: IReportForm = {
     ...report,
+    contentLoaded,
     hideEmptySections: getHideEmpty(report.sections),
     sections: report.sections.map((s) => ({
       ...s,

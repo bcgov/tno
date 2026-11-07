@@ -64,6 +64,12 @@ export interface IReportEditContext {
   setLinkedReportContent: React.Dispatch<
     React.SetStateAction<Record<string, IReportInstanceContentModel[]>>
   >;
+  /** Whether the current instance's stories are loaded into the form. */
+  contentLoaded: boolean;
+  /** Whether the current instance's stories are being loaded. */
+  isLoadingContent: boolean;
+  /** Load the current instance's stories, if they are not loaded yet. */
+  loadContent: () => Promise<void>;
 }
 
 /**
@@ -90,6 +96,9 @@ export const ReportEditContext = React.createContext<IReportEditContext>({
   regenerateTestData: () => {},
   linkedReportContent: {},
   setLinkedReportContent: () => {},
+  contentLoaded: false,
+  isLoadingContent: false,
+  loadContent: () => Promise.resolve(),
 });
 
 /**
@@ -106,6 +115,8 @@ export const useReportEditContext = () => {
 export interface IReportEditContextProviderProps {
   /** Children elements to display within this context provider. */
   children?: React.ReactNode;
+  /** Load the current instance's stories into the form, keeping its other values. */
+  loadContent?: (values: IReportForm) => Promise<void>;
 }
 
 let isGenerating = false;
@@ -121,6 +132,7 @@ const testDataConfig = {
  */
 export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps> = ({
   children,
+  loadContent: onLoadContent,
 }) => {
   const navigate = useNavigate();
   const {
@@ -145,6 +157,24 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
   const [activeInstance, setActiveInstance] = React.useState<IReportInstanceModel>();
   const [previewLastUpdatedOn, setPreviewLastUpdatedOn] = React.useState<string | undefined>();
   const [testData, setTestData] = React.useState<IReportInstanceContentModel[]>([]);
+  const [isLoadingContent, setIsLoadingContent] = React.useState(false);
+  const loadingContent = React.useRef<Promise<void>>();
+  const contentLoaded = !!values.contentLoaded;
+
+  const loadContent = React.useCallback(() => {
+    if (contentLoaded || !onLoadContent || !values.instances.length) return Promise.resolve();
+    // Many components can ask at once; only one request is made.
+    if (!loadingContent.current) {
+      setIsLoadingContent(true);
+      loadingContent.current = onLoadContent(values)
+        .catch(() => {})
+        .finally(() => {
+          loadingContent.current = undefined;
+          setIsLoadingContent(false);
+        });
+    }
+    return loadingContent.current;
+  }, [contentLoaded, onLoadContent, values]);
 
   React.useEffect(() => {
     if (!isGenerating) {
@@ -288,6 +318,9 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
         regenerateTestData,
         linkedReportContent,
         setLinkedReportContent,
+        contentLoaded,
+        isLoadingContent,
+        loadContent,
       }}
     >
       {children}

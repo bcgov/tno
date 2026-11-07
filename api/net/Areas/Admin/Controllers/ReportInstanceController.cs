@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.ReportInstance;
 using TNO.API.Config;
+using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
@@ -143,6 +144,7 @@ public class ReportInstanceController : ControllerBase
     public async Task<IActionResult> Publish(int id, bool resend = false)
     {
         var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException();
+        instance.Report.ThrowIfCollectionOnly();
 
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");

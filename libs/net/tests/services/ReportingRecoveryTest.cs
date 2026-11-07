@@ -141,8 +141,9 @@ public class ReportingRecoveryTest
 
     private sealed class Manager : ReportingManager
     {
-        public Manager(IKafkaListener<string, ReportRequestModel> listener, IApiService api, Clock clock, bool retry = false)
-            : base(listener, api, new ClaimsPrincipal(), Mock.Of<IReportEngine>(), Mock.Of<IChesService>(),
+        public Manager(IKafkaListener<string, ReportRequestModel> listener, IApiService api, Clock clock, bool retry = false,
+            IReportEngine? engine = null, IChesService? ches = null)
+            : base(listener, api, new ClaimsPrincipal(), engine ?? Mock.Of<IReportEngine>(), ches ?? Mock.Of<IChesService>(),
                 Microsoft.Extensions.Options.Options.Create(new ChesOptions()), Microsoft.Extensions.Options.Options.Create(new JsonSerializerOptions()),
                 Microsoft.Extensions.Options.Options.Create(new ReportingOptions { Topics = "reporting", ResendOnFailure = retry }), NullLogger<ReportingManager>.Instance, clock)
         { }
@@ -304,5 +305,52 @@ public class ReportingRecoveryTest
         api.Verify(a => a.GetReportInstanceAsync(66842), Times.Once);
         listener.Verify(l => l.Commit(It.IsAny<ConsumeResult<string, ReportRequestModel>>()), Times.Never);
         listener.Verify(l => l.Resume(), Times.Never);
+    }
+
+    [Fact]
+    public async Task CollectionOnlyReportIsCollectedButNeverRenderedOrSent()
+    {
+        using var http = new HttpClient();
+        var report = new TNO.API.Areas.Services.Models.Report.ReportModel
+        {
+            Id = 591,
+            Name = "Trade War Categories",
+            Settings = new TNO.API.Models.Settings.ReportSettingsModel { CollectionOnly = true },
+        };
+        var instance = new TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel
+        {
+            Id = 66842,
+            ReportId = 591,
+            Report = report,
+            Status = TNO.Entities.ReportStatus.Pending,
+            // Output left from before the report was collection-only, larger than the limit.
+            Body = new string('x', TNO.Core.Reporting.ReportSizeLimit.MaximumCharacters + 1),
+        };
+        TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel? saved = null;
+        var api = new Mock<IApiService>();
+        api.Setup(a => a.OpenClient.Client).Returns(http);
+        api.Setup(a => a.GetReportInstanceAsync(66842)).ReturnsAsync(instance);
+        api.Setup(a => a.GetContentForReportInstanceIdAsync(66842)).ReturnsAsync([]);
+        api.Setup(a => a.GetReportInstanceChartsAsync(66842, It.IsAny<int?>())).ReturnsAsync([]);
+        api.Setup(a => a.UpdateReportInstanceAsync(It.IsAny<TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(), It.IsAny<bool>()))
+            .Callback<TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel, bool>((model, _) => saved = model)
+            .ReturnsAsync((TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel model, bool _) => model);
+        var engine = new Mock<IReportEngine>(MockBehavior.Strict);
+        var ches = new Mock<IChesService>(MockBehavior.Strict);
+        var listener = new Mock<IKafkaListener<string, ReportRequestModel>>();
+        var manager = new Manager(listener.Object, api.Object, new Clock(), true, engine.Object, ches.Object);
+
+        await manager.Handle(Message());
+
+        Assert.NotNull(saved);
+        Assert.Equal(TNO.Entities.ReportStatus.Completed, saved!.Status);
+        // Not marked sent, so the next run keeps collecting into the same instance.
+        Assert.Null(saved.SentOn);
+        Assert.Equal("", saved.Body);
+        Assert.Empty(engine.Invocations);
+        Assert.Empty(ches.Invocations);
+        api.Verify(a => a.SendMessageAsync(It.IsAny<ReportRequestModel>()), Times.Never);
+        listener.Verify(l => l.Commit(It.IsAny<ConsumeResult<string, ReportRequestModel>>()), Times.Once);
+        Assert.Null(manager.HealthFailureReason);
     }
 }

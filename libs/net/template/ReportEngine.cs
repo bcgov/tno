@@ -361,7 +361,9 @@ public partial class ReportEngine : IReportEngine
         if (report.Template == null) throw new InvalidOperationException("Report template is missing from model");
         if (report.Template.ReportType != Entities.ReportType.Content) throw new InvalidOperationException("The report does not use a evening overview template.");
 
-        if (!viewOnWebOnly) ReportSizeValidator.Validate(sectionContent.Values);
+        // The subject template still runs, but a collection-only report is bounded by its headline list.
+        if (report.Settings.CollectionOnly) CollectionOnlyReport.Validate(sectionContent.Values);
+        else if (!viewOnWebOnly) ReportSizeValidator.Validate(sectionContent.Values);
         var key = (isPreview ? "PREVIEW" : "FINAL") + $"-report-template-{report.Template.Id}-subject";
         var template = this.ReportEngineContent.GetOrAddTemplateInMemory(key, report.Template.Subject)
             ?? throw new InvalidOperationException("Template does not exist");
@@ -441,6 +443,9 @@ public partial class ReportEngine : IReportEngine
     {
         if (report.Template == null) throw new InvalidOperationException("Report template is missing from model");
         if (report.Template.ReportType != Entities.ReportType.Content) throw new InvalidOperationException("The report does not use a evening overview template.");
+
+        // A collection-only report never runs its template, images, data or AI sections.
+        if (report.Settings.CollectionOnly) return CollectionOnlyReport.Render(report.Name, sectionContent.Values);
 
         if (!viewOnWebOnly) ReportSizeValidator.Validate(sectionContent.Values);
         var key = (isPreview ? "PREVIEW" : "FINAL") + $"-report-template-{report.Template.Id}-body";

@@ -23,6 +23,12 @@ public static class ReportSizeLimit
     public const int StoryOverheadCharacters = 256;
 
     /// <summary>
+    /// Allowance per entry of a headline-only list (a collection-only report), kept above the
+    /// markup written around each headline so the estimate never falls below the real output.
+    /// </summary>
+    public const int HeadlineOverheadCharacters = 16;
+
+    /// <summary>
     /// Reject an oversized estimate or output before allocating another report-sized buffer.
     /// </summary>
     /// <param name="characters">Character count, accumulated using 64-bit arithmetic.</param>

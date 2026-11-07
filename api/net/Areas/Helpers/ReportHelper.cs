@@ -360,7 +360,7 @@ public class ReportHelper : IReportHelper
     {
         var reportModel = model.Report ?? throw new ArgumentException("Parameter 'model.Report' is required");
         var instanceSections = GetInstanceSections(model);
-        if (!viewOnWebOnly && model.Id > 0) ApplyChartData(instanceSections, await GetInstanceChartsAsync(model.Id, model.OwnerId));
+        if (!viewOnWebOnly && model.Id > 0 && !reportModel.Settings.CollectionOnly) ApplyChartData(instanceSections, await GetInstanceChartsAsync(model.Id, model.OwnerId));
         return await GenerateReportAsync(reportModel, model, instanceSections, viewOnWebOnly, isPreview);
     }
 
@@ -382,11 +382,13 @@ public class ReportHelper : IReportHelper
     {
         var reportModel = model.Report ?? throw new ArgumentException("Parameter 'model.Report' is required");
         var sections = GetInstanceSections(model);
-        ApplyChartData(sections, await GetInstanceChartsAsync(model.Id, requestorId));
+        // A collection-only report lists headlines only, so it needs no charts or AI output.
+        var collectionOnly = reportModel.Settings.CollectionOnly;
+        if (!collectionOnly) ApplyChartData(sections, await GetInstanceChartsAsync(model.Id, requestorId));
         var result = await GenerateReportAsync(reportModel, model, sections, false, isPreview, AISectionWait.NoWait);
 
         // A section already being generated will notify when it is done.
-        if (sections.Values.Any(s => s.AIStatus == AISectionStatus.NotStarted))
+        if (!collectionOnly && sections.Values.Any(s => s.AIStatus == AISectionStatus.NotStarted))
         {
             var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, reportModel.Id, model.Id, JsonDocument.Parse("{}"))
             {
@@ -624,7 +626,8 @@ public class ReportHelper : IReportHelper
             return new ReportSectionModel(section, content, aggregations);
         });
 
-        if (!viewOnWebOnly)
+        // A collection-only report lists headlines only, so it needs no charts.
+        if (!viewOnWebOnly && !model.Settings.CollectionOnly)
         {
             // There is no instance, so the stories just fetched stand in for its content.
             var contentBySection = sections.ToDictionary(s => s.Key, s => s.Value.Content.Select(c => c.Id).ToArray());

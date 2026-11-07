@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import EventOfTheDayList from 'features/admin/event-of-the-day/EventOfTheDayList';
 import moment from 'moment-timezone';
@@ -64,6 +64,8 @@ vi.mock('tno-core', () => ({
   Show: ({ visible, children }: React.PropsWithChildren<{ visible: boolean }>) =>
     visible ? <>{children}</> : null,
   Modal: () => null,
+  Loader: ({ visible }: { visible?: boolean }) => (visible ? <div>Loader overlay</div> : null),
+  Spinner: () => <span>Spinner</span>,
   useModal: () => ({ toggle: vi.fn(), isShowing: false }),
   Select: ({ options, onChange, label, isDisabled }: any) => (
     <label>
@@ -140,6 +142,9 @@ beforeEach(() => {
   mocks.update.mockResolvedValue([{ id: 99, name: 'Not Applicable', isSystem: true, score: 0 }]);
 });
 
+const topAction = (name: string) =>
+  within(screen.getByRole('toolbar', { name: 'Report actions' })).getByRole('button', { name });
+
 const open = (date = '2026-10-11') =>
   render(
     <MemoryRouter initialEntries={[`/reports/event-of-the-day?date=${date}`]}>
@@ -174,7 +179,7 @@ it('loads historical source stories and saves only after explicitly reviewing a 
   expect(mocks.folder).not.toHaveBeenCalled();
   expect(screen.queryByRole('button', { name: 'Send' })).not.toBeInTheDocument();
   expect(screen.queryByRole('button', { name: 'Save report' })).not.toBeInTheDocument();
-  await userEvent.click(screen.getByRole('button', { name: 'Regenerate and preview' }));
+  await userEvent.click(topAction('Regenerate and preview'));
   await screen.findByText('Regenerated preview — not saved');
   expect(mocks.preview).toHaveBeenCalledWith(65177, request(), '2026-10-11');
   expect(mocks.save).not.toHaveBeenCalled();
@@ -193,7 +198,7 @@ it('loads historical source stories and saves only after explicitly reviewing a 
 it('invalidates a preview after source corrections and passes the changed IDs to regeneration', async () => {
   open();
   await screen.findByText('Story 11');
-  await userEvent.click(screen.getByRole('button', { name: 'Regenerate and preview' }));
+  await userEvent.click(topAction('Regenerate and preview'));
   await screen.findByRole('button', { name: 'Save report' });
   await userEvent.click(screen.getByRole('checkbox', { name: 'Select story 12' }));
   await userEvent.click(screen.getByRole('button', { name: 'Mark selected Not Applicable' }));
@@ -201,7 +206,7 @@ it('invalidates a preview after source corrections and passes the changed IDs to
     expect(mocks.update).toHaveBeenCalledWith(12, [expect.objectContaining({ id: 99, score: 0 })]),
   );
   expect(screen.queryByRole('button', { name: 'Save report' })).not.toBeInTheDocument();
-  await userEvent.click(screen.getByRole('button', { name: 'Regenerate and preview' }));
+  await userEvent.click(topAction('Regenerate and preview'));
   await waitFor(() =>
     expect(mocks.preview).toHaveBeenLastCalledWith(65177, request([12]), '2026-10-11'),
   );
@@ -210,7 +215,7 @@ it('invalidates a preview after source corrections and passes the changed IDs to
 it('clears the previous preview when changing dates and handles days without a saved report', async () => {
   open();
   await screen.findByText('Story 11');
-  await userEvent.click(screen.getByRole('button', { name: 'View saved report' }));
+  await userEvent.click(topAction('View saved report'));
   await screen.findByTitle('Event of the Day report preview');
   expect(screen.queryByRole('button', { name: 'Save report' })).not.toBeInTheDocument();
   mocks.find.mockResolvedValue({ instances: [], content: [] });
@@ -219,7 +224,7 @@ it('clears the previous preview when changing dates and handles days without a s
   expect(mocks.find).toHaveBeenLastCalledWith('2026-10-10');
   expect(screen.queryByTitle('Event of the Day report preview')).not.toBeInTheDocument();
   expect(screen.queryByRole('button', { name: 'Regenerate and preview' })).not.toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'Generate report for this date' })).toBeEnabled();
+  expect(topAction('Generate report for this date')).toBeEnabled();
 });
 
 it('generates a report for a past day without one and saves it as a new instance', async () => {
@@ -232,7 +237,7 @@ it('generates a report for a past day without one and saves it as a new instance
   expect(screen.queryByRole('button', { name: 'Send' })).not.toBeInTheDocument();
   // Stories can be added before the first save; the generated report has none yet.
   await userEvent.selectOptions(screen.getByLabelText('Add a story to the report'), '11');
-  await userEvent.click(screen.getByRole('button', { name: 'Generate report for this date' }));
+  await userEvent.click(topAction('Generate report for this date'));
   await screen.findByText('Generated preview — not saved');
   expect(mocks.preview).toHaveBeenCalledWith(0, request([], [11]), '2026-10-11');
   await userEvent.click(screen.getByRole('button', { name: 'Save report' }));
@@ -242,17 +247,15 @@ it('generates a report for a past day without one and saves it as a new instance
   expect(
     screen.queryByRole('button', { name: 'Generate report for this date' }),
   ).not.toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'Regenerate and preview' })).toBeEnabled();
+  expect(topAction('Regenerate and preview')).toBeEnabled();
 });
 
 it('does not offer to save a failed regeneration', async () => {
   mocks.preview.mockRejectedValue(new Error('Indexing in progress'));
   open();
   await screen.findByText('Story 11');
-  await userEvent.click(screen.getByRole('button', { name: 'Regenerate and preview' }));
-  await waitFor(() =>
-    expect(screen.getByRole('button', { name: 'Regenerate and preview' })).toBeEnabled(),
-  );
+  await userEvent.click(topAction('Regenerate and preview'));
+  await waitFor(() => expect(topAction('Regenerate and preview')).toBeEnabled());
   expect(screen.queryByRole('button', { name: 'Save report' })).not.toBeInTheDocument();
   expect(mocks.save).not.toHaveBeenCalled();
 });
@@ -285,7 +288,7 @@ it('adds a story with a topic from the date to the report, and re-collects on re
   expect(screen.getByRole('list', { name: 'Stories to add' })).toHaveTextContent('Story 12');
   expect(screen.queryByRole('option', { name: 'Story 12' })).not.toBeInTheDocument();
 
-  await userEvent.click(screen.getByRole('button', { name: 'Regenerate and preview' }));
+  await userEvent.click(topAction('Regenerate and preview'));
   await waitFor(() =>
     expect(mocks.preview).toHaveBeenLastCalledWith(65177, request([], [12]), '2026-10-11'),
   );
@@ -293,7 +296,7 @@ it('adds a story with a topic from the date to the report, and re-collects on re
 
   await userEvent.click(screen.getByRole('button', { name: 'Remove story 12' }));
   expect(screen.queryByText('Regenerated preview — not saved')).not.toBeInTheDocument();
-  await userEvent.click(screen.getByRole('button', { name: 'Re-collect stories and preview' }));
+  await userEvent.click(topAction('Re-collect stories and preview'));
   await waitFor(() =>
     expect(mocks.preview).toHaveBeenLastCalledWith(65177, request([], [], true), '2026-10-11'),
   );
@@ -311,7 +314,7 @@ it("adds one of today's stories with a topic straight into the live folder", asy
   mocks.addFolder.mockResolvedValue(undefined);
   open(today);
   await screen.findByText('Story 11');
-  expect(screen.getByRole('button', { name: 'Send' })).toBeInTheDocument();
+  expect(topAction('Send')).toBeInTheDocument();
   expect(screen.queryByRole('checkbox', { name: 'Select story 12' })).not.toBeInTheDocument();
   const picker = screen.getByLabelText('Add a story to the folder');
   expect(screen.getByRole('option', { name: 'Story 12' })).toBeInTheDocument();
@@ -360,4 +363,44 @@ it('keeps a past report story in the list when it is marked Not Applicable', asy
   await userEvent.click(screen.getByRole('button', { name: 'Mark selected Not Applicable' }));
   await waitFor(() => expect(mocks.update).toHaveBeenCalled());
   expect(screen.getByRole('checkbox', { name: 'Select story 12' })).toBeInTheDocument();
+});
+
+it('shows the loading indicator until the stories arrive', async () => {
+  let resolve: (value: unknown) => void = () => {};
+  mocks.find.mockReturnValue(new Promise((r) => (resolve = r)));
+  open();
+  expect(await screen.findByRole('status')).toHaveTextContent('Loading stories…');
+  expect(screen.getByText('Loader overlay')).toBeInTheDocument();
+  resolve({ instances: [instance], content: [story(11)] });
+  await screen.findByText('Story 11');
+  expect(screen.getByRole('status')).not.toHaveTextContent('Loading stories…');
+  expect(screen.queryByText('Loader overlay')).not.toBeInTheDocument();
+});
+
+it('offers the report actions at the top and bottom of the page', async () => {
+  open();
+  await screen.findByText('Story 11');
+  for (const toolbar of ['Report actions', 'Report actions (bottom)']) {
+    const actions = within(screen.getByRole('toolbar', { name: toolbar }));
+    expect(actions.getByRole('button', { name: 'View saved report' })).toBeEnabled();
+    expect(actions.getByRole('button', { name: 'Regenerate and preview' })).toBeEnabled();
+    expect(actions.getByRole('button', { name: 'Re-collect stories and preview' })).toBeEnabled();
+  }
+  // The top actions sit left of Refresh.
+  const top = screen.getByRole('toolbar', { name: 'Report actions' });
+  const buttons = within(top).getAllByRole('button');
+  expect(buttons[buttons.length - 1]).toHaveAccessibleName('Refresh');
+});
+
+it('names the work in progress while a preview is generated', async () => {
+  let resolve: (value: unknown) => void = () => {};
+  mocks.preview.mockReturnValue(new Promise((r) => (resolve = r)));
+  open();
+  await screen.findByText('Story 11');
+  await userEvent.click(topAction('Regenerate and preview'));
+  expect(screen.getByRole('status')).toHaveTextContent('Generating report preview…');
+  expect(topAction('Regenerate and preview')).toBeDisabled();
+  resolve(draft);
+  await screen.findByText('Regenerated preview — not saved');
+  expect(screen.getByRole('status')).not.toHaveTextContent('Generating report preview…');
 });

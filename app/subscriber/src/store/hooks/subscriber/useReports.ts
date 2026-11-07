@@ -148,8 +148,13 @@ export const useReports = (): [IProfileState, IReportController] => {
       updateReport: async (model: IReportModel, updateInstances: boolean | undefined) => {
         // Subscribers are managed through 'updateReportSubscribers'.  The API ignores them here,
         // which stops a stale form snapshot from unsubscribing users who were added elsewhere.
+        // The API only saves the first instance's stories when 'updateInstances' is set, so they are
+        // left out otherwise; a report can hold tens of thousands of them.
+        const instances = updateInstances
+          ? model.instances
+          : model.instances.map((instance) => ({ ...instance, content: [] }));
         const response = await dispatch<IReportModel>('update-report', () =>
-          api.updateReport({ ...model, subscribers: [] }, updateInstances),
+          api.updateReport({ ...model, instances, subscribers: [] }, updateInstances),
         );
         if (response.status === 200) {
           storeMyReports((reports) => {

@@ -17,6 +17,7 @@ import {
 
 import { useReportEditContext } from '../../ReportEditContext';
 import { ReportSectionMediaAnalyticsChart } from './ReportSectionMediaAnalyticsChart';
+import { isAggregateChart } from './utils';
 
 export interface IReportSectionMediaAnalyticsProps {
   index: number;
@@ -41,9 +42,13 @@ export const ReportSectionMediaAnalytics = React.forwardRef<
 
   const section = values.sections[index];
 
+  // Charts that aggregate get their data from the API; only the others need the linked stories.
+  const needsLinkedContent = section.chartTemplates.some((chart) => !isAggregateChart(chart));
+
   React.useEffect(() => {
     if (
       section.linkedReportId &&
+      needsLinkedContent &&
       (!linkedReportContent[section.name] || !linkedReportContent[section.name].length)
     ) {
       // Fetch linked report content.
@@ -63,7 +68,7 @@ export const ReportSectionMediaAnalytics = React.forwardRef<
     }
     // Only get linked report content when required.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [linkedReportContent, section.linkedReportId, section.name]);
+  }, [linkedReportContent, needsLinkedContent, section.linkedReportId, section.name]);
 
   return (
     <Col gap="0.5rem">

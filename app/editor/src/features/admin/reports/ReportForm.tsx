@@ -33,6 +33,7 @@ import { ReportFormSubscribers } from './ReportFormSubscribers';
 import { ReportFormTemplate } from './ReportFormTemplate';
 import { ReportTemplateContextProvider } from './ReportTemplateContext';
 import * as styled from './styled';
+import { collectionOnlySendMessage, isCollectionOnly } from './utils';
 import { ReportFormSchema } from './validation/ReportFormSchema';
 
 /**
@@ -144,7 +145,8 @@ const ReportForm: React.FC = () => {
                 onClick={async () => {
                   await handlePublish(values);
                 }}
-                disabled={!hasSubscribers(values.subscribers)}
+                disabled={!hasSubscribers(values.subscribers) || isCollectionOnly(values)}
+                title={isCollectionOnly(values) ? collectionOnlySendMessage : undefined}
               >
                 Send
               </Button>
@@ -296,7 +298,8 @@ const ReportForm: React.FC = () => {
                       onClick={async () => {
                         await handlePublish(values);
                       }}
-                      disabled={!hasSubscribers(values.subscribers)}
+                      disabled={!hasSubscribers(values.subscribers) || isCollectionOnly(values)}
+                      title={isCollectionOnly(values) ? collectionOnlySendMessage : undefined}
                     >
                       Send
                     </Button>

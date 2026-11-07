@@ -17,6 +17,7 @@ import {
 } from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';
+import { CollectionOnlyOption } from './CollectionOnlyOption';
 import * as styled from './styled';
 
 export const ReportEditPreferencesForm = () => {
@@ -152,6 +153,7 @@ export const ReportEditPreferencesForm = () => {
       </div>
       <div className="frm-in">
         <label>Report Generation Options:</label>
+        <CollectionOnlyOption />
         <Row gap="1rem">
           <Show visible={kind !== ReportKindName.Manual}>
             <Col>

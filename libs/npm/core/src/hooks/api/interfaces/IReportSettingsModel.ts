@@ -12,4 +12,6 @@ export interface IReportSettingsModel {
   content: IReportContentSettingsModel;
   sections: IReportSectionsSettingsModel;
   doNotSendEmail: boolean;
+  /** The report only collects content for other reports; it is never sent and previews headlines only. */
+  collectionOnly?: boolean;
 }
