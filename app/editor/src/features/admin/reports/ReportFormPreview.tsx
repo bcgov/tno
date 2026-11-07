@@ -10,10 +10,12 @@ import {
   type IReportModel,
   ReportPreviewStatus,
   Row,
+  Show,
   Text,
 } from 'tno-core';
 
 import { useReportTemplateContext } from './ReportTemplateContext';
+import { collectionOnlySendMessage, isCollectionOnly } from './utils';
 
 export interface IReportFormPreviewProps {}
 
@@ -95,6 +97,9 @@ export const ReportFormPreview: React.FC<IReportFormPreviewProps> = () => {
         {values.id && (
           <Col flex="1">
             <p>After you save the report, send a test email to the following address.</p>
+            <Show visible={isCollectionOnly(values)}>
+              <p className="info">{collectionOnlySendMessage}</p>
+            </Show>
             <Text
               name="to"
               label="Send Test Email To"
@@ -105,7 +110,7 @@ export const ReportFormPreview: React.FC<IReportFormPreviewProps> = () => {
             >
               <Button
                 variant={ButtonVariant.secondary}
-                disabled={!sendTo}
+                disabled={!sendTo || isCollectionOnly(values)}
                 onClick={async () => {
                   await handleSend(values, sendTo);
                 }}

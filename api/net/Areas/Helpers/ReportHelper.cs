@@ -626,7 +626,8 @@ public class ReportHelper : IReportHelper
             return new ReportSectionModel(section, content, aggregations);
         });
 
-        if (!viewOnWebOnly)
+        // A collection-only report lists headlines only, so it needs no charts.
+        if (!viewOnWebOnly && !model.Settings.CollectionOnly)
         {
             // There is no instance, so the stories just fetched stand in for its content.
             var contentBySection = sections.ToDictionary(s => s.Key, s => s.Value.Content.Select(c => c.Id).ToArray());

@@ -196,4 +196,37 @@ public class ReportSizeValidationTest
         Assert.Equal(expected, report.IsCollectionOnly());
         Assert.False(((Report?)null).IsCollectionOnly());
     }
+
+    [Theory]
+    [InlineData("admin-send")]
+    [InlineData("admin-publish")]
+    [InlineData("admin-instance-publish")]
+    [InlineData("editor-publish")]
+    public async Task EditorAndAdminCannotSendACollectionOnlyReport(string operation)
+    {
+        var instance = CollectionOnlyInstance();
+        var reports = new Mock<IReportService>();
+        reports.Setup(s => s.FindById(12)).Returns(instance.Report);
+        var instances = new Mock<IReportInstanceService>();
+        instances.Setup(s => s.FindById(31)).Returns(instance);
+        var kafka = new Mock<IKafkaMessenger>(MockBehavior.Strict);
+        var kafkaOptions = Options.Create(new KafkaOptions());
+        var json = Options.Create(new JsonSerializerOptions());
+
+        var error = await Assert.ThrowsAsync<BadRequestException>(() => operation switch
+        {
+            "admin-send" => new TNO.API.Areas.Admin.Controllers.ReportController(reports.Object, instances.Object, Mock.Of<IUserService>(),
+                Mock.Of<IReportHelper>(), kafka.Object, null!, null!, null!, kafkaOptions, null!, json).SendToAsync(12, "owner@example.test"),
+            "admin-publish" => new TNO.API.Areas.Admin.Controllers.ReportController(reports.Object, instances.Object, Mock.Of<IUserService>(),
+                Mock.Of<IReportHelper>(), kafka.Object, null!, null!, null!, kafkaOptions, null!, json).Publish(12),
+            "admin-instance-publish" => new TNO.API.Areas.Admin.Controllers.ReportInstanceController(instances.Object, Mock.Of<IUserService>(),
+                kafka.Object, kafkaOptions, json).Publish(31),
+            _ => new TNO.API.Areas.Editor.Controllers.ReportController(reports.Object, Mock.Of<IUserService>(), Mock.Of<IReportHelper>(),
+                kafka.Object, kafkaOptions, null!, json).Publish(12),
+        });
+
+        Assert.Equal(ReportSizeValidation.CollectionOnlySendMessage, error.Message);
+        Assert.Equal(ReportStatus.Pending, instance.Status);
+        Assert.Empty(kafka.Invocations);
+    }
 }

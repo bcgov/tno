@@ -219,6 +219,7 @@ public class ReportController : ControllerBase
     public async Task<IActionResult> SendToAsync(int id, string to)
     {
         var report = _reportService.FindById(id) ?? throw new NoContentException();
+        report.ThrowIfCollectionOnly();
 
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
@@ -247,6 +248,7 @@ public class ReportController : ControllerBase
     public async Task<IActionResult> Publish(int id)
     {
         var report = _reportService.FindById(id) ?? throw new NoContentException();
+        report.ThrowIfCollectionOnly();
 
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
