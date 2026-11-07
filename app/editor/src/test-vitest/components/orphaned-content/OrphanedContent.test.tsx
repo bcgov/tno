@@ -513,3 +513,54 @@ it.each([
     expect(screen.queryByLabelText('Start content ID (optional)')).not.toBeInTheDocument();
   },
 );
+
+it('shows that an active scan is running and when it last saved progress', async () => {
+  vi.spyOn(Date, 'now').mockReturnValue(new Date('2026-10-25T12:30:00Z').getTime());
+  api.latest.mockResolvedValue({
+    ...completed,
+    status: 'Scanning',
+    completedOn: null,
+    updatedOn: '2026-10-25T12:29:45Z',
+  });
+  renderPage();
+  const status = await screen.findByRole('status');
+  await waitFor(() => expect(status).toHaveTextContent('Scanning Elasticsearch…'));
+  expect(status).toHaveTextContent('Running for 30 minutes.');
+  expect(status).toHaveTextContent('Last progress saved 15 seconds ago.');
+  expect(status).not.toHaveTextContent('may be stalled');
+});
+
+it('warns when an active scan has not saved progress recently', async () => {
+  vi.spyOn(Date, 'now').mockReturnValue(new Date('2026-10-25T12:30:00Z').getTime());
+  api.latest.mockResolvedValue({
+    ...completed,
+    status: 'Scanning',
+    completedOn: null,
+    updatedOn: '2026-10-25T12:20:00Z',
+  });
+  renderPage();
+  await waitFor(() =>
+    expect(screen.getByRole('status')).toHaveTextContent('The scan may be stalled'),
+  );
+});
+
+it('explains the verification wait and cancellation in progress', async () => {
+  const confirming = { ...completed, status: 'Confirming', completedOn: null, pending: 2 };
+  api.latest.mockResolvedValue(confirming);
+  const { unmount } = renderPage();
+  await waitFor(() =>
+    expect(screen.getByRole('status')).toHaveTextContent('Verifying 2 potential orphans…'),
+  );
+  expect(screen.getByRole('status')).toHaveTextContent('grace period');
+  unmount();
+  api.latest.mockResolvedValue({ ...confirming, cancelRequested: true });
+  renderPage();
+  await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Cancelling scan…'));
+});
+
+it('hides the activity indicator once the scan has finished', async () => {
+  api.latest.mockResolvedValue(completed);
+  renderPage();
+  await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Completed:'));
+  expect(screen.getByRole('status')).not.toHaveTextContent('Last progress saved');
+});

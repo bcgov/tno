@@ -22,11 +22,13 @@ import {
   type IOptionItem,
   type IReportResultModel,
   type ITopicModel,
+  Loader,
   Modal,
   Row,
   Select,
   Settings,
   Show,
+  Spinner,
   useModal,
 } from 'tno-core';
 
@@ -74,7 +76,7 @@ const EventOfTheDayList: React.FC = () => {
   const [instances, setInstances] = React.useState<IEventOfDayInstance[]>([]);
   const [instanceId, setInstanceId] = React.useState(0);
   const [loading, setLoading] = React.useState(false);
-  const [working, setWorking] = React.useState(false);
+  const [working, setWorking] = React.useState('');
   const [isSent, setIsSent] = React.useState(false);
   const [reload, setReload] = React.useState(0);
   const [selected, setSelected] = React.useState<number[]>([]);
@@ -83,7 +85,7 @@ const EventOfTheDayList: React.FC = () => {
   const [draftMode, setDraftMode] = React.useState<'regenerate' | 'recollect'>('regenerate');
   const [added, setAdded] = React.useState<number[]>([]);
   const changedIds = React.useRef(new Set<number>());
-  const busy = loading || working;
+  const busy = loading || !!working;
   const live = isToday && instanceId === 0;
   const currentView = React.useRef('');
   currentView.current = `${date}:${instanceId}`;
@@ -163,7 +165,7 @@ const EventOfTheDayList: React.FC = () => {
     setAdded([]);
     setInstanceId(id);
     if (!isToday) return;
-    setWorking(true);
+    setWorking('Loading stories…');
     try {
       const content =
         id === 0 ? await getContentInFolder(folderId, true) : (await history.find(date)).content;
@@ -171,7 +173,7 @@ const EventOfTheDayList: React.FC = () => {
     } catch {
       setItems([]);
     } finally {
-      setWorking(false);
+      setWorking('');
     }
   };
 
@@ -187,7 +189,7 @@ const EventOfTheDayList: React.FC = () => {
 
   const handleSubmit = async (values: IFolderContentModel) => {
     invalidatePreview();
-    setWorking(true);
+    setWorking('Saving topics…');
     try {
       const result = await updateContentTopics(values.contentId, values.content!.topics);
       changedIds.current.add(values.contentId);
@@ -195,13 +197,13 @@ const EventOfTheDayList: React.FC = () => {
     } catch {
       // Errors are displayed by the API wrapper; keep the last saved row.
     } finally {
-      setWorking(false);
+      setWorking('');
     }
   };
 
   const handleReset = async (values: IFolderContentModel, topic: IContentTopicModel) => {
     invalidatePreview();
-    setWorking(true);
+    setWorking('Resetting score…');
     try {
       const result = await resetContentTopicScore(values.contentId, topic.id);
       changedIds.current.add(values.contentId);
@@ -209,7 +211,7 @@ const EventOfTheDayList: React.FC = () => {
     } catch {
       // Errors are displayed by the API wrapper.
     } finally {
-      setWorking(false);
+      setWorking('');
     }
   };
 
@@ -248,7 +250,7 @@ const EventOfTheDayList: React.FC = () => {
     const systemTopic = allTopics.find((t) => t.isSystem);
     if (!systemTopic) return;
     invalidatePreview();
-    setWorking(true);
+    setWorking('Marking stories Not Applicable…');
     try {
       // Persist each successful change in the UI, even if a later request fails.
       for (const item of items.filter((item) => selected.includes(item.contentId))) {
@@ -261,14 +263,14 @@ const EventOfTheDayList: React.FC = () => {
     } catch {
       // The remaining selection can be retried after an error.
     } finally {
-      setWorking(false);
+      setWorking('');
     }
   };
 
   const regenerate = async (recollect = false) => {
     const view = currentView.current;
     invalidatePreview();
-    setWorking(true);
+    setWorking('Generating report preview…');
     try {
       const result = await history.preview(
         instanceId,
@@ -283,26 +285,26 @@ const EventOfTheDayList: React.FC = () => {
     } catch {
       // Includes a helpful retry message if indexing has not caught up yet.
     } finally {
-      setWorking(false);
+      setWorking('');
     }
   };
 
   const showSaved = async () => {
     const view = currentView.current;
     invalidatePreview();
-    setWorking(true);
+    setWorking('Loading saved report…');
     try {
       const result = await viewReportInstance(instanceId);
       if (currentView.current === view) setPreview(result);
     } catch {
     } finally {
-      setWorking(false);
+      setWorking('');
     }
   };
 
   const savePreview = async () => {
     if (!draft || draft.instanceId !== instanceId) return;
-    setWorking(true);
+    setWorking('Saving report…');
     try {
       const saved = await history.save(draft, date);
       setInstances((current) =>
@@ -316,7 +318,7 @@ const EventOfTheDayList: React.FC = () => {
       toast.success('Report saved. The subscriber page now shows this version. No email was sent.');
     } catch {
     } finally {
-      setWorking(false);
+      setWorking('');
     }
   };
 
@@ -328,14 +330,14 @@ const EventOfTheDayList: React.FC = () => {
       return;
     }
     // Today's report is sent from the folder, so the story goes straight into it.
-    setWorking(true);
+    setWorking('Adding story…');
     try {
       await history.addToFolder(contentId);
       setItems(sortStories(await getContentInFolder(folderId, true)));
     } catch {
       // Errors are displayed by the API wrapper.
     } finally {
-      setWorking(false);
+      setWorking('');
     }
   };
 
@@ -364,13 +366,48 @@ const EventOfTheDayList: React.FC = () => {
 
   const columns = useColumns(allTopics, handleSubmit, handleReset);
   const included = items.filter((item) => countsInCharts(item.content?.topics)).length;
+  const activity = loading ? 'Loading stories…' : working;
+
+  // Shown at the top and bottom of the page so the actions are reachable without scrolling.
+  const actionButtons = (
+    <>
+      <Show visible={live}>
+        <Button
+          disabled={busy}
+          onClick={() => window.open(`${getPreviewReportRoute(reportId)}?showNav=false`, '_blank')}
+        >
+          Preview <FaBinoculars className="icon" />
+        </Button>
+        <Button onClick={toggle} disabled={busy || isShowing || isSent}>
+          Send <FaPaperPlane className="icon" />
+        </Button>
+      </Show>
+      <Show visible={!!instanceId}>
+        <Button variant={ButtonVariant.secondary} disabled={busy} onClick={showSaved}>
+          View saved report
+        </Button>
+        <Button disabled={busy} onClick={() => regenerate()}>
+          Regenerate and preview
+        </Button>
+        <Button disabled={busy} onClick={() => regenerate(true)}>
+          Re-collect stories and preview
+        </Button>
+      </Show>
+      <Show visible={!loading && !live && !instanceId}>
+        <Button disabled={busy} onClick={() => regenerate()}>
+          Generate report for this date
+        </Button>
+      </Show>
+    </>
+  );
 
   return (
     <styled.EventOfTheDayList>
       <FormPage>
         <Row className="page-header">
           <p className="list-title">Update Content for Event of the Day</p>
-          <div className="buttons">
+          <div className="buttons" role="toolbar" aria-label="Report actions">
+            {actionButtons}
             <Button
               title="Refresh"
               variant={ButtonVariant.secondary}
@@ -446,10 +483,14 @@ const EventOfTheDayList: React.FC = () => {
             report to review and save it.
           </p>
         </Show>
-        <Show visible={loading}>
-          <p role="status">Loading stories…</p>
-        </Show>
+        <div className="activity" role="status" aria-live="polite">
+          <Show visible={!!activity}>
+            <Spinner size="1.5rem" />
+            <span>{activity}</span>
+          </Show>
+        </div>
         <fieldset disabled={busy} className="topic-editor">
+          <Loader visible={loading} className="topic-loader" />
           <Row className="topic-form-row">
             <TopicFormSmall onAddOrUpdate={handleAddOrUpdate} />
           </Row>
@@ -518,36 +559,14 @@ const EventOfTheDayList: React.FC = () => {
           />
         </fieldset>
         <Row className="page-header">
-          <div className="buttons">
-            <Show visible={live}>
-              <Button
-                disabled={busy}
-                onClick={() =>
-                  window.open(`${getPreviewReportRoute(reportId)}?showNav=false`, '_blank')
-                }
-              >
-                Preview <FaBinoculars className="icon" />
-              </Button>
-              <Button onClick={toggle} disabled={busy || isShowing || isSent}>
-                Send <FaPaperPlane className="icon" />
-              </Button>
-            </Show>
-            <Show visible={!!instanceId}>
-              <Button variant={ButtonVariant.secondary} disabled={busy} onClick={showSaved}>
-                View saved report
-              </Button>
-              <Button disabled={busy} onClick={() => regenerate()}>
-                Regenerate and preview
-              </Button>
-              <Button disabled={busy} onClick={() => regenerate(true)}>
-                Re-collect stories and preview
-              </Button>
-            </Show>
-            <Show visible={!loading && !live && !instanceId}>
-              <Button disabled={busy} onClick={() => regenerate()}>
-                Generate report for this date
-              </Button>
-            </Show>
+          <Show visible={!!activity}>
+            <div className="activity" aria-hidden="true">
+              <Spinner size="1.5rem" />
+              <span>{activity}</span>
+            </div>
+          </Show>
+          <div className="buttons" role="toolbar" aria-label="Report actions (bottom)">
+            {actionButtons}
           </div>
         </Row>
         <Show visible={!loading}>
@@ -626,14 +645,14 @@ const EventOfTheDayList: React.FC = () => {
         type="default"
         confirmText="Yes, Send"
         onConfirm={async () => {
-          setWorking(true);
+          setWorking('Sending report…');
           try {
             await publishReport(reportId);
             setIsSent(true);
             toast.success('Event of the Day report has been successfully requested.');
           } catch {
           } finally {
-            setWorking(false);
+            setWorking('');
             toggle();
           }
         }}
