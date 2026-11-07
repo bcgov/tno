@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Helpers;
@@ -41,6 +42,16 @@ namespace TNO.API.Areas.Subscriber.Controllers;
 public class ReportController : ControllerBase
 {
     #region Variables
+    /// <summary>
+    /// Returned when the report's stories changed after the page loaded them.
+    /// </summary>
+    public const string StaleStoriesMessage = "This report's stories were updated after you opened it, most likely by its scheduled run. Reload the report, reapply your changes, then save again.";
+
+    /// <summary>
+    /// Returned when the report changed after the page loaded it.
+    /// </summary>
+    public const string StaleReportMessage = "This report was updated after you opened it. Reload the report, reapply your changes, then save again.";
+
     private readonly IReportService _reportService;
     private readonly IReportInstanceService _reportInstanceService;
     private readonly IUserService _userService;
@@ -306,7 +317,15 @@ public class ReportController : ControllerBase
             // Only update the first instance.
             instance = _reportInstanceService.Update((Entities.ReportInstance)instanceModel, true);
         }
-        _reportInstanceService.CommitTransaction();
+        try
+        {
+            _reportInstanceService.CommitTransaction();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            // Most often the scheduled run collected stories into the instance after the page loaded.
+            throw new BadRequestException(updateInstances && instanceModel != null ? StaleStoriesMessage : StaleReportMessage, ex);
+        }
         var report = _reportService.FindById(result.Id) ?? throw new NoContentException("Report does not exist");
         if (updateInstances && instance != null && instanceModel != null)
         {
@@ -317,9 +336,13 @@ public class ReportController : ControllerBase
             instance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(instance.Id));
 
             // Inform other users of the updated content.
+            // Look the submitted stories up once; a report can hold tens of thousands of them.
+            var submitted = instanceModel.Content
+                .GroupBy(c => (c.ContentId, c.InstanceId, c.SectionName))
+                .ToDictionary(g => g.Key, g => g.First());
             foreach (var content in instance.ContentManyToMany)
             {
-                var contentModel = instanceModel.Content.FirstOrDefault(c => c.ContentId == content.ContentId && c.InstanceId == content.InstanceId && c.SectionName == content.SectionName);
+                var contentModel = submitted.GetValueOrDefault((content.ContentId, content.InstanceId, content.SectionName));
                 // Inform other users of the updated content.
                 if (content.Content != null &&
                     contentModel?.Content != null &&

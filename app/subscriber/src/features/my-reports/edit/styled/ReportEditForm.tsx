@@ -6,6 +6,14 @@ export const ReportEditForm = styled.div`
   overflow-x: clip;
   min-height: 89vh;
 
+  .loading-stories {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    font-weight: bold;
+  }
+
   .preview-report {
     border: solid 2px ${(props) => props.theme.css.linePrimaryColor};
     border-radius: 0.5rem;

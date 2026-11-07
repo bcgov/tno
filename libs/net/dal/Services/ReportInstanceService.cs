@@ -394,6 +394,15 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
                 .ThenInclude(ric => ric.Content)
                 .FirstOrDefault(ri => ri.Id == entity.Id) ?? throw new InvalidOperationException("Report instance does not exist");
             var originalInstanceContents = original.ContentManyToMany.ToArray();
+            // Look the original stories up once; an instance can hold tens of thousands of them.
+            // The first copy wins, as content can be in more than one section.
+            var originalByContentId = new Dictionary<long, ReportInstanceContent>();
+            var originalBySection = new Dictionary<(long ContentId, string SectionName), ReportInstanceContent>();
+            foreach (var ric in originalInstanceContents)
+            {
+                originalByContentId.TryAdd(ric.ContentId, ric);
+                originalBySection.TryAdd((ric.ContentId, ric.SectionName), ric);
+            }
 
             var updatedContent = new Dictionary<long, Content>();
             // Delete removed content and add new content.
@@ -407,8 +416,8 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
             entity.ContentManyToMany.ForEach(ric =>
             {
                 // Duplicate content can be in multiple sections, so we grab the first copy.
-                var originalContent = originalInstanceContents.FirstOrDefault(o => o.ContentId == ric.ContentId)?.Content;
-                var originalInstanceContent = originalInstanceContents.FirstOrDefault(o => o.ContentId == ric.ContentId && o.SectionName == ric.SectionName);
+                var originalContent = originalByContentId.GetValueOrDefault(ric.ContentId)?.Content;
+                var originalInstanceContent = originalBySection.GetValueOrDefault((ric.ContentId, ric.SectionName));
                 if (originalInstanceContent == null)
                 {
                     // Fetch the original content from the database to compare.

@@ -41,6 +41,8 @@ export const ReportSectionMediaAnalyticsChart = React.forwardRef<
     regenerateTestData,
     linkedReportContent,
     setLinkedReportContent,
+    contentLoaded,
+    loadContent,
   } = useReportEditContext();
 
   const [, { getSectionChartData }] = useReports();
@@ -56,19 +58,23 @@ export const ReportSectionMediaAnalyticsChart = React.forwardRef<
   const [reportContent, setReportContent] = React.useState(
     values.instances.length ? values.instances[0].content : [],
   );
-  const [showReportData, setShowReportData] = React.useState(
-    aggregate || (values.instances.length > 0 && values.instances[0].content.length > 0),
-  );
+  // Until the stories are loaded, a report with an instance is assumed to have some.
+  const hasReportData =
+    values.instances.length > 0 && (!contentLoaded || values.instances[0].content.length > 0);
+  const [showReportData, setShowReportData] = React.useState(aggregate || hasReportData);
   const [error, setError] = React.useState('');
 
   const toggleReportData = React.useCallback(() => setShowReportData((show) => !show), []);
 
   React.useEffect(() => {
     // If there is data, then show it in the charts.
-    setShowReportData(
-      aggregate || (values.instances.length > 0 && values.instances[0].content.length > 0),
-    );
-  }, [aggregate, values.instances]);
+    setShowReportData(aggregate || hasReportData);
+  }, [aggregate, hasReportData]);
+
+  // A chart that does not aggregate is drawn from the stories in the browser.
+  React.useEffect(() => {
+    if (!aggregate && showReportData && !section.linkedReportId && !contentLoaded) loadContent();
+  }, [aggregate, contentLoaded, loadContent, section.linkedReportId, showReportData]);
 
   const convertContent = React.useCallback(() => {
     let sectionContent: IReportInstanceContentModel[] = [];

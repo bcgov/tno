@@ -12,6 +12,7 @@ import {
   ReportKindName,
   ReportStatusName,
   Show,
+  Spinner,
   useModal,
 } from 'tno-core';
 
@@ -66,6 +67,8 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
       onGenerate,
       isSubmitting,
       setSubmitting,
+      contentLoaded,
+      loadContent,
     } = useReportEditContext();
     const [, { updateReport }] = useReports();
     const [{ updateReportInstance, publishReportInstance }] = useReportInstances();
@@ -77,6 +80,13 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
 
     const instance = values.instances.length ? values.instances[0] : undefined;
     const reportKind = getReportKind(values);
+    // The story pages need the instance's stories, which are only loaded when one is opened.
+    const onContentPage = !!active?.startsWith(ReportMainMenuOption.Content);
+    const storiesReady = contentLoaded || !instance;
+
+    React.useEffect(() => {
+      if (onContentPage && !storiesReady) loadContent();
+    }, [loadContent, onContentPage, storiesReady]);
 
     React.useEffect(() => {
       if (
@@ -173,7 +183,13 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
           />
         </Show>
         {/* Content Menu */}
-        <Show visible={active === ReportContentMenuOption.Content}>
+        <Show visible={onContentPage && !storiesReady}>
+          <div className="loading-stories" role="status">
+            <Spinner size="1.5rem" />
+            <span>Loading stories…</span>
+          </div>
+        </Show>
+        <Show visible={storiesReady && active === ReportContentMenuOption.Content}>
           <ReportEditContentForm
             disabled={disabled}
             activeRow={activeRow}
@@ -189,7 +205,7 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
             }}
           />
         </Show>
-        <Show visible={active === ReportContentMenuOption.Sort}>
+        <Show visible={storiesReady && active === ReportContentMenuOption.Sort}>
           <ReportEditSortForm
             disabled={disabled}
             activeRow={activeRow}
@@ -203,7 +219,7 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
             }}
           />
         </Show>
-        <Show visible={active === ReportContentMenuOption.Summary}>
+        <Show visible={storiesReady && active === ReportContentMenuOption.Summary}>
           <ReportEditSummaryForm disabled={disabled} />
         </Show>
         {/* Preview Menu */}

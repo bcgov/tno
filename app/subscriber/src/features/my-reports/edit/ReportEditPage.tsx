@@ -12,17 +12,45 @@ import {
   useSettings,
 } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Col, IReportMessageModel, MessageTargetKey, ReportStatusName, Show } from 'tno-core';
+import {
+  Col,
+  IReportInstanceContentModel,
+  IReportMessageModel,
+  IReportModel,
+  MessageTargetKey,
+  ReportStatusName,
+  Show,
+} from 'tno-core';
 
 import { defaultReport } from '../constants';
 import { IReportForm } from '../interfaces';
-import { isAISectionTestMessage, sanitizeReport, sortContent, toForm } from '../utils';
+import {
+  isAISectionTestMessage,
+  sanitizeReport,
+  shouldSaveContent,
+  sortContent,
+  toForm,
+} from '../utils';
 import { ContentEditForm } from './content';
 import { ReportEditContextProvider } from './ReportEditContext';
 import { ReportEditForm } from './ReportEditForm';
 import * as styled from './styled';
 import { ReportFormSchema } from './validation';
 import { ReportContainer } from './view';
+
+/** Instances whose stories can still be changed. */
+const editableStatuses = [
+  ReportStatusName.Pending,
+  ReportStatusName.Reopen,
+  ReportStatusName.Failed,
+  ReportStatusName.Cancelled,
+];
+
+/** The report without its instances' stories, which are loaded only when a page needs them. */
+const withoutContent = (report: IReportModel): IReportModel => ({
+  ...report,
+  instances: report.instances.map((instance) => ({ ...instance, content: [] })),
+});
 
 /**
  * Provides component to administer a report template, to manage the content in the report, and send the report to subscribers.
@@ -49,16 +77,36 @@ export const ReportEditPage = () => {
     defaultReport(userInfo?.id ?? 0, defaultReportTemplateId ?? 0),
   );
   const [autoGeneratePending, setAutoGeneratePending] = React.useState(false);
+  // The stories as last received from the API, to tell whether the user has changed them.
+  const contentBaseline = React.useRef<IReportInstanceContentModel[]>();
 
   const instance = report.instances.length ? report.instances[0] : undefined;
-  const canEdit = instance
-    ? [
-        ReportStatusName.Pending,
-        ReportStatusName.Reopen,
-        ReportStatusName.Failed,
-        ReportStatusName.Cancelled,
-      ].includes(instance.status)
-    : true;
+  const canEdit = instance ? editableStatuses.includes(instance.status) : true;
+
+  /** Show a report received from the API, remembering its stories if they are loaded. */
+  const applyReport = React.useCallback((form: IReportForm) => {
+    contentBaseline.current =
+      form.contentLoaded && form.instances.length ? form.instances[0].content : undefined;
+    setReport(form);
+  }, []);
+
+  /** Load the current instance's stories, keeping any unsaved changes to the report. */
+  const loadContent = React.useCallback(
+    async (values: IReportForm) => {
+      const current = values.instances.length ? values.instances[0] : undefined;
+      if (!current || values.contentLoaded) return;
+      const loaded = await getReportInstance(current.id, true);
+      if (!loaded) return;
+      applyReport(
+        toForm(
+          { ...values, instances: [{ ...current, ...loaded }, ...values.instances.slice(1)] },
+          false,
+          true,
+        ),
+      );
+    },
+    [applyReport, getReportInstance],
+  );
 
   React.useEffect(() => {
     if (!myReports?.length) {
@@ -68,7 +116,7 @@ export const ReportEditPage = () => {
           if (reportId) {
             const report = reports.find((r) => r.id === reportId);
             if (report) {
-              setReport(toForm(report));
+              applyReport(toForm(withoutContent(report), false, false));
             }
           }
         })
@@ -120,7 +168,7 @@ export const ReportEditPage = () => {
     setAutoGeneratePending(true);
     generateReport(reportId)
       .then((result) => {
-        setReport(toForm(result, true));
+        applyReport(toForm(result, true));
       })
       .catch(() => {
         setAutoGeneratePending(false);
@@ -134,22 +182,18 @@ export const ReportEditPage = () => {
     const originalReportSections = report.sections;
     if (userInfo && !!reportId && myReports?.length) {
       const existingReport = myReports.find((r) => r.id === reportId);
-      const hasFetchedContent = existingReport?.instances.some((r) => r.content?.length);
-      if (existingReport && hasFetchedContent) {
-        // Case 1: Complete data: do nothing
-        // We have existing report & it has instance content loaded already
-        setReport(toForm(existingReport));
-      } else if (existingReport && !hasFetchedContent) {
-        // Case 2: Partial Data: call generateReport to get missing data
-        // We have existing report loaded, but no content present in instance data
-        setAutoGeneratePending(false);
-        setReport(toForm({ ...existingReport, instances: [] }));
+      if (existingReport?.instances.length) {
+        // Case 1: The report and its instance are already loaded.
+        // The stories are left out until a page needs them.
+        applyReport(toForm(withoutContent(existingReport), false, false));
       } else {
-        // Case 3: No report data present, fetch entire report + instance + content data
-        getReport(reportId, true)
+        // Case 2: Fetch the report and its instance; stories load when a page needs them.
+        // Generating is only needed when the report has no instance yet (see the effect above),
+        // as generating returns every story of an existing instance.
+        getReport(reportId, false)
           .then(async (report) => {
             if (report) {
-              setReport(
+              applyReport(
                 toForm({
                   ...report,
                   sections: report.sections.map((section, index) => {
@@ -199,11 +243,12 @@ export const ReportEditPage = () => {
             });
           }
         } else {
-          const instance = await getReportInstance(message.id, true);
+          // Only fetch the stories if the page has loaded them.
+          const instance = await getReportInstance(message.id, !!report.contentLoaded);
           if (instance) {
             // If there is a new instance, prepend it.
             const add = !report.instances.some((i) => i.id === message.id);
-            setReport({
+            applyReport({
               ...report,
               instances: add
                 ? [instance, ...report.instances]
@@ -230,7 +275,15 @@ export const ReportEditPage = () => {
         if (sameNameReport) {
           toast.error(`A report with the name '${sanitizedValues.name}' already exists.`);
         } else {
-          if (sanitizedValues.instances.length) {
+          const current = values.instances.length ? values.instances[0] : undefined;
+          // Stories are saved only when they were loaded and changed (see shouldSaveContent).
+          const saveContent = shouldSaveContent(
+            values,
+            sanitizedValues,
+            contentBaseline.current,
+            !!current && editableStatuses.includes(current.status),
+          );
+          if (saveContent && sanitizedValues.instances.length) {
             // Apply new sort order values for content to stop content from moving around when it has the same sort order value.
             sanitizedValues.instances[0] = {
               ...sanitizedValues.instances[0],
@@ -254,16 +307,7 @@ export const ReportEditPage = () => {
           }
 
           const result = originalId
-            ? await updateReport(
-                sanitizedValues,
-                instance &&
-                  [
-                    ReportStatusName.Pending,
-                    ReportStatusName.Reopen,
-                    ReportStatusName.Failed,
-                    ReportStatusName.Cancelled,
-                  ].includes(instance.status),
-              )
+            ? await updateReport(sanitizedValues, saveContent)
             : await addReport({
                 ...sanitizedValues,
                 ownerId: sanitizedValues.ownerId ?? userInfo?.id ?? 0,
@@ -284,17 +328,25 @@ export const ReportEditPage = () => {
             navigate(`/reports/${result.id}${path1 ? `/${path1}` : ''}${path2 ? `/${path2}` : ''}`);
             toast.success(`Successfully created '${result.name}'.`);
           } else {
-            setReport(
-              toForm({
-                ...result,
-                sections: result.sections.map((section, index) => {
-                  const originalSection =
-                    originalReportSections.length > index
-                      ? originalReportSections[index]
-                      : undefined;
-                  return { ...section, open: originalSection?.open };
-                }),
-              }),
+            // Without its stories the API returns no instances, so keep the page's own (and any
+            // stories it has loaded) rather than generating the report again.
+            const keepInstances = !saveContent;
+            applyReport(
+              toForm(
+                {
+                  ...result,
+                  instances: keepInstances ? sanitizedValues.instances : result.instances,
+                  sections: result.sections.map((section, index) => {
+                    const originalSection =
+                      originalReportSections.length > index
+                        ? originalReportSections[index]
+                        : undefined;
+                    return { ...section, open: originalSection?.open };
+                  }),
+                },
+                false,
+                keepInstances ? !!values.contentLoaded : true,
+              ),
             );
             toast.success(`Successfully updated '${result.name}'.`);
           }
@@ -305,7 +357,7 @@ export const ReportEditPage = () => {
     },
     [
       addReport,
-      instance,
+      applyReport,
       myReports,
       navigate,
       path1,
@@ -331,17 +383,20 @@ export const ReportEditPage = () => {
         <FormikForm
           initialValues={report}
           validationSchema={ReportFormSchema}
+          // Validation copies the whole form, which can hold tens of thousands of stories, so it
+          // only runs when the report is saved.
           validateOnChange={false}
+          validateOnBlur={false}
           onSubmit={async (values, { setSubmitting }) => {
             await handleSubmit(values);
             setSubmitting(false);
           }}
         >
-          <ReportEditContextProvider>
+          <ReportEditContextProvider loadContent={loadContent}>
             <ReportEditForm
               ref={editRef}
               disabled={!canEdit}
-              updateForm={(form) => setReport(form)}
+              updateForm={applyReport}
               onContentClick={(content) => {
                 if (contentRef.current)
                   contentRef.current.scrollIntoView({
