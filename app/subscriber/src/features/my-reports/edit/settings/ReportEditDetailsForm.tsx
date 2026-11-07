@@ -2,6 +2,7 @@ import { FaInfoCircle } from 'react-icons/fa';
 import { FormikCheckbox, FormikText, FormikTextArea } from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';
+import { CollectionOnlyOption } from './CollectionOnlyOption';
 import * as styled from './styled';
 
 export const ReportEditDetailsForm = () => {
@@ -39,6 +40,7 @@ export const ReportEditDetailsForm = () => {
             label="Append the report date to the subject line"
           />
         </div>
+        <CollectionOnlyOption />
       </div>
     </styled.ReportEditDetailsForm>
   );

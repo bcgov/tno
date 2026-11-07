@@ -75,7 +75,8 @@ public class ReportInstanceController : ControllerBase
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
         var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException("Report instance does not exist");
 
-        if (regenerate || String.IsNullOrWhiteSpace(instance.Body))
+        // A collection-only report's headline list is always built from its current stories.
+        if (regenerate || String.IsNullOrWhiteSpace(instance.Body) || instance.Report.IsCollectionOnly())
         {
             var report = instance.Report ?? throw new NoContentException("Report instance is missing report information");
             if (!user.Roles.Split(',').Contains($"[{ClientRole.Administrator.GetName()}]") && // User is not admin

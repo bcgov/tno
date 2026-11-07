@@ -585,7 +585,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
 
             // Fetch all image data.  Need to do this in a separate step because of async+await.
             // TODO: Review this implementation due to performance issues.
-            foreach (var section in sectionContent)
+            // A collection-only report is never rendered, so it never needs the images.
+            foreach (var section in sectionContent.Where(_ => !report.Settings.CollectionOnly))
             {
                 foreach (var content in section.Value.Content.Where(c => c.ContentType == Entities.ContentType.Image))
                 {
@@ -748,7 +749,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
         {
             // Fetch all image data.  Need to do this in a separate step because of async+await.
             // TODO: Review this implementation due to performance issues.
-            foreach (var section in sectionContent)
+            // A collection-only report is never rendered, so it never needs the images.
+            foreach (var section in sectionContent.Where(_ => !report.Settings.CollectionOnly))
             {
                 foreach (var content in section.Value.Content.Where(c => c.ContentType == Entities.ContentType.Image))
                 {
@@ -927,6 +929,21 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
     {
         try
         {
+            if (report.Settings.CollectionOnly)
+            {
+                // The stories and charts are saved; this report only feeds other reports, so it is
+                // neither rendered nor emailed. It is not marked sent, so it keeps collecting.
+                if (instance != null)
+                {
+                    // It has no rendered output; drop any left from before, which may exceed the size limit.
+                    instance.Body = "";
+                    instance.Status = ReportStatus.Completed;
+                    instance.Response = JsonSerializer.SerializeToDocument(new { Message = "Collection only: content collected, report not rendered or sent." }, _serializationOptions);
+                }
+                this.Logger.LogInformation("Collection-only report collected without rendering or sending. ReportId:{reportId}, InstanceId:{instanceId}", report.Id, instance?.Id);
+                return;
+            }
+
             _watchdog.Progress("Rendering report");
             var (subject, linkBody, fullBody) = await GenerateReportOutputAsync(request, report, instance, sectionContent);
 

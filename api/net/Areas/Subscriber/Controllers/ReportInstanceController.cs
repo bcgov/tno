@@ -215,7 +215,8 @@ public class ReportInstanceController : ControllerBase
         var instance = _reportInstanceService.FindById(id);
         if (instance == null) return NoContent();
 
-        if (regenerate || String.IsNullOrWhiteSpace(instance.Body))
+        // A collection-only report's headline list is always built from its current stories.
+        if (regenerate || String.IsNullOrWhiteSpace(instance.Body) || instance.Report.IsCollectionOnly())
         {
             var user = _impersonate.GetCurrentUser();
             var report = instance.Report ?? throw new NoContentException("Report does not exist");
@@ -278,6 +279,7 @@ public class ReportInstanceController : ControllerBase
         var user = _impersonate.GetCurrentUser();
         var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException("Report does not exist");
         if (instance.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to send this report"); // User does not own the report
+        instance.Report.ThrowIfCollectionOnly();
         _reportInstanceService.ValidateReportSize(instance);
 
         var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, instance.ReportId, instance.Id, JsonDocument.Parse("{}"))
@@ -308,6 +310,7 @@ public class ReportInstanceController : ControllerBase
         var user = _impersonate.GetCurrentUser();
         var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException("Report does not exist");
         if (instance.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to publish this report"); // User does not own the report
+        instance.Report.ThrowIfCollectionOnly();
         _reportInstanceService.ValidateReportSize(instance, resend && !String.IsNullOrWhiteSpace(instance.Subject));
 
         instance.Status = new[] { Entities.ReportStatus.Pending, Entities.ReportStatus.Reopen }.Contains(instance.Status) ? Entities.ReportStatus.Submitted : instance.Status;

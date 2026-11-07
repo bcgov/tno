@@ -68,6 +68,15 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
                 + c.Content!.Summary.Length + c.Content.Headline.Length + ReportSizeLimit.StoryOverheadCharacters)) ?? 0;
     }
 
+    /// <inheritdoc />
+    public long EstimateHeadlineListSize(long id, string[] sectionNames)
+    {
+        // Only the headline is read; no story body or summary is loaded.
+        return this.Context.ReportInstanceContents
+            .Where(c => c.InstanceId == id && sectionNames.Contains(c.SectionName) && c.Content != null)
+            .Sum(c => (long?)(c.Content!.Headline.Length + ReportSizeLimit.HeadlineOverheadCharacters)) ?? 0;
+    }
+
     /// <summary>
     /// Find the instances of the report published within [start, end), newest first, with their content links.
     /// </summary>

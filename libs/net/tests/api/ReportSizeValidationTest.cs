@@ -125,4 +125,75 @@ public class ReportSizeValidationTest
         instance.Body = new string('x', ReportSizeLimit.MaximumCharacters + 1);
         Assert.Throws<ReportTooLargeException>(() => service.Object.ValidateReportSize(instance, true));
     }
+
+    private static ReportInstance CollectionOnlyInstance()
+    {
+        var instance = Instance();
+        instance.Report!.Settings = JsonDocument.Parse("{\"collectionOnly\":true}");
+        return instance;
+    }
+
+    [Theory]
+    [InlineData("publish")]
+    [InlineData("send")]
+    public async Task ACollectionOnlyReportCannotBeSent(string operation)
+    {
+        var instance = CollectionOnlyInstance();
+        var service = new Mock<IReportInstanceService>();
+        service.Setup(s => s.FindById(31)).Returns(instance);
+        var kafka = new Mock<IKafkaMessenger>(MockBehavior.Strict);
+        var controller = Create(service, kafka);
+        var error = await Assert.ThrowsAsync<BadRequestException>(() => operation == "publish"
+            ? controller.PublishAsync(31, false)
+            : controller.SendToAsync(31, "owner@example.test"));
+        Assert.Equal(ReportSizeValidation.CollectionOnlySendMessage, error.Message);
+        Assert.Equal(ReportStatus.Pending, instance.Status);
+        service.Verify(s => s.UpdateAndSave(It.IsAny<ReportInstance>(), It.IsAny<bool>()), Times.Never);
+        Assert.Empty(kafka.Invocations);
+    }
+
+    [Fact]
+    public async Task ACollectionOnlyPreviewIsRebuiltFromHeadlinesEvenWithLargeStoredOutput()
+    {
+        var instance = CollectionOnlyInstance();
+        instance.Body = new string('x', ReportSizeLimit.MaximumCharacters + 1);
+        var service = new Mock<IReportInstanceService>();
+        service.Setup(s => s.FindById(31)).Returns(instance);
+        service.Setup(s => s.EstimateHeadlineListSize(31, It.Is<string[]>(names => names.SequenceEqual(new[] { "enabled" })))).Returns(1000);
+        var helper = new Mock<IReportHelper>();
+        var impersonation = new Mock<IImpersonationHelper>();
+        impersonation.Setup(i => i.GetCurrentUser()).Returns(new User("owner", "owner@example.test") { Id = 1 });
+        var controller = new Controller(Mock.Of<IReportService>(), service.Object, Mock.Of<IUserService>(), impersonation.Object,
+            helper.Object, Mock.Of<IKafkaMessenger>(), Options.Create(new KafkaOptions()), null!, Options.Create(new JsonSerializerOptions()));
+
+        await controller.ViewAsync(31, false);
+
+        // The stored output is never reused; the full-report estimate is never consulted.
+        helper.Verify(h => h.PreviewReportInstanceAsync(It.IsAny<TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(), 1, It.IsAny<bool>()), Times.Once);
+        service.Verify(s => s.EstimateReportSize(It.IsAny<long>(), It.IsAny<string[]>(), It.IsAny<string[]>()), Times.Never);
+    }
+
+    [Fact]
+    public void ACollectionOnlyReportIsLimitedByItsHeadlineList()
+    {
+        var instance = CollectionOnlyInstance();
+        var service = new Mock<IReportInstanceService>(MockBehavior.Strict);
+        service.SetupSequence(s => s.EstimateHeadlineListSize(31, It.IsAny<string[]>()))
+            .Returns(ReportSizeLimit.MaximumCharacters + 1L).Returns(1000);
+        Assert.Throws<ReportTooLargeException>(() => service.Object.ValidateReportSize(instance));
+        service.Object.ValidateReportSize(instance, true);
+    }
+
+    [Theory]
+    [InlineData("{}", false)]
+    [InlineData("{\"collectionOnly\":false}", false)]
+    [InlineData("{\"collectionOnly\":\"true\"}", false)]
+    [InlineData("[]", false)]
+    [InlineData("{\"collectionOnly\":true}", true)]
+    public void CollectionOnlyIsReadFromTheReportSettings(string settings, bool expected)
+    {
+        var report = new Report(12, "Report", 1, 1) { Settings = JsonDocument.Parse(settings) };
+        Assert.Equal(expected, report.IsCollectionOnly());
+        Assert.False(((Report?)null).IsCollectionOnly());
+    }
 }

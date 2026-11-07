@@ -30,6 +30,14 @@ public interface IReportInstanceService : IBaseService<ReportInstance, long>
     long EstimateReportSize(long id, string[] sectionNames, string[] fullStorySectionNames);
 
     /// <summary>
+    /// Estimate the headline-only list a collection-only report renders for the specified sections.
+    /// </summary>
+    /// <param name="id">Report instance id.</param>
+    /// <param name="sectionNames">Enabled sections.</param>
+    /// <returns>Estimated characters.</returns>
+    long EstimateHeadlineListSize(long id, string[] sectionNames);
+
+    /// <summary>
     /// Find the instances of the report published within [start, end), newest first, with their content links.
     /// </summary>
     /// <param name="reportId"></param>

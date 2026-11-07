@@ -45,6 +45,7 @@ export const ReportViewForm: React.FC = () => {
   const instance = values.instances.length ? values.instances[0] : undefined;
   const isAdmin = userInfo?.roles.includes(Claim.administrator);
   const isSubscribed = values.subscribers.some((s) => s.isSubscribed === true);
+  const collectionOnly = !!values.settings.collectionOnly;
   const [{ publishReportInstance }] = useReportInstances();
 
   const handleSend = React.useCallback(
@@ -165,7 +166,7 @@ export const ReportViewForm: React.FC = () => {
                 >
                   <Button
                     className="send-test-button"
-                    disabled={isSubmitting || !to.length || !validateEmail(to)}
+                    disabled={isSubmitting || !to.length || !validateEmail(to) || collectionOnly}
                     variant="secondary"
                     onClick={() => !!instance?.id && handleSend(instance.id, to)}
                     style={{ backgroundColor: 'transparent' }}
@@ -193,7 +194,8 @@ export const ReportViewForm: React.FC = () => {
                 isSubmitting ||
                 !instance ||
                 instance?.status === ReportStatusName.Submitted ||
-                !isSubscribed
+                !isSubscribed ||
+                collectionOnly
               }
               onClick={() => toggleSend()}
               variant="success"
@@ -212,7 +214,8 @@ export const ReportViewForm: React.FC = () => {
                   isSubmitting ||
                   !instance ||
                   instance?.status === ReportStatusName.Submitted ||
-                  !isSubscribed
+                  !isSubscribed ||
+                  collectionOnly
                 }
                 onClick={() => toggleResend()}
                 variant="warn"
@@ -222,6 +225,12 @@ export const ReportViewForm: React.FC = () => {
               </Button>
             </Show>
           </Row>
+          {collectionOnly && (
+            <p className="info">
+              This report is for content collection only and cannot be sent. Turn off
+              &quot;Collection only&quot; in Settings to send it.
+            </p>
+          )}
           {values.settings.doNotSendEmail && (
             <p className="info">You currently have the email preference to not send emails.</p>
           )}
