@@ -40,6 +40,12 @@ public class ReportSizeEstimateTest
         Assert.Equal(2L * (entry + content.Body.Length), service.EstimateReportSize(31, ["first", "second"], ["first", "second"]));
         Assert.Equal(0, service.EstimateReportSize(31, [], []));
         Assert.Equal(0, service.EstimateReportSize(99, ["first"], []));
+
+        // A collection-only report renders headlines only.
+        var headline = ReportSizeLimit.HeadlineOverheadCharacters + content.Headline.Length;
+        Assert.Equal(2L * headline, service.EstimateHeadlineListSize(31, ["first", "second"]));
+        Assert.Equal(0, service.EstimateHeadlineListSize(31, []));
+        Assert.Equal(0, service.EstimateHeadlineListSize(99, ["first"]));
         Assert.Empty(context.ChangeTracker.Entries());
         Assert.Equal(4, context.ReportInstanceContents.Count());
 

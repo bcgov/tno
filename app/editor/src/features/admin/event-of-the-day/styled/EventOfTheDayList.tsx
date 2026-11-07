@@ -47,11 +47,25 @@ export const EventOfTheDayList = styled.div`
       }
     }
   }
+  .activity {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2rem;
+    margin: 0 0.75rem 0.5rem;
+    font-weight: bold;
+  }
   .topic-editor {
+    position: relative;
     border: 0;
     margin: 0;
     padding: 0;
     min-width: 0;
+    min-height: 8rem;
+  }
+  .topic-loader {
+    align-items: flex-start;
+    padding-top: 3rem;
   }
   .topic-editor:disabled {
     opacity: 0.65;

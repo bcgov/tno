@@ -28,6 +28,7 @@ import {
   Select,
   SelectDate,
   Show,
+  Spinner,
 } from 'tno-core';
 
 import { OrphanScanResponseError, parseOrphanScan } from './parseOrphanScan';
@@ -140,7 +141,46 @@ const Container = styled.div`
   .status {
     margin: 1rem 0;
   }
+  .scan-activity {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ddd;
+    border-left: 4px solid ${(props) => props.theme.css.primaryColor};
+    background: #f7f9fc;
+    > div:last-child {
+      display: flex;
+      flex-direction: column;
+    }
+    .stalled {
+      color: ${(props) => props.theme.css.dangerColor};
+    }
+  }
 `;
+
+/** A scan whose saved progress has not moved for this long is reported as stalled. */
+const STALLED_MILLISECONDS = 2 * 60 * 1000;
+
+/** Describe the elapsed time since a saved timestamp in whole seconds, minutes or hours. */
+const elapsed = (from: string, now: number) => {
+  const seconds = Math.max(0, Math.round((now - Date.parse(from)) / 1000));
+  if (seconds < 60) return `${seconds} ${seconds === 1 ? 'second' : 'seconds'}`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`;
+  const hours = Math.floor(minutes / 60);
+  return `${hours} ${hours === 1 ? 'hour' : 'hours'} ${minutes % 60} min`;
+};
+
+/** What the background worker is doing for an active scan. */
+const activity = (job: IOrphanScan) => {
+  if (job.cancelRequested) return 'Cancelling scan…';
+  if (job.status === 'Confirming')
+    return `Verifying ${job.pending.toLocaleString()} potential ${
+      job.pending === 1 ? 'orphan' : 'orphans'
+    }…`;
+  return `Scanning ${job.side === 'elasticsearch' ? 'Elasticsearch' : 'PostgreSQL'}…`;
+};
 
 type Resolution = {
   items: IOrphanedContent[];
@@ -456,6 +496,41 @@ const OrphanedContent: React.FC = () => {
             again.
           </p>
           <div className="status" role="status" aria-live="polite">
+            <Show visible={!loaded && !job}>
+              <div className="scan-activity">
+                <Spinner size="1.5rem" />
+                <div>Loading scan status…</div>
+              </div>
+            </Show>
+            {job && active && (
+              <div className="scan-activity">
+                <Spinner size="1.5rem" />
+                <div>
+                  <strong>{activity(job)}</strong>
+                  <span>
+                    Running for {elapsed(job.createdOn, Date.now())}. Last progress saved{' '}
+                    {elapsed(job.updatedOn, Date.now())} ago.
+                  </span>
+                  <Show visible={job.status === 'Confirming'}>
+                    <span>
+                      Each potential orphan is checked again once its grace period has passed, so
+                      this step can wait several minutes before progress changes.
+                    </span>
+                  </Show>
+                  <Show
+                    visible={
+                      job.status === 'Scanning' &&
+                      Date.now() - Date.parse(job.updatedOn) > STALLED_MILLISECONDS
+                    }
+                  >
+                    <span className="stalled">
+                      No progress has been saved recently. The scan may be stalled; check the API
+                      logs, or cancel and start a new scan.
+                    </span>
+                  </Show>
+                </div>
+              </div>
+            )}
             {notice}
             <Show visible={!!job}>
               <p>

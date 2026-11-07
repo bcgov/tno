@@ -1,3 +1,4 @@
+export * from './CollectionOnlyOption';
 export * from './ReportEditDataSourcesForm';
 export * from './ReportEditDetailsForm';
 export * from './ReportEditPreferencesForm';
