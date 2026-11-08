@@ -190,7 +190,10 @@ namespace TNO.Core.Http
 
             _logger.LogDebug("HTTP request made: {method}:{uri} (User-Agent: {userAgent})",
                 message.Method, message.RequestUri, userAgent);
-            return await this.Client.SendAsync(message, HttpCompletionOption.ResponseHeadersRead);
+            // Buffer the full response (ResponseContentRead) so that HttpClient.Timeout covers the body.
+            // With ResponseHeadersRead a server that stalls mid-body hangs the caller's content read
+            // forever, because callers read the content without a cancellation token.
+            return await this.Client.SendAsync(message, HttpCompletionOption.ResponseContentRead);
         }
 
         /// <summary>
