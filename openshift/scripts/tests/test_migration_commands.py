@@ -22,6 +22,13 @@ with open(os.environ['CALLS'], 'a') as log:
 if command == 'curl':
     print('200', end='')
 elif command == 'oc':
+    if args[0] == 'scale' and os.environ.get('SCALE_FAIL') and os.environ['SCALE_FAIL'] in args:
+        sys.exit(1)
+    if args[:2] == ['rollout', 'status'] and os.environ.get('ROLLOUT_FAIL'):
+        sys.exit(1)
+    if 'availableReplicas' in text:
+        print('2')
+        sys.exit(0)
     if args[0] == 'apply':
         pathlib.Path(os.environ['MANIFEST']).write_text(sys.stdin.read())
         sys.exit(1 if os.environ.get('APPLY_FAIL') else 0)
@@ -104,12 +111,52 @@ class MigrationCommands(unittest.TestCase):
         self.assertIn('docker buildx imagetools create --tag ', calls)
         self.assertNotIn('elastic-migration-service', calls)
 
-    def test_up_keeps_local_indexing_off_on_cloud_environments(self):
+    def run_deploy(self, *args, success=True, **env):
+        """Run deploy.sh from the repository root, as release.sh does."""
+        result = subprocess.run([str(self.scripts / 'deploy.sh'), *args], cwd=self.root,
+                                env={**self.env, **env}, text=True,
+                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=15)
+        self.assertEqual(result.returncode == 0, success, result.stdout)
+        return result.stdout
+
+    def test_up_and_stop_only_scale_the_cloud_indexer_on_cloud_environments(self):
         for env in ('test', 'prod'):
             self.run_make('up', f'e={env}')
-            self.assertIn(f'oc scale deployment indexing-service -n 9b301c-{env} --replicas=0', self.calls())
+            self.run_make('stop', f'e={env}')
+            self.assertNotIn(f'oc scale deployment indexing-service -n 9b301c-{env}', self.calls())
             count = 2 if env == 'test' else 3
             self.assertIn(f'oc scale deployment indexing-service-cloud -n 9b301c-{env} --replicas={count}', self.calls())
+            self.assertIn(f'oc scale deployment indexing-service-cloud -n 9b301c-{env} --replicas=0', self.calls())
+
+    def test_up_and_stop_fail_when_a_service_cannot_be_scaled(self):
+        self.assertIn('editor', self.run_make('up', 'e=test', success=False, SCALE_FAIL='editor'))
+        self.assertIn('editor', self.run_make('stop', 'e=test', success=False, SCALE_FAIL='editor'))
+        # The rest of the environment is still started.
+        self.assertIn('oc scale deployment subscriber -n 9b301c-test --replicas=2', self.calls())
+
+    def test_full_deploy_from_repository_root_stops_and_restarts(self):
+        output = self.run_deploy('test', 'candidate')
+        self.assertNotIn('No such file', output)
+        self.assertIn('Deployment complete!', output)
+        calls = self.calls()
+        self.assertIn('oc scale deployment editor -n 9b301c-test --replicas=0', calls)
+        self.assertIn('oc scale deployment editor -n 9b301c-test --replicas=2', calls)
+        self.assertNotIn('oc scale deployment indexing-service -n', calls)
+        self.assertIn('oc scale deployment indexing-service-cloud -n 9b301c-test --replicas=2', calls)
+
+    def test_full_deploy_failure_is_reported_after_restarting(self):
+        output = self.run_deploy('test', 'candidate', success=False, SCALE_FAIL='editor')
+        self.assertIn('Deployment FAILED', output)
+        self.assertNotIn('Deployment complete!', output)
+        self.assertIn('stop.sh did not stop every service', output)
+        self.assertIn('could not scale deployment/editor to 2', output)
+        # Everything else is still scaled back up.
+        self.assertIn('oc scale deployment subscriber -n 9b301c-test --replicas=2', self.calls())
+
+    def test_single_workload_rollout_failure_is_reported(self):
+        output = self.run_deploy('test', 'candidate', 'editor', success=False, ROLLOUT_FAIL='1')
+        self.assertNotIn('Deployment complete!', output)
+        self.assertIn('did not finish rolling out', output)
 
     def test_migration_controls(self):
         self.run_make('deploy', 'n=elastic-migration', 'e=test',

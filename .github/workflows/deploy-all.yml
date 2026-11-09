@@ -128,6 +128,7 @@ jobs:
         run: |
           python .github/scripts/detect_deploy_changes.py \
             --scope "${{ inputs.deploy_scope }}" \
+            --environment "${{ inputs.environment }}" \
             --changed-files changed-files.txt \
             --github-output "$GITHUB_OUTPUT"
 

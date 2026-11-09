@@ -27,6 +27,10 @@ if [[ -f "$_env_file" ]]; then
   set +a
 fi
 
+# Run from this script's directory so its sibling scripts (./stop.sh) resolve the same way
+# whether it is started by make, by release.sh from the repository root, or by hand.
+cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1
+
 env=${1-dev}
 tag=${2-latest}
 name=${3-}
@@ -340,7 +344,12 @@ scale () {
   replicas=${2-0}
   type=${3-deployment}
   env=${4-'dev'}
-  oc scale $type $name -n 9b301c-$env --replicas=$replicas
+  oc scale $type $name -n 9b301c-$env --replicas=$replicas || fail "could not scale $type/$name to $replicas"
+}
+
+# rollout_status <type/name> - wait for a workload to become ready.
+rollout_status () {
+  oc rollout status "$1" --timeout=10m -n 9b301c-$env || fail "$1 did not become ready"
 }
 
 # Retag an image in ACR: source tag → env tag (manifest copy, no layer download)
@@ -736,13 +745,28 @@ if [[ -n "$name" ]]; then
 
   # Every workload sets imagePullPolicy: Always, so a rolling restart picks up the moved tag
   # without touching replica counts - a single service cannot be stranded at 0.
-  oc rollout restart "$_type/$name" -n "9b301c-$env"
-  oc rollout status "$_type/$name" --timeout=10m -n "9b301c-$env"
+  if ! oc rollout restart "$_type/$name" -n "9b301c-$env"; then
+    echo "ERROR: could not restart $_type/$name in 9b301c-$env."
+    exit 1
+  fi
+  if ! oc rollout status "$_type/$name" --timeout=10m -n "9b301c-$env"; then
+    echo "ERROR: $_type/$name did not finish rolling out in 9b301c-$env."
+    exit 1
+  fi
 
   echo "Deployment complete!"
   exit 0
 fi
 # ----------------------------------------------------------------------------
+
+# Every failed step is recorded rather than stopping the script, so a failure part-way through
+# still scales the rest of the environment back up. The deploy then reports the failures and
+# exits non-zero instead of claiming success.
+_failures=()
+fail () {
+  echo "ERROR: $*"
+  _failures+=("$*")
+}
 
 # Get current pod counts for all services (25 total - oracle not in dev)
 
@@ -761,8 +785,10 @@ podsTranscription=$(getPods transcription-service deployment $env)
 # Kafka Consumers - Stateless (8 services)
 podsFolderCollection=$(getPods folder-collection-service deployment $env)
 podsContent=$(getPods content-service deployment $env)
-podsIndexing=$(getPods indexing-service deployment $env)
-if [[ "$env" != "dev" ]]; then
+# DEV runs the local indexer; TEST and PROD only have the Elastic Cloud one.
+if [[ "$env" == "dev" ]]; then
+  podsIndexing=$(getPods indexing-service deployment $env)
+else
   podsIndexingCloud=$(getPods indexing-service-cloud deployment $env)
 fi
 podsEventHandler=$(getPods event-handler-service deployment $env)
@@ -815,7 +841,7 @@ acr_tag syndication-service
 acr_tag image-service
 
 # Stop everything
-./stop.sh $env
+./stop.sh $env || fail "stop.sh did not stop every service"
 
 # Start everything
 echo "Scaling services back to original replica counts"
@@ -825,8 +851,8 @@ scale api $podsApi statefulset $env
 scale api-services $podsApiServices deployment $env
 
 # Wait until the API is running
-oc rollout status statefulset/api --timeout=10m -n 9b301c-$env
-oc rollout status deployment/api-services --timeout=10m -n 9b301c-$env
+rollout_status statefulset/api
+rollout_status deployment/api-services
 
 scale nginx $podsNginx deployment $env
 scale editor $podsEditor deployment $env
@@ -840,8 +866,9 @@ scale transcription-service $podsTranscription deployment $env
 # Kafka Consumers
 scale folder-collection-service $podsFolderCollection deployment $env
 scale content-service $podsContent deployment $env
-scale indexing-service $podsIndexing deployment $env
-if [[ "$env" != "dev" ]]; then
+if [[ "$env" == "dev" ]]; then
+  scale indexing-service $podsIndexing deployment $env
+else
   scale indexing-service-cloud $podsIndexingCloud deployment $env
 fi
 scale event-handler-service $podsEventHandler deployment $env
@@ -862,4 +889,10 @@ scale image-service $podsImage deployment $env
 # scale oracle $podsOracle deployment $env  # Not deployed in dev
 scale kowl $podsKowl deployment $env
 
+if [[ ${#_failures[@]} -gt 0 ]]; then
+  echo
+  echo "Deployment FAILED - ${#_failures[@]} step(s) did not succeed:"
+  printf '  - %s\n' "${_failures[@]}"
+  exit 1
+fi
 echo "Deployment complete!"

@@ -31,7 +31,7 @@ declare -A REPLICAS=(
   # Kafka consumers
   [folder-collection-service_dev]=1 [folder-collection-service_test]=2 [folder-collection-service_prod]=3
   [content-service_dev]=1   [content-service_test]=2   [content-service_prod]=3
-  [indexing-service_dev]=1  [indexing-service_test]=0  [indexing-service_prod]=0
+  [indexing-service_dev]=1  # TEST and PROD have no indexing-service, only indexing-service-cloud
   [indexing-service-cloud_dev]=1 [indexing-service-cloud_test]=2 [indexing-service-cloud_prod]=3
   [event-handler-service_dev]=1 [event-handler-service_test]=2 [event-handler-service_prod]=3
   [notification-service_dev]=1 [notification-service_test]=2 [notification-service_prod]=3
@@ -59,8 +59,11 @@ scale() {
   local replicas=${2-0}
   local type=${3-deployment}
   local env=${4-'dev'}
-  oc scale $type $name -n 9b301c-$env --replicas=$replicas
+  oc scale $type $name -n 9b301c-$env --replicas=$replicas || _failures+=("scale $type/$name")
 }
+
+# A failed step is recorded and the rest still start; the script then exits non-zero.
+_failures=()
 
 # ---------------------------------------------------------------------------
 
@@ -69,8 +72,8 @@ scale api              $(replicas api $env)              statefulset $env
 scale api-services     $(replicas api-services $env)     deployment  $env
 
 # Wait until API is running
-oc rollout status statefulset/api      --timeout=10m -n 9b301c-$env
-oc rollout status deployment/api-services --timeout=10m -n 9b301c-$env
+oc rollout status statefulset/api      --timeout=10m -n 9b301c-$env || _failures+=("statefulset/api not ready")
+oc rollout status deployment/api-services --timeout=10m -n 9b301c-$env || _failures+=("deployment/api-services not ready")
 
 scale nginx            $(replicas nginx $env)            deployment $env
 scale editor           $(replicas editor $env)           deployment $env
@@ -85,8 +88,10 @@ scale nginx-subscriber $(replicas nginx-subscriber $env) deployment $env
 # Kafka Consumers
 scale folder-collection-service $(replicas folder-collection-service $env) deployment $env
 scale content-service  $(replicas content-service $env)  deployment $env
-scale indexing-service $(replicas indexing-service $env) deployment $env
-if [[ "$env" != "dev" ]]; then
+# DEV runs the local indexer; TEST and PROD only have the Elastic Cloud one.
+if [[ "$env" == "dev" ]]; then
+  scale indexing-service $(replicas indexing-service $env) deployment $env
+else
   scale indexing-service-cloud $(replicas indexing-service-cloud $env) deployment $env
 fi
 scale event-handler-service  $(replicas event-handler-service $env)  deployment $env
@@ -103,3 +108,9 @@ scale automation-service $(replicas automation-service $env) deployment $env
 scale content-analysis-service $(replicas content-analysis-service $env) deployment $env
 
 # scale kowl 1 deployment $env
+
+if [[ ${#_failures[@]} -gt 0 ]]; then
+  echo "ERROR: the environment did not fully start:" >&2
+  printf '  - %s\n' "${_failures[@]}" >&2
+  exit 1
+fi
