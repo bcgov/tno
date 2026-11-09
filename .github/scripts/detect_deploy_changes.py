@@ -104,6 +104,13 @@ SERVICE_TARGETS = [
     {"name": "folder-collection-service", "deployment": "folder-collection-service"},
 ]
 
+# Deployments named differently per environment. DEV runs the local indexer; TEST and PROD only
+# have the Elastic Cloud one, which runs the same indexing-service image.
+ENVIRONMENT_DEPLOYMENTS = {
+    "test": {"indexing-service": "indexing-service-cloud"},
+    "prod": {"indexing-service": "indexing-service-cloud"},
+}
+
 FRONTEND_TARGETS = [
     {"name": "editor", "deployment": "editor"},
     {"name": "subscriber", "deployment": "subscriber"},
@@ -181,14 +188,24 @@ def matrix_from_names(targets_by_name, names):
     return {"include": ordered}
 
 
-def detect_deploy_changes(changed_files, scope):
+def for_environment(matrix, environment):
+    deployments = ENVIRONMENT_DEPLOYMENTS.get(environment, {})
+    return {
+        "include": [
+            {**target, "deployment": deployments.get(target["name"], target["deployment"])}
+            for target in matrix["include"]
+        ]
+    }
+
+
+def detect_deploy_changes(changed_files, scope, environment="dev"):
     if scope not in {"all", "changed"}:
         raise ValueError(f"Unsupported deploy scope: {scope}")
 
     if scope == "all":
         return {
             "build_matrix": {"include": BUILD_TARGETS},
-            "service_matrix": {"include": SERVICE_TARGETS},
+            "service_matrix": for_environment({"include": SERVICE_TARGETS}, environment),
             "frontend_matrix": {"include": FRONTEND_TARGETS},
             "has_builds": True,
             "deploy_api": True,
@@ -244,7 +261,7 @@ def detect_deploy_changes(changed_files, scope):
                 service_names.add(service_name)
 
     build_matrix = matrix_from_names(BUILD_BY_NAME, build_names)
-    service_matrix = matrix_from_names(SERVICE_BY_NAME, service_names)
+    service_matrix = for_environment(matrix_from_names(SERVICE_BY_NAME, service_names), environment)
     frontend_matrix = matrix_from_names(FRONTEND_BY_NAME, frontend_names)
 
     return {
@@ -277,6 +294,7 @@ def write_github_output(path, result):
 def parse_args():
     parser = argparse.ArgumentParser(description="Detect deploy-all targets from changed files.")
     parser.add_argument("--scope", choices=["all", "changed"], required=True)
+    parser.add_argument("--environment", choices=["dev", "test", "prod"], default="dev")
     parser.add_argument("--changed-files", default="")
     parser.add_argument("--github-output", default="")
     return parser.parse_args()
@@ -288,7 +306,7 @@ def main():
     if args.changed_files:
         changed_files = Path(args.changed_files).read_text(encoding="utf-8").splitlines()
 
-    result = detect_deploy_changes(changed_files, args.scope)
+    result = detect_deploy_changes(changed_files, args.scope, args.environment)
     if args.github_output:
         write_github_output(args.github_output, result)
     else:

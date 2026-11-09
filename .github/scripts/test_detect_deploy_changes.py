@@ -74,6 +74,20 @@ class DetectDeployChangesTests(unittest.TestCase):
         self.assertTrue(result["deploy_services"])
         self.assertFalse(result["deploy_frontend"])
 
+    def test_indexing_service_deploys_to_cloud_indexer_in_test_and_prod(self):
+        for environment in ("test", "prod"):
+            for scope in ("all", "changed"):
+                result = detect_deploy_changes(["services/net/indexing/IndexingService.cs"], scope, environment)
+                deployments = {item["name"]: item["deployment"] for item in result["service_matrix"]["include"]}
+
+                self.assertEqual(deployments["indexing-service"], "indexing-service-cloud")
+                self.assertNotIn("indexing-service", deployments.values())
+
+    def test_indexing_service_deploys_to_local_indexer_in_dev(self):
+        result = detect_deploy_changes(["services/net/indexing/IndexingService.cs"], "changed", "dev")
+
+        self.assertEqual(result["service_matrix"]["include"], [{"name": "indexing-service", "deployment": "indexing-service"}])
+
     def test_no_relevant_changes_has_empty_matrices(self):
         result = detect_deploy_changes(["docs/readme.md"], "changed")
 
