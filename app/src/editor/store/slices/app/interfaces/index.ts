@@ -1,4 +1,4 @@
-export * from './IAjaxRequest';
+export * from '@/shared/store/interfaces/IAjaxRequest';
 export * from './IAppState';
-export * from './IErrorModel';
+export * from '@/shared/store/interfaces/IErrorModel';
 export * from './IUserOptions';

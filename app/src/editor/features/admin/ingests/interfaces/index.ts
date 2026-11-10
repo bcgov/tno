@@ -1,4 +1,4 @@
 export * from './IContentReferenceListFilter';
 export * from './IIngestContentReference';
-export * from './ISortBy';
+export * from '@/shared/interfaces/ISortBy';
 export * from './ISyndicationFeed';

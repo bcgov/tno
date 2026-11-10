@@ -1,7 +1,7 @@
 import { IReportSectionModel, ReportSectionTypeName, Row } from '@/shared';
+import { SectionIcon } from '@/shared/components/section-icon';
 
 import { useReportEditContext } from '../edit/ReportEditContext';
-import { SectionIcon } from './SectionIcon';
 
 export interface ISectionLabelProps {
   section: IReportSectionModel;

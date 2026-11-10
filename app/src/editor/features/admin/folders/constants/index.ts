@@ -1,3 +1,3 @@
 export * from './columns';
 export * from './defaultFolder';
-export * from './defaultSchedule';
+export * from '@/shared/utils/schedule/defaultSchedule';

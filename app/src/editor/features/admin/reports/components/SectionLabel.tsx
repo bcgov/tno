@@ -1,6 +1,5 @@
 import { ReportSectionTypeName, Row, type IReportSectionModel } from '@/shared';
-
-import { SectionIcon } from './SectionIcon';
+import { SectionIcon } from '@/shared/components/section-icon';
 
 export interface ISectionLabelProps {
   section: IReportSectionModel;

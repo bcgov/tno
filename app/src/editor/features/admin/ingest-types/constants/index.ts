@@ -1,3 +1,3 @@
 export * from './columns';
-export * from './contentTypeOptions';
+export * from '@/shared/constants/contentTypeOptions';
 export * from './defaultIngestType';

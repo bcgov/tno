@@ -29,3 +29,4 @@ export * from './saveToLocalStorage';
 export * from './setCookie';
 export * from './toTitleCase';
 export * from './validateEmail';
+export * from './fixTooltipResizeObserver';

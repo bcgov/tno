@@ -1,1 +1,1 @@
-export * from './fixTooltipResizeObserver';
+export * from '@/shared/utils/fixTooltipResizeObserver';

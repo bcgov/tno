@@ -1,1 +1,1 @@
-export * from './IWorkOrderToast';
+export * from '@/shared/store/interfaces/IWorkOrderToast';

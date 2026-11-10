@@ -1,1 +1,1 @@
-export * from './ISortBy';
+export * from '@/shared/interfaces/ISortBy';

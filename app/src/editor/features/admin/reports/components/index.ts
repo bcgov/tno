@@ -10,5 +10,5 @@ export * from './ReportSectionImage';
 export * from './ReportSectionMediaAnalytics';
 export * from './ReportSectionTableOfContents';
 export * from './ReportSectionText';
-export * from './SectionIcon';
+export * from '@/shared/components/section-icon/SectionIcon';
 export * from './SectionLabel';

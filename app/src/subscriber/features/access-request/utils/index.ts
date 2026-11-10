@@ -1,1 +1,1 @@
-export * from './toUserModel';
+export * from '@/shared/features/access-request/utils/toUserModel';
