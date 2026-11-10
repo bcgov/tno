@@ -195,18 +195,12 @@ spec:
           [dockerfile]="/Dockerfile"
         )
 
+        # One image serves both the editor and subscriber designs (APP_MODE).
         declare -A COMPONENT16=(
-          [id]="editor"
-          [image]="editor"
-          [context]="/app/editor"
-          [dockerfile]="/Dockerfile.open"
-        )
-
-        declare -A COMPONENT17=(
-          [id]="subscriber"
-          [image]="subscriber"
-          [context]="/app/subscriber"
-          [dockerfile]="/Dockerfile.open"
+          [id]="app"
+          [image]="app"
+          [context]="/app"
+          [dockerfile]="/Dockerfile.nginx"
         )
 
         declare -A COMPONENT18=(

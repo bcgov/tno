@@ -1,16 +1,16 @@
 ---
-# The final build image.
+# The final build image. One image serves both the editor and subscriber designs (APP_MODE).
 kind: ImageStream
 apiVersion: image.openshift.io/v1
 metadata:
-  name: editor
+  name: app
   annotations:
     description: Destination for built images.
   labels:
-    name: editor-app
+    name: app
     part-of: tno
     version: 1.0.0
-    component: editor
+    component: app
     managed-by: kustomize
     created-by: jeremy.foster
 
@@ -19,14 +19,14 @@ metadata:
 kind: BuildConfig
 apiVersion: build.openshift.io/v1
 metadata:
-  name: editor.dev
+  name: app.dev
   annotations:
     description: Build image from Dockerfile in git repo.
   labels:
-    name: editor-app
+    name: app
     part-of: tno
     version: 1.0.0
-    component: editor
+    component: app
     managed-by: kustomize
     created-by: jeremy.foster
     branch: dev
@@ -40,7 +40,7 @@ spec:
     git:
       uri: https://github.com/bcgov/tno.git
       ref: dev
-    contextDir: ./app/editor
+    contextDir: ./app
   strategy:
     type: Docker
     dockerStrategy:
@@ -49,7 +49,7 @@ spec:
   output:
     to:
       kind: DockerImage
-      name: bcgov-c4awhwfpcremdbga.azurecr.io/editor:latest
+      name: bcgov-c4awhwfpcremdbga.azurecr.io/app:latest
     pushSecret:
       name: acr-secret
   resources:

@@ -1,11 +1,11 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: editor
+  name: app
   annotations:
     description: >-
-      Build an docker image from a GIT repository using an existing BuildConfig.
-      Then deploy to the specified environment.
+      Build the app image (editor and subscriber designs) from a GIT repository using an existing
+      BuildConfig. Then deploy it to the editor and subscriber workloads in the specified environment.
     tags: oc,git,docker,build,deploy
 spec:
   params:
@@ -13,7 +13,7 @@ spec:
       description: >-
         Identify the git source for this build.
         A git source name is applied to the end of a BuildConfig to
-        identify the source (i.e. editor.{GIT_SOURCE}).
+        identify the source (i.e. app.{GIT_SOURCE}).
       type: string
       default: dev
 
@@ -55,7 +55,7 @@ spec:
         kind: Task
       params:
         - name: APP_NAME
-          value: editor
+          value: app
         - name: GIT_SOURCE
           value: $(params.GIT_SOURCE)
         - name: IMAGE_TAG
@@ -70,7 +70,9 @@ spec:
         kind: Task
       params:
         - name: IMAGE_NAME
-          value: editor
+          value: app
+        - name: DEPLOYMENT
+          value: editor subscriber
         - name: IMAGE_TAG
           value: $(params.IMAGE_TAG)
         - name: ENV

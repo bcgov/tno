@@ -21,6 +21,10 @@ spec:
     - name: IMAGE_NAME
       description: The name given to the built image.
       type: string
+    - name: DEPLOYMENT
+      description: The workloads to restart, space separated (defaults to IMAGE_NAME). The app image runs "editor subscriber".
+      type: string
+      default: ''
     - name: IMAGE_TAG
       description: The tag given to the built image.
       type: string
@@ -41,8 +45,13 @@ spec:
         echo "Tagging image to trigger deployment to $(params.ENV)"
         oc tag $(params.IMAGE_NAME):$(params.IMAGE_TAG) $(params.IMAGE_NAME):$(params.ENV)
 
-        echo "Waiting for deployment to roll out"
-        oc wait --for=condition=available --timeout=$(params.TIMEOUT) dc/$(params.IMAGE_NAME) -n $(params.PROJECT)-$(params.ENV)
+        DEPLOYMENTS="$(params.DEPLOYMENT)"
+        DEPLOYMENTS="${DEPLOYMENTS:-$(params.IMAGE_NAME)}"
+
+        for deployment in $DEPLOYMENTS; do
+          echo "Waiting for $deployment to roll out"
+          oc wait --for=condition=available --timeout=$(params.TIMEOUT) dc/$deployment -n $(params.PROJECT)-$(params.ENV)
+        done
 
         # timeout(10) {
         # dc.rollout().status('--watch=true')

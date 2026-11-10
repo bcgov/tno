@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: buildah-editor
+  name: buildah-app
   annotations:
     tekton.dev/displayName: Buildah Pipeline
     tekton.dev/pipelines.minVersion: 0.17.0
@@ -9,7 +9,7 @@ metadata:
   labels:
     component: pipeline
     managed-by: kustomize
-    name: buildah-editor
+    name: buildah-app
     part-of: tno
     version: 1.0.0
 spec:
@@ -39,8 +39,12 @@ spec:
       name: DEPLOY_TO
       type: string
     - default: https://tno-dev.apps.silver.devops.gov.bc.ca
-      description: The URL to the web application that will be ZAP scanned.
+      description: The URL to the editor web application that will be ZAP scanned.
       name: EDITOR_URL
+      type: string
+    - default: https://mmia-dev.apps.silver.devops.gov.bc.ca
+      description: The URL to the subscriber web application that will be ZAP scanned.
+      name: SUBSCRIBER_URL
       type: string
   tasks:
     - name: wait
@@ -66,16 +70,17 @@ spec:
           workspace: source
         - name: output
           workspace: conditions
-    - name: build-editor
+    # One image serves both the editor and subscriber designs; APP_MODE on each Deployment picks one.
+    - name: build-app
       params:
         - name: COMPONENT
-          value: editor
+          value: app
         - name: CONTEXT
-          value: $(params.CONTEXT)/app/editor
+          value: $(params.CONTEXT)/app
         - name: DOCKERFILE
-          value: Dockerfile.open
+          value: $(params.CONTEXT)/app/Dockerfile.nginx
         - name: IMAGE
-          value: editor
+          value: app
         - name: IMAGE_TAG
           value: $(params.IMAGE_TAG)
         - name: BUILD
@@ -92,18 +97,20 @@ spec:
           workspace: conditions
         - name: build
           workspace: build
-    - name: deploy-editor
+    - name: deploy-app
       params:
         - name: PROJECT_SHORTNAME
           value: $(params.PROJECT_SHORTNAME)
         - name: IMAGE
-          value: editor
+          value: app
+        - name: DEPLOYMENT
+          value: editor subscriber
         - name: IMAGE_TAG
           value: $(params.IMAGE_TAG)
         - name: ENV
           value: $(params.DEPLOY_TO)
       runAfter:
-        - build-editor
+        - build-app
       taskRef:
         kind: Task
         name: oc-deploy-with-tag
@@ -116,7 +123,23 @@ spec:
         - name: SCAN_DURATION
           value: '1'
       runAfter:
-        - deploy-editor
+        - deploy-app
+      taskRef:
+        kind: Task
+        name: owasp-scanner
+      workspaces:
+        - name: owasp-settings
+          workspace: owasp-settings
+    - name: owasp-scan-subscriber
+      params:
+        - name: TARGET_URL
+          value: $(params.SUBSCRIBER_URL)
+        - name: SCAN_TYPE
+          value: quick
+        - name: SCAN_DURATION
+          value: '1'
+      runAfter:
+        - owasp-scan
       taskRef:
         kind: Task
         name: owasp-scanner

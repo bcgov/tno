@@ -9,7 +9,7 @@ resources:
 patches:
   - target:
       kind: BuildConfig
-      name: subscriber.dev
+      name: app.dev
     patch: |-
       - op: replace
         path: /spec/source/git/uri

@@ -22,7 +22,7 @@ To automate Pipelines use Triggers.
 
 | Name                                      | Trigger | Description                                                                |
 | ----------------------------------------- | ------- | -------------------------------------------------------------------------- |
-| [DEV:editor](#build-deploy-with-template) | Git     | Builds the `dev` branch app-editor and deploys to the **DEV** environment. |
+| [DEV:app](#build-deploy-with-template)    | Git     | Builds the `dev` branch app image and deploys the editor and subscriber to **DEV**. |
 | [DEV:api](#build-deploy-with-template)    | Git     | Builds the `dev` branch api-editor and deploys to the **DEV** environment. |
 
 ## GitHub Triggers

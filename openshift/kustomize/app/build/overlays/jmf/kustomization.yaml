@@ -9,14 +9,14 @@ resources:
 patches:
   - target:
       kind: BuildConfig
-      name: editor.dev
+      name: app.dev
     patch: |-
       - op: replace
         path: /metadata/name
-        value: editor.jmf
+        value: app.jmf
       - op: replace
         path: /metadata/labels/name
-        value: editor.jmf
+        value: app.jmf
       - op: replace
         path: /spec/source/git/uri
         value: https://github.com/fosol/tno.git
