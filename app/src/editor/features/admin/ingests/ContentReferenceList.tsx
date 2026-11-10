@@ -1,16 +1,15 @@
 import { useFormikContext } from 'formik';
 import moment from 'moment';
 import React from 'react';
-import { type SortingRule } from 'react-table';
 
 import { useApp, useLookup } from '@/editor/store/hooks';
 import { useContentReferences } from '@/editor/store/hooks/admin';
 import {
   FieldSize,
+  FlexboxTable,
   IconButton,
   OptionItem,
   Page,
-  PagedTable,
   Select,
   SelectDate,
   Text,
@@ -28,6 +27,7 @@ import {
   type IContentReferenceListFilter,
   type IIngestContentReference,
   type IIngestContentReferenceFilter,
+  type ISortBy,
   type ISyndicationFeed,
 } from './interfaces';
 import * as styled from './styled';
@@ -131,8 +131,7 @@ const ContentReferenceList: React.FC<IContentReferenceListProps> = (props) => {
   );
 
   const handleChangeSort = React.useCallback(
-    (sortBy: Array<SortingRule<IIngestContentReference>>) => {
-      const sorts = sortBy.map((sb) => ({ id: sb.id, desc: !!sb.desc }));
+    (sorts: ISortBy[]) => {
       const same =
         sorts.length === filter.sort.length &&
         sorts.every((val, i) => val.id === filter.sort[i]?.id && val.desc === filter.sort[i]?.desc);
@@ -141,6 +140,19 @@ const ContentReferenceList: React.FC<IContentReferenceListProps> = (props) => {
       }
     },
     [filter],
+  );
+
+  // Show the requested (server-side) sort on the column headers.
+  const sortOrder = React.useMemo(
+    () =>
+      filter.sort.map((sort) => ({
+        id: sort.id,
+        index: contentReferenceColumns.findIndex((col) => col.accessor === sort.id),
+        sort: sort.id,
+        isSorted: true,
+        isSortedDesc: !!sort.desc,
+      })),
+    [filter.sort],
   );
 
   return (
@@ -218,13 +230,24 @@ const ContentReferenceList: React.FC<IContentReferenceListProps> = (props) => {
           />
         </div>
       </div>
-      <PagedTable
+      <FlexboxTable
+        rowId={(reference) => `${reference?.source}:${reference?.uid}`}
         columns={contentReferenceColumns}
-        page={page}
+        data={page.items}
         isLoading={!(requests.length === 0)}
-        sorting={{ sortBy: filter.sort }}
-        onChangePage={handleChangePage}
-        onChangeSort={handleChangeSort}
+        showSort
+        sortOrder={sortOrder}
+        manualPaging
+        pageIndex={page.pageIndex}
+        pageSize={page.pageSize}
+        pageCount={page.pageCount}
+        totalItems={page.total}
+        onPageChange={(p) => handleChangePage(p.pageIndex, p.pageSize)}
+        onSortChange={(sort) =>
+          handleChangeSort(
+            sort.filter((s) => s.isSorted).map((s) => ({ id: s.id, desc: s.isSortedDesc })),
+          )
+        }
       />
     </styled.ContentReferenceList>
   );

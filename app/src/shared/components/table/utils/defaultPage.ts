@@ -1,4 +1,4 @@
-import { IPage } from '../interfaces';
+import { IPage } from '../interfaces/IPage';
 
 export const defaultPage = <ItemType>(items: ItemType[] = []): IPage<ItemType> => ({
   pageIndex: 0,

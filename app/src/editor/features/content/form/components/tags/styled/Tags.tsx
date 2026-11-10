@@ -43,6 +43,12 @@ export const Tags = styled(Row)`
     }
   }
   .tag-list {
+    /* Compact rows, as the list had before it moved to FlexboxTable. The content form pads
+       every .row, which FlexboxTable rows also use. */
+    .rows .row {
+      padding: 0;
+      margin: 0;
+    }
     padding-right: 0.5em;
     background-color: ${(props) => props.theme.css.backgroundColor};
     min-width: 30em;

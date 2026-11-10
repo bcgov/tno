@@ -1,62 +1,58 @@
 import { FaExternalLinkAlt } from 'react-icons/fa';
-import {
-  type Column,
-  type UseFiltersColumnOptions,
-  type UseSortByColumnOptions,
-} from 'react-table';
 
-import { CellDate } from '@/shared';
+import { CellDate, type ITableHookColumn } from '@/shared';
 
 import { type IIngestContentReference } from '../interfaces';
 
-export const contentReferenceColumns: Array<
-  Column<IIngestContentReference> &
-    UseSortByColumnOptions<IIngestContentReference> &
-    UseFiltersColumnOptions<IIngestContentReference>
-> = [
+export const contentReferenceColumns: Array<ITableHookColumn<IIngestContentReference>> = [
   {
-    Header: 'Discovered On',
+    label: 'Discovered On',
     accessor: 'createdOn',
-    Cell: (cell) => <CellDate value={cell.value} />,
+    sort: 'createdOn',
     width: 2,
+    cell: (cell) => <CellDate value={cell.original.createdOn} />,
   },
   {
-    Header: 'Source',
+    label: 'Source',
     accessor: 'source',
+    sort: 'source',
     width: 1,
+    cell: (cell) => <>{cell.original.source}</>,
   },
   {
-    Header: 'Headline',
-    id: 'headline',
+    label: 'Headline',
     accessor: 'headline',
-    disableSortBy: true,
+    showSort: false,
     width: 5,
     // Opens the imported content, or shows the uid when the reference has no content.
-    Cell: (cell) =>
-      cell.row.original.contentId ? (
+    cell: (cell) =>
+      cell.original.contentId ? (
         <a
-          href={`/contents/${cell.row.original.contentId}`}
+          href={`/contents/${cell.original.contentId}`}
           target="_blank"
           rel="noreferrer"
           title="Open the content in a new tab"
         >
-          {cell.value || cell.row.original.uid} <FaExternalLinkAlt />
+          {cell.original.headline || cell.original.uid} <FaExternalLinkAlt />
         </a>
       ) : (
         <span className="not-imported" title="No content was imported for this reference">
-          {cell.row.original.uid}
+          {cell.original.uid}
         </span>
       ),
   },
   {
-    Header: 'Published On',
+    label: 'Published On',
     accessor: 'publishedOn',
-    Cell: (cell) => <CellDate value={cell.value} />,
+    sort: 'publishedOn',
     width: 2,
+    cell: (cell) => <CellDate value={cell.original.publishedOn} />,
   },
   {
-    Header: 'Status',
+    label: 'Status',
     accessor: 'status',
+    sort: 'status',
     width: 1,
+    cell: (cell) => <>{cell.original.status}</>,
   },
 ];

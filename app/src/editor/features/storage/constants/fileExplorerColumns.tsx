@@ -10,9 +10,16 @@ import {
   FaRegImage,
   FaTrash,
 } from 'react-icons/fa';
-import { type Column, type UseSortByColumnOptions } from 'react-table';
 
-import { Col, isImageFile, isVideoOrAudioFile, Row, Show, type IItemModel } from '@/shared';
+import {
+  Col,
+  isImageFile,
+  isVideoOrAudioFile,
+  Row,
+  Show,
+  type IItemModel,
+  type ITableHookColumn,
+} from '@/shared';
 
 interface IColumnOptions {
   isStorage?: boolean;
@@ -26,72 +33,74 @@ interface IColumnOptions {
 /** columns located within file for state manipulation */
 export const fileExplorerColumns = (
   options?: IColumnOptions,
-): Array<Column<IItemModel> & UseSortByColumnOptions<IItemModel>> => [
+): Array<ITableHookColumn<IItemModel>> => [
   {
-    id: 'isDirectory',
-    Header: () => <div className="list-icon"></div>,
+    label: <div className="list-icon"></div>,
     accessor: 'isDirectory',
-    disableSortBy: true,
-    Cell: ({ row, value }) => (
+    showSort: false,
+    width: 20,
+    cell: ({ row }) => (
       <div>
-        <div className={row.values.isDirectory ? 'hidden' : 'center'}>
-          {isVideoOrAudioFile(row.values.name) ? (
+        <div className={row.original.isDirectory ? 'hidden' : 'center'}>
+          {isVideoOrAudioFile(row.original.name) ? (
             <FaPhotoVideo className="fa-lg" />
-          ) : isImageFile(row.values.name) ? (
+          ) : isImageFile(row.original.name) ? (
             <FaRegImage className="fa-lg" />
           ) : (
             <FaRegFile className="fa-lg" />
           )}
         </div>
-        <div className={row.values.isDirectory ? 'center' : 'hidden'}>
+        <div className={row.original.isDirectory ? 'center' : 'hidden'}>
           <FaRegFolder className="fa-lg" />
         </div>
       </div>
     ),
-    maxWidth: 20,
   },
   {
-    id: 'name',
-    Header: () => <div className="center">Filename</div>,
+    label: <div className="center">Filename</div>,
     accessor: 'name',
-    Cell: (cell) => (
+    sort: 'name',
+    width: 125,
+    cell: (cell) => (
       <div className="ft-row">
         <span
-          className={cell.row.original.isDirectory ? 'link' : ''}
-          onClick={() => options?.onSelect?.(cell.row.original)}
+          className={cell.original.isDirectory ? 'link' : ''}
+          onClick={() => options?.onSelect?.(cell.original)}
         >
-          {cell.value}
+          {cell.original.name}
         </span>
       </div>
     ),
-    width: 125,
   },
   {
-    id: 'size',
-    Header: () => <div className="center">Size</div>,
+    label: <div className="center">Size</div>,
     accessor: 'size',
-    maxWidth: 35,
-    Cell: ({ value }) => (
-      <div className="ft-row">{value ? `${(value / 1000000).toFixed(2)} MB` : ''}</div>
+    sort: 'size',
+    width: 35,
+    cell: ({ original }) => (
+      <div className="ft-row">
+        {original.size ? `${(original.size / 1000000).toFixed(2)} MB` : ''}
+      </div>
     ),
   },
   {
-    id: 'modified',
-    Header: () => <div className="center">Modified</div>,
+    label: <div className="center">Modified</div>,
     accessor: 'modified',
-    maxWidth: 40,
-    Cell: ({ value }) => <div className="ft-row">{moment(value).format('DD-MM-yy hh:mm:ss')}</div>,
+    sort: 'modified',
+    width: 40,
+    cell: ({ original }) => (
+      <div className="ft-row">{moment(original.modified).format('DD-MM-yy hh:mm:ss')}</div>
+    ),
   },
   {
-    id: 'actions',
-    Header: () => <div>Actions</div>,
-    accessor: 'isDirectory',
-    maxWidth: 30,
-    Cell: ({ row }) => (
+    label: <div>Actions</div>,
+    showSort: false,
+    width: 30,
+    cell: ({ row }) => (
       <Row className={`file-actions ${row.original.isDirectory && 'directory'}`} wrap="nowrap">
         <Show visible={typeof options?.onPlay === 'function'}>
           <Col>
-            <Show visible={isVideoOrAudioFile(row.values.name) && row.original.isLocal}>
+            <Show visible={isVideoOrAudioFile(row.original.name) && row.original.isLocal}>
               <FaPlay
                 data-tooltip-id="main-tooltip"
                 data-tooltip-content="Play"

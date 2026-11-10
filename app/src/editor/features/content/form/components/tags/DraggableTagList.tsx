@@ -2,7 +2,7 @@ import React from 'react';
 import Draggable from 'react-draggable';
 
 import { useLookup } from '@/editor/store/hooks';
-import { Col, GridTable, Row, Show } from '@/shared';
+import { Col, FlexboxTable, Row, Show } from '@/shared';
 
 import { columns } from './constants/columns';
 
@@ -35,7 +35,7 @@ export const DraggableTagList: React.FC<IDraggableTagListProps> = ({ showList, s
                 X
               </h2>
             </Row>
-            <GridTable data={enabledTags} columns={columns} />
+            <FlexboxTable rowId="id" data={enabledTags} columns={columns} pageSize={20} showSort />
           </Col>
         </Show>
       </div>

@@ -32,3 +32,5 @@ export * from './TableInternalCell';
 export * from './TableInternalColumn';
 export * from './TableInternalHeaderColumn';
 export * from './TableInternalRow';
+export * from './IPage';
+export * from './Page';

@@ -1,36 +1,30 @@
-import {
-  type Column,
-  type UseFiltersColumnOptions,
-  type UseSortByColumnOptions,
-} from 'react-table';
-
-import { CellCheckbox, CellEllipsis, type IScheduleModel } from '@/shared';
+import { CellCheckbox, CellEllipsis, type IScheduleModel, type ITableHookColumn } from '@/shared';
 
 import { weekDayNameAbbrev } from '../utils';
 
-export const columns: Array<
-  Column<IScheduleModel> &
-    UseSortByColumnOptions<IScheduleModel> &
-    UseFiltersColumnOptions<IScheduleModel>
-> = [
+export const columns: Array<ITableHookColumn<IScheduleModel>> = [
   {
-    id: 'id',
-    Header: 'Name',
+    label: 'Name',
     accessor: 'name',
-    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
+    cell: (cell) => <CellEllipsis>{cell.original.name}</CellEllipsis>,
   },
   {
-    Header: 'Start/Stop',
+    label: 'Start/Stop',
     accessor: (row) => `${row.startAt ? row.startAt : ''}${row.stopAt ? `-${row.stopAt}` : ''}`,
+    cell: (cell) => (
+      <>{`${cell.original.startAt ? cell.original.startAt : ''}${
+        cell.original.stopAt ? `-${cell.original.stopAt}` : ''
+      }`}</>
+    ),
   },
   {
-    Header: 'Enabled',
+    label: 'Enabled',
     accessor: 'isEnabled',
-    Cell: (cell) => <CellCheckbox checked={cell.value} />,
+    cell: (cell) => <CellCheckbox checked={cell.original.isEnabled} />,
   },
   {
-    Header: 'Days of the Week',
+    label: 'Days of the Week',
     accessor: 'runOnWeekDays',
-    Cell: (cell) => <>{weekDayNameAbbrev(cell.value)}</>,
+    cell: (cell) => <>{weekDayNameAbbrev(cell.original.runOnWeekDays)}</>,
   },
 ];

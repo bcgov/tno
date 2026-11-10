@@ -8,7 +8,6 @@ export * from './flex';
 export * from './form';
 export * from './formik';
 export * from './grid';
-export * from './grid-table';
 export * from './header';
 export * from './link';
 export * from './loading';

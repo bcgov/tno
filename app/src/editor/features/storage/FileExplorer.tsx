@@ -4,8 +4,8 @@ import { useLookup } from '@/editor/store/hooks';
 import {
   Breadcrumb,
   Col,
+  FlexboxTable,
   getDirectoryName,
-  GridTable,
   Modal,
   Row,
   Show,
@@ -64,6 +64,7 @@ export const FileExplorer: React.FC<IFileExplorerProps> = ({
   const { toggle, isShowing } = useModal();
 
   const [item, setItem] = React.useState<IItemModel>();
+  const [search, setSearch] = React.useState('');
 
   const directory = getDirectoryName(path) ?? '';
   const isStorage = window.location.href.includes('/storage');
@@ -105,11 +106,17 @@ export const FileExplorer: React.FC<IFileExplorerProps> = ({
       <Row>
         <Col flex="1 1 100%">
           <div className="file-table">
-            <GridTable
-              enableRowSelect={false}
+            <FileExplorerFilter setGlobalFilter={setSearch} />
+            <FlexboxTable
+              rowId="name"
               data={folder.items}
               className="file-table"
-              paging={{ pageSizeOptions: { show: false } }}
+              pageSize={20}
+              search={search}
+              showSort
+              sortOrder={[
+                { id: 'name', index: 1, sort: 'name', isSorted: true, isSortedDesc: true },
+              ]}
               columns={fileExplorerColumns({
                 onSelect: navigate,
                 onDelete: (item) => {
@@ -121,10 +128,7 @@ export const FileExplorer: React.FC<IFileExplorerProps> = ({
                 onAttach: (item) => onAttach?.({ ...item, locationId, path: directory }),
                 isStorage,
               })}
-              header={FileExplorerFilter}
-              sorting={{ sortBy: [{ id: 'name', desc: true }] }}
-              getRowId={(content) => content.name.toString()}
-            ></GridTable>
+            />
           </div>
         </Col>
       </Row>

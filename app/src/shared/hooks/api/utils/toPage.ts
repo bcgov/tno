@@ -1,5 +1,5 @@
 import { IPaged } from '../';
-import { IPage } from '../../../components/grid-table';
+import { IPage } from '../../../components/table';
 
 export const toPage = <ItemType>(page: IPaged<ItemType>): IPage<ItemType> => {
   const pageSize = page.quantity > 0 ? page.quantity : 10;

@@ -11,7 +11,7 @@ import {
   type IScheduleModel,
 } from '@/shared';
 import { Col, Row } from '@/shared/components/flex';
-import { GridTable } from '@/shared/components/grid-table';
+import { FlexboxTable } from '@/shared/components/table';
 
 import { ScheduleDaily } from '.';
 import { defaultSchedule } from '../constants';
@@ -67,15 +67,16 @@ export const ScheduleAdvanced: React.FC<IScheduleAdvancedProps> = () => {
 
   return (
     <styled.ScheduleForm className="schedule">
-      <GridTable
+      <FlexboxTable
         className="schedules"
+        rowId={(schedule) => `${schedule ? values.schedules.indexOf(schedule) : ''}`}
         columns={columns}
         data={values.schedules}
         onRowClick={(row) => {
           setIndex(index !== row.index ? row.index : undefined);
           setSchedule(values.schedules[row.index]);
         }}
-        paging={{ pageSizeOptions: { show: false } }}
+        pagingEnabled={false}
       />
       <Col className="actions">
         {index !== undefined && (

@@ -1,65 +1,54 @@
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { type Column } from 'react-table';
+
+import { type ITableHookColumn } from '@/shared';
 
 import { type ITimeTrackingForm } from '../components/time-log/interfaces';
 import { type IContentForm } from '../interfaces';
 
-const colWidth = window.innerWidth > 1500 ? 140 : window.innerWidth > 1450 ? 100 : 80;
 /** columns located within file for state manipulation */
 export const timeLogColumns = (
   setFieldValue: Function,
   values: IContentForm,
-): Array<Column<ITimeTrackingForm>> => [
+): Array<ITableHookColumn<ITimeTrackingForm>> => [
   {
-    id: 'effort',
-    maxWidth: colWidth,
-    Header: () => <div className="center">TIME</div>,
+    label: 'TIME',
     accessor: 'effort',
-    Cell: ({ value }) => <div className="center">{value} Min</div>,
+    hAlign: 'center',
+    cell: (cell) => <>{cell.original.effort} Min</>,
   },
   {
-    id: 'user',
-    maxWidth: colWidth,
-    Header: () => <div className="center">USER</div>,
+    label: 'USER',
     accessor: 'userName',
-    Cell: ({ value }) => <div className="center">{value}</div>,
+    hAlign: 'center',
+    cell: (cell) => <>{cell.original.userName}</>,
   },
   {
-    id: 'activity',
-    maxWidth: colWidth,
-    Header: () => <div className="center">TASK</div>,
+    label: 'TASK',
     accessor: 'activity',
-    Cell: ({ value }) => <div className="center">{value}</div>,
+    hAlign: 'center',
+    cell: (cell) => <>{cell.original.activity}</>,
   },
   {
-    id: 'content',
-    maxWidth: colWidth,
-    Header: () => <div className="center">DATE</div>,
+    label: 'DATE',
     accessor: 'createdOn',
-    Cell: ({ value }: any) => {
-      const date = new Date(value);
-      return (
-        <div className="center">{`${
-          date.getMonth() + 1
-        }/${date.getDate()}/${date.getFullYear()}`}</div>
-      );
+    hAlign: 'center',
+    cell: (cell) => {
+      const date = new Date(cell.original.createdOn ?? '');
+      return <>{`${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`}</>;
     },
   },
   {
-    id: 'actions',
-    maxWidth: colWidth,
-    Header: () => <div className="center">ACTION</div>,
-    Cell: ({ row, data }: any) => (
-      <div className="center">
-        <FontAwesomeIcon
-          onClick={() => {
-            values.timeTrackings?.splice(row.id, 1);
-            setFieldValue('timeTrackings', values.timeTrackings);
-          }}
-          icon={faTrash}
-        />
-      </div>
+    label: 'ACTION',
+    hAlign: 'center',
+    cell: (cell) => (
+      <FontAwesomeIcon
+        onClick={() => {
+          values.timeTrackings?.splice(cell.original.index, 1);
+          setFieldValue('timeTrackings', values.timeTrackings);
+        }}
+        icon={faTrash}
+      />
     ),
   },
 ];

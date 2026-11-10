@@ -309,14 +309,6 @@
           }
         ]
       }
-    },
-    {
-      "files": [
-        "src/shared/components/grid-table/**"
-      ],
-      "rules": {
-        "react/jsx-key": "off"
-      }
     }
   ]
 }
