@@ -26,6 +26,7 @@ export * from './isVideoOrAudioFile';
 export * from './querystring';
 export * from './replaceQueryParams';
 export * from './saveToLocalStorage';
+export * from './sanitizeHtml';
 export * from './setCookie';
 export * from './toTitleCase';
 export * from './validateEmail';

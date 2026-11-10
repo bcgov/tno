@@ -1,3 +1,5 @@
+import { sanitizeHtml } from '@/shared/utils/sanitizeHtml';
+
 /**
  * The prompt editor's HTML as plain text, one paragraph or list item per line, for a prompt
  * written in a plain text area. Text without markup is returned as it is.
@@ -7,7 +9,8 @@
 export const htmlToPromptText = (html?: string): string => {
   if (!html) return '';
   if (!/<[a-z][^>]*>/i.test(html)) return html;
-  const doc = new DOMParser().parseFromString(html, 'text/html');
+  // Only the text is read, but script is removed first so a prompt can never carry any.
+  const doc = new DOMParser().parseFromString(sanitizeHtml(html), 'text/html');
   doc.querySelectorAll('br').forEach((br) => br.replaceWith('\n'));
   doc.querySelectorAll('li').forEach((li) => li.prepend('- '));
   const blocks = Array.from(doc.body.querySelectorAll('p, li, h1, h2, h3, h4, h5, h6'));

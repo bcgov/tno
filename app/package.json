@@ -42,6 +42,7 @@
     "chart.js": "4.6.1",
     "chartjs-plugin-datalabels": "2.2.0",
     "dayjs": "1.11.23",
+    "dompurify": "3.4.17",
     "formik": "2.4.9",
     "html-react-parser": "6.1.9",
     "js-beautify": "2.0.3",
@@ -95,6 +96,6 @@
     "vitest": "5.1.0"
   },
   "overrides": {
-    "dompurify": "3.4.17"
+    "dompurify": "$dompurify"
   }
 }

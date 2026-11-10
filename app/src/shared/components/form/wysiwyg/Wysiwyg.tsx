@@ -7,6 +7,7 @@ import ReactQuill, { EmitterSource } from 'react-quill-new';
 import { CustomToolbar } from './CustomToolbar';
 import { ExpandedWysiwyg } from './ExpandedWysiwyg';
 import { IUrlOption } from './interfaces';
+import { removeFormatting } from './removeFormatting';
 import * as styled from './styled';
 
 const formats = [
@@ -99,20 +100,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = (props) => {
   };
 
   const stripHtml = React.useCallback(() => {
-    // strip html from string
-    const doc = new DOMParser().parseFromString(
-      normalState.text
-        .replace(/<p\s*[^>]*>/g, '[p]')
-        .replaceAll('</p>', '[/p]')
-        .replace(/<br\s*\/?>/g, '[br]'),
-      'text/html',
-    );
-    doc.body.textContent =
-      doc.body.textContent
-        ?.replaceAll('[p]', '<p>')
-        .replaceAll('[/p]', '</p>')
-        .replaceAll('[br]', '<br>') || '';
-    const html = doc.body.textContent;
+    const html = removeFormatting(normalState.text);
     setNormalState((state) => ({ ...state, html }));
     lastEmittedValue.current = html;
     props.onChange?.(html);
