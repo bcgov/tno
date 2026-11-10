@@ -23,6 +23,7 @@ export default defineConfig(({ command, mode, isPreview }) => {
     css: {
       // The theme objects come from ICSS `:export` blocks, which need postcss-modules.
       transformer: 'postcss',
+      // Silence deprecation warnings raised inside dependencies (Bootstrap still uses @import).
       preprocessorOptions: { scss: { quietDeps: true } },
     },
     optimizeDeps: {

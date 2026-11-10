@@ -1,5 +1,5 @@
-@import 'bootstrap/scss/bootstrap';
-@import './css/_colors';
+@use 'bootstrap/scss/bootstrap';
+@use './css/colors' as *;
 
 html,
 body,

@@ -1,4 +1,4 @@
-@import './_variables';
+@use './variables' as *;
 
 :export {
   // The purpose of this file is to help us create a theme so that when UI colour changes we can control them in one place.

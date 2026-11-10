@@ -1,5 +1,5 @@
-@import './_colors';
-@import './_fonts';
+@use './colors' as *;
+@use './fonts' as *;
 
 :export {
   // Links

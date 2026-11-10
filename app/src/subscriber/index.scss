@@ -1,4 +1,4 @@
-@import './css/_variables';
+@use './css/variables' as *;
 
 @font-face {
   font-family: 'BCSans';
