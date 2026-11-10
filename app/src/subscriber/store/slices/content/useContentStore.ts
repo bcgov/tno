@@ -1,7 +1,7 @@
-import { KnnSearchResponse } from '@elastic/elasticsearch/lib/api/types';
 import React from 'react';
 
 import { IContentModel, IFilterSettingsModel, IOptionItem } from '@/shared';
+import { KnnSearchResponse } from '@/shared/utils/elastic/esTypes';
 import { useAppDispatch, useAppSelector } from '@/subscriber/store';
 
 import {

@@ -1,7 +1,3 @@
-import {
-  type KnnSearchResponse,
-  type MsearchMultisearchBody,
-} from '@elastic/elasticsearch/lib/api/types';
 import React from 'react';
 
 import {
@@ -18,6 +14,10 @@ import {
   type IContentTopicModel,
   type INotificationInstanceModel,
 } from '@/shared';
+import {
+  type KnnSearchResponse,
+  type MsearchMultisearchBody,
+} from '@/shared/utils/elastic/esTypes';
 
 import { useAjaxWrapper } from '..';
 

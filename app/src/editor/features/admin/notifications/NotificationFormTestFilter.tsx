@@ -3,7 +3,6 @@ import 'prismjs/components/prism-csharp';
 import 'prismjs/components/prism-cshtml';
 import 'prismjs/components/prism-json';
 
-import { type MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { useFormikContext } from 'formik';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
@@ -11,6 +10,7 @@ import Editor from 'react-simple-code-editor';
 
 import { useContent } from '@/editor/store/hooks';
 import { Button, ButtonVariant, Col, Row, type IContentModel, type IFilterModel } from '@/shared';
+import { type MsearchMultisearchBody } from '@/shared/utils/elastic/esTypes';
 
 /**
  * The page used to view and edit notification filter.

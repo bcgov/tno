@@ -59,6 +59,8 @@ const rewriters = {
     if (spec.startsWith('tno-core/src/')) return `@/shared/${spec.slice('tno-core/src/'.length)}`;
   },
   'react-router': (spec) => (spec === 'react-router-dom' ? 'react-router' : undefined),
+  'es-types': (spec) =>
+    spec === '@elastic/elasticsearch/lib/api/types' ? '@/shared/utils/elastic/esTypes' : undefined,
   dnd: (spec) => (spec === 'react-beautiful-dnd' ? '@/shared/components/dnd' : undefined),
 };
 

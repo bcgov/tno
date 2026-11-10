@@ -1,7 +1,4 @@
-import {
-  MsearchMultisearchBody,
-  QueryDslQueryContainer,
-} from '@elastic/elasticsearch/lib/api/types';
+import { MsearchMultisearchBody, QueryDslQueryContainer } from '@/shared/utils/elastic/esTypes';
 
 const removeEmptyShouldClauses = (
   query: QueryDslQueryContainer | QueryDslQueryContainer[] | undefined,

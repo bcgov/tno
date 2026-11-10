@@ -1,4 +1,3 @@
-import { type KnnSearchResponse, type SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
 import moment from 'moment';
 import React, { lazy, useRef } from 'react';
 import { useParams } from 'react-router';
@@ -38,6 +37,7 @@ import {
   type IWorkOrderMessageModel,
   type IWorkOrderModel,
 } from '@/shared';
+import { type KnnSearchResponse, type SearchTotalHits } from '@/shared/utils/elastic/esTypes';
 
 import { AdvancedSearchKeys } from '../constants';
 import { useElasticsearch } from '../hooks';

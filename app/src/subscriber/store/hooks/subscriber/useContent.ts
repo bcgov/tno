@@ -1,8 +1,3 @@
-import {
-  IndicesValidateQueryResponse,
-  KnnSearchResponse,
-  MsearchMultisearchBody,
-} from '@elastic/elasticsearch/lib/api/types';
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
@@ -12,6 +7,11 @@ import {
   IOptionItem,
   useApiSubscriberContents,
 } from '@/shared';
+import {
+  IndicesValidateQueryResponse,
+  KnnSearchResponse,
+  MsearchMultisearchBody,
+} from '@/shared/utils/elastic/esTypes';
 import { useContentStore } from '@/subscriber/store/slices';
 import { IContentProps, IContentState } from '@/subscriber/store/slices/content';
 

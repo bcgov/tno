@@ -1,10 +1,11 @@
+import { AxiosResponse } from 'axios';
+import React from 'react';
+
 import {
   IndicesValidateQueryResponse,
   KnnSearchResponse,
   MsearchMultisearchBody,
-} from '@elastic/elasticsearch/lib/api/types';
-import { AxiosResponse } from 'axios';
-import React from 'react';
+} from '@/shared/utils/elastic/esTypes';
 
 import { defaultEnvelope, IContentModel, ILifecycleToasts, useApi } from '../..';
 import { toQueryString } from '../../../utils';

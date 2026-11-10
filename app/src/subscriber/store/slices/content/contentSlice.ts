@@ -1,7 +1,7 @@
-import { KnnSearchResponse } from '@elastic/elasticsearch/lib/api/types';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { IContentModel, IFilterSettingsModel, IOptionItem } from '@/shared';
+import { KnnSearchResponse } from '@/shared/utils/elastic/esTypes';
 
 import { initialContentState } from './constants';
 import { IContentState } from './interfaces';

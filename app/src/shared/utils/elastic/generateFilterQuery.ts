@@ -1,4 +1,4 @@
-import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
+import { MsearchMultisearchBody } from '@/shared/utils/elastic/esTypes';
 
 import { IFilterSettingsModel } from '../../hooks';
 import { generateQueryValues } from './generateQueryValues';

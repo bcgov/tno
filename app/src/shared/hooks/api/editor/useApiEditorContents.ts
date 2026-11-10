@@ -1,6 +1,7 @@
-import { KnnSearchResponse, MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { AxiosResponse } from 'axios';
 import React from 'react';
+
+import { KnnSearchResponse, MsearchMultisearchBody } from '@/shared/utils/elastic/esTypes';
 
 import {
   IContentListModel,

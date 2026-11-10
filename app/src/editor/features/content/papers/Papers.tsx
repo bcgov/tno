@@ -1,4 +1,3 @@
-import { type SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
 import React, { useRef } from 'react';
 import { useParams } from 'react-router';
 import { toast } from 'react-toastify';
@@ -23,6 +22,7 @@ import {
   type IContentModel,
   type IGridHeaderColumnProps,
 } from '@/shared';
+import { type SearchTotalHits } from '@/shared/utils/elastic/esTypes';
 
 import { AdvancedSearchKeys } from '../constants';
 import { useElasticsearch } from '../hooks';

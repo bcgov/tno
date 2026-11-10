@@ -1,4 +1,4 @@
-import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
+import { MsearchMultisearchBody } from '@/shared/utils/elastic/esTypes';
 
 /**
  * Sets or removes the query's collapse, which returns one story per distinct value of a field.

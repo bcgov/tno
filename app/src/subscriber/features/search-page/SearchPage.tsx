@@ -1,7 +1,3 @@
-import {
-  IndicesValidateQueryResponse,
-  KnnSearchResponse,
-} from '@elastic/elasticsearch/lib/api/types';
 import moment, { Moment } from 'moment';
 import React from 'react';
 import { FaBookmark, FaCaretLeft, FaCaretRight } from 'react-icons/fa6';
@@ -17,6 +13,7 @@ import {
   Show,
   useWindowSize,
 } from '@/shared';
+import { IndicesValidateQueryResponse, KnnSearchResponse } from '@/shared/utils/elastic/esTypes';
 import { BasicSearch } from '@/subscriber/components/basic-search';
 import { ContentList, ViewOptions } from '@/subscriber/components/content-list';
 import { DateFilter } from '@/subscriber/components/date-filter';
