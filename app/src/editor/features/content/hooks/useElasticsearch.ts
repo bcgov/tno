@@ -1,4 +1,3 @@
-import moment from 'moment';
 import React from 'react';
 
 import {
@@ -9,6 +8,7 @@ import {
   generateTerm,
   type IFilterSettingsModel,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { AdvancedSearchKeys } from '../constants';
 import { type IContentListAdvancedFilter, type IContentListFilter } from '../interfaces';
@@ -40,8 +40,8 @@ export const useElasticsearch = () => {
         hasTopic: rest.hasTopic,
         isHidden: rest.isHidden !== '' ? rest.isHidden : undefined,
         status: rest.onlyPublished ? ContentStatusName.Published : undefined,
-        startDate: rest.startDate ? moment(rest.startDate).toISOString() : undefined,
-        endDate: rest.endDate ? moment(rest.endDate).toISOString() : undefined,
+        startDate: rest.startDate ? dayjs(rest.startDate).toISOString() : undefined,
+        endDate: rest.endDate ? dayjs(rest.endDate).toISOString() : undefined,
         dateOffset:
           rest.startDate || rest.endDate || rest.timeFrame === 3
             ? undefined
@@ -127,27 +127,27 @@ export const useElasticsearch = () => {
           case AdvancedSearchKeys.ContentType:
             return generateTerm('contentType', term);
           case AdvancedSearchKeys.PublishedOn:
-            return moment(term).isValid()
+            return dayjs(term).isValid()
               ? generateRangeForDates(
                   'publishedOn',
-                  moment(term).startOf('day'),
-                  moment(term).endOf('day'),
+                  dayjs(term).startOf('day'),
+                  dayjs(term).endOf('day'),
                 )
               : undefined;
           case AdvancedSearchKeys.CreatedOn:
-            return moment(term).isValid()
+            return dayjs(term).isValid()
               ? generateRangeForDates(
                   'createdOn',
-                  moment(term).startOf('day'),
-                  moment(term).endOf('day'),
+                  dayjs(term).startOf('day'),
+                  dayjs(term).endOf('day'),
                 )
               : undefined;
           case AdvancedSearchKeys.UpdatedOn:
-            return moment(term).isValid()
+            return dayjs(term).isValid()
               ? generateRangeForDates(
                   'updatedOn',
-                  moment(term).startOf('day'),
-                  moment(term).endOf('day'),
+                  dayjs(term).startOf('day'),
+                  dayjs(term).endOf('day'),
                 )
               : undefined;
           default:

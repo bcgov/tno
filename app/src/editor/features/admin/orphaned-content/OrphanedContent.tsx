@@ -1,4 +1,3 @@
-import moment from 'moment-timezone';
 import React from 'react';
 import {
   FaAngleDoubleLeft,
@@ -31,6 +30,7 @@ import {
   Show,
   Spinner,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { OrphanScanResponseError, parseOrphanScan } from './parseOrphanScan';
 
@@ -46,8 +46,8 @@ const indexOptions = [
 
 /** The posted-date bounds travel as calendar days (yyyy-MM-dd), read and written in local time. */
 const DAY_FORMAT = 'YYYY-MM-DD';
-const toDate = (day: string) => (day ? moment(day, DAY_FORMAT).toDate() : null);
-const toDay = (date: Date | null) => (date ? moment(date).format(DAY_FORMAT) : '');
+const toDate = (day: string) => (day ? dayjs(day, DAY_FORMAT).toDate() : null);
+const toDay = (date: Date | null) => (date ? dayjs(date).format(DAY_FORMAT) : '');
 
 const Container = styled.div`
   display: flex;
@@ -204,10 +204,10 @@ const OrphanedContent: React.FC = () => {
   const [hasMore, setHasMore] = React.useState(false);
   // New-scan defaults use Pacific calendar dates, independent of the previous scan.
   const [endPostedOn, setEndPostedOn] = React.useState(() =>
-    moment.tz('America/Vancouver').format(DAY_FORMAT),
+    dayjs().tz('America/Vancouver').format(DAY_FORMAT),
   );
   const [startPostedOn, setStartPostedOn] = React.useState(() =>
-    moment(endPostedOn, DAY_FORMAT).subtract(30, 'days').format(DAY_FORMAT),
+    dayjs(endPostedOn, DAY_FORMAT).subtract(30, 'days').format(DAY_FORMAT),
   );
   const [busy, setBusy] = React.useState(false);
   const [loaded, setLoaded] = React.useState(false);

@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import moment from 'moment';
 import React from 'react';
 import { FaEdit } from 'react-icons/fa';
 import { FaBugSlash } from 'react-icons/fa6';
@@ -18,6 +17,7 @@ import {
   type IIngestMessageModel,
   type IIngestModel,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { getStatus } from '../ingests/utils';
 import { useIngestIcon } from './hooks';
@@ -170,7 +170,7 @@ export const Dashboard: React.FC = () => {
                       </Row>
                       <Col className="lastRan">
                         {ingest.lastRanOn
-                          ? moment(ingest.lastRanOn).format('YYYY-MM-DD hh:mm:ss')
+                          ? dayjs(ingest.lastRanOn).format('YYYY-MM-DD hh:mm:ss')
                           : ''}
                       </Col>
                       <Row nowrap alignItems="center">

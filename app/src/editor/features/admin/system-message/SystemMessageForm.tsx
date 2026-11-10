@@ -1,5 +1,4 @@
 import { noop } from 'lodash';
-import moment from 'moment';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { toast } from 'react-toastify';
@@ -26,6 +25,7 @@ import {
   useModal,
   type ISystemMessageModel,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { defaultSystemMessage } from './constants';
 import * as styled from './styled';
@@ -111,9 +111,7 @@ const SystemMessageForm: React.FC = () => {
                     label="Updated By"
                   />
                   <FormikDatePicker
-                    selectedDate={
-                      values.updatedOn ? moment(values.updatedOn).toString() : undefined
-                    }
+                    selectedDate={values.updatedOn ? dayjs(values.updatedOn).toString() : undefined}
                     onChange={noop}
                     name="updatedOn"
                     label="Updated On"
@@ -129,9 +127,7 @@ const SystemMessageForm: React.FC = () => {
                     label="Created By"
                   />
                   <FormikDatePicker
-                    selectedDate={
-                      values.createdOn ? moment(values.createdOn).toString() : undefined
-                    }
+                    selectedDate={values.createdOn ? dayjs(values.createdOn).toString() : undefined}
                     onChange={noop}
                     name="createdOn"
                     label="Created On"

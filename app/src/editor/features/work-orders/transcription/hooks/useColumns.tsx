@@ -1,4 +1,3 @@
-import moment from 'moment';
 import { FaBug, FaCheckCircle, FaClock, FaPen, FaStop } from 'react-icons/fa';
 import { FaCirclePause, FaRegCircleRight } from 'react-icons/fa6';
 import { Link } from 'react-router';
@@ -13,6 +12,7 @@ import {
   type ITableHookColumn,
   type IWorkOrderModel,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 export interface IColumnsProps {
   onCancel?: (workOrder: IWorkOrderModel) => void;
@@ -63,7 +63,7 @@ export const useColumns = ({
       width: '160px',
       hAlign: 'center',
       cell: (cell) =>
-        cell.original.createdOn ? moment(cell.original.createdOn).format('MM/DD HH:mm:ss A') : '',
+        cell.original.createdOn ? dayjs(cell.original.createdOn).format('MM/DD HH:mm:ss A') : '',
     },
     {
       label: 'Status',

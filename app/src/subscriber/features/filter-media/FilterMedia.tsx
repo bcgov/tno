@@ -1,7 +1,7 @@
-import moment from 'moment';
 import React from 'react';
 
 import { IContentModel, Show } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 import { ContentList } from '@/subscriber/components/content-list';
 import { DateFilter } from '@/subscriber/components/date-filter';
 import { ContentListActionBar } from '@/subscriber/components/tool-bar';
@@ -52,7 +52,7 @@ export const FilterMedia: React.FC<IFilterMediaProps> = ({
 
   const handleContentSelected = React.useCallback(
     (selectedContent: IContentModel[]) => {
-      const dateKey = filter.startDate || moment().startOf('day').toISOString();
+      const dateKey = filter.startDate || dayjs().startOf('day').toISOString();
       const mediaTypeId = filter.mediaTypeIds?.[0]?.toString() ?? '';
       setStateByDate((prevState) => ({
         ...prevState,
@@ -70,7 +70,7 @@ export const FilterMedia: React.FC<IFilterMediaProps> = ({
 
   const handleSelectAll = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const dateKey = filter.startDate || moment().startOf('day').toISOString();
+      const dateKey = filter.startDate || dayjs().startOf('day').toISOString();
       const mediaTypeId = filter.mediaTypeIds?.[0]?.toString() ?? '';
       setStateByDate((prevState) => ({
         ...prevState,
@@ -88,7 +88,7 @@ export const FilterMedia: React.FC<IFilterMediaProps> = ({
 
   if (!loaded) return <>Loading</>;
 
-  const dateKey = filter.startDate || moment().startOf('day').toISOString();
+  const dateKey = filter.startDate || dayjs().startOf('day').toISOString();
   const mediaTypeId = filter.mediaTypeIds?.[0]?.toString() ?? '';
   const currentSelected = stateByDate[dateKey]?.[mediaTypeId]?.selected || [];
   const currentIsSelectAllChecked =

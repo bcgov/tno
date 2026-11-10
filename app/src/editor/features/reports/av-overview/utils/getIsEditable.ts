@@ -1,7 +1,7 @@
-import moment, { type Moment } from 'moment';
+import { dayjs, type Dayjs } from '@/shared/utils/date';
 
-export const getIsEditable = (publishedOn: Moment) => {
-  const now = moment(Date.now());
+export const getIsEditable = (publishedOn: Dayjs) => {
+  const now = dayjs(Date.now());
   return (
     publishedOn.year() >= now.year() &&
     publishedOn.month() >= now.month() &&

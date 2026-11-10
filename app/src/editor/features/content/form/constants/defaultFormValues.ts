@@ -1,11 +1,10 @@
-import moment from 'moment';
-
 import { ContentStatusName, ContentTypeName } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { type IContentForm } from '../interfaces';
 
 export const defaultFormValues = (contentType: ContentTypeName): IContentForm => {
-  const publishedOn = moment();
+  const publishedOn = dayjs();
   return {
     id: 0,
     uid: '',
@@ -27,7 +26,7 @@ export const defaultFormValues = (contentType: ContentTypeName): IContentForm =>
     headline: '',
     summary: '',
     body: '',
-    publishedOn: publishedOn.format('MMM D, yyyy HH:mm:ss'),
+    publishedOn: publishedOn.format('MMM D, YYYY HH:mm:ss'),
     publishedOnTime: publishedOn.format('HH:mm:ss'),
     isHidden: false,
     isApproved: contentType !== ContentTypeName.AudioVideo,

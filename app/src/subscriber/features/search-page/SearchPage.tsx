@@ -1,4 +1,3 @@
-import moment, { Moment } from 'moment';
 import React from 'react';
 import { FaBookmark, FaCaretLeft, FaCaretRight } from 'react-icons/fa6';
 import { useParams } from 'react-router';
@@ -13,6 +12,7 @@ import {
   Show,
   useWindowSize,
 } from '@/shared';
+import { dayjs, type Dayjs } from '@/shared/utils/date';
 import { IndicesValidateQueryResponse, KnnSearchResponse } from '@/shared/utils/elastic/esTypes';
 import { BasicSearch } from '@/subscriber/components/basic-search';
 import { ContentList, ViewOptions } from '@/subscriber/components/content-list';
@@ -61,7 +61,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced, showDate: init
   const [prevDateResults, setPrevDateResults] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const { expanded } = useSearchPageContext();
-  const [startDate, setStartDate] = React.useState<Moment>(moment());
+  const [startDate, setStartDate] = React.useState<Dayjs>(dayjs());
   const filterId = React.useMemo(() => (id ? parseInt(id) : 0), [id]);
   const [searchFilter, setSearchFilter] = React.useState<IFilterSettingsModel | null>(null);
   const [showResults, setShowResults] = React.useState(false);
@@ -90,13 +90,13 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced, showDate: init
   }, [initShowDate]);
 
   const groupResults = React.useCallback(
-    (res: KnnSearchResponse<IContentModel>, currStartDate: Moment, groupStoredContent: boolean) => {
+    (res: KnnSearchResponse<IContentModel>, currStartDate: Dayjs, groupStoredContent: boolean) => {
       const currDateResults: IContentSearchResult[] = [],
         prevDateResults: IContentSearchResult[] = [];
       res.hits.hits.forEach((h) => {
         if (!h._source) return;
         const content = castToSearchResult(h._source);
-        const resDate = moment(content.publishedOn);
+        const resDate = dayjs(content.publishedOn);
         if (resDate >= currStartDate) {
           // result occurred during currently selected date
           currDateResults.push(content);
@@ -219,21 +219,20 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced, showDate: init
         }
         const offset = filter.dateOffset ?? 0;
 
-        const offsetDate =
-          offset <= 2 ? moment().add(offset * 24 * -1, 'hour') : moment().add(offset * -1, 'day');
-        if (offset > 2 || offset === 0) offsetDate.startOf('day');
+        let offsetDate =
+          offset <= 2 ? dayjs().add(offset * 24 * -1, 'hour') : dayjs().add(offset * -1, 'day');
+        if (offset > 2 || offset === 0) offsetDate = offsetDate.startOf('day');
 
         // if no date offset/ start date this means the user is looking for all content
         // unix epoch used as a default start date for all content
         const currStartDate = filter.startDate
-          ? moment(filter.startDate)
+          ? dayjs(filter.startDate)
           : filter.dateOffset !== undefined
-            ? moment(offsetDate)
-            : moment(1432252800); // 1970
-        const prevStartDate = moment(currStartDate).add(-7, 'day');
+            ? dayjs(offsetDate)
+            : dayjs(1432252800); // 1970
+        const prevStartDate = dayjs(currStartDate).add(-7, 'day');
 
-        const currEndDate = filter.endDate ? moment(filter.endDate) : moment();
-        currEndDate.endOf('day');
+        const currEndDate = (filter.endDate ? dayjs(filter.endDate) : dayjs()).endOf('day');
 
         setStartDate(currStartDate);
         if (filter.startDate && filter.endDate) {

@@ -1,10 +1,10 @@
 import { useFormikContext } from 'formik';
-import moment from 'moment';
 import React from 'react';
 import { toast } from 'react-toastify';
 
 import { useContentAnalysis } from '@/editor/store/hooks';
 import { Button, ButtonVariant, Col, Row, Show } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { type IContentAnalysisDetailsModel, type IContentForm } from './interfaces';
 import * as styled from './styled';
@@ -58,8 +58,7 @@ export const ContentAnalysisForm: React.FC = () => {
         <Col flex="1 1 auto">
           <Show visible={!!analysis}>
             <span>
-              Analyzed {moment(analysis?.analyzedOn).format('YYYY-MM-DD HH:mm')} by{' '}
-              {analysis?.model}
+              Analyzed {dayjs(analysis?.analyzedOn).format('YYYY-MM-DD HH:mm')} by {analysis?.model}
               {analysis?.isMetadataOnly ? ' (no usable text; metadata only)' : ''}
             </span>
           </Show>
@@ -83,7 +82,7 @@ export const ContentAnalysisForm: React.FC = () => {
           <ul>
             {details?.runs.map((run) => (
               <li key={run.requestId}>
-                {moment(run.finishedOn).format('YYYY-MM-DD HH:mm')} · {run.reason} · {run.status}
+                {dayjs(run.finishedOn).format('YYYY-MM-DD HH:mm')} · {run.reason} · {run.status}
                 {run.attempts > 1 ? ` after ${run.attempts} attempts` : ''}
                 {run.error ? ` — ${run.error}` : ''}
               </li>

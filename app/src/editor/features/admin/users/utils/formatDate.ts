@@ -1,4 +1,4 @@
-import moment from 'moment';
+import { dayjs } from '@/shared/utils/date';
 
 /**
  * @param {string | Date} date - The date to format
@@ -8,7 +8,7 @@ import moment from 'moment';
  */
 export const formatDate = (date: string | Date | undefined, includeTime?: boolean): string => {
   if (date === undefined) return '';
-  const result = moment(date);
+  const result = dayjs(date);
   if (!result.isValid()) return '';
   if (includeTime) {
     return result.format('MMMM DD, YYYY HH:mm:ss');

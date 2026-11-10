@@ -1,11 +1,11 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import moment from 'moment-timezone';
 import React from 'react';
 import { MemoryRouter } from 'react-router';
 import { vi } from 'vitest';
 
 import EventOfTheDayList from '@/editor/features/admin/event-of-the-day/EventOfTheDayList';
+import { dayjs } from '@/shared/utils/date';
 
 const mocks = vi.hoisted(() => ({
   find: vi.fn(),
@@ -309,7 +309,7 @@ it('adds a story with a topic from the date to the report, and re-collects on re
 });
 
 it("adds one of today's stories with a topic straight into the live folder", async () => {
-  const today = moment.tz('America/Vancouver').format('YYYY-MM-DD');
+  const today = dayjs().tz('America/Vancouver').format('YYYY-MM-DD');
   mocks.folder.mockResolvedValue([story(11)]);
   mocks.find.mockResolvedValue({ instances: [], content: [story(11), story(12)] });
   mocks.addFolder.mockResolvedValue(undefined);
@@ -345,7 +345,7 @@ it('offers every story with a topic, including Not Applicable and zero scores, b
 });
 
 it("keeps a story marked Not Applicable in today's live folder", async () => {
-  const today = moment.tz('America/Vancouver').format('YYYY-MM-DD');
+  const today = dayjs().tz('America/Vancouver').format('YYYY-MM-DD');
   mocks.folder.mockResolvedValue([story(11), story(12)]);
   mocks.find.mockResolvedValue({ instances: [], content: [story(11), story(12)] });
   open(today);

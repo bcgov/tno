@@ -1,6 +1,5 @@
 import { type AxiosError } from 'axios';
 import { type FormikHelpers, type FormikProps } from 'formik';
-import moment from 'moment';
 import React from 'react';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
@@ -26,6 +25,7 @@ import {
   type IResponseErrorModel,
   type IWorkOrderMessageModel,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { type IContentFormProps } from '..';
 import { type IFile } from '../components/upload';
@@ -337,7 +337,7 @@ export const useContentForm = ({
       ) {
         values.status = ContentStatusName.Publish;
         // the posted on time should be the first publish time that the editor publish to MMI.
-        values.postedOn = moment.utc().format();
+        values.postedOn = dayjs.utc().format();
       }
 
       return await handleSubmit(values, formikHelpers);

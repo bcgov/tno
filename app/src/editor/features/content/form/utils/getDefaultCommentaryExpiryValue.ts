@@ -1,6 +1,5 @@
-import moment from 'moment';
-
 import { type IHolidayModel } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { isHoliday } from '.';
 
@@ -14,7 +13,7 @@ import { isHoliday } from '.';
  * @returns The hours before the content expires from the commentary section.
  */
 export const getDefaultCommentaryExpiryValue = (date: Date | string, holidays: IHolidayModel[]) => {
-  const value = moment(date);
+  const value = dayjs(date);
   const weekDay = value.weekday();
   // TODO: There may be an issue if local time has Monday as the start of the week.
   return isHoliday(date, holidays) ? 5 : weekDay === 0 || weekDay === 6 ? 5 : 3;

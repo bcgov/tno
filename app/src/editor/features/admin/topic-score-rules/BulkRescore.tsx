@@ -1,9 +1,9 @@
-import moment from 'moment';
 import React from 'react';
 import { toast } from 'react-toastify';
 
 import { useTopicScores } from '@/editor/store/hooks/admin';
 import { Button, Col, Modal, OptionItem, Row, Select, Show, Text, useModal } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import {
   RescoreStatusName,
@@ -39,8 +39,8 @@ const isActive = (job?: ITopicRescoreJobModel) =>
 export const BulkRescore: React.FC<IBulkRescoreProps> = ({ sources }) => {
   const { previewRescore, rescore, findRescoreJobs, findRescoreJob } = useTopicScores();
   const { toggle, isShowing } = useModal();
-  const [startOn, setStartOn] = React.useState(moment().subtract(1, 'day').format('YYYY-MM-DD'));
-  const [endOn, setEndOn] = React.useState(moment().add(1, 'day').format('YYYY-MM-DD'));
+  const [startOn, setStartOn] = React.useState(dayjs().subtract(1, 'day').format('YYYY-MM-DD'));
+  const [endOn, setEndOn] = React.useState(dayjs().add(1, 'day').format('YYYY-MM-DD'));
   const [sourceIds, setSourceIds] = React.useState<number[]>([]);
   const [preview, setPreview] = React.useState<ITopicRescorePreviewModel>();
   const [jobs, setJobs] = React.useState<ITopicRescoreJobModel[]>([]);
@@ -48,11 +48,11 @@ export const BulkRescore: React.FC<IBulkRescoreProps> = ({ sources }) => {
   const sourceOptions = sources.map((s) => new OptionItem(s.name, s.id));
   // Dates are the user's local days; the API receives the UTC instants they begin.
   const request: ITopicRescoreRequestModel = {
-    startOn: moment(startOn).startOf('day').toISOString(),
-    endOn: moment(endOn).startOf('day').toISOString(),
+    startOn: dayjs(startOn).startOf('day').toISOString(),
+    endOn: dayjs(endOn).startOf('day').toISOString(),
     sourceIds,
   };
-  const isValid = !!startOn && !!endOn && moment(endOn).isAfter(moment(startOn));
+  const isValid = !!startOn && !!endOn && dayjs(endOn).isAfter(dayjs(startOn));
 
   React.useEffect(() => {
     findRescoreJobs()
@@ -148,8 +148,8 @@ export const BulkRescore: React.FC<IBulkRescoreProps> = ({ sources }) => {
         <div className="jobs">
           {jobs.map((job) => (
             <div key={job.id} className="job">
-              <b>#{job.id}</b> {moment(job.startOn).format('YYYY-MM-DD')} to{' '}
-              {moment(job.endOn).format('YYYY-MM-DD')} — {statusNames[job.status] ?? job.status}
+              <b>#{job.id}</b> {dayjs(job.startOn).format('YYYY-MM-DD')} to{' '}
+              {dayjs(job.endOn).format('YYYY-MM-DD')} — {statusNames[job.status] ?? job.status}
               {job.total > 0 && ` · ${job.processed}/${job.total} processed`}
               {` · ${job.changed} changed`}
               {job.failed > 0 && ` · ${job.failed} failed`}

@@ -1,6 +1,5 @@
-import moment from 'moment';
-
 import { IReportModel, IReportScheduleModel } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 const WeekDays: Record<string, number> = {
   Sunday: 0,
@@ -86,5 +85,5 @@ export const calcNextScheduleSend = (report: IReportModel, schedule: IReportSche
   const month = nextSendDate.toLocaleDateString('en-US', { month: '2-digit' });
   const day = nextSendDate.toLocaleDateString('en-US', { day: '2-digit' });
   const nextSendDateTime = new Date(`${year}-${month}-${day}T${nextSend?.time}.000Z`);
-  return moment(nextSendDateTime).utc(false).format('yyyy-MM-DD hh:mm:ssA');
+  return dayjs(nextSendDateTime).utc(false).format('YYYY-MM-DD hh:mm:ssA');
 };

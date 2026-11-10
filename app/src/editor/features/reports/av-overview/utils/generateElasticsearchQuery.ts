@@ -1,6 +1,5 @@
-import moment from 'moment';
-
 import { generateQuery } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 /**
  * Generate an elasticsearch query.
@@ -19,15 +18,15 @@ export const generateElasticsearchQuery = (
   const seriesIds: number[] = seriesId ? [seriesId] : [];
   const sourceIds: number[] = sourceId ? [sourceId] : [];
 
-  let startDateValue = moment.utc(startDate);
+  let startDateValue = dayjs.utc(startDate);
   if (startTime) {
     const startTimeParts = startTime.split(':');
     startDateValue = startDateValue
-      .add(startTimeParts[0], 'hours')
-      .add(startTimeParts[1], 'minutes')
-      .add(startTimeParts[2], 'seconds');
+      .add(Number(startTimeParts[0]), 'hours')
+      .add(Number(startTimeParts[1]), 'minutes')
+      .add(Number(startTimeParts[2]), 'seconds');
   }
-  const endDate = moment(startDateValue).add(24, 'hours');
+  const endDate = dayjs(startDateValue).add(24, 'hours');
 
   return generateQuery({
     searchUnpublished: false,

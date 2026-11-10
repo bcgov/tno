@@ -1,7 +1,7 @@
-import moment from 'moment';
 import React from 'react';
 
 import { Checkbox, generateQuery, IContentModel, Row } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 import { MsearchMultisearchBody } from '@/shared/utils/elastic/esTypes';
 import { ContentList } from '@/subscriber/components/content-list';
 import { DateFilter } from '@/subscriber/components/date-filter';
@@ -113,10 +113,10 @@ export const MyMinister: React.FC = () => {
           .sort((a: IMinisterModel, b: IMinisterModel) => (`${a.name}` > `${b.name}` ? 1 : -1));
         const startDate = filter.startDate
           ? filter.startDate
-          : moment(new Date()).startOf('day').toISOString();
+          : dayjs(new Date()).startOf('day').toISOString();
         const endDate = filter.endDate
           ? filter.endDate
-          : moment(new Date()).endOf('day').toISOString();
+          : dayjs(new Date()).endOf('day').toISOString();
         if (ministerModels) {
           for (let j = 0; j < ministerModels.length; j++) {
             const res = await fetchResults(

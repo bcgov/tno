@@ -1,4 +1,3 @@
-import moment from 'moment';
 import React from 'react';
 import { FaExternalLinkAlt, FaPaperPlane } from 'react-icons/fa';
 import { useParams } from 'react-router';
@@ -17,6 +16,7 @@ import {
   type IAVOverviewInstanceModel,
   type IReportResultModel,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import * as styled from './styled';
 
@@ -81,7 +81,7 @@ const AVOverviewPreview: React.FC = () => {
                   return;
                 }
                 window.open(
-                  `${subscriberUrl}landing/eveningoverview?date=${moment(instance?.publishedOn)
+                  `${subscriberUrl}landing/eveningoverview?date=${dayjs(instance?.publishedOn)
                     .add(1, 'days')
                     .startOf('day')
                     .format('YYYY/MM/DD')}`,

@@ -1,6 +1,5 @@
 /* eslint-disable simple-import-sort/imports */
 import { type AxiosError } from 'axios';
-import moment from 'moment';
 import React from 'react';
 import { FaEdit, FaHistory, FaPlus, FaTrash } from 'react-icons/fa';
 import { FaRegCalendar, FaRegClock } from 'react-icons/fa6';
@@ -41,6 +40,7 @@ import {
   useModal,
   type IOptionItem,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { AutomationDebugging } from './AutomationDebugging';
 import {
@@ -989,14 +989,11 @@ const AutomationProfileForm: React.FC = () => {
                           portalId={DATE_PICKER_PORTAL_ID}
                           selectedDate={
                             scheduleModalState?.schedule.startAt
-                              ? moment(
-                                  scheduleModalState.schedule.startAt,
-                                  'HH:mm:ss',
-                                ).toISOString()
+                              ? dayjs(scheduleModalState.schedule.startAt, 'HH:mm:ss').toISOString()
                               : undefined
                           }
                           onChange={(date) => {
-                            const startAt = date ? moment(date as Date).format('HH:mm:00') : null;
+                            const startAt = date ? dayjs(date as Date).format('HH:mm:00') : null;
                             setScheduleModalState((state) =>
                               state
                                 ? { ...state, schedule: { ...state.schedule, startAt } }
@@ -1026,7 +1023,7 @@ const AutomationProfileForm: React.FC = () => {
                             // Sent as a UTC ISO string: the API binds it to a DateTime with
                             // Kind=Utc, which is what both the 'timestamp with time zone' column
                             // and the Scheduler's ToTimeZone conversion require.
-                            const runOn = date ? moment(date as Date).toISOString() : null;
+                            const runOn = date ? dayjs(date as Date).toISOString() : null;
                             setScheduleModalState((state) =>
                               state ? { ...state, schedule: { ...state.schedule, runOn } } : state,
                             );

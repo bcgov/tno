@@ -1,7 +1,7 @@
-import moment, { Moment } from 'moment';
 import React from 'react';
 
 import { Row } from '@/shared';
+import { dayjs, type Dayjs } from '@/shared/utils/date';
 import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 import { useContent } from '@/subscriber/store/hooks';
 
@@ -12,7 +12,7 @@ export interface IPreviousResultsProps {
   currDateResults: IContentSearchResult[];
   prevDateResults: IContentSearchResult[];
   setResults: React.Dispatch<React.SetStateAction<IContentSearchResult[]>>;
-  startDate: Moment;
+  startDate: Dayjs;
   executeSearch: Function;
 }
 export const PreviousResults: React.FC<IPreviousResultsProps> = ({
@@ -31,24 +31,25 @@ export const PreviousResults: React.FC<IPreviousResultsProps> = ({
   const [prevResults, setPrevResults] = React.useState<IPreviousDate[]>([]);
 
   const createDateRanges = React.useCallback(
-    (startDate: Moment) => {
+    (startDate: Dayjs) => {
       if (!prevDateResults.length) return setPrevResults([]);
-      const date = moment(startDate).startOf('day');
+      let date = dayjs(startDate).startOf('day');
       const dateRanges: IPreviousDate[] = [];
+      // One range per previous day. (With moment, every range shared one mutated start date, so
+      // all hits were counted in a single row dated eight days back.)
       for (let i = 1; i < 9; i++) {
-        const endOfDay = moment(date).endOf('day');
         dateRanges.push({
           startDate: date,
-          endDate: endOfDay,
+          endDate: date.endOf('day'),
           hits: 0,
         });
-        date.add(-1, 'day');
+        date = date.add(-1, 'day');
       }
 
       for (let i = 0; i < prevDateResults.length; i++) {
         const content = prevDateResults[i];
         const range = dateRanges.find((r) => {
-          const publishedOn = moment(content.publishedOn);
+          const publishedOn = dayjs(content.publishedOn);
           return publishedOn >= r.startDate && publishedOn <= r.endDate;
         });
         if (range) range.hits++;
@@ -90,7 +91,7 @@ export const PreviousResults: React.FC<IPreviousResultsProps> = ({
               }}
             >
               <div className="hits">{x.hits}</div>
-              <div className="date">{moment(x.startDate).format('dddd, MMMM DD, YYYY')}</div>
+              <div className="date">{dayjs(x.startDate).format('dddd, MMMM DD, YYYY')}</div>
             </Row>
           );
         })}

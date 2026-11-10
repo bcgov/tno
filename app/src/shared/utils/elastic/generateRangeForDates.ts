@@ -1,16 +1,16 @@
-import moment, { Moment } from 'moment';
+import { dayjs, type Dayjs } from '@/shared/utils/date';
 
 export const generateRangeForDates = (
   field: string,
-  gte?: string | Date | Moment | null,
-  lte?: string | Date | Moment | null,
+  gte?: string | Date | Dayjs | null,
+  lte?: string | Date | Dayjs | null,
 ) => {
   if (!!gte && !!lte) {
     return {
       range: {
         [field]: {
-          gte: moment(gte),
-          lte: moment(lte),
+          gte: dayjs(gte),
+          lte: dayjs(lte),
           time_zone: 'America/Vancouver',
         },
       },
@@ -19,7 +19,7 @@ export const generateRangeForDates = (
     return {
       range: {
         [field]: {
-          gte: moment(gte),
+          gte: dayjs(gte),
           time_zone: 'America/Vancouver',
         },
       },
@@ -28,7 +28,7 @@ export const generateRangeForDates = (
     return {
       range: {
         [field]: {
-          lte: moment(lte),
+          lte: dayjs(lte),
           time_zone: 'America/Vancouver',
         },
       },

@@ -1,4 +1,3 @@
-import moment from 'moment';
 import React from 'react';
 import { FaArrowAltCircleLeft, FaArrowAltCircleRight } from 'react-icons/fa';
 
@@ -20,6 +19,7 @@ import {
   type INotificationInstanceModel,
   type IOptionItem,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { NotificationCard } from './NotificationCard';
 import * as styled from './styled';
@@ -38,8 +38,8 @@ export const NotificationsDashboard: React.FC = () => {
     quantity: 10,
     isEnabled: true,
     notificationStatus: [NotificationStatusName.Failed],
-    startDate: moment(startDate).format('YYYY-MM-DDTHH:mm:ss'),
-    endDate: moment(endDate).format('YYYY-MM-DDTHH:mm:ss'),
+    startDate: dayjs(startDate).format('YYYY-MM-DDTHH:mm:ss'),
+    endDate: dayjs(endDate).format('YYYY-MM-DDTHH:mm:ss'),
   });
   const [notificationInstances, setNotificationInstances] = React.useState<
     INotificationInstanceModel[]
@@ -112,7 +112,7 @@ export const NotificationsDashboard: React.FC = () => {
               placeholderText="mm/dd/yyyy"
               selected={filter.startDate ? new Date(filter.startDate) : new Date()}
               onChange={(date) => {
-                const value = moment(date?.setHours(0, 0, 0));
+                const value = dayjs(date?.setHours(0, 0, 0));
                 setFilter((filter) => ({
                   ...filter,
                   startDate: value.format('YYYY-MM-DDTHH:mm:ss'),
@@ -127,7 +127,7 @@ export const NotificationsDashboard: React.FC = () => {
               placeholderText="mm/dd/yyyy"
               selected={filter.endDate ? new Date(filter.endDate) : new Date()}
               onChange={(date) => {
-                const value = moment(date?.setHours(23, 59, 59));
+                const value = dayjs(date?.setHours(23, 59, 59));
                 setFilter((filter) => ({
                   ...filter,
                   endDate: value.format('YYYY-MM-DDTHH:mm:ss'),

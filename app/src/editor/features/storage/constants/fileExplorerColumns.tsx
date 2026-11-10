@@ -1,4 +1,3 @@
-import moment from 'moment';
 import {
   FaCopy,
   FaFileDownload,
@@ -20,6 +19,7 @@ import {
   type IItemModel,
   type ITableHookColumn,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 interface IColumnOptions {
   isStorage?: boolean;
@@ -89,7 +89,7 @@ export const fileExplorerColumns = (
     sort: 'modified',
     width: 40,
     cell: ({ original }) => (
-      <div className="ft-row">{moment(original.modified).format('DD-MM-yy hh:mm:ss')}</div>
+      <div className="ft-row">{dayjs(original.modified).format('DD-MM-YYYY hh:mm:ss')}</div>
     ),
   },
   {

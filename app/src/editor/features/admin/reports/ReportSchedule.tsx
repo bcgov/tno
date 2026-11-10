@@ -1,5 +1,4 @@
 import { useFormikContext } from 'formik';
-import moment from 'moment';
 import React from 'react';
 import { FaEraser } from 'react-icons/fa';
 
@@ -18,6 +17,7 @@ import {
   selectWeekDays,
   type IReportModel,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import * as styled from './styled';
 
@@ -59,7 +59,7 @@ export const ReportSchedule: React.FC<IReportScheduleProps> = ({ label, index })
             dateFormat="MM/dd/yyyy HH:mm:ss"
             value={
               values.events.length > 0 && values.events[index].runOn
-                ? moment(values.events[index].runOn).format('MM/DD/yyyy HH:mm:ss')
+                ? dayjs(values.events[index].runOn).format('MM/DD/YYYY HH:mm:ss')
                 : undefined
             }
             onChange={(value) => {
@@ -68,7 +68,7 @@ export const ReportSchedule: React.FC<IReportScheduleProps> = ({ label, index })
               // refuses to write to schedule.run_on (timestamp with time zone).
               setFieldValue(
                 `events.${index}.runOn`,
-                value ? moment(value).toISOString() : undefined,
+                value ? dayjs(value).toISOString() : undefined,
               );
             }}
             isClearable

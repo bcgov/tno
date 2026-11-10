@@ -1,7 +1,7 @@
-import moment from 'moment';
 import React from 'react';
 
 import { IContentModel, Show } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 import { ContentList } from '@/subscriber/components/content-list';
 import { DateFilter } from '@/subscriber/components/date-filter';
 import { ContentListActionBar } from '@/subscriber/components/tool-bar';
@@ -28,7 +28,7 @@ export const TodaysCommentary: React.FC = () => {
 
   const handleContentSelected = React.useCallback(
     (selectedContent: IContentModel[]) => {
-      const dateKey = filter.startDate || moment().startOf('day').toISOString();
+      const dateKey = filter.startDate || dayjs().startOf('day').toISOString();
       setStateByDate((prevState) => ({
         ...prevState,
         [dateKey]: {
@@ -51,7 +51,7 @@ export const TodaysCommentary: React.FC = () => {
         fetchResults({
           ...filter,
           actions: [commentaryAction],
-          startDate: filter.startDate ?? moment().startOf('day').toISOString(),
+          startDate: filter.startDate ?? dayjs().startOf('day').toISOString(),
           searchUnpublished: false,
           sort: [{ publishedOn: 'desc' }],
           size: 500,
@@ -60,8 +60,8 @@ export const TodaysCommentary: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [commentaryActionId, filter, findContentWithElasticsearch, getActionFilters]);
   const resetDateFilter = React.useCallback(() => {
-    const defaultStartDate = moment().startOf('day').toISOString();
-    const defaultEndDate = moment().endOf('day').toISOString();
+    const defaultStartDate = dayjs().startOf('day').toISOString();
+    const defaultEndDate = dayjs().endOf('day').toISOString();
     storeFilter({
       ...filter,
       startDate: defaultStartDate,
@@ -97,7 +97,7 @@ export const TodaysCommentary: React.FC = () => {
 
   const handleSelectAll = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const dateKey = filter.startDate || moment().startOf('day').toISOString();
+      const dateKey = filter.startDate || dayjs().startOf('day').toISOString();
       setStateByDate((prevState) => ({
         ...prevState,
         [dateKey]: {
@@ -110,7 +110,7 @@ export const TodaysCommentary: React.FC = () => {
     [currDateResults, filter.startDate],
   );
 
-  const dateKey = filter.startDate || moment().startOf('day').toISOString();
+  const dateKey = filter.startDate || dayjs().startOf('day').toISOString();
   const currentSelected = stateByDate[dateKey]?.selected || [];
   const currentIsSelectAllChecked = stateByDate[dateKey]?.isSelectAllChecked || false;
   const allSelectedContent = Object.values(stateByDate).flatMap((state) => state.selected);

@@ -1,6 +1,7 @@
-import moment from 'moment';
 import React from 'react';
 import { FaPaperPlane, FaToggleOff, FaToggleOn, FaWandMagicSparkles } from 'react-icons/fa6';
+
+import { dayjs } from '@/shared/utils/date';
 
 import {
   IContentModel,
@@ -444,9 +445,9 @@ export const FilterAIWorkbench: React.FC<IFilterAIWorkbenchProps> = ({
                   <>
                     {stats.earliest && stats.latest && (
                       <span className="stat" title="Published between">
-                        {moment(stats.earliest).format('YYYY-MM-DD')}
+                        {dayjs(stats.earliest).format('YYYY-MM-DD')}
                         {stats.earliest !== stats.latest && (
-                          <> – {moment(stats.latest).format('YYYY-MM-DD')}</>
+                          <> – {dayjs(stats.latest).format('YYYY-MM-DD')}</>
                         )}
                       </span>
                     )}
@@ -532,11 +533,11 @@ export const FilterAIWorkbench: React.FC<IFilterAIWorkbenchProps> = ({
                       className="published"
                       title={
                         content.publishedOn
-                          ? `Published ${moment(content.publishedOn).format('YYYY-MM-DD HH:mm')}`
+                          ? `Published ${dayjs(content.publishedOn).format('YYYY-MM-DD HH:mm')}`
                           : 'Published on'
                       }
                     >
-                      {content.publishedOn ? moment(content.publishedOn).format('YYYY-MM-DD') : ''}
+                      {content.publishedOn ? dayjs(content.publishedOn).format('YYYY-MM-DD') : ''}
                     </span>
                     <span className="source" title={content.source?.name ?? content.otherSource}>
                       {content.source?.code ?? content.otherSource}

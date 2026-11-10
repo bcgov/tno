@@ -1,5 +1,4 @@
 import { useFormikContext } from 'formik';
-import moment from 'moment';
 import React from 'react';
 import { FaGripLines, FaTrash } from 'react-icons/fa';
 
@@ -29,6 +28,7 @@ import {
   type DropResult,
   type ResponderProvided,
 } from '@/shared/components/dnd';
+import { dayjs } from '@/shared/utils/date';
 
 import * as styled from './styled';
 import { SummarySuggestion } from './SummarySuggestion';
@@ -169,7 +169,7 @@ export const OverviewSectionForm: React.FC<IOverviewSectionFormProps> = ({
   React.useEffect(() => {
     if (contentItems) {
       const newClips = contentItems.map((c) => {
-        const publishedOnTime = c.publishedOn ? `${moment(c.publishedOn).format('HH:mm')} ` : '';
+        const publishedOnTime = c.publishedOn ? `${dayjs(c.publishedOn).format('HH:mm')} ` : '';
         const itemHeadline = `${publishedOnTime}${c.headline}`;
         return new OptionItem(itemHeadline, c.id);
       }) as IOptionItem[];
@@ -343,7 +343,7 @@ export const OverviewSectionForm: React.FC<IOverviewSectionFormProps> = ({
                                           ...item,
                                           contentId: content?.id,
                                           time: content
-                                            ? `${moment(content.publishedOn).format('HH:mm:ss')}`
+                                            ? `${dayjs(content.publishedOn).format('HH:mm:ss')}`
                                             : undefined,
                                         });
                                       } else {

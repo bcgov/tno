@@ -1,6 +1,5 @@
-import moment from 'moment';
-
 import { IContentActionModel } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { isWeekday } from './isWeekday';
 
@@ -15,5 +14,5 @@ export const determineCommentaryTime = (
   const offset = +offsetValue;
 
   date.setHours(date.getHours() - offset);
-  return moment(date).toISOString();
+  return dayjs(date).toISOString();
 };

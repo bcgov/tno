@@ -1,4 +1,3 @@
-import moment, { type Moment } from 'moment';
 import React from 'react';
 import {
   FaArrowAltCircleLeft,
@@ -24,6 +23,7 @@ import {
   useModal,
   type IAVOverviewInstanceModel,
 } from '@/shared';
+import { dayjs, type Dayjs } from '@/shared/utils/date';
 
 import {
   defaultAVOverviewInstance,
@@ -39,9 +39,9 @@ const AVOverview: React.FC = () => {
   const [api] = useAVOverviewInstances();
   const [params] = useSearchParams();
   const { toggle, isShowing } = useModal();
-  const queryDate = params.get('date') ? moment(params.get('date')) : moment(Date.now());
+  const queryDate = params.get('date') ? dayjs(params.get('date')) : dayjs(Date.now());
 
-  const [publishedOn, setPublishedOn] = React.useState<Moment>(queryDate);
+  const [publishedOn, setPublishedOn] = React.useState<Dayjs>(queryDate);
   const [instance, setInstance] = React.useState<IAVOverviewInstanceModel>(
     defaultAVOverviewInstance(defaultAVOverviewTemplate, publishedOn.toDate()),
   );
@@ -53,14 +53,14 @@ const AVOverview: React.FC = () => {
     // Unlock Evening Overview to allow editing prior days
     // setIsEditable(getIsEditable(publishedOn));
     api
-      .findAVOverview(publishedOn.local().format('MM/DD/yyyy'))
+      .findAVOverview(publishedOn.local().format('MM/DD/YYYY'))
       .then((data) => {
         if (data) {
           setInstance(data);
           // Unlock Evening Overview to allow editing prior days
           // if (data.isPublished) setIsEditable(!data.isPublished);
-          const date = moment(data.publishedOn).utc();
-          window.history.pushState({}, '', `?date=${date.format('yyyy/MM/DD')}`);
+          const date = dayjs(data.publishedOn).utc();
+          window.history.pushState({}, '', `?date=${date.format('YYYY/MM/DD')}`);
         } else {
           toast.error('An evening overview could not be generated for the selected date.');
           setInstance(defaultAVOverviewInstance(defaultAVOverviewTemplate, publishedOn.toDate()));
@@ -131,7 +131,7 @@ const AVOverview: React.FC = () => {
                   onClick={() => {
                     setPublishedOn((value) => {
                       const result = value.add(-1, 'd').clone();
-                      window.history.pushState({}, '', `?date=${result.format('yyyy/MM/DD')}`);
+                      window.history.pushState({}, '', `?date=${result.format('YYYY/MM/DD')}`);
                       return result;
                     });
                   }}
@@ -143,9 +143,9 @@ const AVOverview: React.FC = () => {
                   placeholderText="mm/dd/yyyy"
                   selected={publishedOn.toDate()}
                   onChange={(date) => {
-                    const value = moment(date);
+                    const value = dayjs(date);
                     setPublishedOn(value);
-                    window.history.pushState({}, '', `?date=${value.format('yyyy/MM/DD')}`);
+                    window.history.pushState({}, '', `?date=${value.format('YYYY/MM/DD')}`);
                   }}
                 />
                 <Button
@@ -153,7 +153,7 @@ const AVOverview: React.FC = () => {
                   onClick={() => {
                     setPublishedOn((value) => {
                       const result = value.add(1, 'd').clone();
-                      window.history.pushState({}, '', `?date=${result.format('yyyy/MM/DD')}`);
+                      window.history.pushState({}, '', `?date=${result.format('YYYY/MM/DD')}`);
                       return result;
                     });
                   }}

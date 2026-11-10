@@ -1,4 +1,3 @@
-import moment from 'moment';
 import React from 'react';
 import { FaArrowAltCircleRight, FaBinoculars } from 'react-icons/fa';
 
@@ -28,6 +27,7 @@ import {
   ToolBarSection,
   type IOptionItem,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 export interface IAdvancedFilterProps {
   /** The current filter values. */
@@ -221,9 +221,9 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
               name={isSecondary ? 'paperSearchTermSecondaryDate' : 'paperSearchTermDate'}
               width="15ch"
               isClearable
-              value={moment(currentSearchTerm).isValid() ? currentSearchTerm : undefined}
+              value={dayjs(currentSearchTerm).isValid() ? currentSearchTerm : undefined}
               onChange={(value) => {
-                setSearchTerm(value ? moment(value).format('YYYY-MM-DD') : '');
+                setSearchTerm(value ? dayjs(value).format('YYYY-MM-DD') : '');
               }}
             />
           </Show>

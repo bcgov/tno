@@ -1,5 +1,3 @@
-import moment from 'moment';
-
 import {
   getDistinct,
   IReportInstanceContentModel,
@@ -7,6 +5,7 @@ import {
   IReportSectionModel,
   TopicTypeName,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { IConvertToChartOptions } from './convertToChart';
 import { getChartData } from './getChartData';
@@ -101,27 +100,26 @@ export const groupData = (
   } else if (groupBy === 'dayMonthYear') {
     result = getChartData(chart, datasets, sections, {
       ...options,
-      groupOn: (c) => +moment(c?.content?.publishedOn).tz('America/Vancouver').format('YYYYMMDD'),
-      getLabel: (c) =>
-        moment(c?.content?.publishedOn).tz('America/Vancouver').format('DD-MMM-YYYY'),
+      groupOn: (c) => +dayjs(c?.content?.publishedOn).tz('America/Vancouver').format('YYYYMMDD'),
+      getLabel: (c) => dayjs(c?.content?.publishedOn).tz('America/Vancouver').format('DD-MMM-YYYY'),
     });
   } else if (groupBy === 'monthDay') {
     result = getChartData(chart, datasets, sections, {
       ...options,
-      groupOn: (c) => +moment(c?.content?.publishedOn).tz('America/Vancouver').format('YYYYMMDD'),
-      getLabel: (c) => moment(c?.content?.publishedOn).tz('America/Vancouver').format('MMM-DD'),
+      groupOn: (c) => +dayjs(c?.content?.publishedOn).tz('America/Vancouver').format('YYYYMMDD'),
+      getLabel: (c) => dayjs(c?.content?.publishedOn).tz('America/Vancouver').format('MMM-DD'),
     });
   } else if (groupBy === 'monthYear') {
     result = getChartData(chart, datasets, sections, {
       ...options,
-      groupOn: (c) => +moment(c?.content?.publishedOn).tz('America/Vancouver').format('YYYYMM'),
-      getLabel: (c) => moment(c?.content?.publishedOn).tz('America/Vancouver').format('MMM-YYYY'),
+      groupOn: (c) => +dayjs(c?.content?.publishedOn).tz('America/Vancouver').format('YYYYMM'),
+      getLabel: (c) => dayjs(c?.content?.publishedOn).tz('America/Vancouver').format('MMM-YYYY'),
     });
   } else if (groupBy === 'year') {
     result = getChartData(chart, datasets, sections, {
       ...options,
-      groupOn: (c) => +moment(c?.content?.publishedOn).tz('America/Vancouver').format('YYYY'),
-      getLabel: (c) => moment(c?.content?.publishedOn).tz('America/Vancouver').format('YYYY'),
+      groupOn: (c) => +dayjs(c?.content?.publishedOn).tz('America/Vancouver').format('YYYY'),
+      getLabel: (c) => dayjs(c?.content?.publishedOn).tz('America/Vancouver').format('YYYY'),
     });
   } else if (groupBy === 'reportSection') {
     result = getChartData(chart, datasets, sections, {

@@ -1,11 +1,10 @@
-import moment from 'moment';
-
 import {
   getDistinct,
   IReportInstanceContentModel,
   IReportSectionChartTemplateModel,
   TopicTypeName,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { IConvertToChartOptions } from './convertToChart';
 import { getSentimentLabel } from './getSentimentLabel';
@@ -94,27 +93,26 @@ export const getDatasets = (
   } else if (key === 'dayMonthYear') {
     results = separateDatasets(data, {
       ...options,
-      groupOn: (c) => +moment(c?.content?.publishedOn).tz('America/Vancouver').format('YYYYMMDD'),
-      getLabel: (c) =>
-        moment(c?.content?.publishedOn).tz('America/Vancouver').format('DD-MMM-YYYY'),
+      groupOn: (c) => +dayjs(c?.content?.publishedOn).tz('America/Vancouver').format('YYYYMMDD'),
+      getLabel: (c) => dayjs(c?.content?.publishedOn).tz('America/Vancouver').format('DD-MMM-YYYY'),
     });
   } else if (key === 'monthDay') {
     results = separateDatasets(data, {
       ...options,
-      groupOn: (c) => +moment(c?.content?.publishedOn).tz('America/Vancouver').format('MMDD'),
-      getLabel: (c) => moment(c?.content?.publishedOn).tz('America/Vancouver').format('MMM-DD'),
+      groupOn: (c) => +dayjs(c?.content?.publishedOn).tz('America/Vancouver').format('MMDD'),
+      getLabel: (c) => dayjs(c?.content?.publishedOn).tz('America/Vancouver').format('MMM-DD'),
     });
   } else if (key === 'monthYear') {
     results = separateDatasets(data, {
       ...options,
-      groupOn: (c) => +moment(c?.content?.publishedOn).tz('America/Vancouver').format('YYYYMM'),
-      getLabel: (c) => moment(c?.content?.publishedOn).tz('America/Vancouver').format('MMM-YYYY'),
+      groupOn: (c) => +dayjs(c?.content?.publishedOn).tz('America/Vancouver').format('YYYYMM'),
+      getLabel: (c) => dayjs(c?.content?.publishedOn).tz('America/Vancouver').format('MMM-YYYY'),
     });
   } else if (key === 'year') {
     results = separateDatasets(data, {
       ...options,
-      groupOn: (c) => moment(c?.content?.publishedOn).tz('America/Vancouver').year(),
-      getLabel: (c) => moment(c?.content?.publishedOn).tz('America/Vancouver').format('YYYY'),
+      groupOn: (c) => dayjs(c?.content?.publishedOn).tz('America/Vancouver').year(),
+      getLabel: (c) => dayjs(c?.content?.publishedOn).tz('America/Vancouver').format('YYYY'),
     });
   } else if (key === 'reportSection') {
     results = separateDatasets(data, {

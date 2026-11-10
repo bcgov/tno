@@ -1,4 +1,3 @@
-import moment from 'moment';
 import React, { lazy, useRef } from 'react';
 import { useParams } from 'react-router';
 import { toast } from 'react-toastify';
@@ -37,6 +36,7 @@ import {
   type IWorkOrderMessageModel,
   type IWorkOrderModel,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 import { type KnnSearchResponse, type SearchTotalHits } from '@/shared/utils/elastic/esTypes';
 
 import { AdvancedSearchKeys } from '../constants';
@@ -220,8 +220,8 @@ const ContentListView: React.FC = () => {
         };
         if (filter.pendingTranscript) {
           // Make a request for transcript work orders.
-          const startDate = moment().add(-3, 'day').startOf('day');
-          const endDate = moment().endOf('day');
+          const startDate = dayjs().add(-3, 'day').startOf('day');
+          const endDate = dayjs().endOf('day');
           const woFilter: IWorkOrderFilter = {
             page: 1,
             quantity: 1000,
@@ -576,7 +576,7 @@ const ContentListView: React.FC = () => {
                         }}
                       >
                         {row.publishedOn
-                          ? moment(row.publishedOn).format('MM/DD/YYYY HH:mm:ss')
+                          ? dayjs(row.publishedOn).format('MM/DD/YYYY HH:mm:ss')
                           : ''}
                       </div>
                     ),

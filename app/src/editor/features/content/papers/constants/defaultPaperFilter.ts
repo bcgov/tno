@@ -1,8 +1,7 @@
-import moment from 'moment';
-
 import { type IContentListFilter } from '@/editor/features/content/interfaces';
 import { defaultPage } from '@/editor/features/content/list-view/constants';
 import { ContentTypeName, type ISourceModel } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { defaultSort } from './defaultSort';
 
@@ -13,9 +12,12 @@ import { defaultSort } from './defaultSort';
  */
 export const defaultPaperFilter = (sources: ISourceModel[] = []): IContentListFilter => {
   // Return stories that are also from yesterday if published after 10PM.
-  const yesterdayAt10PM = moment()
+  const yesterdayAt10PM = dayjs()
     .subtract(1, 'days')
-    .set({ hour: 22, minute: 0, second: 0, millisecond: 0 });
+    .hour(22)
+    .minute(0)
+    .second(0)
+    .millisecond(0);
 
   return {
     pageIndex: defaultPage.pageIndex,

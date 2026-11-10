@@ -1,5 +1,4 @@
 import { type FormikProps } from 'formik';
-import moment from 'moment';
 import React from 'react';
 import { FaBars, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router';
@@ -44,6 +43,7 @@ import {
   type ISeriesModel,
   type ITimeTrackingModel,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import {
   ContentAnalysisForm,
@@ -520,12 +520,12 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                   width={FieldSize.Medium}
                                   selectedDate={
                                     props.values.publishedOn
-                                      ? moment(props.values.publishedOn).toString()
+                                      ? dayjs(props.values.publishedOn).toString()
                                       : undefined
                                   }
                                   value={
                                     props.values.publishedOn
-                                      ? moment(props.values.publishedOn).format('MMM D, yyyy')
+                                      ? dayjs(props.values.publishedOn).format('MMM D, YYYY')
                                       : ''
                                   }
                                   onChange={(date) => {
@@ -541,7 +541,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                     }
                                     props.setFieldValue(
                                       'publishedOn',
-                                      moment(date).format('MMM D, yyyy HH:mm:ss'),
+                                      dayjs(date).format('MMM D, YYYY HH:mm:ss'),
                                     );
                                   }}
                                 />
@@ -566,11 +566,11 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                     if (date) {
                                       props.setFieldValue(
                                         'publishedOn',
-                                        moment(date).format('MMM D, yyyy HH:mm:ss'),
+                                        dayjs(date).format('MMM D, YYYY HH:mm:ss'),
                                       );
                                       props.setFieldValue(
                                         'publishedOnTime',
-                                        moment(date).format('HH:mm:ss'),
+                                        dayjs(date).format('HH:mm:ss'),
                                       );
                                     }
                                   }}
@@ -579,11 +579,11 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                     if (date) {
                                       props.setFieldValue(
                                         'publishedOn',
-                                        moment(date).format('MMM D, yyyy HH:mm:ss'),
+                                        dayjs(date).format('MMM D, YYYY HH:mm:ss'),
                                       );
                                       props.setFieldValue(
                                         'publishedOnTime',
-                                        moment(date).format('HH:mm:ss'),
+                                        dayjs(date).format('HH:mm:ss'),
                                       );
                                     }
                                   }}
@@ -597,12 +597,12 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                   width={FieldSize.Medium}
                                   selectedDate={
                                     props.values.postedOn
-                                      ? moment(props.values.postedOn).toString()
+                                      ? dayjs(props.values.postedOn).toString()
                                       : undefined
                                   }
                                   value={
                                     props.values.postedOn
-                                      ? moment(props.values.postedOn).format('MMM D, yyyy')
+                                      ? dayjs(props.values.postedOn).format('MMM D, YYYY')
                                       : ''
                                   }
                                   onChange={(date) => {
@@ -618,7 +618,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                     }
                                     props.setFieldValue(
                                       'postedOn',
-                                      moment(date).format('MMM D, yyyy HH:mm:ss'),
+                                      dayjs(date).format('MMM D, YYYY HH:mm:ss'),
                                     );
                                   }}
                                 />
@@ -642,11 +642,11 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                     if (date) {
                                       props.setFieldValue(
                                         'postedOn',
-                                        moment(date).format('MMM D, yyyy HH:mm:ss'),
+                                        dayjs(date).format('MMM D, YYYY HH:mm:ss'),
                                       );
                                       props.setFieldValue(
                                         'postedOnTime',
-                                        moment(date).format('HH:mm:ss'),
+                                        dayjs(date).format('HH:mm:ss'),
                                       );
                                     }
                                   }}
@@ -658,11 +658,11 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                     if (date) {
                                       props.setFieldValue(
                                         'postedOn',
-                                        moment(date).format('MMM D, yyyy HH:mm:ss'),
+                                        dayjs(date).format('MMM D, YYYY HH:mm:ss'),
                                       );
                                       props.setFieldValue(
                                         'postedOnTime',
-                                        moment(date).format('HH:mm:ss'),
+                                        dayjs(date).format('HH:mm:ss'),
                                       );
                                     }
                                   }}
@@ -1034,7 +1034,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                 userId,
                                 activity: props.values.id ? 'Updated' : 'Created',
                                 effort: +Number.parseInt(contentPrepTime),
-                                createdOn: moment().toLocaleString(),
+                                createdOn: dayjs().toLocaleString(),
                               };
                               // remove added but not saved entry
                               const addedEntryIndex = props.values.timeTrackings.findIndex(

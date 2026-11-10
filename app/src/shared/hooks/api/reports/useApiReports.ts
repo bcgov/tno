@@ -1,5 +1,6 @@
-import moment from 'moment';
 import React from 'react';
+
+import { dayjs } from '@/shared/utils/date';
 
 import { useApi } from '..';
 import { toQueryString } from '../../../utils';
@@ -25,8 +26,8 @@ export const useApiReports = (
     // Lookups
     generateCBRAReport: (from: Date, to?: Date | null) => {
       const params = {
-        from: moment(from).format('YYYY-MM-DDT00:00:00'),
-        to: to ? moment(to).format('YYYY-MM-DDT11:59:59') : undefined,
+        from: dayjs(from).format('YYYY-MM-DDT00:00:00'),
+        to: to ? dayjs(to).format('YYYY-MM-DDT11:59:59') : undefined,
       };
       return download({
         url: `/reports/cbra?${toQueryString(params)}`,

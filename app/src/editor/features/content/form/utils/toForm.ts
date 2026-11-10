@@ -1,6 +1,5 @@
-import moment from 'moment';
-
 import { type IContentModel } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { type IContentForm } from '../interfaces';
 
@@ -36,7 +35,7 @@ export function toForm(model: IContentModel): IContentForm {
     otherSeries: '',
     postedOn: model.postedOn ? model.postedOn : '',
     publishedOn: model.publishedOn ?? '',
-    publishedOnTime: model.publishedOn ? moment(model.publishedOn).format('HH:mm:ss') : '',
+    publishedOnTime: model.publishedOn ? dayjs(model.publishedOn).format('HH:mm:ss') : '',
     isHidden: model.isHidden,
     isApproved: model.isApproved,
     isPrivate: model.isPrivate,

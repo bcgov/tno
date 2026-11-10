@@ -1,4 +1,3 @@
-import moment from 'moment';
 import React from 'react';
 
 import {
@@ -16,6 +15,7 @@ import {
   toTitleCase,
   Wysiwyg,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 import { IReportInstanceContentForm } from '@/subscriber/features/my-reports/interfaces';
 import { IContentValidationErrors } from '@/subscriber/features/my-reports/interfaces/IContentValidationErrors';
 import { getTime } from '@/subscriber/features/my-reports/utils';
@@ -139,14 +139,12 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
             autoComplete="false"
             error={errors?.publishedOn}
             width={FieldSize.Medium}
-            selectedDate={
-              !!content.publishedOn ? moment(content.publishedOn).toString() : undefined
-            }
+            selectedDate={!!content.publishedOn ? dayjs(content.publishedOn).toString() : undefined}
             value={!!content.publishedOn ? formatDate(content.publishedOn) : ''}
             onChange={(date) => {
               onContentChange?.({
                 ...values,
-                content: { ...content, publishedOn: moment(date).toISOString() },
+                content: { ...content, publishedOn: dayjs(date).toISOString() },
               });
             }}
           />
@@ -156,7 +154,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
             label="Time"
             disabled={!content.publishedOn || disabled}
             width="7em"
-            value={!!content.publishedOn ? moment(content.publishedOn).format('HH:mm:ss') : ''}
+            value={!!content.publishedOn ? dayjs(content.publishedOn).format('HH:mm:ss') : ''}
             placeholder={'HH:MM:SS'}
             onBlur={(e) => {
               if (e.target.value.indexOf('_')) {
@@ -167,7 +165,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
               if (!!date) {
                 onContentChange?.({
                   ...values,
-                  content: { ...content, publishedOn: moment(date).toISOString() },
+                  content: { ...content, publishedOn: dayjs(date).toISOString() },
                 });
               }
             }}
@@ -178,7 +176,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
                   ...values,
                   content: {
                     ...content,
-                    publishedOn: moment(date).format('MMM D, yyyy HH:mm:ss'),
+                    publishedOn: dayjs(date).format('MMM D, YYYY HH:mm:ss'),
                   },
                 });
               }

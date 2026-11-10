@@ -1,4 +1,4 @@
-import moment from 'moment';
+import { dayjs } from '@/shared/utils/date';
 
 import { IFilterSettingsModel } from '../../hooks';
 import { generatePostedOnQuery } from './generatePostedOnQuery';
@@ -58,22 +58,22 @@ export const generateQueryValues = (
     settings.publishedOn
       ? generateRangeForDates(
           'publishedOn',
-          moment(settings.publishedOn).startOf('day'),
-          moment(settings.publishedOn).endOf('day'),
+          dayjs(settings.publishedOn).startOf('day'),
+          dayjs(settings.publishedOn).endOf('day'),
         )
       : undefined,
     settings.createdOn
       ? generateRangeForDates(
           'createdOn',
-          moment(settings.createdOn).startOf('day'),
-          moment(settings.createdOn).endOf('day'),
+          dayjs(settings.createdOn).startOf('day'),
+          dayjs(settings.createdOn).endOf('day'),
         )
       : undefined,
     settings.updatedOn
       ? generateRangeForDates(
           'updatedOn',
-          moment(settings.updatedOn).startOf('day'),
-          moment(settings.updatedOn).endOf('day'),
+          dayjs(settings.updatedOn).startOf('day'),
+          dayjs(settings.updatedOn).endOf('day'),
         )
       : undefined,
   ].filter((v) => (v !== undefined && !Array.isArray(v)) || (Array.isArray(v) && v.length > 0));

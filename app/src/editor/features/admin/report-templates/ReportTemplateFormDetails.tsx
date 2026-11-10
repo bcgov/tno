@@ -1,6 +1,5 @@
 import { useFormikContext } from 'formik';
 import { noop } from 'lodash';
-import moment from 'moment';
 import React from 'react';
 
 import {
@@ -14,6 +13,7 @@ import {
   Show,
   type IReportTemplateModel,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 /**
  * The page used to view and edit a report template.
@@ -43,7 +43,7 @@ export const ReportTemplateFormDetails: React.FC = () => {
           <Row>
             <FormikText width={FieldSize.Small} disabled name="updatedBy" label="Updated By" />
             <FormikDatePicker
-              selectedDate={values.updatedOn ? moment(values.updatedOn).toString() : undefined}
+              selectedDate={values.updatedOn ? dayjs(values.updatedOn).toString() : undefined}
               onChange={noop}
               name="updatedOn"
               label="Updated On"
@@ -54,7 +54,7 @@ export const ReportTemplateFormDetails: React.FC = () => {
           <Row>
             <FormikText width={FieldSize.Small} disabled name="createdBy" label="Created By" />
             <FormikDatePicker
-              selectedDate={values.createdOn ? moment(values.createdOn).toString() : undefined}
+              selectedDate={values.createdOn ? dayjs(values.createdOn).toString() : undefined}
               onChange={noop}
               name="createdOn"
               label="Created On"

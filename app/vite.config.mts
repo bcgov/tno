@@ -62,6 +62,13 @@ export default defineConfig(({ command, mode, isPreview }) => {
         {
           extends: true,
           test: {
+            name: 'shared',
+            include: ['src/shared/**/*.test.{ts,tsx}'],
+          },
+        },
+        {
+          extends: true,
+          test: {
             name: 'editor',
             include: ['src/editor/test-vitest/**/*.test.{ts,tsx}'],
             setupFiles: ['./src/editor/test-vitest/setup.ts'],

@@ -1,5 +1,4 @@
 import { noop } from 'lodash';
-import moment from 'moment';
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
 import { toast } from 'react-toastify';
@@ -29,6 +28,7 @@ import {
   useModal,
   type ILLMModel,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { defaultLLM } from './constants';
 import { LLMUsage } from './LLMUsage';
@@ -321,7 +321,7 @@ const LLMForm: React.FC = () => {
                       />
                       <FormikDatePicker
                         selectedDate={
-                          values.updatedOn ? moment(values.updatedOn).toString() : undefined
+                          values.updatedOn ? dayjs(values.updatedOn).toString() : undefined
                         }
                         onChange={noop}
                         name="updatedOn"
@@ -339,7 +339,7 @@ const LLMForm: React.FC = () => {
                       />
                       <FormikDatePicker
                         selectedDate={
-                          values.createdOn ? moment(values.createdOn).toString() : undefined
+                          values.createdOn ? dayjs(values.createdOn).toString() : undefined
                         }
                         onChange={noop}
                         name="createdOn"

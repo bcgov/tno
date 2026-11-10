@@ -1,5 +1,5 @@
-import moment from 'moment';
+import { dayjs } from '@/shared/utils/date';
 
 /** Format a run timestamp for display. */
 export const formatRunTime = (value?: string): string =>
-  value ? moment(value).format('YYYY-MM-DD HH:mm:ss') : '-';
+  value ? dayjs(value).format('YYYY-MM-DD HH:mm:ss') : '-';

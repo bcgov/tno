@@ -1,6 +1,5 @@
-import moment from 'moment';
-
 import { type IHolidayModel } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 /**
  * Determines if the specified 'date' is a stat holiday.
@@ -9,7 +8,7 @@ import { type IHolidayModel } from '@/shared';
  * @returns True if the date is a stat holiday.
  */
 export const isHoliday = (date: Date | string, holidays: IHolidayModel[]) => {
-  const value = moment(date);
-  const stat = holidays.find((h) => moment(h.date).isSame(value, 'date'));
+  const value = dayjs(date);
+  const stat = holidays.find((h) => dayjs(h.date).isSame(value, 'date'));
   return !!stat;
 };

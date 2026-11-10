@@ -1,8 +1,8 @@
-import moment from 'moment';
 import React from 'react';
 import { useSearchParams } from 'react-router';
 
 import { Col, IReportResultModel, Loader, Show } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 import { DateFilter } from '@/subscriber/components/date-filter';
 import { useContent, useReportInstances, useSettings } from '@/subscriber/store/hooks';
 
@@ -18,7 +18,7 @@ const EventOfTheDayPreview: React.FC = () => {
   const [params] = useSearchParams();
   const dateUrlParam = params.get('date')
     ? params.get('date')
-    : moment(new Date()).endOf('day').toISOString();
+    : dayjs(new Date()).endOf('day').toISOString();
   const [{ getReportInstance }] = useReportInstances();
   const { eventOfTheDayReportId } = useSettings();
   const [date, setDate] = React.useState<string>();
@@ -31,7 +31,7 @@ const EventOfTheDayPreview: React.FC = () => {
     async (eventOfTheDayReportId: number, overrideDate?: string) => {
       try {
         setIsLoading(true);
-        const filterDate = moment(overrideDate ?? eventOfTheDayFilter?.startDate)
+        const filterDate = dayjs(overrideDate ?? eventOfTheDayFilter?.startDate)
           .startOf('day')
           .toISOString();
 
@@ -51,11 +51,11 @@ const EventOfTheDayPreview: React.FC = () => {
     if (!date && dateUrlParam) {
       // Case 1: No date stored in memory, but there's a date parameter in path
       // in this case use that date param, set local state & fetch the overview
-      setDate(moment(dateUrlParam).startOf('day').toISOString());
+      setDate(dayjs(dateUrlParam).startOf('day').toISOString());
       storeFilter({
         ...eventOfTheDayFilter,
-        startDate: moment(dateUrlParam).startOf('day').toISOString(),
-        endDate: moment(dateUrlParam).endOf('day').toISOString(),
+        startDate: dayjs(dateUrlParam).startOf('day').toISOString(),
+        endDate: dayjs(dateUrlParam).endOf('day').toISOString(),
       });
       handleChangeReportDate(eventOfTheDayReportId, dateUrlParam);
       // Case 2: There's a date in memory, but that doesn't match the date
@@ -68,7 +68,7 @@ const EventOfTheDayPreview: React.FC = () => {
   }, [handleChangeReportDate, eventOfTheDayFilter, dateUrlParam, eventOfTheDayReportId]);
 
   React.useEffect(() => {
-    window.history.pushState({}, '', `?date=${moment(date).format('yyyy/MM/DD')}`);
+    window.history.pushState({}, '', `?date=${dayjs(date).format('YYYY/MM/DD')}`);
     // we only want to update the date in the url when date in memory changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [date]);

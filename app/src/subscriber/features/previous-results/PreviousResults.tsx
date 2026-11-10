@@ -1,7 +1,7 @@
-import moment from 'moment';
 import React from 'react';
 
 import { IFilterSettingsModel, Row, Show } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 
 import { IPreviousDate } from './interfaces';
@@ -26,7 +26,7 @@ export const PreviousResults: React.FC<IPreviousResultsProps> = ({
   React.useEffect(() => {
     // not want to fetch if results are returned
     if (!loaded || !!currDateResults.length) return;
-    createDateRanges(filter.startDate ?? moment().startOf('day').toISOString());
+    createDateRanges(filter.startDate ?? dayjs().startOf('day').toISOString());
     // only want to run when start date or source ids change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter.startDate, filter.sourceIds, currDateResults, prevDateResults, loaded]);
@@ -83,7 +83,7 @@ export const PreviousResults: React.FC<IPreviousResultsProps> = ({
               onClick={() => storeFilter({ ...filter, startDate: x.startDate, endDate: x.endDate })}
             >
               <div className="hits">{x.hits}</div>
-              <div className="date">{moment(x.startDate).format('dddd, MMMM DD, YYYY')}</div>
+              <div className="date">{dayjs(x.startDate).format('dddd, MMMM DD, YYYY')}</div>
             </Row>
           );
         })}

@@ -1,4 +1,3 @@
-import moment from 'moment';
 import React from 'react';
 
 import {
@@ -10,6 +9,7 @@ import {
   Row,
   Show,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 import { PageSection } from '@/subscriber/components/section';
 import { useSubMediaGroups } from '@/subscriber/features/hooks';
 import { ISubMediaGroupItem } from '@/subscriber/features/search-page/components/advanced-search/interfaces';
@@ -65,8 +65,8 @@ export const FilterMediaLanding: React.FC = () => {
         checkAllOptions(activeSubMediaGroup, true);
         const newFilter: IFilterSettingsModel = {
           ...filter,
-          startDate: moment(new Date()).startOf('day').toISOString(),
-          endDate: moment(new Date()).endOf('day').toISOString(),
+          startDate: dayjs(new Date()).startOf('day').toISOString(),
+          endDate: dayjs(new Date()).endOf('day').toISOString(),
           mediaTypeIds: [activeSubMediaGroup.key],
           sort: [{ publishedOn: 'desc' }],
         };
@@ -171,8 +171,8 @@ export const FilterMediaLanding: React.FC = () => {
         ...filter,
         sourceIds: [],
         seriesIds: [],
-        startDate: moment(new Date()).startOf('day').toISOString(),
-        endDate: moment(new Date()).endOf('day').toISOString(),
+        startDate: dayjs(new Date()).startOf('day').toISOString(),
+        endDate: dayjs(new Date()).endOf('day').toISOString(),
         mediaTypeIds: [mediaGroup.key],
         activeSubGroup: mediaGroup.label,
         sort: [{ publishedOn: 'desc' }],

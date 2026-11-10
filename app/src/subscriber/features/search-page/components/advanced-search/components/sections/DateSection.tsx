@@ -1,9 +1,9 @@
-import moment from 'moment';
 import React from 'react';
 import ReactDatePicker from 'react-datepicker';
 import { FaX } from 'react-icons/fa6';
 
 import { Row, ToggleGroup } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { useSearchSettings } from '../../SearchSettingsContext';
 import { QuickPickerNames } from './constants';
@@ -28,7 +28,7 @@ export const DateSection: React.FC = () => {
           onChange={(date: Date | null) => {
             storeFilter({
               ...filter,
-              startDate: date ? moment(date)?.startOf('day').toISOString() : '',
+              startDate: date ? dayjs(date)?.startOf('day').toISOString() : '',
               dateOffset: undefined,
             });
           }}
@@ -47,7 +47,7 @@ export const DateSection: React.FC = () => {
           onChange={(date: Date | null) => {
             storeFilter({
               ...filter,
-              endDate: date ? moment(date)?.endOf('day').toISOString() : '',
+              endDate: date ? dayjs(date)?.endOf('day').toISOString() : '',
               dateOffset: undefined,
             });
           }}

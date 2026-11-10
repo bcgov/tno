@@ -1,5 +1,4 @@
 import { noop } from 'lodash';
-import moment from 'moment';
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
 import { toast } from 'react-toastify';
@@ -25,6 +24,7 @@ import {
   Show,
   useModal,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { defaultDataLocation } from './constants';
 import { type IDataLocationForm } from './interfaces';
@@ -131,9 +131,7 @@ const DataLocationForm: React.FC = () => {
                     label="Updated By"
                   />
                   <FormikDatePicker
-                    selectedDate={
-                      values.updatedOn ? moment(values.updatedOn).toString() : undefined
-                    }
+                    selectedDate={values.updatedOn ? dayjs(values.updatedOn).toString() : undefined}
                     onChange={noop}
                     name="updatedOn"
                     label="Updated On"
@@ -149,9 +147,7 @@ const DataLocationForm: React.FC = () => {
                     label="Created By"
                   />
                   <FormikDatePicker
-                    selectedDate={
-                      values.createdOn ? moment(values.createdOn).toString() : undefined
-                    }
+                    selectedDate={values.createdOn ? dayjs(values.createdOn).toString() : undefined}
                     onChange={noop}
                     name="createdOn"
                     label="Created On"

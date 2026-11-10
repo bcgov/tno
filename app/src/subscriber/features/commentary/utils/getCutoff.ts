@@ -1,4 +1,4 @@
-import moment from 'moment';
+import { dayjs } from '@/shared/utils/date';
 
 /**
  * Provides the cutoff time for the postedOn value.
@@ -9,5 +9,5 @@ export const getCutoff = (hours: number = 12) => {
   const date = new Date();
 
   date.setHours(date.getHours() - hours);
-  return moment(date).toISOString();
+  return dayjs(date).toISOString();
 };

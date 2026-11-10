@@ -1,5 +1,4 @@
 import { useFormikContext } from 'formik';
-import moment from 'moment';
 import React from 'react';
 
 import { useApp, useLookup } from '@/editor/store/hooks';
@@ -17,6 +16,7 @@ import {
   type IIngestModel,
   type IPage,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import {
   contentReferenceColumns,
@@ -91,7 +91,7 @@ const ContentReferenceList: React.FC<IContentReferenceListProps> = (props) => {
     async (filter: IContentReferenceListFilter) => {
       if (!ingestSources.length) return;
       try {
-        const start = moment(filter.discoveredOn).startOf('day');
+        const start = dayjs(filter.discoveredOn).startOf('day');
         const query: IIngestContentReferenceFilter = {
           page: filter.pageIndex + 1,
           quantity: filter.pageSize,

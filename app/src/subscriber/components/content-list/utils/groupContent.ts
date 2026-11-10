@@ -1,5 +1,4 @@
-import moment from 'moment';
-
+import { dayjs } from '@/shared/utils/date';
 import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 
 import { IGroupByState } from '../interfaces';
@@ -51,7 +50,7 @@ export const groupContent = (groupBy: IGroupByState, content: IContentSearchResu
             const date = new Date(item.publishedOn);
             const hours = date.getHours().toString().padStart(2, '0');
             const minutes = date.getMinutes().toString().padStart(2, '0');
-            key = `${moment(date).format('DD-MMM-YYYY')} ${`(${hours}:${minutes})`}`;
+            key = `${dayjs(date).format('DD-MMM-YYYY')} ${`(${hours}:${minutes})`}`;
             break;
           case 'source':
             if (!item?.source?.name) {

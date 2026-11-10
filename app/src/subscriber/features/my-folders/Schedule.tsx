@@ -1,4 +1,3 @@
-import moment from 'moment';
 import * as React from 'react';
 import ReactDatePicker from 'react-datepicker';
 import { FaInfoCircle } from 'react-icons/fa';
@@ -6,6 +5,7 @@ import { FaGear } from 'react-icons/fa6';
 import { Tooltip } from 'react-tooltip';
 
 import { Checkbox, Col, FieldSize, IFolderScheduleModel, Row, Show } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 import { TimeInput } from '@/subscriber/components/form/timeinput';
 
 import { daysOfWeek } from './constants/daysOfWeek';
@@ -77,13 +77,13 @@ export const Schedule: React.FC<IScheduleProps> = ({ folderSchedule, onScheduleC
                     dateFormat="MM/dd/yyyy HH:mm:ss"
                     value={
                       folderSchedule && folderSchedule.runOn
-                        ? moment(folderSchedule.runOn).format('MM/DD/yyyy HH:mm:ss')
+                        ? dayjs(folderSchedule.runOn).format('MM/DD/YYYY HH:mm:ss')
                         : ''
                     }
                     onChange={(date: Date | null) => {
                       onScheduleChange?.({
                         ...folderSchedule,
-                        runOn: moment(date).toISOString(),
+                        runOn: dayjs(date).toISOString(),
                       } as IFolderScheduleModel);
                     }}
                   />

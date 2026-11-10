@@ -1,5 +1,4 @@
 import { useFormikContext } from 'formik';
-import moment from 'moment';
 import React from 'react';
 import { FaTrash } from 'react-icons/fa';
 
@@ -18,6 +17,7 @@ import {
   TimeInput,
   type IIngestModel,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { ImportMigrationType } from './constants';
 import { ImportContent } from './ImportContent';
@@ -80,7 +80,7 @@ export const DbMigration: React.FC = (props) => {
               placeholderText="MM/DD/YYYY"
               selectedDate={
                 values.configuration.importDateStart
-                  ? moment(values.configuration.importDateStart).format('MM/DD/YYYY')
+                  ? dayjs(values.configuration.importDateStart).format('MM/DD/YYYY')
                   : undefined
               }
               required={!values.configuration.offsetHours}
@@ -88,10 +88,10 @@ export const DbMigration: React.FC = (props) => {
                 if (
                   date &&
                   values.configuration.importDateStart &&
-                  moment(date).isValid() &&
-                  moment(values.configuration.importDateStart).isValid()
+                  dayjs(date).isValid() &&
+                  dayjs(values.configuration.importDateStart).isValid()
                 ) {
-                  const importDateStart = moment(values.configuration.importDateStart);
+                  const importDateStart = dayjs(values.configuration.importDateStart);
                   date.setHours(
                     importDateStart.hour(),
                     importDateStart.minute(),
@@ -99,8 +99,8 @@ export const DbMigration: React.FC = (props) => {
                   );
                 }
 
-                const value = moment(date).isValid()
-                  ? moment(date).format('YYYY-MM-DD HH:mm:ss a')
+                const value = dayjs(date).isValid()
+                  ? dayjs(date).format('YYYY-MM-DD HH:mm:ss a')
                   : undefined;
                 setFieldValue('configuration.importDateStart', value);
               }}
@@ -129,7 +129,7 @@ export const DbMigration: React.FC = (props) => {
                   date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
                   setFieldValue(
                     'configuration.importDateStart',
-                    moment(date.toISOString()).format('YYYY-MM-DD HH:mm:ss a'),
+                    dayjs(date.toISOString()).format('YYYY-MM-DD HH:mm:ss a'),
                   );
                 }
               }}
@@ -146,17 +146,17 @@ export const DbMigration: React.FC = (props) => {
               placeholderText="MM/DD/YYYY"
               selectedDate={
                 values.configuration.importDateEnd
-                  ? moment(values.configuration.importDateEnd).format('MM/DD/YYYY')
+                  ? dayjs(values.configuration.importDateEnd).format('MM/DD/YYYY')
                   : undefined
               }
               onChange={(date) => {
                 if (
                   date &&
                   values.configuration.importDateEndTime &&
-                  moment(date).isValid() &&
-                  moment(values.configuration.importDateEndTime).isValid()
+                  dayjs(date).isValid() &&
+                  dayjs(values.configuration.importDateEndTime).isValid()
                 ) {
-                  const importDateEndTime = moment(values.configuration.importDateEndTime);
+                  const importDateEndTime = dayjs(values.configuration.importDateEndTime);
                   date.setHours(
                     importDateEndTime.hour(),
                     importDateEndTime.minute(),
@@ -164,8 +164,8 @@ export const DbMigration: React.FC = (props) => {
                   );
                 }
 
-                const value = moment(date).isValid()
-                  ? moment(date).format('YYYY-MM-DD HH:mm:ss a')
+                const value = dayjs(date).isValid()
+                  ? dayjs(date).format('YYYY-MM-DD HH:mm:ss a')
                   : undefined;
                 setFieldValue('configuration.importDateEnd', value);
               }}
@@ -194,7 +194,7 @@ export const DbMigration: React.FC = (props) => {
                   date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
                   setFieldValue(
                     'configuration.importDateEnd',
-                    moment(date.toISOString()).format('YYYY-MM-DD HH:mm:ss a'),
+                    dayjs(date.toISOString()).format('YYYY-MM-DD HH:mm:ss a'),
                   );
                 }
               }}

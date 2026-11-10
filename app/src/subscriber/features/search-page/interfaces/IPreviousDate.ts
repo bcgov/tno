@@ -1,7 +1,7 @@
-import { Moment } from 'moment';
+import { type Dayjs } from '@/shared/utils/date';
 
 export interface IPreviousDate {
-  startDate: Moment;
-  endDate: Moment;
+  startDate: Dayjs;
+  endDate: Dayjs;
   hits: number;
 }

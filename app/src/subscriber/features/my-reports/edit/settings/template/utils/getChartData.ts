@@ -1,11 +1,10 @@
-import { Moment } from 'moment';
-
 import {
   getDistinct,
   IReportInstanceContentModel,
   IReportSectionChartTemplateModel,
   IReportSectionModel,
 } from '@/shared';
+import { type Dayjs } from '@/shared/utils/date';
 
 import { calcDataPoint } from './calcDataPoint';
 import { IConvertToChartOptions } from './convertToChart';
@@ -18,11 +17,11 @@ interface IGetChartDataOptions extends IConvertToChartOptions {
   // Predicate to identify groups from the content.
   groupOn: (
     content?: IReportInstanceContentModel,
-  ) => string | number | Moment | Date | undefined | null;
+  ) => string | number | Dayjs | Date | undefined | null;
   // Predicate to determine if content is in group.
   isInGroup?: (
     content?: IReportInstanceContentModel,
-    group?: string | number | Moment | Date | null,
+    group?: string | number | Dayjs | Date | null,
   ) => boolean;
   // predicate to extract a label for the group.  Defaults to using the 'groupOn' predicate.
   getLabel?: (content?: IReportInstanceContentModel) => string | undefined | null;

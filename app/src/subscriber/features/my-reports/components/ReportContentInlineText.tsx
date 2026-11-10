@@ -1,6 +1,5 @@
-import moment from 'moment';
-
 import { ContentTypeName } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { IReportInstanceContentForm } from '../interfaces';
 
@@ -24,7 +23,7 @@ export const ReportContentInlineText: React.FC<IReportContentInlineTextProps> = 
       ${row.content.source?.name ? `${row.content.source.name} | ` : ''}
       ${row.content.series ? `(${row.content.series.name}) | ` : ''}
       ${row.content.contentType ? `${row.content.contentType} | ` : ''}
-      ${row.content.publishedOn ? moment(row.content.publishedOn).format('DD-MMM-YYYY') : ''}
+      ${row.content.publishedOn ? dayjs(row.content.publishedOn).format('DD-MMM-YYYY') : ''}
       `;
   } else {
     // General Content format
@@ -38,7 +37,7 @@ export const ReportContentInlineText: React.FC<IReportContentInlineTextProps> = 
       }` +
       `${row.content.otherSource ? `${row.content.otherSource} | ` : ''}` +
       `${row.content.page ? `P.${row.content.page} | ` : ''}` +
-      `${row.content.publishedOn ? moment(row.content.publishedOn).format('DD-MMM-YYYY') : ''}`;
+      `${row.content.publishedOn ? dayjs(row.content.publishedOn).format('DD-MMM-YYYY') : ''}`;
   }
 
   return (

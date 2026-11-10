@@ -1,26 +1,26 @@
-import moment from 'moment';
+import { dayjs } from '@/shared/utils/date';
 
 export const calcDuration = (option: number) => {
   switch (option) {
     case 0:
       return {
-        start: moment().add(-7, 'days').toDate(),
+        start: dayjs().add(-7, 'days').toDate(),
         end: null,
       };
     case 1:
       return {
-        start: moment().add(-14, 'days').toDate(),
+        start: dayjs().add(-14, 'days').toDate(),
         end: null,
       };
     case 2: // Current Month
       return {
-        start: moment().startOf('month').toDate(),
-        end: moment().endOf('month').toDate(),
+        start: dayjs().startOf('month').toDate(),
+        end: dayjs().endOf('month').toDate(),
       };
     case 3: // Previous Month
       return {
-        start: moment().add(-1, 'months').startOf('month').toDate(),
-        end: moment().add(-1, 'months').endOf('month').toDate(),
+        start: dayjs().add(-1, 'months').startOf('month').toDate(),
+        end: dayjs().add(-1, 'months').endOf('month').toDate(),
       };
     default:
       return {

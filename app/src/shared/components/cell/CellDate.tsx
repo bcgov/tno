@@ -1,9 +1,10 @@
-import moment from 'moment';
 import React from 'react';
+
+import { dayjs, type Dayjs } from '@/shared/utils/date';
 
 interface ICellDateProps {
   /** The date */
-  value?: Date | string | moment.Moment;
+  value?: Date | string | Dayjs;
   /** The format, defaults to 'MM/DD/YYYY' */
   format?: string;
 }
@@ -15,7 +16,7 @@ interface ICellDateProps {
  */
 export const CellDate: React.FC<ICellDateProps> = ({ value, format = 'MM/DD/YYYY HH:mm:ss' }) => {
   if (value !== undefined) {
-    const created = moment(value);
+    const created = dayjs(value);
     const text = created.isValid() ? created.format(format) : '';
     return <>{text}</>;
   }

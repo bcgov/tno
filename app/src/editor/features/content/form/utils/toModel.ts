@@ -1,6 +1,5 @@
-import moment from 'moment';
-
 import { type IContentModel, type ITimeTrackingModel } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { type IContentForm } from '../interfaces';
 
@@ -54,8 +53,8 @@ export function toModel(values: IContentForm): IContentModel {
     // Print Content
     edition: values.edition,
     section: values.section,
-    postedOn: values.postedOn ? moment(values.postedOn).toISOString() : undefined,
-    publishedOn: moment(values.publishedOn).toISOString(),
+    postedOn: values.postedOn ? dayjs(values.postedOn).toISOString() : undefined,
+    publishedOn: dayjs(values.publishedOn).toISOString(),
     version: values.version,
   };
 }

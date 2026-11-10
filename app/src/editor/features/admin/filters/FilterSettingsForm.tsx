@@ -1,5 +1,4 @@
 import { getIn, useFormikContext } from 'formik';
-import moment from 'moment';
 import React from 'react';
 import { FaToggleOff, FaToggleOn } from 'react-icons/fa';
 
@@ -24,6 +23,7 @@ import {
   type IFilterSettingsModel,
   type OptionItem,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { contentTypeOptions } from './constants';
 import { ElasticQueryHelp } from './ElasticQueryHelp';
@@ -57,8 +57,8 @@ export const FilterSettingsForm: React.FC<IFilterSEttingsFormProps> = ({
 
   const settings: IFilterSettingsModel = defaultPath ? getIn(values, defaultPath) : values;
   const path = defaultPath ? `${defaultPath}.` : '';
-  const startDate = settings.startDate ? moment(settings.startDate).format('YYYY/MM/DD') : '';
-  const endDate = settings.endDate ? moment(settings.endDate).format('YYYY/MM/DD') : '';
+  const startDate = settings.startDate ? dayjs(settings.startDate).format('YYYY/MM/DD') : '';
+  const endDate = settings.endDate ? dayjs(settings.endDate).format('YYYY/MM/DD') : '';
 
   React.useEffect(() => {
     setActionOptions(getActionOptions(actions));

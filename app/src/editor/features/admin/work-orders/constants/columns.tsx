@@ -1,6 +1,5 @@
-import moment from 'moment';
-
 import { CellEllipsis, type ITableHookColumn, type IWorkOrderModel } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 export const getColumns = (
   onClickOpen?: (contentId: number) => void,
@@ -35,7 +34,7 @@ export const getColumns = (
     accessor: 'createdOn',
     width: 2,
     cell: (cell) => {
-      const created = moment(cell.original.createdOn);
+      const created = dayjs(cell.original.createdOn);
       const text = created.isValid() ? created.format('MM/DD/YYYY HH:mm:ss') : '';
       return <div className="center">{text}</div>;
     },
@@ -45,7 +44,7 @@ export const getColumns = (
     accessor: 'updatedOn',
     width: 2,
     cell: (cell) => {
-      const created = moment(cell.original.updatedOn);
+      const created = dayjs(cell.original.updatedOn);
       const text = created.isValid() ? created.format('MM/DD/YYYY HH:mm:ss') : '';
       return <div className="center">{text}</div>;
     },

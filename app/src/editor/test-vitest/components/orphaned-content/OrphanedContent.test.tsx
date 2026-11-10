@@ -41,13 +41,36 @@ beforeEach(() => {
   api.results.mockResolvedValue({ items: [orphan], nextAfter: 700, hasMore: false });
 });
 
-afterEach(() => vi.restoreAllMocks());
+afterEach(() => {
+  vi.useRealTimers();
+  vi.restoreAllMocks();
+});
+
+// The Pacific calendar day of an instant, from the runtime's time zone database (British Columbia's
+// offsets change over time, so expected dates are not hard-coded).
+const pacificDay = (instant: string, days = 0) => {
+  const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Vancouver' }).format(
+    new Date(instant),
+  );
+  const date = new Date(`${day}T12:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+};
 
 it.each([
-  ['2026-10-26T03:00:00Z', '2026-09-25', '2026-10-25'],
-  ['2026-11-02T07:30:00Z', '2026-10-02', '2026-11-01'],
+  [
+    '2026-10-26T03:00:00Z',
+    pacificDay('2026-10-26T03:00:00Z', -30),
+    pacificDay('2026-10-26T03:00:00Z'),
+  ],
+  [
+    '2026-11-02T07:30:00Z',
+    pacificDay('2026-11-02T07:30:00Z', -30),
+    pacificDay('2026-11-02T07:30:00Z'),
+  ],
 ])('defaults new scans to the last 30 Pacific calendar days at %s', async (now, start, end) => {
-  vi.spyOn(Date, 'now').mockReturnValue(new Date(now).getTime());
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date(now).getTime());
   const user = userEvent.setup();
   api.start.mockResolvedValue({ ...completed, startPostedOn: start, endPostedOn: end });
   renderPage();
@@ -59,7 +82,8 @@ it.each([
 });
 
 it('keeps previous scan dates in the results summary without replacing new-scan defaults', async () => {
-  vi.spyOn(Date, 'now').mockReturnValue(new Date('2026-10-26T03:00:00Z').getTime());
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-10-26T03:00:00Z').getTime());
   api.latest.mockResolvedValue({
     ...completed,
     startPostedOn: '2099-01-01',
@@ -516,7 +540,8 @@ it.each([
 );
 
 it('shows that an active scan is running and when it last saved progress', async () => {
-  vi.spyOn(Date, 'now').mockReturnValue(new Date('2026-10-25T12:30:00Z').getTime());
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-10-25T12:30:00Z').getTime());
   api.latest.mockResolvedValue({
     ...completed,
     status: 'Scanning',
@@ -532,7 +557,8 @@ it('shows that an active scan is running and when it last saved progress', async
 });
 
 it('warns when an active scan has not saved progress recently', async () => {
-  vi.spyOn(Date, 'now').mockReturnValue(new Date('2026-10-25T12:30:00Z').getTime());
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-10-25T12:30:00Z').getTime());
   api.latest.mockResolvedValue({
     ...completed,
     status: 'Scanning',

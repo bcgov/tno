@@ -1,5 +1,4 @@
 import { noop } from 'lodash';
-import moment from 'moment';
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
 import { toast } from 'react-toastify';
@@ -26,6 +25,7 @@ import {
   useModal,
   type IOptionItem,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { defaultContributor } from './constants';
 import { type IContributorForm } from './interfaces';
@@ -135,9 +135,7 @@ const ContributorForm: React.FC = () => {
                     label="Updated By"
                   />
                   <FormikDatePicker
-                    selectedDate={
-                      values.updatedOn ? moment(values.updatedOn).toString() : undefined
-                    }
+                    selectedDate={values.updatedOn ? dayjs(values.updatedOn).toString() : undefined}
                     onChange={noop}
                     name="updatedOn"
                     label="Updated On"
@@ -153,9 +151,7 @@ const ContributorForm: React.FC = () => {
                     label="Created By"
                   />
                   <FormikDatePicker
-                    selectedDate={
-                      values.createdOn ? moment(values.createdOn).toString() : undefined
-                    }
+                    selectedDate={values.createdOn ? dayjs(values.createdOn).toString() : undefined}
                     onChange={noop}
                     name="createdOn"
                     label="Created On"

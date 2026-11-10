@@ -1,7 +1,8 @@
-import moment, { Moment } from 'moment';
 import React from 'react';
 import ReactDatePicker from 'react-datepicker';
 import { FaCalendarDay, FaCaretLeft, FaCaretRight } from 'react-icons/fa6';
+
+import { dayjs, type Dayjs } from '@/shared/utils/date';
 
 import * as styled from './styled';
 
@@ -15,7 +16,7 @@ const InertInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<
 );
 
 export interface IDateFilterProps {
-  date: string | Date | Moment | undefined;
+  date: string | Date | Dayjs | undefined;
   onChangeDate?: (start: string, end: string) => void;
 }
 
@@ -31,11 +32,11 @@ export const DateFilter: React.FC<IDateFilterProps> = ({ date: initDate, onChang
   }, [date, setOpen]);
 
   const handleDateChange = React.useCallback(
-    (date: string | Date | Moment | undefined) => {
+    (date: string | Date | Dayjs | undefined) => {
       setDate(date);
       onChangeDate?.(
-        moment(date).startOf('day').toISOString(),
-        moment(date).endOf('day').toISOString(),
+        dayjs(date).startOf('day').toISOString(),
+        dayjs(date).endOf('day').toISOString(),
       );
     },
     [onChangeDate],
@@ -43,10 +44,7 @@ export const DateFilter: React.FC<IDateFilterProps> = ({ date: initDate, onChang
 
   return (
     <styled.DateFilter alignItems="center" justifyContent="center" className="date-navigator">
-      <FaCaretLeft
-        className="caret"
-        onClick={() => handleDateChange(moment(date).add(-1, 'day'))}
-      />
+      <FaCaretLeft className="caret" onClick={() => handleDateChange(dayjs(date).add(-1, 'day'))} />
       <div className="date">
         <FaCalendarDay className="calendar" onClick={() => setOpen((value) => !value)} />
         <ReactDatePicker
@@ -56,13 +54,10 @@ export const DateFilter: React.FC<IDateFilterProps> = ({ date: initDate, onChang
           dateFormat="dd-MMM-y"
           onChange={(e: Date | null) => handleDateChange(e?.toISOString())}
           onChangeRaw={(e) => setOpen(false)}
-          selected={date ? moment(date).toDate() : new Date()}
+          selected={date ? dayjs(date).toDate() : new Date()}
         />
       </div>
-      <FaCaretRight
-        className="caret"
-        onClick={() => handleDateChange(moment(date).add(1, 'day'))}
-      />
+      <FaCaretRight className="caret" onClick={() => handleDateChange(dayjs(date).add(1, 'day'))} />
     </styled.DateFilter>
   );
 };

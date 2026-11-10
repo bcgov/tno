@@ -1,7 +1,7 @@
-import moment from 'moment';
 import React from 'react';
 
 import { IContentModel, Row, Show } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 import { ContentList } from '@/subscriber/components/content-list';
 import { DateFilter } from '@/subscriber/components/date-filter';
 import { ContentListActionBar } from '@/subscriber/components/tool-bar';
@@ -34,7 +34,7 @@ export const Home: React.FC = () => {
     fetchResults({
       ...filter,
       actions: [getBooleanActionValue(featuredStoryActionId)],
-      startDate: filter.startDate ?? moment().startOf('day').toISOString(),
+      startDate: filter.startDate ?? dayjs().startOf('day').toISOString(),
       size: 500,
       sort: [{ publishedOn: 'desc' }],
     }).catch();
@@ -45,7 +45,7 @@ export const Home: React.FC = () => {
 
   const handleContentSelected = React.useCallback(
     (selectedContent: IContentModel[]) => {
-      const dateKey = filter.startDate || moment().startOf('day').toISOString();
+      const dateKey = filter.startDate || dayjs().startOf('day').toISOString();
       setStateByDate((prevState) => ({
         ...prevState,
         [dateKey]: {
@@ -61,8 +61,8 @@ export const Home: React.FC = () => {
   );
 
   const resetDateFilter = React.useCallback(() => {
-    const defaultStartDate = moment().startOf('day').toISOString();
-    const defaultEndDate = moment().endOf('day').toISOString();
+    const defaultStartDate = dayjs().startOf('day').toISOString();
+    const defaultEndDate = dayjs().endOf('day').toISOString();
     storeFilter({
       ...filter,
       startDate: defaultStartDate,
@@ -98,7 +98,7 @@ export const Home: React.FC = () => {
 
   const handleSelectAll = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const dateKey = filter.startDate || moment().startOf('day').toISOString();
+      const dateKey = filter.startDate || dayjs().startOf('day').toISOString();
       setStateByDate((prevState) => ({
         ...prevState,
         [dateKey]: {
@@ -111,7 +111,7 @@ export const Home: React.FC = () => {
     [currDateResults, filter.startDate],
   );
 
-  const dateKey = filter.startDate || moment().startOf('day').toISOString();
+  const dateKey = filter.startDate || dayjs().startOf('day').toISOString();
   const currentSelected = stateByDate[dateKey]?.selected || [];
   const currentIsSelectAllChecked = stateByDate[dateKey]?.isSelectAllChecked || false;
   const allSelectedContent = Object.values(stateByDate).flatMap((state) => state.selected);

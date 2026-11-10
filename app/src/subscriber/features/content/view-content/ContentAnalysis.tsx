@@ -1,7 +1,7 @@
-import moment from 'moment';
 import React from 'react';
 
 import { Col, Show } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 import { useContentAnalysis } from '@/subscriber/store/hooks/subscriber/useContentAnalysis';
 
 import { IContentAnalysisModel } from './IContentAnalysisModel';
@@ -40,7 +40,7 @@ export const ContentAnalysis: React.FC<{ contentId: number }> = ({ contentId }) 
       </Show>
       <Show visible={!!analysis}>
         <p>
-          Analyzed {moment(analysis?.analyzedOn).format('YYYY-MM-DD HH:mm')} by {analysis?.model}
+          Analyzed {dayjs(analysis?.analyzedOn).format('YYYY-MM-DD HH:mm')} by {analysis?.model}
           {analysis?.isMetadataOnly ? ' (no usable text; metadata only)' : ''}
         </p>
       </Show>

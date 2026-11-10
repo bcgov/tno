@@ -1,7 +1,7 @@
-import moment from 'moment';
 import * as React from 'react';
 
 import { ContentTypeName, Row, Show } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 import { formatDate } from '@/subscriber/features/utils';
 import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 import { useLookup, useSettings } from '@/subscriber/store/hooks';
@@ -42,7 +42,7 @@ export const Attributes: React.FC<IAttributesProps> = ({
     <Row className={`${mobile && 'mobile add-margin'} attributes`}>
       {showDate && <div className="date attr">{formatDate(item.publishedOn)}</div>}
       {showTime && item.contentType !== ContentTypeName.PrintContent && (
-        <div className="time attr">{`${moment(item.publishedOn).format('HH:mm')}`}</div>
+        <div className="time attr">{`${dayjs(item.publishedOn).format('HH:mm')}`}</div>
       )}
       {item.source &&
         !excludeSourceIds?.some((mt) => {

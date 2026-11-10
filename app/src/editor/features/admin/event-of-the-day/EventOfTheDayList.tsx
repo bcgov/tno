@@ -1,4 +1,3 @@
-import moment from 'moment-timezone';
 import React from 'react';
 import { FaBinoculars, FaPaperPlane, FaTimes } from 'react-icons/fa';
 import { FaArrowsRotate } from 'react-icons/fa6';
@@ -38,6 +37,7 @@ import {
   type IReportResultModel,
   type ITopicModel,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { TopicFormSmall } from '../topics';
 import { useColumns } from './hooks';
@@ -66,10 +66,10 @@ const EventOfTheDayList: React.FC = () => {
   const [, { updateContentTopics, resetContentTopicScore }] = useContent();
   const { toggle, isShowing } = useModal();
   const [params, setParams] = useSearchParams();
-  const today = moment.tz(zone).format('YYYY-MM-DD');
+  const today = dayjs().tz(zone).format('YYYY-MM-DD');
   const requestedDate = params.get('date');
   const date =
-    requestedDate && moment(requestedDate, 'YYYY-MM-DD', true).isValid() && requestedDate <= today
+    requestedDate && dayjs(requestedDate, 'YYYY-MM-DD', true).isValid() && requestedDate <= today
       ? requestedDate
       : today;
   const isToday = date === today;
@@ -158,7 +158,7 @@ const EventOfTheDayList: React.FC = () => {
   };
 
   const changeDate = (value: string) => {
-    if (!moment(value, 'YYYY-MM-DD', true).isValid() || value > today) return;
+    if (!dayjs(value, 'YYYY-MM-DD', true).isValid() || value > today) return;
     invalidatePreview();
     setParams((current) => {
       current.set('date', value);
@@ -428,7 +428,7 @@ const EventOfTheDayList: React.FC = () => {
         <Row className="date-navigation">
           <Button
             disabled={busy}
-            onClick={() => changeDate(moment(date).subtract(1, 'day').format('YYYY-MM-DD'))}
+            onClick={() => changeDate(dayjs(date).subtract(1, 'day').format('YYYY-MM-DD'))}
           >
             Previous day
           </Button>
@@ -445,7 +445,7 @@ const EventOfTheDayList: React.FC = () => {
           </label>
           <Button
             disabled={busy || isToday}
-            onClick={() => changeDate(moment(date).add(1, 'day').format('YYYY-MM-DD'))}
+            onClick={() => changeDate(dayjs(date).add(1, 'day').format('YYYY-MM-DD'))}
           >
             Next day
           </Button>
@@ -470,7 +470,7 @@ const EventOfTheDayList: React.FC = () => {
                 </Show>
                 {instances.map((instance) => (
                   <option key={instance.id} value={instance.id}>
-                    {moment(instance.publishedOn).tz(zone).format('YYYY-MM-DD HH:mm')} — #
+                    {dayjs(instance.publishedOn).tz(zone).format('YYYY-MM-DD HH:mm')} — #
                     {instance.id}
                   </option>
                 ))}

@@ -1,5 +1,4 @@
 import { useFormikContext } from 'formik';
-import moment from 'moment';
 import React from 'react';
 import { FaEraser } from 'react-icons/fa';
 import { toast } from 'react-toastify';
@@ -27,6 +26,7 @@ import {
   type IFilterModel,
   type OptionItem,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { type IFolderForm } from './interfaces';
 import { createSchedule, getFilterOptions } from './utils';
@@ -150,14 +150,14 @@ export const FolderFormCollect: React.FC = () => {
                 dateFormat="MM/dd/yyyy HH:mm:ss"
                 value={
                   values.events.length > 0 && values.events[0].runOn
-                    ? moment(values.events[0].runOn).format('MM/DD/yyyy HH:mm:ss')
+                    ? dayjs(values.events[0].runOn).format('MM/DD/YYYY HH:mm:ss')
                     : undefined
                 }
                 onChange={(value) => {
                   // Must be a UTC ISO string: moment's toString emits a non-ISO format the API
                   // cannot bind to DateTime, and an offset-less one binds as Kind=Unspecified,
                   // which Npgsql refuses to write to schedule.run_on (timestamp with time zone).
-                  setFieldValue('events.0.runOn', value ? moment(value).toISOString() : undefined);
+                  setFieldValue('events.0.runOn', value ? dayjs(value).toISOString() : undefined);
                 }}
                 isClearable
               />

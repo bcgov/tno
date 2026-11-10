@@ -1,9 +1,9 @@
-import moment from 'moment';
 import React from 'react';
 import { FaGripVertical } from 'react-icons/fa';
 import { FaX } from 'react-icons/fa6';
 
 import { Checkbox, Link, Sentiment, Show, Text } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { type IContentRowModel } from './interfaces';
 import * as styled from './styled';
@@ -86,7 +86,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
       </div>
       <div className="other-source">{row.content.otherSource}</div>
       <div className="published-on">
-        {row.content.publishedOn ? moment(row.content.publishedOn).format('yyyy-MM-DD') : ''}
+        {row.content.publishedOn ? dayjs(row.content.publishedOn).format('YYYY-MM-DD') : ''}
       </div>
       <Sentiment
         value={row.content.tonePools?.[0]?.value}

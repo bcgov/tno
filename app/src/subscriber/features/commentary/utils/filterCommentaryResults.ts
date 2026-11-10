@@ -1,5 +1,4 @@
-import moment from 'moment';
-
+import { dayjs } from '@/shared/utils/date';
 import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 
 import { determineCommentaryTime } from './determineCommentaryTime';
@@ -16,7 +15,7 @@ export const filterCommentaryResults = (
 ) => {
   return results.filter((content) => {
     const postedCutoff = determineCommentaryTime(commentaryActionId, content.actions);
-    const publishedCutoff = moment().subtract(1, 'month');
+    const publishedCutoff = dayjs().subtract(1, 'month');
     let commentaryUpdatedOn = null;
     // use the commentary action updated on time to decide if the content should be shown in the commentary list
     const commentaryAction = content.actions.find((a) => a.id === commentaryActionId);
@@ -25,8 +24,8 @@ export const filterCommentaryResults = (
     }
     return (
       commentaryUpdatedOn &&
-      moment(commentaryUpdatedOn) >= moment(postedCutoff) &&
-      moment(content.publishedOn) >= publishedCutoff
+      dayjs(commentaryUpdatedOn) >= dayjs(postedCutoff) &&
+      dayjs(content.publishedOn) >= publishedCutoff
     );
   });
 };

@@ -1,6 +1,5 @@
-import moment from 'moment';
-
 import { ContentStatusName, ContentTypeName, IContentModel } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { generateContentTopic } from './generateContentTopic';
 import { generateMediaType } from './generateMediaType';
@@ -17,7 +16,7 @@ export const generateContent = (options: IGenerateContentOptions) => {
   const source = generateSource({ _id: generateRandom(1, 10) });
   const mediaType = generateMediaType({ _id: generateRandom(1, 5) });
   const series = generateSeries({ _id: generateRandom(1, 10) });
-  const date = moment(new Date()).subtract(generateRandom(1, 50) - 1, 'days');
+  const date = dayjs(new Date()).subtract(generateRandom(1, 50) - 1, 'days');
   const topic = generateContentTopic({ _id: generateRandom(1, 10) });
   const entity: IContentModel = {
     id: options?._id ?? 0,

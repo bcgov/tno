@@ -1,4 +1,3 @@
-import moment from 'moment';
 import React from 'react';
 import { toast } from 'react-toastify';
 
@@ -15,6 +14,7 @@ import {
   Text,
   useModal,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import {
   type AnalysisBackfillDateFieldName,
@@ -55,8 +55,8 @@ export const BackfillPanel: React.FC = () => {
   const api = useContentAnalysisAdmin();
   const { toggle, isShowing } = useModal();
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const [startOn, setStartOn] = React.useState(moment().subtract(30, 'days').format('YYYY-MM-DD'));
-  const [endOn, setEndOn] = React.useState(moment().format('YYYY-MM-DD'));
+  const [startOn, setStartOn] = React.useState(dayjs().subtract(30, 'days').format('YYYY-MM-DD'));
+  const [endOn, setEndOn] = React.useState(dayjs().format('YYYY-MM-DD'));
   const [dateField, setDateField] = React.useState<AnalysisBackfillDateFieldName>('PublishedOn');
   const [mode, setMode] = React.useState<AnalysisBackfillModeName>('MissingOrStale');
   const [preview, setPreview] = React.useState<IAnalysisBackfillPreviewModel>();
@@ -64,13 +64,13 @@ export const BackfillPanel: React.FC = () => {
 
   // Local days in the viewer's time zone, sent as the UTC instants they begin.
   const request: IAnalysisBackfillRequestModel = {
-    startOn: moment(startOn).startOf('day').toISOString(),
-    endOn: moment(endOn).startOf('day').toISOString(),
+    startOn: dayjs(startOn).startOf('day').toISOString(),
+    endOn: dayjs(endOn).startOf('day').toISOString(),
     timeZone,
     dateField,
     mode,
   };
-  const isValid = !!startOn && !!endOn && moment(endOn).isAfter(moment(startOn));
+  const isValid = !!startOn && !!endOn && dayjs(endOn).isAfter(dayjs(startOn));
 
   const refresh = React.useCallback(async () => {
     try {
@@ -185,7 +185,7 @@ export const BackfillPanel: React.FC = () => {
           <Row key={b.id} gap="1rem" alignItems="center" className="backfill">
             <b>#{b.id}</b>
             <span>
-              {moment(b.startOn).format('YYYY-MM-DD')} to {moment(b.endOn).format('YYYY-MM-DD')} (
+              {dayjs(b.startOn).format('YYYY-MM-DD')} to {dayjs(b.endOn).format('YYYY-MM-DD')} (
               {b.dateField === 'PublishedOn' ? 'published' : 'created'}, {b.timeZone})
             </span>
             <span>{statusNames[b.status] ?? b.status}</span>

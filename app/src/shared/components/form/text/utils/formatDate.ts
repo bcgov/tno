@@ -1,4 +1,4 @@
-import moment from 'moment';
+import { dayjs } from '@/shared/utils/date';
 
 /**
  * Attempts to format the value in the text input.
@@ -11,9 +11,9 @@ export const formatDate = (
   format?: string,
 ) => {
   if (!!value && typeof value === 'string') {
-    var date = moment(value);
+    var date = dayjs(value);
     if (date.isValid())
-      return !!format ? moment(value).format(format) : moment(value).toLocaleString();
+      return !!format ? dayjs(value).format(format) : dayjs(value).toLocaleString();
   }
   return value;
 };

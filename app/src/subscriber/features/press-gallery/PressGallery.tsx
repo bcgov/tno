@@ -1,4 +1,3 @@
-import moment from 'moment';
 import React from 'react';
 import { FaFilterCircleXmark } from 'react-icons/fa6';
 
@@ -10,6 +9,7 @@ import {
   Row,
   Select,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 import { MsearchMultisearchBody } from '@/shared/utils/elastic/esTypes';
 import { ContentList } from '@/subscriber/components/content-list';
 import { ContentListActionBar } from '@/subscriber/components/tool-bar';
@@ -37,7 +37,7 @@ export const PressGallery: React.FC = () => {
   const [dateOptions, setDateOptions] = React.useState<IDateOptions[]>([]);
   const [pressMemberNames, setPressMembersNames] = React.useState<string[]>([]);
   const [pressSettings] = React.useState<IFilterSettingsModel>(
-    createFilterSettings(`${moment().startOf('day')}`, `${moment().subtract('2', 'weeks')}`),
+    createFilterSettings(`${dayjs().startOf('day')}`, `${dayjs().subtract(2, 'weeks')}`),
   );
 
   const fetchResults = React.useCallback(
@@ -77,12 +77,12 @@ export const PressGallery: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
-    var startDate = `${moment().startOf('day').subtract(2, 'weeks')}`;
-    var endDate = `${moment()}`;
+    var startDate = `${dayjs().startOf('day').subtract(2, 'weeks')}`;
+    var endDate = `${dayjs()}`;
     // check if the date filters are persisted to run the initial query
     if (!!pressGalleryFilter.dateFilter) {
-      startDate = `${moment(pressGalleryFilter.dateFilter.value).startOf('day')}`;
-      endDate = `${moment(pressGalleryFilter.dateFilter.value).endOf('day')}`;
+      startDate = `${dayjs(pressGalleryFilter.dateFilter.value).startOf('day')}`;
+      endDate = `${dayjs(pressGalleryFilter.dateFilter.value).endOf('day')}`;
     }
     // only fetch once the Press Members are ready
     if (!!pressMemberNames.length && !initialLoad) {
@@ -145,11 +145,11 @@ export const PressGallery: React.FC = () => {
                   ) ?? '',
                 ],
                 startDate: pressGalleryFilter.dateFilter
-                  ? `${moment(pressGalleryFilter.dateFilter.value).startOf('day')}`
-                  : `${moment().subtract(2, 'weeks')}`,
+                  ? `${dayjs(pressGalleryFilter.dateFilter.value).startOf('day')}`
+                  : `${dayjs().subtract(2, 'weeks')}`,
                 endDate: pressGalleryFilter.dateFilter
-                  ? `${moment(pressGalleryFilter.dateFilter.value).endOf('day')}`
-                  : `${moment()}`,
+                  ? `${dayjs(pressGalleryFilter.dateFilter.value).endOf('day')}`
+                  : `${dayjs()}`,
               }),
             );
           }}
@@ -191,8 +191,8 @@ export const PressGallery: React.FC = () => {
                         ) ?? '',
                       ]
                     : (pressMemberNames ?? []),
-                  startDate: `${moment(e.value).startOf('day')}`,
-                  endDate: `${moment(e.value).endOf('day')}`,
+                  startDate: `${dayjs(e.value).startOf('day')}`,
+                  endDate: `${dayjs(e.value).endOf('day')}`,
                 }),
               );
             }
@@ -210,8 +210,8 @@ export const PressGallery: React.FC = () => {
                 ...pressSettings,
                 defaultOperator: 'or',
                 pressMembers: pressMemberNames,
-                startDate: `${moment().subtract(2, 'weeks')}`,
-                endDate: `${moment()}`,
+                startDate: `${dayjs().subtract(2, 'weeks')}`,
+                endDate: `${dayjs()}`,
               }),
             );
           }}

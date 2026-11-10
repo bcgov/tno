@@ -1,5 +1,4 @@
 import { useFormikContext } from 'formik';
-import moment from 'moment';
 import * as React from 'react';
 
 import { useLookupOptions } from '@/editor/store/hooks';
@@ -14,6 +13,7 @@ import {
   TimeInput,
   type IOptionItem,
 } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
 
 import { type IContentForm } from './interfaces';
 
@@ -64,8 +64,8 @@ export const ImageSection: React.FunctionComponent<IImageSectionProps> = (props)
         required
         autoComplete="false"
         width={FieldSize.Medium}
-        selectedDate={values.publishedOn ? moment(values.publishedOn).toString() : undefined}
-        value={values.publishedOn ? moment(values.publishedOn).format('MMM D, yyyy') : ''}
+        selectedDate={values.publishedOn ? dayjs(values.publishedOn).toString() : undefined}
+        value={values.publishedOn ? dayjs(values.publishedOn).format('MMM D, YYYY') : ''}
         onChange={(date) => {
           if (values.publishedOnTime) {
             const hours = values.publishedOnTime?.split(':');
@@ -73,7 +73,7 @@ export const ImageSection: React.FunctionComponent<IImageSectionProps> = (props)
               date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
             }
           }
-          setFieldValue('publishedOn', moment(date).format('MMM D, yyyy HH:mm:ss'));
+          setFieldValue('publishedOn', dayjs(date).format('MMM D, YYYY HH:mm:ss'));
         }}
       />
       <TimeInput
@@ -88,7 +88,7 @@ export const ImageSection: React.FunctionComponent<IImageSectionProps> = (props)
           const hours = e.target.value?.split(':');
           if (!!hours && !!e.target.value && !e.target.value.includes('_')) {
             date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
-            setFieldValue('publishedOn', moment(date.toISOString()).format('MMM D, yyyy HH:mm:ss'));
+            setFieldValue('publishedOn', dayjs(date.toISOString()).format('MMM D, YYYY HH:mm:ss'));
           }
         }}
       />
