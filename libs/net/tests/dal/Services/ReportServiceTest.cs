@@ -6,6 +6,7 @@ using TNO.DAL;
 using TNO.DAL.Services;
 using TNO.Elastic;
 using TNO.Entities;
+using TNO.Models.Filters;
 using TNO.Test.Core;
 
 namespace TNO.Test.DAL;
@@ -58,6 +59,17 @@ public class ReportServiceTest : IDisposable
         context.SaveChanges();
         context.ChangeTracker.Clear();
         return report;
+    }
+
+    private static void SeedSectionCharts(TNOContext context, Report report)
+    {
+        var section = new ReportSection(1, "analytics", ReportSectionType.MediaAnalytics, report.Id);
+        context.AddRange(new ChartTemplate(1, "chart 1", "template"), new ChartTemplate(2, "chart 2", "template"), section);
+        context.AddRange(
+            new ReportSectionChartTemplate(section.Id, 1, 0) { Settings = JsonDocument.Parse("{\"title\":\"one\"}") },
+            new ReportSectionChartTemplate(section.Id, 2, 1) { Settings = JsonDocument.Parse("{\"title\":\"two\"}") });
+        context.SaveChanges();
+        context.ChangeTracker.Clear();
     }
 
     private static void SeedContent(TNOContext context, params (long Id, string Headline)[] stories)
@@ -194,6 +206,62 @@ public class ReportServiceTest : IDisposable
         Assert.Equal("renamed", context.Reports.Single(r => r.Id == report.Id).Name);
         Assert.Equal(2, subscriptions.Length);
         Assert.All(subscriptions, s => Assert.True(s.IsSubscribed));
+    }
+
+    [Fact]
+    public void Find_FullModel_IncludesSectionCharts()
+    {
+        // Arrange
+        var service = helper.Provider.GetRequiredService<IReportService>();
+        var context = helper.Provider.GetRequiredService<TNOContext>();
+        var report = SeedReport(context);
+        SeedSectionCharts(context, report);
+
+        // Act
+        var listed = service.Find(new ReportFilter { Ids = new[] { report.Id } }).Single();
+
+        // Assert
+        var section = Assert.Single(listed.Sections);
+        Assert.Equal(new[] { 1, 2 }, section.ChartTemplatesManyToMany.OrderBy(c => c.SortOrder).Select(c => c.ChartTemplateId));
+        Assert.All(section.ChartTemplatesManyToMany, c => Assert.NotNull(c.ChartTemplate));
+    }
+
+    /// <summary>
+    /// A client may save a report it only loaded through the list.
+    /// The list must carry the section charts, otherwise the update deletes them all.
+    /// </summary>
+    [Fact]
+    public void Update_ReportLoadedFromList_KeepsSectionCharts()
+    {
+        // Arrange
+        var service = helper.Provider.GetRequiredService<IReportService>();
+        var context = helper.Provider.GetRequiredService<TNOContext>();
+        var report = SeedReport(context);
+        SeedSectionCharts(context, report);
+
+        var listed = service.Find(new ReportFilter { Ids = new[] { report.Id } }).Single();
+        context.ChangeTracker.Clear();
+
+        // The API models rebuild the report from what the client submits.
+        var submitted = new Report(listed.Id, "renamed", listed.TemplateId, listed.OwnerId);
+        submitted.Sections.AddRange(listed.Sections.Select(s =>
+        {
+            var section = new ReportSection(s.Id, s.Name, s.SectionType, s.ReportId);
+            section.ChartTemplatesManyToMany.AddRange(s.ChartTemplatesManyToMany.Select(c =>
+                new ReportSectionChartTemplate(c.ReportSectionId, c.ChartTemplateId, c.SortOrder) { Settings = c.Settings }));
+            return section;
+        }));
+
+        // Act
+        service.Update(submitted, false);
+        context.CommitTransaction();
+        context.ChangeTracker.Clear();
+        var charts = context.ReportSectionChartTemplates.Where(c => c.ReportSectionId == 1).OrderBy(c => c.SortOrder).ToArray();
+
+        // Assert
+        Assert.Equal("renamed", context.Reports.Single(r => r.Id == report.Id).Name);
+        Assert.Equal(new[] { 1, 2 }, charts.Select(c => c.ChartTemplateId));
+        Assert.Equal(new[] { "one", "two" }, charts.Select(c => c.Settings.RootElement.GetProperty("title").GetString()));
     }
 
     [Fact]

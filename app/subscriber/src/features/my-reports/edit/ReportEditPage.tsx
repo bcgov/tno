@@ -16,7 +16,6 @@ import {
   Col,
   IReportInstanceContentModel,
   IReportMessageModel,
-  IReportModel,
   MessageTargetKey,
   ReportStatusName,
   Show,
@@ -45,12 +44,6 @@ const editableStatuses = [
   ReportStatusName.Failed,
   ReportStatusName.Cancelled,
 ];
-
-/** The report without its instances' stories, which are loaded only when a page needs them. */
-const withoutContent = (report: IReportModel): IReportModel => ({
-  ...report,
-  instances: report.instances.map((instance) => ({ ...instance, content: [] })),
-});
 
 /**
  * Provides component to administer a report template, to manage the content in the report, and send the report to subscribers.
@@ -109,18 +102,9 @@ export const ReportEditPage = () => {
   );
 
   React.useEffect(() => {
+    // The list is only needed to check report names; the form is never filled from it.
     if (!myReports?.length) {
-      findMyReports()
-        .then(async (reports) => {
-          const reportId = parseInt(id ?? '0');
-          if (reportId) {
-            const report = reports.find((r) => r.id === reportId);
-            if (report) {
-              applyReport(toForm(withoutContent(report), false, false));
-            }
-          }
-        })
-        .catch(() => {});
+      findMyReports().catch(() => {});
     }
     // Only do this on init.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -180,41 +164,37 @@ export const ReportEditPage = () => {
   React.useEffect(() => {
     const reportId = parseInt(id ?? '0');
     const originalReportSections = report.sections;
-    if (userInfo && !!reportId && myReports?.length) {
-      const existingReport = myReports.find((r) => r.id === reportId);
-      if (existingReport?.instances.length) {
-        // Case 1: The report and its instance are already loaded.
-        // The stories are left out until a page needs them.
-        applyReport(toForm(withoutContent(existingReport), false, false));
-      } else {
-        // Case 2: Fetch the report and its instance; stories load when a page needs them.
-        // Generating is only needed when the report has no instance yet (see the effect above),
-        // as generating returns every story of an existing instance.
-        getReport(reportId, false)
-          .then(async (report) => {
-            if (report) {
-              applyReport(
-                toForm({
-                  ...report,
-                  sections: report.sections.map((section, index) => {
-                    const originalSection =
-                      originalReportSections.length > index
-                        ? originalReportSections[index]
-                        : undefined;
-                    return { ...section, open: originalSection?.open };
-                  }),
+    if (userInfo && !!reportId) {
+      // Always fetch the report and its instance; stories load when a page needs them.
+      // The form is saved back whole, so it is never filled from the copy in the store: that copy
+      // can come from the report list, or be out of date, and saving it would overwrite the
+      // report's sections and their charts with whatever it happened to hold.
+      // Generating is only needed when the report has no instance yet (see the effect above),
+      // as generating returns every story of an existing instance.
+      getReport(reportId, false)
+        .then(async (report) => {
+          if (report) {
+            applyReport(
+              toForm({
+                ...report,
+                sections: report.sections.map((section, index) => {
+                  const originalSection =
+                    originalReportSections.length > index
+                      ? originalReportSections[index]
+                      : undefined;
+                  return { ...section, open: originalSection?.open };
                 }),
-              );
-            }
-          })
-          .catch(() => {
-            setReport((report) => ({ ...report, id: -1 }));
-          });
-      }
+              }),
+            );
+          }
+        })
+        .catch(() => {
+          setReport((report) => ({ ...report, id: -1 }));
+        });
     }
     // Only make a request when 'id' changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, myReports.length, userInfo]);
+  }, [id, userInfo]);
 
   hub.useHubEffect(MessageTargetKey.ReportStatus, async (message: IReportMessageModel) => {
     // A finished AI section test run is for the prompt workbench; nothing about the report changed.
