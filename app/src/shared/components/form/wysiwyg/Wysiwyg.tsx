@@ -219,6 +219,8 @@ export const Wysiwyg: React.FC<IWysiwygProps> = (props) => {
       {!!toolBarNode && (
         <>
           <ReactQuill
+            // Report the editor's own HTML, as before; semantic HTML turns every space into &nbsp;.
+            useSemanticHTML={false}
             className="editor"
             value={normalState.html}
             onChange={handleChange}
