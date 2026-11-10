@@ -1,6 +1,7 @@
-import { useKeycloak } from '@react-keycloak/web';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+
+import { useKeycloak } from '@/shared';
 
 import ReportInstancePreview from './ReportInstancePreview';
 

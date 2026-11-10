@@ -1,7 +1,7 @@
-import { useKeycloak } from '@react-keycloak/web';
 import React from 'react';
 
 import { Claim, IKeycloak, IKeycloakToken, Role } from '.';
+import { useKeycloak } from './useKeycloak';
 
 let token: IKeycloakToken = { client_roles: [], groups: [] };
 

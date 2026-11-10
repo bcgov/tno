@@ -4,7 +4,6 @@ import './components/snowplow/snowplow';
 import 'prismjs';
 
 import isPropValid from '@emotion/is-prop-valid';
-import { ReactKeycloakProvider } from '@react-keycloak/web';
 import Keycloak from 'keycloak-js';
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
@@ -12,7 +11,13 @@ import { ToastContainer } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
 import { StyleSheetManager } from 'styled-components';
 
-import { createKeycloakInstance, Loading, Show, useKeycloakEventHandler } from '@/shared';
+import {
+  createKeycloakInstance,
+  KeycloakProvider,
+  Loading,
+  Show,
+  useKeycloakEventHandler,
+} from '@/shared';
 import { ContentListProvider } from '@/subscriber/components/content-list/ContentListContext';
 import { LayoutAnonymous } from '@/subscriber/components/layout';
 import { AppRouter } from '@/subscriber/features/router';
@@ -46,7 +51,7 @@ function App() {
     <BrowserRouter>
       <StyleSheetManager shouldForwardProp={shouldForwardProp}>
         <Show visible={!!keycloak}>
-          <ReactKeycloakProvider
+          <KeycloakProvider
             initOptions={{ pkceMethod: 'S256', checkLoginIframe: false }}
             authClient={keycloak!}
             LoadingComponent={
@@ -61,7 +66,7 @@ function App() {
                 <AppRouter />
               </SearchPageProvider>
             </ContentListProvider>
-          </ReactKeycloakProvider>
+          </KeycloakProvider>
         </Show>
         <Show visible={!keycloak}>
           <LayoutAnonymous name={appName}>

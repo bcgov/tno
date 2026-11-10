@@ -3,7 +3,6 @@ import 'react-tooltip/dist/react-tooltip.css';
 import 'prismjs';
 
 import isPropValid from '@emotion/is-prop-valid';
-import { ReactKeycloakProvider } from '@react-keycloak/web';
 import type Keycloak from 'keycloak-js';
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
@@ -15,7 +14,13 @@ import { LayoutAnonymous } from '@/editor/components/layout';
 import { UploadContextWrapper } from '@/editor/features/content';
 import { AppRouter } from '@/editor/features/router';
 import { fixTooltipResizeObserver } from '@/editor/utils';
-import { createKeycloakInstance, Loading, Show, useKeycloakEventHandler } from '@/shared';
+import {
+  createKeycloakInstance,
+  KeycloakProvider,
+  Loading,
+  Show,
+  useKeycloakEventHandler,
+} from '@/shared';
 
 const appName = 'Media Monitoring Insights';
 fixTooltipResizeObserver();
@@ -45,7 +50,7 @@ function App() {
     <BrowserRouter>
       <StyleSheetManager shouldForwardProp={shouldForwardProp}>
         <Show visible={!!keycloak}>
-          <ReactKeycloakProvider
+          <KeycloakProvider
             initOptions={{ pkceMethod: 'S256', checkLoginIframe: false }}
             authClient={keycloak!}
             LoadingComponent={
@@ -58,7 +63,7 @@ function App() {
             <UploadContextWrapper>
               <AppRouter name={appName} />
             </UploadContextWrapper>
-          </ReactKeycloakProvider>
+          </KeycloakProvider>
         </Show>
         <Show visible={!keycloak}>
           <LayoutAnonymous name={appName}>
