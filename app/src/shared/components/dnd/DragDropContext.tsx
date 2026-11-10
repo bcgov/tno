@@ -8,6 +8,7 @@ import {
   type DropResult,
   type ResponderProvided,
 } from './interfaces';
+import { sensors } from './sensors';
 
 export interface IDragDropContextProps {
   /** Called when a drag ends, whether it was dropped on a list or not. */
@@ -39,6 +40,7 @@ export const DragDropContext: React.FC<IDragDropContextProps> = ({
 
   return (
     <DragDropProvider
+      sensors={sensors}
       onDragStart={(event) => {
         const source = event.operation.source;
         if (!isSortable(source)) return;
