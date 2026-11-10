@@ -28,7 +28,7 @@ jobs:
     name: CI — Validate Kustomize
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install oc CLI
         uses: redhat-actions/openshift-tools-installer@v1
@@ -48,7 +48,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/dev' && github.repository == 'bcgov/tno'
     environment: dev
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install oc CLI
         uses: redhat-actions/openshift-tools-installer@v1
@@ -74,7 +74,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && github.repository == 'bcgov/tno'
     environment: test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install oc CLI
         uses: redhat-actions/openshift-tools-installer@v1

@@ -52,7 +52,7 @@ jobs:
       IMAGE_TAG: ${{ inputs.environment }}
       OPENSHIFT_NAMESPACE: 9b301c-${{ inputs.environment }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set service names
         id: svc

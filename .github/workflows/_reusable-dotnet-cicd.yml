@@ -82,7 +82,7 @@ jobs:
     name: CI — Validate (.NET 10)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup .NET 10
         uses: actions/setup-dotnet@v5
@@ -111,7 +111,7 @@ jobs:
       IMAGE_TAG: dev
       OPENSHIFT_NAMESPACE: 9b301c-dev
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Build, scan, and push image
         uses: ./.github/actions/build-scan-push-image
@@ -183,7 +183,7 @@ jobs:
       IMAGE_TAG: test
       OPENSHIFT_NAMESPACE: 9b301c-test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Build, scan, and push image
         uses: ./.github/actions/build-scan-push-image

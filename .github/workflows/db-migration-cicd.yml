@@ -36,7 +36,7 @@ jobs:
     name: CI — Validate (.NET 10)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup .NET 10
         uses: actions/setup-dotnet@v5
