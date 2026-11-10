@@ -1,6 +1,5 @@
-import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { InputHTMLAttributes } from 'react';
+import { FaInfoCircle } from 'react-icons/fa';
 
 import { Radio, RadioVariant } from '.';
 import { instanceOfIOption, IOptionItem } from '..';
@@ -111,7 +110,7 @@ export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOption
             data-tooltip-content={tooltip}
             className={rest.required ? 'required' : ''}
           >
-            {label} {tooltip && <FontAwesomeIcon icon={faInfoCircle} />}
+            {label} {tooltip && <FaInfoCircle />}
           </label>
         )}
         {options

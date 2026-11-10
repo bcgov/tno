@@ -1,7 +1,6 @@
-import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { debounce } from 'lodash';
 import React, { InputHTMLAttributes } from 'react';
+import { FaInfoCircle } from 'react-icons/fa';
 
 import { Error, FieldSize, TextVariant } from '../../form';
 import { Show } from '../../show';
@@ -75,7 +74,7 @@ export const TextArea: React.FC<ITextAreaProps> = ({
           htmlFor={id ?? `txa-${name}`}
         >
           {label}
-          {tooltip && <FontAwesomeIcon icon={faInfoCircle} />}
+          {tooltip && <FaInfoCircle />}
         </label>
       </Show>
       <styled.TextAreaField

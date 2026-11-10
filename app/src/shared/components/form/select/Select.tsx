@@ -1,6 +1,5 @@
-import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
+import { FaInfoCircle } from 'react-icons/fa';
 import { ActionMeta, GroupBase, Props, SelectInstance } from 'react-select';
 
 import { SelectVariant } from '.';
@@ -109,7 +108,7 @@ export const Select = <OptionType extends IOptionItem>({
           className={required ? 'required' : ''}
           htmlFor={`sel-${name}`}
         >
-          {label} {tooltip && <FontAwesomeIcon icon={faInfoCircle} />}
+          {label} {tooltip && <FaInfoCircle />}
         </label>
       )}
       <div

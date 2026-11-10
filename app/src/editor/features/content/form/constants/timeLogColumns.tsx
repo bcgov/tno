@@ -1,5 +1,4 @@
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FaTrash } from 'react-icons/fa';
 
 import { type ITableHookColumn } from '@/shared';
 
@@ -42,12 +41,12 @@ export const timeLogColumns = (
     label: 'ACTION',
     hAlign: 'center',
     cell: (cell) => (
-      <FontAwesomeIcon
+      <FaTrash
+        className="fa-trash"
         onClick={() => {
           values.timeTrackings?.splice(cell.original.index, 1);
           setFieldValue('timeTrackings', values.timeTrackings);
         }}
-        icon={faTrash}
       />
     ),
   },
