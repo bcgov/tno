@@ -12,12 +12,7 @@ import { defaultSort } from './defaultSort';
  */
 export const defaultPaperFilter = (sources: ISourceModel[] = []): IContentListFilter => {
   // Return stories that are also from yesterday if published after 10PM.
-  const yesterdayAt10PM = dayjs()
-    .subtract(1, 'days')
-    .hour(22)
-    .minute(0)
-    .second(0)
-    .millisecond(0);
+  const yesterdayAt10PM = dayjs().subtract(1, 'days').hour(22).minute(0).second(0).millisecond(0);
 
   return {
     pageIndex: defaultPage.pageIndex,

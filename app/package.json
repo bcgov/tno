@@ -90,8 +90,10 @@
     "prettier": "3.9.10",
     "sass-embedded": "1.108.1",
     "typescript": "7.0.2",
-    "typescript-api": "npm:typescript@6.0.3",
     "vite": "8.3.7",
     "vitest": "5.1.0"
+  },
+  "overrides": {
+    "dompurify": "3.4.17"
   }
 }

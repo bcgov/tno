@@ -1,0 +1,11 @@
+# Mechanical commits from the app merge; ignore in blame with:
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+# These hashes only hold if the branch lands with a merge commit (not squash or rebase).
+# Import specifiers rewritten to @/ aliases
+c1072c69819e82f10233e63a4e165de7c6d074b3
+# Prettier 3 formatting and import sorting
+312828170967350cf99532b264ce441391137035
+# 'tno-core' imports rewritten to '@/shared'
+57e6d5b22ddc18f29d1665ae5f31484e3da3822c
+# 'react-router-dom' imports rewritten to 'react-router'
+5681acc604e427907568d95138e58b25a8514be1
