@@ -91,7 +91,7 @@ export const UserProfile: React.FC = () => {
         className="folder-menu"
         place="bottom"
         openOnClick
-        closeOnEsc
+        globalCloseEvents={{ escape: true, clickOutsideAnchor: true }}
         isOpen={profileMenu}
         setIsOpen={setProfileMenu}
         opacity={1}
