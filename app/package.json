@@ -13,7 +13,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node.json",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
@@ -95,7 +95,7 @@
     "jsdom": "26.0.0",
     "prettier": "2.8.4",
     "sass": "1.77.2",
-    "typescript": "5.9.3",
+    "typescript": "7.0.2",
     "vite": "8.3.7",
     "vitest": "5.1.0"
   },
