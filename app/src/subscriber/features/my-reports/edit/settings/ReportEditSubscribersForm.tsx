@@ -1,9 +1,6 @@
-import { Action } from '@/subscriber/components/action';
-import { Button } from '@/subscriber/components/button';
 import React from 'react';
 import { FaCopy, FaTrash, FaUserPlus, FaUsers } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import { useApp, useReports, useUsers } from '@/subscriber/store/hooks';
 import {
   Checkbox,
   Claim,
@@ -26,9 +23,14 @@ import {
   validateEmail,
 } from 'tno-core';
 
+import { Action } from '@/subscriber/components/action';
+import { Button } from '@/subscriber/components/button';
+import { useApp, useReports, useUsers } from '@/subscriber/store/hooks';
+
 import { useReportEditContext } from '../ReportEditContext';
 import { ReportSubscriberExporter } from '../send/ReportSubscriberExporter';
 import * as styled from './styled';
+
 export const ReportEditSubscribersForm = () => {
   const { values, setFieldValue } = useReportEditContext();
   const [{ userInfo }] = useApp();
@@ -131,6 +133,7 @@ export const ReportEditSubscribersForm = () => {
       values.subscribers,
       setFieldValue,
       toggle,
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       fetchUsersByEmail,
       addSubscriber,
     ],

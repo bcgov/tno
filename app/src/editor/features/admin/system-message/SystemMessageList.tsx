@@ -1,18 +1,19 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSystemMessages } from '@/editor/store/hooks/admin';
 import {
   CellCheckbox,
   CellEllipsis,
   Col,
   Grid,
   IconButton,
-  type IGridHeaderColumnProps,
-  type ISystemMessageModel,
   Link,
   Row,
+  type IGridHeaderColumnProps,
+  type ISystemMessageModel,
   type SortDirection,
 } from 'tno-core';
+
+import { useSystemMessages } from '@/editor/store/hooks/admin';
 
 import * as styled from './styled';
 import { SystemMessageFilter } from './SystemMessageFilter';
@@ -38,10 +39,7 @@ export const SystemMessageList: React.FC = () => {
   }, []);
 
   const handleSortChange = React.useCallback(
-    (column: IGridHeaderColumnProps, direction: SortDirection) => {
-      if (column.name) {
-      }
-    },
+    (column: IGridHeaderColumnProps, direction: SortDirection) => {},
     [],
   );
 

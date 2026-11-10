@@ -2,13 +2,13 @@ import React from 'react';
 import {
   Checkbox,
   Col,
-  type IReportSectionModel,
-  type IReportSectionSettingsModel,
   OptionItem,
   ReportSectionTypeName,
   Row,
   Select,
   Show,
+  type IReportSectionModel,
+  type IReportSectionSettingsModel,
 } from 'tno-core';
 
 import { aiInputFields, defaultAIInputFields } from './aiInputFields';
@@ -92,6 +92,7 @@ export const ReportSectionAIInput: React.FC<IReportSectionAIInputProps> = ({
               key={field.value}
               id={`${fieldId}-${field.value}`}
               role="checkbox"
+              aria-checked={selectedFields.includes(field.value)}
               name={`aiInputFields-${field.value}`}
               label={field.label}
               tooltip={field.description}
