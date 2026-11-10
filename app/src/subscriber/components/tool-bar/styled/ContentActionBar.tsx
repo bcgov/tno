@@ -51,6 +51,12 @@ export const ContentActionBar = styled(Row)<{ viewingContent?: boolean }>`
     animation: fade-in 0.5s linear;
     margin-right: 1rem;
 
+    /* Centre every action on one line; the taller Edit Story button otherwise leaves the menus
+    at the top of the row and the Analysis button centred below them. */
+    > div {
+      align-items: center;
+    }
+
     @media (max-width: 768px) {
       span {
         display: none;
