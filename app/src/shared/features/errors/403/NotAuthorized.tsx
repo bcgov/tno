@@ -1,4 +1,4 @@
-import IconNotAuthorized from '../../../assets/403.svg';
+import IconNotAuthorized from '../../../assets/403.svg?raw';
 import * as styled from './NotAuthorizedStyled';
 
 /**
@@ -9,7 +9,7 @@ export const NotAuthorized: React.FC = () => {
   return (
     <styled.NotAuthorized>
       <div>
-        <IconNotAuthorized />
+        <span className="icon" dangerouslySetInnerHTML={{ __html: IconNotAuthorized }} />
         <div>
           <h1>403: Not Authorized</h1>
           <p>You do not have access to this.</p>

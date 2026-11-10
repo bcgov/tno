@@ -1,4 +1,4 @@
-import IconInternalServerError from '../../../assets/500.svg';
+import IconInternalServerError from '../../../assets/500.svg?raw';
 import * as styled from './InternalServerErrorStyled';
 
 /**
@@ -9,7 +9,7 @@ export const InternalServerError: React.FC = () => {
   return (
     <styled.InternalServerError>
       <div>
-        <IconInternalServerError />
+        <span className="icon" dangerouslySetInnerHTML={{ __html: IconInternalServerError }} />
         <div>
           <h1>500: Internal Server Error</h1>
           <p>An unexpected error has occurred.</p>

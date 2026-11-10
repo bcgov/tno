@@ -30,8 +30,5 @@
   },
   "include": [
     "src"
-  ],
-  "exclude": [
-    "src/editor/features/content/list-view/ContentListView.test.tsx"
   ]
 }

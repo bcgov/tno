@@ -1,5 +1,4 @@
 export * from './getDistinct';
-export * from './getIngestOptions';
 export * from './getSortableOptions';
 export * from './getSourceOptions';
 export * from './getUserOptions';

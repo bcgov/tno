@@ -1,4 +1,4 @@
-import IconNotFound from '../../../assets/404.svg';
+import IconNotFound from '../../../assets/404.svg?raw';
 import * as styled from './NotFoundStyled';
 
 /**
@@ -9,7 +9,7 @@ export const NotFound: React.FC = () => {
   return (
     <styled.NotFound>
       <div>
-        <IconNotFound />
+        <span className="icon" dangerouslySetInnerHTML={{ __html: IconNotFound }} />
         <div>
           <h1>404: Page Not Found</h1>
           <p>This page does not exist.</p>
