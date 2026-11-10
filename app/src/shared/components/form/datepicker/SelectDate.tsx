@@ -1,13 +1,20 @@
 import 'react-datepicker/dist/react-datepicker.css';
+import './datepicker.css';
 
 import React from 'react';
-import DatePickerBase, { ReactDatePickerProps } from 'react-datepicker';
+import DatePickerBase, { type DatePickerProps } from 'react-datepicker';
 
 import { SelectDateVariant } from '.';
 import { Error, FieldSize } from '../../form';
 import * as styled from './styled';
 
-const DatePicker = DatePickerBase as unknown as React.ComponentClass<ReactDatePickerProps>;
+/** SelectDate picks a single date (react-datepicker's props also cover ranges and multiples). */
+type SingleDatePickerProps = Extract<
+  DatePickerProps,
+  { selectsRange?: false | undefined; selectsMultiple?: false | undefined }
+>;
+
+const DatePicker = DatePickerBase as unknown as React.ComponentClass<SingleDatePickerProps>;
 
 export interface ISelectDateProps {
   /**
@@ -35,7 +42,7 @@ export interface ISelectDateProps {
   error?: string;
 }
 
-export interface IDatePickerProps extends ISelectDateProps, ReactDatePickerProps {}
+export type IDatePickerProps = ISelectDateProps & SingleDatePickerProps;
 
 /**
  * SelectDate component provides a bootstrapped styled button element.
@@ -86,7 +93,7 @@ export const SelectDate: React.FC<IDatePickerProps> = ({
         name={name}
         id={id}
         selected={startDate}
-        onChange={(date: Date | null, event: React.SyntheticEvent<any, Event> | undefined) => {
+        onChange={(date, event) => {
           setStartDate(date as Date);
           if (onChange) onChange(date, event);
         }}

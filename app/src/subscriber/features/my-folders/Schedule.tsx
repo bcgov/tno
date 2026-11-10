@@ -80,7 +80,7 @@ export const Schedule: React.FC<IScheduleProps> = ({ folderSchedule, onScheduleC
                         ? moment(folderSchedule.runOn).format('MM/DD/yyyy HH:mm:ss')
                         : ''
                     }
-                    onChange={(date) => {
+                    onChange={(date: Date | null) => {
                       onScheduleChange?.({
                         ...folderSchedule,
                         runOn: moment(date).toISOString(),

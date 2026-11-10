@@ -5,6 +5,15 @@ import { FaCalendarDay, FaCaretLeft, FaCaretRight } from 'react-icons/fa6';
 
 import * as styled from './styled';
 
+/**
+ * The date is changed with the calendar button and the arrows, not by typing. react-datepicker 9
+ * disables day selection when the picker is disabled or read-only, so only the text box is made
+ * inert.
+ */
+const InertInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
+  (props, ref) => <input {...props} ref={ref} readOnly tabIndex={-1} />,
+);
+
 export interface IDateFilterProps {
   date: string | Date | Moment | undefined;
   onChangeDate?: (start: string, end: string) => void;
@@ -43,9 +52,9 @@ export const DateFilter: React.FC<IDateFilterProps> = ({ date: initDate, onChang
         <ReactDatePicker
           open={open}
           maxDate={new Date()}
-          disabled
+          customInput={<InertInput />}
           dateFormat="dd-MMM-y"
-          onChange={(e) => handleDateChange(e?.toISOString())}
+          onChange={(e: Date | null) => handleDateChange(e?.toISOString())}
           onChangeRaw={(e) => setOpen(false)}
           selected={date ? moment(date).toDate() : new Date()}
         />

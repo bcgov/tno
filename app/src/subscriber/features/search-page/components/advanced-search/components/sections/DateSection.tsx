@@ -25,7 +25,7 @@ export const DateSection: React.FC = () => {
           selected={filter?.startDate ? new Date(filter.startDate) : null}
           selectsStart
           endDate={filter?.endDate ? new Date(filter.endDate) : null}
-          onChange={(date) => {
+          onChange={(date: Date | null) => {
             storeFilter({
               ...filter,
               startDate: date ? moment(date)?.startOf('day').toISOString() : '',
@@ -44,7 +44,7 @@ export const DateSection: React.FC = () => {
           selected={filter?.endDate ? new Date(filter.endDate) : null}
           selectsEnd
           endDate={filter?.endDate ? new Date(filter.endDate) : null}
-          onChange={(date) => {
+          onChange={(date: Date | null) => {
             storeFilter({
               ...filter,
               endDate: date ? moment(date)?.endOf('day').toISOString() : '',

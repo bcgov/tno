@@ -33,6 +33,9 @@ export const DateFilter = styled(Row)`
       font-weight: bold;
       background-color: transparent;
       border: none;
+      /* The look of the disabled input it replaced (see DateFilter's InertInput). */
+      color: rgb(84, 84, 84);
+      cursor: default;
     }
     max-width: 6.8em;
   }
