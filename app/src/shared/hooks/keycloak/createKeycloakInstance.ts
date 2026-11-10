@@ -2,12 +2,19 @@ import Keycloak from 'keycloak-js';
 
 import { IKeycloakConfig } from '.';
 
+let instance: Promise<Keycloak> | undefined;
+
 /**
- * Fetches the configuration file `/keycloak.json` and creates a KeycloakInstance for it.
+ * Fetches the configuration file `/keycloak.json` and creates the page's Keycloak client for it.
  * Overrides file configuration with environment variables.
+ * The client is created once per page: a second client would race the first to redeem the login
+ * code (e.g. when React StrictMode mounts the app twice in development).
  * @returns Promise<KeycloakInstance>
  */
-export const createKeycloakInstance = async (initOptions?: Keycloak.KeycloakInitOptions) => {
+export const createKeycloakInstance = (initOptions?: Keycloak.KeycloakInitOptions) =>
+  (instance ??= create(initOptions));
+
+const create = async (initOptions?: Keycloak.KeycloakInitOptions) => {
   try {
     const response = await fetch('/keycloak.json');
     const data = await response.json();

@@ -16,8 +16,9 @@ export interface IKeycloakProviderProps {
   children?: React.ReactNode;
 }
 
-// keycloak-js 26 throws if a client is initialized twice (e.g. a StrictMode remount).
-const initializedClients = new WeakSet<Keycloak>();
+// keycloak-js 26 throws if a client is initialized twice (e.g. a StrictMode remount), so each
+// client is initialized once and a remounted provider waits on the same initialization.
+const initializations = new WeakMap<Keycloak, Promise<boolean>>();
 
 const isAuthenticated = (client: Keycloak) => !!client.idToken && !!client.token;
 
@@ -39,14 +40,18 @@ export const KeycloakProvider: React.FC<IKeycloakProviderProps> = ({
   const initOptionsRef = React.useRef(initOptions);
 
   React.useEffect(() => {
-    const update = (event: KeycloakEvent) => () => {
-      onEventRef.current?.(event);
+    let active = true;
+    const setFromClient = () => {
       const authenticated = isAuthenticated(authClient);
       setState((prev) =>
         prev.initialized && prev.authenticated === authenticated
           ? prev
           : { initialized: true, authenticated },
       );
+    };
+    const update = (event: KeycloakEvent) => () => {
+      onEventRef.current?.(event);
+      if (active) setFromClient();
     };
     const error = (event: KeycloakEvent) => (reason?: unknown) =>
       onEventRef.current?.(event, reason);
@@ -63,16 +68,22 @@ export const KeycloakProvider: React.FC<IKeycloakProviderProps> = ({
       authClient.updateToken(5).catch(() => {});
     };
 
-    if (!initializedClients.has(authClient)) {
-      initializedClients.add(authClient);
-      authClient
-        .init({ onLoad: 'check-sso', ...initOptionsRef.current })
-        .catch(error('onInitError'));
-    } else if (authClient.didInitialize) {
-      setState({ initialized: true, authenticated: isAuthenticated(authClient) });
+    let initialization = initializations.get(authClient);
+    if (!initialization) {
+      initialization = authClient.init({ onLoad: 'check-sso', ...initOptionsRef.current });
+      initializations.set(authClient, initialization);
+      initialization.catch(error('onInitError'));
     }
+    // Ready once init() has finished (also when this provider mounted after it finished).
+    initialization.then(
+      () => {
+        if (active) setFromClient();
+      },
+      () => {},
+    );
 
     return () => {
+      active = false;
       authClient.onReady = undefined;
       authClient.onAuthSuccess = undefined;
       authClient.onAuthError = undefined;

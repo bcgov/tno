@@ -4,7 +4,7 @@ import './index.scss';
 import '@/shared';
 
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { ThemeProvider } from 'styled-components';
 
@@ -28,4 +28,4 @@ const Index = () => {
   );
 };
 
-ReactDOM.render(<Index />, document.getElementById('root'));
+createRoot(document.getElementById('root')!).render(<Index />);
