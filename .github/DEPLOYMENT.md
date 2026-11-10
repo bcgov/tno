@@ -102,8 +102,7 @@ These source paths build a new image and deploy the matching workload.
 | ------------ | ------ |
 | `api/net/**` | Build `api`, deploy API |
 | `api/node/**` | Build/deploy `charts-api` |
-| `app/editor/**` | Build/deploy `editor` |
-| `app/subscriber/**` | Build/deploy `subscriber` |
+| `app/**` | Build `app`, deploy `editor` and `subscriber` (one image serves both; `APP_MODE` picks the design) |
 | `services/net/content/**` | Build/deploy `content-service` |
 | `services/net/indexing/**` | Build/deploy `indexing-service` |
 | `services/net/transcription/**` | Build/deploy `transcription-service` |
@@ -140,8 +139,8 @@ building a new image.
 | `openshift/kustomize/api/**` | Deploy API only |
 | `openshift/kustomize/api-services/**` | Deploy API only |
 | `openshift/kustomize/charts/**` | Build/deploy `charts-api` |
-| `openshift/kustomize/app/editor/**` | Build/deploy `editor` |
-| `openshift/kustomize/app/subscriber/**` | Build/deploy `subscriber` |
+| `openshift/kustomize/app/editor/**` | Deploy `editor` only |
+| `openshift/kustomize/app/subscriber/**` | Deploy `subscriber` only |
 | `openshift/kustomize/services/<service>/**` | Deploy that service only |
 | `openshift/kustomize/shared_resources/**` | Build API, all .NET services, and both frontends; deploy API, services, and frontends |
 

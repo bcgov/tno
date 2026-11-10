@@ -8,8 +8,7 @@ on:
         required: true
         type: choice
         options:
-          - editor
-          - subscriber
+          - app
           - folder-collection
           - api
           - charts-api
@@ -60,8 +59,8 @@ jobs:
         run: |
           RESTYPE="deployment"
           case "${{ inputs.service }}" in
-            editor)             IMAGE="editor";                      DEPLOY="editor";                      DISPLAY="React Editor" ;;
-            subscriber)         IMAGE="subscriber";                  DEPLOY="subscriber";                  DISPLAY="React Subscriber" ;;
+            # One image runs both frontend Deployments, so both roll back together.
+            app)                IMAGE="app";                         DEPLOY="editor subscriber";           DISPLAY="React Application (editor and subscriber)" ;;
             folder-collection)  IMAGE="folder-collection-service";   DEPLOY="folder-collection-service";   DISPLAY="Folder Collection" ;;
             api)                IMAGE="api";                         DEPLOY="api-services";                DISPLAY="API (.NET)" ;;
             charts-api)         IMAGE="charts-api";                  DEPLOY="charts-api";                  DISPLAY="Charts API" ;;
@@ -128,14 +127,18 @@ jobs:
 
       - name: Rollout Restart
         run: |
-          oc rollout restart ${{ steps.svc.outputs.resource_type }}/${{ steps.svc.outputs.deploy }} \
-            -n ${{ env.OPENSHIFT_NAMESPACE }}
+          for deploy in ${{ steps.svc.outputs.deploy }}; do
+            oc rollout restart ${{ steps.svc.outputs.resource_type }}/$deploy \
+              -n ${{ env.OPENSHIFT_NAMESPACE }}
+          done
 
       - name: Verify Rollout
         run: |
-          oc rollout status ${{ steps.svc.outputs.resource_type }}/${{ steps.svc.outputs.deploy }} \
-            -n ${{ env.OPENSHIFT_NAMESPACE }} \
-            --timeout=180s
+          for deploy in ${{ steps.svc.outputs.deploy }}; do
+            oc rollout status ${{ steps.svc.outputs.resource_type }}/$deploy \
+              -n ${{ env.OPENSHIFT_NAMESPACE }} \
+              --timeout=180s
+          done
 
       - name: Rollout API StatefulSet
         if: ${{ inputs.service == 'api' }}
