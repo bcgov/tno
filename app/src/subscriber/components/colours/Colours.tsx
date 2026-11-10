@@ -1,5 +1,5 @@
 import React from 'react';
-import { SketchPicker } from 'react-color';
+import Sketch from '@uiw/react-color-sketch';
 import { FaPalette } from 'react-icons/fa6';
 import CreatableSelect from 'react-select/creatable';
 
@@ -126,13 +126,9 @@ export const Colours = ({
                       e.stopPropagation();
                     }}
                   >
-                    <SketchPicker
+                    <Sketch
                       className="picker"
-                      onChangeComplete={(color) => {
-                        handleChange(color.hex, index);
-                        // setShowPicker(undefined);
-                        // onClosePicker?.();
-                      }}
+                      onChange={(color) => handleChange(color.hex, index)}
                       color={itemValue ?? undefined}
                     />
                   </div>

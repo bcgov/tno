@@ -1,6 +1,6 @@
-import 'rc-slider/assets/index.css';
+import '@rc-component/slider/assets/index.css';
 
-import Slider from 'rc-slider';
+import Slider from '@rc-component/slider';
 import { FaX } from 'react-icons/fa6';
 
 import { sentimentOptions } from './constants';
