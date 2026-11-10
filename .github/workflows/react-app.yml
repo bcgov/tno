@@ -39,10 +39,10 @@ jobs:
       run:
         working-directory: app
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Use Node.js from .nvmrc
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version-file: app/.nvmrc
           cache: npm
@@ -71,7 +71,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: ci
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Public base images: pull requests have no ACR credentials.
       - name: Build Docker Image
@@ -125,7 +125,7 @@ jobs:
       IMAGE_TAG: dev
       OPENSHIFT_NAMESPACE: 9b301c-dev
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Login to ACR
         run: |
@@ -224,7 +224,7 @@ jobs:
       IMAGE_TAG: test
       OPENSHIFT_NAMESPACE: 9b301c-test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Login to ACR
         run: |
