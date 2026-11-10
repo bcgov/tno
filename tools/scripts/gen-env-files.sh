@@ -285,30 +285,15 @@ echo \
     echo "./api/node/.env created"
 fi
 
-# APP - Editor
-if test -f "./app/editor/.env"; then
-    echo "./app/editor/.env exists"
+# APP (editor and subscriber designs share one project)
+if test -f "./app/.env"; then
+    echo "./app/.env exists"
 else
 echo \
-"NODE_ENV=development
-CHOKIDAR_USEPOLLING=true
-WDS_SOCKET_PORT=$portNginxEditor
-#API_URL=http://api:80/
-#REACT_APP_KEYCLOAK_AUTH_SERVER_URL=http://keycloak:8080/auth" >> ./app/editor/.env
-    echo "./app/editor/.env created"
-fi
-
-# APP - Subscriber
-if test -f "./app/subscriber/.env"; then
-    echo "./app/subscriber/.env exists"
-else
-echo \
-"NODE_ENV=development
-CHOKIDAR_USEPOLLING=true
-WDS_SOCKET_PORT=$portNginxSubscriber
-#API_URL=http://api:80/
-#REACT_APP_KEYCLOAK_AUTH_SERVER_URL=http://keycloak:8080/auth" >> ./app/subscriber/.env
-    echo "./app/subscriber/.env created"
+"CHOKIDAR_USEPOLLING=true
+#VITE_API_URL=/api
+#VITE_KEYCLOAK_AUTH_SERVER_URL=http://localhost:$portKeycloak/" >> ./app/.env
+    echo "./app/.env created"
 fi
 
 ###########################################################################

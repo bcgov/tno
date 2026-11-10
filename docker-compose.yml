@@ -278,7 +278,7 @@ services:
     restart: "no"
     container_name: tno-editor
     build:
-      context: app/editor
+      context: app
       dockerfile: Dockerfile
     deploy:
       resources:
@@ -288,13 +288,18 @@ services:
         reservations:
           cpus: "0.10"
           memory: 500M
-    env_file: app/editor/.env
+    env_file:
+      - path: app/.env
+        required: false
+    environment:
+      APP_MODE: editor
     volumes:
-      - ./app/editor/src:/usr/app/src
-      - ./app/editor/public:/usr/app/public
+      - ./app/src:/usr/app/src
+      - ./app/public:/usr/app/public
+      - ./app/editor.html:/usr/app/editor.html
+      - ./app/subscriber.html:/usr/app/subscriber.html
     ports:
       - ${APP_EDITOR_HTTP_PORT:-40082}:3000
-      - ${APP_EDITOR_HTTPS_PORT:-40444}:3443
     extra_hosts:
       - host.docker.internal:host-gateway
     depends_on:
@@ -315,7 +320,7 @@ services:
     restart: "no"
     container_name: tno-subscriber
     build:
-      context: app/subscriber
+      context: app
       dockerfile: Dockerfile
     deploy:
       resources:
@@ -325,13 +330,18 @@ services:
         reservations:
           cpus: "0.10"
           memory: 500M
-    env_file: ./app/subscriber/.env
+    env_file:
+      - path: app/.env
+        required: false
+    environment:
+      APP_MODE: subscriber
     volumes:
-      - ./app/subscriber/src:/usr/app/src
-      - ./app/subscriber/public:/usr/app/public
+      - ./app/src:/usr/app/src
+      - ./app/public:/usr/app/public
+      - ./app/editor.html:/usr/app/editor.html
+      - ./app/subscriber.html:/usr/app/subscriber.html
     ports:
       - ${APP_SUBSCRIBER_HTTP_PORT:-40083}:3000
-      - ${APP_SUBSCRIBER_HTTPS_PORT:-40445}:3443
     extra_hosts:
       - host.docker.internal:host-gateway
     depends_on:

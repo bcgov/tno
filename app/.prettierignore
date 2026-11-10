@@ -1,6 +1,6 @@
 package-lock.json
-**/vendor
+dist
+coverage
+node_modules
 *.html
 *.md
-node_modules
-build

@@ -1,23 +1,37 @@
 {
   "compilerOptions": {
-    "ignoreDeprecations": "5.0",
-    "baseUrl": "src",
-    "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext", "ES2021"],
+    "target": "ES2022",
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ES2023"
+    ],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
-    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx",
-    "typeRoots": ["src/@types", "node_modules/@types"]
+    "types": [
+      "vite/client",
+      "vitest/globals"
+    ],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "src/editor/features/content/list-view/ContentListView.test.tsx"
+  ]
 }

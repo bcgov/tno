@@ -1,44 +1,48 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app), using the [Redux](https://redux.js.org/) and [Redux Toolkit](https://redux-toolkit.js.org/) template.
+# MMI web application
 
-## Available Scripts
+One React + Vite project that contains both Media Monitoring Insights designs:
 
-In the project directory, you can run:
+| Design | Users | Source | HTML document |
+| --- | --- | --- | --- |
+| `editor` | editors and administrators | `src/editor` | `editor.html` |
+| `subscriber` | subscribers | `src/subscriber` | `subscriber.html` |
 
-### `yarn start`
+Code used by both designs lives in `src/shared` (it replaced the `tno-core` npm package).
+`src/shared` never imports a design, and the designs never import each other; the build fails
+if either design's bundle contains the other's source.
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+A deployment presents exactly one design, chosen at runtime by the `APP_MODE` environment
+variable (`editor` or `subscriber`). The same image runs both.
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+## Requirements
 
-### `yarn test`
+- Node.js 26 (`nvm use` reads `.nvmrc`)
+- npm (Yarn is no longer used)
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Commands
 
-### `yarn build`
+```bash
+npm ci                          # install
+APP_MODE=editor npm run dev     # dev server on http://localhost:3000 (APP_MODE is required)
+npm run build                   # build both designs into dist/
+APP_MODE=subscriber npm run preview
+npm run typecheck
+npm test                        # Vitest (projects: editor, subscriber)
+npm run check                   # Prettier
+```
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Imports use one alias, `@/` → `src/`, e.g. `@/shared`, `@/editor/store`.
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+## Docker
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- `Dockerfile` — dev server used by docker-compose. The `editor` and `subscriber` services both
+  build it and differ only in `APP_MODE`; `src/`, `public/` and the HTML documents are
+  bind-mounted, so changes hot-reload.
+- `Dockerfile.nginx` — production image (static files served by nginx on port 8080).
 
-### `yarn eject`
+## Static files
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+`public/shared` is served at the site root for both designs. `public/editor` and
+`public/subscriber` hold the files that differ (favicon, manifest, some assets) and are served
+over it, so each design keeps exactly the URLs it had before the merge. Built, hashed files go
+to `/static/`.

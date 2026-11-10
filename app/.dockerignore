@@ -1,11 +1,9 @@
-.dockerignore
-./log
-./tmp
 .git
+.vscode
 *Dockerfile*
 *docker-compose*
+.env
+.env.*
+coverage/
 dist/
-build/
 node_modules/
-.vscode/
-.devcontainer
