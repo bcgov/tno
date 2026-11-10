@@ -59,10 +59,12 @@ public class ReportService : BaseService<Report, int>, IReportService
             .Include(f => f.Owner)
             .AsQueryable();
 
+        // A report from this list can be sent back to 'Update', which deletes every section chart the submitted
+        // report does not have.  The sections must therefore carry their charts, as 'FindById' does.
         if (populateFullModel)
             query = query
                 .Include(r => r.Template).ThenInclude(t => t!.ChartTemplates)
-                .Include(r => r.Sections)
+                .Include(r => r.Sections).ThenInclude(s => s.ChartTemplatesManyToMany).ThenInclude(c => c.ChartTemplate)
                 .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
                 .Include(r => r.Events).ThenInclude(s => s.Schedule)
                 .AsQueryable();
