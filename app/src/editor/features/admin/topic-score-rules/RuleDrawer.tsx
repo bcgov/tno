@@ -1,7 +1,7 @@
-import { FormikForm } from 'components/formik';
-import { ComboBox } from 'features/admin/automation/designer';
+import { FormikForm } from '@/editor/components/formik';
+import { ComboBox } from '@/editor/features/admin/automation/designer';
 import React from 'react';
-import { useLookup } from 'store/hooks';
+import { useLookup } from '@/editor/store/hooks';
 import {
   Button,
   ButtonVariant,

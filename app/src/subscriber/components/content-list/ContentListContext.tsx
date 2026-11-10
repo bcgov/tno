@@ -1,7 +1,7 @@
 import { createContext, ReactNode, useState } from 'react';
 import React from 'react';
-import { useApp, useReports, useReportSync } from 'store/hooks';
-import { useProfileStore } from 'store/slices';
+import { useApp, useReports, useReportSync } from '@/subscriber/store/hooks';
+import { useProfileStore } from '@/subscriber/store/slices';
 
 import { defaultValueListContext } from './constants';
 import { IContentListContext, IGroupByState, IToggleStates } from './interfaces';

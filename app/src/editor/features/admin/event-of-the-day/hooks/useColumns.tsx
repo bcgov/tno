@@ -1,4 +1,4 @@
-import { Topic } from 'features/content';
+import { Topic } from '@/editor/features/content';
 import React from 'react';
 import { FaRegClipboard } from 'react-icons/fa';
 import { Link } from 'react-router-dom';

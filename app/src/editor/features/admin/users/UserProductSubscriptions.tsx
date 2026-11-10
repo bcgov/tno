@@ -1,6 +1,6 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { useUsers } from 'store/hooks/admin';
+import { useUsers } from '@/editor/store/hooks/admin';
 import { formatDate, Grid, type IUserModel, type IUserProductModel, Link } from 'tno-core';
 
 export const UserProductSubscriptions: React.FC = () => {

@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ComboBox } from 'features/admin/automation/designer/ComboBox';
+import { ComboBox } from '@/editor/features/admin/automation/designer/ComboBox';
 import React from 'react';
-import { TestWrapper } from 'test/utils';
+import { TestWrapper } from '@/editor/test-vitest/utils';
 
 it('allows choosing, clearing, and entering a freeform section with an associated label', async () => {
   const user = userEvent.setup();

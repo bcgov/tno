@@ -1,4 +1,4 @@
-import { TooltipMenu } from 'components/tooltip-menu';
+import { TooltipMenu } from '@/subscriber/components/tooltip-menu';
 import React from 'react';
 import { ITooltip } from 'react-tooltip';
 

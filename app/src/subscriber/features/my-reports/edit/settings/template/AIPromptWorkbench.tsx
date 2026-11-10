@@ -1,12 +1,12 @@
-import { Button } from 'components/button';
+import { Button } from '@/subscriber/components/button';
 import React from 'react';
 import { FaCode, FaPaperPlane, FaPlay } from 'react-icons/fa6';
-import { useApiHub, useReportAI } from 'store/hooks';
+import { useApiHub, useReportAI } from '@/subscriber/store/hooks';
 import {
   IReportAIPromptChatMessageModel,
   IReportAISectionPromptModel,
   IReportAISectionTestResultModel,
-} from 'store/hooks/subscriber/interfaces';
+} from '@/subscriber/store/hooks/subscriber/interfaces';
 import styled from 'styled-components';
 import {
   IReportMessageModel,

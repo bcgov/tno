@@ -1,7 +1,7 @@
 import { AxiosResponse } from 'axios';
-import { type ITopicPopulationSettingsModel } from 'features/admin/content-analysis/interfaces';
+import { type ITopicPopulationSettingsModel } from '@/editor/features/admin/content-analysis/interfaces';
 import React from 'react';
-import { useAjaxWrapper } from 'store/hooks';
+import { useAjaxWrapper } from '@/editor/store/hooks';
 import { useApi } from 'tno-core';
 
 interface ITopicPopulationController {

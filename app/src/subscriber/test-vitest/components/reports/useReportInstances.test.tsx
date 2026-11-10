@@ -8,8 +8,8 @@ const state = vi.hoisted(() => ({
   store: { storeMyReports: vi.fn(), storeReportContent: vi.fn(), storeReportOutput: vi.fn() },
   dispatch: vi.fn(async (_: string, request: () => Promise<unknown>) => request()),
 }));
-vi.mock('store/hooks', () => ({ useAjaxWrapper: () => state.dispatch }));
-vi.mock('store/slices', () => ({ useProfileStore: () => [{}, state.store] }));
+vi.mock('@/subscriber/store/hooks', () => ({ useAjaxWrapper: () => state.dispatch }));
+vi.mock('@/subscriber/store/slices', () => ({ useProfileStore: () => [{}, state.store] }));
 vi.mock('tno-core', () => ({
   useApi: () => ({ get: vi.fn() }),
   useApiSubscriberReportInstances: () => state.api,

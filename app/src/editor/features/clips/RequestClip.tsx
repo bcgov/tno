@@ -1,8 +1,8 @@
-import { FormikForm } from 'components/formik';
-import { FormPage } from 'components/formpage';
+import { FormikForm } from '@/editor/components/formik';
+import { FormPage } from '@/editor/components/formpage';
 import React from 'react';
 import { toast } from 'react-toastify';
-import { useApp } from 'store/hooks';
+import { useApp } from '@/editor/store/hooks';
 import {
   Button,
   ButtonVariant,

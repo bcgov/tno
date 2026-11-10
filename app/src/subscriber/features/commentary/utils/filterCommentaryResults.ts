@@ -1,4 +1,4 @@
-import { IContentSearchResult } from 'features/utils/interfaces';
+import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 import moment from 'moment';
 
 import { determineCommentaryTime } from './determineCommentaryTime';

@@ -1,9 +1,9 @@
-import { Button } from 'components/button';
-import { FormikForm } from 'components/formik';
-import { PageSection } from 'components/section';
+import { Button } from '@/subscriber/components/button';
+import { FormikForm } from '@/subscriber/components/formik';
+import { PageSection } from '@/subscriber/components/section';
 import React from 'react';
 import { FaBackward, FaSave } from 'react-icons/fa';
-import { useColleagues } from 'store/hooks';
+import { useColleagues } from '@/subscriber/store/hooks';
 import { Col, FormikText, validateEmail } from 'tno-core';
 
 import { ColleagueActionEnum } from './constants/ColleagueActionEnum';

@@ -1,6 +1,6 @@
-import { PageSection } from 'components/section';
+import { PageSection } from '@/subscriber/components/section';
 import React from 'react';
-import { useSettings } from 'store/hooks';
+import { useSettings } from '@/subscriber/store/hooks';
 
 import * as styled from './styled';
 

@@ -1,9 +1,9 @@
-import { FormPage } from 'components/formpage';
+import { FormPage } from '@/editor/components/formpage';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useLookup } from 'store/hooks';
-import { useContentAnalysisAdmin } from 'store/hooks/admin';
+import { useLookup } from '@/editor/store/hooks';
+import { useContentAnalysisAdmin } from '@/editor/store/hooks/admin';
 import { Button, ButtonVariant, Col, OptionItem, Row, Select, Show, Tab, Tabs } from 'tno-core';
 
 import { BackfillPanel } from './BackfillPanel';

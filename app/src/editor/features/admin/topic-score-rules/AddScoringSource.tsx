@@ -1,8 +1,8 @@
-import { defaultSource } from 'features/admin/sources/constants';
+import { defaultSource } from '@/editor/features/admin/sources/constants';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useSources } from 'store/hooks/admin';
+import { useSources } from '@/editor/store/hooks/admin';
 import { Button, ButtonVariant, Col, type ISourceModel, Modal, OptionItem, Select } from 'tno-core';
 
 import { type ITopicScoreSourceModel } from './interfaces';

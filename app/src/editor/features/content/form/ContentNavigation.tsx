@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaChevronLeft, FaChevronRight, FaSpinner } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { useLocalStorage } from 'store/hooks';
+import { useLocalStorage } from '@/editor/store/hooks';
 import { Button, ButtonVariant, Row, Show, Spinner } from 'tno-core';
 
 import { useContentForm } from './hooks';

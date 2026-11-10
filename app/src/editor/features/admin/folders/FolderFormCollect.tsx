@@ -1,11 +1,11 @@
-import { type IContentRowModel } from 'components/content';
+import { type IContentRowModel } from '@/editor/components/content';
 import { useFormikContext } from 'formik';
 import moment from 'moment';
 import React from 'react';
 import { FaEraser } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import { useContent } from 'store/hooks';
-import { useFilters } from 'store/hooks/admin';
+import { useContent } from '@/editor/store/hooks';
+import { useFilters } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,

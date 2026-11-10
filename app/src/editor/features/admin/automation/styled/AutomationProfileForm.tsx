@@ -1,4 +1,4 @@
-import { FormPage } from 'components/formpage';
+import { FormPage } from '@/editor/components/formpage';
 import styled, { createGlobalStyle } from 'styled-components';
 
 // Imported from the module rather than the 'constants' barrel to keep the component index out of

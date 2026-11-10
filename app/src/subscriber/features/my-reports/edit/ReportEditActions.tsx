@@ -1,7 +1,7 @@
-import { Action } from 'components/action';
-import { Button } from 'components/button';
-import { Modal } from 'components/modal';
-import { RefreshButton } from 'components/refresh-button';
+import { Action } from '@/subscriber/components/action';
+import { Button } from '@/subscriber/components/button';
+import { Modal } from '@/subscriber/components/modal';
+import { RefreshButton } from '@/subscriber/components/refresh-button';
 import React from 'react';
 import { FaSave } from 'react-icons/fa';
 import {
@@ -12,8 +12,8 @@ import {
   FaTrash,
 } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
-import { useApp, useReportInstances } from 'store/hooks';
-import { useProfileStore } from 'store/slices';
+import { useApp, useReportInstances } from '@/subscriber/store/hooks';
+import { useProfileStore } from '@/subscriber/store/slices';
 import { Col, isAISectionPending, ReportStatusName, Show, useModal } from 'tno-core';
 
 import {

@@ -1,9 +1,9 @@
 import {
   type IContentListAdvancedFilter,
   type IContentListFilter,
-} from 'features/content/interfaces';
+} from '@/editor/features/content/interfaces';
 import React from 'react';
-import { useLookup, useSettings } from 'store/hooks';
+import { useLookup, useSettings } from '@/editor/store/hooks';
 import { type IFilterActionSettingsModel } from 'tno-core';
 
 /**

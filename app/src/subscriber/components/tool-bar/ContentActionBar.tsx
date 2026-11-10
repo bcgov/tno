@@ -1,9 +1,9 @@
-import { ShareMenu } from 'components/share-menu';
+import { ShareMenu } from '@/subscriber/components/share-menu';
 import React, { useState } from 'react';
 import { FaArrowUpRightFromSquare, FaChartSimple } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
-import { useLookup, useSettings } from 'store/hooks';
-import { useAppStore } from 'store/slices';
+import { useLookup, useSettings } from '@/subscriber/store/hooks';
+import { useAppStore } from '@/subscriber/store/slices';
 import { Checkbox, Claim, IContentModel, Row, Settings, Show } from 'tno-core';
 
 import { AddToFolderMenu } from './AddToFolderMenu';

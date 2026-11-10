@@ -1,13 +1,13 @@
-import { Status } from 'components/status';
-import { TabControl } from 'components/tab-control';
-import { AdvancedSearchKeys } from 'features/content/constants';
+import { Status } from '@/editor/components/status';
+import { TabControl } from '@/editor/components/tab-control';
+import { AdvancedSearchKeys } from '@/editor/features/content/constants';
 import {
   type IContentListAdvancedFilter,
   type IContentListFilter,
-} from 'features/content/interfaces';
-import { naturalSortValue } from 'features/content/list-view/utils/naturalSort';
-import { useContent } from 'store/hooks';
-import { type IContentSearchResult } from 'store/slices';
+} from '@/editor/features/content/interfaces';
+import { naturalSortValue } from '@/editor/features/content/list-view/utils/naturalSort';
+import { useContent } from '@/editor/store/hooks';
+import { type IContentSearchResult } from '@/editor/store/slices';
 import {
   CellEllipsis,
   Checkbox,

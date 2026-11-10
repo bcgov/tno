@@ -2,7 +2,7 @@ import { useFormikContext } from 'formik';
 import moment from 'moment';
 import React from 'react';
 import { toast } from 'react-toastify';
-import { useContentAnalysis } from 'store/hooks';
+import { useContentAnalysis } from '@/editor/store/hooks';
 import { Button, ButtonVariant, Col, Row, Show } from 'tno-core';
 
 import { type IContentAnalysisDetailsModel, type IContentForm } from './interfaces';

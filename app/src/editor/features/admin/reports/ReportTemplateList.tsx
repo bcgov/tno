@@ -1,7 +1,7 @@
-import { FormPage } from 'components/formpage';
+import { FormPage } from '@/editor/components/formpage';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useReportTemplates } from 'store/hooks/admin';
+import { useReportTemplates } from '@/editor/store/hooks/admin';
 import { Col, FlexboxTable, IconButton, type IReportTemplateModel, Row } from 'tno-core';
 
 import { reportTemplateColumns } from './constants';

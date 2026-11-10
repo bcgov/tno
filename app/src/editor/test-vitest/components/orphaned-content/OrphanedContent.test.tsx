@@ -1,8 +1,8 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import OrphanedContent from 'features/admin/orphaned-content/OrphanedContent';
+import OrphanedContent from '@/editor/features/admin/orphaned-content/OrphanedContent';
 import React from 'react';
-import { TestWrapper } from 'test/utils';
+import { TestWrapper } from '@/editor/test-vitest/utils';
 import { vi } from 'vitest';
 
 const api = vi.hoisted(() => ({
@@ -12,7 +12,7 @@ const api = vi.hoisted(() => ({
   results: vi.fn(),
   resolve: vi.fn(),
 }));
-vi.mock('store/hooks/admin/useOrphanedContent', () => ({ useOrphanedContent: () => api }));
+vi.mock('@/editor/store/hooks/admin/useOrphanedContent', () => ({ useOrphanedContent: () => api }));
 const completed = {
   id: 'scan-1',
   side: 'elasticsearch',

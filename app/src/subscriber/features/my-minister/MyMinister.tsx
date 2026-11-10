@@ -1,16 +1,16 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
-import { ContentList } from 'components/content-list';
-import { DateFilter } from 'components/date-filter';
-import { ContentListActionBar } from 'components/tool-bar';
-import { filterFormat } from 'features/search-page/utils';
-import { castToSearchResult } from 'features/utils';
-import { IContentSearchResult } from 'features/utils/interfaces';
+import { ContentList } from '@/subscriber/components/content-list';
+import { DateFilter } from '@/subscriber/components/date-filter';
+import { ContentListActionBar } from '@/subscriber/components/tool-bar';
+import { filterFormat } from '@/subscriber/features/search-page/utils';
+import { castToSearchResult } from '@/subscriber/features/utils';
+import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
-import { useApp, useContent } from 'store/hooks';
-import { IMinisterModel } from 'store/hooks/subscriber/interfaces/IMinisterModel';
-import { useMinisters } from 'store/hooks/subscriber/useMinisters';
-import { useProfileStore } from 'store/slices';
+import { useApp, useContent } from '@/subscriber/store/hooks';
+import { IMinisterModel } from '@/subscriber/store/hooks/subscriber/interfaces/IMinisterModel';
+import { useMinisters } from '@/subscriber/store/hooks/subscriber/useMinisters';
+import { useProfileStore } from '@/subscriber/store/slices';
 import { Checkbox, generateQuery, IContentModel, Row } from 'tno-core';
 
 import * as styled from './styled';

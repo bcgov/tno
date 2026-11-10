@@ -22,7 +22,7 @@ import { collector_production, collector_sandbox } from './snowplow-constants';
   'snowplow',
 );
 var collector;
-if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+if (import.meta.env.MODE === 'development' || import.meta.env.MODE === 'test') {
   collector = collector_sandbox;
 } else {
   collector = collector_production;

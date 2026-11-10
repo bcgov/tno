@@ -1,10 +1,10 @@
-import { AdvancedSearchKeys, advancedSearchOptions } from 'features/content/constants';
-import { type IContentListAdvancedFilter } from 'features/content/interfaces';
+import { AdvancedSearchKeys, advancedSearchOptions } from '@/editor/features/content/constants';
+import { type IContentListAdvancedFilter } from '@/editor/features/content/interfaces';
 import moment from 'moment';
 import React from 'react';
 import { FaArrowAltCircleRight, FaBinoculars } from 'react-icons/fa';
 import { FaX } from 'react-icons/fa6';
-import { useContent, useLookupOptions } from 'store/hooks';
+import { useContent, useLookupOptions } from '@/editor/store/hooks';
 import {
   Button,
   ButtonVariant,

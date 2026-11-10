@@ -1,6 +1,6 @@
 import React from 'react';
-import { useAjaxWrapper, useLookup } from 'store/hooks';
-import { type IAdminState, useAdminStore } from 'store/slices';
+import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
+import { type IAdminState, useAdminStore } from '@/editor/store/slices';
 import { type IPaged, type ISeriesFilter, type ISeriesModel, useApiAdminSeries } from 'tno-core';
 
 interface ISeriesController {

@@ -6,7 +6,7 @@ import {
   type IAutomationRunLogFilter,
   type IAutomationRunLogPage,
   type IAutomationValidationError,
-} from 'features/admin/automation/designer/interfaces';
+} from '@/editor/features/admin/automation/designer/interfaces';
 import {
   type IAutomationDebugRequestModel,
   type IAutomationDebugResultModel,
@@ -14,7 +14,7 @@ import {
   type IAutomationRunDiffModel,
   type IAutomationRunModel,
   type IAutomationRunRequestModel,
-} from 'features/admin/automation/interfaces';
+} from '@/editor/features/admin/automation/interfaces';
 import React from 'react';
 import { useApi } from 'tno-core';
 

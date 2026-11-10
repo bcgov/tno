@@ -1,5 +1,5 @@
-import { Action } from 'components/action';
-import { StartNextReportInfo } from 'features/my-reports/components';
+import { Action } from '@/subscriber/components/action';
+import { StartNextReportInfo } from '@/subscriber/features/my-reports/components';
 import { FaAngleDown, FaMinus } from 'react-icons/fa6';
 
 import { useReportEditContext } from '../ReportEditContext';

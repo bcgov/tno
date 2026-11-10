@@ -1,8 +1,8 @@
 import { type AxiosError } from 'axios';
 import React from 'react';
 import { toast } from 'react-toastify';
-import { useApp } from 'store/hooks';
-import { useReports } from 'store/hooks/admin';
+import { useApp } from '@/editor/store/hooks';
+import { useReports } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,

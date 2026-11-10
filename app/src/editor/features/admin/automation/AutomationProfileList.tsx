@@ -1,8 +1,8 @@
-import { FormPage } from 'components/formpage';
+import { FormPage } from '@/editor/components/formpage';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useAutomationProfiles } from 'store/hooks/admin';
+import { useAutomationProfiles } from '@/editor/store/hooks/admin';
 import { Button, Col, FlexboxTable, IconButton, Row } from 'tno-core';
 
 import { columns } from './constants';

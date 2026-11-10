@@ -1,7 +1,7 @@
-import { Modal } from 'components/modal';
-import { RefreshButton } from 'components/refresh-button';
-import { IReportForm, IReportInstanceContentForm } from 'features/my-reports/interfaces';
-import { sortContent, sortReportContent } from 'features/my-reports/utils';
+import { Modal } from '@/subscriber/components/modal';
+import { RefreshButton } from '@/subscriber/components/refresh-button';
+import { IReportForm, IReportInstanceContentForm } from '@/subscriber/features/my-reports/interfaces';
+import { sortContent, sortReportContent } from '@/subscriber/features/my-reports/utils';
 import React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { FaArrowsRotate } from 'react-icons/fa6';

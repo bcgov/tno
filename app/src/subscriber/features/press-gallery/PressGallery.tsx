@@ -1,13 +1,13 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
-import { ContentList } from 'components/content-list';
-import { ContentListActionBar } from 'components/tool-bar';
-import { castToSearchResult, createFilterSettings } from 'features/utils';
-import { IContentSearchResult } from 'features/utils/interfaces';
+import { ContentList } from '@/subscriber/components/content-list';
+import { ContentListActionBar } from '@/subscriber/components/tool-bar';
+import { castToSearchResult, createFilterSettings } from '@/subscriber/features/utils';
+import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
 import { FaFilterCircleXmark } from 'react-icons/fa6';
-import { useContent } from 'store/hooks';
-import { useContributors } from 'store/hooks/subscriber/useContributors';
+import { useContent } from '@/subscriber/store/hooks';
+import { useContributors } from '@/subscriber/store/hooks/subscriber/useContributors';
 import {
   FieldSize,
   generateQuery,

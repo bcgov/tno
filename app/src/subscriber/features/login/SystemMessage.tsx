@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaBell } from 'react-icons/fa6';
-import { useSystemMessages } from 'store/hooks';
+import { useSystemMessages } from '@/subscriber/store/hooks';
 import { Col, ISystemMessageModel, Show } from 'tno-core';
 
 import * as styled from './styled';

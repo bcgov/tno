@@ -1,4 +1,4 @@
-import { type IContentForm } from 'features/content/form/interfaces';
+import { type IContentForm } from '@/editor/features/content/form/interfaces';
 import { useFormikContext } from 'formik';
 import React, { type ButtonHTMLAttributes } from 'react';
 import { FileUploader } from 'react-drag-drop-files';

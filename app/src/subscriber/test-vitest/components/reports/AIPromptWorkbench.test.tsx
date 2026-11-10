@@ -21,7 +21,7 @@ const state = vi.hoisted(() => ({
   hub: undefined as undefined | ((message: any) => Promise<void>),
 }));
 
-vi.mock('store/hooks', () => ({
+vi.mock('@/subscriber/store/hooks', () => ({
   useReportAI: () => state.api,
   useApiHub: () => ({
     useHubEffect: (_: string, callback: (message: any) => Promise<void>) => {

@@ -1,10 +1,10 @@
-import { ContentList } from 'components/content-list';
-import { DateFilter } from 'components/date-filter';
-import { ContentListActionBar } from 'components/tool-bar';
-import { PreviousResults } from 'features/previous-results';
+import { ContentList } from '@/subscriber/components/content-list';
+import { DateFilter } from '@/subscriber/components/date-filter';
+import { ContentListActionBar } from '@/subscriber/components/tool-bar';
+import { PreviousResults } from '@/subscriber/features/previous-results';
 import moment from 'moment';
 import React from 'react';
-import { useApp, useContent, useFetchResults } from 'store/hooks';
+import { useApp, useContent, useFetchResults } from '@/subscriber/store/hooks';
 import { IContentModel, Show } from 'tno-core';
 
 import * as styled from './styled';

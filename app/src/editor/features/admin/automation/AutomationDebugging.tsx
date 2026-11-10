@@ -1,9 +1,9 @@
-import { AdvancedSearchKeys } from 'features/content/constants';
-import { useElasticsearch } from 'features/content/hooks';
+import { AdvancedSearchKeys } from '@/editor/features/content/constants';
+import { useElasticsearch } from '@/editor/features/content/hooks';
 import React from 'react';
 import { toast } from 'react-toastify';
-import { useContent } from 'store/hooks';
-import { useAutomationProfiles } from 'store/hooks/admin';
+import { useContent } from '@/editor/store/hooks';
+import { useAutomationProfiles } from '@/editor/store/hooks/admin';
 import { Button, ButtonVariant, Col, Row, Show, Text, Wysiwyg } from 'tno-core';
 
 import { type IAutomationDebugMessageModel } from './interfaces';

@@ -1,7 +1,7 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { useLookup } from 'store/hooks';
-import { useConnections } from 'store/hooks/admin';
+import { useLookup } from '@/editor/store/hooks';
+import { useConnections } from '@/editor/store/hooks/admin';
 import {
   Col,
   ConnectionTypeName,

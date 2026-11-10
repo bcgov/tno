@@ -2,7 +2,7 @@ import { FormikErrors, useFormikContext } from 'formik';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useReportInstances, useReports } from 'store/hooks';
+import { useReportInstances, useReports } from '@/subscriber/store/hooks';
 import { IReportInstanceContentModel, IReportInstanceModel } from 'tno-core';
 
 import { defaultReport } from '../constants';

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useIngestTypes } from 'store/hooks/admin';
-import { useAdminStore } from 'store/slices';
+import { useIngestTypes } from '@/editor/store/hooks/admin';
+import { useAdminStore } from '@/editor/store/slices';
 import { Col, FlexboxTable, IconButton, type IIngestTypeModel, Row } from 'tno-core';
 
 import { columns } from './constants';

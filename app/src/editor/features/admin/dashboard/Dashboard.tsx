@@ -1,12 +1,12 @@
-import { FormPage } from 'components/formpage';
+import { FormPage } from '@/editor/components/formpage';
 import _ from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import { FaEdit } from 'react-icons/fa';
 import { FaBugSlash } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
-import { useApiHub, useLookupOptions } from 'store/hooks';
-import { useIngests, useIngestTypes } from 'store/hooks/admin';
+import { useApiHub, useLookupOptions } from '@/editor/store/hooks';
+import { useIngests, useIngestTypes } from '@/editor/store/hooks/admin';
 import {
   Checkbox,
   Col,

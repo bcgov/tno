@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaCalendarAlt } from 'react-icons/fa';
 import { FaX } from 'react-icons/fa6';
-import { useContent } from 'store/hooks';
+import { useContent } from '@/editor/store/hooks';
 import { Button, ButtonVariant, replaceQueryParams, SelectDate } from 'tno-core';
 
 import * as styled from './styled';

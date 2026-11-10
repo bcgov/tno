@@ -1,6 +1,6 @@
 import React from 'react';
-import { useApp } from 'store/hooks';
-import { useAppStore } from 'store/slices';
+import { useApp } from '@/editor/store/hooks';
+import { useAppStore } from '@/editor/store/slices';
 import { useKeycloakWrapper } from 'tno-core';
 
 export interface IUserInfoProps {

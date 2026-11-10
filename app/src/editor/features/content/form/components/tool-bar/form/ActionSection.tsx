@@ -1,8 +1,8 @@
-import { ContentActions } from 'features/content/form';
-import { type IContentForm } from 'features/content/form/interfaces';
+import { ContentActions } from '@/editor/features/content/form';
+import { type IContentForm } from '@/editor/features/content/form/interfaces';
 import React from 'react';
 import { FaHighlighter } from 'react-icons/fa';
-import { useLookup } from 'store/hooks';
+import { useLookup } from '@/editor/store/hooks';
 import { Row, Settings, ToolBarSection } from 'tno-core';
 
 export interface IActionSectionProps {

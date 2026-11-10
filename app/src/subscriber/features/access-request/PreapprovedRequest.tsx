@@ -1,8 +1,8 @@
-import { FormikForm } from 'components/formik';
+import { FormikForm } from '@/subscriber/components/formik';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApp } from 'store/hooks';
+import { useApp } from '@/subscriber/store/hooks';
 import {
   Button,
   ButtonVariant,

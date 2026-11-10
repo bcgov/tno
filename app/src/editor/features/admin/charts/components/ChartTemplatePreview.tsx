@@ -1,7 +1,7 @@
 import { AxiosError } from 'axios';
 import React from 'react';
 import { FaEraser, FaPlay } from 'react-icons/fa6';
-import { useChartTemplates } from 'store/hooks/admin';
+import { useChartTemplates } from '@/editor/store/hooks/admin';
 import { Col, type IChartPreviewRequestModel, mergeChartSettings, Row } from 'tno-core';
 
 import { useChartTemplateContext } from '../ChartTemplateContext';

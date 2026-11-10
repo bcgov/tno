@@ -1,7 +1,7 @@
-import { type IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
+import { type IWorkOrderListFilter } from '@/editor/features/admin/work-orders/interfaces/IWorkOrderListFilter';
 import React from 'react';
-import { useAjaxWrapper } from 'store/hooks';
-import { type IAdminState, useAdminStore } from 'store/slices';
+import { useAjaxWrapper } from '@/editor/store/hooks';
+import { type IAdminState, useAdminStore } from '@/editor/store/slices';
 import {
   type IPaged,
   type IWorkOrderFilter,

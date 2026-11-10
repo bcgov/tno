@@ -1,10 +1,10 @@
-import { Modal } from 'components/modal';
+import { Modal } from '@/subscriber/components/modal';
 import React from 'react';
 import { FaEnvelope } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
-import { useColleagues, useLookup } from 'store/hooks';
-import { useProfileStore } from 'store/slices';
+import { useColleagues, useLookup } from '@/subscriber/store/hooks';
+import { useProfileStore } from '@/subscriber/store/slices';
 import {
   Button,
   IContentModel,

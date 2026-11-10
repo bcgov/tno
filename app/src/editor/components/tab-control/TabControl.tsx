@@ -1,5 +1,5 @@
 import { FaExternalLinkAlt, FaExternalLinkSquareAlt, FaRegClone } from 'react-icons/fa';
-import { useApp } from 'store/hooks';
+import { useApp } from '@/editor/store/hooks';
 import { Show } from 'tno-core';
 
 import { NavigateOptions } from './constants';

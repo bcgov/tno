@@ -1,10 +1,10 @@
-import { Action } from 'components/action';
-import { Sentiment } from 'components/sentiment';
-import { ReportContentInlineText } from 'features/my-reports/components';
-import { IReportInstanceContentForm } from 'features/my-reports/interfaces';
+import { Action } from '@/subscriber/components/action';
+import { Sentiment } from '@/subscriber/components/sentiment';
+import { ReportContentInlineText } from '@/subscriber/features/my-reports/components';
+import { IReportInstanceContentForm } from '@/subscriber/features/my-reports/interfaces';
 import React from 'react';
 import { FaGripVertical, FaX } from 'react-icons/fa6';
-import { useApp } from 'store/hooks';
+import { useApp } from '@/subscriber/store/hooks';
 import { Checkbox, Col, IOptionItem, Row, Select, Text } from 'tno-core';
 
 export interface IReportContentSectionRowProps {

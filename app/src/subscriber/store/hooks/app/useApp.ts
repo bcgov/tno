@@ -1,5 +1,5 @@
 import React from 'react';
-import { IAppState, IErrorModel, useAppStore, useProfileStore } from 'store/slices';
+import { IAppState, IErrorModel, useAppStore, useProfileStore } from '@/subscriber/store/slices';
 import {
   AccountAuthStateName,
   IRegisterModel,

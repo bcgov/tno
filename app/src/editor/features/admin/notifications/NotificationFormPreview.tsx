@@ -2,7 +2,7 @@ import { type AxiosError } from 'axios';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { toast } from 'react-toastify';
-import { useNotifications } from 'store/hooks/admin';
+import { useNotifications } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,

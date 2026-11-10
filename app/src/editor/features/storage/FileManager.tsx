@@ -1,8 +1,8 @@
-import { FileExplorer } from 'features/storage/FileExplorer';
+import { FileExplorer } from '@/editor/features/storage/FileExplorer';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApp, useStorage, useWorkOrders } from 'store/hooks';
+import { useApp, useStorage, useWorkOrders } from '@/editor/store/hooks';
 import {
   Button,
   ButtonVariant,

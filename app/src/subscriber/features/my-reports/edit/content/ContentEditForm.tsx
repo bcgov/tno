@@ -1,12 +1,12 @@
-import { Action } from 'components/action';
-import { Bar } from 'components/bar';
-import { Sentiment } from 'components/sentiment';
-import { IReportForm, IReportInstanceContentForm } from 'features/my-reports/interfaces';
-import { IContentValidationErrors } from 'features/my-reports/interfaces/IContentValidationErrors';
-import { sanitizeReport, toForm } from 'features/my-reports/utils';
-import { formatDate } from 'features/utils';
+import { Action } from '@/subscriber/components/action';
+import { Bar } from '@/subscriber/components/bar';
+import { Sentiment } from '@/subscriber/components/sentiment';
+import { IReportForm, IReportInstanceContentForm } from '@/subscriber/features/my-reports/interfaces';
+import { IContentValidationErrors } from '@/subscriber/features/my-reports/interfaces/IContentValidationErrors';
+import { sanitizeReport, toForm } from '@/subscriber/features/my-reports/utils';
+import { formatDate } from '@/subscriber/features/utils';
 import React from 'react';
-import { useApp, useContent, useReports } from 'store/hooks';
+import { useApp, useContent, useReports } from '@/subscriber/store/hooks';
 import { Col, ContentTypeName, IContentModel, IContentTonePoolModel } from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';

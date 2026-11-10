@@ -1,5 +1,5 @@
 import React from 'react';
-import { useProfileStore } from 'store/slices';
+import { useProfileStore } from '@/subscriber/store/slices';
 import { IReportMessageModel, MessageTargetKey, useApiSubscriberReportInstances } from 'tno-core';
 
 import { useApiHub } from '../signalr';

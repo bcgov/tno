@@ -1,8 +1,8 @@
-import { Button } from 'components/button';
-import { hideEmptySections } from 'features/my-reports/utils';
+import { Button } from '@/subscriber/components/button';
+import { hideEmptySections } from '@/subscriber/features/my-reports/utils';
 import React from 'react';
 import { FaInfoCircle, FaSyncAlt } from 'react-icons/fa';
-import { useReports } from 'store/hooks';
+import { useReports } from '@/subscriber/store/hooks';
 import {
   Checkbox,
   Col,

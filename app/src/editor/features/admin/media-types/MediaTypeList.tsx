@@ -1,7 +1,7 @@
-import { FormPage } from 'components/formpage';
+import { FormPage } from '@/editor/components/formpage';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useMediaTypes } from 'store/hooks/admin';
+import { useMediaTypes } from '@/editor/store/hooks/admin';
 import { Col, FlexboxTable, IconButton, type IMediaTypeModel, Row } from 'tno-core';
 
 import { columns } from './constants';

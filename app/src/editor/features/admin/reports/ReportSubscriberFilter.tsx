@@ -1,6 +1,6 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { useAdminStore } from 'store/slices';
+import { useAdminStore } from '@/editor/store/slices';
 import { Checkbox, IconButton, type IReportModel, type IUserFilter, Row, Text } from 'tno-core';
 
 interface IAdminFilterProps {

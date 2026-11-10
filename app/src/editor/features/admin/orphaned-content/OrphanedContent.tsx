@@ -1,4 +1,4 @@
-import { FormPage } from 'components/formpage';
+import { FormPage } from '@/editor/components/formpage';
 import moment from 'moment-timezone';
 import React from 'react';
 import {
@@ -15,7 +15,7 @@ import {
   OrphanIndex,
   OrphanSide,
   useOrphanedContent,
-} from 'store/hooks/admin/useOrphanedContent';
+} from '@/editor/store/hooks/admin/useOrphanedContent';
 import styled from 'styled-components';
 import {
   Button,

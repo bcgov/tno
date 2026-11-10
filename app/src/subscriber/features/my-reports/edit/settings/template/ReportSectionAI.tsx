@@ -1,7 +1,7 @@
 import React from 'react';
-import { useLookup, useReportAI } from 'store/hooks';
-import { IReportAISectionPromptModel } from 'store/hooks/subscriber/interfaces';
-import { useAppStore } from 'store/slices';
+import { useLookup, useReportAI } from '@/subscriber/store/hooks';
+import { IReportAISectionPromptModel } from '@/subscriber/store/hooks/subscriber/interfaces';
+import { useAppStore } from '@/subscriber/store/slices';
 import {
   Checkbox,
   Claim,

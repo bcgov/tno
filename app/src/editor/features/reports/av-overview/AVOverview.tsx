@@ -1,4 +1,4 @@
-import { FormikForm } from 'components/formik';
+import { FormikForm } from '@/editor/components/formik';
 import moment, { type Moment } from 'moment';
 import React from 'react';
 import {
@@ -11,7 +11,7 @@ import {
 import { MdAdd, MdSave } from 'react-icons/md';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useAVOverviewInstances } from 'store/hooks';
+import { useAVOverviewInstances } from '@/editor/store/hooks';
 import {
   Button,
   ButtonVariant,

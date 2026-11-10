@@ -1,7 +1,7 @@
-import { InputOption } from 'features/content/list-view/components/tool-bar/filter';
+import { InputOption } from '@/editor/features/content/list-view/components/tool-bar/filter';
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { useLookupOptions } from 'store/hooks';
+import { useLookupOptions } from '@/editor/store/hooks';
 import {
   Col,
   FormikSelect,

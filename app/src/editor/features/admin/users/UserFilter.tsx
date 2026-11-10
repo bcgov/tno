@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaFileExcel } from 'react-icons/fa';
-import { useLookup } from 'store/hooks';
-import { useUsers } from 'store/hooks/admin';
+import { useLookup } from '@/editor/store/hooks';
+import { useUsers } from '@/editor/store/hooks/admin';
 import {
   Button,
   FieldSize,

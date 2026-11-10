@@ -1,6 +1,6 @@
-import { Action } from 'components/action';
-import { Section } from 'components/section';
-import { SectionLabel } from 'features/my-reports/components';
+import { Action } from '@/subscriber/components/action';
+import { Section } from '@/subscriber/components/section';
+import { SectionLabel } from '@/subscriber/features/my-reports/components';
 import React from 'react';
 import {
   DragDropContext,

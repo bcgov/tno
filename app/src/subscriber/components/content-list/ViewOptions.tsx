@@ -1,8 +1,8 @@
-import { TooltipMenu } from 'components/tooltip-menu';
+import { TooltipMenu } from '@/subscriber/components/tooltip-menu';
 import React from 'react';
 import { FaGear } from 'react-icons/fa6';
-import { useUsers } from 'store/hooks';
-import { useAppStore } from 'store/slices';
+import { useUsers } from '@/subscriber/store/hooks';
+import { useAppStore } from '@/subscriber/store/slices';
 import { Checkbox, Col, ISubscriberUserModel, Radio, Row } from 'tno-core';
 
 import { ContentListContext } from './ContentListContext';

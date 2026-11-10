@@ -1,7 +1,7 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaTrash } from 'react-icons/fa';
-import { useChartTemplates } from 'store/hooks/admin';
+import { useChartTemplates } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,

@@ -1,18 +1,18 @@
-import { FormPage } from 'components/formpage';
-import { getPreviewReportRoute } from 'features/content';
+import { FormPage } from '@/editor/components/formpage';
+import { getPreviewReportRoute } from '@/editor/features/content';
 import moment from 'moment-timezone';
 import React from 'react';
 import { FaBinoculars, FaPaperPlane, FaTimes } from 'react-icons/fa';
 import { FaArrowsRotate } from 'react-icons/fa6';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useContent, useFolders, useLookup, useReportInstances, useReports } from 'store/hooks';
-import { useTopics } from 'store/hooks/admin';
+import { useContent, useFolders, useLookup, useReportInstances, useReports } from '@/editor/store/hooks';
+import { useTopics } from '@/editor/store/hooks/admin';
 import {
   IEventOfDayInstance,
   IEventOfDayPreview,
   useEventOfDayReports,
-} from 'store/hooks/editor/useEventOfDayReports';
+} from '@/editor/store/hooks/editor/useEventOfDayReports';
 import {
   Button,
   ButtonVariant,

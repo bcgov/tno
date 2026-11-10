@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { useLookup } from 'store/hooks';
+import { useLookup } from '@/subscriber/store/hooks';
 import {
   Button,
   ButtonVariant,

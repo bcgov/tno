@@ -5,7 +5,7 @@ import {
   type IAutomationRunLogFilter,
   type IAutomationRunLogPage,
   type IAutomationValidationError,
-} from 'features/admin/automation/designer/interfaces';
+} from '@/editor/features/admin/automation/designer/interfaces';
 import {
   type IAutomationDebugRequestModel,
   type IAutomationDebugResultModel,
@@ -13,10 +13,10 @@ import {
   type IAutomationRunDiffModel,
   type IAutomationRunModel,
   type IAutomationRunRequestModel,
-} from 'features/admin/automation/interfaces';
+} from '@/editor/features/admin/automation/interfaces';
 import React from 'react';
-import { useAjaxWrapper } from 'store/hooks';
-import { type IAdminState, useAdminStore } from 'store/slices';
+import { useAjaxWrapper } from '@/editor/store/hooks';
+import { type IAdminState, useAdminStore } from '@/editor/store/slices';
 
 import { useApiAdminAutomation } from './useApiAdminAutomation';
 

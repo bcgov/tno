@@ -1,4 +1,4 @@
-import { InfoShield } from 'components/info';
+import { InfoShield } from '@/subscriber/components/info';
 import _ from 'lodash';
 import React from 'react';
 import { FaAnglesLeft, FaAnglesRight } from 'react-icons/fa6';

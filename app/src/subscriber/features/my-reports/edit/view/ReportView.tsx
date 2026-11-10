@@ -1,8 +1,8 @@
 import React from 'react';
 import { FaEye } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
-import { useApiHub, useApp, useReportInstances } from 'store/hooks';
-import { useProfileStore } from 'store/slices';
+import { useApiHub, useApp, useReportInstances } from '@/subscriber/store/hooks';
+import { useProfileStore } from '@/subscriber/store/slices';
 import {
   AISectionStatusName,
   Col,

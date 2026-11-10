@@ -1,9 +1,9 @@
-import { TooltipMenu } from 'components/tooltip-menu';
+import { TooltipMenu } from '@/subscriber/components/tooltip-menu';
 import React from 'react';
 import { FaAngleRight, FaSearch } from 'react-icons/fa';
 import { FaFileExport, FaSpinner } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
-import { useApp, useReports } from 'store/hooks';
+import { useApp, useReports } from '@/subscriber/store/hooks';
 import {
   Col,
   IContentModel,

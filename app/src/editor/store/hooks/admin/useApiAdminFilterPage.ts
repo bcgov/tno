@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { type IFilterPageFilter } from 'features/admin/filters/interfaces';
+import { type IFilterPageFilter } from '@/editor/features/admin/filters/interfaces';
 import React from 'react';
 import { type IFilterModel, type IPaged, toQueryString, useApi } from 'tno-core';
 

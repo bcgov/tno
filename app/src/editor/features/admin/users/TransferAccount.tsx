@@ -2,7 +2,7 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaMagnifyingGlass } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
-import { useUsers } from 'store/hooks/admin';
+import { useUsers } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,

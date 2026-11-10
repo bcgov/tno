@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import EventOfTheDayList from 'features/admin/event-of-the-day/EventOfTheDayList';
+import EventOfTheDayList from '@/editor/features/admin/event-of-the-day/EventOfTheDayList';
 import moment from 'moment-timezone';
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
@@ -28,10 +28,10 @@ const settings = [
   { name: 'folder', value: '1' },
   { name: 'report', value: '15' },
 ];
-vi.mock('store/hooks/editor/useEventOfDayReports', () => ({
+vi.mock('@/editor/store/hooks/editor/useEventOfDayReports', () => ({
   useEventOfDayReports: () => ({ ...history, find: (date: string) => mocks.find(date) }),
 }));
-vi.mock('store/hooks', () => ({
+vi.mock('@/editor/store/hooks', () => ({
   useLookup: () => [{ isReady: true, settings }],
   useReports: () => [{ publishReport: mocks.publish }],
   useReportInstances: () => [{ viewReportInstance: mocks.view }],
@@ -41,16 +41,16 @@ vi.mock('store/hooks', () => ({
     { updateContentTopics: mocks.update, resetContentTopicScore: mocks.reset },
   ],
 }));
-vi.mock('store/hooks/admin', () => ({
+vi.mock('@/editor/store/hooks/admin', () => ({
   useTopics: () => [
     null,
     { findAllTopics: () => mocks.topics(), updateTopic: vi.fn(), addTopic: vi.fn() },
   ],
 }));
-vi.mock('features/content', () => ({ getPreviewReportRoute: () => '/preview' }));
-vi.mock('features/admin/topics', () => ({ TopicFormSmall: () => null }));
-vi.mock('features/admin/event-of-the-day/hooks', () => ({ useColumns: () => [] }));
-vi.mock('components/formpage', () => ({
+vi.mock('@/editor/features/content', () => ({ getPreviewReportRoute: () => '/preview' }));
+vi.mock('@/editor/features/admin/topics', () => ({ TopicFormSmall: () => null }));
+vi.mock('@/editor/features/admin/event-of-the-day/hooks', () => ({ useColumns: () => [] }));
+vi.mock('@/editor/components/formpage', () => ({
   FormPage: ({ children }: React.PropsWithChildren) => <div>{children}</div>,
 }));
 vi.mock('react-toastify', () => ({ toast: { success: vi.fn(), warn: vi.fn(), error: vi.fn() } }));

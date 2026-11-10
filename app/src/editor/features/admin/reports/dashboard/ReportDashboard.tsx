@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaArrowAltCircleLeft, FaArrowAltCircleRight } from 'react-icons/fa';
-import { useApp } from 'store/hooks';
-import { useReports } from 'store/hooks/admin';
+import { useApp } from '@/editor/store/hooks';
+import { useReports } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,

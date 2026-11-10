@@ -7,8 +7,8 @@ import { useFormikContext } from 'formik';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
-import { useContent } from 'store/hooks';
-import { useFilters } from 'store/hooks/admin';
+import { useContent } from '@/editor/store/hooks';
+import { useFilters } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,

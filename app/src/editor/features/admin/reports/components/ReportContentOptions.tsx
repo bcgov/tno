@@ -1,6 +1,6 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { useReports } from 'store/hooks/admin';
+import { useReports } from '@/editor/store/hooks/admin';
 import {
   Col,
   FormikCheckbox,

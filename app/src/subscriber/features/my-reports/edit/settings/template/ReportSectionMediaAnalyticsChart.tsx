@@ -1,4 +1,4 @@
-import { Action } from 'components/action';
+import { Action } from '@/subscriber/components/action';
 import React from 'react';
 import {
   FaAngleDown,
@@ -10,7 +10,7 @@ import {
   FaTrash,
   FaWandMagicSparkles,
 } from 'react-icons/fa6';
-import { useReports } from 'store/hooks';
+import { useReports } from '@/subscriber/store/hooks';
 import { Col, IReportInstanceContentModel, Row, Show, ToggleButton } from 'tno-core';
 
 import { useReportEditContext } from '../../ReportEditContext';

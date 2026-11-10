@@ -1,9 +1,9 @@
-import { ContentActions } from 'features/content/form';
-import { type IContentForm } from 'features/content/form/interfaces';
+import { ContentActions } from '@/editor/features/content/form';
+import { type IContentForm } from '@/editor/features/content/form/interfaces';
 import React from 'react';
 import { FaPaperPlane } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import { useApiHub, useContent, useLookup } from 'store/hooks';
+import { useApiHub, useContent, useLookup } from '@/editor/store/hooks';
 import {
   Col,
   type IContentActionMessageModel,

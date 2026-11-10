@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { type IHistoryPurgePreviewModel } from 'features/admin/settings/interfaces';
+import { type IHistoryPurgePreviewModel } from '@/editor/features/admin/settings/interfaces';
 import React from 'react';
 import { useApi } from 'tno-core';
 

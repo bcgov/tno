@@ -1,8 +1,7 @@
-import { CategoryScale } from 'chart.js';
+import { CategoryScale, type Chart as ChartJS } from 'chart.js';
 import Chart from 'chart.js/auto';
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
-import { type ChartJSOrUndefined } from 'react-chartjs-2/dist/types';
 import { Button } from 'tno-core';
 
 Chart.register(CategoryScale);
@@ -28,7 +27,7 @@ const data = {
 };
 
 export const DemoCharts = () => {
-  const elementRef = React.useRef<ChartJSOrUndefined<'bar', number[], number>>(null);
+  const elementRef = React.useRef<ChartJS<'bar', number[], number>>(null);
   const imageRef = React.useRef<HTMLImageElement>(null);
 
   const [ready, setReady] = React.useState(false);

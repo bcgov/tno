@@ -1,4 +1,4 @@
-import { useLookupOptions } from 'store/hooks';
+import { useLookupOptions } from '@/subscriber/store/hooks';
 import { Button, ButtonVariant, Checkbox, Row, Select, Show } from 'tno-core';
 
 import { useSearchSettings } from '../../SearchSettingsContext';

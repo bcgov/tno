@@ -1,6 +1,6 @@
-import { Button } from 'components/button';
-import { defaultReportSection } from 'features/my-reports/constants';
-import { IReportForm } from 'features/my-reports/interfaces';
+import { Button } from '@/subscriber/components/button';
+import { defaultReportSection } from '@/subscriber/features/my-reports/constants';
+import { IReportForm } from '@/subscriber/features/my-reports/interfaces';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { BiSolidFileJson } from 'react-icons/bi';
@@ -14,7 +14,7 @@ import {
   FaNewspaper,
 } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
-import { useLookup } from 'store/hooks';
+import { useLookup } from '@/subscriber/store/hooks';
 import { ReportSectionTypeName, Row, Settings } from 'tno-core';
 
 import * as styled from './styled';

@@ -1,11 +1,11 @@
 import { render, waitFor } from '@testing-library/react';
-import { AdvancedSearchKeys } from 'features/content/constants';
-import { mockContent, TestWrapper } from 'test/utils';
+import { AdvancedSearchKeys } from '@/editor/features/content/constants';
+import { mockContent, TestWrapper } from '@/editor/test/utils';
 import { ContentStatusName, ContentTypeName } from 'tno-core';
 
 import ContentListView from './ContentListView';
 
-jest.mock('store', () => ({
+jest.mock('@/editor/store', () => ({
   useAppDispatch: jest.fn(),
   useAppSelector: jest.fn(),
 }));
@@ -83,7 +83,7 @@ jest.mock('hooks', () => ({
   useLookupOptions: () => mockUseLookupOptions,
 }));
 
-jest.mock('store/hooks', () => ({
+jest.mock('@/editor/store/hooks', () => ({
   useApp: () => mockUseApp,
   useContent: () => mockUseContent,
   useLookup: () => mockUseLookups,

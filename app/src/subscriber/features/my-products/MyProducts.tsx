@@ -1,10 +1,10 @@
-import { Modal } from 'components/modal';
-import { PageSection } from 'components/section';
+import { Modal } from '@/subscriber/components/modal';
+import { PageSection } from '@/subscriber/components/section';
 import React from 'react';
 import { FaEnvelope, FaUserPlus } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
-import { useApp, useProducts } from 'store/hooks';
-import { useProfileStore } from 'store/slices';
+import { useApp, useProducts } from '@/subscriber/store/hooks';
+import { useProfileStore } from '@/subscriber/store/slices';
 import {
   getEnumStringOptions,
   IProductModel,

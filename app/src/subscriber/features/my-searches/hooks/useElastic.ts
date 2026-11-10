@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSettings } from 'store/hooks';
+import { useSettings } from '@/subscriber/store/hooks';
 import { generateMustNotQuery, generateQuery, IFilterSettingsModel } from 'tno-core';
 
 /**

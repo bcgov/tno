@@ -6,7 +6,7 @@ import {
   type ITopicScoreSourceModel,
   type ITopicScoreTestRequestModel,
   type ITopicScoreTestResultModel,
-} from 'features/admin/topic-score-rules/interfaces';
+} from '@/editor/features/admin/topic-score-rules/interfaces';
 import React from 'react';
 import { type ITopicScoreRuleModel, useApi } from 'tno-core';
 

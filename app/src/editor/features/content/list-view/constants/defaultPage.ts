@@ -1,4 +1,4 @@
-import { type IContentSearchResult } from 'store/slices';
+import { type IContentSearchResult } from '@/editor/store/slices';
 import { type IPage } from 'tno-core';
 
 export const defaultPage: IPage<IContentSearchResult> = {

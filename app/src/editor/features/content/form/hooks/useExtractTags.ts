@@ -1,5 +1,5 @@
 import { useFormikContext } from 'formik';
-import { useLookup } from 'store/hooks';
+import { useLookup } from '@/editor/store/hooks';
 
 import { type IContentForm } from '../interfaces';
 

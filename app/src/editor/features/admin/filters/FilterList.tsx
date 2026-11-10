@@ -1,9 +1,9 @@
-import { FormPage } from 'components/formpage';
+import { FormPage } from '@/editor/components/formpage';
 import React from 'react';
 import { FaRegClipboard } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
-import { useFilters } from 'store/hooks/admin';
-import { useAdminStore } from 'store/slices';
+import { useFilters } from '@/editor/store/hooks/admin';
+import { useAdminStore } from '@/editor/store/slices';
 import {
   CellCheckbox,
   CellEllipsis,

@@ -1,14 +1,14 @@
-import { ContentList } from 'components/content-list';
-import { RefreshButton } from 'components/refresh-button';
-import { PageSection } from 'components/section';
-import { useActionFilters } from 'features/search-page/hooks';
-import { filterFormat } from 'features/search-page/utils';
-import { castToSearchResult } from 'features/utils';
-import { IContentSearchResult } from 'features/utils/interfaces';
+import { ContentList } from '@/subscriber/components/content-list';
+import { RefreshButton } from '@/subscriber/components/refresh-button';
+import { PageSection } from '@/subscriber/components/section';
+import { useActionFilters } from '@/subscriber/features/search-page/hooks';
+import { filterFormat } from '@/subscriber/features/search-page/utils';
+import { castToSearchResult } from '@/subscriber/features/utils';
+import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 import { noop } from 'lodash';
 import React from 'react';
 import { FaArrowsRotate } from 'react-icons/fa6';
-import { useApiHub, useContent, useSettings } from 'store/hooks';
+import { useApiHub, useContent, useSettings } from '@/subscriber/store/hooks';
 import {
   generateQuery,
   IContentMessageModel,

@@ -1,4 +1,4 @@
-import { IMinisterModel } from 'store/hooks/subscriber/interfaces/IMinisterModel';
+import { IMinisterModel } from '@/subscriber/store/hooks/subscriber/interfaces/IMinisterModel';
 import {
   IActionModel,
   ICacheModel,

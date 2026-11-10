@@ -5,9 +5,9 @@ import {
   type ITopicScoreSourceModel,
   type ITopicScoreTestRequestModel,
   type ITopicScoreTestResultModel,
-} from 'features/admin/topic-score-rules/interfaces';
+} from '@/editor/features/admin/topic-score-rules/interfaces';
 import React from 'react';
-import { useAjaxWrapper, useLookup } from 'store/hooks';
+import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
 import { type ITopicScoreRuleModel } from 'tno-core';
 
 import { useApiAdminTopicScores } from './useApiAdminTopicScores';

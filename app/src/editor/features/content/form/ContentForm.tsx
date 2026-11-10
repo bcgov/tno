@@ -1,13 +1,13 @@
-import { FormikForm } from 'components/formik';
-import { FormPage } from 'components/formpage';
+import { FormikForm } from '@/editor/components/formik';
+import { FormPage } from '@/editor/components/formpage';
 import { type FormikProps } from 'formik';
 import moment from 'moment';
 import React from 'react';
 import { FaBars, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import CreatableSelect from 'react-select/creatable';
-import { useLookup, useLookupOptions } from 'store/hooks';
-import { type IAjaxRequest } from 'store/slices';
+import { useLookup, useLookupOptions } from '@/editor/store/hooks';
+import { type IAjaxRequest } from '@/editor/store/slices';
 import {
   Area,
   Button,

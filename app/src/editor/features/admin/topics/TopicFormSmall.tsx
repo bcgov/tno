@@ -1,6 +1,6 @@
-import { FormikForm } from 'components/formik';
+import { FormikForm } from '@/editor/components/formik';
 import React from 'react';
-import { useApp } from 'store/hooks';
+import { useApp } from '@/editor/store/hooks';
 import {
   Button,
   ButtonVariant,

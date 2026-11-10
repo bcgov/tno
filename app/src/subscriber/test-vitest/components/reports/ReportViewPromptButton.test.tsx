@@ -10,7 +10,7 @@ const state = vi.hoisted(() => ({
   values: { sections: [] as any[] },
 }));
 
-vi.mock('store/hooks', () => ({
+vi.mock('@/subscriber/store/hooks', () => ({
   useReportAI: () => ({ describeInstanceSection: state.describe }),
 }));
 vi.mock('../../../features/my-reports/edit/ReportEditContext', () => ({

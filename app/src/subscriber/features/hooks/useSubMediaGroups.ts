@@ -1,7 +1,7 @@
-import { ISubMediaGroupItem } from 'features/search-page/components/advanced-search/interfaces';
-import { IGroupOption } from 'features/search-page/components/advanced-search/interfaces/IGroupOption';
+import { ISubMediaGroupItem } from '@/subscriber/features/search-page/components/advanced-search/interfaces';
+import { IGroupOption } from '@/subscriber/features/search-page/components/advanced-search/interfaces/IGroupOption';
 import { useEffect, useMemo, useState } from 'react';
-import { useApp } from 'store/hooks';
+import { useApp } from '@/subscriber/store/hooks';
 import { IMediaTypeModel, ISeriesModel, ISourceModel, ListOptionName } from 'tno-core';
 
 interface ILookup {

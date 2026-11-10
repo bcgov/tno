@@ -1,5 +1,5 @@
-import { type IContentListFilter } from 'features/content/interfaces';
-import { defaultPage } from 'features/content/list-view/constants';
+import { type IContentListFilter } from '@/editor/features/content/interfaces';
+import { defaultPage } from '@/editor/features/content/list-view/constants';
 import moment from 'moment';
 import { ContentTypeName, type ISourceModel } from 'tno-core';
 

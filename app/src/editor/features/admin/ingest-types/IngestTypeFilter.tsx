@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAdminStore } from 'store/slices';
+import { useAdminStore } from '@/editor/store/slices';
 import { IconButton, Row, Text } from 'tno-core';
 
 interface IIngestTypeFilterProps {

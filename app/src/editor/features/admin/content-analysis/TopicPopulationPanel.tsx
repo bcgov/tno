@@ -1,6 +1,6 @@
 import React from 'react';
 import { toast } from 'react-toastify';
-import { useTopicPopulation } from 'store/hooks/admin';
+import { useTopicPopulation } from '@/editor/store/hooks/admin';
 import { Button, Col, OptionItem, Row, Select } from 'tno-core';
 
 import { type ITopicPopulationSettingsModel, TopicPopulationModeName } from './interfaces';

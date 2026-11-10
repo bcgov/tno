@@ -6,14 +6,14 @@ import ReportInstancePreview from '../../../features/reports/ReportInstancePrevi
 
 const state = vi.hoisted(() => ({ id: '31', view: vi.fn(), report: vi.fn() }));
 vi.mock('react-router-dom', () => ({ useParams: () => ({ id: state.id }) }));
-vi.mock('store/hooks', () => ({
+vi.mock('@/editor/store/hooks', () => ({
   useReports: () => [{ getReport: state.report }],
   useReportInstances: () => [{ viewReportInstance: state.view }],
   useApp: () => [{}],
   useSettings: () => ({}),
   useApiHub: () => ({ useHubEffect: () => {} }),
 }));
-vi.mock('store/hooks/admin', () => ({
+vi.mock('@/editor/store/hooks/admin', () => ({
   useUsers: () => [{}, { getDistributionListById: vi.fn() }],
 }));
 vi.mock('../../../features/reports/styled', () => ({ ReportPreview: 'div' }));

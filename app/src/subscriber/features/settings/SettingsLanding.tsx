@@ -1,6 +1,6 @@
-import { Action } from 'components/action';
-import { PageSection } from 'components/section';
-import { MyColleaguesLanding } from 'features/my-colleagues';
+import { Action } from '@/subscriber/components/action';
+import { PageSection } from '@/subscriber/components/section';
+import { MyColleaguesLanding } from '@/subscriber/features/my-colleagues';
 import React from 'react';
 import { FaCog } from 'react-icons/fa';
 import { Col, Row, Show } from 'tno-core';

@@ -1,6 +1,6 @@
 import React from 'react';
-import { useAjaxWrapper } from 'store/hooks';
-import { useAppStore, useProfileStore } from 'store/slices';
+import { useAjaxWrapper } from '@/subscriber/store/hooks';
+import { useAppStore, useProfileStore } from '@/subscriber/store/slices';
 import {
   IPaged,
   ISubscriberUserModel,

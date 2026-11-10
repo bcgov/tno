@@ -1,6 +1,6 @@
-import { TableBuilder, TableExporter } from 'components/export';
+import { TableBuilder, TableExporter } from '@/subscriber/components/export';
 import React, { useEffect, useState } from 'react';
-import { useUsers } from 'store/hooks';
+import { useUsers } from '@/subscriber/store/hooks';
 import { UserAccountTypeName } from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';

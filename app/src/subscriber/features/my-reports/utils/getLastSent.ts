@@ -1,4 +1,4 @@
-import { formatDate } from 'features/utils';
+import { formatDate } from '@/subscriber/features/utils';
 import { IReportModel } from 'tno-core';
 
 /**

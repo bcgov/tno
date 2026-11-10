@@ -1,6 +1,6 @@
 import React from 'react';
-import { useLookup } from 'store/hooks';
-import { useTopicScores } from 'store/hooks/admin';
+import { useLookup } from '@/editor/store/hooks';
+import { useTopicScores } from '@/editor/store/hooks/admin';
 import {
   Button,
   Checkbox,

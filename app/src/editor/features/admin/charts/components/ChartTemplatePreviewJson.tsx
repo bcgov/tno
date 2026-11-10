@@ -8,7 +8,7 @@ import { highlight, languages } from 'prismjs';
 import React from 'react';
 import { FaAngleDown, FaEraser, FaMinus, FaPlay } from 'react-icons/fa6';
 import Editor from 'react-simple-code-editor';
-import { useChartTemplates } from 'store/hooks/admin';
+import { useChartTemplates } from '@/editor/store/hooks/admin';
 import { Col, type IChartPreviewRequestModel, Row, ToggleButton } from 'tno-core';
 
 import { useChartTemplateContext } from '../ChartTemplateContext';

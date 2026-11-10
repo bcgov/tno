@@ -4,7 +4,7 @@ import {
   parseDefinition,
   remapDefinition,
   serializeDefinition,
-} from 'features/admin/automation/designer';
+} from '@/editor/features/admin/automation/designer';
 
 const definition = parseDefinition(
   JSON.stringify({

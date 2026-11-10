@@ -6,10 +6,10 @@ import {
   type IAnalysisFailureModel,
   type IAnalysisQueueModel,
   type IContentAnalysisSettingsModel,
-} from 'features/admin/content-analysis/interfaces';
-import { type IAnalysisRequestModel } from 'features/content/form/interfaces';
+} from '@/editor/features/admin/content-analysis/interfaces';
+import { type IAnalysisRequestModel } from '@/editor/features/content/form/interfaces';
 import React from 'react';
-import { useAjaxWrapper } from 'store/hooks';
+import { useAjaxWrapper } from '@/editor/store/hooks';
 import { useApi } from 'tno-core';
 
 export interface IContentAnalysisAdminController {

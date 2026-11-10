@@ -1,7 +1,7 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { toast } from 'react-toastify';
-import { useReports } from 'store/hooks/admin';
+import { useReports } from '@/editor/store/hooks/admin';
 import {
   Checkbox,
   FlexboxTable,

@@ -1,10 +1,10 @@
-import { Action } from 'components/action';
-import { Section } from 'components/section';
-import { SectionLabel } from 'features/my-reports/components';
-import { IReportForm } from 'features/my-reports/interfaces';
+import { Action } from '@/subscriber/components/action';
+import { Section } from '@/subscriber/components/section';
+import { SectionLabel } from '@/subscriber/features/my-reports/components';
+import { IReportForm } from '@/subscriber/features/my-reports/interfaces';
 import React from 'react';
 import { FaAngleDown, FaGripVertical, FaMinus } from 'react-icons/fa6';
-import { useFilters, useFolders, useReports } from 'store/hooks';
+import { useFilters, useFolders, useReports } from '@/subscriber/store/hooks';
 import { Col, ReportSectionTypeName, Row, Show } from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';

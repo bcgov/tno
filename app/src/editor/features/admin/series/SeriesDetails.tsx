@@ -1,11 +1,11 @@
-import { FormikForm } from 'components/formik';
+import { FormikForm } from '@/editor/components/formik';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useLookup } from 'store/hooks';
-import { useSeries } from 'store/hooks/admin';
+import { useLookup } from '@/editor/store/hooks';
+import { useSeries } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,

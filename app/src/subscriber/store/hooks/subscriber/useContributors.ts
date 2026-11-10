@@ -1,6 +1,6 @@
 import React from 'react';
-import { useAjaxWrapper } from 'store/hooks';
-import { IProfileState, useProfileStore } from 'store/slices';
+import { useAjaxWrapper } from '@/subscriber/store/hooks';
+import { IProfileState, useProfileStore } from '@/subscriber/store/slices';
 import { IContributorModel, useApiSubscriberContributors } from 'tno-core';
 
 interface IContributorController {

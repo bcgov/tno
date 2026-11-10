@@ -1,8 +1,8 @@
-import { FormPage } from 'components/formpage';
+import { FormPage } from '@/editor/components/formpage';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useLLMs } from 'store/hooks/admin';
+import { useLLMs } from '@/editor/store/hooks/admin';
 import { Col, FlexboxTable, IconButton, type ILLMModel, Modal, Row, useModal } from 'tno-core';
 
 import { getColumns } from './constants';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ILookupState, useLookupStore } from 'store/slices';
+import { ILookupState, useLookupStore } from '@/subscriber/store/slices';
 import {
   getFromLocalStorage,
   IActionModel,

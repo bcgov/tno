@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from 'store/hooks';
-import { useMinisters } from 'store/hooks/admin';
+import { useApp } from '@/editor/store/hooks';
+import { useMinisters } from '@/editor/store/hooks/admin';
 import { Col, FlexboxTable, IconButton, type IMinisterModel, Row } from 'tno-core';
 
 import { columns } from './constants';

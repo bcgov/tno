@@ -1,14 +1,14 @@
-import { Status } from 'components/status';
-import { TabControl } from 'components/tab-control';
-import { AdvancedSearchKeys } from 'features/content/constants';
+import { Status } from '@/editor/components/status';
+import { TabControl } from '@/editor/components/tab-control';
+import { AdvancedSearchKeys } from '@/editor/features/content/constants';
 import {
   type IContentListAdvancedFilter,
   type IContentListFilter,
-} from 'features/content/interfaces';
+} from '@/editor/features/content/interfaces';
 import { FaBug, FaCheckCircle, FaClock, FaFeather } from 'react-icons/fa';
 import { FaCirclePause, FaRegCircleRight } from 'react-icons/fa6';
-import { useContent } from 'store/hooks';
-import { type IContentSearchResult } from 'store/slices';
+import { useContent } from '@/editor/store/hooks';
+import { type IContentSearchResult } from '@/editor/store/slices';
 import {
   CellDate,
   CellEllipsis,

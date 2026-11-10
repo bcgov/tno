@@ -2,10 +2,10 @@ import {
   type ILLMMigrationCheckModel,
   type ILLMMigrationResultModel,
   type ILLMUsageModel,
-} from 'features/admin/llms/interfaces';
+} from '@/editor/features/admin/llms/interfaces';
 import React from 'react';
-import { useAjaxWrapper, useLookup } from 'store/hooks';
-import { type IAdminState, useAdminStore } from 'store/slices';
+import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
+import { type IAdminState, useAdminStore } from '@/editor/store/slices';
 import { type ILLMModel, useApiAdminLLMs } from 'tno-core';
 
 import { useApiAdminLLMUsage } from './useApiAdminLLMUsage';

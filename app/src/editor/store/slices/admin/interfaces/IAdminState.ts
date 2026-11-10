@@ -1,5 +1,5 @@
-import { type IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
-import { type IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
+import { type IUserListFilter } from '@/editor/features/admin/users/interfaces/IUserListFilter';
+import { type IWorkOrderListFilter } from '@/editor/features/admin/work-orders/interfaces/IWorkOrderListFilter';
 import {
   type IActionModel,
   type IChartTemplateModel,

@@ -1,16 +1,16 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { ReportFormDetails } from 'features/admin/reports/ReportFormDetails';
+import { ReportFormDetails } from '@/editor/features/admin/reports/ReportFormDetails';
 import { Formik, useFormikContext } from 'formik';
 import React from 'react';
-import { TestWrapper } from 'test/utils';
+import { TestWrapper } from '@/editor/test-vitest/utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Stable identities, the way the Redux-backed hooks behave.
 const app = vi.hoisted(() => ({ state: { userInfo: { id: 1, roles: [] as string[] } } }));
 const users = vi.hoisted(() => ({ findUsers: vi.fn() }));
 
-vi.mock('store/hooks', () => ({ useApp: () => [app.state] }));
-vi.mock('store/hooks/admin', () => ({ useUsers: () => [{}, users] }));
+vi.mock('@/editor/store/hooks', () => ({ useApp: () => [app.state] }));
+vi.mock('@/editor/store/hooks/admin', () => ({ useUsers: () => [{}, users] }));
 
 const owner = { id: 900, username: 'jdoe', displayName: 'Jane Doe', isEnabled: true };
 const other = { id: 901, username: 'bsmith', displayName: 'Bob Smith', isEnabled: true };

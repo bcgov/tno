@@ -1,5 +1,5 @@
-import { FormikForm } from 'components/formik';
-import { PageSection } from 'components/section';
+import { FormikForm } from '@/subscriber/components/formik';
+import { PageSection } from '@/subscriber/components/section';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -10,8 +10,8 @@ import {
   useReports,
   useReportTemplates,
   useSettings,
-} from 'store/hooks';
-import { useProfileStore } from 'store/slices';
+} from '@/subscriber/store/hooks';
+import { useProfileStore } from '@/subscriber/store/slices';
 import {
   Col,
   IReportInstanceContentModel,

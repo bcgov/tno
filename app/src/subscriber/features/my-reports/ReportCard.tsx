@@ -1,11 +1,11 @@
-import { Action } from 'components/action';
-import { Button } from 'components/button';
-import { Section } from 'components/section';
-import { formatDate } from 'features/utils';
+import { Action } from '@/subscriber/components/action';
+import { Button } from '@/subscriber/components/button';
+import { Section } from '@/subscriber/components/section';
+import { formatDate } from '@/subscriber/features/utils';
 import React from 'react';
 import { FaChartPie, FaEye, FaGear, FaTrashCan } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
-import { useApp, useReports } from 'store/hooks';
+import { useApp, useReports } from '@/subscriber/store/hooks';
 import { Col, IReportModel, ReportSectionTypeName, Row, Show, Spinner } from 'tno-core';
 
 import { ReportKindIcon } from './components';

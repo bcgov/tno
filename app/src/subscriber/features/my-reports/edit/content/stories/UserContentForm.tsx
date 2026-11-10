@@ -1,10 +1,10 @@
-import { IReportInstanceContentForm } from 'features/my-reports/interfaces';
-import { IContentValidationErrors } from 'features/my-reports/interfaces/IContentValidationErrors';
-import { getTime } from 'features/my-reports/utils';
-import { formatDate } from 'features/utils';
+import { IReportInstanceContentForm } from '@/subscriber/features/my-reports/interfaces';
+import { IContentValidationErrors } from '@/subscriber/features/my-reports/interfaces/IContentValidationErrors';
+import { getTime } from '@/subscriber/features/my-reports/utils';
+import { formatDate } from '@/subscriber/features/utils';
 import moment from 'moment';
 import React from 'react';
-import { useLookup } from 'store/hooks';
+import { useLookup } from '@/subscriber/store/hooks';
 import {
   Col,
   FieldSize,

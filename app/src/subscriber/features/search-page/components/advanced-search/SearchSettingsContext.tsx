@@ -1,5 +1,5 @@
 import React from 'react';
-import { useContent } from 'store/hooks';
+import { useContent } from '@/subscriber/store/hooks';
 import { IFilterSettingsModel } from 'tno-core';
 
 /** The settings a search form shows, and how it changes them. */

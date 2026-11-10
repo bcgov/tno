@@ -1,4 +1,4 @@
-import { FormPage } from 'components/formpage';
+import { FormPage } from '@/editor/components/formpage';
 import styled from 'styled-components';
 
 export const IngestTypeList = styled(FormPage)`

@@ -1,4 +1,4 @@
-import { LightweightModal } from 'components/lightweight-modal/LightweightModal';
+import { LightweightModal } from '@/subscriber/components/lightweight-modal/LightweightModal';
 import React from 'react';
 
 import { IDPOptions } from './IDPOptions';

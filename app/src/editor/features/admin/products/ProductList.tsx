@@ -1,7 +1,7 @@
-import { FormPage } from 'components/formpage';
+import { FormPage } from '@/editor/components/formpage';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useProducts } from 'store/hooks/admin';
+import { useProducts } from '@/editor/store/hooks/admin';
 import {
   CellCheckbox,
   Col,

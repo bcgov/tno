@@ -1,4 +1,4 @@
-import { normalizeChartData } from 'features/my-reports/edit/settings/template/utils/normalizeChartData';
+import { normalizeChartData } from '@/subscriber/features/my-reports/edit/settings/template/utils/normalizeChartData';
 import { describe, expect, it } from 'vitest';
 
 describe('normalizeChartData', () => {

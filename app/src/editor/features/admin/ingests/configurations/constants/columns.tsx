@@ -1,4 +1,4 @@
-import { ComboBox, type IComboOption } from 'features/admin/automation/designer';
+import { ComboBox, type IComboOption } from '@/editor/features/admin/automation/designer';
 import { FaTrash } from 'react-icons/fa';
 import { Button, ButtonVariant, FieldSize, FormikText, type ITableHookColumn } from 'tno-core';
 

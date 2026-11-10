@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLookup, useSettings } from 'store/hooks';
+import { useLookup, useSettings } from '@/subscriber/store/hooks';
 import { IFilterActionSettingsModel } from 'tno-core';
 
 /**

@@ -1,7 +1,7 @@
 import isEqual from 'lodash/isEqual';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useWorkOrders } from 'store/hooks/admin/useWorkOrders';
+import { useWorkOrders } from '@/editor/store/hooks/admin/useWorkOrders';
 import {
   CellDate,
   CellEllipsis,

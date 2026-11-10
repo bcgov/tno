@@ -1,5 +1,5 @@
-import { Action } from 'components/action';
-import { MenuButton } from 'components/button';
+import { Action } from '@/subscriber/components/action';
+import { MenuButton } from '@/subscriber/components/button';
 import { FaLock } from 'react-icons/fa6';
 import { FaCaretRight, FaRightToBracket } from 'react-icons/fa6';
 import { ReportStatusName, Row, Show } from 'tno-core';

@@ -1,4 +1,4 @@
-import { TimeInput } from 'components/form/timeinput';
+import { TimeInput } from '@/subscriber/components/form/timeinput';
 import moment from 'moment';
 import * as React from 'react';
 import ReactDatePicker from 'react-datepicker';

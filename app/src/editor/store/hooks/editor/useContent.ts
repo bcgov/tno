@@ -5,11 +5,11 @@ import {
 import {
   type IContentListAdvancedFilter,
   type IContentListFilter,
-} from 'features/content/interfaces';
+} from '@/editor/features/content/interfaces';
 import React from 'react';
-import { type ActionDelegate } from 'store';
-import { useContentStore } from 'store/slices';
-import { type IContentProps, type IContentState } from 'store/slices/content';
+import { type ActionDelegate } from '@/editor/store';
+import { useContentStore } from '@/editor/store/slices';
+import { type IContentProps, type IContentState } from '@/editor/store/slices/content';
 import {
   type IContentListModel,
   type IContentModel,

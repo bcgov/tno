@@ -1,5 +1,5 @@
-import { TableBuilder, TableExporter } from 'components/export';
-import { IReportForm } from 'features/my-reports/interfaces';
+import { TableBuilder, TableExporter } from '@/subscriber/components/export';
+import { IReportForm } from '@/subscriber/features/my-reports/interfaces';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { ReportSectionTypeName } from 'tno-core';

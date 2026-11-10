@@ -1,4 +1,4 @@
-import { IContentState } from 'store/slices';
+import { IContentState } from '@/subscriber/store/slices';
 
 export const determineStore = (target: keyof IContentState) => {
   switch (target) {

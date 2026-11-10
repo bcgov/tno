@@ -1,6 +1,6 @@
-import { IReportResultForm } from 'features/my-reports/interfaces';
+import { IReportResultForm } from '@/subscriber/features/my-reports/interfaces';
 import React from 'react';
-import { ActionDelegate, useAppDispatch, useAppSelector } from 'store';
+import { ActionDelegate, useAppDispatch, useAppSelector } from '@/subscriber/store';
 
 import { storeReportView } from '.';
 import { IReportsState } from './interfaces';

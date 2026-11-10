@@ -2,8 +2,8 @@ import { useFormikContext } from 'formik';
 import { debounce, noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
-import { useApp } from 'store/hooks';
-import { useUsers } from 'store/hooks/admin';
+import { useApp } from '@/editor/store/hooks';
+import { useUsers } from '@/editor/store/hooks/admin';
 import {
   Col,
   FieldSize,

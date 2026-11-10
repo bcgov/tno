@@ -1,4 +1,4 @@
-import { Button } from 'components/button';
+import { Button } from '@/subscriber/components/button';
 import React from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { FaCaretRight } from 'react-icons/fa';

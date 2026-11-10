@@ -1,4 +1,4 @@
-import { type ISortBy } from 'features/interfaces';
+import { type ISortBy } from '@/editor/features/interfaces';
 
 /**
  * Creates an array of sort parameters from the provided sorting information.

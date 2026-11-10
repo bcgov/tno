@@ -1,4 +1,4 @@
-import { TimeInput } from 'components/form/timeinput';
+import { TimeInput } from '@/subscriber/components/form/timeinput';
 import { getIn } from 'formik';
 import {
   Col,

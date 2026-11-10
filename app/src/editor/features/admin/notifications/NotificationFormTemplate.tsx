@@ -2,8 +2,8 @@ import { useFormikContext } from 'formik';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
-import { useSettings } from 'store/hooks';
-import { useNotificationTemplates } from 'store/hooks/admin';
+import { useSettings } from '@/editor/store/hooks';
+import { useNotificationTemplates } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,

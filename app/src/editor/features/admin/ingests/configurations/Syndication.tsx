@@ -2,7 +2,7 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { createFilter } from 'react-select';
-import { useLookup } from 'store/hooks';
+import { useLookup } from '@/editor/store/hooks';
 import {
   Button,
   ButtonVariant,

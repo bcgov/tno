@@ -1,7 +1,7 @@
-import { InputOption } from 'features/content/list-view/components/tool-bar/filter';
+import { InputOption } from '@/editor/features/content/list-view/components/tool-bar/filter';
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { useLookup } from 'store/hooks';
+import { useLookup } from '@/editor/store/hooks';
 import {
   Col,
   FormikCheckbox,

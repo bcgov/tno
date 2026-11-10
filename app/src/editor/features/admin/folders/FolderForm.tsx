@@ -1,9 +1,9 @@
-import { FormikForm } from 'components/formik';
+import { FormikForm } from '@/editor/components/formik';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApp } from 'store/hooks';
-import { useFolders } from 'store/hooks/admin';
+import { useApp } from '@/editor/store/hooks';
+import { useFolders } from '@/editor/store/hooks/admin';
 import { Button, ButtonVariant, IconButton, Modal, Row, Show, Tab, Tabs, useModal } from 'tno-core';
 
 import { defaultFolder } from './constants';

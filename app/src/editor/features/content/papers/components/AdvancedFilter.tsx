@@ -1,12 +1,12 @@
-import { AdvancedSearchKeys, advancedSearchOptions } from 'features/content/constants';
+import { AdvancedSearchKeys, advancedSearchOptions } from '@/editor/features/content/constants';
 import {
   type IContentListAdvancedFilter,
   type IContentListFilter,
-} from 'features/content/interfaces';
+} from '@/editor/features/content/interfaces';
 import moment from 'moment';
 import React from 'react';
 import { FaArrowAltCircleRight, FaBinoculars } from 'react-icons/fa';
-import { useContent, useLookupOptions } from 'store/hooks';
+import { useContent, useLookupOptions } from '@/editor/store/hooks';
 import {
   Checkbox,
   Col,

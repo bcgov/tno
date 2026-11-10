@@ -2,7 +2,7 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaSearch } from 'react-icons/fa';
 import { FaPlus, FaTrash } from 'react-icons/fa6';
-import { useUsers } from 'store/hooks/admin';
+import { useUsers } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,

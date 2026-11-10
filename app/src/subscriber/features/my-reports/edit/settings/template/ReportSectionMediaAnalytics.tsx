@@ -1,6 +1,6 @@
-import { Button } from 'components/button';
+import { Button } from '@/subscriber/components/button';
 import React from 'react';
-import { useReports } from 'store/hooks';
+import { useReports } from '@/subscriber/store/hooks';
 import {
   Checkbox,
   Col,

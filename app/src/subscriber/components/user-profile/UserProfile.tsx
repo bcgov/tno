@@ -1,12 +1,12 @@
-import { ScreenSizes } from 'components/layout/constants';
-import { toggleVacationMode } from 'features/settings/MyAccountSettings';
+import { ScreenSizes } from '@/subscriber/components/layout/constants';
+import { toggleVacationMode } from '@/subscriber/features/settings/MyAccountSettings';
 import React from 'react';
 import { BiLogOut } from 'react-icons/bi';
 import { FaChevronCircleDown, FaUmbrellaBeach, FaUserCircle } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
-import { useUsers } from 'store/hooks';
-import { useProfileStore } from 'store/slices';
+import { useUsers } from '@/subscriber/store/hooks';
+import { useProfileStore } from '@/subscriber/store/slices';
 import { Claim, Row, Show, useKeycloakWrapper, useWindowSize } from 'tno-core';
 
 import * as styled from './styled';

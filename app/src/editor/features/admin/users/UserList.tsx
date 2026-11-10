@@ -1,8 +1,8 @@
-import { makeUserFilter } from 'features/admin/users/utils/makeUserFilter';
+import { makeUserFilter } from '@/editor/features/admin/users/utils/makeUserFilter';
 import _ from 'lodash';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUsers } from 'store/hooks/admin';
+import { useUsers } from '@/editor/store/hooks/admin';
 import {
   CellCheckbox,
   CellDate,

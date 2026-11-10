@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { type IChartTemplateUsageModel } from 'features/admin/charts/interfaces';
+import { type IChartTemplateUsageModel } from '@/editor/features/admin/charts/interfaces';
 import React from 'react';
 import { useApi } from 'tno-core';
 

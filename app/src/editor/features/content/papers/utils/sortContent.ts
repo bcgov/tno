@@ -1,4 +1,4 @@
-import { type ISortBy } from 'features/interfaces';
+import { type ISortBy } from '@/editor/features/interfaces';
 import { getIn } from 'formik';
 import { type IContentModel } from 'tno-core';
 

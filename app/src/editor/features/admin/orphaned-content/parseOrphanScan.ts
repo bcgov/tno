@@ -1,4 +1,4 @@
-import { IOrphanScan } from 'store/hooks/admin/useOrphanedContent';
+import { IOrphanScan } from '@/editor/store/hooks/admin/useOrphanedContent';
 
 export class OrphanScanResponseError extends Error {
   constructor() {

@@ -2,8 +2,8 @@ import { useFormikContext } from 'formik';
 import moment from 'moment';
 import React from 'react';
 import { type SortingRule } from 'react-table';
-import { useApp, useLookup } from 'store/hooks';
-import { useContentReferences } from 'store/hooks/admin';
+import { useApp, useLookup } from '@/editor/store/hooks';
+import { useContentReferences } from '@/editor/store/hooks/admin';
 import {
   FieldSize,
   IconButton,

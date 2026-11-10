@@ -1,9 +1,9 @@
-import { showOnlyOptions, ShowOnlyValues } from 'features/content/constants';
-import { type IContentListFilter } from 'features/content/interfaces';
+import { showOnlyOptions, ShowOnlyValues } from '@/editor/features/content/constants';
+import { type IContentListFilter } from '@/editor/features/content/interfaces';
 import React from 'react';
 import { FaEye } from 'react-icons/fa';
-import { type ActionDelegate } from 'store';
-import { useContent } from 'store/hooks';
+import { type ActionDelegate } from '@/editor/store';
+import { useContent } from '@/editor/store/hooks';
 import {
   Checkbox,
   Col,

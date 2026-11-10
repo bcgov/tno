@@ -2,7 +2,7 @@ import { useFormikContext } from 'formik';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
-import { useAVOverviewTemplates, useNotifications, useReports } from 'store/hooks/admin';
+import { useAVOverviewTemplates, useNotifications, useReports } from '@/editor/store/hooks/admin';
 import {
   AVOverviewTemplateTypeName,
   Col,

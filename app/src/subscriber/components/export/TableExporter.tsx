@@ -1,4 +1,4 @@
-import { Button } from 'components/button';
+import { Button } from '@/subscriber/components/button';
 import React from 'react';
 import { FaFileExcel } from 'react-icons/fa6';
 import { utils, writeFileXLSX } from 'sheetjs';

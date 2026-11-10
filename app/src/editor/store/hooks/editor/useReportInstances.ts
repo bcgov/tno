@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAjaxWrapper } from 'store/hooks';
+import { useAjaxWrapper } from '@/editor/store/hooks';
 import { type IReportResultModel, useApiEditorReportInstances } from 'tno-core';
 
 interface IReportInstanceController {

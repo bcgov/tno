@@ -1,8 +1,8 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaPaste } from 'react-icons/fa';
-import { useLookup } from 'store/hooks';
-import { useAppStore } from 'store/slices';
+import { useLookup } from '@/editor/store/hooks';
+import { useAppStore } from '@/editor/store/slices';
 import {
   Button,
   ButtonVariant,

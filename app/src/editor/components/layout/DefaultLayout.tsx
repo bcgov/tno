@@ -1,10 +1,10 @@
-import { UnauthenticatedHome } from 'features/home';
-import { UserInfo } from 'features/login';
-import { Menu } from 'features/navbar';
+import { UnauthenticatedHome } from '@/editor/features/home';
+import { UserInfo } from '@/editor/features/login';
+import { Menu } from '@/editor/features/navbar';
 import React from 'react';
 import { Link, Outlet, useLocation, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { type IWorkOrderToast, useApiHub, useToastError } from 'store/hooks';
+import { type IWorkOrderToast, useApiHub, useToastError } from '@/editor/store/hooks';
 import {
   Button,
   ButtonVariant,

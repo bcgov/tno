@@ -16,7 +16,7 @@ const state = vi.hoisted(() => ({
   storeSearchFilter: vi.fn(),
   warn: vi.fn(),
 }));
-vi.mock('store/hooks', () => ({
+vi.mock('@/subscriber/store/hooks', () => ({
   useApp: () => [{ requests: [] }],
   useContent: () => [
     { search: { filter: state.filter }, searchResults: { filter: state.secondaryFilter } },
@@ -29,7 +29,7 @@ vi.mock('store/hooks', () => ({
   useFilters: () => [{}, { getFilter: state.getFilter }],
   useSettings: () => ({ frontPageImageMediaTypeId: state.frontPageImageMediaTypeId }),
 }));
-vi.mock('store/slices', () => ({
+vi.mock('@/subscriber/store/slices', () => ({
   useProfileStore: () => [
     { from: 0, filter: state.activeFilter },
     { storeFrom: vi.fn(), storeFilter: state.storeFilter },
@@ -37,18 +37,18 @@ vi.mock('store/slices', () => ({
 }));
 vi.mock('react-router-dom', () => ({ useParams: () => state.params }));
 vi.mock('react-toastify', () => ({ toast: { warn: state.warn } }));
-vi.mock('features/my-searches/hooks', () => ({
+vi.mock('@/subscriber/features/my-searches/hooks', () => ({
   useElastic: () => (settings: any) => ({ query: { settings }, from: 0 }),
 }));
-vi.mock('features/utils', () => ({ castToSearchResult: (c: any) => c }));
-vi.mock('components/basic-search', () => ({ BasicSearch: () => null }));
-vi.mock('components/content-list', () => ({ ContentList: () => null, ViewOptions: () => null }));
-vi.mock('components/date-filter', () => ({ DateFilter: () => null }));
-vi.mock('components/media-type-filters', () => ({ FilterOptions: () => null }));
-vi.mock('components/section', () => ({
+vi.mock('@/subscriber/features/utils', () => ({ castToSearchResult: (c: any) => c }));
+vi.mock('@/subscriber/components/basic-search', () => ({ BasicSearch: () => null }));
+vi.mock('@/subscriber/components/content-list', () => ({ ContentList: () => null, ViewOptions: () => null }));
+vi.mock('@/subscriber/components/date-filter', () => ({ DateFilter: () => null }));
+vi.mock('@/subscriber/components/media-type-filters', () => ({ FilterOptions: () => null }));
+vi.mock('@/subscriber/components/section', () => ({
   PageSection: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
-vi.mock('components/tool-bar', () => ({ ContentListActionBar: () => null }));
+vi.mock('@/subscriber/components/tool-bar', () => ({ ContentListActionBar: () => null }));
 vi.mock('../../../features/search-page/components', () => ({ AdvancedSearch: () => null }));
 vi.mock('../../../features/search-page/PreviousResults', () => ({ PreviousResults: () => null }));
 vi.mock('../../../features/search-page/SearchPageContext', () => ({

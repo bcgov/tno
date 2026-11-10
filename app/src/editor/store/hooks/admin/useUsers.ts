@@ -1,7 +1,7 @@
-import { type IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
+import { type IUserListFilter } from '@/editor/features/admin/users/interfaces/IUserListFilter';
 import React from 'react';
-import { useAjaxWrapper, useLookup } from 'store/hooks';
-import { type IAdminState, useAdminStore } from 'store/slices';
+import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
+import { type IAdminState, useAdminStore } from '@/editor/store/slices';
 import {
   type IPaged,
   type ITransferAccount,

@@ -1,5 +1,5 @@
-import { BasicSearch } from 'components/basic-search';
-import { UserProfile } from 'components/user-profile';
+import { BasicSearch } from '@/subscriber/components/basic-search';
+import { UserProfile } from '@/subscriber/components/user-profile';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Row, Show, useWindowSize } from 'tno-core';

@@ -1,6 +1,6 @@
-import { type IHistoryPurgePreviewModel } from 'features/admin/settings/interfaces';
+import { type IHistoryPurgePreviewModel } from '@/editor/features/admin/settings/interfaces';
 import React from 'react';
-import { useAjaxWrapper } from 'store/hooks';
+import { useAjaxWrapper } from '@/editor/store/hooks';
 
 import { useApiAdminHistory } from './useApiAdminHistory';
 

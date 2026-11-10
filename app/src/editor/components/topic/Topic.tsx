@@ -1,6 +1,6 @@
 import React from 'react';
 import Select from 'react-select';
-import { useLookup } from 'store/hooks';
+import { useLookup } from '@/editor/store/hooks';
 import { type ITopicModel, TopicTypeName } from 'tno-core';
 
 import {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAppDispatch, useAppSelector } from 'store';
+import { useAppDispatch, useAppSelector } from '@/subscriber/store';
 
 import { storeSettingsLoading, storeSettingsValues } from '.';
 import { ISettingsState } from './interfaces';

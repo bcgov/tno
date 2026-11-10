@@ -1,4 +1,4 @@
-import { Button } from 'components/button';
+import { Button } from '@/subscriber/components/button';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { FaRegQuestionCircle } from 'react-icons/fa';

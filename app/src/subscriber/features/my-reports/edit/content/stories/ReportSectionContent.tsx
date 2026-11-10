@@ -1,17 +1,17 @@
-import { Action } from 'components/action';
-import { Modal } from 'components/modal';
-import { RefreshButton } from 'components/refresh-button';
-import { IReportForm, IReportInstanceContentForm } from 'features/my-reports/interfaces';
+import { Action } from '@/subscriber/components/action';
+import { Modal } from '@/subscriber/components/modal';
+import { RefreshButton } from '@/subscriber/components/refresh-button';
+import { IReportForm, IReportInstanceContentForm } from '@/subscriber/features/my-reports/interfaces';
 import {
   createReportInstanceContent,
   sortContent,
   sortReportContent,
-} from 'features/my-reports/utils';
+} from '@/subscriber/features/my-reports/utils';
 import React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { FaArrowsRotate, FaPlus } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
-import { useApp, useLookup } from 'store/hooks';
+import { useApp, useLookup } from '@/subscriber/store/hooks';
 import {
   Col,
   FormikText,

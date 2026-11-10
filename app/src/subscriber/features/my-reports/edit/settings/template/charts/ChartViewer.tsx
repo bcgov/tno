@@ -11,8 +11,8 @@ import {
 } from 'chart.js';
 import ChartJS from 'chart.js/auto';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { Modal } from 'components/modal';
-import { useReportEditContext } from 'features/my-reports/edit/ReportEditContext';
+import { Modal } from '@/subscriber/components/modal';
+import { useReportEditContext } from '@/subscriber/features/my-reports/edit/ReportEditContext';
 import React from 'react';
 import { IChartSectionSettingsModel, Show, useModal } from 'tno-core';
 

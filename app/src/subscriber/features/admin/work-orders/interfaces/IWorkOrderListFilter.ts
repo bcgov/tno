@@ -1,4 +1,4 @@
-import { ISortBy } from 'features/utils/interfaces';
+import { ISortBy } from '@/subscriber/features/utils/interfaces';
 import { WorkOrderStatusName, WorkOrderTypeName } from 'tno-core';
 
 export interface IWorkOrderListFilter {

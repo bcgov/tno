@@ -1,15 +1,15 @@
-import { Action } from 'components/action';
-import { Modal } from 'components/modal';
-import { RefreshButton } from 'components/refresh-button';
-import { StartNextReportInfo } from 'features/my-reports/components';
-import { IReportForm, IReportInstanceContentForm } from 'features/my-reports/interfaces';
-import { sanitizeReport, toForm } from 'features/my-reports/utils';
+import { Action } from '@/subscriber/components/action';
+import { Modal } from '@/subscriber/components/modal';
+import { RefreshButton } from '@/subscriber/components/refresh-button';
+import { StartNextReportInfo } from '@/subscriber/features/my-reports/components';
+import { IReportForm, IReportInstanceContentForm } from '@/subscriber/features/my-reports/interfaces';
+import { sanitizeReport, toForm } from '@/subscriber/features/my-reports/utils';
 import React from 'react';
 import { FaArrowsRotate, FaToggleOff, FaToggleOn } from 'react-icons/fa6';
 import { FaAngleDown, FaMinus } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
-import { useReports, useUsers } from 'store/hooks';
-import { useProfileStore } from 'store/slices';
+import { useReports, useUsers } from '@/subscriber/store/hooks';
+import { useProfileStore } from '@/subscriber/store/slices';
 import { Checkbox, Loading, Show, ToggleButton, useModal } from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';

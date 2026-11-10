@@ -1,8 +1,8 @@
-import { formatDate } from 'features/utils';
-import { IContentSearchResult } from 'features/utils/interfaces';
+import { formatDate } from '@/subscriber/features/utils';
+import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 import moment from 'moment';
 import * as React from 'react';
-import { useLookup, useSettings } from 'store/hooks';
+import { useLookup, useSettings } from '@/subscriber/store/hooks';
 import { ContentTypeName, Row, Show } from 'tno-core';
 
 import { highlightTerms } from './utils/highlightTerms';

@@ -2,7 +2,7 @@ import { getIn, useFormikContext } from 'formik';
 import moment from 'moment';
 import React from 'react';
 import { FaToggleOff, FaToggleOn } from 'react-icons/fa';
-import { useLookupOptions } from 'store/hooks';
+import { useLookupOptions } from '@/editor/store/hooks';
 import {
   Button,
   ButtonVariant,

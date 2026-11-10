@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useChartTemplates } from 'store/hooks/admin';
+import { useChartTemplates } from '@/editor/store/hooks/admin';
 import { FlexboxTable, Show } from 'tno-core';
 
 import { getChartTemplateUsageColumns } from './constants';

@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { filterFormat } from 'features/search-page/utils/filterFormat';
+import { filterFormat } from '@/subscriber/features/search-page/utils/filterFormat';
 import React from 'react';
 import { IFilterSettingsModel, useFilterAIGenerationGuard } from 'tno-core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

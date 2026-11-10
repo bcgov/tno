@@ -1,7 +1,7 @@
-import { FormikForm } from 'components/formik';
+import { FormikForm } from '@/editor/components/formik';
 import React from 'react';
 import { toast } from 'react-toastify';
-import { useApp } from 'store/hooks';
+import { useApp } from '@/editor/store/hooks';
 import { Button, Col, FieldSize, FormikText, FormikTextArea, type IUserModel, Row } from 'tno-core';
 
 import { toUserModel } from './utils';

@@ -1,6 +1,6 @@
 import React from 'react';
-import { useAjaxWrapper } from 'store/hooks';
-import { useProfileStore } from 'store/slices';
+import { useAjaxWrapper } from '@/subscriber/store/hooks';
+import { useProfileStore } from '@/subscriber/store/slices';
 import {
   INotificationModel,
   IResponseErrorModel,

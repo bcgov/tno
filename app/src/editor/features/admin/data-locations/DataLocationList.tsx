@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDataLocations } from 'store/hooks/admin';
+import { useDataLocations } from '@/editor/store/hooks/admin';
 import { Col, FlexboxTable, IconButton, type IDataLocationModel, Row } from 'tno-core';
 
 import { columns } from './constants';

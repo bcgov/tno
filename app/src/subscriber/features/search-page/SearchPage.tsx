@@ -2,22 +2,22 @@ import {
   IndicesValidateQueryResponse,
   KnnSearchResponse,
 } from '@elastic/elasticsearch/lib/api/types';
-import { BasicSearch } from 'components/basic-search';
-import { ContentList, ViewOptions } from 'components/content-list';
-import { DateFilter } from 'components/date-filter';
-import { FilterOptions } from 'components/media-type-filters';
-import { PageSection } from 'components/section';
-import { ContentListActionBar } from 'components/tool-bar';
-import { useElastic } from 'features/my-searches/hooks';
-import { castToSearchResult } from 'features/utils';
-import { IContentSearchResult } from 'features/utils/interfaces';
+import { BasicSearch } from '@/subscriber/components/basic-search';
+import { ContentList, ViewOptions } from '@/subscriber/components/content-list';
+import { DateFilter } from '@/subscriber/components/date-filter';
+import { FilterOptions } from '@/subscriber/components/media-type-filters';
+import { PageSection } from '@/subscriber/components/section';
+import { ContentListActionBar } from '@/subscriber/components/tool-bar';
+import { useElastic } from '@/subscriber/features/my-searches/hooks';
+import { castToSearchResult } from '@/subscriber/features/utils';
+import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 import moment, { Moment } from 'moment';
 import React from 'react';
 import { FaBookmark, FaCaretLeft, FaCaretRight } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApp, useContent, useFilters, useSettings } from 'store/hooks';
-import { useProfileStore } from 'store/slices';
+import { useApp, useContent, useFilters, useSettings } from '@/subscriber/store/hooks';
+import { useProfileStore } from '@/subscriber/store/slices';
 import {
   Col,
   IContentModel,

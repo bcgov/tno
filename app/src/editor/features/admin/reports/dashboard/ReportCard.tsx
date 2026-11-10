@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaCircleChevronDown, FaCircleChevronUp } from 'react-icons/fa6';
-import { useApp } from 'store/hooks';
-import { useReports } from 'store/hooks/admin';
+import { useApp } from '@/editor/store/hooks';
+import { useReports } from '@/editor/store/hooks/admin';
 import {
   type IReportModel,
   type IUserReportModel,

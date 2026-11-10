@@ -4,9 +4,9 @@ import {
   type IAutomationVariantSummaryModel,
   parseRunSummary,
   RunOutcome,
-} from 'features/admin/automation/designer';
+} from '@/editor/features/admin/automation/designer';
 import React from 'react';
-import { TestWrapper } from 'test/utils';
+import { TestWrapper } from '@/editor/test-vitest/utils';
 
 /** A variant carrying only the members every engine-v2 run has ever written. */
 const legacyVariant = (): IAutomationVariantSummaryModel => ({

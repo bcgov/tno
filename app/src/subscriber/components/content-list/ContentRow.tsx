@@ -1,5 +1,5 @@
-import { formatSearch } from 'features/search-page/utils';
-import { IContentSearchResult } from 'features/utils/interfaces';
+import { formatSearch } from '@/subscriber/features/search-page/utils';
+import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 import React from 'react';
 import { FaCopyright, FaEyeSlash, FaX } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';

@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { RemoveScoringSource } from 'features/admin/topic-score-rules/RemoveScoringSource';
-import { SourcesPane } from 'features/admin/topic-score-rules/SourcesPane';
+import { RemoveScoringSource } from '@/editor/features/admin/topic-score-rules/RemoveScoringSource';
+import { SourcesPane } from '@/editor/features/admin/topic-score-rules/SourcesPane';
 import React from 'react';
-import { TestWrapper } from 'test/utils';
+import { TestWrapper } from '@/editor/test-vitest/utils';
 import { vi } from 'vitest';
 
 const source = {

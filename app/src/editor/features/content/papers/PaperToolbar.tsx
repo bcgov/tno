@@ -8,7 +8,7 @@ import {
   useNotifications,
   useReports,
   useSettings,
-} from 'store/hooks';
+} from '@/editor/store/hooks';
 import {
   ContentTypeName,
   type IOptionItem,

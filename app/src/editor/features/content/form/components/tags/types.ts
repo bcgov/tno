@@ -1,4 +1,4 @@
-import { type IContentForm } from 'features/content/form/interfaces';
+import { type IContentForm } from '@/editor/features/content/form/interfaces';
 import { type IOptionItem } from 'tno-core';
 
 /**

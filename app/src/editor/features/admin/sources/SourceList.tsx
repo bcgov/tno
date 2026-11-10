@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSources } from 'store/hooks/admin';
+import { useSources } from '@/editor/store/hooks/admin';
 import {
   CellCheckbox,
   CellEllipsis,

@@ -1,7 +1,7 @@
-import { Action } from 'components/action';
+import { Action } from '@/subscriber/components/action';
 import React from 'react';
 import { FaFileLines, FaRotateLeft, FaUserMinus, FaUserPlus } from 'react-icons/fa6';
-import { useApp } from 'store/hooks';
+import { useApp } from '@/subscriber/store/hooks';
 import {
   Col,
   IProductModel,

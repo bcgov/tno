@@ -1,16 +1,16 @@
-import { Action } from 'components/action';
-import { ContentList } from 'components/content-list';
-import { reorderDragItems } from 'components/content-list/utils';
-import { PageSection } from 'components/section';
-import { ContentListActionBar } from 'components/tool-bar';
-import { filterFormat } from 'features/search-page/utils';
-import { castToSearchResult } from 'features/utils';
-import { IContentSearchResult } from 'features/utils/interfaces';
+import { Action } from '@/subscriber/components/action';
+import { ContentList } from '@/subscriber/components/content-list';
+import { reorderDragItems } from '@/subscriber/components/content-list/utils';
+import { PageSection } from '@/subscriber/components/section';
+import { ContentListActionBar } from '@/subscriber/components/tool-bar';
+import { filterFormat } from '@/subscriber/features/search-page/utils';
+import { castToSearchResult } from '@/subscriber/features/utils';
+import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 import React from 'react';
 import { DropResult } from 'react-beautiful-dnd';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useContent } from 'store/hooks';
-import { useFolders } from 'store/hooks/subscriber/useFolders';
+import { useContent } from '@/subscriber/store/hooks';
+import { useFolders } from '@/subscriber/store/hooks/subscriber/useFolders';
 import { generateQuery, IContentModel, IFolderModel, Row } from 'tno-core';
 
 import * as styled from './styled';

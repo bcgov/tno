@@ -1,10 +1,10 @@
-import { FormikForm } from 'components/formik';
+import { FormikForm } from '@/editor/components/formik';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApp } from 'store/hooks';
-import { useReports } from 'store/hooks/admin';
-import { useAdminStore } from 'store/slices';
+import { useApp } from '@/editor/store/hooks';
+import { useReports } from '@/editor/store/hooks/admin';
+import { useAdminStore } from '@/editor/store/slices';
 import {
   Button,
   ButtonVariant,

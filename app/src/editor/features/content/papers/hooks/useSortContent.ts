@@ -1,7 +1,7 @@
-import { naturalSortValue } from 'features/content/list-view/utils/naturalSort';
-import { type ISortBy } from 'features/interfaces';
+import { naturalSortValue } from '@/editor/features/content/list-view/utils/naturalSort';
+import { type ISortBy } from '@/editor/features/interfaces';
 import { getIn } from 'formik';
-import { useLookup } from 'store/hooks';
+import { useLookup } from '@/editor/store/hooks';
 import { type IContentModel } from 'tno-core';
 
 import { defaultSort } from '../constants';

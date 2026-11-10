@@ -1,8 +1,8 @@
 import { render } from '@testing-library/react';
-import { FilterField } from 'features/admin/automation/designer';
-import { createOption } from 'features/admin/automation/utils';
+import { FilterField } from '@/editor/features/admin/automation/designer';
+import { createOption } from '@/editor/features/admin/automation/utils';
 import React from 'react';
-import { TestWrapper } from 'test/utils';
+import { TestWrapper } from '@/editor/test-vitest/utils';
 
 const options = [createOption('Vancouver Sun', 12), createOption('CPNEWS', 18)];
 

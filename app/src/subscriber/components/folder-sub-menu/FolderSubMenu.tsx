@@ -1,4 +1,4 @@
-import { FolderMenu } from 'features/content/view-content/FolderMenu';
+import { FolderMenu } from '@/subscriber/features/content/view-content/FolderMenu';
 import { FaFolderPlus } from 'react-icons/fa';
 import { Tooltip } from 'react-tooltip';
 import { IContentModel, IFolderContentModel, Row } from 'tno-core';

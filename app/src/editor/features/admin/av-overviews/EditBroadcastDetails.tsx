@@ -2,7 +2,7 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaEyeSlash } from 'react-icons/fa';
 import { MdEdit } from 'react-icons/md';
-import { useLookupOptions } from 'store/hooks';
+import { useLookupOptions } from '@/editor/store/hooks';
 import {
   Button,
   FieldSize,

@@ -1,5 +1,5 @@
 import { Formik, type FormikConfig, type FormikValues } from 'formik';
-import { useApp } from 'store/hooks';
+import { useApp } from '@/editor/store/hooks';
 import { Box, type SpinnerVariant } from 'tno-core';
 
 import * as styled from './styled';

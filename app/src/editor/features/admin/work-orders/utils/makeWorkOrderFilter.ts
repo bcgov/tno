@@ -1,4 +1,4 @@
-import { type ISortBy } from 'features/interfaces';
+import { type ISortBy } from '@/editor/features/interfaces';
 import { type IWorkOrderFilter } from 'tno-core';
 
 import { type IWorkOrderListFilter } from '../interfaces/IWorkOrderListFilter';

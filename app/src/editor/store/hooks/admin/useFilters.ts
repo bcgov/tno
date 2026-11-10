@@ -1,7 +1,7 @@
-import { type IFilterPageFilter } from 'features/admin/filters/interfaces';
+import { type IFilterPageFilter } from '@/editor/features/admin/filters/interfaces';
 import React from 'react';
-import { useAjaxWrapper, useLookup } from 'store/hooks';
-import { type IAdminState, useAdminStore } from 'store/slices';
+import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
+import { type IAdminState, useAdminStore } from '@/editor/store/slices';
 import {
   type IFilterAIChatRequestModel,
   type IFilterAIChatResultModel,

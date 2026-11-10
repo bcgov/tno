@@ -1,10 +1,10 @@
-import { Button } from 'components/button';
-import { IToggleOption, Toggle } from 'components/form';
+import { Button } from '@/subscriber/components/button';
+import { IToggleOption, Toggle } from '@/subscriber/components/form';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaArrowAltCircleRight } from 'react-icons/fa';
 import { FaBan, FaBookmark, FaChartBar, FaFolder } from 'react-icons/fa6';
-import { useFilters, useFolders, useReports } from 'store/hooks';
+import { useFilters, useFolders, useReports } from '@/subscriber/store/hooks';
 import {
   Col,
   FormikSelect,

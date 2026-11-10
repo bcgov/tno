@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { useApp } from 'store/hooks';
+import { useApp } from '@/editor/store/hooks';
 import { type Claim, NotAuthorized, type Role, useKeycloakWrapper } from 'tno-core';
 
 /**

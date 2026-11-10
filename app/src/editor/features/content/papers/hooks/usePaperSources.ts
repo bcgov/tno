@@ -1,4 +1,4 @@
-import { useLookupOptions } from 'store/hooks';
+import { useLookupOptions } from '@/editor/store/hooks';
 
 /** Filter and return the default sources. */
 export const usePaperSources = () => {

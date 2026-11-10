@@ -1,6 +1,6 @@
 import React from 'react';
-import { useAjaxWrapper, useLookup } from 'store/hooks';
-import { type IAdminState, useAdminStore } from 'store/slices';
+import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
+import { type IAdminState, useAdminStore } from '@/editor/store/slices';
 import { type IProductFilter, type IProductModel, useApiAdminProducts } from 'tno-core';
 
 interface IProductController {

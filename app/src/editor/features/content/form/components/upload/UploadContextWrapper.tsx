@@ -1,6 +1,6 @@
 import React from 'react';
 import { toast } from 'react-toastify';
-import { useStorage } from 'store/hooks';
+import { useStorage } from '@/editor/store/hooks';
 
 import { FetchState, type IUploadManager, type IUploadState } from './interfaces';
 import { UploadContext, UploadFilesContext } from './UploadContext';

@@ -1,5 +1,5 @@
-import { Colours } from 'components/colours';
-import { useReportEditContext } from 'features/my-reports/edit/ReportEditContext';
+import { Colours } from '@/subscriber/components/colours';
+import { useReportEditContext } from '@/subscriber/features/my-reports/edit/ReportEditContext';
 import React from 'react';
 import { Col, FormikCheckbox, FormikText, mergeChartSettings, Row, Text } from 'tno-core';
 

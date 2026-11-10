@@ -1,7 +1,7 @@
 import { getIn, useFormikContext } from 'formik';
 import React from 'react';
 import { FaHourglassHalf } from 'react-icons/fa';
-import { useLookup, useSettings } from 'store/hooks';
+import { useLookup, useSettings } from '@/editor/store/hooks';
 import {
   Checkbox,
   ContentTypeName,

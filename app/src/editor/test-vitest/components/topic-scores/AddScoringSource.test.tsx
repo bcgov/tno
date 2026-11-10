@@ -1,8 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { AddScoringSource } from 'features/admin/topic-score-rules/AddScoringSource';
+import { AddScoringSource } from '@/editor/features/admin/topic-score-rules/AddScoringSource';
 import React from 'react';
-import { TestWrapper } from 'test/utils';
+import { TestWrapper } from '@/editor/test-vitest/utils';
 import { vi } from 'vitest';
 
 const api = vi.hoisted(() => ({
@@ -10,7 +10,7 @@ const api = vi.hoisted(() => ({
   getSource: vi.fn(),
   updateSource: vi.fn(),
 }));
-vi.mock('store/hooks/admin', () => ({ useSources: () => [{}, api] }));
+vi.mock('@/editor/store/hooks/admin', () => ({ useSources: () => [{}, api] }));
 const existing = {
   id: 1,
   code: 'ONE',

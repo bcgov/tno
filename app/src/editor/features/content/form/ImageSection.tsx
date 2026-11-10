@@ -1,7 +1,7 @@
 import { useFormikContext } from 'formik';
 import moment from 'moment';
 import * as React from 'react';
-import { useLookupOptions } from 'store/hooks';
+import { useLookupOptions } from '@/editor/store/hooks';
 import {
   FieldSize,
   filterEnabledOptions,

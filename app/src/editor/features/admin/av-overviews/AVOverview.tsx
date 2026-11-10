@@ -1,9 +1,9 @@
-import { FormikForm } from 'components/formik';
+import { FormikForm } from '@/editor/components/formik';
 import React from 'react';
 import { FaSpinner } from 'react-icons/fa';
 import { MdAdd, MdSave } from 'react-icons/md';
 import { toast } from 'react-toastify';
-import { useAVOverviewTemplates, useReportTemplates } from 'store/hooks/admin';
+import { useAVOverviewTemplates, useReportTemplates } from '@/editor/store/hooks/admin';
 import {
   AVOverviewTemplateTypeName,
   Button,

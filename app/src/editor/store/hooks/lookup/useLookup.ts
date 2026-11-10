@@ -1,6 +1,6 @@
 import React from 'react';
-import { useLookupStore } from 'store/slices';
-import { type ILookupState } from 'store/slices/lookup';
+import { useLookupStore } from '@/editor/store/slices';
+import { type ILookupState } from '@/editor/store/slices/lookup';
 import {
   fetchIfNoneMatch,
   getFromLocalStorage,

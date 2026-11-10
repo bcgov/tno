@@ -1,5 +1,5 @@
 import React from 'react';
-import { type IAppState, type IErrorModel, type IUserOptions, useAppStore } from 'store/slices';
+import { type IAppState, type IErrorModel, type IUserOptions, useAppStore } from '@/editor/store/slices';
 import {
   AccountAuthStateName,
   getFromLocalStorage,

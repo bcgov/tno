@@ -1,7 +1,7 @@
-import { type IChartTemplateUsageModel } from 'features/admin/charts/interfaces';
+import { type IChartTemplateUsageModel } from '@/editor/features/admin/charts/interfaces';
 import React from 'react';
-import { useAjaxWrapper, useLookup } from 'store/hooks';
-import { type IAdminState, useAdminStore } from 'store/slices';
+import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
+import { type IAdminState, useAdminStore } from '@/editor/store/slices';
 import {
   type IChartPreviewRequestModel,
   type IChartResultModel,

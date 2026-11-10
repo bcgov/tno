@@ -1,4 +1,4 @@
-import { type IContentListAdvancedFilter } from 'features/content/interfaces';
+import { type IContentListAdvancedFilter } from '@/editor/features/content/interfaces';
 import { convertTo, fromQueryString } from 'tno-core';
 
 /**

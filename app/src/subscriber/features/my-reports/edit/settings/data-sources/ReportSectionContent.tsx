@@ -1,5 +1,5 @@
-import { IToggleOption, Toggle } from 'components/form';
-import { DataSources } from 'features/my-reports/components';
+import { IToggleOption, Toggle } from '@/subscriber/components/form';
+import { DataSources } from '@/subscriber/features/my-reports/components';
 import React from 'react';
 import {
   Col,

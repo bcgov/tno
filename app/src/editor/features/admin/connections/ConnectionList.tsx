@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useConnections } from 'store/hooks/admin';
+import { useConnections } from '@/editor/store/hooks/admin';
 import { Col, FlexboxTable, IconButton, type IConnectionModel, Row } from 'tno-core';
 
 import { ConnectionFilter } from './ConnectionFilter';

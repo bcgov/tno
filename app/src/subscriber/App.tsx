@@ -5,11 +5,11 @@ import 'prismjs';
 
 import isPropValid from '@emotion/is-prop-valid';
 import { ReactKeycloakProvider } from '@react-keycloak/web';
-import { ContentListProvider } from 'components/content-list/ContentListContext';
-import { LayoutAnonymous } from 'components/layout';
-import { AppRouter } from 'features/router';
-import { SearchPageProvider } from 'features/search-page';
-import { fixTooltipResizeObserver } from 'features/utils';
+import { ContentListProvider } from '@/subscriber/components/content-list/ContentListContext';
+import { LayoutAnonymous } from '@/subscriber/components/layout';
+import { AppRouter } from '@/subscriber/features/router';
+import { SearchPageProvider } from '@/subscriber/features/search-page';
+import { fixTooltipResizeObserver } from '@/subscriber/features/utils';
 import Keycloak from 'keycloak-js';
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';

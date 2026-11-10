@@ -1,4 +1,4 @@
-import { Action } from 'components/action';
+import { Action } from '@/subscriber/components/action';
 import React from 'react';
 import { FaAngleDown, FaMinus } from 'react-icons/fa6';
 

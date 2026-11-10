@@ -23,12 +23,12 @@ const state = vi.hoisted(() => ({
   },
 }));
 vi.mock('react-router-dom', () => ({ useParams: () => ({ id: state.routeId }) }));
-vi.mock('store/hooks', () => ({
+vi.mock('@/subscriber/store/hooks', () => ({
   useApp: () => [{ requests: state.requests }],
   useReportInstances: () => [{ viewReportInstance: state.view }],
   useApiHub: () => ({ useHubEffect: () => {} }),
 }));
-vi.mock('store/slices', () => ({
+vi.mock('@/subscriber/store/slices', () => ({
   useProfileStore: () => [{ reportOutput: state.reportOutput }, { storeReportOutput: state.store }],
 }));
 vi.mock('../../../features/my-reports/edit/ReportEditContext', () => ({

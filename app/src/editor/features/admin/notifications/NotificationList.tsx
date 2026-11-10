@@ -1,8 +1,8 @@
-import { FormPage } from 'components/formpage';
+import { FormPage } from '@/editor/components/formpage';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from 'store/hooks';
-import { useNotifications } from 'store/hooks/admin';
+import { useApp } from '@/editor/store/hooks';
+import { useNotifications } from '@/editor/store/hooks/admin';
 import { Col, FlexboxTable, IconButton, type INotificationModel, Row } from 'tno-core';
 
 import { columns } from './constants';

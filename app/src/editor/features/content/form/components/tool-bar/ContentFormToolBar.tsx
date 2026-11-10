@@ -1,7 +1,7 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaCalendarTimes } from 'react-icons/fa';
-import { useLookup } from 'store/hooks';
+import { useLookup } from '@/editor/store/hooks';
 import { Row, Show, ToggleGroup, ToolBar, ToolBarSection } from 'tno-core';
 
 import { type IContentForm } from '../../../form/interfaces';

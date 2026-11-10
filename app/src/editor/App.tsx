@@ -4,9 +4,9 @@ import 'prismjs';
 
 import isPropValid from '@emotion/is-prop-valid';
 import { ReactKeycloakProvider } from '@react-keycloak/web';
-import { LayoutAnonymous } from 'components/layout';
-import { UploadContextWrapper } from 'features/content';
-import { AppRouter } from 'features/router';
+import { LayoutAnonymous } from '@/editor/components/layout';
+import { UploadContextWrapper } from '@/editor/features/content';
+import { AppRouter } from '@/editor/features/router';
 import type Keycloak from 'keycloak-js';
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
@@ -14,7 +14,7 @@ import { ToastContainer } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
 import { StyleSheetManager } from 'styled-components';
 import { createKeycloakInstance, Loading, Show, useKeycloakEventHandler } from 'tno-core';
-import { fixTooltipResizeObserver } from 'utils';
+import { fixTooltipResizeObserver } from '@/editor/utils';
 
 const appName = 'Media Monitoring Insights';
 fixTooltipResizeObserver();

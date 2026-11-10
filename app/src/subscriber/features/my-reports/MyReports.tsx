@@ -1,11 +1,11 @@
-import { Action } from 'components/action';
-import { Bar } from 'components/bar';
-import { Modal } from 'components/modal';
-import { PageSection } from 'components/section';
+import { Action } from '@/subscriber/components/action';
+import { Bar } from '@/subscriber/components/bar';
+import { Modal } from '@/subscriber/components/modal';
+import { PageSection } from '@/subscriber/components/section';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApiHub, useApp, useReportInstances, useReports } from 'store/hooks';
+import { useApiHub, useApp, useReportInstances, useReports } from '@/subscriber/store/hooks';
 import {
   Button,
   IReportMessageModel,

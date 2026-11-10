@@ -1,9 +1,9 @@
-import { Modal } from 'components/modal';
-import { formatDate } from 'features/utils';
+import { Modal } from '@/subscriber/components/modal';
+import { formatDate } from '@/subscriber/features/utils';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useReportInstances, useReports } from 'store/hooks';
+import { useReportInstances, useReports } from '@/subscriber/store/hooks';
 import {
   Checkbox,
   Col,

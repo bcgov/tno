@@ -1,7 +1,7 @@
 import moment from 'moment';
 import React from 'react';
 import { toast } from 'react-toastify';
-import { useContentAnalysisAdmin } from 'store/hooks/admin';
+import { useContentAnalysisAdmin } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAjaxWrapper } from 'store/hooks';
+import { useAjaxWrapper } from '@/subscriber/store/hooks';
 import { IAVOverviewInstanceModel, useApiSubscriberAVOverviews } from 'tno-core';
 
 interface IAVOverviewController {

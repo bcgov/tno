@@ -1,6 +1,6 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { useConnections } from 'store/hooks/admin';
+import { useConnections } from '@/editor/store/hooks/admin';
 import { type IIngestModel, Show } from 'tno-core';
 
 import { Audio, AVArchive, DbMigration, FrontPage, Image, Newspaper, Syndication, Video } from '.';

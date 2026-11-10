@@ -1,4 +1,4 @@
-import { PageSection } from 'components/section';
+import { PageSection } from '@/subscriber/components/section';
 import React from 'react';
 import { FaFeather, FaVideo } from 'react-icons/fa6';
 

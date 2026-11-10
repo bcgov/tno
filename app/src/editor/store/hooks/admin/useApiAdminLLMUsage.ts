@@ -3,7 +3,7 @@ import {
   type ILLMMigrationCheckModel,
   type ILLMMigrationResultModel,
   type ILLMUsageModel,
-} from 'features/admin/llms/interfaces';
+} from '@/editor/features/admin/llms/interfaces';
 import React from 'react';
 import { useApi } from 'tno-core';
 

@@ -1,11 +1,11 @@
 import 'prismjs/themes/prism.css';
 import 'prismjs/components/prism-sql';
 
-import { Button as AppButton } from 'components/button';
-import { PageSection } from 'components/section';
-import { useElastic } from 'features/my-searches/hooks';
-import { useSearchPageContext } from 'features/search-page/SearchPageContext';
-import { filterFormat } from 'features/search-page/utils';
+import { Button as AppButton } from '@/subscriber/components/button';
+import { PageSection } from '@/subscriber/components/section';
+import { useElastic } from '@/subscriber/features/my-searches/hooks';
+import { useSearchPageContext } from '@/subscriber/features/search-page/SearchPageContext';
+import { filterFormat } from '@/subscriber/features/search-page/utils';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import { FaCaretSquareDown, FaCheckSquare, FaExclamationCircle, FaPlay } from 'react-icons/fa';
@@ -28,8 +28,8 @@ import { IoIosCog, IoMdRefresh } from 'react-icons/io';
 import { useNavigate } from 'react-router-dom';
 import Editor from 'react-simple-code-editor';
 import { toast } from 'react-toastify';
-import { useApp, useContent, useFilters } from 'store/hooks';
-import { useProfileStore } from 'store/slices';
+import { useApp, useContent, useFilters } from '@/subscriber/store/hooks';
+import { useProfileStore } from '@/subscriber/store/slices';
 import {
   Button,
   Claim,

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useLLMs } from 'store/hooks/admin';
+import { useLLMs } from '@/editor/store/hooks/admin';
 import {
   Button,
   FieldSize,

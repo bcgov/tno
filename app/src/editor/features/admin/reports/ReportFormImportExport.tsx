@@ -8,9 +8,9 @@ import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
 import { toast } from 'react-toastify';
-import { useApp } from 'store/hooks';
-import { useFilters, useFolders, useReportTemplates } from 'store/hooks/admin';
-import { useAdminStore } from 'store/slices';
+import { useApp } from '@/editor/store/hooks';
+import { useFilters, useFolders, useReportTemplates } from '@/editor/store/hooks/admin';
+import { useAdminStore } from '@/editor/store/slices';
 import { Button, ButtonVariant, Col, type IReportModel, Row, Show } from 'tno-core';
 
 import { exportReport, parseExportedReport } from './utils';

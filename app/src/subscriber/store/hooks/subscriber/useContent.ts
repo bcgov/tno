@@ -5,8 +5,8 @@ import {
 } from '@elastic/elasticsearch/lib/api/types';
 import { AxiosResponse } from 'axios';
 import React from 'react';
-import { useContentStore } from 'store/slices';
-import { IContentProps, IContentState } from 'store/slices/content';
+import { useContentStore } from '@/subscriber/store/slices';
+import { IContentProps, IContentState } from '@/subscriber/store/slices/content';
 import {
   IContentModel,
   IFilterSettingsModel,

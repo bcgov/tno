@@ -1,9 +1,9 @@
-import { FormikForm } from 'components/formik';
+import { FormikForm } from '@/editor/components/formik';
 import React from 'react';
 import { FaEye, FaEyeSlash, FaSpinner } from 'react-icons/fa';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useIngests } from 'store/hooks/admin';
+import { useIngests } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,

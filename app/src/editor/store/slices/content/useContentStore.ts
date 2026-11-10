@@ -1,10 +1,10 @@
-import { AdvancedSearchKeys } from 'features/content/constants';
+import { AdvancedSearchKeys } from '@/editor/features/content/constants';
 import {
   type IContentListAdvancedFilter,
   type IContentListFilter,
-} from 'features/content/interfaces';
+} from '@/editor/features/content/interfaces';
 import React from 'react';
-import { type ActionDelegate, useAppDispatch, useAppSelector } from 'store';
+import { type ActionDelegate, useAppDispatch, useAppSelector } from '@/editor/store';
 import { LogicalOperator } from 'tno-core';
 
 import {

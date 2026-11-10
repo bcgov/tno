@@ -1,7 +1,7 @@
-import { FormPage } from 'components/formpage';
-import { useTab } from 'components/tab-control';
+import { FormPage } from '@/editor/components/formpage';
+import { useTab } from '@/editor/components/tab-control';
 import React from 'react';
-import { useApiHub, useWorkOrders } from 'store/hooks';
+import { useApiHub, useWorkOrders } from '@/editor/store/hooks';
 import {
   CellDate,
   CellEllipsis,

@@ -1,6 +1,6 @@
-import { DataSources } from 'features/my-reports/components';
+import { DataSources } from '@/subscriber/features/my-reports/components';
 import React from 'react';
-import { useLookup } from 'store/hooks';
+import { useLookup } from '@/subscriber/store/hooks';
 import { Col, FormikCheckbox, FormikSelect, OptionItem, Row, Settings, Show } from 'tno-core';
 
 import { useReportEditContext } from '../../ReportEditContext';

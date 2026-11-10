@@ -1,5 +1,5 @@
-import { PageSection } from 'components/section';
-import { ManageFolder } from 'features/manage-folder';
+import { PageSection } from '@/subscriber/components/section';
+import { ManageFolder } from '@/subscriber/features/manage-folder';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Col, Show } from 'tno-core';

@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentAnalysis } from '../../../features/content/view-content/ContentAnalysis';
 
 const getAnalysis = vi.hoisted(() => vi.fn());
-vi.mock('store/hooks/subscriber/useContentAnalysis', () => ({
+vi.mock('@/subscriber/store/hooks/subscriber/useContentAnalysis', () => ({
   useContentAnalysis: () => getAnalysis,
 }));
 vi.mock('tno-core', () => ({

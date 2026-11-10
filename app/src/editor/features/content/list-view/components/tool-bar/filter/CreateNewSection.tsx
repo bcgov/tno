@@ -1,4 +1,4 @@
-import { NavigateOptions, useTab } from 'components/tab-control';
+import { NavigateOptions, useTab } from '@/editor/components/tab-control';
 import React from 'react';
 import { FaFileAlt, FaFileAudio, FaFileImage, FaFileInvoice } from 'react-icons/fa';
 import { GiFairyWand } from 'react-icons/gi';

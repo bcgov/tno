@@ -1,14 +1,14 @@
-import { Action } from 'components/action';
-import { Bar } from 'components/bar';
-import { Button } from 'components/button';
-import { Modal } from 'components/modal';
-import { RefreshButton } from 'components/refresh-button/styled';
-import { PageSection } from 'components/section';
+import { Action } from '@/subscriber/components/action';
+import { Bar } from '@/subscriber/components/bar';
+import { Button } from '@/subscriber/components/button';
+import { Modal } from '@/subscriber/components/modal';
+import { RefreshButton } from '@/subscriber/components/refresh-button/styled';
+import { PageSection } from '@/subscriber/components/section';
 import React from 'react';
 import { FaArrowsRotate, FaFileCirclePlus, FaPaperPlane, FaPen, FaX } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useReportInstances, useReports } from 'store/hooks';
+import { useReportInstances, useReports } from '@/subscriber/store/hooks';
 import {
   Col,
   getReportKind,

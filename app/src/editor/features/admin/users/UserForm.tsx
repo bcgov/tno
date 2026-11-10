@@ -1,10 +1,10 @@
-import { FormikForm } from 'components/formik';
-import { formatDate } from 'features/admin/users/utils/formatDate';
+import { FormikForm } from '@/editor/components/formik';
+import { formatDate } from '@/editor/features/admin/users/utils/formatDate';
 import React, { type ReactElement } from 'react';
 import { FaExclamationTriangle } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useReports, useUsers } from 'store/hooks/admin';
+import { useReports, useUsers } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,

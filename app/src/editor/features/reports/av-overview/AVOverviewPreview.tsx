@@ -3,7 +3,7 @@ import React from 'react';
 import { FaExternalLinkAlt, FaPaperPlane } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useAVOverviewInstances, useLookup } from 'store/hooks';
+import { useAVOverviewInstances, useLookup } from '@/editor/store/hooks';
 import {
   Button,
   Col,

@@ -9,7 +9,7 @@ import {
   type ResponderProvided,
 } from 'react-beautiful-dnd';
 import { FaGripLines, FaTrash } from 'react-icons/fa';
-import { useContent } from 'store/hooks';
+import { useContent } from '@/editor/store/hooks';
 import {
   AVOverviewItemTypeName,
   castEnumToOptions,

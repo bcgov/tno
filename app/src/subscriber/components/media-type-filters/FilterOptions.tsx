@@ -6,9 +6,9 @@ import {
   FaNewspaper,
   FaTowerCell,
 } from 'react-icons/fa6';
-import { useContent, useLookup } from 'store/hooks';
-import { useUsers } from 'store/hooks';
-import { useAppStore } from 'store/slices';
+import { useContent, useLookup } from '@/subscriber/store/hooks';
+import { useUsers } from '@/subscriber/store/hooks';
+import { useAppStore } from '@/subscriber/store/slices';
 import {
   Button,
   ButtonHeight,

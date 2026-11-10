@@ -10,11 +10,11 @@ const state = vi.hoisted(() => ({
     | undefined,
   view: vi.fn(),
 }));
-vi.mock('store/hooks', () => ({
+vi.mock('@/subscriber/store/hooks', () => ({
   useApp: () => [{ requests: [] }],
   useReportInstances: () => [{ viewReportInstance: state.view }],
 }));
-vi.mock('store/slices', () => ({ useProfileStore: () => [{ reportOutput: state.output }] }));
+vi.mock('@/subscriber/store/slices', () => ({ useProfileStore: () => [{ reportOutput: state.output }] }));
 vi.mock('../../../features/my-reports/styled', () => ({ ReportInstanceView: 'div' }));
 vi.mock('tno-core', () => ({
   Col: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,

@@ -1,4 +1,4 @@
-import { IReportResultForm } from 'features/my-reports/interfaces';
+import { IReportResultForm } from '@/subscriber/features/my-reports/interfaces';
 import {
   IContributorModel,
   IFilterModel,

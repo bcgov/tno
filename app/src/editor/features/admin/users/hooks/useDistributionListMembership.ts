@@ -1,5 +1,5 @@
 import React from 'react';
-import { useUsers } from 'store/hooks/admin';
+import { useUsers } from '@/editor/store/hooks/admin';
 import { UserAccountTypeName } from 'tno-core';
 
 /**

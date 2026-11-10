@@ -1,12 +1,12 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { AxiosError } from 'axios';
-import { ActionNames } from 'features/content/form/constants/actionsEnum';
-import { getDefaultCommentaryExpiryValue } from 'features/content/form/utils';
-import { type IContentListFilter } from 'features/content/interfaces';
+import { ActionNames } from '@/editor/features/content/form/constants/actionsEnum';
+import { getDefaultCommentaryExpiryValue } from '@/editor/features/content/form/utils';
+import { type IContentListFilter } from '@/editor/features/content/interfaces';
 import * as React from 'react';
 import { toast } from 'react-toastify';
-import { useContent, useLookup, useSettings } from 'store/hooks';
-import { type IContentSearchResult } from 'store/slices';
+import { useContent, useLookup, useSettings } from '@/editor/store/hooks';
+import { type IContentSearchResult } from '@/editor/store/slices';
 import {
   Button,
   ButtonVariant,

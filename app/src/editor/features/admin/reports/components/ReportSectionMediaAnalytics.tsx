@@ -1,7 +1,7 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaArrowAltCircleRight } from 'react-icons/fa';
-import { useFilters, useFolders, useReports } from 'store/hooks/admin';
+import { useFilters, useFolders, useReports } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,

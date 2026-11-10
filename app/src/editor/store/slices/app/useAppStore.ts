@@ -1,6 +1,6 @@
 import { type HubConnectionState } from '@microsoft/signalr';
 import React from 'react';
-import { useAppDispatch, useAppSelector } from 'store';
+import { useAppDispatch, useAppSelector } from '@/editor/store';
 import { type IUserInfoModel } from 'tno-core';
 
 import {

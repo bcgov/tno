@@ -1,6 +1,6 @@
 import React from 'react';
-import { useAjaxWrapper, useLookup } from 'store/hooks';
-import { type IAdminState, useAdminStore } from 'store/slices';
+import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
+import { type IAdminState, useAdminStore } from '@/editor/store/slices';
 import { type IActionFilter, type IActionModel, type IPaged, useApiAdminActions } from 'tno-core';
 
 interface IActionController {

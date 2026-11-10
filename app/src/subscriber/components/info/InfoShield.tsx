@@ -1,4 +1,4 @@
-import { TooltipMenu } from 'components/tooltip-menu';
+import { TooltipMenu } from '@/subscriber/components/tooltip-menu';
 import React from 'react';
 import { FaShield } from 'react-icons/fa6';
 import { Col } from 'tno-core';

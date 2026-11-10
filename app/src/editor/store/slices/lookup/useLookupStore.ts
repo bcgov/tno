@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAppDispatch, useAppSelector } from 'store';
+import { useAppDispatch, useAppSelector } from '@/editor/store';
 import {
   type IActionModel,
   type ICacheModel,

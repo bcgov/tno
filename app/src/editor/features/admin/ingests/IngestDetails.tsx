@@ -1,8 +1,8 @@
 import { getIn, useFormikContext } from 'formik';
 import React from 'react';
 import { FaTrash } from 'react-icons/fa';
-import { useLookup } from 'store/hooks';
-import { useDataLocations } from 'store/hooks/admin';
+import { useLookup } from '@/editor/store/hooks';
+import { useDataLocations } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,

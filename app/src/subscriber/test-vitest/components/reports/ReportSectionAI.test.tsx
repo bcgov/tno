@@ -34,7 +34,7 @@ const reportAI = vi.hoisted(() => ({
   chat: vi.fn(),
 }));
 
-vi.mock('store/hooks', async () => {
+vi.mock('@/subscriber/store/hooks', async () => {
   const react = await import('react');
   return {
     useLookup: () => [
@@ -51,7 +51,7 @@ vi.mock('store/hooks', async () => {
 // section's effects every pass and mask a render loop.
 const userInfo = vi.hoisted(() => ({ userInfo: { id: 1, roles: [] as string[] } }));
 
-vi.mock('store/slices', () => ({
+vi.mock('@/subscriber/store/slices', () => ({
   useAppStore: () => [userInfo],
 }));
 

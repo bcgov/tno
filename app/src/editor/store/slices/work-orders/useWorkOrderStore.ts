@@ -1,5 +1,5 @@
 import React from 'react';
-import { type ActionDelegate, useAppDispatch, useAppSelector } from 'store';
+import { type ActionDelegate, useAppDispatch, useAppSelector } from '@/editor/store';
 import { type IWorkOrderFilter } from 'tno-core';
 
 import { type IWorkOrderState } from './interfaces';

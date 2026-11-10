@@ -1,7 +1,7 @@
-import { Action } from 'components/action';
-import { Bar } from 'components/bar';
-import { Button } from 'components/button';
-import { PageSection } from 'components/section';
+import { Action } from '@/subscriber/components/action';
+import { Bar } from '@/subscriber/components/bar';
+import { Button } from '@/subscriber/components/button';
+import { PageSection } from '@/subscriber/components/section';
 import React from 'react';
 import {
   FaArrowRightFromBracket,
@@ -10,8 +10,8 @@ import {
   FaCaretRight,
   FaMagnifyingGlass,
 } from 'react-icons/fa6';
-import { useUsers } from 'store/hooks';
-import { useProfileStore } from 'store/slices';
+import { useUsers } from '@/subscriber/store/hooks';
+import { useProfileStore } from '@/subscriber/store/slices';
 import {
   Col,
   IPaged,

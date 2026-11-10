@@ -6,7 +6,7 @@ import {
   useNotifications,
   useProducts,
   useReports,
-} from 'store/hooks/admin';
+} from '@/editor/store/hooks/admin';
 import {
   type IFilterModel,
   type IFolderModel,

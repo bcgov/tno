@@ -1,4 +1,4 @@
-import { DragDropContentContext } from 'components/content';
+import { DragDropContentContext } from '@/editor/components/content';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { Col } from 'tno-core';

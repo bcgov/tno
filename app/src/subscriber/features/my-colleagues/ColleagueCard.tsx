@@ -1,5 +1,5 @@
-import { Action } from 'components/action';
-import { Section } from 'components/section';
+import { Action } from '@/subscriber/components/action';
+import { Section } from '@/subscriber/components/section';
 import React from 'react';
 import { IUserColleagueModel } from 'tno-core';
 

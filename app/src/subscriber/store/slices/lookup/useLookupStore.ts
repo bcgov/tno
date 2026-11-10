@@ -1,6 +1,6 @@
 import React from 'react';
-import { useAppDispatch, useAppSelector } from 'store';
-import { IMinisterModel } from 'store/hooks/subscriber/interfaces/IMinisterModel';
+import { useAppDispatch, useAppSelector } from '@/subscriber/store';
+import { IMinisterModel } from '@/subscriber/store/hooks/subscriber/interfaces/IMinisterModel';
 import {
   IActionModel,
   ICacheModel,

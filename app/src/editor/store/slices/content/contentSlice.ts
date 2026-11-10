@@ -1,9 +1,9 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { AdvancedSearchKeys } from 'features/content/constants';
+import { AdvancedSearchKeys } from '@/editor/features/content/constants';
 import {
   type IContentListAdvancedFilter,
   type IContentListFilter,
-} from 'features/content/interfaces';
+} from '@/editor/features/content/interfaces';
 import { LogicalOperator } from 'tno-core';
 
 import { type IContentState } from './interfaces';

@@ -2,7 +2,7 @@ import { AxiosResponse } from 'axios';
 import {
   type IAnalysisRequestModel,
   type IContentAnalysisDetailsModel,
-} from 'features/content/form/interfaces';
+} from '@/editor/features/content/form/interfaces';
 import React from 'react';
 import { useApi } from 'tno-core';
 

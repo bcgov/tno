@@ -1,9 +1,9 @@
-import { Action } from 'components/action';
-import { Button } from 'components/button';
+import { Action } from '@/subscriber/components/action';
+import { Button } from '@/subscriber/components/button';
 import React from 'react';
 import { FaArrowLeft, FaArrowRight, FaSave } from 'react-icons/fa';
 import { FaArrowUpRightFromSquare } from 'react-icons/fa6';
-import { useApp } from 'store/hooks';
+import { useApp } from '@/subscriber/store/hooks';
 import { IContentModel, ReportStatusName, Show } from 'tno-core';
 
 import { useReportEditContext } from '../../ReportEditContext';

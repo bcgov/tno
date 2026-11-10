@@ -1,4 +1,4 @@
-import { PageSection } from 'components/section';
+import { PageSection } from '@/subscriber/components/section';
 import styled from 'styled-components';
 
 export const ConfigureFolder = styled(PageSection)`

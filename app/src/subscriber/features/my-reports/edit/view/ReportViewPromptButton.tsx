@@ -1,8 +1,8 @@
-import { Action } from 'components/action';
+import { Action } from '@/subscriber/components/action';
 import React from 'react';
 import { FaCode } from 'react-icons/fa6';
-import { useReportAI } from 'store/hooks';
-import { IReportAISectionPromptModel } from 'store/hooks/subscriber/interfaces';
+import { useReportAI } from '@/subscriber/store/hooks';
+import { IReportAISectionPromptModel } from '@/subscriber/store/hooks/subscriber/interfaces';
 import { ReportSectionTypeName } from 'tno-core';
 
 import { AIPromptViewerDialog } from '../../components';

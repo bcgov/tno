@@ -3,8 +3,8 @@ import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
 import { toast } from 'react-toastify';
-import { useLookup } from 'store/hooks';
-import { useReportTemplates } from 'store/hooks/admin';
+import { useLookup } from '@/editor/store/hooks';
+import { useReportTemplates } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,

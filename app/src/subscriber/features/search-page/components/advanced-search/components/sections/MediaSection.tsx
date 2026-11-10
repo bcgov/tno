@@ -1,4 +1,4 @@
-import { useSubMediaGroups } from 'features/hooks';
+import { useSubMediaGroups } from '@/subscriber/features/hooks';
 import React from 'react';
 import { FaWater } from 'react-icons/fa';
 import { IoIosArrowDropdownCircle, IoIosArrowDroprightCircle } from 'react-icons/io';

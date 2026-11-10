@@ -1,22 +1,22 @@
 /* eslint-disable simple-import-sort/imports */
 import { type AxiosError } from 'axios';
-import { FormikForm } from 'components/formik';
+import { FormikForm } from '@/editor/components/formik';
 import moment from 'moment';
 import React from 'react';
 import { FaEdit, FaHistory, FaPlus, FaTrash } from 'react-icons/fa';
 import { FaRegCalendar, FaRegClock } from 'react-icons/fa6';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApiHub, useLookup } from 'store/hooks';
+import { useApiHub, useLookup } from '@/editor/store/hooks';
 import {
   useAutomationProfiles,
   useFilters,
   useLLMs,
   useNotifications,
   useReports,
-} from 'store/hooks/admin';
-import { defaultFilter } from 'features/admin/filters/constants/defaultFilter';
-import { defaultLLM } from 'features/admin/llms/constants/defaultLLM';
+} from '@/editor/store/hooks/admin';
+import { defaultFilter } from '@/editor/features/admin/filters/constants/defaultFilter';
+import { defaultLLM } from '@/editor/features/admin/llms/constants/defaultLLM';
 import {
   Button,
   ButtonVariant,

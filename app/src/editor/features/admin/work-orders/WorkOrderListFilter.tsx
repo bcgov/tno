@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useWorkOrders } from 'store/hooks/admin';
+import { useWorkOrders } from '@/editor/store/hooks/admin';
 import {
   FieldSize,
   getEnumStringOptions,

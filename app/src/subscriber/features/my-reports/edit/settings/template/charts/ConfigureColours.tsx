@@ -1,6 +1,6 @@
-import { Action } from 'components/action';
-import { Colours } from 'components/colours';
-import { useReportEditContext } from 'features/my-reports/edit/ReportEditContext';
+import { Action } from '@/subscriber/components/action';
+import { Colours } from '@/subscriber/components/colours';
+import { useReportEditContext } from '@/subscriber/features/my-reports/edit/ReportEditContext';
 import React from 'react';
 import { FaInfoCircle, FaPaintBrush } from 'react-icons/fa';
 import { FaEraser } from 'react-icons/fa6';

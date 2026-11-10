@@ -1,5 +1,5 @@
 import React from 'react';
-import { useApp, useLookupOptions } from 'store/hooks';
+import { useApp, useLookupOptions } from '@/subscriber/store/hooks';
 import { Button, ButtonVariant, Checkbox, FieldSize, Row, Select, Show } from 'tno-core';
 
 import { useSearchSettings } from '../../SearchSettingsContext';

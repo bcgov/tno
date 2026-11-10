@@ -1,9 +1,9 @@
-import { Action } from 'components/action';
-import { Button } from 'components/button';
+import { Action } from '@/subscriber/components/action';
+import { Button } from '@/subscriber/components/button';
 import React from 'react';
 import { FaCopy, FaTrash, FaUserPlus, FaUsers } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import { useApp, useReports, useUsers } from 'store/hooks';
+import { useApp, useReports, useUsers } from '@/subscriber/store/hooks';
 import {
   Checkbox,
   Claim,

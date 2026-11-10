@@ -1,7 +1,7 @@
-import { sortFolders } from 'features/my-folders/utils';
+import { sortFolders } from '@/subscriber/features/my-folders/utils';
 import React from 'react';
-import { useAjaxWrapper } from 'store/hooks';
-import { IProfileState, useProfileStore } from 'store/slices';
+import { useAjaxWrapper } from '@/subscriber/store/hooks';
+import { IProfileState, useProfileStore } from '@/subscriber/store/slices';
 import { IFolderModel, useApiSubscriberFolders } from 'tno-core';
 
 interface IFolderController {

@@ -1,6 +1,6 @@
 import { AxiosError, AxiosResponse } from 'axios';
 import React from 'react';
-import { useAppStore } from 'store/slices';
+import { useAppStore } from '@/subscriber/store/slices';
 
 /**
  * Hook provides a common way to make AJAX requests.

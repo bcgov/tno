@@ -1,4 +1,4 @@
-import { type IAnalysisRunModel } from 'features/content/form/interfaces';
+import { type IAnalysisRunModel } from '@/editor/features/content/form/interfaces';
 
 /** The Content-Analysis settings (the processes it runs are configured on the service). */
 export interface IContentAnalysisSettingsModel {

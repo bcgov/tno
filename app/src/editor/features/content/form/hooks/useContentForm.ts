@@ -1,5 +1,5 @@
 import { type AxiosError } from 'axios';
-import { type IStream } from 'features/storage/interfaces';
+import { type IStream } from '@/editor/features/storage/interfaces';
 import { type FormikHelpers, type FormikProps } from 'formik';
 import moment from 'moment';
 import React from 'react';
@@ -12,7 +12,7 @@ import {
   useLookup,
   useLookupOptions,
   useWorkOrders,
-} from 'store/hooks';
+} from '@/editor/store/hooks';
 import {
   ContentStatusName,
   ContentTypeName,

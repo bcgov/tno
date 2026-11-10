@@ -1,8 +1,8 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
-import { ReportSectionAI } from 'features/admin/reports/components';
+import { ReportSectionAI } from '@/editor/features/admin/reports/components';
 import { Formik, useFormikContext } from 'formik';
 import React from 'react';
-import { TestWrapper } from 'test/utils';
+import { TestWrapper } from '@/editor/test-vitest/utils';
 import { vi } from 'vitest';
 
 /** A tiny external store so the lookup can change while the section stays mounted - a remount
@@ -23,7 +23,7 @@ const lookup = vi.hoisted(() => {
   };
 });
 
-vi.mock('store/hooks', async () => {
+vi.mock('@/editor/store/hooks', async () => {
   const react = await import('react');
   return {
     useLookup: () => [
@@ -36,7 +36,7 @@ vi.mock('store/hooks', async () => {
 // section's effects every pass and mask a render loop.
 const userInfo = vi.hoisted(() => ({ userInfo: { id: 1, roles: [] as string[] } }));
 
-vi.mock('store/slices', () => ({
+vi.mock('@/editor/store/slices', () => ({
   useAppStore: () => [userInfo],
 }));
 

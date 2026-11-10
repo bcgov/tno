@@ -1,8 +1,8 @@
-import { Button } from 'components/button';
+import { Button } from '@/subscriber/components/button';
 import React from 'react';
 import { toast } from 'react-toastify';
-import { useLookup, useUsers } from 'store/hooks';
-import { useProfileStore } from 'store/slices';
+import { useLookup, useUsers } from '@/subscriber/store/hooks';
+import { useProfileStore } from '@/subscriber/store/slices';
 import { Checkbox, getDistinct, ISubscriberUserModel, Row } from 'tno-core';
 
 import * as styled from './styled';

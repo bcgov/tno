@@ -1,6 +1,6 @@
-import { StartNextReportInfo } from 'features/my-reports/components';
-import { IReportInstanceContentForm } from 'features/my-reports/interfaces';
-import { moveContent, sortContent, sortReportContent } from 'features/my-reports/utils';
+import { StartNextReportInfo } from '@/subscriber/features/my-reports/components';
+import { IReportInstanceContentForm } from '@/subscriber/features/my-reports/interfaces';
+import { moveContent, sortContent, sortReportContent } from '@/subscriber/features/my-reports/utils';
 import React from 'react';
 import {
   DragDropContext,
@@ -12,8 +12,8 @@ import {
   ResponderProvided,
 } from 'react-beautiful-dnd';
 import { FaToggleOff, FaToggleOn } from 'react-icons/fa6';
-import { useUsers } from 'store/hooks';
-import { useProfileStore } from 'store/slices';
+import { useUsers } from '@/subscriber/store/hooks';
+import { useProfileStore } from '@/subscriber/store/slices';
 import {
   getDistinct,
   IReportInstanceModel,

@@ -1,5 +1,5 @@
-import { type IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
-import { type ISortBy } from 'features/interfaces';
+import { type IUserListFilter } from '@/editor/features/admin/users/interfaces/IUserListFilter';
+import { type ISortBy } from '@/editor/features/interfaces';
 import { type IUserFilter } from 'tno-core';
 
 /**

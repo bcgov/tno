@@ -1,8 +1,8 @@
-import { DateFilter } from 'components/date-filter';
+import { DateFilter } from '@/subscriber/components/date-filter';
 import moment from 'moment';
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useContent, useReportInstances, useSettings } from 'store/hooks';
+import { useContent, useReportInstances, useSettings } from '@/subscriber/store/hooks';
 import { Col, IReportResultModel, Loader, Show } from 'tno-core';
 
 import * as styled from './styled';

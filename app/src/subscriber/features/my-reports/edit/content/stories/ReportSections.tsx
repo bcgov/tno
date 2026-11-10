@@ -1,7 +1,7 @@
-import { Section } from 'components/section';
-import { SectionLabel } from 'features/my-reports/components';
-import { IReportForm, IReportInstanceContentForm } from 'features/my-reports/interfaces';
-import { moveContent } from 'features/my-reports/utils';
+import { Section } from '@/subscriber/components/section';
+import { SectionLabel } from '@/subscriber/features/my-reports/components';
+import { IReportForm, IReportInstanceContentForm } from '@/subscriber/features/my-reports/interfaces';
+import { moveContent } from '@/subscriber/features/my-reports/utils';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { DragDropContext, DropResult, ResponderProvided } from 'react-beautiful-dnd';

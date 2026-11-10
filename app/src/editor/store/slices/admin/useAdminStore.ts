@@ -1,7 +1,7 @@
-import { type IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
-import { type IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
+import { type IUserListFilter } from '@/editor/features/admin/users/interfaces/IUserListFilter';
+import { type IWorkOrderListFilter } from '@/editor/features/admin/work-orders/interfaces/IWorkOrderListFilter';
 import React from 'react';
-import { type ActionDelegate, useAppDispatch, useAppSelector } from 'store';
+import { type ActionDelegate, useAppDispatch, useAppSelector } from '@/editor/store';
 import {
   type IActionModel,
   type IChartTemplateModel,

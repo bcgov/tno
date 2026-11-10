@@ -1,15 +1,15 @@
-import { BasicSearch } from 'components/basic-search';
-import { Button } from 'components/button';
-import { Header } from 'components/header';
-import { Modal } from 'components/modal';
-import { Navbar } from 'components/navbar';
-import { navbarOptions } from 'components/navbar/NavbarItems';
-import { UnauthenticatedHome, UserInfo } from 'features/login';
+import { BasicSearch } from '@/subscriber/components/basic-search';
+import { Button } from '@/subscriber/components/button';
+import { Header } from '@/subscriber/components/header';
+import { Modal } from '@/subscriber/components/modal';
+import { Navbar } from '@/subscriber/components/navbar';
+import { navbarOptions } from '@/subscriber/components/navbar/NavbarItems';
+import { UnauthenticatedHome, UserInfo } from '@/subscriber/features/login';
 import React from 'react';
 import { Outlet, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useToastError } from 'store/hooks';
-import { useApiHub } from 'store/hooks/signalr';
+import { useToastError } from '@/subscriber/store/hooks';
+import { useApiHub } from '@/subscriber/store/hooks/signalr';
 import {
   IReportMessageModel,
   ISystemMessageModel,

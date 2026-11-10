@@ -1,7 +1,7 @@
 import React from 'react';
-import { useApp } from 'store/hooks';
-import { useTonePool } from 'store/hooks/subscriber/useTonePool';
-import { useProfileStore } from 'store/slices';
+import { useApp } from '@/subscriber/store/hooks';
+import { useTonePool } from '@/subscriber/store/hooks/subscriber/useTonePool';
+import { useProfileStore } from '@/subscriber/store/slices';
 import {
   Col,
   ContentTypeName,

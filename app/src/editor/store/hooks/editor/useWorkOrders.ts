@@ -1,7 +1,7 @@
 import { type AxiosResponse } from 'axios';
 import React from 'react';
-import { type ActionDelegate } from 'store';
-import { type IWorkOrderState, useWorkOrderStore } from 'store/slices';
+import { type ActionDelegate } from '@/editor/store';
+import { type IWorkOrderState, useWorkOrderStore } from '@/editor/store/slices';
 import {
   type IContentModel,
   type IPaged,

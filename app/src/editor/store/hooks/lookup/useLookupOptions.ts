@@ -1,6 +1,6 @@
 import React from 'react';
-import { type ILookupController, useLookup } from 'store/hooks';
-import { type ILookupState } from 'store/slices';
+import { type ILookupController, useLookup } from '@/editor/store/hooks';
+import { type ILookupState } from '@/editor/store/slices';
 import {
   getSortableOptions,
   getSourceOptions,

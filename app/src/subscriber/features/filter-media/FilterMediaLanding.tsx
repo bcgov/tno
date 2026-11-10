@@ -1,10 +1,10 @@
-import { PageSection } from 'components/section';
-import { useSubMediaGroups } from 'features/hooks';
-import { ISubMediaGroupItem } from 'features/search-page/components/advanced-search/interfaces';
-import { IGroupOption } from 'features/search-page/components/advanced-search/interfaces/IGroupOption';
+import { PageSection } from '@/subscriber/components/section';
+import { useSubMediaGroups } from '@/subscriber/features/hooks';
+import { ISubMediaGroupItem } from '@/subscriber/features/search-page/components/advanced-search/interfaces';
+import { IGroupOption } from '@/subscriber/features/search-page/components/advanced-search/interfaces/IGroupOption';
 import moment from 'moment';
 import React from 'react';
-import { useContent, useLookup } from 'store/hooks';
+import { useContent, useLookup } from '@/subscriber/store/hooks';
 import {
   Checkbox,
   Col,

@@ -1,13 +1,13 @@
 import { type KnnSearchResponse, type SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
-import { Status } from 'components/status';
-import { NavigateOptions, TabControl, useTab } from 'components/tab-control';
+import { Status } from '@/editor/components/status';
+import { NavigateOptions, TabControl, useTab } from '@/editor/components/tab-control';
 import moment from 'moment';
 import React, { lazy, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApiHub, useApp, useContent, useLocalStorage, useWorkOrders } from 'store/hooks';
-import { type IContentSearchResult } from 'store/slices';
-import { useCastContentToSearchResult } from 'store/slices/content/hooks';
+import { useApiHub, useApp, useContent, useLocalStorage, useWorkOrders } from '@/editor/store/hooks';
+import { type IContentSearchResult } from '@/editor/store/slices';
+import { useCastContentToSearchResult } from '@/editor/store/slices/content/hooks';
 import {
   CellEllipsis,
   Checkbox,

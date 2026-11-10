@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSystemMessages } from 'store/hooks/admin';
+import { useSystemMessages } from '@/editor/store/hooks/admin';
 import {
   CellCheckbox,
   CellEllipsis,

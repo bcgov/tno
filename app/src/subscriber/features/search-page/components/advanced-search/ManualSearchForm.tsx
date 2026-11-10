@@ -1,6 +1,6 @@
 import React from 'react';
 import { IoIosCog } from 'react-icons/io';
-import { useApp } from 'store/hooks';
+import { useApp } from '@/subscriber/store/hooks';
 import {
   Claim,
   Col,

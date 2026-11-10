@@ -1,12 +1,12 @@
 import { type SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
-import { Status } from 'components/status';
-import { NavigateOptions, TabControl, useTab } from 'components/tab-control';
+import { Status } from '@/editor/components/status';
+import { NavigateOptions, TabControl, useTab } from '@/editor/components/tab-control';
 import React, { useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApiHub, useApp, useContent, useLocalStorage, useSettings } from 'store/hooks';
-import { type IContentSearchResult, storeContentFilterAdvanced } from 'store/slices';
-import { useCastContentToSearchResult } from 'store/slices/content/hooks/useCastContentToSearchResult';
+import { useApiHub, useApp, useContent, useLocalStorage, useSettings } from '@/editor/store/hooks';
+import { type IContentSearchResult, storeContentFilterAdvanced } from '@/editor/store/slices';
+import { useCastContentToSearchResult } from '@/editor/store/slices/content/hooks/useCastContentToSearchResult';
 import {
   CellEllipsis,
   Checkbox,

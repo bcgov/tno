@@ -3,12 +3,12 @@ import 'prismjs/components/prism-csharp';
 import 'prismjs/components/prism-cshtml';
 import 'prismjs/components/prism-json';
 
-import { FormikForm } from 'components/formik';
+import { FormikForm } from '@/editor/components/formik';
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApp } from 'store/hooks';
-import { useProducts } from 'store/hooks/admin';
+import { useApp } from '@/editor/store/hooks';
+import { useProducts } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,

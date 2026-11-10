@@ -1,12 +1,12 @@
-import { Button } from 'components/button';
-import { Modal } from 'components/modal';
-import { ReportStatus } from 'features/my-reports/ReportStatus';
-import { calcNextReportSend, getLastSent } from 'features/my-reports/utils';
+import { Button } from '@/subscriber/components/button';
+import { Modal } from '@/subscriber/components/modal';
+import { ReportStatus } from '@/subscriber/features/my-reports/ReportStatus';
+import { calcNextReportSend, getLastSent } from '@/subscriber/features/my-reports/utils';
 import React from 'react';
 import { FaTelegramPlane } from 'react-icons/fa';
 import { FaRegClock } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
-import { useApp, useReportInstances, useReports } from 'store/hooks';
+import { useApp, useReportInstances, useReports } from '@/subscriber/store/hooks';
 import {
   Claim,
   Col,

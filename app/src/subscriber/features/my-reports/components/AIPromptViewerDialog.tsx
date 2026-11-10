@@ -1,5 +1,5 @@
 import React from 'react';
-import { IReportAISectionPromptModel } from 'store/hooks/subscriber/interfaces';
+import { IReportAISectionPromptModel } from '@/subscriber/store/hooks/subscriber/interfaces';
 
 import { AIPromptDialog } from './AIPromptDialog';
 import { AIPromptTranscript } from './AIPromptTranscript';

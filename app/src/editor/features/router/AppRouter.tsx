@@ -1,36 +1,36 @@
-import { AdminRouter } from 'features/admin';
-import ReportInstancesRedirect from 'features/reports/ReportInstancesRedirect';
+import { AdminRouter } from '@/editor/features/admin';
+import ReportInstancesRedirect from '@/editor/features/reports/ReportInstancesRedirect';
 import React, { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
-import { useApp } from 'store/hooks';
+import { useApp } from '@/editor/store/hooks';
 import { Claim, ContentTypeName, InternalServerError, NotFound } from 'tno-core';
 
-const DefaultLayout = lazy(async () => await import('components/layout/DefaultLayout'));
-const AccessRequest = lazy(async () => await import('features/access-request/AccessRequest'));
-const RequestClip = lazy(async () => await import('features/clips/RequestClip'));
-const ContentForm = lazy(async () => await import('features/content/form/ContentForm'));
+const DefaultLayout = lazy(async () => await import('@/editor/components/layout/DefaultLayout'));
+const AccessRequest = lazy(async () => await import('@/editor/features/access-request/AccessRequest'));
+const RequestClip = lazy(async () => await import('@/editor/features/clips/RequestClip'));
+const ContentForm = lazy(async () => await import('@/editor/features/content/form/ContentForm'));
 const ContentListView = lazy(
-  async () => await import('features/content/list-view/ContentListView'),
+  async () => await import('@/editor/features/content/list-view/ContentListView'),
 );
-const Papers = lazy(async () => await import('features/content/papers/Papers'));
-const DemoPage = lazy(async () => await import('features/demo/DemoPage'));
-const Login = lazy(async () => await import('features/login/Login'));
-const AVOverview = lazy(async () => await import('features/reports/av-overview/AVOverview'));
+const Papers = lazy(async () => await import('@/editor/features/content/papers/Papers'));
+const DemoPage = lazy(async () => await import('@/editor/features/demo/DemoPage'));
+const Login = lazy(async () => await import('@/editor/features/login/Login'));
+const AVOverview = lazy(async () => await import('@/editor/features/reports/av-overview/AVOverview'));
 const AVOverviewPreview = lazy(
-  async () => await import('features/reports/av-overview/AVOverviewPreview'),
+  async () => await import('@/editor/features/reports/av-overview/AVOverviewPreview'),
 );
 const ReportInstancePreview = lazy(
-  async () => await import('features/reports/ReportInstancePreview'),
+  async () => await import('@/editor/features/reports/ReportInstancePreview'),
 );
-const ReportPreview = lazy(async () => await import('features/reports/ReportPreview'));
-const ReportsRouter = lazy(async () => await import('features/reports/ReportsRouter'));
-const StorageListView = lazy(async () => await import('features/storage/StorageListView'));
-const PrivateRoute = lazy(async () => await import('features/router/PrivateRoute'));
+const ReportPreview = lazy(async () => await import('@/editor/features/reports/ReportPreview'));
+const ReportsRouter = lazy(async () => await import('@/editor/features/reports/ReportsRouter'));
+const StorageListView = lazy(async () => await import('@/editor/features/storage/StorageListView'));
+const PrivateRoute = lazy(async () => await import('@/editor/features/router/PrivateRoute'));
 const TranscriptionList = lazy(
-  async () => await import('features/work-orders/transcription/TranscriptionList'),
+  async () => await import('@/editor/features/work-orders/transcription/TranscriptionList'),
 );
 const EventOfTheDayList = lazy(
-  async () => await import('features/admin/event-of-the-day/EventOfTheDayList'),
+  async () => await import('@/editor/features/admin/event-of-the-day/EventOfTheDayList'),
 );
 
 export interface IAppRouter {

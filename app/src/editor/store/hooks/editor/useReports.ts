@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAjaxWrapper, useLookup } from 'store/hooks';
+import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
 import {
   type IReportFilter,
   type IReportModel,

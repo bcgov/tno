@@ -1,4 +1,4 @@
-import { NavigateOptions, useTab } from 'components/tab-control';
+import { NavigateOptions, useTab } from '@/editor/components/tab-control';
 import moment from 'moment';
 import { FaBug, FaCheckCircle, FaClock, FaPen, FaStop } from 'react-icons/fa';
 import { FaCirclePause, FaRegCircleRight } from 'react-icons/fa6';

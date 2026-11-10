@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { IContentAnalysisModel } from 'features/content/view-content/IContentAnalysisModel';
+import { IContentAnalysisModel } from '@/subscriber/features/content/view-content/IContentAnalysisModel';
 import React from 'react';
 import { useApi } from 'tno-core';
 

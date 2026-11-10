@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
-import { store } from 'store';
+import { store } from '@/editor/store';
 import { ThemeProvider } from 'styled-components';
 import { vi } from 'vitest';
 
@@ -23,7 +23,7 @@ describe('LLMUsage', () => {
 
   it('requests usage and connections once', async () => {
     // Loaded after the store, which it reaches through a circular import.
-    const { LLMUsage } = await import('features/admin/llms/LLMUsage');
+    const { LLMUsage } = await import('@/editor/features/admin/llms/LLMUsage');
 
     mocks.get.mockResolvedValue({
       data: { items: [], contentAnalysisResultCount: 0 },
@@ -54,7 +54,7 @@ describe('LLMUsage', () => {
   });
 
   it('shows the migration details in the confirmation', async () => {
-    const { LLMUsage } = await import('features/admin/llms/LLMUsage');
+    const { LLMUsage } = await import('@/editor/features/admin/llms/LLMUsage');
     mocks.get.mockImplementation(async (url: string) => ({
       data: url.endsWith('/usage')
         ? {

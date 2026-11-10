@@ -1,7 +1,7 @@
-import { Modal } from 'components/modal';
+import { Modal } from '@/subscriber/components/modal';
 import React from 'react';
-import { useApiHub, useApp } from 'store/hooks';
-import { useAppStore } from 'store/slices';
+import { useApiHub, useApp } from '@/subscriber/store/hooks';
+import { useAppStore } from '@/subscriber/store/slices';
 import {
   AccountAuthStateName,
   Button,

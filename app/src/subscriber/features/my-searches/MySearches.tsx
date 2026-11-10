@@ -1,12 +1,12 @@
-import { Action } from 'components/action';
-import { Modal } from 'components/modal';
+import { Action } from '@/subscriber/components/action';
+import { Modal } from '@/subscriber/components/modal';
 import React from 'react';
 import { FaCheck, FaSave } from 'react-icons/fa';
 import { FaBookmark, FaGear, FaPen, FaTrash } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApp, useContent, useFilters } from 'store/hooks';
-import { useProfileStore } from 'store/slices';
+import { useApp, useContent, useFilters } from '@/subscriber/store/hooks';
+import { useProfileStore } from '@/subscriber/store/slices';
 import { Col, Grid, IFilterModel, Loader, Row, Text, useModal } from 'tno-core';
 
 import { truncateTeaser } from '../../components/content-list/utils/truncateTeaser';

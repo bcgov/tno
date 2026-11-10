@@ -1,8 +1,8 @@
-import { StrictModeDroppable } from 'features/admin/automation/StrictModeDroppable';
+import { StrictModeDroppable } from '@/editor/features/admin/automation/StrictModeDroppable';
 import React from 'react';
 import { DragDropContext, Draggable, type DropResult } from 'react-beautiful-dnd';
 import { FaEdit, FaGripVertical, FaTrash } from 'react-icons/fa';
-import { useLookup } from 'store/hooks';
+import { useLookup } from '@/editor/store/hooks';
 import {
   Button,
   ButtonVariant,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSystemMessages } from 'store/hooks';
+import { useSystemMessages } from '@/editor/store/hooks';
 import { type ISystemMessageModel, Show } from 'tno-core';
 
 export const InfoText: React.FC = () => {
