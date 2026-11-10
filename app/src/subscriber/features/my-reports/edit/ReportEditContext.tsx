@@ -159,7 +159,7 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
   const [previewLastUpdatedOn, setPreviewLastUpdatedOn] = React.useState<string | undefined>();
   const [testData, setTestData] = React.useState<IReportInstanceContentModel[]>([]);
   const [isLoadingContent, setIsLoadingContent] = React.useState(false);
-  const loadingContent = React.useRef<Promise<void>>();
+  const loadingContent = React.useRef<Promise<void> | undefined>(undefined);
   const contentLoaded = !!values.contentLoaded;
 
   const loadContent = React.useCallback(() => {

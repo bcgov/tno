@@ -359,8 +359,8 @@ it("keeps a story marked Not Applicable in today's live folder", async () => {
 
 it('keeps a past report story in the list when it is marked Not Applicable', async () => {
   open();
-  await screen.findByText('Story 12');
-  await userEvent.click(screen.getByRole('checkbox', { name: 'Select story 12' }));
+  // Story 12 is also offered in "Add a story", so wait for its row specifically.
+  await userEvent.click(await screen.findByRole('checkbox', { name: 'Select story 12' }));
   await userEvent.click(screen.getByRole('button', { name: 'Mark selected Not Applicable' }));
   await waitFor(() => expect(mocks.update).toHaveBeenCalled());
   expect(screen.getByRole('checkbox', { name: 'Select story 12' })).toBeInTheDocument();

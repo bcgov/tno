@@ -1,6 +1,6 @@
 import parse from 'html-react-parser';
 import moment from 'moment';
-import React from 'react';
+import React, { type JSX } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { Col, IReportResultModel, Loader, Show } from '@/shared';

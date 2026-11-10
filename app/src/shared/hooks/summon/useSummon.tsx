@@ -38,7 +38,7 @@ export const useSummon = ({
   ...rest
 }: ISummonProps = {}): AxiosInstance => {
   const state = React.useContext(SummonContext);
-  let loadingToastId: React.ReactText | undefined = undefined;
+  let loadingToastId: string | number | undefined = undefined;
 
   // Need to set this globally so that all useSummon instances have the latest token.
   getToken = () => state.token;

@@ -1,3 +1,5 @@
+import { type JSX } from 'react';
+
 import { Claim } from '@/shared';
 
 export interface INavbarItem {

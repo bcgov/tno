@@ -1,3 +1,5 @@
+import { type JSX } from 'react';
+
 // Function to escape special characters in a string for regex
 function escapeRegExp(str: string) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

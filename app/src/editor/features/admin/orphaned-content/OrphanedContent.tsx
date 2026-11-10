@@ -214,7 +214,7 @@ const OrphanedContent: React.FC = () => {
   const [notice, setNotice] = React.useState('');
   const [resolution, setResolution] = React.useState<Resolution>();
   const active = !!job && !job.completedOn;
-  const currentJobId = React.useRef<string>();
+  const currentJobId = React.useRef<string | undefined>(undefined);
   const refreshVersion = React.useRef(0);
   const selectableItems = items.filter((item) => !item.resolution);
   const selectedItems = selectableItems.filter((item) => selected.has(item.id));

@@ -4,7 +4,7 @@ import { Col, Row, Show, ToolBarSection, type IToolBarSectionProps } from '@/sha
 
 export interface ITitleSectionProps extends IToolBarSectionProps {
   /** Section icon. */
-  picture?: React.ReactElement;
+  picture?: React.ReactElement<{ className?: string }>;
 }
 
 /**

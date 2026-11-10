@@ -72,7 +72,7 @@ export const ReportEditPage = () => {
   );
   const [autoGeneratePending, setAutoGeneratePending] = React.useState(false);
   // The stories as last received from the API, to tell whether the user has changed them.
-  const contentBaseline = React.useRef<IReportInstanceContentModel[]>();
+  const contentBaseline = React.useRef<IReportInstanceContentModel[] | undefined>(undefined);
 
   const instance = report.instances.length ? report.instances[0] : undefined;
   const canEdit = instance ? editableStatuses.includes(instance.status) : true;
