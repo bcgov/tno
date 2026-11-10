@@ -1,7 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
-import { IReportModel, ReportStatusName } from 'tno-core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { IReportModel, ReportStatusName } from '@/shared';
 
 import { defaultReport } from '../../../features/my-reports/constants';
 import { ReportEditPage } from '../../../features/my-reports/edit/ReportEditPage';
@@ -16,12 +17,12 @@ const state = vi.hoisted(() => ({
   /** Every report the page has put in its form. */
   forms: [] as { id: number; charts: number[] }[],
 }));
-vi.mock('react-router-dom', () => ({
+vi.mock('react-router', () => ({
   useParams: () => ({ id: '15' }),
   useNavigate: () => vi.fn(),
 }));
 vi.mock('react-toastify', () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
-vi.mock('store/hooks', () => ({
+vi.mock('@/subscriber/store/hooks', () => ({
   useApp: () => [{ userInfo: state.userInfo }],
   useApiHub: () => ({ useHubEffect: () => {} }),
   useReportInstances: () => [{ getReportInstance: vi.fn() }],
@@ -39,17 +40,17 @@ vi.mock('store/hooks', () => ({
   useReportTemplates: () => [{ getReportTemplate: vi.fn() }],
   useSettings: () => ({ defaultReportTemplateId: 1 }),
 }));
-vi.mock('store/slices', () => ({
+vi.mock('@/subscriber/store/slices', () => ({
   useProfileStore: () => [{ myReports: state.myReports }, { storeReportOutput: vi.fn() }],
 }));
-vi.mock('components/formik', () => ({
+vi.mock('@/subscriber/components/formik', () => ({
   FormikForm: ({ initialValues }: { initialValues: IReportForm }) => {
     const charts = initialValues.sections.map((s) => s.chartTemplates.length);
     state.forms.push({ id: initialValues.id, charts });
     return <div data-testid="charts">{`${initialValues.id}:${charts.join(',')}`}</div>;
   },
 }));
-vi.mock('components/section', () => ({ PageSection: () => null }));
+vi.mock('@/subscriber/components/section', () => ({ PageSection: () => null }));
 vi.mock('../../../features/my-reports/edit/content', () => ({ ContentEditForm: () => null }));
 vi.mock('../../../features/my-reports/edit/ReportEditContext', () => ({
   ReportEditContextProvider: () => null,
@@ -74,7 +75,7 @@ const report = (chartIds: number[]): IReportModel =>
       },
     ],
     instances: [{ id: 7, reportId: 15, status: ReportStatusName.Pending, content: [] }],
-  } as unknown as IReportModel);
+  }) as unknown as IReportModel;
 
 /** The report as the list returned it before it carried section charts, with an instance merged in. */
 const staleStoreReport = report([]);
