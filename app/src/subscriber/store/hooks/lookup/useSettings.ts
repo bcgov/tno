@@ -1,7 +1,8 @@
 import React from 'react';
 import { toast } from 'react-toastify';
-import { useSettingsStore } from '@/subscriber/store/slices';
 import { Settings } from 'tno-core';
+
+import { useSettingsStore } from '@/subscriber/store/slices';
 
 import { useLookup } from './useLookup';
 

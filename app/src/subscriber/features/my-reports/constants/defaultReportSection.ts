@@ -21,8 +21,8 @@ export const defaultReportSection = (
       type === ReportSectionTypeName.TableOfContents
         ? 'Table of Contents'
         : type === ReportSectionTypeName.Text
-        ? 'Executive Summary'
-        : '',
+          ? 'Executive Summary'
+          : '',
     useAllContent: type === ReportSectionTypeName.MediaAnalytics,
     showHeadlines: showHeadlines ?? type === ReportSectionTypeName.TableOfContents,
     showFullStory: showFullStory ?? type === ReportSectionTypeName.Content,

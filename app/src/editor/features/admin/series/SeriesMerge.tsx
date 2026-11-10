@@ -1,9 +1,6 @@
-import { FormikForm } from '@/editor/components/formik';
 import React from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useLookup } from '@/editor/store/hooks';
-import { useSeries } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -11,12 +8,16 @@ import {
   FieldSize,
   FormikSelect,
   FormikText,
-  type IOptionItem,
   Modal,
   OptionItem,
   Row,
   useModal,
+  type IOptionItem,
 } from 'tno-core';
+
+import { FormikForm } from '@/editor/components/formik';
+import { useLookup } from '@/editor/store/hooks';
+import { useSeries } from '@/editor/store/hooks/admin';
 
 import { defaultSeries } from './constants';
 import { type ISeriesForm } from './interfaces';

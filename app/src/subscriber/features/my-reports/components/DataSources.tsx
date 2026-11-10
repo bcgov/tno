@@ -1,10 +1,7 @@
-import { Button } from '@/subscriber/components/button';
-import { IToggleOption, Toggle } from '@/subscriber/components/form';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaArrowAltCircleRight } from 'react-icons/fa';
 import { FaBan, FaBookmark, FaChartBar, FaFolder } from 'react-icons/fa6';
-import { useFilters, useFolders, useReports } from '@/subscriber/store/hooks';
 import {
   Col,
   FormikSelect,
@@ -15,6 +12,10 @@ import {
   Row,
   Show,
 } from 'tno-core';
+
+import { Button } from '@/subscriber/components/button';
+import { IToggleOption, Toggle } from '@/subscriber/components/form';
+import { useFilters, useFolders, useReports } from '@/subscriber/store/hooks';
 
 import { IReportForm } from '../interfaces';
 
@@ -67,10 +68,10 @@ export const DataSources = ({
       (section.filterId
         ? 'filter'
         : section.folderId
-        ? 'folder'
-        : section.linkedReportId
-        ? 'report'
-        : 'none'),
+          ? 'folder'
+          : section.linkedReportId
+            ? 'report'
+            : 'none'),
   );
 
   React.useEffect(() => {

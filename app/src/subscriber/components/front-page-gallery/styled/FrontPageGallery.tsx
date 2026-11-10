@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+
 export const FrontPageGallery = styled.div`
   img {
     padding: 0.5em;

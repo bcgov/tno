@@ -1,7 +1,5 @@
 import { AxiosError } from 'axios';
 import React from 'react';
-import { useAjaxWrapper } from '@/subscriber/store/hooks';
-import { IProfileState, useProfileStore } from '@/subscriber/store/slices';
 import {
   IReportFilter,
   IReportInstanceContentModel,
@@ -14,6 +12,9 @@ import {
   useApi,
   useApiSubscriberReports,
 } from 'tno-core';
+
+import { useAjaxWrapper } from '@/subscriber/store/hooks';
+import { IProfileState, useProfileStore } from '@/subscriber/store/slices';
 
 import { IChartDataPreviewRequestModel } from './interfaces/IChartDataPreviewRequestModel';
 import { IReportContentMutationModel } from './interfaces/IReportContentMutationModel';
@@ -126,7 +127,7 @@ export const useReports = (): [IProfileState, IReportController] => {
             const result = { ...reports };
             result[id] = response.data?.instances.length
               ? response.data.instances[0].content.map((c) => c.contentId)
-              : reports[id] ?? [];
+              : (reports[id] ?? []);
             return result;
           });
         }
@@ -155,7 +156,7 @@ export const useReports = (): [IProfileState, IReportController] => {
             const result = { ...reports };
             result[id] = response.data.length
               ? response.data[0].content.map((c) => c.contentId)
-              : reports[id] ?? [];
+              : (reports[id] ?? []);
             return result;
           });
         }
@@ -173,7 +174,7 @@ export const useReports = (): [IProfileState, IReportController] => {
             const result = { ...reports };
             result[model.id] = response.data.instances.length
               ? response.data.instances[0].content.map((c) => c.contentId)
-              : reports[model.id] ?? [];
+              : (reports[model.id] ?? []);
             return result;
           });
         }
@@ -206,7 +207,7 @@ export const useReports = (): [IProfileState, IReportController] => {
             const result = { ...reports };
             result[model.id] = response.data.instances.length
               ? response.data.instances[0].content.map((c) => c.contentId)
-              : reports[model.id] ?? [];
+              : (reports[model.id] ?? []);
             return result;
           });
         }
@@ -255,7 +256,7 @@ export const useReports = (): [IProfileState, IReportController] => {
             const result = { ...reports };
             result[id] = response.data.instances.length
               ? response.data.instances[0].content.map((c) => c.contentId)
-              : reports[id] ?? [];
+              : (reports[id] ?? []);
             return result;
           });
         }

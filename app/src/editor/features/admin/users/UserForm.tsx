@@ -1,10 +1,7 @@
-import { FormikForm } from '@/editor/components/formik';
-import { formatDate } from '@/editor/features/admin/users/utils/formatDate';
 import React, { type ReactElement } from 'react';
 import { FaExclamationTriangle } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useReports, useUsers } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -12,10 +9,6 @@ import {
   FieldSize,
   getSortableOptions,
   IconButton,
-  type IOptionItem,
-  type IReportModel,
-  type IUserModel,
-  type IUserUpdateHistoryModel,
   Modal,
   Row,
   SelectDate,
@@ -25,7 +18,15 @@ import {
   useModal,
   UserAccountTypeName,
   UserChangeTypeName,
+  type IOptionItem,
+  type IReportModel,
+  type IUserModel,
+  type IUserUpdateHistoryModel,
 } from 'tno-core';
+
+import { FormikForm } from '@/editor/components/formik';
+import { formatDate } from '@/editor/features/admin/users/utils/formatDate';
+import { useReports, useUsers } from '@/editor/store/hooks/admin';
 
 import { defaultUser } from './constants';
 import * as styled from './styled';
@@ -78,10 +79,10 @@ const UserForm: React.FC = () => {
       type === 'direct'
         ? UserAccountTypeName.Direct
         : type === 'indirect'
-        ? UserAccountTypeName.Indirect
-        : type === 'distribution'
-        ? UserAccountTypeName.Distribution
-        : UserAccountTypeName.Direct;
+          ? UserAccountTypeName.Indirect
+          : type === 'distribution'
+            ? UserAccountTypeName.Distribution
+            : UserAccountTypeName.Direct;
     return { ...defaultUser, accountType };
   }, []);
 

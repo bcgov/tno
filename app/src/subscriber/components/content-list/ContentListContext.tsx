@@ -1,5 +1,5 @@
-import { createContext, ReactNode, useState } from 'react';
-import React from 'react';
+import React, { createContext, ReactNode, useState } from 'react';
+
 import { useApp, useReports, useReportSync } from '@/subscriber/store/hooks';
 import { useProfileStore } from '@/subscriber/store/slices';
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaEdit, FaPlus } from 'react-icons/fa';
 import { components as selectComponents, type IndicatorsContainerProps } from 'react-select';
-import { type IOptionItem, Select } from 'tno-core';
+import { Select, type IOptionItem } from 'tno-core';
 
 import { findOptionByValue, toNumberOrUndefined } from '../utils';
 import { fitSelectWidth } from './constants';

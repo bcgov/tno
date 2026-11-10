@@ -1,7 +1,4 @@
 import React from 'react';
-import { useApp } from '@/subscriber/store/hooks';
-import { useTonePool } from '@/subscriber/store/hooks/subscriber/useTonePool';
-import { useProfileStore } from '@/subscriber/store/slices';
 import {
   Col,
   ContentTypeName,
@@ -12,6 +9,10 @@ import {
   TextArea,
   Wysiwyg,
 } from 'tno-core';
+
+import { useApp } from '@/subscriber/store/hooks';
+import { useTonePool } from '@/subscriber/store/hooks/subscriber/useTonePool';
+import { useProfileStore } from '@/subscriber/store/slices';
 
 export interface IContentFormProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'content'> {
   /** The content being edited */

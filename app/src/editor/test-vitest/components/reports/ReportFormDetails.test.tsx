@@ -1,9 +1,10 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { ReportFormDetails } from '@/editor/features/admin/reports/ReportFormDetails';
 import { Formik, useFormikContext } from 'formik';
 import React from 'react';
-import { TestWrapper } from '@/editor/test-vitest/utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { ReportFormDetails } from '@/editor/features/admin/reports/ReportFormDetails';
+import { TestWrapper } from '@/editor/test-vitest/utils';
 
 // Stable identities, the way the Redux-backed hooks behave.
 const app = vi.hoisted(() => ({ state: { userInfo: { id: 1, roles: [] as string[] } } }));

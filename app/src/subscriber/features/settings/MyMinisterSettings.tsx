@@ -1,9 +1,10 @@
-import { Button } from '@/subscriber/components/button';
 import React from 'react';
 import { toast } from 'react-toastify';
+import { Checkbox, getDistinct, ISubscriberUserModel, Row } from 'tno-core';
+
+import { Button } from '@/subscriber/components/button';
 import { useLookup, useUsers } from '@/subscriber/store/hooks';
 import { useProfileStore } from '@/subscriber/store/slices';
-import { Checkbox, getDistinct, ISubscriberUserModel, Row } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -15,8 +16,8 @@ export const MyMinisterSettings: React.FC = () => {
   const [activeMinisters, setActiveMinisters] = React.useState(ministers);
 
   const myMinisters: number[] = !!impersonate
-    ? impersonate?.preferences?.myMinisters ?? []
-    : profile?.preferences?.myMinisters ?? [];
+    ? (impersonate?.preferences?.myMinisters ?? [])
+    : (profile?.preferences?.myMinisters ?? []);
 
   const mergeValues = React.useCallback(
     (values: number[]) => {

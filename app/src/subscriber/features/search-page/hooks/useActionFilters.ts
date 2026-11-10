@@ -1,6 +1,7 @@
 import React from 'react';
-import { useLookup, useSettings } from '@/subscriber/store/hooks';
 import { IFilterActionSettingsModel } from 'tno-core';
+
+import { useLookup, useSettings } from '@/subscriber/store/hooks';
 
 /**
  * Generate an array of action filters based on the specified 'filter' and array of 'actions'.

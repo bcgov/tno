@@ -1,11 +1,12 @@
+import React from 'react';
+import { FaGripVertical, FaX } from 'react-icons/fa6';
+import { Checkbox, Col, IOptionItem, Row, Select, Text } from 'tno-core';
+
 import { Action } from '@/subscriber/components/action';
 import { Sentiment } from '@/subscriber/components/sentiment';
 import { ReportContentInlineText } from '@/subscriber/features/my-reports/components';
 import { IReportInstanceContentForm } from '@/subscriber/features/my-reports/interfaces';
-import React from 'react';
-import { FaGripVertical, FaX } from 'react-icons/fa6';
 import { useApp } from '@/subscriber/store/hooks';
-import { Checkbox, Col, IOptionItem, Row, Select, Text } from 'tno-core';
 
 export interface IReportContentSectionRowProps {
   /** Class name of div. */
@@ -67,7 +68,7 @@ export const ReportContentSectionRow: React.FC<IReportContentSectionRowProps> = 
   if (!row.content) return <></>;
 
   const headline = row.content.versions?.[userId]?.headline
-    ? row.content.versions[userId].headline ?? ''
+    ? (row.content.versions[userId].headline ?? '')
     : row.content.headline;
   const sentiment = row.content.tonePools?.length ? row.content.tonePools[0].value : undefined;
 

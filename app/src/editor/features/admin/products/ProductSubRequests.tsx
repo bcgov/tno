@@ -1,6 +1,6 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { Col, type IProductModel, ProductRequestStatusName, Row, Show } from 'tno-core';
+import { Col, ProductRequestStatusName, Row, Show, type IProductModel } from 'tno-core';
 
 import * as styled from './styled';
 import { UserApproveDeny } from './UserApproveDeny';

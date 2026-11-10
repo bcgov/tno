@@ -1,5 +1,5 @@
 import { useFormikContext } from 'formik';
-import { Col, FormikText, type IConnectionModel, Row } from 'tno-core';
+import { Col, FormikText, Row, type IConnectionModel } from 'tno-core';
 
 export const AWSConfiguration = () => {
   const { values } = useFormikContext<IConnectionModel>();

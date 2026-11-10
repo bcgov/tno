@@ -12,10 +12,10 @@ import {
   FormikStringEnumCheckbox,
   FormikText,
   FormikTimeInput,
-  type IReportModel,
   Row,
   ScheduleWeekDayName,
   selectWeekDays,
+  type IReportModel,
 } from 'tno-core';
 
 import * as styled from './styled';

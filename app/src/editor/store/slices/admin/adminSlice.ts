@@ -1,6 +1,4 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { type IUserListFilter } from '@/editor/features/admin/users/interfaces/IUserListFilter';
-import { type IWorkOrderListFilter } from '@/editor/features/admin/work-orders/interfaces/IWorkOrderListFilter';
 import {
   type IActionModel,
   type IChartTemplateModel,
@@ -32,6 +30,9 @@ import {
   type IUserModel,
   type IWorkOrderModel,
 } from 'tno-core';
+
+import { type IUserListFilter } from '@/editor/features/admin/users/interfaces/IUserListFilter';
+import { type IWorkOrderListFilter } from '@/editor/features/admin/work-orders/interfaces/IWorkOrderListFilter';
 
 import { type IAdminState } from './interfaces';
 

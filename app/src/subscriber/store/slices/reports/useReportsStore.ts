@@ -1,5 +1,6 @@
-import { IReportResultForm } from '@/subscriber/features/my-reports/interfaces';
 import React from 'react';
+
+import { IReportResultForm } from '@/subscriber/features/my-reports/interfaces';
 import { ActionDelegate, useAppDispatch, useAppSelector } from '@/subscriber/store';
 
 import { storeReportView } from '.';

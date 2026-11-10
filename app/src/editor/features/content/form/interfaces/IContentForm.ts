@@ -1,17 +1,16 @@
 import { type IContentModel, type IQuoteModel, type IWorkOrderModel } from 'tno-core';
 
-export interface IContentForm
-  extends Omit<
-    IContentModel,
-    | 'otherSeries'
-    | 'sourceId'
-    | 'otherSource'
-    | 'seriesId'
-    | 'contributorId'
-    | 'ownerId'
-    | 'uid'
-    | 'sourceUrl'
-  > {
+export interface IContentForm extends Omit<
+  IContentModel,
+  | 'otherSeries'
+  | 'sourceId'
+  | 'otherSource'
+  | 'seriesId'
+  | 'contributorId'
+  | 'ownerId'
+  | 'uid'
+  | 'sourceUrl'
+> {
   otherSeries: string | '';
   sourceId: number | '';
   otherSource: string | '';

@@ -1,4 +1,5 @@
 import { boolean, object, string } from 'yup';
+
 const regex24hour = /^(?:[01][0-9]|2[0-3]):[0-5][0-9](?::[0-5][0-9])?$/;
 export const ReportFormScheduleSchema = object().shape(
   {

@@ -1,7 +1,8 @@
 import { AxiosResponse } from 'axios';
-import { IContentAnalysisModel } from '@/subscriber/features/content/view-content/IContentAnalysisModel';
 import React from 'react';
 import { useApi } from 'tno-core';
+
+import { IContentAnalysisModel } from '@/subscriber/features/content/view-content/IContentAnalysisModel';
 
 import { useAjaxWrapper } from '..';
 

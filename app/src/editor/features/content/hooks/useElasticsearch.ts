@@ -45,8 +45,8 @@ export const useElasticsearch = () => {
           rest.startDate || rest.endDate || rest.timeFrame === 3
             ? undefined
             : rest.timeFrame
-            ? +rest.timeFrame
-            : 0,
+              ? +rest.timeFrame
+              : 0,
         actions: getActionFilters(rest),
         seriesIds: [],
         contributorIds: [],
@@ -159,8 +159,8 @@ export const useElasticsearch = () => {
         const existingMust = Array.isArray(query?.query?.bool?.must)
           ? [...query.query.bool.must]
           : query?.query?.bool?.must
-          ? [query.query.bool.must]
-          : [];
+            ? [query.query.bool.must]
+            : [];
         existingMust.push(clause);
         return {
           ...query,

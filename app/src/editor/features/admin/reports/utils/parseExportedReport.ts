@@ -1,9 +1,9 @@
 import {
+  ReportSectionTypeName,
   type IFilterModel,
   type IFolderModel,
   type IReportModel,
   type IReportTemplateModel,
-  ReportSectionTypeName,
 } from 'tno-core';
 
 import { defaultReport } from '../constants';

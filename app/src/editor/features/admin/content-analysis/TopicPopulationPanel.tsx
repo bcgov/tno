@@ -1,9 +1,10 @@
 import React from 'react';
 import { toast } from 'react-toastify';
-import { useTopicPopulation } from '@/editor/store/hooks/admin';
 import { Button, Col, OptionItem, Row, Select } from 'tno-core';
 
-import { type ITopicPopulationSettingsModel, TopicPopulationModeName } from './interfaces';
+import { useTopicPopulation } from '@/editor/store/hooks/admin';
+
+import { TopicPopulationModeName, type ITopicPopulationSettingsModel } from './interfaces';
 
 const modeOptions = [
   new OptionItem('Existing active topics only', TopicPopulationModeName.ExistingOnly),

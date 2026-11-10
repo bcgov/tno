@@ -1,13 +1,14 @@
 import {
-  type HubConnection,
   HubConnectionBuilder,
   HubConnectionState,
-  type IRetryPolicy,
   LogLevel,
+  type HubConnection,
+  type IRetryPolicy,
 } from '@microsoft/signalr';
 import React from 'react';
+import { Settings, useKeycloakWrapper, type MessageTargetKey } from 'tno-core';
+
 import { useAppStore } from '@/editor/store/slices';
-import { type MessageTargetKey, Settings, useKeycloakWrapper } from 'tno-core';
 
 const url = Settings.ApiPath + '/hub';
 let hub: HubConnection | null = null;

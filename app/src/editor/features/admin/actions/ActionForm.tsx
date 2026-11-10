@@ -1,10 +1,8 @@
-import { FormikForm } from '@/editor/components/formik';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useActions } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -17,15 +15,18 @@ import {
   FormikText,
   FormikTextArea,
   getEnumStringOptions,
-  type IActionModel,
   IconButton,
-  type IOptionItem,
   LabelPosition,
   Modal,
   Row,
   Show,
   useModal,
+  type IActionModel,
+  type IOptionItem,
 } from 'tno-core';
+
+import { FormikForm } from '@/editor/components/formik';
+import { useActions } from '@/editor/store/hooks/admin';
 
 import { defaultAction } from './constants';
 import * as styled from './styled';

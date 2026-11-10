@@ -1,12 +1,5 @@
-import { Button } from '@/subscriber/components/button';
 import React from 'react';
 import { FaCode, FaPaperPlane, FaPlay } from 'react-icons/fa6';
-import { useApiHub, useReportAI } from '@/subscriber/store/hooks';
-import {
-  IReportAIPromptChatMessageModel,
-  IReportAISectionPromptModel,
-  IReportAISectionTestResultModel,
-} from '@/subscriber/store/hooks/subscriber/interfaces';
 import styled from 'styled-components';
 import {
   IReportMessageModel,
@@ -15,6 +8,14 @@ import {
   Spinner,
   Wysiwyg,
 } from 'tno-core';
+
+import { Button } from '@/subscriber/components/button';
+import { useApiHub, useReportAI } from '@/subscriber/store/hooks';
+import {
+  IReportAIPromptChatMessageModel,
+  IReportAISectionPromptModel,
+  IReportAISectionTestResultModel,
+} from '@/subscriber/store/hooks/subscriber/interfaces';
 
 import { AIPromptDialog, AIPromptTranscript } from '../../../components';
 import { ReportBody } from '../../../ReportBody';
@@ -272,12 +273,12 @@ export const AIPromptWorkbench: React.FC<IAIPromptWorkbenchProps> = ({ index, op
     !reportId || !sectionId
       ? 'Save the report to test this section'
       : !hasInstance
-      ? 'Generate the report to test this section'
-      : isSubmitting
-      ? 'The report is being saved'
-      : isPending
-      ? 'A test is already running'
-      : undefined;
+        ? 'Generate the report to test this section'
+        : isSubmitting
+          ? 'The report is being saved'
+          : isPending
+            ? 'A test is already running'
+            : undefined;
 
   const refresh = React.useCallback(async () => {
     if (!test || !reportId || !sectionId) return;

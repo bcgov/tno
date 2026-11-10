@@ -1,4 +1,3 @@
-import { TimeInput } from '@/subscriber/components/form/timeinput';
 import moment from 'moment';
 import * as React from 'react';
 import ReactDatePicker from 'react-datepicker';
@@ -6,6 +5,8 @@ import { FaInfoCircle } from 'react-icons/fa';
 import { FaGear } from 'react-icons/fa6';
 import { Tooltip } from 'react-tooltip';
 import { Checkbox, Col, FieldSize, IFolderScheduleModel, Row, Show } from 'tno-core';
+
+import { TimeInput } from '@/subscriber/components/form/timeinput';
 
 import { daysOfWeek } from './constants/daysOfWeek';
 

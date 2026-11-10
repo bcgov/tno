@@ -1,7 +1,4 @@
-import { FormikForm } from '@/editor/components/formik';
-import { ComboBox } from '@/editor/features/admin/automation/designer';
 import React from 'react';
-import { useLookup } from '@/editor/store/hooks';
 import {
   Button,
   ButtonVariant,
@@ -9,13 +6,17 @@ import {
   FormikSelect,
   FormikText,
   FormikTimeInput,
-  type ITopicScoreRuleModel,
   Modal,
   OptionItem,
   Row,
   Show,
   useModal,
+  type ITopicScoreRuleModel,
 } from 'tno-core';
+
+import { FormikForm } from '@/editor/components/formik';
+import { ComboBox } from '@/editor/features/admin/automation/designer';
+import { useLookup } from '@/editor/store/hooks';
 
 import { imageOptions } from './constants';
 import { type ITopicScoreRuleForm, type ITopicScoreSourceModel } from './interfaces';

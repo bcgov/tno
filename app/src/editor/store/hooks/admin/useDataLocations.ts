@@ -1,7 +1,8 @@
 import React from 'react';
+import { useApiAdminDataLocations, type IDataLocationModel } from 'tno-core';
+
 import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
-import { type IAdminState, useAdminStore } from '@/editor/store/slices';
-import { type IDataLocationModel, useApiAdminDataLocations } from 'tno-core';
+import { useAdminStore, type IAdminState } from '@/editor/store/slices';
 
 interface IDataLocationController {
   findAllDataLocations: () => Promise<IDataLocationModel[]>;

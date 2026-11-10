@@ -1,8 +1,9 @@
-import { FormPage } from '@/editor/components/formpage';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Col, FlexboxTable, IconButton, Row, type IActionModel } from 'tno-core';
+
+import { FormPage } from '@/editor/components/formpage';
 import { useActions } from '@/editor/store/hooks/admin';
-import { Col, FlexboxTable, type IActionModel, IconButton, Row } from 'tno-core';
 
 import { ActionFilter } from './ActionFilter';
 import { columns } from './constants';

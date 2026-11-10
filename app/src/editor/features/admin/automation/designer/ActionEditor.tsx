@@ -2,13 +2,13 @@ import React from 'react';
 import {
   Checkbox,
   Col,
-  type IActionModel,
-  type IOptionItem,
   Row,
   Select,
   Show,
   Text,
   ValueType,
+  type IActionModel,
+  type IOptionItem,
 } from 'tno-core';
 
 import { contentFieldOptionItems } from '../constants';
@@ -283,8 +283,8 @@ export const ActionEditor: React.FC<IActionEditorProps> = ({
       gate.outcome === '!ran'
         ? { not: { from: `${gate.name}.ran` } }
         : gate.outcome === 'value'
-        ? { from: `${gate.name}.value`, op: gate.op ?? 'equals', value: gate.value ?? '' }
-        : { from: `${gate.name}.${gate.outcome}` };
+          ? { from: `${gate.name}.value`, op: gate.op ?? 'equals', value: gate.value ?? '' }
+          : { from: `${gate.name}.${gate.outcome}` };
     set({ when, confirm: null, analysis: null });
   };
 
@@ -411,8 +411,7 @@ export const ActionEditor: React.FC<IActionEditorProps> = ({
         );
       case 'collection': {
         const current = (action as unknown as Record<string, unknown>)[field.name] as
-          | string
-          | undefined;
+          string | undefined;
         return (
           <ScopedNameField
             key={key}
@@ -428,8 +427,7 @@ export const ActionEditor: React.FC<IActionEditorProps> = ({
       }
       case 'int': {
         const current = (action as unknown as Record<string, unknown>)[field.name] as
-          | number
-          | undefined;
+          number | undefined;
         return (
           <Text
             key={key}
@@ -448,8 +446,7 @@ export const ActionEditor: React.FC<IActionEditorProps> = ({
       }
       case 'bool': {
         const current = (action as unknown as Record<string, unknown>)[field.name] as
-          | boolean
-          | undefined;
+          boolean | undefined;
         return (
           <div key={key} className="checkbox-inline">
             <Checkbox
@@ -560,8 +557,7 @@ export const ActionEditor: React.FC<IActionEditorProps> = ({
       }
       case 'fields': {
         const current = (action as unknown as Record<string, unknown>)[field.name] as
-          | string[]
-          | undefined;
+          string[] | undefined;
         // 'copyFields' -> 'Copy fields'.
         const fieldsLabel = field.name
           .replace(/([A-Z])/g, ' $1')
@@ -653,8 +649,7 @@ export const ActionEditor: React.FC<IActionEditorProps> = ({
         const isCopyFrom = field.name === 'copyFrom';
         if (!isCopyFrom && draftNames.length === 0) return null;
         const current = (action as unknown as Record<string, unknown>)[field.name] as
-          | string
-          | undefined;
+          string | undefined;
         const itemOptions = isCopyFrom
           ? [createOption('(start blank)', ''), subjectOption, ...draftOptions]
           : [subjectOption, ...draftOptions];
@@ -690,8 +685,7 @@ export const ActionEditor: React.FC<IActionEditorProps> = ({
             />
           );
         const current = (action as unknown as Record<string, unknown>)[field.name] as
-          | string
-          | undefined;
+          string | undefined;
         if (draftNames.length === 0) return null;
         const targetOptions = [createOption('(original item)', ''), ...draftOptions];
         return (
@@ -719,8 +713,7 @@ export const ActionEditor: React.FC<IActionEditorProps> = ({
             .split('|')
             .map((item) => createOption(item, item));
           const current = (action as unknown as Record<string, unknown>)[field.name] as
-            | string
-            | undefined;
+            string | undefined;
           return (
             <Select
               key={key}
@@ -739,8 +732,7 @@ export const ActionEditor: React.FC<IActionEditorProps> = ({
           );
         }
         const current = (action as unknown as Record<string, unknown>)[field.name] as
-          | string
-          | undefined;
+          string | undefined;
         // Objectives are declared by score actions; offer them (typing a new one is how a
         // score action declares it in the first place).
         if (field.name === 'objective')

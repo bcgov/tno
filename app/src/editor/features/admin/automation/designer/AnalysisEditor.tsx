@@ -3,13 +3,13 @@ import { FaPlus, FaTrash } from 'react-icons/fa';
 import {
   Checkbox,
   Col,
-  type IOptionItem,
   Row,
   Select,
   Show,
   Text,
   TextArea,
   Wysiwyg,
+  type IOptionItem,
 } from 'tno-core';
 
 import { createOption, findOptionByValue, toNumberOrUndefined } from '../utils';

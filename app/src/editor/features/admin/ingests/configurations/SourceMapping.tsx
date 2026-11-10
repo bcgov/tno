@@ -1,7 +1,8 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { useLookup } from '@/editor/store/hooks';
 import { FlexboxTable, type IIngestModel } from 'tno-core';
+
+import { useLookup } from '@/editor/store/hooks';
 
 import { columns, type ISourceMappingItem } from './constants/columns';
 import * as styled from './styled';

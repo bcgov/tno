@@ -1,7 +1,8 @@
 import React from 'react';
+import { getSortableOptions, getSourceOptions, IOptionItem } from 'tno-core';
+
 import { ILookupController, useLookup } from '@/subscriber/store/hooks';
 import { ILookupState } from '@/subscriber/store/slices';
-import { getSortableOptions, getSourceOptions, IOptionItem } from 'tno-core';
 
 export interface ILookupOptionsState extends ILookupState {
   ingestTypeOptions: IOptionItem[];

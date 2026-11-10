@@ -8,20 +8,21 @@ import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
 import { toast } from 'react-toastify';
-import { useLookup } from '@/editor/store/hooks';
-import { useReportTemplates } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
   Col,
   FormikSelect,
   getEnumStringOptions,
-  type IOptionItem,
-  type IReportTemplateModel,
   ReportTypeName,
   Row,
   Settings,
+  type IOptionItem,
+  type IReportTemplateModel,
 } from 'tno-core';
+
+import { useLookup } from '@/editor/store/hooks';
+import { useReportTemplates } from '@/editor/store/hooks/admin';
 
 import {
   defaultAVOverviewBodyRazorTemplate,

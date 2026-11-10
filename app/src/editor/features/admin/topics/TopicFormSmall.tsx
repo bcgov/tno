@@ -1,17 +1,18 @@
-import { FormikForm } from '@/editor/components/formik';
 import React from 'react';
-import { useApp } from '@/editor/store/hooks';
 import {
   Button,
   ButtonVariant,
   FieldSize,
   FormikText,
-  type ITopicModel,
   Loader,
   Row,
   ToggleGroup,
   TopicTypeName,
+  type ITopicModel,
 } from 'tno-core';
+
+import { FormikForm } from '@/editor/components/formik';
+import { useApp } from '@/editor/store/hooks';
 
 import { defaultTopic } from './constants';
 import * as styled from './styled';

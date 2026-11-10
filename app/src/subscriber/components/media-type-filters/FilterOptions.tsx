@@ -6,9 +6,6 @@ import {
   FaNewspaper,
   FaTowerCell,
 } from 'react-icons/fa6';
-import { useContent, useLookup } from '@/subscriber/store/hooks';
-import { useUsers } from '@/subscriber/store/hooks';
-import { useAppStore } from '@/subscriber/store/slices';
 import {
   Button,
   ButtonHeight,
@@ -17,6 +14,9 @@ import {
   ISubscriberUserModel,
   useWindowSize,
 } from 'tno-core';
+
+import { useContent, useLookup, useUsers } from '@/subscriber/store/hooks';
+import { useAppStore } from '@/subscriber/store/slices';
 
 import { defaultFilter, FilterOptionTypes } from './constants';
 import * as styled from './styled';
@@ -165,7 +165,7 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
             savePreferences(filter.type);
           }}
         >
-          {width && width < 768 ? filter.icon ?? 'All' : filter.label}
+          {width && width < 768 ? (filter.icon ?? 'All') : filter.label}
         </Button>
       ))}
     </styled.HomeFilters>

@@ -1,7 +1,8 @@
-import { type IContentListFilter } from '@/editor/features/content/interfaces';
-import { defaultPage } from '@/editor/features/content/list-view/constants';
 import moment from 'moment';
 import { ContentTypeName, type ISourceModel } from 'tno-core';
+
+import { type IContentListFilter } from '@/editor/features/content/interfaces';
+import { defaultPage } from '@/editor/features/content/list-view/constants';
 
 import { defaultSort } from './defaultSort';
 

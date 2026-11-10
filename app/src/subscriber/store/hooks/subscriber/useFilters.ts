@@ -1,6 +1,4 @@
 import React from 'react';
-import { useAjaxWrapper } from '@/subscriber/store/hooks';
-import { IProfileState, useProfileStore } from '@/subscriber/store/slices';
 import {
   IFilterAIChatRequestModel,
   IFilterAIChatResultModel,
@@ -9,6 +7,9 @@ import {
   IFilterModel,
   useApiSubscriberFilters,
 } from 'tno-core';
+
+import { useAjaxWrapper } from '@/subscriber/store/hooks';
+import { IProfileState, useProfileStore } from '@/subscriber/store/slices';
 
 interface IFilterController {
   activeFilter?: IFilterModel;

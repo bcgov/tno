@@ -2,8 +2,6 @@ import { useFormikContext } from 'formik';
 import { debounce, noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
-import { useApp } from '@/editor/store/hooks';
-import { useUsers } from '@/editor/store/hooks/admin';
 import {
   Col,
   FieldSize,
@@ -13,12 +11,15 @@ import {
   FormikText,
   FormikTextArea,
   getUserOptions,
-  type INotificationModel,
-  type OptionItem,
   Row,
   Show,
   UserAccountTypeName,
+  type INotificationModel,
+  type OptionItem,
 } from 'tno-core';
+
+import { useApp } from '@/editor/store/hooks';
+import { useUsers } from '@/editor/store/hooks/admin';
 
 import { resendOptions } from './constants';
 

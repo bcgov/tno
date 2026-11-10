@@ -1,4 +1,4 @@
-import { type IScheduleModel, ScheduleMonthName, ScheduleWeekDayName } from 'tno-core';
+import { ScheduleMonthName, ScheduleWeekDayName, type IScheduleModel } from 'tno-core';
 
 export const defaultSchedule: IScheduleModel = {
   id: 0,

@@ -1,4 +1,4 @@
-import { type IOptionItem, OptionItem } from 'tno-core';
+import { OptionItem, type IOptionItem } from 'tno-core';
 
 export const serviceTypes = (ingestType?: string) => {
   const values: Array<IOptionItem<string>> = [

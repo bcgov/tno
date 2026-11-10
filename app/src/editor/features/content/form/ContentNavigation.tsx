@@ -1,8 +1,9 @@
 import React from 'react';
 import { FaChevronLeft, FaChevronRight, FaSpinner } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { useLocalStorage } from '@/editor/store/hooks';
 import { Button, ButtonVariant, Row, Show, Spinner } from 'tno-core';
+
+import { useLocalStorage } from '@/editor/store/hooks';
 
 import { useContentForm } from './hooks';
 import { type IContentForm } from './interfaces/IContentForm';
@@ -39,7 +40,7 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
 
   React.useEffect(() => {
     if (currentItems != null) {
-      const index = values.id ? currentItems.findIndex((c) => c === +values.id) ?? -1 : -1;
+      const index = values.id ? (currentItems.findIndex((c) => c === +values.id) ?? -1) : -1;
       setIndexPosition(index);
       setEnablePrev(index > 0);
       setEnableNext(index < (currentItems.length ?? 0) - 1);

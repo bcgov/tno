@@ -1,7 +1,8 @@
 import { HubConnectionState } from '@microsoft/signalr';
 import React from 'react';
-import { useAppDispatch, useAppSelector } from '@/subscriber/store';
 import { IUserInfoModel } from 'tno-core';
+
+import { useAppDispatch, useAppSelector } from '@/subscriber/store';
 
 import {
   addError,

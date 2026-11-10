@@ -1,23 +1,24 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { AxiosError } from 'axios';
-import { ActionNames } from '@/editor/features/content/form/constants/actionsEnum';
-import { getDefaultCommentaryExpiryValue } from '@/editor/features/content/form/utils';
-import { type IContentListFilter } from '@/editor/features/content/interfaces';
 import * as React from 'react';
 import { toast } from 'react-toastify';
-import { useContent, useLookup, useSettings } from '@/editor/store/hooks';
-import { type IContentSearchResult } from '@/editor/store/slices';
 import {
   Button,
   ButtonVariant,
   Col,
   ContentListActionName,
   ContentStatusName,
-  type IContentModel,
-  type IPage,
   Row,
   Show,
+  type IContentModel,
+  type IPage,
 } from 'tno-core';
+
+import { ActionNames } from '@/editor/features/content/form/constants/actionsEnum';
+import { getDefaultCommentaryExpiryValue } from '@/editor/features/content/form/utils';
+import { type IContentListFilter } from '@/editor/features/content/interfaces';
+import { useContent, useLookup, useSettings } from '@/editor/store/hooks';
+import { type IContentSearchResult } from '@/editor/store/slices';
 
 import * as styled from './styled';
 
@@ -62,7 +63,7 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
           contentIds:
             selected.length > 0
               ? selected.map((s) => s.id)
-              : searchResults?.items.map((c) => c.id) ?? [],
+              : (searchResults?.items.map((c) => c.id) ?? []),
         });
         if (action === ContentListActionName.Hide && (value === 'false' || !value)) {
           onContentHidden(items);

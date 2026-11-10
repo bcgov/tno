@@ -1,12 +1,15 @@
-import { AdminRouter } from '@/editor/features/admin';
-import ReportInstancesRedirect from '@/editor/features/reports/ReportInstancesRedirect';
 import React, { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
-import { useApp } from '@/editor/store/hooks';
 import { Claim, ContentTypeName, InternalServerError, NotFound } from 'tno-core';
 
+import { AdminRouter } from '@/editor/features/admin';
+import ReportInstancesRedirect from '@/editor/features/reports/ReportInstancesRedirect';
+import { useApp } from '@/editor/store/hooks';
+
 const DefaultLayout = lazy(async () => await import('@/editor/components/layout/DefaultLayout'));
-const AccessRequest = lazy(async () => await import('@/editor/features/access-request/AccessRequest'));
+const AccessRequest = lazy(
+  async () => await import('@/editor/features/access-request/AccessRequest'),
+);
 const RequestClip = lazy(async () => await import('@/editor/features/clips/RequestClip'));
 const ContentForm = lazy(async () => await import('@/editor/features/content/form/ContentForm'));
 const ContentListView = lazy(
@@ -15,7 +18,9 @@ const ContentListView = lazy(
 const Papers = lazy(async () => await import('@/editor/features/content/papers/Papers'));
 const DemoPage = lazy(async () => await import('@/editor/features/demo/DemoPage'));
 const Login = lazy(async () => await import('@/editor/features/login/Login'));
-const AVOverview = lazy(async () => await import('@/editor/features/reports/av-overview/AVOverview'));
+const AVOverview = lazy(
+  async () => await import('@/editor/features/reports/av-overview/AVOverview'),
+);
 const AVOverviewPreview = lazy(
   async () => await import('@/editor/features/reports/av-overview/AVOverviewPreview'),
 );

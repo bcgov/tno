@@ -1,15 +1,15 @@
 import 'prismjs/themes/prism.css';
 import 'prismjs/components/prism-sql';
 
-import { Button as AppButton } from '@/subscriber/components/button';
-import { PageSection } from '@/subscriber/components/section';
-import { useElastic } from '@/subscriber/features/my-searches/hooks';
-import { useSearchPageContext } from '@/subscriber/features/search-page/SearchPageContext';
-import { filterFormat } from '@/subscriber/features/search-page/utils';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
-import { FaCaretSquareDown, FaCheckSquare, FaExclamationCircle, FaPlay } from 'react-icons/fa';
-import { FaSave } from 'react-icons/fa';
+import {
+  FaCaretSquareDown,
+  FaCheckSquare,
+  FaExclamationCircle,
+  FaPlay,
+  FaSave,
+} from 'react-icons/fa';
 import {
   FaBookmark,
   FaCheck,
@@ -28,8 +28,6 @@ import { IoIosCog, IoMdRefresh } from 'react-icons/io';
 import { useNavigate } from 'react-router-dom';
 import Editor from 'react-simple-code-editor';
 import { toast } from 'react-toastify';
-import { useApp, useContent, useFilters } from '@/subscriber/store/hooks';
-import { useProfileStore } from '@/subscriber/store/slices';
 import {
   Button,
   Claim,
@@ -49,6 +47,14 @@ import {
   useFilterAIGenerationGuard,
 } from 'tno-core';
 
+import { Button as AppButton } from '@/subscriber/components/button';
+import { PageSection } from '@/subscriber/components/section';
+import { useElastic } from '@/subscriber/features/my-searches/hooks';
+import { useSearchPageContext } from '@/subscriber/features/search-page/SearchPageContext';
+import { filterFormat } from '@/subscriber/features/search-page/utils';
+import { useApp, useContent, useFilters } from '@/subscriber/store/hooks';
+import { useProfileStore } from '@/subscriber/store/slices';
+
 import {
   AccordionPanel,
   AdvancedSearchSections,
@@ -61,11 +67,12 @@ import {
   ToggleFilterStyleInfo,
 } from './components';
 import {
+  AdvancedQueryOperatorOptions,
   defaultAdvancedSearch,
   defaultFilter,
   displayFiltersAsDropdownCookieKey,
+  SearchOperatorOptions,
 } from './constants';
-import { AdvancedQueryOperatorOptions, SearchOperatorOptions } from './constants';
 import { ManualSearchForm } from './ManualSearchForm';
 import * as styled from './styled';
 
@@ -594,9 +601,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
                             storeSearchFilter({
                               ...search,
                               defaultOperator: val.target.value.toLocaleLowerCase() as
-                                | 'and'
-                                | 'or'
-                                | undefined,
+                                'and' | 'or' | undefined,
                             });
                           }}
                           options={[SearchOperatorOptions.and, SearchOperatorOptions.or]}

@@ -1,9 +1,10 @@
 import { act, render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
-import { store } from '@/editor/store';
 import { ThemeProvider } from 'styled-components';
 import { vi } from 'vitest';
+
+import { store } from '@/editor/store';
 
 const mocks = vi.hoisted(() => ({ get: vi.fn() }));
 
@@ -14,7 +15,8 @@ vi.mock('tno-core', async (importOriginal) => ({
 
 const renderUsage = async () => {
   // Loaded after the store, which it reaches through a circular import.
-  const { ChartTemplateFormUsage } = await import('@/editor/features/admin/charts/ChartTemplateFormUsage');
+  const { ChartTemplateFormUsage } =
+    await import('@/editor/features/admin/charts/ChartTemplateFormUsage');
   render(
     <Provider store={store}>
       <ThemeProvider theme={{ css: {} }}>

@@ -1,10 +1,11 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import EventOfTheDayList from '@/editor/features/admin/event-of-the-day/EventOfTheDayList';
 import moment from 'moment-timezone';
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { vi } from 'vitest';
+
+import EventOfTheDayList from '@/editor/features/admin/event-of-the-day/EventOfTheDayList';
 
 const mocks = vi.hoisted(() => ({
   find: vi.fn(),

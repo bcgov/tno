@@ -1,6 +1,7 @@
 import React from 'react';
+import { useApiEditorUsers, type IUserModel } from 'tno-core';
+
 import { useAjaxWrapper } from '@/editor/store/hooks';
-import { type IUserModel, useApiEditorUsers } from 'tno-core';
 
 interface IUserController {
   getUser: (id: number) => Promise<IUserModel>;

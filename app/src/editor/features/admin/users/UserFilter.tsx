@@ -1,7 +1,5 @@
 import React from 'react';
 import { FaFileExcel } from 'react-icons/fa';
-import { useLookup } from '@/editor/store/hooks';
-import { useUsers } from '@/editor/store/hooks/admin';
 import {
   Button,
   FieldSize,
@@ -16,6 +14,9 @@ import {
   UserStatusName,
 } from 'tno-core';
 import { Row } from 'tno-core/dist/components/flex';
+
+import { useLookup } from '@/editor/store/hooks';
+import { useUsers } from '@/editor/store/hooks/admin';
 
 import { type IUserListFilter } from './interfaces/IUserListFilter';
 import * as styled from './styled';

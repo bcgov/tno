@@ -1,8 +1,5 @@
-import { Button } from '@/subscriber/components/button';
-import { hideEmptySections } from '@/subscriber/features/my-reports/utils';
 import React from 'react';
 import { FaInfoCircle, FaSyncAlt } from 'react-icons/fa';
-import { useReports } from '@/subscriber/store/hooks';
 import {
   Checkbox,
   Col,
@@ -15,6 +12,10 @@ import {
   Row,
   Show,
 } from 'tno-core';
+
+import { Button } from '@/subscriber/components/button';
+import { hideEmptySections } from '@/subscriber/features/my-reports/utils';
+import { useReports } from '@/subscriber/store/hooks';
 
 import { useReportEditContext } from '../ReportEditContext';
 import { CollectionOnlyOption } from './CollectionOnlyOption';

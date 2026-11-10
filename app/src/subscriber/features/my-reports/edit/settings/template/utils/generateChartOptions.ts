@@ -27,7 +27,7 @@ export const generateChartOptions = (
           ? chartSectionSettings.scaleSuggestedMin
           : undefined,
         suggestedMax: !chartSectionSettings.isHorizontal
-          ? chartSectionSettings.scaleSuggestedMax ?? scaleCalcMax
+          ? (chartSectionSettings.scaleSuggestedMax ?? scaleCalcMax)
           : undefined,
         title: {
           display: !!chartSectionSettings.xLegend,
@@ -53,7 +53,7 @@ export const generateChartOptions = (
           ? chartSectionSettings.scaleSuggestedMin
           : undefined,
         suggestedMax: chartSectionSettings.isHorizontal
-          ? chartSectionSettings.scaleSuggestedMax ?? scaleCalcMax
+          ? (chartSectionSettings.scaleSuggestedMax ?? scaleCalcMax)
           : undefined,
         title: {
           display: !!chartSectionSettings.yLegend,

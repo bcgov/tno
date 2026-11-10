@@ -2,7 +2,6 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaSearch } from 'react-icons/fa';
 import { FaPlus, FaTrash } from 'react-icons/fa6';
-import { useUsers } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -11,7 +10,6 @@ import {
   FormikText,
   FormikTextArea,
   getEnumStringOptions,
-  type IUserModel,
   OptionItem,
   Row,
   Section,
@@ -19,7 +17,10 @@ import {
   sortObject,
   Text,
   UserAccountTypeName,
+  type IUserModel,
 } from 'tno-core';
+
+import { useUsers } from '@/editor/store/hooks/admin';
 
 /**
  * Provides a User Form to manage, create, update and delete a user.

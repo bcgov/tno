@@ -5,11 +5,6 @@ import 'prismjs';
 
 import isPropValid from '@emotion/is-prop-valid';
 import { ReactKeycloakProvider } from '@react-keycloak/web';
-import { ContentListProvider } from '@/subscriber/components/content-list/ContentListContext';
-import { LayoutAnonymous } from '@/subscriber/components/layout';
-import { AppRouter } from '@/subscriber/features/router';
-import { SearchPageProvider } from '@/subscriber/features/search-page';
-import { fixTooltipResizeObserver } from '@/subscriber/features/utils';
 import Keycloak from 'keycloak-js';
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
@@ -17,6 +12,12 @@ import { ToastContainer } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
 import { StyleSheetManager } from 'styled-components';
 import { createKeycloakInstance, Loading, Show, useKeycloakEventHandler } from 'tno-core';
+
+import { ContentListProvider } from '@/subscriber/components/content-list/ContentListContext';
+import { LayoutAnonymous } from '@/subscriber/components/layout';
+import { AppRouter } from '@/subscriber/features/router';
+import { SearchPageProvider } from '@/subscriber/features/search-page';
+import { fixTooltipResizeObserver } from '@/subscriber/features/utils';
 
 const appName = 'Media Monitoring Insights';
 fixTooltipResizeObserver();

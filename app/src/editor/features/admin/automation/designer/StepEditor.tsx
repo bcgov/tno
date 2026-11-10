@@ -1,5 +1,5 @@
 import React from 'react';
-import { Checkbox, Col, type IOptionItem, Row, Select, Show, Text, TextArea } from 'tno-core';
+import { Checkbox, Col, Row, Select, Show, Text, TextArea, type IOptionItem } from 'tno-core';
 
 import { createOption, findOptionByValue, toNumberOrUndefined } from '../utils';
 import { fitSelectWidth, phaseOptions, stepSourceOptions } from './constants';

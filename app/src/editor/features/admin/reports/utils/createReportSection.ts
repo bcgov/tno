@@ -1,4 +1,4 @@
-import { type IReportSectionModel, ReportSectionTypeName } from 'tno-core';
+import { ReportSectionTypeName, type IReportSectionModel } from 'tno-core';
 
 export const createReportSection = (
   reportId: number,

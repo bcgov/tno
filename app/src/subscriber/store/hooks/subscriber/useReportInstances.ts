@@ -1,13 +1,14 @@
 import { AxiosError } from 'axios';
 import React from 'react';
-import { useAjaxWrapper } from '@/subscriber/store/hooks';
-import { useProfileStore } from '@/subscriber/store/slices';
 import {
   IReportInstanceModel,
   IReportResultModel,
   useApi,
   useApiSubscriberReportInstances,
 } from 'tno-core';
+
+import { useAjaxWrapper } from '@/subscriber/store/hooks';
+import { useProfileStore } from '@/subscriber/store/slices';
 
 import { IReportInstanceChartModel } from './interfaces';
 
@@ -60,7 +61,7 @@ export const useReportInstances = (): [IReportInstanceController] => {
             const result = { ...reports };
             result[instance.reportId] = instance.content.length
               ? instance.content.map((c) => c.contentId)
-              : reports[instance.reportId] ?? [];
+              : (reports[instance.reportId] ?? []);
             return result;
           });
           storeMyReports((reports) =>
@@ -83,7 +84,7 @@ export const useReportInstances = (): [IReportInstanceController] => {
             const result = { ...reports };
             result[instance.reportId] = instance.content.length
               ? instance.content.map((c) => c.contentId)
-              : reports[instance.reportId] ?? [];
+              : (reports[instance.reportId] ?? []);
             return result;
           });
           storeMyReports((reports) =>
@@ -106,7 +107,7 @@ export const useReportInstances = (): [IReportInstanceController] => {
             const result = { ...reports };
             result[instance.reportId] = instance.content.length
               ? instance.content.map((c) => c.contentId)
-              : reports[instance.reportId] ?? [];
+              : (reports[instance.reportId] ?? []);
             return result;
           });
           storeMyReports((reports) =>

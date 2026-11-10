@@ -1,7 +1,8 @@
 import React from 'react';
+import { IContributorModel, useApiSubscriberContributors } from 'tno-core';
+
 import { useAjaxWrapper } from '@/subscriber/store/hooks';
 import { IProfileState, useProfileStore } from '@/subscriber/store/slices';
-import { IContributorModel, useApiSubscriberContributors } from 'tno-core';
 
 interface IContributorController {
   findAllContributors: () => Promise<IContributorModel[]>;

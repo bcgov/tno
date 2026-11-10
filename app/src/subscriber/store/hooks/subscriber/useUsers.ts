@@ -1,6 +1,4 @@
 import React from 'react';
-import { useAjaxWrapper } from '@/subscriber/store/hooks';
-import { useAppStore, useProfileStore } from '@/subscriber/store/slices';
 import {
   IPaged,
   ISubscriberUserModel,
@@ -9,6 +7,9 @@ import {
   useApiAdminUsers,
   useApiSubscriberUsers,
 } from 'tno-core';
+
+import { useAjaxWrapper } from '@/subscriber/store/hooks';
+import { useAppStore, useProfileStore } from '@/subscriber/store/slices';
 
 interface IUserController {
   getUser: () => Promise<ISubscriberUserModel>;

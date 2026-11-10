@@ -1,5 +1,6 @@
-import { defaultFilterSettings } from '@/subscriber/features/constants';
 import { IFilterSettingsModel } from 'tno-core';
+
+import { defaultFilterSettings } from '@/subscriber/features/constants';
 
 export const createFilterSettings = (
   startDate: string,

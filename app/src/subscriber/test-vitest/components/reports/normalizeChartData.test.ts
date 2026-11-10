@@ -1,5 +1,6 @@
-import { normalizeChartData } from '@/subscriber/features/my-reports/edit/settings/template/utils/normalizeChartData';
 import { describe, expect, it } from 'vitest';
+
+import { normalizeChartData } from '@/subscriber/features/my-reports/edit/settings/template/utils/normalizeChartData';
 
 describe('normalizeChartData', () => {
   it('replaces the sentiment colour function with a colour for each value', () => {

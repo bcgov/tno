@@ -6,15 +6,16 @@ import { ReportInstanceView } from '../../../features/my-reports/ReportInstanceV
 
 const state = vi.hoisted(() => ({
   output: { instanceId: 7, subject: 'First subject', body: 'First body' } as
-    | { instanceId: number; subject: string; body: string }
-    | undefined,
+    { instanceId: number; subject: string; body: string } | undefined,
   view: vi.fn(),
 }));
 vi.mock('@/subscriber/store/hooks', () => ({
   useApp: () => [{ requests: [] }],
   useReportInstances: () => [{ viewReportInstance: state.view }],
 }));
-vi.mock('@/subscriber/store/slices', () => ({ useProfileStore: () => [{ reportOutput: state.output }] }));
+vi.mock('@/subscriber/store/slices', () => ({
+  useProfileStore: () => [{ reportOutput: state.output }],
+}));
 vi.mock('../../../features/my-reports/styled', () => ({ ReportInstanceView: 'div' }));
 vi.mock('tno-core', () => ({
   Col: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,

@@ -1,8 +1,12 @@
 import React from 'react';
 import { FaCopy, FaDownload } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
-import { ILlmExchangeModel, ILlmMessageModel } from '@/subscriber/store/hooks/subscriber/interfaces';
 import styled from 'styled-components';
+
+import {
+  ILlmExchangeModel,
+  ILlmMessageModel,
+} from '@/subscriber/store/hooks/subscriber/interfaces';
 
 const Transcript = styled.div`
   display: flex;

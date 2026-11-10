@@ -1,10 +1,11 @@
-import { ShareMenu } from '@/subscriber/components/share-menu';
 import React, { useState } from 'react';
 import { FaArrowUpRightFromSquare, FaChartSimple } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
+import { Checkbox, Claim, IContentModel, Row, Settings, Show } from 'tno-core';
+
+import { ShareMenu } from '@/subscriber/components/share-menu';
 import { useLookup, useSettings } from '@/subscriber/store/hooks';
 import { useAppStore } from '@/subscriber/store/slices';
-import { Checkbox, Claim, IContentModel, Row, Settings, Show } from 'tno-core';
 
 import { AddToFolderMenu } from './AddToFolderMenu';
 import { AddToReportMenu } from './AddToReportMenu';

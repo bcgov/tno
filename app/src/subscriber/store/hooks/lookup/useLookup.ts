@@ -1,5 +1,4 @@
 import React from 'react';
-import { ILookupState, useLookupStore } from '@/subscriber/store/slices';
 import {
   getFromLocalStorage,
   IActionModel,
@@ -29,6 +28,8 @@ import {
   useApiSubscriberLLMs,
   useApiSubscriberMinisters,
 } from 'tno-core';
+
+import { ILookupState, useLookupStore } from '@/subscriber/store/slices';
 
 import { useAjaxWrapper } from '..';
 import { IMinisterModel } from '../subscriber/interfaces/IMinisterModel';

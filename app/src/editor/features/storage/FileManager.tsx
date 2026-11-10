@@ -1,8 +1,6 @@
-import { FileExplorer } from '@/editor/features/storage/FileExplorer';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApp, useStorage, useWorkOrders } from '@/editor/store/hooks';
 import {
   Button,
   ButtonVariant,
@@ -10,12 +8,15 @@ import {
   Error,
   FieldSize,
   getDirectoryName,
-  type IDirectoryModel,
   Row,
   Show,
   Spinner,
   Text,
+  type IDirectoryModel,
 } from 'tno-core';
+
+import { FileExplorer } from '@/editor/features/storage/FileExplorer';
+import { useApp, useStorage, useWorkOrders } from '@/editor/store/hooks';
 
 import { defaultDirectory } from './constants';
 import { type IFileItem, type IStream } from './interfaces';

@@ -1,9 +1,10 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
-import { store } from '@/editor/store';
 import { ThemeProvider } from 'styled-components';
 import { vi } from 'vitest';
+
+import { store } from '@/editor/store';
 
 const mocks = vi.hoisted(() => ({
   get: vi.fn(),

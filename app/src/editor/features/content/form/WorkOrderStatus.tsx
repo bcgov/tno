@@ -1,9 +1,9 @@
 import { FaCheckCircle, FaExclamationCircle, FaTimesCircle } from 'react-icons/fa';
 import {
-  type IWorkOrderModel,
   Spinner,
   SpinnerVariant,
   WorkOrderStatusName,
+  type IWorkOrderModel,
   type WorkOrderTypeName,
 } from 'tno-core';
 

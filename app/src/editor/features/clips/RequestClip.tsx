@@ -1,24 +1,25 @@
-import { FormikForm } from '@/editor/components/formik';
-import { FormPage } from '@/editor/components/formpage';
 import React from 'react';
 import { toast } from 'react-toastify';
-import { useApp } from '@/editor/store/hooks';
 import {
   Button,
   ButtonVariant,
   Col,
   FormikText,
   FormikTimeInput,
-  type IIngestModel,
-  type IOptionItem,
-  type IScheduleModel,
   OptionItem,
   Row,
   Select,
   Show,
   useApiEditorIngests,
   useApiEditorIngestSchedules,
+  type IIngestModel,
+  type IOptionItem,
+  type IScheduleModel,
 } from 'tno-core';
+
+import { FormikForm } from '@/editor/components/formik';
+import { FormPage } from '@/editor/components/formpage';
+import { useApp } from '@/editor/store/hooks';
 
 import { defaultSchedule } from './constants';
 import * as styled from './styled';

@@ -1,8 +1,6 @@
-import { type IUserListFilter } from '@/editor/features/admin/users/interfaces/IUserListFilter';
 import React from 'react';
-import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
-import { type IAdminState, useAdminStore } from '@/editor/store/slices';
 import {
+  useApiAdminUsers,
   type IPaged,
   type ITransferAccount,
   type IUserAVOverviewModel,
@@ -11,8 +9,11 @@ import {
   type IUserNotificationModel,
   type IUserProductModel,
   type IUserReportModel,
-  useApiAdminUsers,
 } from 'tno-core';
+
+import { type IUserListFilter } from '@/editor/features/admin/users/interfaces/IUserListFilter';
+import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
+import { useAdminStore, type IAdminState } from '@/editor/store/slices';
 
 interface IUserController {
   findUsers: (filter: IUserFilter, isSilent?: boolean) => Promise<IPaged<IUserModel>>;

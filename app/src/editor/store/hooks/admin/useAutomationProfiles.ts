@@ -1,3 +1,5 @@
+import React from 'react';
+
 import {
   type IAutomationActionDescriptor,
   type IAutomationExplainRequestModel,
@@ -14,9 +16,8 @@ import {
   type IAutomationRunModel,
   type IAutomationRunRequestModel,
 } from '@/editor/features/admin/automation/interfaces';
-import React from 'react';
 import { useAjaxWrapper } from '@/editor/store/hooks';
-import { type IAdminState, useAdminStore } from '@/editor/store/slices';
+import { useAdminStore, type IAdminState } from '@/editor/store/slices';
 
 import { useApiAdminAutomation } from './useApiAdminAutomation';
 

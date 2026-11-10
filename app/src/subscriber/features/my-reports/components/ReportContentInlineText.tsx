@@ -32,8 +32,8 @@ export const ReportContentInlineText: React.FC<IReportContentInlineTextProps> = 
         row.content.versions?.[userId]?.byline
           ? `${row.content.versions[userId].byline ?? ''} | `
           : row.content.byline
-          ? `${row.content.byline} | `
-          : ''
+            ? `${row.content.byline} | `
+            : ''
       }` +
       `${row.content.otherSource ? `${row.content.otherSource} | ` : ''}` +
       `${row.content.page ? `P.${row.content.page} | ` : ''}` +

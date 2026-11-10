@@ -1,6 +1,5 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { useLookup } from '@/editor/store/hooks';
 import {
   FieldSize,
   filterEnabledOptions,
@@ -10,10 +9,12 @@ import {
   FormikTextArea,
   getSortableOptions,
   getUserOptions,
-  type IOptionItem,
   OptionItem,
+  type IOptionItem,
 } from 'tno-core';
 import { Col } from 'tno-core/dist/components/flex';
+
+import { useLookup } from '@/editor/store/hooks';
 
 import { TimeZones } from '../ingests/configurations/constants';
 import { type ISourceForm } from './interfaces';

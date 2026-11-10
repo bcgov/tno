@@ -1,12 +1,13 @@
+import React from 'react';
+import { FaChartPie, FaEye, FaGear, FaTrashCan } from 'react-icons/fa6';
+import { useNavigate } from 'react-router-dom';
+import { Col, IReportModel, ReportSectionTypeName, Row, Show, Spinner } from 'tno-core';
+
 import { Action } from '@/subscriber/components/action';
 import { Button } from '@/subscriber/components/button';
 import { Section } from '@/subscriber/components/section';
 import { formatDate } from '@/subscriber/features/utils';
-import React from 'react';
-import { FaChartPie, FaEye, FaGear, FaTrashCan } from 'react-icons/fa6';
-import { useNavigate } from 'react-router-dom';
 import { useApp, useReports } from '@/subscriber/store/hooks';
-import { Col, IReportModel, ReportSectionTypeName, Row, Show, Spinner } from 'tno-core';
 
 import { ReportKindIcon } from './components';
 import { ReportStatus } from './ReportStatus';

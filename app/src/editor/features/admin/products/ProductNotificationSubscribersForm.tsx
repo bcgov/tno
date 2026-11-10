@@ -3,11 +3,11 @@ import {
   CellEllipsis,
   Checkbox,
   Grid,
+  ProductRequestStatusName,
+  SortDirection,
   type IProductModel,
   type IUserFilter,
   type IUserProductModel,
-  ProductRequestStatusName,
-  SortDirection,
 } from 'tno-core';
 
 export interface IProductNotificationSubscribersFormProps {

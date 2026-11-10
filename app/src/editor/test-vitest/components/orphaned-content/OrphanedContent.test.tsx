@@ -1,9 +1,10 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import OrphanedContent from '@/editor/features/admin/orphaned-content/OrphanedContent';
 import React from 'react';
-import { TestWrapper } from '@/editor/test-vitest/utils';
 import { vi } from 'vitest';
+
+import OrphanedContent from '@/editor/features/admin/orphaned-content/OrphanedContent';
+import { TestWrapper } from '@/editor/test-vitest/utils';
 
 const api = vi.hoisted(() => ({
   latest: vi.fn(),
@@ -149,10 +150,10 @@ it('navigates first, previous, next and last using accessible icon buttons', asy
       last || after === 200
         ? 300
         : before === 200
-        ? 100
-        : after === 100 || before === 300
-        ? 200
-        : 100;
+          ? 100
+          : after === 100 || before === 300
+            ? 200
+            : 100;
     return {
       items: [{ ...orphan, id, headline: `Page ${id}` }],
       nextAfter: id,

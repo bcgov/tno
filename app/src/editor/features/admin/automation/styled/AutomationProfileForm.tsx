@@ -1,5 +1,6 @@
-import { FormPage } from '@/editor/components/formpage';
 import styled, { createGlobalStyle } from 'styled-components';
+
+import { FormPage } from '@/editor/components/formpage';
 
 // Imported from the module rather than the 'constants' barrel to keep the component index out of
 // this stylesheet's import graph.
@@ -602,7 +603,9 @@ export const AutomationProfileForm = styled(FormPage)`
   .rules-grid-header,
   .rules-grid-row {
     display: grid;
-    grid-template-columns: 40px 28px minmax(150px, 1fr) minmax(220px, 1.3fr) minmax(180px, 1fr) 90px 120px;
+    grid-template-columns:
+      40px 28px minmax(150px, 1fr) minmax(220px, 1.3fr) minmax(180px, 1fr)
+      90px 120px;
     gap: 0.5rem;
     align-items: center;
     padding: 0.6rem 0.75rem;
@@ -640,7 +643,9 @@ export const AutomationProfileForm = styled(FormPage)`
 
   .step-row-container {
     border-bottom: 1px solid #eef2f6;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
   }
 
   .step-row-container:last-child {

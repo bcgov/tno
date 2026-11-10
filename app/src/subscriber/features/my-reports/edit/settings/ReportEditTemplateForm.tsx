@@ -1,6 +1,3 @@
-import { Action } from '@/subscriber/components/action';
-import { Section } from '@/subscriber/components/section';
-import { SectionLabel } from '@/subscriber/features/my-reports/components';
 import React from 'react';
 import {
   DragDropContext,
@@ -11,6 +8,10 @@ import {
 } from 'react-beautiful-dnd';
 import { FaAngleDown, FaGripVertical, FaMinus, FaTrash } from 'react-icons/fa6';
 import { Col, ReportSectionTypeName, Row, Show, Text } from 'tno-core';
+
+import { Action } from '@/subscriber/components/action';
+import { Section } from '@/subscriber/components/section';
+import { SectionLabel } from '@/subscriber/features/my-reports/components';
 
 import { useReportEditContext } from '../ReportEditContext';
 import * as styled from './styled';
@@ -171,8 +172,8 @@ export const ReportEditTemplateForm = () => {
                                           a.sortOrder < b.sortOrder
                                             ? -1
                                             : a.sortOrder > b.sortOrder
-                                            ? 1
-                                            : 0,
+                                              ? 1
+                                              : 0,
                                         ),
                                     });
                                   }}

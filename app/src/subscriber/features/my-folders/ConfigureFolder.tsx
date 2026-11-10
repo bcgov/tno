@@ -1,12 +1,9 @@
-import { Button } from '@/subscriber/components/button';
-import { Modal } from '@/subscriber/components/modal';
 import * as React from 'react';
 import { FaArrowAltCircleRight, FaInfoCircle } from 'react-icons/fa';
 import { FaGear, FaTrash } from 'react-icons/fa6';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
-import { useContent, useFilters, useFolders } from '@/subscriber/store/hooks';
 import {
   Checkbox,
   Col,
@@ -24,6 +21,10 @@ import {
   Text,
   useModal,
 } from 'tno-core';
+
+import { Button } from '@/subscriber/components/button';
+import { Modal } from '@/subscriber/components/modal';
+import { useContent, useFilters, useFolders } from '@/subscriber/store/hooks';
 
 import { getFilterOptions } from './constants';
 import { useFolderContext } from './FolderContext';

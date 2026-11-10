@@ -1,12 +1,13 @@
+import { FaEye, FaRegClock, FaX } from 'react-icons/fa6';
+import { Col, Row } from 'tno-core';
+
 import { Button } from '@/subscriber/components/button';
 import { formatDate, formatTime } from '@/subscriber/features/utils';
-import { FaX } from 'react-icons/fa6';
-import { FaEye, FaRegClock } from 'react-icons/fa6';
 import { useReportsStore } from '@/subscriber/store/slices';
-import { Col, Row } from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';
 import * as styled from './styled';
+
 export const ReportHistoryView = () => {
   const [{ reportView }, { storeReportView }] = useReportsStore();
   const { activeInstance } = useReportEditContext();

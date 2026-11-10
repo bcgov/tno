@@ -1,7 +1,8 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
-import { useAjaxWrapper } from '@/editor/store/hooks';
 import { IFolderContentModel, IReportResultModel, useApi } from 'tno-core';
+
+import { useAjaxWrapper } from '@/editor/store/hooks';
 
 export interface IEventOfDayInstance {
   id: number;

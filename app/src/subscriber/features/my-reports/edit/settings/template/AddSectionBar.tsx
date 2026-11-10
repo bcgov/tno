@@ -1,6 +1,3 @@
-import { Button } from '@/subscriber/components/button';
-import { defaultReportSection } from '@/subscriber/features/my-reports/constants';
-import { IReportForm } from '@/subscriber/features/my-reports/interfaces';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { BiSolidFileJson } from 'react-icons/bi';
@@ -14,8 +11,12 @@ import {
   FaNewspaper,
 } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
-import { useLookup } from '@/subscriber/store/hooks';
 import { ReportSectionTypeName, Row, Settings } from 'tno-core';
+
+import { Button } from '@/subscriber/components/button';
+import { defaultReportSection } from '@/subscriber/features/my-reports/constants';
+import { IReportForm } from '@/subscriber/features/my-reports/interfaces';
+import { useLookup } from '@/subscriber/store/hooks';
 
 import * as styled from './styled';
 
@@ -48,8 +49,8 @@ export const AddSectionBar = () => {
         index === 0
           ? 0
           : index < values.sections.length
-          ? values.sections[index].sortOrder + 1
-          : values.sections[values.sections.length - 1].sortOrder,
+            ? values.sections[index].sortOrder + 1
+            : values.sections[values.sections.length - 1].sortOrder,
         showHeadlines,
         showFullStory,
         values.hideEmptySections,

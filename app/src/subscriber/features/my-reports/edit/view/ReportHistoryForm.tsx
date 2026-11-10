@@ -1,11 +1,12 @@
+import React from 'react';
+import { FaClockRotateLeft, FaEye, FaRegClock } from 'react-icons/fa6';
+import { Col, IReportInstanceModel, Loading, ReportStatusName, Row, Show } from 'tno-core';
+
 import { Action } from '@/subscriber/components/action';
 import { getStatus } from '@/subscriber/features/my-reports/utils';
 import { formatDate, formatTime } from '@/subscriber/features/utils';
-import React from 'react';
-import { FaClockRotateLeft, FaEye, FaRegClock } from 'react-icons/fa6';
 import { useApp, useReports } from '@/subscriber/store/hooks';
 import { useReportsStore } from '@/subscriber/store/slices';
-import { Col, IReportInstanceModel, Loading, ReportStatusName, Row, Show } from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';
 import * as styled from './styled';

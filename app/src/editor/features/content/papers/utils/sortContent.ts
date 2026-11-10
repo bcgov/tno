@@ -1,6 +1,7 @@
-import { type ISortBy } from '@/editor/features/interfaces';
 import { getIn } from 'formik';
 import { type IContentModel } from 'tno-core';
+
+import { type ISortBy } from '@/editor/features/interfaces';
 
 import { defaultSort } from '../constants';
 

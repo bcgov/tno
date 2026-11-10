@@ -1,5 +1,5 @@
 import React from 'react';
-import { Checkbox, IconButton, type IUserFilter, Row, Show, Text } from 'tno-core';
+import { Checkbox, IconButton, Row, Show, Text, type IUserFilter } from 'tno-core';
 
 interface IAdminFilterProps {
   productId?: number;

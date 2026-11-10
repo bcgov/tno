@@ -1,16 +1,17 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { useLookup } from '@/editor/store/hooks';
 import {
   Col,
   filterEnabledOptions,
   FormikCheckbox,
   FormikSelect,
   FormikText,
-  type IIngestModel,
   OptionItem,
   Row,
+  type IIngestModel,
 } from 'tno-core';
+
+import { useLookup } from '@/editor/store/hooks';
 
 import { FileTypes, Languages, TimeZones } from './constants';
 import { ImportContent } from './ImportContent';

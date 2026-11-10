@@ -1,6 +1,7 @@
-import { navbarOptions } from '@/subscriber/components/navbar/NavbarItems';
 import { useLocation } from 'react-router-dom';
 import { IContentModel, Row } from 'tno-core';
+
+import { navbarOptions } from '@/subscriber/components/navbar/NavbarItems';
 
 import * as styled from './styled';
 

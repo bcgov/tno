@@ -1,4 +1,5 @@
 import moment from 'moment';
+
 /**
  * @param {string | Date} date - The date to format
  * @param {boolean} includeTime - Whether to include the time in the formatted date

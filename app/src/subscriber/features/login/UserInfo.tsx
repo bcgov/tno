@@ -1,7 +1,4 @@
-import { Modal } from '@/subscriber/components/modal';
 import React from 'react';
-import { useApiHub, useApp } from '@/subscriber/store/hooks';
-import { useAppStore } from '@/subscriber/store/slices';
 import {
   AccountAuthStateName,
   Button,
@@ -10,6 +7,10 @@ import {
   useKeycloakWrapper,
   useModal,
 } from 'tno-core';
+
+import { Modal } from '@/subscriber/components/modal';
+import { useApiHub, useApp } from '@/subscriber/store/hooks';
+import { useAppStore } from '@/subscriber/store/slices';
 
 export interface IUserInfoProps {
   children?: React.ReactNode;

@@ -1,6 +1,7 @@
 import React from 'react';
-import { useAjaxWrapper } from '@/subscriber/store/hooks';
 import { IReportSectionSettingsModel } from 'tno-core';
+
+import { useAjaxWrapper } from '@/subscriber/store/hooks';
 
 import {
   IReportAIPromptChatRequestModel,

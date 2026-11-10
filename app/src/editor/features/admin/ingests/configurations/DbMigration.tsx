@@ -12,10 +12,10 @@ import {
   FormikDatePicker,
   FormikRadioGroup,
   FormikText,
-  type IIngestModel,
   Row,
   Show,
   TimeInput,
+  type IIngestModel,
 } from 'tno-core';
 
 import { ImportMigrationType } from './constants';

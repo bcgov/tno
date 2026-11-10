@@ -8,8 +8,9 @@ import { useFormikContext } from 'formik';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
+import { Button, ButtonVariant, Col, Row, type IContentModel, type IFilterModel } from 'tno-core';
+
 import { useContent } from '@/editor/store/hooks';
-import { Button, ButtonVariant, Col, type IContentModel, type IFilterModel, Row } from 'tno-core';
 
 /**
  * The page used to view and edit notification filter.

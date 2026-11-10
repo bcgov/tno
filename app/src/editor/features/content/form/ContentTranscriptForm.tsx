@@ -1,6 +1,7 @@
 import React from 'react';
-import { useLookup } from '@/editor/store/hooks';
 import { FormikContentWysiwyg } from 'tno-core';
+
+import { useLookup } from '@/editor/store/hooks';
 
 import { useExtractTags } from './hooks';
 import * as styled from './styled';

@@ -252,13 +252,13 @@ export const remapDefinition = (
   ...definition,
   steps: definition.steps.map((step) => ({
     ...step,
-    llmId: step.llmId != null ? mapLLM(step.llmId) ?? step.llmId : step.llmId,
+    llmId: step.llmId != null ? (mapLLM(step.llmId) ?? step.llmId) : step.llmId,
     source: step.source
       ? {
           ...step.source,
           filter:
             step.source.filter != null
-              ? mapFilter(step.source.filter) ?? step.source.filter
+              ? (mapFilter(step.source.filter) ?? step.source.filter)
               : step.source.filter,
           include: (step.source.include ?? []).map((id) => mapFilter(id) ?? id),
           exclude: (step.source.exclude ?? []).map((id) => mapFilter(id) ?? id),
@@ -266,12 +266,12 @@ export const remapDefinition = (
       : step.source,
     analyses: step.analyses.map((analysis) => ({
       ...analysis,
-      llmId: analysis.llmId != null ? mapLLM(analysis.llmId) ?? analysis.llmId : analysis.llmId,
+      llmId: analysis.llmId != null ? (mapLLM(analysis.llmId) ?? analysis.llmId) : analysis.llmId,
     })),
     actions: step.actions.map((action) => ({
       ...action,
-      filter: action.filter != null ? mapFilter(action.filter) ?? action.filter : action.filter,
-      llmId: action.llmId != null ? mapLLM(action.llmId) ?? action.llmId : action.llmId,
+      filter: action.filter != null ? (mapFilter(action.filter) ?? action.filter) : action.filter,
+      llmId: action.llmId != null ? (mapLLM(action.llmId) ?? action.llmId) : action.llmId,
     })),
   })),
 });

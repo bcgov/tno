@@ -1,6 +1,7 @@
 import React from 'react';
-import { useSettings } from '@/subscriber/store/hooks';
 import { generateMustNotQuery, generateQuery, IFilterSettingsModel } from 'tno-core';
+
+import { useSettings } from '@/subscriber/store/hooks';
 
 /**
  * Hook provides helper function to generate elasticsearch query.

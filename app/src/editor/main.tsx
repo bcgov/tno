@@ -4,9 +4,10 @@ import '@bcgov/bc-sans/css/BCSans.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { store } from '@/editor/store';
 import { ThemeProvider } from 'styled-components';
 import { SummonProvider } from 'tno-core';
+
+import { store } from '@/editor/store';
 
 import App from './App';
 import css from './css/_variables.module.scss';
@@ -26,4 +27,3 @@ const Index = () => {
 };
 
 ReactDOM.render(<Index />, document.getElementById('root'));
-

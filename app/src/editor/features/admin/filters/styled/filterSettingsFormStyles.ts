@@ -36,7 +36,9 @@ export const filterSettingsFormStyles = css`
       border-radius: 0.25rem;
       background-color: #ffffff;
       align-items: center;
-      transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+      transition:
+        background-color 0.15s ease-in-out,
+        border-color 0.15s ease-in-out;
 
       label {
         font-weight: 600;

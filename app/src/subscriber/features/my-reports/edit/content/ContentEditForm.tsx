@@ -1,13 +1,17 @@
+import React from 'react';
+import { Col, ContentTypeName, IContentModel, IContentTonePoolModel } from 'tno-core';
+
 import { Action } from '@/subscriber/components/action';
 import { Bar } from '@/subscriber/components/bar';
 import { Sentiment } from '@/subscriber/components/sentiment';
-import { IReportForm, IReportInstanceContentForm } from '@/subscriber/features/my-reports/interfaces';
+import {
+  IReportForm,
+  IReportInstanceContentForm,
+} from '@/subscriber/features/my-reports/interfaces';
 import { IContentValidationErrors } from '@/subscriber/features/my-reports/interfaces/IContentValidationErrors';
 import { sanitizeReport, toForm } from '@/subscriber/features/my-reports/utils';
 import { formatDate } from '@/subscriber/features/utils';
-import React from 'react';
 import { useApp, useContent, useReports } from '@/subscriber/store/hooks';
-import { Col, ContentTypeName, IContentModel, IContentTonePoolModel } from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';
 import { ContentActions, ContentForm, UserContentForm } from './stories';
@@ -299,8 +303,8 @@ export const ContentEditForm = React.forwardRef<HTMLDivElement | null, IContentE
               {form.content.versions?.[userId]?.byline
                 ? form.content.versions?.[userId]?.byline
                 : form.content.byline
-                ? form.content.byline
-                : ''}
+                  ? form.content.byline
+                  : ''}
             </Col>
             <Col className="date">{formatDate(form.content.publishedOn, true)}</Col>
             <Col flex="1"></Col>
@@ -326,8 +330,8 @@ export const ContentEditForm = React.forwardRef<HTMLDivElement | null, IContentE
                   isUserSentiment
                     ? userFormTonePool?.value
                     : form?.content?.tonePools && form.content.tonePools.length > 0
-                    ? form.content.tonePools[0].value
-                    : undefined
+                      ? form.content.tonePools[0].value
+                      : undefined
                 }
                 showValue
               />

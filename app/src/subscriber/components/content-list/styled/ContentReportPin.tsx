@@ -21,7 +21,9 @@ export const ContentReportPin = styled.div`
       color: ${(props) => props.theme.css.btnRedColor};
     }
     .report-link {
-      transition: background-color 0.3s ease, border-radius 0.3s ease;
+      transition:
+        background-color 0.3s ease,
+        border-radius 0.3s ease;
       padding: 0.2rem;
     }
 

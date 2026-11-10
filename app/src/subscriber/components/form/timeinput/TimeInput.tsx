@@ -4,11 +4,10 @@ import { Col, Error, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
 
-export interface ITimeInputProps
-  extends Omit<
-    InputHTMLAttributes<HTMLInputElement>,
-    'children' | 'dangerouslySetInnerHTML' | 'onChange'
-  > {
+export interface ITimeInputProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  'children' | 'dangerouslySetInnerHTML' | 'onChange'
+> {
   /** Label of input. */
   label?: string;
   /** Error message. */

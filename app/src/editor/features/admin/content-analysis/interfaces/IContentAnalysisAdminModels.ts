@@ -42,11 +42,7 @@ export interface IAnalysisBackfillPreviewModel {
 
 /** The status of a backfill's work order. */
 export type AnalysisBackfillStatusName =
-  | 'Submitted'
-  | 'InProgress'
-  | 'Completed'
-  | 'Cancelled'
-  | 'Failed';
+  'Submitted' | 'InProgress' | 'Completed' | 'Cancelled' | 'Failed';
 
 /** A backfill (a work order the Event Handler runs) and its progress. */
 export interface IAnalysisBackfillModel extends IAnalysisBackfillRequestModel {

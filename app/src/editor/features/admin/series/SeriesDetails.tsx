@@ -1,11 +1,8 @@
-import { FormikForm } from '@/editor/components/formik';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useLookup } from '@/editor/store/hooks';
-import { useSeries } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -18,13 +15,17 @@ import {
   FormikTextArea,
   getSortableOptions,
   getSourceOptions,
-  type IOptionItem,
   Modal,
   OptionItem,
   Row,
   Show,
   useModal,
+  type IOptionItem,
 } from 'tno-core';
+
+import { FormikForm } from '@/editor/components/formik';
+import { useLookup } from '@/editor/store/hooks';
+import { useSeries } from '@/editor/store/hooks/admin';
 
 import { defaultSeries } from './constants';
 import { type ISeriesForm } from './interfaces';

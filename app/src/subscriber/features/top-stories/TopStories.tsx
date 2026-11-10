@@ -1,12 +1,13 @@
+import moment from 'moment';
+import React from 'react';
+import { IContentModel, Show } from 'tno-core';
+
 import { ContentList } from '@/subscriber/components/content-list';
 import { DateFilter } from '@/subscriber/components/date-filter';
 import { ContentListActionBar } from '@/subscriber/components/tool-bar';
 import { PreviousResults } from '@/subscriber/features/previous-results';
 import { useActionFilters } from '@/subscriber/features/search-page/hooks';
-import moment from 'moment';
-import React from 'react';
 import { useContent, useFetchResults, useSettings } from '@/subscriber/store/hooks';
-import { IContentModel, Show } from 'tno-core';
 
 import * as styled from './styled';
 

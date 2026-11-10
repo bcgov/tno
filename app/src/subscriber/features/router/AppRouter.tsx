@@ -1,3 +1,7 @@
+import React from 'react';
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { Claim, InternalServerError, NotFound } from 'tno-core';
+
 import { DefaultLayout, LayoutAnonymous } from '@/subscriber/components/layout';
 import { AccessRequest } from '@/subscriber/features/access-request';
 import { AIAnalysisPage } from '@/subscriber/features/ai-analysis';
@@ -9,16 +13,12 @@ import { Login } from '@/subscriber/features/login';
 import { MyColleaguesLanding } from '@/subscriber/features/my-colleagues';
 import { FolderLanding } from '@/subscriber/features/my-folders';
 import { MyProducts } from '@/subscriber/features/my-products';
-import { MyReports } from '@/subscriber/features/my-reports';
-import { ReportView } from '@/subscriber/features/my-reports';
+import { MyReports, ReportView } from '@/subscriber/features/my-reports';
 import { ReportEditPage } from '@/subscriber/features/my-reports/edit';
 import { SearchPage } from '@/subscriber/features/search-page';
 import { SettingsLanding } from '@/subscriber/features/settings';
 import { TranscriptionRequest } from '@/subscriber/features/transcription-request';
-import React from 'react';
-import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { useApp } from '@/subscriber/store/hooks';
-import { Claim, InternalServerError, NotFound } from 'tno-core';
 
 import { PrivateRoute } from './PrivateRoute';
 

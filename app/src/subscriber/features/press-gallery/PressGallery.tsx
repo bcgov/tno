@@ -1,13 +1,7 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
-import { ContentList } from '@/subscriber/components/content-list';
-import { ContentListActionBar } from '@/subscriber/components/tool-bar';
-import { castToSearchResult, createFilterSettings } from '@/subscriber/features/utils';
-import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
 import { FaFilterCircleXmark } from 'react-icons/fa6';
-import { useContent } from '@/subscriber/store/hooks';
-import { useContributors } from '@/subscriber/store/hooks/subscriber/useContributors';
 import {
   FieldSize,
   generateQuery,
@@ -16,6 +10,13 @@ import {
   Row,
   Select,
 } from 'tno-core';
+
+import { ContentList } from '@/subscriber/components/content-list';
+import { ContentListActionBar } from '@/subscriber/components/tool-bar';
+import { castToSearchResult, createFilterSettings } from '@/subscriber/features/utils';
+import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
+import { useContent } from '@/subscriber/store/hooks';
+import { useContributors } from '@/subscriber/store/hooks/subscriber/useContributors';
 
 import { IDateOptions, IPressMember } from './interfaces';
 import * as styled from './styled';
@@ -189,7 +190,7 @@ export const PressGallery: React.FC = () => {
                             ),
                         ) ?? '',
                       ]
-                    : pressMemberNames ?? [],
+                    : (pressMemberNames ?? []),
                   startDate: `${moment(e.value).startOf('day')}`,
                   endDate: `${moment(e.value).endOf('day')}`,
                 }),

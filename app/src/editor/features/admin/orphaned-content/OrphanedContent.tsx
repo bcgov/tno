@@ -1,4 +1,3 @@
-import { FormPage } from '@/editor/components/formpage';
 import moment from 'moment-timezone';
 import React from 'react';
 import {
@@ -9,13 +8,6 @@ import {
   FaSyncAlt,
   FaTrash,
 } from 'react-icons/fa';
-import {
-  IOrphanedContent,
-  IOrphanScan,
-  OrphanIndex,
-  OrphanSide,
-  useOrphanedContent,
-} from '@/editor/store/hooks/admin/useOrphanedContent';
 import styled from 'styled-components';
 import {
   Button,
@@ -30,6 +22,15 @@ import {
   Show,
   Spinner,
 } from 'tno-core';
+
+import { FormPage } from '@/editor/components/formpage';
+import {
+  IOrphanedContent,
+  IOrphanScan,
+  OrphanIndex,
+  OrphanSide,
+  useOrphanedContent,
+} from '@/editor/store/hooks/admin/useOrphanedContent';
 
 import { OrphanScanResponseError, parseOrphanScan } from './parseOrphanScan';
 
@@ -359,8 +360,8 @@ const OrphanedContent: React.FC = () => {
             resolution.action === 'index'
               ? 'Indexing queued'
               : resolution.action === 'restore'
-              ? 'Restored'
-              : 'Deleted';
+                ? 'Restored'
+                : 'Deleted';
           setItems((previous) =>
             previous.map((row) => (row.id === item.id ? { ...row, resolution: status } : row)),
           );

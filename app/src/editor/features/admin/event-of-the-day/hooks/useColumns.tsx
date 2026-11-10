@@ -1,4 +1,3 @@
-import { Topic } from '@/editor/features/content';
 import React from 'react';
 import { FaRegClipboard } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
@@ -7,16 +6,18 @@ import {
   ButtonVariant,
   CellDate,
   CellEllipsis,
+  OptionItem,
+  Select,
+  Show,
+  Spinner,
   type IContentTopicModel,
   type IFolderContentModel,
   type ITableHookColumn,
   type ITableInternalCell,
   type ITopicModel,
-  OptionItem,
-  Select,
-  Show,
-  Spinner,
 } from 'tno-core';
+
+import { Topic } from '@/editor/features/content';
 
 const maxTopicScore: number = 200;
 // create an array with values 0-maxScore
@@ -70,7 +71,7 @@ export const useColumns = (
     // the calculated score, which the API stores as calculated rather than as an override.
     const score = current?.isScoreOverridden
       ? current.score
-      : cell.original.calculatedTopicScore ?? current?.score ?? 0;
+      : (cell.original.calculatedTopicScore ?? current?.score ?? 0);
     await submitTopics(cell, [{ ...(topic as IContentTopicModel), score }]);
   };
 

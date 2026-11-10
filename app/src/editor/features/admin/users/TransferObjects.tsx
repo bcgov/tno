@@ -1,5 +1,5 @@
 import React from 'react';
-import { Checkbox, type ITransferObject, Show, Text } from 'tno-core';
+import { Checkbox, Show, Text, type ITransferObject } from 'tno-core';
 
 export interface ITransferObjectsProps {
   /** A name to prepend to each input control. */

@@ -1,8 +1,6 @@
-import { FormikForm } from '@/editor/components/formik';
 import React from 'react';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useSources } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -17,6 +15,9 @@ import {
   Tabs,
   useModal,
 } from 'tno-core';
+
+import { FormikForm } from '@/editor/components/formik';
+import { useSources } from '@/editor/store/hooks/admin';
 
 import { defaultSource } from './constants';
 import { type ISourceForm } from './interfaces';

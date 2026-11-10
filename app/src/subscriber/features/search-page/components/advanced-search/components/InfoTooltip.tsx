@@ -1,6 +1,7 @@
-import { TooltipMenu } from '@/subscriber/components/tooltip-menu';
 import React from 'react';
 import { ITooltip } from 'react-tooltip';
+
+import { TooltipMenu } from '@/subscriber/components/tooltip-menu';
 
 /**
  * An info popup for the advanced search panel. It is positioned against the viewport so the

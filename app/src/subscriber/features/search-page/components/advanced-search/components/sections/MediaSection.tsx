@@ -1,4 +1,3 @@
-import { useSubMediaGroups } from '@/subscriber/features/hooks';
 import React from 'react';
 import { FaWater } from 'react-icons/fa';
 import { IoIosArrowDropdownCircle, IoIosArrowDroprightCircle } from 'react-icons/io';
@@ -14,6 +13,8 @@ import {
   Select,
   Show,
 } from 'tno-core';
+
+import { useSubMediaGroups } from '@/subscriber/features/hooks';
 
 import { ISubMediaGroupExpanded } from '../../interfaces';
 import { useSearchSettings } from '../../SearchSettingsContext';

@@ -1,7 +1,8 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
+import { GridTable, Row, type ITimeTrackingModel } from 'tno-core';
+
 import { useLookup } from '@/editor/store/hooks';
-import { GridTable, type ITimeTrackingModel, Row } from 'tno-core';
 
 import { type ITimeTrackingForm } from './components/time-log/interfaces';
 import { timeLogColumns } from './constants';

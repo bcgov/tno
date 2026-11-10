@@ -1,15 +1,16 @@
 import React from 'react';
 import { IoIosCog } from 'react-icons/io';
-import { useApp } from '@/subscriber/store/hooks';
 import {
   Claim,
   Col,
   getCookie,
-  type IFilterAIManualFilterProps,
   RadioGroup,
   Row,
   TextArea,
+  type IFilterAIManualFilterProps,
 } from 'tno-core';
+
+import { useApp } from '@/subscriber/store/hooks';
 
 import { AdvancedSearchSections, ExpandableRow, MoreOptions, SearchInGroup } from './components';
 import { displayFiltersAsDropdownCookieKey, SearchOperatorOptions } from './constants';

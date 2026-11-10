@@ -1,7 +1,4 @@
 import React from 'react';
-import { useLookup, useReportAI } from '@/subscriber/store/hooks';
-import { IReportAISectionPromptModel } from '@/subscriber/store/hooks/subscriber/interfaces';
-import { useAppStore } from '@/subscriber/store/slices';
 import {
   Checkbox,
   Claim,
@@ -17,6 +14,10 @@ import {
   Select,
   Show,
 } from 'tno-core';
+
+import { useLookup, useReportAI } from '@/subscriber/store/hooks';
+import { IReportAISectionPromptModel } from '@/subscriber/store/hooks/subscriber/interfaces';
+import { useAppStore } from '@/subscriber/store/slices';
 
 import { AIPromptViewerDialog } from '../../../components';
 import { useReportEditContext } from '../../ReportEditContext';
@@ -44,8 +45,8 @@ export const ReportSectionAI = React.forwardRef<HTMLDivElement, IReportSectionAI
       !values.id || !section.id
         ? 'Save the report to use the prompt tools for this section'
         : !(values.instances?.length ?? 0)
-        ? 'Generate the report to use the prompt tools for this section'
-        : undefined;
+          ? 'Generate the report to use the prompt tools for this section'
+          : undefined;
     const [workbenchOpen, setWorkbenchOpen] = React.useState(false);
     const [promptOpen, setPromptOpen] = React.useState(false);
     const [prompt, setPrompt] = React.useState<IReportAISectionPromptModel>();

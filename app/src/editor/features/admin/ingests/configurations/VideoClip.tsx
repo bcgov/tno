@@ -4,9 +4,9 @@ import {
   FormikCheckbox,
   FormikSelect,
   FormikText,
-  type IIngestModel,
   Row,
   useFormikHelpers,
+  type IIngestModel,
 } from 'tno-core';
 
 import { TimeZones } from './constants';

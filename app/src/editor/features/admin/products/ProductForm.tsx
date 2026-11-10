@@ -3,24 +3,25 @@ import 'prismjs/components/prism-csharp';
 import 'prismjs/components/prism-cshtml';
 import 'prismjs/components/prism-json';
 
-import { FormikForm } from '@/editor/components/formik';
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApp } from '@/editor/store/hooks';
-import { useProducts } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
   IconButton,
-  type IProductModel,
   Modal,
   Row,
   Show,
   Tab,
   Tabs,
   useModal,
+  type IProductModel,
 } from 'tno-core';
+
+import { FormikForm } from '@/editor/components/formik';
+import { useApp } from '@/editor/store/hooks';
+import { useProducts } from '@/editor/store/hooks/admin';
 
 import { defaultProduct } from './constants';
 import { ProductDetailsForm } from './ProductDetailsForm';

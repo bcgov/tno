@@ -1,8 +1,5 @@
-import { type IContentListFilter } from '@/editor/features/content/interfaces';
-import { InputOption } from '@/editor/features/content/list-view/components/tool-bar/filter';
 import React from 'react';
 import { FaEye, FaFilter, FaIcons, FaNewspaper, FaWindowRestore } from 'react-icons/fa';
-import { useLookupOptions } from '@/editor/store/hooks';
 import {
   Button,
   ButtonVariant,
@@ -12,6 +9,10 @@ import {
   Select,
   ToggleGroup,
 } from 'tno-core';
+
+import { type IContentListFilter } from '@/editor/features/content/interfaces';
+import { InputOption } from '@/editor/features/content/list-view/components/tool-bar/filter';
+import { useLookupOptions } from '@/editor/store/hooks';
 
 import { usePaperSources } from '../hooks';
 import * as styled from './styled';

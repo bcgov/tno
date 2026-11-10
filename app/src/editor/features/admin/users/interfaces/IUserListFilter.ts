@@ -1,5 +1,6 @@
-import { type ISortBy } from '@/editor/features/interfaces';
 import { type UserAccountTypeName, type UserStatusName } from 'tno-core';
+
+import { type ISortBy } from '@/editor/features/interfaces';
 
 export interface IUserListFilter {
   username?: string;

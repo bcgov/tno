@@ -1,5 +1,3 @@
-import { IToggleOption, Toggle } from '@/subscriber/components/form';
-import { DataSources } from '@/subscriber/features/my-reports/components';
 import React from 'react';
 import {
   Col,
@@ -11,6 +9,9 @@ import {
   Row,
   Show,
 } from 'tno-core';
+
+import { IToggleOption, Toggle } from '@/subscriber/components/form';
+import { DataSources } from '@/subscriber/features/my-reports/components';
 
 import { useReportEditContext } from '../../ReportEditContext';
 

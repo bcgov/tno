@@ -1,9 +1,10 @@
 import React from 'react';
 import { FaEnvelope, FaSmile, FaToggleOff, FaToggleOn } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import { ISubscriberUserModel, ToggleButton } from 'tno-core';
+
 import { useUsers } from '@/subscriber/store/hooks';
 import { useProfileStore } from '@/subscriber/store/slices';
-import { ISubscriberUserModel, ToggleButton } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -44,11 +45,11 @@ const MyAccountSettings = () => {
   const { updateUser } = useUsers();
   const [{ profile, impersonate }] = useProfileStore();
   const isVacationMode: boolean = !!impersonate
-    ? impersonate?.preferences?.isVacationMode ?? false
-    : profile?.preferences?.isVacationMode ?? false;
+    ? (impersonate?.preferences?.isVacationMode ?? false)
+    : (profile?.preferences?.isVacationMode ?? false);
   const enableReportSentiment: boolean = !!impersonate
-    ? impersonate?.preferences?.enableReportSentiment ?? false
-    : profile?.preferences?.enableReportSentiment ?? false;
+    ? (impersonate?.preferences?.enableReportSentiment ?? false)
+    : (profile?.preferences?.enableReportSentiment ?? false);
 
   const toggleReportSentiment = React.useCallback(
     async (

@@ -28,8 +28,7 @@ export const generateListOfSummaries = (sections: IAVOverviewSectionModel[]) => 
             acc.push({ key: `${sectionIndex}-${itemIndex}`, text: current.summary });
           }
           return acc;
-        },
-        []),
+        }, []),
       );
     });
   }

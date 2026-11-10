@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+
 export const TodaysFrontPages = styled.div`
   .table {
     width: 100%;

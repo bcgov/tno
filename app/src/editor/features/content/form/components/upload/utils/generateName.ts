@@ -1,5 +1,5 @@
-import { type IFile } from '..';
 import { calcSize } from '.';
+import { type IFile } from '..';
 
 export const generateName = (file?: IFile) => {
   if (!file) return undefined;

@@ -1,8 +1,6 @@
 import React from 'react';
 import { FaEye } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
-import { useApiHub, useApp, useReportInstances } from '@/subscriber/store/hooks';
-import { useProfileStore } from '@/subscriber/store/slices';
 import {
   AISectionStatusName,
   Col,
@@ -11,6 +9,9 @@ import {
   ReportPreviewStatus,
   Row,
 } from 'tno-core';
+
+import { useApiHub, useApp, useReportInstances } from '@/subscriber/store/hooks';
+import { useProfileStore } from '@/subscriber/store/slices';
 
 import { ReportBody } from '../../ReportBody';
 import { useReportEditContext } from '../ReportEditContext';

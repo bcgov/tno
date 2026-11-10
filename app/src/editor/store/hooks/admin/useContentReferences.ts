@@ -1,12 +1,13 @@
 import React from 'react';
-import { useAjaxWrapper } from '@/editor/store/hooks';
-import { type IAdminState, useAdminStore } from '@/editor/store/slices';
 import {
+  useApiAdminContentReferences,
   type IContentReferenceFilter,
   type IContentReferenceModel,
   type IPaged,
-  useApiAdminContentReferences,
 } from 'tno-core';
+
+import { useAjaxWrapper } from '@/editor/store/hooks';
+import { useAdminStore, type IAdminState } from '@/editor/store/slices';
 
 interface IContentReferenceController {
   /**

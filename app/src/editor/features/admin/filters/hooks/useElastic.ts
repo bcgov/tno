@@ -1,6 +1,7 @@
 import React from 'react';
-import { useSettings } from '@/editor/store/hooks';
 import { generateMustNotQuery, generateQuery, type IFilterSettingsModel } from 'tno-core';
+
+import { useSettings } from '@/editor/store/hooks';
 
 /**
  * Hook provides helper function to generate elasticsearch query.
@@ -29,8 +30,8 @@ export const useElastic = () => {
       const existingMustNot: any[] = Array.isArray(priorMustNot)
         ? priorMustNot
         : priorMustNot
-        ? [priorMustNot]
-        : [];
+          ? [priorMustNot]
+          : [];
 
       // Drop only the front-page-media-type exclusion this hook may have added before; leave any
       // other must_not clauses untouched.
@@ -83,8 +84,8 @@ export const useElastic = () => {
       const filterClauses: any[] = Array.isArray(priorFilter)
         ? priorFilter
         : priorFilter
-        ? [priorFilter]
-        : [];
+          ? [priorFilter]
+          : [];
       const isLengthClause = (clause: any) =>
         clause?.range?.body_length != null || clause?.range?.body_words != null;
       const nextFilter = [...filterClauses.filter((c) => !isLengthClause(c)), ...lengthClauses];

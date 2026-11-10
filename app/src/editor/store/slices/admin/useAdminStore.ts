@@ -1,7 +1,4 @@
-import { type IUserListFilter } from '@/editor/features/admin/users/interfaces/IUserListFilter';
-import { type IWorkOrderListFilter } from '@/editor/features/admin/work-orders/interfaces/IWorkOrderListFilter';
 import React from 'react';
-import { type ActionDelegate, useAppDispatch, useAppSelector } from '@/editor/store';
 import {
   type IActionModel,
   type IChartTemplateModel,
@@ -33,6 +30,10 @@ import {
   type IUserModel,
   type IWorkOrderModel,
 } from 'tno-core';
+
+import { type IUserListFilter } from '@/editor/features/admin/users/interfaces/IUserListFilter';
+import { type IWorkOrderListFilter } from '@/editor/features/admin/work-orders/interfaces/IWorkOrderListFilter';
+import { useAppDispatch, useAppSelector, type ActionDelegate } from '@/editor/store';
 
 import {
   storeAdminActionFilter,

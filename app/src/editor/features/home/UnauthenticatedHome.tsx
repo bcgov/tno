@@ -1,5 +1,6 @@
-import { LoginPanel } from '@/editor/features/login';
 import { useEffect, useState } from 'react';
+
+import { LoginPanel } from '@/editor/features/login';
 
 import { InfoPanel, InfoText, LogoPanel } from '.';
 import * as styled from './styled';

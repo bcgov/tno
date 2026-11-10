@@ -1,7 +1,8 @@
 import React from 'react';
+import { useApiAdminTags, type IPaged, type ITagFilter, type ITagModel } from 'tno-core';
+
 import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
-import { type IAdminState, useAdminStore } from '@/editor/store/slices';
-import { type IPaged, type ITagFilter, type ITagModel, useApiAdminTags } from 'tno-core';
+import { useAdminStore, type IAdminState } from '@/editor/store/slices';
 
 interface ITagController {
   findAllTags: () => Promise<ITagModel[]>;

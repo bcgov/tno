@@ -7,14 +7,14 @@ export const MenuButton = styled.div<IMenuButtonProps>`
     props.active
       ? props.theme.css.btnBkPrimary
       : props.disabled
-      ? props.theme.css.btnGrayColor
-      : 'unset'};
+        ? props.theme.css.btnGrayColor
+        : 'unset'};
   color: ${(props) =>
     props.active
       ? props.theme.css.btnPrimaryColor
       : props.disabled
-      ? props.theme.css.fSecondaryColor
-      : props.theme.css.fPrimaryColor};
+        ? props.theme.css.fSecondaryColor
+        : props.theme.css.fPrimaryColor};
   cursor: ${(props) => (props.active ? 'unset' : props.disabled ? 'not-allowed' : 'pointer')};
   text-transform: uppercase;
   padding: 0.25rem 1rem;

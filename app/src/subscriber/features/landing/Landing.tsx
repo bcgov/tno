@@ -1,6 +1,14 @@
+import React from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Col, IContentModel, Row, Show } from 'tno-core';
+
 import { ViewOptions } from '@/subscriber/components/content-list';
 import { FilterOptions, FilterOptionsProvider } from '@/subscriber/components/media-type-filters';
-import { INavbarOptionItem, NavbarOptions, navbarOptions } from '@/subscriber/components/navbar/NavbarItems';
+import {
+  INavbarOptionItem,
+  NavbarOptions,
+  navbarOptions,
+} from '@/subscriber/components/navbar/NavbarItems';
 import { PageSection } from '@/subscriber/components/section';
 import { TopDomains } from '@/subscriber/components/top-domains';
 import { Commentary } from '@/subscriber/features/commentary';
@@ -18,11 +26,8 @@ import { MyMinisterSettings } from '@/subscriber/features/settings';
 import { TodaysCommentary } from '@/subscriber/features/todays-commentary';
 import { TodaysFrontPages } from '@/subscriber/features/todays-front-pages';
 import { TopStories } from '@/subscriber/features/top-stories';
-import React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
 import { useContent } from '@/subscriber/store/hooks';
 import useMobile from '@/subscriber/store/hooks/app/useMobile';
-import { Col, IContentModel, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
 

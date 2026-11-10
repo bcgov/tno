@@ -15,8 +15,7 @@ export const ReportKindIcon = ({ report, includeDescription }: IReportKindIconPr
   const kind = getReportKind(report);
 
   let reportType:
-    | { label: string; className: string; description?: React.ReactNode | string }
-    | undefined;
+    { label: string; className: string; description?: React.ReactNode | string } | undefined;
   if (kind === ReportKindName.Auto)
     reportType = {
       label: 'Auto',

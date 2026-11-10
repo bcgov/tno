@@ -2,8 +2,6 @@ import { useFormikContext } from 'formik';
 import { debounce, noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
-import { useApp } from '@/editor/store/hooks';
-import { useUsers } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -15,13 +13,16 @@ import {
   FormikText,
   FormikTextArea,
   getUserOptions,
-  type IReportModel,
-  type IUserModel,
-  type OptionItem,
   Row,
   Show,
   UserAccountTypeName,
+  type IReportModel,
+  type IUserModel,
+  type OptionItem,
 } from 'tno-core';
+
+import { useApp } from '@/editor/store/hooks';
+import { useUsers } from '@/editor/store/hooks/admin';
 
 const accountTypes = [
   UserAccountTypeName.Direct,
@@ -48,8 +49,8 @@ export const ReportFormDetails: React.FC = () => {
     const owner =
       values.owner?.id === values.ownerId
         ? values.owner
-        : owners.find((u) => u.id === values.ownerId) ??
-          (userInfo?.id === values.ownerId ? (userInfo as unknown as IUserModel) : undefined);
+        : (owners.find((u) => u.id === values.ownerId) ??
+          (userInfo?.id === values.ownerId ? (userInfo as unknown as IUserModel) : undefined));
     return owner ? getUserOptions([owner])[0] : null;
   }, [owners, userInfo, values.owner, values.ownerId]);
 

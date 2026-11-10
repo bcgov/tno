@@ -1,4 +1,4 @@
-import { getSortableOptions, type INotificationTemplateModel, OptionItem } from 'tno-core';
+import { getSortableOptions, OptionItem, type INotificationTemplateModel } from 'tno-core';
 
 export const getNotificationTemplateOptions = (
   templates: INotificationTemplateModel[],

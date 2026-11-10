@@ -1,17 +1,7 @@
-import { Action } from '@/subscriber/components/action';
-import { Modal } from '@/subscriber/components/modal';
-import { RefreshButton } from '@/subscriber/components/refresh-button';
-import { IReportForm, IReportInstanceContentForm } from '@/subscriber/features/my-reports/interfaces';
-import {
-  createReportInstanceContent,
-  sortContent,
-  sortReportContent,
-} from '@/subscriber/features/my-reports/utils';
 import React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { FaArrowsRotate, FaPlus } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
-import { useApp, useLookup } from '@/subscriber/store/hooks';
 import {
   Col,
   FormikText,
@@ -25,6 +15,20 @@ import {
   Show,
   useModal,
 } from 'tno-core';
+
+import { Action } from '@/subscriber/components/action';
+import { Modal } from '@/subscriber/components/modal';
+import { RefreshButton } from '@/subscriber/components/refresh-button';
+import {
+  IReportForm,
+  IReportInstanceContentForm,
+} from '@/subscriber/features/my-reports/interfaces';
+import {
+  createReportInstanceContent,
+  sortContent,
+  sortReportContent,
+} from '@/subscriber/features/my-reports/utils';
+import { useApp, useLookup } from '@/subscriber/store/hooks';
 
 import { useReportEditContext } from '../../ReportEditContext';
 import { ReportContentSectionRow } from './ReportContentSectionRow';
@@ -87,7 +91,7 @@ export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
             originalIndex: instance.content.findIndex(
               (oi) => oi.contentId === c.contentId && oi.sectionName === c.sectionName,
             ),
-          } as IReportInstanceContentForm),
+          }) as IReportInstanceContentForm,
       ) ?? [];
   const sectionOptions = values.sections
     .filter((s) => s.sectionType === ReportSectionTypeName.Content)

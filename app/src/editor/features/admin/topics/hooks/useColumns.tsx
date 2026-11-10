@@ -4,11 +4,11 @@ import {
   Button,
   ButtonVariant,
   Col,
-  type ITableHookColumn,
-  type ITopicModel,
   Text,
   ToggleGroup,
   TopicTypeName,
+  type ITableHookColumn,
+  type ITopicModel,
 } from 'tno-core';
 
 export const useColumns = (

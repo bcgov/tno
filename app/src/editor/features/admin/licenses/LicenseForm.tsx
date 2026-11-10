@@ -1,10 +1,8 @@
-import { FormikForm } from '@/editor/components/formik';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useLicenses } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -15,13 +13,16 @@ import {
   FormikText,
   FormikTextArea,
   IconButton,
-  type ILicenseModel,
   LabelPosition,
   Modal,
   Row,
   Show,
   useModal,
+  type ILicenseModel,
 } from 'tno-core';
+
+import { FormikForm } from '@/editor/components/formik';
+import { useLicenses } from '@/editor/store/hooks/admin';
 
 import { defaultLicense } from './constants';
 import * as styled from './styled';

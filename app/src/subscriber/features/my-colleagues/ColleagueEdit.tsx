@@ -1,10 +1,11 @@
+import React from 'react';
+import { FaBackward, FaSave } from 'react-icons/fa';
+import { Col, FormikText, validateEmail } from 'tno-core';
+
 import { Button } from '@/subscriber/components/button';
 import { FormikForm } from '@/subscriber/components/formik';
 import { PageSection } from '@/subscriber/components/section';
-import React from 'react';
-import { FaBackward, FaSave } from 'react-icons/fa';
 import { useColleagues } from '@/subscriber/store/hooks';
-import { Col, FormikText, validateEmail } from 'tno-core';
 
 import { ColleagueActionEnum } from './constants/ColleagueActionEnum';
 import { defaultColleague } from './constants/defaultColleague';

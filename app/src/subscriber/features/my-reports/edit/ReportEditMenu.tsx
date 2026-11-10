@@ -1,8 +1,8 @@
+import { FaCaretRight, FaLock, FaRightToBracket } from 'react-icons/fa6';
+import { ReportStatusName, Row, Show } from 'tno-core';
+
 import { Action } from '@/subscriber/components/action';
 import { MenuButton } from '@/subscriber/components/button';
-import { FaLock } from 'react-icons/fa6';
-import { FaCaretRight, FaRightToBracket } from 'react-icons/fa6';
-import { ReportStatusName, Row, Show } from 'tno-core';
 
 import { ReportKindIcon } from '../components';
 import { getLastSent } from '../utils';

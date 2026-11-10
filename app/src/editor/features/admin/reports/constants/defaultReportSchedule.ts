@@ -1,8 +1,8 @@
 import {
-  type IReportModel,
-  type IReportScheduleModel,
   ScheduleMonthName,
   ScheduleWeekDayName,
+  type IReportModel,
+  type IReportScheduleModel,
 } from 'tno-core';
 
 export const defaultReportSchedule = (

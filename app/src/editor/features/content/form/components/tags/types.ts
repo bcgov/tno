@@ -1,5 +1,6 @@
-import { type IContentForm } from '@/editor/features/content/form/interfaces';
 import { type IOptionItem } from 'tno-core';
+
+import { type IContentForm } from '@/editor/features/content/form/interfaces';
 
 /**
  * Interface for content tag structure

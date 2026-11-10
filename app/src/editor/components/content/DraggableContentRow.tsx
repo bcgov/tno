@@ -4,8 +4,7 @@ import { Draggable, type DraggableProps } from 'react-beautiful-dnd';
 import { ContentRow, type IContentRowProps } from '.';
 
 export interface IDraggableContentRowProps
-  extends Omit<DraggableProps, 'children'>,
-    IContentRowProps {
+  extends Omit<DraggableProps, 'children'>, IContentRowProps {
   className?: string;
   children?: ((props: IDraggableContentRowProps) => React.ReactNode) | React.ReactNode;
 }
@@ -35,7 +34,7 @@ export const DraggableContentRow: React.FC<IDraggableContentRowProps> = ({
                 className,
                 ...rest,
               })
-            : children ?? <ContentRow {...rest} />}
+            : (children ?? <ContentRow {...rest} />)}
         </div>
       )}
     </Draggable>

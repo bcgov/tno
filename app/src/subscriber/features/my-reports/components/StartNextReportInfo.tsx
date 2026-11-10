@@ -1,6 +1,7 @@
-import { formatDate } from '@/subscriber/features/utils';
 import { FaInfoCircle } from 'react-icons/fa';
 import { getReportKind, ReportKindName, ReportStatusName, Row, Show } from 'tno-core';
+
+import { formatDate } from '@/subscriber/features/utils';
 
 import { useReportEditContext } from '../edit/ReportEditContext';
 

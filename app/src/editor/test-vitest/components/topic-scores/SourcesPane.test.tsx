@@ -1,10 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
+import { vi } from 'vitest';
+
 import { RemoveScoringSource } from '@/editor/features/admin/topic-score-rules/RemoveScoringSource';
 import { SourcesPane } from '@/editor/features/admin/topic-score-rules/SourcesPane';
-import React from 'react';
 import { TestWrapper } from '@/editor/test-vitest/utils';
-import { vi } from 'vitest';
 
 const source = {
   id: 1,

@@ -1,22 +1,23 @@
-import { FormPage } from '@/editor/components/formpage';
 import _ from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import { FaEdit } from 'react-icons/fa';
 import { FaBugSlash } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
-import { useApiHub, useLookupOptions } from '@/editor/store/hooks';
-import { useIngests, useIngestTypes } from '@/editor/store/hooks/admin';
 import {
   Checkbox,
   Col,
-  type IIngestMessageModel,
-  type IIngestModel,
   MessageTargetKey,
   Row,
   Section,
   Select,
+  type IIngestMessageModel,
+  type IIngestModel,
 } from 'tno-core';
+
+import { FormPage } from '@/editor/components/formpage';
+import { useApiHub, useLookupOptions } from '@/editor/store/hooks';
+import { useIngests, useIngestTypes } from '@/editor/store/hooks/admin';
 
 import { getStatus } from '../ingests/utils';
 import { useIngestIcon } from './hooks';

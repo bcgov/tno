@@ -8,13 +8,13 @@ import {
   FormikStringEnumCheckbox,
   FormikText,
   FormikTextArea,
-  type IIngestModel,
   Row,
   ScheduleTypeName,
   ScheduleWeekDayName,
   selectWeekDays,
   Text,
   useNamespace,
+  type IIngestModel,
 } from 'tno-core';
 
 import { defaultSchedule } from '../constants';

@@ -37,8 +37,8 @@ export const columns: Array<ITableHookColumn<IAutomationProfileModel>> = [
           {enabled.length === 0
             ? 'Manual only'
             : enabled.length === 1
-            ? `Daily at ${(enabled[0].startAt ?? '').slice(0, 5) || 'any time'}`
-            : `${enabled.length} schedules`}
+              ? `Daily at ${(enabled[0].startAt ?? '').slice(0, 5) || 'any time'}`
+              : `${enabled.length} schedules`}
         </CellEllipsis>
       );
     },

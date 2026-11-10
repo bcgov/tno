@@ -1,7 +1,8 @@
-import { Sentiment } from '@/subscriber/components/sentiment';
-import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 import { FaCopyright, FaFeather, FaPlayCircle } from 'react-icons/fa';
 import { ContentTypeName, ITableHookColumn, Show } from 'tno-core';
+
+import { Sentiment } from '@/subscriber/components/sentiment';
+import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 
 export const determineColumns = (
   contentType: ContentTypeName | 'all',

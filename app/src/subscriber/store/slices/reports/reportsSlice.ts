@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+
 import { IReportResultForm } from '@/subscriber/features/my-reports/interfaces';
 
 import { IReportsState } from './interfaces';

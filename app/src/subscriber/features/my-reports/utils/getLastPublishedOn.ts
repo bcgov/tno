@@ -1,5 +1,6 @@
-import { formatDate } from '@/subscriber/features/utils';
 import { IReportModel } from 'tno-core';
+
+import { formatDate } from '@/subscriber/features/utils';
 
 /**
  * Finds the last published on date.

@@ -1,7 +1,8 @@
 import React from 'react';
+import { useApiAdminIngests, type IIngestModel, type IPaged } from 'tno-core';
+
 import { useAjaxWrapper } from '@/editor/store/hooks';
-import { type IAdminState, useAdminStore } from '@/editor/store/slices';
-import { type IIngestModel, type IPaged, useApiAdminIngests } from 'tno-core';
+import { useAdminStore, type IAdminState } from '@/editor/store/slices';
 
 interface IIngestController {
   findAllIngests: () => Promise<IIngestModel[]>;

@@ -1,6 +1,7 @@
-import { useTab } from '@/editor/components/tab-control';
 import { FaPen, FaStop } from 'react-icons/fa6';
-import { type IWorkOrderModel, Row, Show, WorkOrderStatusName } from 'tno-core';
+import { Row, Show, WorkOrderStatusName, type IWorkOrderModel } from 'tno-core';
+
+import { useTab } from '@/editor/components/tab-control';
 
 export interface IWorkOrderActionsProps {
   row: IWorkOrderModel;

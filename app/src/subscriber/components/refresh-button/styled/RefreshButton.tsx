@@ -1,5 +1,6 @@
-import { Action } from '@/subscriber/components/action';
 import styled from 'styled-components';
+
+import { Action } from '@/subscriber/components/action';
 
 import { IRefreshButtonProps } from '../RefreshButton';
 

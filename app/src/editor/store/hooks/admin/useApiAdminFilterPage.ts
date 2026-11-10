@@ -1,7 +1,8 @@
 import { AxiosResponse } from 'axios';
-import { type IFilterPageFilter } from '@/editor/features/admin/filters/interfaces';
 import React from 'react';
-import { type IFilterModel, type IPaged, toQueryString, useApi } from 'tno-core';
+import { toQueryString, useApi, type IFilterModel, type IPaged } from 'tno-core';
+
+import { type IFilterPageFilter } from '@/editor/features/admin/filters/interfaces';
 
 /**
  * The admin filter list's paged search. The full list (useApiAdminFilters.findFilters) is still

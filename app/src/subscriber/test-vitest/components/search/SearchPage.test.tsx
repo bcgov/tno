@@ -42,7 +42,10 @@ vi.mock('@/subscriber/features/my-searches/hooks', () => ({
 }));
 vi.mock('@/subscriber/features/utils', () => ({ castToSearchResult: (c: any) => c }));
 vi.mock('@/subscriber/components/basic-search', () => ({ BasicSearch: () => null }));
-vi.mock('@/subscriber/components/content-list', () => ({ ContentList: () => null, ViewOptions: () => null }));
+vi.mock('@/subscriber/components/content-list', () => ({
+  ContentList: () => null,
+  ViewOptions: () => null,
+}));
 vi.mock('@/subscriber/components/date-filter', () => ({ DateFilter: () => null }));
 vi.mock('@/subscriber/components/media-type-filters', () => ({ FilterOptions: () => null }));
 vi.mock('@/subscriber/components/section', () => ({

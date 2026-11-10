@@ -6,11 +6,11 @@ import {
   AVOverviewItemTypeName,
   Button,
   ButtonVariant,
-  type IAVOverviewInstanceModel,
   Modal,
   Row,
   Show,
   useModal,
+  type IAVOverviewInstanceModel,
 } from 'tno-core';
 
 import { defaultAVOverviewSectionItem } from './constants';

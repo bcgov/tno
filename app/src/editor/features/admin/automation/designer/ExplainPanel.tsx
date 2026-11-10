@@ -4,11 +4,11 @@ import {
   Button,
   ButtonVariant,
   Col,
-  type IOptionItem,
   Row,
   Select,
   Show,
   TextArea,
+  type IOptionItem,
 } from 'tno-core';
 
 import { createOption, findOptionByValue } from '../utils';

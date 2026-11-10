@@ -1,8 +1,6 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaPaste } from 'react-icons/fa';
-import { useLookup } from '@/editor/store/hooks';
-import { useAppStore } from '@/editor/store/slices';
 import {
   Button,
   ButtonVariant,
@@ -15,12 +13,15 @@ import {
   FormikWysiwyg,
   getSortableOptions,
   ILLMModel,
-  type IReportModel,
   OptionItem,
   Row,
   Select,
   Show,
+  type IReportModel,
 } from 'tno-core';
+
+import { useLookup } from '@/editor/store/hooks';
+import { useAppStore } from '@/editor/store/slices';
 
 import { ReportSectionAIInput } from './ReportSectionAIInput';
 

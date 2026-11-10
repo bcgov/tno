@@ -2,21 +2,22 @@ import {
   type KnnSearchResponse,
   type MsearchMultisearchBody,
 } from '@elastic/elasticsearch/lib/api/types';
-import {
-  type IContentListAdvancedFilter,
-  type IContentListFilter,
-} from '@/editor/features/content/interfaces';
 import React from 'react';
-import { type ActionDelegate } from '@/editor/store';
-import { useContentStore } from '@/editor/store/slices';
-import { type IContentProps, type IContentState } from '@/editor/store/slices/content';
 import {
+  useApiEditorContents,
   type IContentListModel,
   type IContentModel,
   type IContentTopicModel,
   type INotificationInstanceModel,
-  useApiEditorContents,
 } from 'tno-core';
+
+import {
+  type IContentListAdvancedFilter,
+  type IContentListFilter,
+} from '@/editor/features/content/interfaces';
+import { type ActionDelegate } from '@/editor/store';
+import { useContentStore } from '@/editor/store/slices';
+import { type IContentProps, type IContentState } from '@/editor/store/slices/content';
 
 import { useAjaxWrapper } from '..';
 

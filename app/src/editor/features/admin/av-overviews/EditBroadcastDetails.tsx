@@ -2,18 +2,19 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaEyeSlash } from 'react-icons/fa';
 import { MdEdit } from 'react-icons/md';
-import { useLookupOptions } from '@/editor/store/hooks';
 import {
   Button,
   FieldSize,
   FormikSelect,
   FormikText,
   FormikTimeInput,
-  type IAVOverviewTemplateModel,
   Row,
   Show,
   Text,
+  type IAVOverviewTemplateModel,
 } from 'tno-core';
+
+import { useLookupOptions } from '@/editor/store/hooks';
 
 import * as styled from './styled';
 

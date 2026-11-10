@@ -1,8 +1,9 @@
+import { type IPaged } from 'tno-core';
+
 import {
   type IContentListAdvancedFilter,
   type IContentListFilter,
 } from '@/editor/features/content/interfaces';
-import { type IPaged } from 'tno-core';
 
 import { type IContentSearchResult } from './IContentSearchResult';
 

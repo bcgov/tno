@@ -1,13 +1,9 @@
-import { FormikForm } from '@/editor/components/formik';
-import { FormPage } from '@/editor/components/formpage';
 import { type FormikProps } from 'formik';
 import moment from 'moment';
 import React from 'react';
 import { FaBars, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import CreatableSelect from 'react-select/creatable';
-import { useLookup, useLookupOptions } from '@/editor/store/hooks';
-import { type IAjaxRequest } from '@/editor/store/slices';
 import {
   Area,
   Button,
@@ -27,9 +23,6 @@ import {
   FormikText,
   FormikTextArea,
   hasErrors,
-  type IOptionItem,
-  type ISeriesModel,
-  type ITimeTrackingModel,
   Modal,
   OptionItem,
   Row,
@@ -42,10 +35,16 @@ import {
   useTabValidationToasts,
   WorkOrderStatusName,
   WorkOrderTypeName,
+  type IOptionItem,
+  type ISeriesModel,
+  type ITimeTrackingModel,
 } from 'tno-core';
 
-import { isWorkOrderStatus } from '../utils';
-import { ContentFormSchema } from '../validation';
+import { FormikForm } from '@/editor/components/formik';
+import { FormPage } from '@/editor/components/formpage';
+import { useLookup, useLookupOptions } from '@/editor/store/hooks';
+import { type IAjaxRequest } from '@/editor/store/slices';
+
 import {
   ContentAnalysisForm,
   ContentClipForm,
@@ -55,14 +54,16 @@ import {
   ContentStoryForm,
   ContentTranscriptForm,
 } from '.';
+import { isWorkOrderStatus } from '../utils';
+import { ContentFormSchema } from '../validation';
 import {
   ContentDuplicates,
   ContentFormToolBar,
-  type IFile,
   Tags,
   TimeLogSection,
   Topic,
   Upload,
+  type IFile,
 } from './components';
 import { useContentForm } from './hooks';
 import { ImageSection } from './ImageSection';

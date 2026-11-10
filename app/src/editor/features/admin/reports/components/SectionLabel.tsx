@@ -1,4 +1,4 @@
-import { type IReportSectionModel, ReportSectionTypeName, Row } from 'tno-core';
+import { ReportSectionTypeName, Row, type IReportSectionModel } from 'tno-core';
 
 import { SectionIcon } from './SectionIcon';
 

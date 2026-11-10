@@ -1,5 +1,6 @@
-import { FormPage } from '@/editor/components/formpage';
 import styled from 'styled-components';
+
+import { FormPage } from '@/editor/components/formpage';
 
 import { filterSettingsFormStyles } from './filterSettingsFormStyles';
 
@@ -31,8 +32,11 @@ export const FilterForm = styled(FormPage)`
       border-radius: 0.25rem;
       overflow: auto;
       /* color: rgb(0, 51, 102); */
-      transition: color 0.15s ease-in-out 0s, background-color 0.15s ease-in-out 0s,
-        border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+      transition:
+        color 0.15s ease-in-out 0s,
+        background-color 0.15s ease-in-out 0s,
+        border-color 0.15s ease-in-out 0s,
+        box-shadow 0.15s ease-in-out 0s;
       resize: both;
       min-width: 100%;
       max-width: 100%;

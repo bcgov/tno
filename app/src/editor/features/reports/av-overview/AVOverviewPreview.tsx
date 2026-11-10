@@ -3,19 +3,20 @@ import React from 'react';
 import { FaExternalLinkAlt, FaPaperPlane } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useAVOverviewInstances, useLookup } from '@/editor/store/hooks';
 import {
   Button,
   Col,
-  type IAVOverviewInstanceModel,
-  type IReportResultModel,
   Loading,
   Modal,
   Row,
   Settings,
   Show,
   useModal,
+  type IAVOverviewInstanceModel,
+  type IReportResultModel,
 } from 'tno-core';
+
+import { useAVOverviewInstances, useLookup } from '@/editor/store/hooks';
 
 import * as styled from './styled';
 

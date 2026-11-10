@@ -9,7 +9,6 @@ import {
   type ResponderProvided,
 } from 'react-beautiful-dnd';
 import { FaGripLines, FaTrash } from 'react-icons/fa';
-import { useContent } from '@/editor/store/hooks';
 import {
   AVOverviewItemTypeName,
   castEnumToOptions,
@@ -18,24 +17,26 @@ import {
   FormikSelect,
   FormikTextArea,
   FormikTimeInput,
+  OptionItem,
+  Row,
+  Show,
   type IAVOverviewInstanceModel,
   type IAVOverviewSectionItemModel,
   type IAVOverviewSectionModel,
   type IAVOverviewTemplateSectionItemModel,
   type IContentModel,
   type IOptionItem,
-  OptionItem,
-  Row,
-  Show,
 } from 'tno-core';
+
+import { useContent } from '@/editor/store/hooks';
 
 import * as styled from './styled';
 import { SummarySuggestion } from './SummarySuggestion';
 import {
   generateElasticsearchQuery,
   generateListOfSummaries,
-  type ISectionSummary,
   stringifyNumber,
+  type ISectionSummary,
 } from './utils';
 
 export interface IOverviewSectionFormProps {

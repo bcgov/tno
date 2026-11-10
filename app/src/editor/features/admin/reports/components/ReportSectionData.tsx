@@ -8,11 +8,11 @@ import {
   FormikSelect,
   FormikText,
   FormikTextArea,
+  ReportSectionDataTypeOptions,
+  Row,
   type IOptionItem,
   type IReportModel,
   type OptionItem,
-  ReportSectionDataTypeOptions,
-  Row,
 } from 'tno-core';
 
 export interface IReportSectionDataProps {

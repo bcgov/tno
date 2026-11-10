@@ -1,9 +1,10 @@
-import { type IContentForm } from '@/editor/features/content/form/interfaces';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaListAlt } from 'react-icons/fa';
+import { Button, Col, FieldSize, Row, Select, type IOptionItem } from 'tno-core';
+
+import { type IContentForm } from '@/editor/features/content/form/interfaces';
 import { useLookup } from '@/editor/store/hooks';
-import { Button, Col, FieldSize, type IOptionItem, Row, Select } from 'tno-core';
 
 import { DraggableTagList } from './DraggableTagList';
 import * as styled from './styled';

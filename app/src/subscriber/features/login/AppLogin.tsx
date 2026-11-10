@@ -1,5 +1,6 @@
-import { LightweightModal } from '@/subscriber/components/lightweight-modal/LightweightModal';
 import React from 'react';
+
+import { LightweightModal } from '@/subscriber/components/lightweight-modal/LightweightModal';
 
 import { IDPOptions } from './IDPOptions';
 import * as styled from './styled';

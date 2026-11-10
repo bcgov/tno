@@ -5,10 +5,10 @@ import {
   FormikSelect,
   FormikText,
   FormikTextArea,
-  type IIngestModel,
   Row,
   Section,
   useFormikHelpers,
+  type IIngestModel,
 } from 'tno-core';
 
 import { Languages, LoggingLevels, TimeZones } from './constants';

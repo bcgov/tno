@@ -1,10 +1,7 @@
-import { Modal } from '@/subscriber/components/modal';
 import React from 'react';
 import { FaEnvelope } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
-import { useColleagues, useLookup } from '@/subscriber/store/hooks';
-import { useProfileStore } from '@/subscriber/store/slices';
 import {
   Button,
   IContentModel,
@@ -14,6 +11,10 @@ import {
   Text,
   useModal,
 } from 'tno-core';
+
+import { Modal } from '@/subscriber/components/modal';
+import { useColleagues, useLookup } from '@/subscriber/store/hooks';
+import { useProfileStore } from '@/subscriber/store/slices';
 
 import * as styled from './styled';
 
@@ -81,8 +82,8 @@ export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
           emailAddress !== ''
             ? emailAddress
             : user?.colleague?.preferredEmail !== ''
-            ? user?.colleague?.preferredEmail
-            : user?.colleague?.email
+              ? user?.colleague?.preferredEmail
+              : user?.colleague?.email
         } ?`
       : `Please select stories to share with your colleague.`;
 
@@ -122,8 +123,8 @@ export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
                 {o.colleague?.displayName !== ''
                   ? o.colleague?.displayName
                   : o.colleague?.preferredEmail !== ''
-                  ? o.colleague?.preferredEmail
-                  : o.colleague?.email}
+                    ? o.colleague?.preferredEmail
+                    : o.colleague?.email}
               </li>
             );
           })}

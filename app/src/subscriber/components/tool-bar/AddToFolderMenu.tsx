@@ -1,9 +1,10 @@
-import { TooltipMenu } from '@/subscriber/components/tooltip-menu';
-import { toFolderContent } from '@/subscriber/components/utils';
-import { FolderMenu } from '@/subscriber/features/content/view-content/FolderMenu';
 import React from 'react';
 import { FaFolderPlus } from 'react-icons/fa6';
 import { IContentModel } from 'tno-core';
+
+import { TooltipMenu } from '@/subscriber/components/tooltip-menu';
+import { toFolderContent } from '@/subscriber/components/utils';
+import { FolderMenu } from '@/subscriber/features/content/view-content/FolderMenu';
 
 import * as styled from './styled';
 

@@ -2,22 +2,11 @@ import {
   IndicesValidateQueryResponse,
   KnnSearchResponse,
 } from '@elastic/elasticsearch/lib/api/types';
-import { BasicSearch } from '@/subscriber/components/basic-search';
-import { ContentList, ViewOptions } from '@/subscriber/components/content-list';
-import { DateFilter } from '@/subscriber/components/date-filter';
-import { FilterOptions } from '@/subscriber/components/media-type-filters';
-import { PageSection } from '@/subscriber/components/section';
-import { ContentListActionBar } from '@/subscriber/components/tool-bar';
-import { useElastic } from '@/subscriber/features/my-searches/hooks';
-import { castToSearchResult } from '@/subscriber/features/utils';
-import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 import moment, { Moment } from 'moment';
 import React from 'react';
 import { FaBookmark, FaCaretLeft, FaCaretRight } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApp, useContent, useFilters, useSettings } from '@/subscriber/store/hooks';
-import { useProfileStore } from '@/subscriber/store/slices';
 import {
   Col,
   IContentModel,
@@ -27,6 +16,18 @@ import {
   Show,
   useWindowSize,
 } from 'tno-core';
+
+import { BasicSearch } from '@/subscriber/components/basic-search';
+import { ContentList, ViewOptions } from '@/subscriber/components/content-list';
+import { DateFilter } from '@/subscriber/components/date-filter';
+import { FilterOptions } from '@/subscriber/components/media-type-filters';
+import { PageSection } from '@/subscriber/components/section';
+import { ContentListActionBar } from '@/subscriber/components/tool-bar';
+import { useElastic } from '@/subscriber/features/my-searches/hooks';
+import { castToSearchResult } from '@/subscriber/features/utils';
+import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
+import { useApp, useContent, useFilters, useSettings } from '@/subscriber/store/hooks';
+import { useProfileStore } from '@/subscriber/store/slices';
 
 import { AdvancedSearch } from './components';
 import { PreviousResults } from './PreviousResults';
@@ -230,8 +231,8 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced, showDate: init
         const currStartDate = filter.startDate
           ? moment(filter.startDate)
           : filter.dateOffset !== undefined
-          ? moment(offsetDate)
-          : moment(1432252800); // 1970
+            ? moment(offsetDate)
+            : moment(1432252800); // 1970
         const prevStartDate = moment(currStartDate).add(-7, 'day');
 
         const currEndDate = filter.endDate ? moment(filter.endDate) : moment();

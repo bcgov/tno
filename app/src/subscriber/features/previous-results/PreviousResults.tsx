@@ -1,7 +1,8 @@
-import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
 import { IFilterSettingsModel, Row, Show } from 'tno-core';
+
+import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 
 import { IPreviousDate } from './interfaces';
 import * as styled from './styled';

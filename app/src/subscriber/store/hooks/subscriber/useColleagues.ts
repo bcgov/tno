@@ -1,12 +1,13 @@
 import React from 'react';
-import { useAjaxWrapper } from '@/subscriber/store/hooks';
-import { useProfileStore } from '@/subscriber/store/slices';
 import {
   INotificationModel,
   IResponseErrorModel,
   IUserColleagueModel,
   useApiSubscriberColleagues,
 } from 'tno-core';
+
+import { useAjaxWrapper } from '@/subscriber/store/hooks';
+import { useProfileStore } from '@/subscriber/store/slices';
 
 interface IColleagueController {
   getColleagues: () => Promise<IUserColleagueModel[]>;

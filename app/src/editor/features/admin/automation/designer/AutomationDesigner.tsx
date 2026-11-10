@@ -15,12 +15,12 @@ import {
   Button,
   ButtonVariant,
   Col,
-  type IActionModel,
-  type IOptionItem,
   Modal,
   Row,
   Show,
   TextArea,
+  type IActionModel,
+  type IOptionItem,
 } from 'tno-core';
 
 import { SectionInfoButton } from '../SectionInfoButton';
@@ -705,10 +705,10 @@ export const AutomationDesigner: React.FC<IAutomationDesignerProps> = ({
                                                   </span>
                                                   <span className="automation-gc-name">
                                                     {action.filter != null ? (
-                                                      findOptionByValue(
+                                                      (findOptionByValue(
                                                         filterOptions,
                                                         action.filter,
-                                                      )?.label ?? `filter ${action.filter}`
+                                                      )?.label ?? `filter ${action.filter}`)
                                                     ) : (
                                                       <span className="automation-muted">—</span>
                                                     )}

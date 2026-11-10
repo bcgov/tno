@@ -1,22 +1,23 @@
-import { InputOption } from '@/editor/features/content/list-view/components/tool-bar/filter';
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { useLookupOptions } from '@/editor/store/hooks';
 import {
   Col,
   FormikSelect,
   FormikText,
   FormikTextArea,
   getEnumStringOptions,
-  type IOptionItem,
-  type IUserModel,
-  type IUserUpdateHistoryModel,
-  type OptionItem,
   Row,
   Section,
   UserAccountTypeName,
   UserChangeTypeName,
+  type IOptionItem,
+  type IUserModel,
+  type IUserUpdateHistoryModel,
+  type OptionItem,
 } from 'tno-core';
+
+import { InputOption } from '@/editor/features/content/list-view/components/tool-bar/filter';
+import { useLookupOptions } from '@/editor/store/hooks';
 
 import { type IUserFormProps } from './UserForm';
 

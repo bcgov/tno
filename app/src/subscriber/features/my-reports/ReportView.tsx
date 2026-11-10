@@ -1,6 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
 import { useReports } from '@/subscriber/store/hooks';
 
 import { ReportInstanceView } from './ReportInstanceView';

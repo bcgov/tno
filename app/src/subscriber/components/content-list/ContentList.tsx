@@ -1,11 +1,8 @@
 import { AxiosError } from 'axios';
-import { castToSearchResult } from '@/subscriber/features/utils';
-import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 import React from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApp, useContent, useLookup } from '@/subscriber/store/hooks';
 import {
   generateQuery,
   IContentModel,
@@ -15,6 +12,10 @@ import {
   Settings,
   Show,
 } from 'tno-core';
+
+import { castToSearchResult } from '@/subscriber/features/utils';
+import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
+import { useApp, useContent, useLookup } from '@/subscriber/store/hooks';
 
 import { ContentListContext } from './ContentListContext';
 import { ContentRow } from './ContentRow';

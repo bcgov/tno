@@ -1,10 +1,8 @@
-import { FormikForm } from '@/editor/components/formik';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useConnections } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -18,13 +16,16 @@ import {
   FormikText,
   FormikTextArea,
   IconButton,
-  type IConnectionModel,
   LabelPosition,
   Modal,
   Row,
   Show,
   useModal,
+  type IConnectionModel,
 } from 'tno-core';
+
+import { FormikForm } from '@/editor/components/formik';
+import { useConnections } from '@/editor/store/hooks/admin';
 
 import { ConnectionConfiguration } from './configurations';
 import { defaultConnection } from './constants';

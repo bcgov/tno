@@ -1,10 +1,11 @@
+import React from 'react';
+import { fromQueryString, ToolBar } from 'tno-core';
+
 import {
   type IContentListAdvancedFilter,
   type IContentListFilter,
 } from '@/editor/features/content/interfaces';
-import React from 'react';
 import { useContent } from '@/editor/store/hooks';
-import { fromQueryString, ToolBar } from 'tno-core';
 
 import {
   AdvancedSearchSection,

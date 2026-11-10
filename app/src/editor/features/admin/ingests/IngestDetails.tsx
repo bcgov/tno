@@ -1,8 +1,6 @@
 import { getIn, useFormikContext } from 'formik';
 import React from 'react';
 import { FaTrash } from 'react-icons/fa';
-import { useLookup } from '@/editor/store/hooks';
-import { useDataLocations } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -13,11 +11,14 @@ import {
   FormikText,
   FormikTextArea,
   getSortableOptions,
-  type IIngestModel,
   OptionItem,
   Row,
   Show,
+  type IIngestModel,
 } from 'tno-core';
+
+import { useLookup } from '@/editor/store/hooks';
+import { useDataLocations } from '@/editor/store/hooks/admin';
 
 import { contentTypeOptions } from '../ingest-types/constants';
 import * as styled from './styled';

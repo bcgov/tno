@@ -2,7 +2,6 @@ import { getIn, useFormikContext } from 'formik';
 import moment from 'moment';
 import React from 'react';
 import { FaToggleOff, FaToggleOn } from 'react-icons/fa';
-import { useLookupOptions } from '@/editor/store/hooks';
 import {
   Button,
   ButtonVariant,
@@ -13,16 +12,18 @@ import {
   FormikSelect,
   FormikText,
   FormikTextArea,
-  type IFilterActionSettingsModel,
-  type IFilterSettingsModel,
-  type OptionItem,
   Row,
   Section,
   SentimentSlider,
   Show,
   ToggleButton,
   ToggleGroup,
+  type IFilterActionSettingsModel,
+  type IFilterSettingsModel,
+  type OptionItem,
 } from 'tno-core';
+
+import { useLookupOptions } from '@/editor/store/hooks';
 
 import { contentTypeOptions } from './constants';
 import { ElasticQueryHelp } from './ElasticQueryHelp';

@@ -2,11 +2,18 @@
 
 // Background
 $bk-primary: linear-gradient(179.77deg, #f0eeee 15.35%, #d9d9d9 101.64%);
-$bk-primary-25: linear-gradient(179.77deg, rgb(240, 238, 238, 0.25) 15.35%, rgb(217, 217, 217, 0.25) 101.64%);
-$bk-primary-75: linear-gradient(179.77deg, rgb(240, 238, 238, 0.75) 15.35%, rgb(217, 217, 217, 0.75) 101.64%);
+$bk-primary-25: linear-gradient(
+  179.77deg,
+  rgb(240, 238, 238, 0.25) 15.35%,
+  rgb(217, 217, 217, 0.25) 101.64%
+);
+$bk-primary-75: linear-gradient(
+  179.77deg,
+  rgb(240, 238, 238, 0.75) 15.35%,
+  rgb(217, 217, 217, 0.75) 101.64%
+);
 
-$bk-secondary: linear-gradient(0deg, #ffffff, #ffffff),
-  linear-gradient(0deg, #f0eeee, #f0eeee);
+$bk-secondary: linear-gradient(0deg, #ffffff, #ffffff), linear-gradient(0deg, #f0eeee, #f0eeee);
 $bk-tertiary: #e8e9f1;
 $bk-quaternary: #e8e9f1;
 $bk-form: #ffff;
@@ -16,7 +23,7 @@ $bk-main: #dedede;
 $bk-white: #fff;
 $teaser-background: #f5f6f9;
 $sticky-note-color: #fff2cb;
-$bkInfo: #ECFCFF;
+$bkInfo: #ecfcff;
 
 $production-background-color: #dedede;
 $development-background-color: #b51963;
@@ -35,22 +42,23 @@ $drop-shadow: drop-shadow(0 2px 6px 1px rgba(0, 0, 0, 25%));
 $box-shadow: 0 4px 6px 1px rgba(0, 0, 0, 25%);
 
 // Report Types
-$report-auto: #047A8C;
-$report-full-auto: #04814D;
+$report-auto: #047a8c;
+$report-full-auto: #04814d;
 $report-manual: #876503;
-
 
 // Dialog boxes
 $dialog-box-bk-primary: #41393b;
 $dialog-box-bk-secondary: #ded9da;
 
 // Fonts
-$f-primary: 'Source Sans 3',
+$f-primary:
+  'Source Sans 3',
   'BCSans',
   'Noto Sans',
   Arial,
   sans serif;
-$f-secondary: 'BCSans',
+$f-secondary:
+  'BCSans',
   'Noto Sans',
   Arial,
   sans serif;
@@ -59,7 +67,7 @@ $f-primary-color: #41393b;
 $h-primary-color: #971d29;
 $f-red-color: #d9293a;
 $f-secondary-color: #ded9da;
-$fInfo: #047A8C;
+$fInfo: #047a8c;
 $f-primary-invert-color: #fff;
 
 // Tone related
@@ -71,7 +79,7 @@ $tone-neutral: #f1c02d;
 $link-primary-color: #6750a4;
 $link-primary-hover-color: #565a8b;
 $link-primary-active-color: #b3a5d3;
-$link-visited: #43425D;
+$link-visited: #43425d;
 $link-gray-color: #9f9196;
 
 // Icons
@@ -79,13 +87,13 @@ $icon-primary-color: #8084b1;
 $icon-secondary-color: #ded9da;
 $icon-tertiary-color: #6c5d62;
 $icon-purple-color: #babfd6;
-$icon-gray-color: #C1B8BB;
-$icon-dark-color: #56537A;
+$icon-gray-color: #c1b8bb;
+$icon-dark-color: #56537a;
 $sidebar-icon-color: #a5a4bf;
 $sidebar-icon-hover-color: #da6d78;
-$icon-green: #19754C;
-$iconInfo: #047A8C;
-$overview-transcript: #047A8C;
+$icon-green: #19754c;
+$iconInfo: #047a8c;
+$overview-transcript: #047a8c;
 $overview-video: #702828;
 
 // Buttons
@@ -103,7 +111,7 @@ $btn-bk-disabled: #ece7eb;
 $btn-disabled-color: #41393b;
 $input-grey: #ece7eb;
 $icon-button-border-color: #ded9da;
-$btn-bk-success: #19754C;
+$btn-bk-success: #19754c;
 $btn-success-color: #fff;
 $btn-bk-warn: #ffc107;
 $btn-warn-color: #000;
@@ -131,15 +139,15 @@ $nav-item-secondary-background-color: #8084b1;
 
 // Tables
 $table-odd-row: unset;
-$table-even-row: #EDEDED;
+$table-even-row: #ededed;
 $table-active-row-color: #fff;
 $table-active-row: #8084b1;
-$table-hover-row: #EDEDED;
+$table-hover-row: #ededed;
 
 // Sections
 $section-header: #646293;
 $section-header-text: #fff;
-$section-group-header: #231F20;
+$section-group-header: #231f20;
 
 // Header variants
 $dark-header-color: #363434;

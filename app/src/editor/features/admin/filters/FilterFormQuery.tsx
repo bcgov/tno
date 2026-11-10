@@ -7,17 +7,18 @@ import { useFormikContext } from 'formik';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
-import { useContent } from '@/editor/store/hooks';
-import { useFilters } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
   Col,
   FilterAIPrompt,
+  Row,
   type IFilterModel,
   type IFilterSettingsModel,
-  Row,
 } from 'tno-core';
+
+import { useContent } from '@/editor/store/hooks';
+import { useFilters } from '@/editor/store/hooks/admin';
 
 import { FilterSettingsForm } from './FilterSettingsForm';
 import { useElastic } from './hooks';

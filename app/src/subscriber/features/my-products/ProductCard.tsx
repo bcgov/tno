@@ -1,7 +1,5 @@
-import { Action } from '@/subscriber/components/action';
 import React from 'react';
 import { FaFileLines, FaRotateLeft, FaUserMinus, FaUserPlus } from 'react-icons/fa6';
-import { useApp } from '@/subscriber/store/hooks';
 import {
   Col,
   IProductModel,
@@ -11,6 +9,9 @@ import {
   Show,
   UserAccountTypeName,
 } from 'tno-core';
+
+import { Action } from '@/subscriber/components/action';
+import { useApp } from '@/subscriber/store/hooks';
 
 export interface IProductCardProps {
   /** The user ID */

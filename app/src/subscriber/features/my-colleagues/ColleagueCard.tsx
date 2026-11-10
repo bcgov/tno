@@ -1,7 +1,8 @@
-import { Action } from '@/subscriber/components/action';
-import { Section } from '@/subscriber/components/section';
 import React from 'react';
 import { IUserColleagueModel } from 'tno-core';
+
+import { Action } from '@/subscriber/components/action';
+import { Section } from '@/subscriber/components/section';
 
 export interface IColleagueCardProps {
   /** The report to display on this card. */

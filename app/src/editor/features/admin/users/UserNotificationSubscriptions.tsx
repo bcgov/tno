@@ -1,7 +1,8 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
+import { formatDate, Grid, Link, type IUserModel, type IUserNotificationModel } from 'tno-core';
+
 import { useUsers } from '@/editor/store/hooks/admin';
-import { formatDate, Grid, type IUserModel, type IUserNotificationModel, Link } from 'tno-core';
 
 /** A notification subscription, which belongs to a distribution list when 'userId' is not the user's. */
 type IUserNotificationSubscription = IUserNotificationModel & { userId: number };

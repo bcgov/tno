@@ -1,21 +1,22 @@
-import { showOnlyOptions, ShowOnlyValues } from '@/editor/features/content/constants';
-import { type IContentListFilter } from '@/editor/features/content/interfaces';
 import React from 'react';
 import { FaEye } from 'react-icons/fa';
-import { type ActionDelegate } from '@/editor/store';
-import { useContent } from '@/editor/store/hooks';
 import {
   Checkbox,
   Col,
   ContentTypeName,
   FieldSize,
-  type IOptionItem,
   replaceQueryParams,
   Row,
   Select,
   Show,
   ToolBarSection,
+  type IOptionItem,
 } from 'tno-core';
+
+import { showOnlyOptions, ShowOnlyValues } from '@/editor/features/content/constants';
+import { type IContentListFilter } from '@/editor/features/content/interfaces';
+import { type ActionDelegate } from '@/editor/store';
+import { useContent } from '@/editor/store/hooks';
 
 import { InputOption } from './InputOption';
 

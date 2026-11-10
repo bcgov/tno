@@ -1,12 +1,7 @@
-import { Button } from '@/subscriber/components/button';
-import { Modal } from '@/subscriber/components/modal';
-import { ReportStatus } from '@/subscriber/features/my-reports/ReportStatus';
-import { calcNextReportSend, getLastSent } from '@/subscriber/features/my-reports/utils';
 import React from 'react';
 import { FaTelegramPlane } from 'react-icons/fa';
 import { FaRegClock } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
-import { useApp, useReportInstances, useReports } from '@/subscriber/store/hooks';
 import {
   Claim,
   Col,
@@ -19,6 +14,12 @@ import {
   useModal,
   validateEmail,
 } from 'tno-core';
+
+import { Button } from '@/subscriber/components/button';
+import { Modal } from '@/subscriber/components/modal';
+import { ReportStatus } from '@/subscriber/features/my-reports/ReportStatus';
+import { calcNextReportSend, getLastSent } from '@/subscriber/features/my-reports/utils';
+import { useApp, useReportInstances, useReports } from '@/subscriber/store/hooks';
 
 import { useReportEditContext } from '../ReportEditContext';
 import * as styled from './styled';

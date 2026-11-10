@@ -1,10 +1,5 @@
-import { PageSection } from '@/subscriber/components/section';
-import { useSubMediaGroups } from '@/subscriber/features/hooks';
-import { ISubMediaGroupItem } from '@/subscriber/features/search-page/components/advanced-search/interfaces';
-import { IGroupOption } from '@/subscriber/features/search-page/components/advanced-search/interfaces/IGroupOption';
 import moment from 'moment';
 import React from 'react';
-import { useContent, useLookup } from '@/subscriber/store/hooks';
 import {
   Checkbox,
   Col,
@@ -14,6 +9,12 @@ import {
   Row,
   Show,
 } from 'tno-core';
+
+import { PageSection } from '@/subscriber/components/section';
+import { useSubMediaGroups } from '@/subscriber/features/hooks';
+import { ISubMediaGroupItem } from '@/subscriber/features/search-page/components/advanced-search/interfaces';
+import { IGroupOption } from '@/subscriber/features/search-page/components/advanced-search/interfaces/IGroupOption';
+import { useContent, useLookup } from '@/subscriber/store/hooks';
 
 import { FilterMedia } from './FilterMedia';
 import * as styled from './styled';
@@ -54,8 +55,8 @@ export const FilterMediaLanding: React.FC = () => {
     (resetSubMediaGroup = false) => {
       const activeSubMediaGroup = resetSubMediaGroup
         ? subMediaGroups.find((sg) => sg.label === 'Daily Print')
-        : subMediaGroups.find((sg) => sg.label === filter.activeSubGroup) ??
-          subMediaGroups.find((sg) => sg.label === 'Daily Print');
+        : (subMediaGroups.find((sg) => sg.label === filter.activeSubGroup) ??
+          subMediaGroups.find((sg) => sg.label === 'Daily Print'));
 
       if (activeSubMediaGroup) {
         setActiveFilter(activeSubMediaGroup);

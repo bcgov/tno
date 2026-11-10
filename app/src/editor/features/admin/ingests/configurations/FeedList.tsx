@@ -1,4 +1,3 @@
-import { StrictModeDroppable } from '@/editor/features/admin/automation/StrictModeDroppable';
 import React from 'react';
 import { DragDropContext, Draggable, type DropResult } from 'react-beautiful-dnd';
 import { FaArrowDown, FaArrowUp, FaGripVertical, FaTrash } from 'react-icons/fa';
@@ -10,9 +9,11 @@ import {
   filterEnabledOptions,
   FormikSelect,
   FormikText,
-  type IOptionItem,
   Row,
+  type IOptionItem,
 } from 'tno-core';
+
+import { StrictModeDroppable } from '@/editor/features/admin/automation/StrictModeDroppable';
 
 import { type ISyndicationFeed } from '../interfaces';
 import * as styled from './styled';

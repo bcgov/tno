@@ -1,9 +1,9 @@
 import {
   getSortableOptions,
+  OptionItem,
   type IFilterModel,
   type IFolderModel,
   type IReportModel,
-  OptionItem,
 } from 'tno-core';
 
 export const getSortableItems = <T extends IFolderModel | IFilterModel | IReportModel>(

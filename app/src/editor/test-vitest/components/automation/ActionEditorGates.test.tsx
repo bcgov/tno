@@ -1,8 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { ActionEditor } from '@/editor/features/admin/automation/designer';
 import React from 'react';
-import { TestWrapper } from '@/editor/test-vitest/utils';
 import { vi } from 'vitest';
+
+import { ActionEditor } from '@/editor/features/admin/automation/designer';
+import { TestWrapper } from '@/editor/test-vitest/utils';
 
 const abortDescriptor = {
   type: 'abort',

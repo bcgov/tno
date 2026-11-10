@@ -1,7 +1,8 @@
 import React from 'react';
+import { useApiAdminMediaTypes, type IMediaTypeModel } from 'tno-core';
+
 import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
-import { type IAdminState, useAdminStore } from '@/editor/store/slices';
-import { type IMediaTypeModel, useApiAdminMediaTypes } from 'tno-core';
+import { useAdminStore, type IAdminState } from '@/editor/store/slices';
 
 interface IMediaTypeController {
   findAllMediaTypes: () => Promise<IMediaTypeModel[]>;

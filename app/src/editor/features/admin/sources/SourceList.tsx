@@ -1,16 +1,17 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSources } from '@/editor/store/hooks/admin';
 import {
   CellCheckbox,
   CellEllipsis,
   Col,
   Grid,
   IconButton,
-  type ISourceModel,
   Link,
   Row,
+  type ISourceModel,
 } from 'tno-core';
+
+import { useSources } from '@/editor/store/hooks/admin';
 
 import { sortData } from '../ingests/utils/sortData';
 import { SourceFilter } from './SourceFilter';
@@ -82,8 +83,8 @@ const SourceList: React.FC<ISourceListProps> = (props) => {
           case 'configuration.isDailyPaper':
             return [...items].sort((a: any, b: any) =>
               sortData(
-                (a.configuration ? a.configuration.isDailyPaper ?? false : false) as boolean,
-                (b.configuration ? b.configuration.isDailyPaper ?? false : false) as boolean,
+                (a.configuration ? (a.configuration.isDailyPaper ?? false) : false) as boolean,
+                (b.configuration ? (b.configuration.isDailyPaper ?? false) : false) as boolean,
                 direction,
               ),
             );

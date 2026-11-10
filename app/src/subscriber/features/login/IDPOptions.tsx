@@ -1,5 +1,6 @@
-import { Button } from '@/subscriber/components/button';
 import { Col, Row, Show, useKeycloakWrapper } from 'tno-core';
+
+import { Button } from '@/subscriber/components/button';
 
 import { Copyright } from './Copyright';
 

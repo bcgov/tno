@@ -1,10 +1,11 @@
-import { AdvancedSearchKeys } from '@/editor/features/content/constants';
-import { useElasticsearch } from '@/editor/features/content/hooks';
 import React from 'react';
 import { toast } from 'react-toastify';
+import { Button, ButtonVariant, Col, Row, Show, Text, Wysiwyg } from 'tno-core';
+
+import { AdvancedSearchKeys } from '@/editor/features/content/constants';
+import { useElasticsearch } from '@/editor/features/content/hooks';
 import { useContent } from '@/editor/store/hooks';
 import { useAutomationProfiles } from '@/editor/store/hooks/admin';
-import { Button, ButtonVariant, Col, Row, Show, Text, Wysiwyg } from 'tno-core';
 
 import { type IAutomationDebugMessageModel } from './interfaces';
 

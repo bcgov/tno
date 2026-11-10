@@ -1,4 +1,3 @@
-import { IReportResultForm } from '@/subscriber/features/my-reports/interfaces';
 import {
   IContributorModel,
   IFilterModel,
@@ -9,6 +8,8 @@ import {
   ITonePoolModel,
   IUserColleagueModel,
 } from 'tno-core';
+
+import { IReportResultForm } from '@/subscriber/features/my-reports/interfaces';
 
 export interface IProfileState {
   impersonate?: ISubscriberUserModel;

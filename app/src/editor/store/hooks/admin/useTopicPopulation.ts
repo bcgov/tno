@@ -1,8 +1,9 @@
 import { AxiosResponse } from 'axios';
-import { type ITopicPopulationSettingsModel } from '@/editor/features/admin/content-analysis/interfaces';
 import React from 'react';
-import { useAjaxWrapper } from '@/editor/store/hooks';
 import { useApi } from 'tno-core';
+
+import { type ITopicPopulationSettingsModel } from '@/editor/features/admin/content-analysis/interfaces';
+import { useAjaxWrapper } from '@/editor/store/hooks';
 
 interface ITopicPopulationController {
   getPopulationSettings: () => Promise<ITopicPopulationSettingsModel>;

@@ -1,7 +1,8 @@
 import React from 'react';
+import { useApiAdminMinisters, type IMinisterModel } from 'tno-core';
+
 import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
-import { type IAdminState, useAdminStore } from '@/editor/store/slices';
-import { type IMinisterModel, useApiAdminMinisters } from 'tno-core';
+import { useAdminStore, type IAdminState } from '@/editor/store/slices';
 
 interface IMinisterController {
   findAllMinisters: () => Promise<IMinisterModel[]>;

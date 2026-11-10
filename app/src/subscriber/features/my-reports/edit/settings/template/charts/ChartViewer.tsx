@@ -11,10 +11,11 @@ import {
 } from 'chart.js';
 import ChartJS from 'chart.js/auto';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { Modal } from '@/subscriber/components/modal';
-import { useReportEditContext } from '@/subscriber/features/my-reports/edit/ReportEditContext';
 import React from 'react';
 import { IChartSectionSettingsModel, Show, useModal } from 'tno-core';
+
+import { Modal } from '@/subscriber/components/modal';
+import { useReportEditContext } from '@/subscriber/features/my-reports/edit/ReportEditContext';
 
 import {
   calcAutoSize,
@@ -129,7 +130,7 @@ export const ChartViewer: React.FC<IChartViewerProps> = ({
                     chartSectionSettings,
                   ),
                   borderColor: determineBorderColor(index, dataset.label, chartSectionSettings),
-                } as any),
+                }) as any,
             ) ?? [],
         },
         options: generateChartOptions(data, chartSectionSettings),

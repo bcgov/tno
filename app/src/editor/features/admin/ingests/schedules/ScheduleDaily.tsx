@@ -8,11 +8,11 @@ import {
   FormikText,
   FormikTextArea,
   FormikTimeInput,
-  type IIngestModel,
   ScheduleTypeName,
   ScheduleWeekDayName,
   selectWeekDays,
   useNamespace,
+  type IIngestModel,
 } from 'tno-core';
 import { Col, Row } from 'tno-core/dist/components/flex';
 

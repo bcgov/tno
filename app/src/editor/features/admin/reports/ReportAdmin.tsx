@@ -2,8 +2,8 @@ import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Show, Tab, Tabs } from 'tno-core';
 
-import { ChartList } from '../charts';
 import { ReportList, ReportTemplateList } from '.';
+import { ChartList } from '../charts';
 import * as styled from './styled';
 
 export interface IReportAdminProps {

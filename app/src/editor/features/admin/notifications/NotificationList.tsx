@@ -1,9 +1,10 @@
-import { FormPage } from '@/editor/components/formpage';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Col, FlexboxTable, IconButton, Row, type INotificationModel } from 'tno-core';
+
+import { FormPage } from '@/editor/components/formpage';
 import { useApp } from '@/editor/store/hooks';
 import { useNotifications } from '@/editor/store/hooks/admin';
-import { Col, FlexboxTable, IconButton, type INotificationModel, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { NotificationFilter } from './NotificationFilter';

@@ -1,19 +1,20 @@
-import { ContentActions } from '@/editor/features/content/form';
-import { type IContentForm } from '@/editor/features/content/form/interfaces';
 import React from 'react';
 import { FaPaperPlane } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import { useApiHub, useContent, useLookup } from '@/editor/store/hooks';
 import {
   Col,
-  type IContentActionMessageModel,
-  type INotificationInstanceModel,
   MessageTargetKey,
   NotificationStatusName,
   Row,
   Settings,
   ToolBarSection,
+  type IContentActionMessageModel,
+  type INotificationInstanceModel,
 } from 'tno-core';
+
+import { ContentActions } from '@/editor/features/content/form';
+import { type IContentForm } from '@/editor/features/content/form/interfaces';
+import { useApiHub, useContent, useLookup } from '@/editor/store/hooks';
 
 export interface IAlertSectionProps {
   /** Form values. */

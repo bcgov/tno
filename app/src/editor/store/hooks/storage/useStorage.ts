@@ -1,5 +1,5 @@
 import React from 'react';
-import { type IDirectoryModel, type IItemModel, useApiEditorStorage } from 'tno-core';
+import { useApiEditorStorage, type IDirectoryModel, type IItemModel } from 'tno-core';
 
 import { useAjaxWrapper } from '..';
 

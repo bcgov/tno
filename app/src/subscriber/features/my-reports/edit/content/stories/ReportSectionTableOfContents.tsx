@@ -1,8 +1,7 @@
 import React from 'react';
 import { FormikText, FormikWysiwyg, Show } from 'tno-core';
 
-export interface IReportSectionTableOfContentsProps
-  extends React.AllHTMLAttributes<HTMLDivElement> {
+export interface IReportSectionTableOfContentsProps extends React.AllHTMLAttributes<HTMLDivElement> {
   /** Array index position of section. */
   sectionIndex: number;
   /** Icon to display in header */

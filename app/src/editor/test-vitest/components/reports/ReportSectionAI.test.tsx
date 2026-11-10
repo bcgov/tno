@@ -1,9 +1,10 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
-import { ReportSectionAI } from '@/editor/features/admin/reports/components';
 import { Formik, useFormikContext } from 'formik';
 import React from 'react';
-import { TestWrapper } from '@/editor/test-vitest/utils';
 import { vi } from 'vitest';
+
+import { ReportSectionAI } from '@/editor/features/admin/reports/components';
+import { TestWrapper } from '@/editor/test-vitest/utils';
 
 /** A tiny external store so the lookup can change while the section stays mounted - a remount
  *  would re-run the component's initializers and hide the very bug being tested. */

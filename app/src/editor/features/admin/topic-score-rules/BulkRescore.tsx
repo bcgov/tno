@@ -1,15 +1,16 @@
 import moment from 'moment';
 import React from 'react';
 import { toast } from 'react-toastify';
-import { useTopicScores } from '@/editor/store/hooks/admin';
 import { Button, Col, Modal, OptionItem, Row, Select, Show, Text, useModal } from 'tno-core';
 
+import { useTopicScores } from '@/editor/store/hooks/admin';
+
 import {
+  RescoreStatusName,
   type ITopicRescoreJobModel,
   type ITopicRescorePreviewModel,
   type ITopicRescoreRequestModel,
   type ITopicScoreSourceModel,
-  RescoreStatusName,
 } from './interfaces';
 
 export interface IBulkRescoreProps {

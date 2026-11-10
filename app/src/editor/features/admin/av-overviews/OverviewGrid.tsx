@@ -18,9 +18,9 @@ import {
   FormikSelect,
   FormikTextArea,
   FormikTimeInput,
-  type IAVOverviewTemplateModel,
   Row,
   Show,
+  type IAVOverviewTemplateModel,
 } from 'tno-core';
 
 import * as styled from './styled';

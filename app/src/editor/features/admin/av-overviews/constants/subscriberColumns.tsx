@@ -1,9 +1,9 @@
 import {
   CellEllipsis,
   Checkbox,
+  Row,
   type ITableHookColumn,
   type IUserAVOverviewModel,
-  Row,
 } from 'tno-core';
 
 import { type IAVOverviewTemplateForm } from '../interfaces';

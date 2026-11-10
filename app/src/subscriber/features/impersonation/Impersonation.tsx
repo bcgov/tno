@@ -1,7 +1,3 @@
-import { Action } from '@/subscriber/components/action';
-import { Bar } from '@/subscriber/components/bar';
-import { Button } from '@/subscriber/components/button';
-import { PageSection } from '@/subscriber/components/section';
 import React from 'react';
 import {
   FaArrowRightFromBracket,
@@ -10,8 +6,6 @@ import {
   FaCaretRight,
   FaMagnifyingGlass,
 } from 'react-icons/fa6';
-import { useUsers } from '@/subscriber/store/hooks';
-import { useProfileStore } from '@/subscriber/store/slices';
 import {
   Col,
   IPaged,
@@ -22,6 +16,13 @@ import {
   Text,
   UserAccountTypeName,
 } from 'tno-core';
+
+import { Action } from '@/subscriber/components/action';
+import { Bar } from '@/subscriber/components/bar';
+import { Button } from '@/subscriber/components/button';
+import { PageSection } from '@/subscriber/components/section';
+import { useUsers } from '@/subscriber/store/hooks';
+import { useProfileStore } from '@/subscriber/store/slices';
 
 import { defaultPage } from './constants';
 import * as styled from './styled';

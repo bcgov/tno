@@ -1,6 +1,7 @@
 import React from 'react';
-import { useAjaxWrapper } from '@/editor/store/hooks';
 import { useApiEditorNotifications } from 'tno-core';
+
+import { useAjaxWrapper } from '@/editor/store/hooks';
 
 interface INotificationController {
   publishNotification: (notificationId: number) => Promise<never>;

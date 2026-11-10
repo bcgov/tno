@@ -1,6 +1,3 @@
-import { StartNextReportInfo } from '@/subscriber/features/my-reports/components';
-import { IReportInstanceContentForm } from '@/subscriber/features/my-reports/interfaces';
-import { moveContent, sortContent, sortReportContent } from '@/subscriber/features/my-reports/utils';
 import React from 'react';
 import {
   DragDropContext,
@@ -12,8 +9,6 @@ import {
   ResponderProvided,
 } from 'react-beautiful-dnd';
 import { FaToggleOff, FaToggleOn } from 'react-icons/fa6';
-import { useUsers } from '@/subscriber/store/hooks';
-import { useProfileStore } from '@/subscriber/store/slices';
 import {
   getDistinct,
   IReportInstanceModel,
@@ -21,6 +16,16 @@ import {
   ReportSectionTypeName,
   ToggleButton,
 } from 'tno-core';
+
+import { StartNextReportInfo } from '@/subscriber/features/my-reports/components';
+import { IReportInstanceContentForm } from '@/subscriber/features/my-reports/interfaces';
+import {
+  moveContent,
+  sortContent,
+  sortReportContent,
+} from '@/subscriber/features/my-reports/utils';
+import { useUsers } from '@/subscriber/store/hooks';
+import { useProfileStore } from '@/subscriber/store/slices';
 
 import { useReportEditContext } from '../ReportEditContext';
 import { ReportContentSectionRow } from './sort';
@@ -145,7 +150,7 @@ export const ReportEditSortForm = React.forwardRef<HTMLDivElement | null, IRepor
                         originalIndex: instance.content.findIndex(
                           (oi) => oi.contentId === c.contentId && oi.sectionName === c.sectionName,
                         ),
-                      } as IReportInstanceContentForm),
+                      }) as IReportInstanceContentForm,
                   ) ?? [];
               const sectionOptions = values.sections
                 .filter((s) =>

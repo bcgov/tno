@@ -1,6 +1,4 @@
-import { IReportResultForm } from '@/subscriber/features/my-reports/interfaces';
 import React from 'react';
-import { ActionDelegate, useAppDispatch, useAppSelector } from '@/subscriber/store';
 import {
   IContributorModel,
   IFilterModel,
@@ -12,7 +10,9 @@ import {
   IUserColleagueModel,
 } from 'tno-core';
 
-import { storeContributors } from '../lookup';
+import { IReportResultForm } from '@/subscriber/features/my-reports/interfaces';
+import { ActionDelegate, useAppDispatch, useAppSelector } from '@/subscriber/store';
+
 import {
   storeFilter,
   storeFrom,
@@ -28,6 +28,7 @@ import {
   storeReportOutput,
   storeReportsFilter,
 } from '.';
+import { storeContributors } from '../lookup';
 import { IProfileState } from './interfaces';
 
 export interface IProfileStore {
@@ -127,8 +128,7 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
       },
       storeReportContent: (
         reportContent:
-          | { [reportId: number]: number[] }
-          | ActionDelegate<{ [reportId: number]: number[] }>,
+          { [reportId: number]: number[] } | ActionDelegate<{ [reportId: number]: number[] }>,
       ) => {
         if (typeof reportContent === 'function') {
           dispatch(storeReportContent(reportContent(state.reportContent)));

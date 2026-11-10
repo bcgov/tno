@@ -5,8 +5,10 @@ import { sortObject } from 'tno-core';
 import { DraggableContentRow, type IContentRowModel } from '.';
 import * as styled from './styled';
 
-export interface IDroppableContentContainerProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
+export interface IDroppableContentContainerProps extends Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  'onChange'
+> {
   /** Droppable container id. */
   droppableId?: string;
   /** An array of content. */

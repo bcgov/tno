@@ -1,4 +1,3 @@
-import { Action } from '@/subscriber/components/action';
 import React from 'react';
 import {
   FaAngleDown,
@@ -10,8 +9,10 @@ import {
   FaTrash,
   FaWandMagicSparkles,
 } from 'react-icons/fa6';
-import { useReports } from '@/subscriber/store/hooks';
 import { Col, IReportInstanceContentModel, Row, Show, ToggleButton } from 'tno-core';
+
+import { Action } from '@/subscriber/components/action';
+import { useReports } from '@/subscriber/store/hooks';
 
 import { useReportEditContext } from '../../ReportEditContext';
 import { ReportSectionMediaAnalyticsChartAdvanced } from './ReportSectionMediaAnalyticsChartAdvanced';

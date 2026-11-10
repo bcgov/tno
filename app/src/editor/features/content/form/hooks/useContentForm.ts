@@ -1,10 +1,23 @@
 import { type AxiosError } from 'axios';
-import { type IStream } from '@/editor/features/storage/interfaces';
 import { type FormikHelpers, type FormikProps } from 'formik';
 import moment from 'moment';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import {
+  ContentStatusName,
+  ContentTypeName,
+  MessageTargetKey,
+  WorkOrderStatusName,
+  WorkOrderTypeName,
+  type IContentActionMessageModel,
+  type IContentMessageModel,
+  type IContentModel,
+  type IResponseErrorModel,
+  type IWorkOrderMessageModel,
+} from 'tno-core';
+
+import { type IStream } from '@/editor/features/storage/interfaces';
 import {
   useApiHub,
   useApp,
@@ -13,18 +26,6 @@ import {
   useLookupOptions,
   useWorkOrders,
 } from '@/editor/store/hooks';
-import {
-  ContentStatusName,
-  ContentTypeName,
-  type IContentActionMessageModel,
-  type IContentMessageModel,
-  type IContentModel,
-  type IResponseErrorModel,
-  type IWorkOrderMessageModel,
-  MessageTargetKey,
-  WorkOrderStatusName,
-  WorkOrderTypeName,
-} from 'tno-core';
 
 import { type IContentFormProps } from '..';
 import { type IFile } from '../components/upload';
@@ -177,7 +178,9 @@ export const useContentForm = ({
                 ...form,
                 version: values.version,
                 summary: form.summary ? form.summary : values.summary,
-                contributorId: form.contributorId ? form.contributorId : values.contributorId ?? '',
+                contributorId: form.contributorId
+                  ? form.contributorId
+                  : (values.contributorId ?? ''),
                 tags: form.tags.length ? form.tags : values.tags,
                 topics: form.topics.some((t) => !t.isSystem) ? form.topics : values.topics,
                 quotes: [

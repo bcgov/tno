@@ -6,8 +6,8 @@ import {
   AVOverviewItemTypeName,
   Button,
   ButtonVariant,
-  type IAVOverviewTemplateModel,
   Row,
+  type IAVOverviewTemplateModel,
 } from 'tno-core';
 
 import { defaultAVOverviewTemplateSectionItem } from './constants';

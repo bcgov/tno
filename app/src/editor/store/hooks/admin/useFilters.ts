@@ -1,8 +1,6 @@
-import { type IFilterPageFilter } from '@/editor/features/admin/filters/interfaces';
 import React from 'react';
-import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
-import { type IAdminState, useAdminStore } from '@/editor/store/slices';
 import {
+  useApiAdminFilters,
   type IFilterAIChatRequestModel,
   type IFilterAIChatResultModel,
   type IFilterAIGenerateRequestModel,
@@ -10,8 +8,11 @@ import {
   type IFilterFilter,
   type IFilterModel,
   type IPaged,
-  useApiAdminFilters,
 } from 'tno-core';
+
+import { type IFilterPageFilter } from '@/editor/features/admin/filters/interfaces';
+import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
+import { useAdminStore, type IAdminState } from '@/editor/store/slices';
 
 import { useApiAdminFilterPage } from './useApiAdminFilterPage';
 

@@ -1,4 +1,3 @@
-import { useReportEditContext } from '@/subscriber/features/my-reports/edit/ReportEditContext';
 import React from 'react';
 import {
   chartTypeOptions,
@@ -10,6 +9,8 @@ import {
   mergeChartSettings,
   Row,
 } from 'tno-core';
+
+import { useReportEditContext } from '@/subscriber/features/my-reports/edit/ReportEditContext';
 
 import { IChartSectionProps } from './IChartSectionProps';
 

@@ -1,7 +1,8 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useApp } from '@/subscriber/store/hooks';
 import { Col, Show, useKeycloakWrapper, UserStatusName } from 'tno-core';
+
+import { useApp } from '@/subscriber/store/hooks';
 
 import { ApprovalDenied } from './ApprovalDenied';
 import { ApprovalStatus } from './ApprovalStatus';

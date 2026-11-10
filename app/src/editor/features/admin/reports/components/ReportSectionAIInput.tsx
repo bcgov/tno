@@ -1,13 +1,13 @@
 import React from 'react';
 import {
   Col,
-  type IReportSectionModel,
-  type IReportSectionSettingsModel,
   OptionItem,
   ReportSectionTypeName,
   Row,
   Select,
   Show,
+  type IReportSectionModel,
+  type IReportSectionSettingsModel,
 } from 'tno-core';
 
 const scopeOptions = [

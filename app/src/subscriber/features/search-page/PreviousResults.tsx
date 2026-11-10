@@ -1,8 +1,9 @@
-import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 import moment, { Moment } from 'moment';
 import React from 'react';
-import { useContent } from '@/subscriber/store/hooks';
 import { Row } from 'tno-core';
+
+import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
+import { useContent } from '@/subscriber/store/hooks';
 
 import { IPreviousDate } from './interfaces';
 import * as styled from './styled';

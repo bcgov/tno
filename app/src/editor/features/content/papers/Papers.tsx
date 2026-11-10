@@ -1,27 +1,28 @@
 import { type SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
-import { Status } from '@/editor/components/status';
-import { NavigateOptions, TabControl, useTab } from '@/editor/components/tab-control';
 import React, { useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApiHub, useApp, useContent, useLocalStorage, useSettings } from '@/editor/store/hooks';
-import { type IContentSearchResult, storeContentFilterAdvanced } from '@/editor/store/slices';
-import { useCastContentToSearchResult } from '@/editor/store/slices/content/hooks/useCastContentToSearchResult';
 import {
   CellEllipsis,
   Checkbox,
   Col,
   ContentStatusName,
   Grid,
-  type IContentModel,
-  type IGridHeaderColumnProps,
   LogicalOperator,
   MessageTargetKey,
   Page,
   replaceQueryParams,
   Row,
   SortDirection,
+  type IContentModel,
+  type IGridHeaderColumnProps,
 } from 'tno-core';
+
+import { Status } from '@/editor/components/status';
+import { NavigateOptions, TabControl, useTab } from '@/editor/components/tab-control';
+import { useApiHub, useApp, useContent, useLocalStorage, useSettings } from '@/editor/store/hooks';
+import { storeContentFilterAdvanced, type IContentSearchResult } from '@/editor/store/slices';
+import { useCastContentToSearchResult } from '@/editor/store/slices/content/hooks/useCastContentToSearchResult';
 
 import { AdvancedSearchKeys } from '../constants';
 import { useElasticsearch } from '../hooks';
@@ -98,12 +99,14 @@ const Papers: React.FC<IPapersProps> = (props) => {
                 filter.topStory
                   ? i.isTopStory
                   : true && filter.commentary
-                  ? i.isCommentary
-                  : true && filter.featuredStory
-                  ? i.isFeaturedStory
-                  : true && filter.onlyPublished
-                  ? [ContentStatusName.Publish, ContentStatusName.Published].includes(i.status)
-                  : true,
+                    ? i.isCommentary
+                    : true && filter.featuredStory
+                      ? i.isFeaturedStory
+                      : true && filter.onlyPublished
+                        ? [ContentStatusName.Publish, ContentStatusName.Published].includes(
+                            i.status,
+                          )
+                        : true,
               );
             }
             setTotals((values) => calcTotals(newPage.items, filter, values));

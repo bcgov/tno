@@ -1,7 +1,8 @@
-import { useActionFilters } from '@/subscriber/features/search-page/hooks';
 import React from 'react';
-import { useLookup, useSettings } from '@/subscriber/store/hooks';
 import { Checkbox, Col, Row, Settings, Text } from 'tno-core';
+
+import { useActionFilters } from '@/subscriber/features/search-page/hooks';
+import { useLookup, useSettings } from '@/subscriber/store/hooks';
 
 import { useSearchSettings } from '../../SearchSettingsContext';
 

@@ -1,7 +1,8 @@
 import React from 'react';
 import { toast } from 'react-toastify';
+import { OptionItem, Row, Select, type ISettingModel } from 'tno-core';
+
 import { useLLMs, useSettings } from '@/editor/store/hooks/admin';
-import { type ISettingModel, OptionItem, Row, Select } from 'tno-core';
 
 import { type ILLMConnectionModel } from '../llms/interfaces';
 import { FilterAILlmSettingName } from './constants';

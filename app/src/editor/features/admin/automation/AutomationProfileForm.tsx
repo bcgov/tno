@@ -1,22 +1,11 @@
 /* eslint-disable simple-import-sort/imports */
 import { type AxiosError } from 'axios';
-import { FormikForm } from '@/editor/components/formik';
 import moment from 'moment';
 import React from 'react';
 import { FaEdit, FaHistory, FaPlus, FaTrash } from 'react-icons/fa';
 import { FaRegCalendar, FaRegClock } from 'react-icons/fa6';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApiHub, useLookup } from '@/editor/store/hooks';
-import {
-  useAutomationProfiles,
-  useFilters,
-  useLLMs,
-  useNotifications,
-  useReports,
-} from '@/editor/store/hooks/admin';
-import { defaultFilter } from '@/editor/features/admin/filters/constants/defaultFilter';
-import { defaultLLM } from '@/editor/features/admin/llms/constants/defaultLLM';
 import {
   Button,
   ButtonVariant,
@@ -29,7 +18,6 @@ import {
   FormikText,
   FormikTextArea,
   IconButton,
-  type IOptionItem,
   LabelPosition,
   Modal,
   Row,
@@ -39,8 +27,22 @@ import {
   Tabs,
   Text,
   useModal,
+  type IOptionItem,
 } from 'tno-core';
 
+import { FormikForm } from '@/editor/components/formik';
+import { defaultFilter } from '@/editor/features/admin/filters/constants/defaultFilter';
+import { defaultLLM } from '@/editor/features/admin/llms/constants/defaultLLM';
+import { useApiHub, useLookup } from '@/editor/store/hooks';
+import {
+  useAutomationProfiles,
+  useFilters,
+  useLLMs,
+  useNotifications,
+  useReports,
+} from '@/editor/store/hooks/admin';
+
+import { AutomationDebugging } from './AutomationDebugging';
 import {
   AutomationSchema,
   DATE_PICKER_PORTAL_ID,
@@ -48,24 +50,26 @@ import {
   getRunColumns,
 } from './constants';
 import {
+  AutomationDesigner,
+  collectFilterIds,
+  collectLlmIds,
+  parseDefinition,
+  parseRunSummary,
+  remapDefinition,
+  RunLogViewer,
+  RunOutcome,
+  serializeDefinition,
+  type IAutomationActionDescriptor,
+  type IAutomationValidationError,
+} from './designer';
+import {
   type IAutomationProfileModel,
   type IAutomationRunDiffModel,
   type IAutomationRunModel,
   type IAutomationScheduleModel,
 } from './interfaces';
-import {
-  type IAutomationActionDescriptor,
-  parseDefinition,
-  parseRunSummary,
-  RunLogViewer,
-  serializeDefinition,
-  AutomationDesigner,
-  RunOutcome,
-  collectFilterIds,
-  collectLlmIds,
-  remapDefinition,
-  type IAutomationValidationError,
-} from './designer';
+import { SectionInfoButton } from './SectionInfoButton';
+import * as styled from './styled';
 import {
   buildProfileForExport,
   buildProfileForSave,
@@ -79,9 +83,6 @@ import {
   toNumberOrUndefined,
   toReferenceOption,
 } from './utils';
-import { AutomationDebugging } from './AutomationDebugging';
-import { SectionInfoButton } from './SectionInfoButton';
-import * as styled from './styled';
 
 const AutomationProfileForm: React.FC = () => {
   const [, api] = useAutomationProfiles();
@@ -316,8 +317,8 @@ const AutomationProfileForm: React.FC = () => {
         llmMap.set(def.id, id);
       }
 
-      const mapFilter = (id?: number) => (id ? filterMap.get(id) ?? id : id);
-      const mapLLM = (id?: number) => (id ? llmMap.get(id) ?? id : id);
+      const mapFilter = (id?: number) => (id ? (filterMap.get(id) ?? id) : id);
+      const mapLLM = (id?: number) => (id ? (llmMap.get(id) ?? id) : id);
 
       // Rewrite the filter/LLM ids inside the definition document through the same maps.
       const importedDefinition = serializeDefinition(
@@ -539,8 +540,7 @@ const AutomationProfileForm: React.FC = () => {
       // The API applies the same rule, so a save can still be rejected (a stale page, another
       // client). Show its findings in the same modal rather than a generic failure toast.
       const data = (error as AxiosError)?.response?.data as
-        | { errors?: IAutomationValidationError[] }
-        | undefined;
+        { errors?: IAutomationValidationError[] } | undefined;
       const rejected = Array.isArray(data?.errors) ? data!.errors! : [];
       if (rejected.length > 0) setSaveErrors(rejected);
       else toast.error('Unable to save automation profile.');

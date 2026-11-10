@@ -1,11 +1,8 @@
-import { type IContentRowModel } from '@/editor/components/content';
 import { useFormikContext } from 'formik';
 import moment from 'moment';
 import React from 'react';
 import { FaEraser } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import { useContent } from '@/editor/store/hooks';
-import { useFilters } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -17,15 +14,19 @@ import {
   FormikText,
   FormikTimeInput,
   getDistinct,
-  type IContentModel,
-  type IFilterModel,
-  type OptionItem,
   Row,
   ScheduleWeekDayName,
   selectWeekDays,
   Show,
   sortObject,
+  type IContentModel,
+  type IFilterModel,
+  type OptionItem,
 } from 'tno-core';
+
+import { type IContentRowModel } from '@/editor/components/content';
+import { useContent } from '@/editor/store/hooks';
+import { useFilters } from '@/editor/store/hooks/admin';
 
 import { type IFolderForm } from './interfaces';
 import { createSchedule, getFilterOptions } from './utils';

@@ -1,12 +1,13 @@
-import { Action } from '@/subscriber/components/action';
-import { Modal } from '@/subscriber/components/modal';
-import { PageSection } from '@/subscriber/components/section';
 import React from 'react';
 import { FaClipboard, FaUserPlus } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
+import { IUserColleagueModel, Row, useModal } from 'tno-core';
+
+import { Action } from '@/subscriber/components/action';
+import { Modal } from '@/subscriber/components/modal';
+import { PageSection } from '@/subscriber/components/section';
 import { useColleagues } from '@/subscriber/store/hooks';
 import { useProfileStore } from '@/subscriber/store/slices';
-import { IUserColleagueModel, Row, useModal } from 'tno-core';
 
 import { ColleagueCard } from './ColleagueCard';
 import { ColleagueActionEnum } from './constants/ColleagueActionEnum';

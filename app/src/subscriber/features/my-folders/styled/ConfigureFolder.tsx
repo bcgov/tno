@@ -1,5 +1,6 @@
-import { PageSection } from '@/subscriber/components/section';
 import styled from 'styled-components';
+
+import { PageSection } from '@/subscriber/components/section';
 
 export const ConfigureFolder = styled(PageSection)`
   .gear {

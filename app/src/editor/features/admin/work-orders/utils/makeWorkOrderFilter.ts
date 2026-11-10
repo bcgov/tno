@@ -1,5 +1,6 @@
-import { type ISortBy } from '@/editor/features/interfaces';
 import { type IWorkOrderFilter } from 'tno-core';
+
+import { type ISortBy } from '@/editor/features/interfaces';
 
 import { type IWorkOrderListFilter } from '../interfaces/IWorkOrderListFilter';
 

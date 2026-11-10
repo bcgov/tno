@@ -1,4 +1,4 @@
-import { type IScheduleModel, ScheduleMonthName, ScheduleWeekDayName } from 'tno-core';
+import { ScheduleMonthName, ScheduleWeekDayName, type IScheduleModel } from 'tno-core';
 
 export const defaultSchedule = (): Omit<IScheduleModel, 'delayMS'> & { delayMS: number | '' } => ({
   id: 0,

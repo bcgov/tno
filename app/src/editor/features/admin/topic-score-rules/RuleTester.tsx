@@ -1,17 +1,18 @@
 import React from 'react';
-import { useLookup } from '@/editor/store/hooks';
-import { useTopicScores } from '@/editor/store/hooks/admin';
 import {
   Button,
   Checkbox,
   Col,
-  type ITopicScoreRuleModel,
   OptionItem,
   Row,
   Select,
   Show,
   Text,
+  type ITopicScoreRuleModel,
 } from 'tno-core';
+
+import { useLookup } from '@/editor/store/hooks';
+import { useTopicScores } from '@/editor/store/hooks/admin';
 
 import {
   type ITopicScoreSourceModel,
@@ -170,8 +171,8 @@ export const RuleTester: React.FC<IRuleTesterProps> = ({ sources, selectedSource
               {result.ruleId
                 ? `from ${ruleNumber(result.ruleId)}.`
                 : result.isSourceDefault
-                ? 'from the source default, because no rule matched.'
-                : 'because no rule matched and the source has no default.'}
+                  ? 'from the source default, because no rule matched.'
+                  : 'because no rule matched and the source has no default.'}
             </p>
             <ul className="evaluations">
               {result.evaluations.map((e) => (

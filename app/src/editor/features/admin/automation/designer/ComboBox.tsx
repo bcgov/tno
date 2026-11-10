@@ -35,8 +35,11 @@ const ComboBoxWrapper = styled.div<{ $width?: string }>`
     font-size: 1rem;
     line-height: 1.6;
     border-radius: 0.25rem;
-    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
-      border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    transition:
+      color 0.15s ease-in-out,
+      background-color 0.15s ease-in-out,
+      border-color 0.15s ease-in-out,
+      box-shadow 0.15s ease-in-out;
     overflow: visible;
     text-transform: none;
     color: ${(props) => props.theme.css.primaryColor};
@@ -97,7 +100,7 @@ export const ComboBox: React.FC<IComboBoxProps> = ({
     typeof option === 'string' ? { label: option, value: option } : option,
   );
   const selected: IComboOption | null = value
-    ? options.find((option) => option.value === value) ?? { label: value, value }
+    ? (options.find((option) => option.value === value) ?? { label: value, value })
     : null;
 
   return (

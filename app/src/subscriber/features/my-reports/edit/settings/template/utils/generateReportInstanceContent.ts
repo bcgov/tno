@@ -45,7 +45,7 @@ export const generateReportInstanceContents = (options: IGenerateReportInstanceC
   sections.forEach((section) => {
     // Generate random content for this section.
     const content = generateContents(options.content.min, options.content.max).sort((a, b) =>
-      a.sourceId ?? 0 < (b.sourceId ?? 0) ? -1 : a.sourceId ?? 0 > (b.sourceId ?? 0) ? 1 : 0,
+      (a.sourceId ?? 0 < (b.sourceId ?? 0)) ? -1 : (a.sourceId ?? 0 > (b.sourceId ?? 0)) ? 1 : 0,
     );
     const ric = content.map((c) => generateReportInstanceContent({ _id: section.id, content: c }));
     sectionDict[section.name] = ric;

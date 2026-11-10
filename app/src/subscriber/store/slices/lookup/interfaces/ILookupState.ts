@@ -1,4 +1,3 @@
-import { IMinisterModel } from '@/subscriber/store/hooks/subscriber/interfaces/IMinisterModel';
 import {
   IActionModel,
   ICacheModel,
@@ -21,6 +20,8 @@ import {
   ITopicModel,
   IUserModel,
 } from 'tno-core';
+
+import { IMinisterModel } from '@/subscriber/store/hooks/subscriber/interfaces/IMinisterModel';
 
 export interface ILookupState {
   isReady: boolean;

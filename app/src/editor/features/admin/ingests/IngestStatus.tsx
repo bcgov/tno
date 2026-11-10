@@ -7,10 +7,10 @@ import {
   FieldSize,
   formatDate,
   FormikText,
-  type IColProps,
-  type IIngestModel,
   Row,
   Text,
+  type IColProps,
+  type IIngestModel,
 } from 'tno-core';
 
 import { getStatus } from './utils';

@@ -1,11 +1,12 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
+import { vi } from 'vitest';
+
 import { defaultTopicScoreRule } from '@/editor/features/admin/topic-score-rules/constants';
 import { RuleDrawer } from '@/editor/features/admin/topic-score-rules/RuleDrawer';
 import { RulesPane } from '@/editor/features/admin/topic-score-rules/RulesPane';
-import React from 'react';
 import { TestWrapper } from '@/editor/test-vitest/utils';
-import { vi } from 'vitest';
 
 vi.mock('@/editor/store/hooks', () => ({
   useApp: () => [{ requests: [] }],

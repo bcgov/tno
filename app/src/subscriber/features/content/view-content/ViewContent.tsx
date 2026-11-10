@@ -1,20 +1,10 @@
 import { AxiosError } from 'axios';
-import { Bar } from '@/subscriber/components/bar';
-import { Button } from '@/subscriber/components/button';
-import { Sentiment } from '@/subscriber/components/sentiment';
-import { ContentActionBar } from '@/subscriber/components/tool-bar';
-import { formatSearch } from '@/subscriber/features/search-page/utils';
-import { formatDate, showTranscription } from '@/subscriber/features/utils';
 import parse from 'html-react-parser';
 import React from 'react';
 import { FaFeather } from 'react-icons/fa';
 import { FaCopyright } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApiHub, useContent, useWorkOrders } from '@/subscriber/store/hooks';
-import useMobile from '@/subscriber/store/hooks/app/useMobile';
-import { useMinisters } from '@/subscriber/store/hooks/subscriber/useMinisters';
-import { useProfileStore } from '@/subscriber/store/slices';
 import {
   Col,
   ContentTypeName,
@@ -31,6 +21,17 @@ import {
   WorkOrderStatusName,
   WorkOrderTypeName,
 } from 'tno-core';
+
+import { Bar } from '@/subscriber/components/bar';
+import { Button } from '@/subscriber/components/button';
+import { Sentiment } from '@/subscriber/components/sentiment';
+import { ContentActionBar } from '@/subscriber/components/tool-bar';
+import { formatSearch } from '@/subscriber/features/search-page/utils';
+import { formatDate, showTranscription } from '@/subscriber/features/utils';
+import { useApiHub, useContent, useWorkOrders } from '@/subscriber/store/hooks';
+import useMobile from '@/subscriber/store/hooks/app/useMobile';
+import { useMinisters } from '@/subscriber/store/hooks/subscriber/useMinisters';
+import { useProfileStore } from '@/subscriber/store/slices';
 
 import { ContentAnalysis } from './ContentAnalysis';
 import * as styled from './styled';

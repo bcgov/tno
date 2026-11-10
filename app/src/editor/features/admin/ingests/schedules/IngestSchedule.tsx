@@ -5,10 +5,10 @@ import {
   FieldSize,
   FormikSelect,
   getEnumStringOptions,
-  type IIngestModel,
   Row,
   ScheduleTypeName,
   Show,
+  type IIngestModel,
 } from 'tno-core';
 
 import { ScheduleAdvanced, ScheduleContinuous, ScheduleDaily } from '.';

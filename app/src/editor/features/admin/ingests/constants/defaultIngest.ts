@@ -1,4 +1,4 @@
-import { type IIngestModel, ScheduleTypeName } from 'tno-core';
+import { ScheduleTypeName, type IIngestModel } from 'tno-core';
 
 export const defaultIngest: IIngestModel = {
   id: 0,

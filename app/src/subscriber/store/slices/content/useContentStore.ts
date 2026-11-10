@@ -1,7 +1,8 @@
 import { KnnSearchResponse } from '@elastic/elasticsearch/lib/api/types';
 import React from 'react';
-import { useAppDispatch, useAppSelector } from '@/subscriber/store';
 import { IContentModel, IFilterSettingsModel, IOptionItem } from 'tno-core';
+
+import { useAppDispatch, useAppSelector } from '@/subscriber/store';
 
 import {
   storeAvOverviewDateFilter,

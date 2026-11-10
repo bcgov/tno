@@ -1,8 +1,9 @@
-import { FormPage } from '@/editor/components/formpage';
 import React from 'react';
 import { toast } from 'react-toastify';
+import { Show, Tab, Tabs, type ITopicScoreRuleModel } from 'tno-core';
+
+import { FormPage } from '@/editor/components/formpage';
 import { useTopicScores } from '@/editor/store/hooks/admin';
-import { type ITopicScoreRuleModel, Show, Tab, Tabs } from 'tno-core';
 
 import { AddScoringSource } from './AddScoringSource';
 import { BulkRescore } from './BulkRescore';

@@ -17,8 +17,9 @@ import {
   FaUserTie,
 } from 'react-icons/fa';
 import { FaBrain } from 'react-icons/fa6';
-import { IContentState } from '@/subscriber/store/slices';
 import { Claim } from 'tno-core';
+
+import { IContentState } from '@/subscriber/store/slices';
 
 export interface INavbarOptionItem {
   label: string;

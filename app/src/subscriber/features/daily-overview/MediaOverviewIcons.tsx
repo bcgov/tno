@@ -1,6 +1,7 @@
-import { PageSection } from '@/subscriber/components/section';
 import React from 'react';
 import { FaFeather, FaVideo } from 'react-icons/fa6';
+
+import { PageSection } from '@/subscriber/components/section';
 
 import * as styled from './styled';
 

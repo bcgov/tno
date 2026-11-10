@@ -1,4 +1,3 @@
-import { type IContentForm } from '@/editor/features/content/form/interfaces';
 import { useFormikContext } from 'formik';
 import React, { type ButtonHTMLAttributes } from 'react';
 import { FileUploader } from 'react-drag-drop-files';
@@ -15,13 +14,17 @@ import {
   useModal,
 } from 'tno-core';
 
-import { useContentForm } from '../../hooks';
+import { type IContentForm } from '@/editor/features/content/form/interfaces';
+
 import { type IFile } from '.';
+import { useContentForm } from '../../hooks';
 import * as styled from './styled';
 import { generateName } from './utils';
 
-export interface IUploadProps
-  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onSelect' | 'value'> {
+export interface IUploadProps extends Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  'onSelect' | 'value'
+> {
   onSelect?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onDownload?: () => void;
   onDelete?: () => void;

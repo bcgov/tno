@@ -1,10 +1,8 @@
-import { FormikForm } from '@/editor/components/formik';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useMediaTypes } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -16,14 +14,17 @@ import {
   FormikText,
   FormikTextArea,
   IconButton,
-  type IMediaTypeModel,
   ListOptionName,
   Modal,
   OptionItem,
   Row,
   Show,
   useModal,
+  type IMediaTypeModel,
 } from 'tno-core';
+
+import { FormikForm } from '@/editor/components/formik';
+import { useMediaTypes } from '@/editor/store/hooks/admin';
 
 import { defaultMediaType } from './constants';
 import * as styled from './styled';

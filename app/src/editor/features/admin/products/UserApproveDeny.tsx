@@ -1,5 +1,5 @@
 import React from 'react';
-import { type IUserProductModel, Row, ToggleGroup } from 'tno-core';
+import { Row, ToggleGroup, type IUserProductModel } from 'tno-core';
 
 export interface IUserApproveDenyProps {
   user: IUserProductModel;

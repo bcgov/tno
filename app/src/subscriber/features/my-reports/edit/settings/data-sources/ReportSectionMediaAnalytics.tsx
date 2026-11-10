@@ -1,7 +1,8 @@
-import { DataSources } from '@/subscriber/features/my-reports/components';
-import { IReportForm } from '@/subscriber/features/my-reports/interfaces';
 import React from 'react';
 import { Col, FormikCheckbox, Row, Show } from 'tno-core';
+
+import { DataSources } from '@/subscriber/features/my-reports/components';
+import { IReportForm } from '@/subscriber/features/my-reports/interfaces';
 
 import { useReportEditContext } from '../../ReportEditContext';
 import { isAggregateChart } from '../template/utils';

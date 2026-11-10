@@ -1,19 +1,19 @@
-import { type FormikTouched, setIn, setNestedObjectValues, useFormikContext } from 'formik';
+import { setIn, setNestedObjectValues, useFormikContext, type FormikTouched } from 'formik';
 import React from 'react';
 import {
   Button,
   ButtonVariant,
-  type IIngestModel,
-  type IScheduleModel,
   ScheduleTypeName,
   useNamespace,
+  type IIngestModel,
+  type IScheduleModel,
 } from 'tno-core';
 import { Col, Row } from 'tno-core/dist/components/flex';
 import { GridTable } from 'tno-core/dist/components/grid-table';
 import { ValidationError } from 'yup';
 
-import { defaultSchedule } from '../constants';
 import { ScheduleDaily } from '.';
+import { defaultSchedule } from '../constants';
 import { columns } from './constants';
 import * as styled from './styled';
 

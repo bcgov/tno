@@ -15,8 +15,8 @@ import {
   datasetValueOptions,
   FormikSelect,
   groupByOptions,
-  type OptionItem,
   Row,
+  type OptionItem,
 } from 'tno-core';
 
 import { useChartTemplateContext } from './ChartTemplateContext';

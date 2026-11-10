@@ -1,6 +1,7 @@
 import React from 'react';
+import { useApiEditorFolders, type IFolderContentModel } from 'tno-core';
+
 import { useAjaxWrapper } from '@/editor/store/hooks';
-import { type IFolderContentModel, useApiEditorFolders } from 'tno-core';
 
 interface IFolderController {
   getContentInFolder: (

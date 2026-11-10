@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+
 export const TopStories = styled.div`
   .table {
     width: 100%;

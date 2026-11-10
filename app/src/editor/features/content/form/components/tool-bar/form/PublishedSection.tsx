@@ -1,9 +1,10 @@
-import { type IContentForm } from '@/editor/features/content/form/interfaces';
 import React from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import { useLookup } from '@/editor/store/hooks';
 import { Col, Row, Settings } from 'tno-core';
+
+import { type IContentForm } from '@/editor/features/content/form/interfaces';
+import { useLookup } from '@/editor/store/hooks';
 
 import * as styled from './styled';
 

@@ -1,12 +1,13 @@
-import { Action } from '@/subscriber/components/action';
-import { Button } from '@/subscriber/components/button';
-import { Modal } from '@/subscriber/components/modal';
 import React from 'react';
 import { FaTrash, FaUserPlus, FaUsers } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import { Col, Grid, IUserColleagueModel, Text, useModal, validateEmail } from 'tno-core';
+
+import { Action } from '@/subscriber/components/action';
+import { Button } from '@/subscriber/components/button';
+import { Modal } from '@/subscriber/components/modal';
 import { useColleagues } from '@/subscriber/store/hooks';
 import { useProfileStore } from '@/subscriber/store/slices';
-import { Col, Grid, IUserColleagueModel, Text, useModal, validateEmail } from 'tno-core';
 
 import * as styled from './styled';
 

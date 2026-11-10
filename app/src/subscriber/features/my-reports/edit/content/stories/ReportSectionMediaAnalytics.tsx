@@ -1,12 +1,6 @@
-import { Modal } from '@/subscriber/components/modal';
-import { RefreshButton } from '@/subscriber/components/refresh-button';
-import { IReportInstanceContentForm } from '@/subscriber/features/my-reports/interfaces';
-import { sortContent, sortReportContent } from '@/subscriber/features/my-reports/utils';
 import React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { FaArrowsRotate } from 'react-icons/fa6';
-import { useReportInstances } from '@/subscriber/store/hooks';
-import { IReportInstanceChartModel } from '@/subscriber/store/hooks/subscriber/interfaces';
 import {
   Col,
   FormikText,
@@ -19,6 +13,13 @@ import {
   Show,
   useModal,
 } from 'tno-core';
+
+import { Modal } from '@/subscriber/components/modal';
+import { RefreshButton } from '@/subscriber/components/refresh-button';
+import { IReportInstanceContentForm } from '@/subscriber/features/my-reports/interfaces';
+import { sortContent, sortReportContent } from '@/subscriber/features/my-reports/utils';
+import { useReportInstances } from '@/subscriber/store/hooks';
+import { IReportInstanceChartModel } from '@/subscriber/store/hooks/subscriber/interfaces';
 
 import { useReportEditContext } from '../../ReportEditContext';
 import { isAggregateChart } from '../../settings/template/utils';
@@ -66,7 +67,7 @@ export const ReportSectionMediaAnalytics: React.FC<IReportSectionMediaAnalyticsP
             originalIndex: instance.content.findIndex(
               (oi) => oi.contentId === c.contentId && oi.sectionName === c.sectionName,
             ),
-          } as IReportInstanceContentForm),
+          }) as IReportInstanceContentForm,
       ) ?? [];
   // These sections fetch no stories, their charts count them instead.
   const analyticsOnly =

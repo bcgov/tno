@@ -1,6 +1,7 @@
 import React from 'react';
-import { IProfileState, useProfileStore } from '@/subscriber/store/slices';
 import { ITonePoolModel, useApiSubscriberTonePools } from 'tno-core';
+
+import { IProfileState, useProfileStore } from '@/subscriber/store/slices';
 
 import { useAjaxWrapper } from '../useAjaxWrapper';
 

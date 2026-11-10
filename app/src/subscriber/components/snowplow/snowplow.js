@@ -1,4 +1,5 @@
 import { collector_production, collector_sandbox } from './snowplow-constants';
+
 // <!-- Snowplow starts plowing - Standalone vE.2.14.0 -->
 (function (p, l, o, w, i, n, g) {
   if (!p[i]) {

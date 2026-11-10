@@ -1,16 +1,11 @@
 import moment from 'moment';
 import React from 'react';
 import { FaArrowAltCircleLeft, FaArrowAltCircleRight } from 'react-icons/fa';
-import { useApp } from '@/editor/store/hooks';
-import { useNotifications } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
   Checkbox,
   IconButton,
-  type IDashboardFilter,
-  type INotificationInstanceModel,
-  type IOptionItem,
   Loader,
   NotificationStatusName,
   OptionItem,
@@ -18,7 +13,13 @@ import {
   Select,
   SelectDate,
   Text,
+  type IDashboardFilter,
+  type INotificationInstanceModel,
+  type IOptionItem,
 } from 'tno-core';
+
+import { useApp } from '@/editor/store/hooks';
+import { useNotifications } from '@/editor/store/hooks/admin';
 
 import { NotificationCard } from './NotificationCard';
 import * as styled from './styled';

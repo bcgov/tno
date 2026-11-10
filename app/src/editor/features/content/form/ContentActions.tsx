@@ -1,7 +1,6 @@
 import { getIn, useFormikContext } from 'formik';
 import React from 'react';
 import { FaHourglassHalf } from 'react-icons/fa';
-import { useLookup, useSettings } from '@/editor/store/hooks';
 import {
   Checkbox,
   ContentTypeName,
@@ -9,12 +8,14 @@ import {
   FormikCheckbox,
   FormikText,
   FormikTextArea,
-  type IActionModel,
-  type IContentActionModel,
   Row,
   useNamespace,
   ValueType,
+  type IActionModel,
+  type IContentActionModel,
 } from 'tno-core';
+
+import { useLookup, useSettings } from '@/editor/store/hooks';
 
 import { ActionNames } from './constants/actionsEnum';
 import { type IContentForm } from './interfaces';
@@ -123,7 +124,7 @@ export const ContentActions = React.forwardRef<HTMLDivElement, IContentActionsPr
       setHidden((state) => {
         return formActions.map((a) => {
           const found = state.find((i) => i.id === a.id);
-          return { id: a.id, value: a.value ? true : found?.value ?? false };
+          return { id: a.id, value: a.value ? true : (found?.value ?? false) };
         });
       });
     }, [formActions]);

@@ -54,7 +54,8 @@ declare module 'react-table' {
   }
 
   export interface TableOptions<D extends object>
-    extends UseExpandedOptions<D>,
+    extends
+      UseExpandedOptions<D>,
       UseFiltersOptions<D>,
       UseFiltersOptions<D>,
       UseGlobalFiltersOptions<D>,
@@ -65,13 +66,11 @@ declare module 'react-table' {
       UseSortByOptions<D> {}
 
   export interface Hooks<D extends object = {}>
-    extends UseExpandedHooks<D>,
-      UseGroupByHooks<D>,
-      UseRowSelectHooks<D>,
-      UseSortByHooks<D> {}
+    extends UseExpandedHooks<D>, UseGroupByHooks<D>, UseRowSelectHooks<D>, UseSortByHooks<D> {}
 
   export interface TableInstance<D extends object = {}>
-    extends UseColumnOrderInstanceProps<D>,
+    extends
+      UseColumnOrderInstanceProps<D>,
       UseExpandedInstanceProps<D>,
       UseFiltersInstanceProps<D>,
       UseGlobalFiltersInstanceProps<D>,
@@ -83,7 +82,8 @@ declare module 'react-table' {
       UseSortByInstanceProps<D> {}
 
   export interface TableState<D extends object = {}>
-    extends UseColumnOrderState<D>,
+    extends
+      UseColumnOrderState<D>,
       UseExpandedState<D>,
       UseFiltersState<D>,
       UseGlobalFiltersState<D>,
@@ -96,7 +96,8 @@ declare module 'react-table' {
   }
 
   export interface Column<D extends object = {}>
-    extends UseFiltersColumnOptions<D>,
+    extends
+      UseFiltersColumnOptions<D>,
       UseGroupByColumnOptions<D>,
       UseResizeColumnsColumnOptions<D>,
       UseSortByColumnOptions<D> {
@@ -104,7 +105,8 @@ declare module 'react-table' {
   }
 
   export interface ColumnInstance<D extends object = {}>
-    extends UseFiltersColumnProps<D>,
+    extends
+      UseFiltersColumnProps<D>,
       UseGroupByColumnProps<D>,
       UseResizeColumnsColumnProps<D>,
       UseFlexLayoutColumnProps<D>,
@@ -113,9 +115,7 @@ declare module 'react-table' {
   export interface Cell<D extends object = {}> extends UseGroupByCellProps<D> {}
 
   export interface Row<D extends object = {}>
-    extends UseExpandedRowProps<D>,
-      UseGroupByRowProps<D>,
-      UseRowSelectRowProps<D> {}
+    extends UseExpandedRowProps<D>, UseGroupByRowProps<D>, UseRowSelectRowProps<D> {}
 }
 
 export type TableMouseEventHandler = (instance: TableInstance<T>) => MouseEventHandler;

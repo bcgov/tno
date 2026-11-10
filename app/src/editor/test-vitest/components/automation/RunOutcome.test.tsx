@@ -1,11 +1,12 @@
 import { render } from '@testing-library/react';
+import React from 'react';
+
 import {
-  type IAutomationRunSummaryModel,
-  type IAutomationVariantSummaryModel,
   parseRunSummary,
   RunOutcome,
+  type IAutomationRunSummaryModel,
+  type IAutomationVariantSummaryModel,
 } from '@/editor/features/admin/automation/designer';
-import React from 'react';
 import { TestWrapper } from '@/editor/test-vitest/utils';
 
 /** A variant carrying only the members every engine-v2 run has ever written. */

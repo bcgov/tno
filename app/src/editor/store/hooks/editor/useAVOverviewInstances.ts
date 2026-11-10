@@ -1,10 +1,11 @@
 import React from 'react';
-import { useAjaxWrapper } from '@/editor/store/hooks';
 import {
+  useApiEditorAVOverviews,
   type IAVOverviewInstanceModel,
   type IReportResultModel,
-  useApiEditorAVOverviews,
 } from 'tno-core';
+
+import { useAjaxWrapper } from '@/editor/store/hooks';
 
 interface IAVOverviewController {
   findAVOverview: (publishedOn: Date | string) => Promise<IAVOverviewInstanceModel | undefined>;

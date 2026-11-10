@@ -1,9 +1,10 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { AddScoringSource } from '@/editor/features/admin/topic-score-rules/AddScoringSource';
 import React from 'react';
-import { TestWrapper } from '@/editor/test-vitest/utils';
 import { vi } from 'vitest';
+
+import { AddScoringSource } from '@/editor/features/admin/topic-score-rules/AddScoringSource';
+import { TestWrapper } from '@/editor/test-vitest/utils';
 
 const api = vi.hoisted(() => ({
   findAllSources: vi.fn(),

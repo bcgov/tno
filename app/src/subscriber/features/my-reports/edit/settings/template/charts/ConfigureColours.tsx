@@ -1,11 +1,12 @@
-import { Action } from '@/subscriber/components/action';
-import { Colours } from '@/subscriber/components/colours';
-import { useReportEditContext } from '@/subscriber/features/my-reports/edit/ReportEditContext';
 import React from 'react';
 import { FaInfoCircle, FaPaintBrush } from 'react-icons/fa';
 import { FaEraser } from 'react-icons/fa6';
 import { Tooltip } from 'react-tooltip';
 import { Col, FormikCheckbox, mergeChartSettings, Row } from 'tno-core';
+
+import { Action } from '@/subscriber/components/action';
+import { Colours } from '@/subscriber/components/colours';
+import { useReportEditContext } from '@/subscriber/features/my-reports/edit/ReportEditContext';
 
 import { IChartSectionProps } from './IChartSectionProps';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaMinusCircle } from 'react-icons/fa';
-import { Col, type IOptionItem, Row, Select, Show } from 'tno-core';
+import { Col, Row, Select, Show, type IOptionItem } from 'tno-core';
 
 import { createOption, findOptionByValue } from '../utils';
 import { ComboBox } from './ComboBox';

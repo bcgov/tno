@@ -1,7 +1,3 @@
-import { Modal } from '@/subscriber/components/modal';
-import { RefreshButton } from '@/subscriber/components/refresh-button';
-import { IReportForm, IReportInstanceContentForm } from '@/subscriber/features/my-reports/interfaces';
-import { sortContent, sortReportContent } from '@/subscriber/features/my-reports/utils';
 import React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { FaArrowsRotate } from 'react-icons/fa6';
@@ -17,6 +13,14 @@ import {
   Show,
   useModal,
 } from 'tno-core';
+
+import { Modal } from '@/subscriber/components/modal';
+import { RefreshButton } from '@/subscriber/components/refresh-button';
+import {
+  IReportForm,
+  IReportInstanceContentForm,
+} from '@/subscriber/features/my-reports/interfaces';
+import { sortContent, sortReportContent } from '@/subscriber/features/my-reports/utils';
 
 import { useReportEditContext } from '../../ReportEditContext';
 import { ReportContentSectionRow } from './ReportContentSectionRow';
@@ -65,7 +69,7 @@ export const ReportSectionGallery: React.FC<IReportSectionGalleryProps> = ({
             originalIndex: instance.content.findIndex(
               (oi) => oi.contentId === c.contentId && oi.sectionName === c.sectionName,
             ),
-          } as IReportInstanceContentForm),
+          }) as IReportInstanceContentForm,
       ) ?? [];
   const sectionOptions = values.sections
     .filter((s) => s.sectionType === ReportSectionTypeName.Content)

@@ -1,27 +1,13 @@
-import { FormPage } from '@/editor/components/formpage';
-import { getPreviewReportRoute } from '@/editor/features/content';
 import moment from 'moment-timezone';
 import React from 'react';
 import { FaBinoculars, FaPaperPlane, FaTimes } from 'react-icons/fa';
 import { FaArrowsRotate } from 'react-icons/fa6';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useContent, useFolders, useLookup, useReportInstances, useReports } from '@/editor/store/hooks';
-import { useTopics } from '@/editor/store/hooks/admin';
-import {
-  IEventOfDayInstance,
-  IEventOfDayPreview,
-  useEventOfDayReports,
-} from '@/editor/store/hooks/editor/useEventOfDayReports';
 import {
   Button,
   ButtonVariant,
   FlexboxTable,
-  type IContentTopicModel,
-  type IFolderContentModel,
-  type IOptionItem,
-  type IReportResultModel,
-  type ITopicModel,
   Loader,
   Modal,
   Row,
@@ -30,7 +16,28 @@ import {
   Show,
   Spinner,
   useModal,
+  type IContentTopicModel,
+  type IFolderContentModel,
+  type IOptionItem,
+  type IReportResultModel,
+  type ITopicModel,
 } from 'tno-core';
+
+import { FormPage } from '@/editor/components/formpage';
+import { getPreviewReportRoute } from '@/editor/features/content';
+import {
+  useContent,
+  useFolders,
+  useLookup,
+  useReportInstances,
+  useReports,
+} from '@/editor/store/hooks';
+import { useTopics } from '@/editor/store/hooks/admin';
+import {
+  IEventOfDayInstance,
+  IEventOfDayPreview,
+  useEventOfDayReports,
+} from '@/editor/store/hooks/editor/useEventOfDayReports';
 
 import { TopicFormSmall } from '../topics';
 import { useColumns } from './hooks';
@@ -134,7 +141,7 @@ const EventOfTheDayList: React.FC = () => {
         setItems(sortStories(content));
         setDayStories(sortStories(result.content));
         setInstances(result.instances);
-        setInstanceId(isToday ? 0 : result.instances[0]?.id ?? 0);
+        setInstanceId(isToday ? 0 : (result.instances[0]?.id ?? 0));
       })
       .catch(() => {})
       .finally(() => {

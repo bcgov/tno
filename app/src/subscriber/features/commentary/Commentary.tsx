@@ -1,14 +1,6 @@
-import { ContentList } from '@/subscriber/components/content-list';
-import { RefreshButton } from '@/subscriber/components/refresh-button';
-import { PageSection } from '@/subscriber/components/section';
-import { useActionFilters } from '@/subscriber/features/search-page/hooks';
-import { filterFormat } from '@/subscriber/features/search-page/utils';
-import { castToSearchResult } from '@/subscriber/features/utils';
-import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 import { noop } from 'lodash';
 import React from 'react';
 import { FaArrowsRotate } from 'react-icons/fa6';
-import { useApiHub, useContent, useSettings } from '@/subscriber/store/hooks';
 import {
   generateQuery,
   IContentMessageModel,
@@ -16,6 +8,15 @@ import {
   MessageTargetKey,
   Row,
 } from 'tno-core';
+
+import { ContentList } from '@/subscriber/components/content-list';
+import { RefreshButton } from '@/subscriber/components/refresh-button';
+import { PageSection } from '@/subscriber/components/section';
+import { useActionFilters } from '@/subscriber/features/search-page/hooks';
+import { filterFormat } from '@/subscriber/features/search-page/utils';
+import { castToSearchResult } from '@/subscriber/features/utils';
+import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
+import { useApiHub, useContent, useSettings } from '@/subscriber/store/hooks';
 
 import * as styled from './styled';
 import {

@@ -1,6 +1,7 @@
+import { ContentStatusName } from 'tno-core';
+
 import { type IContentListFilter } from '@/editor/features/content/interfaces';
 import { type IContentSearchResult } from '@/editor/store/slices';
-import { ContentStatusName } from 'tno-core';
 
 import { type ITotalsInfo } from '../interfaces';
 

@@ -1,19 +1,20 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaArrowDown, FaArrowUp, FaPlus, FaTrash } from 'react-icons/fa';
-import { useFilters, useFolders } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
   Col,
   FormikCheckbox,
   FormikText,
-  type IReportModel,
-  type IReportSectionModel,
   ReportSectionTypeName,
   Row,
   Show,
+  type IReportModel,
+  type IReportSectionModel,
 } from 'tno-core';
+
+import { useFilters, useFolders } from '@/editor/store/hooks/admin';
 
 import {
   ReportContentOptions,

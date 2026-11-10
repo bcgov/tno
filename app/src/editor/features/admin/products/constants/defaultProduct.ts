@@ -1,4 +1,4 @@
-import { type IProductModel, ProductTypeName } from 'tno-core';
+import { ProductTypeName, type IProductModel } from 'tno-core';
 
 export const defaultProduct: IProductModel = {
   id: 0,

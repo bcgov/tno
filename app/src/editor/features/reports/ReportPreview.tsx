@@ -1,8 +1,9 @@
 import React from 'react';
 import { FaCopy } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
+import { Button, ButtonVariant, Col, Loading, Show, type IReportResultModel } from 'tno-core';
+
 import { useReports } from '@/editor/store/hooks';
-import { Button, ButtonVariant, Col, type IReportResultModel, Loading, Show } from 'tno-core';
 
 import * as styled from './styled';
 

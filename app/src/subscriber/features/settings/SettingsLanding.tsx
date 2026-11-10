@@ -1,9 +1,10 @@
-import { Action } from '@/subscriber/components/action';
-import { PageSection } from '@/subscriber/components/section';
-import { MyColleaguesLanding } from '@/subscriber/features/my-colleagues';
 import React from 'react';
 import { FaCog } from 'react-icons/fa';
 import { Col, Row, Show } from 'tno-core';
+
+import { Action } from '@/subscriber/components/action';
+import { PageSection } from '@/subscriber/components/section';
+import { MyColleaguesLanding } from '@/subscriber/features/my-colleagues';
 
 import { SettingsSessionEnum } from './constants/SettingsSessionEnum';
 import MyAccountSettings from './MyAccountSettings';

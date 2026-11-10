@@ -10,11 +10,11 @@ import {
   legendAlignOptions,
   legendPositionOptions,
   mergeChartSettings,
-  type OptionItem,
   Row,
   Select,
   Text,
   ToggleButton,
+  type OptionItem,
 } from 'tno-core';
 
 import { useChartTemplateContext } from '../ChartTemplateContext';

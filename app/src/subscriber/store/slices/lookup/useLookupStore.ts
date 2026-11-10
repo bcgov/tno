@@ -1,6 +1,4 @@
 import React from 'react';
-import { useAppDispatch, useAppSelector } from '@/subscriber/store';
-import { IMinisterModel } from '@/subscriber/store/hooks/subscriber/interfaces/IMinisterModel';
 import {
   IActionModel,
   ICacheModel,
@@ -23,6 +21,9 @@ import {
   ITopicModel,
   IUserModel,
 } from 'tno-core';
+
+import { useAppDispatch, useAppSelector } from '@/subscriber/store';
+import { IMinisterModel } from '@/subscriber/store/hooks/subscriber/interfaces/IMinisterModel';
 
 import {
   storeActions,

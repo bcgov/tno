@@ -1,8 +1,9 @@
+import React from 'react';
+import { BouncingSpinner, Show, Wysiwyg } from 'tno-core';
+
 import { Button } from '@/subscriber/components/button';
 import { PageSection } from '@/subscriber/components/section';
-import React from 'react';
 import { useAI } from '@/subscriber/store/hooks/subscriber';
-import { BouncingSpinner, Show, Wysiwyg } from 'tno-core';
 
 import * as styled from './styled';
 

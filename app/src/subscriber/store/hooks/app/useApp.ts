@@ -1,5 +1,4 @@
 import React from 'react';
-import { IAppState, IErrorModel, useAppStore, useProfileStore } from '@/subscriber/store/slices';
 import {
   AccountAuthStateName,
   IRegisterModel,
@@ -11,6 +10,8 @@ import {
   useKeycloakWrapper,
   UserStatusName,
 } from 'tno-core';
+
+import { IAppState, IErrorModel, useAppStore, useProfileStore } from '@/subscriber/store/slices';
 
 import { useAjaxWrapper } from '..';
 import { useLookup } from '../lookup';

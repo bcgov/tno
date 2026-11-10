@@ -1,9 +1,10 @@
-import { TooltipMenu } from '@/subscriber/components/tooltip-menu';
 import React from 'react';
 import { FaThumbtack } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import { useProfileStore } from '@/subscriber/store/slices';
 import { IReportModel, Row } from 'tno-core';
+
+import { TooltipMenu } from '@/subscriber/components/tooltip-menu';
+import { useProfileStore } from '@/subscriber/store/slices';
 
 import * as styled from './styled';
 

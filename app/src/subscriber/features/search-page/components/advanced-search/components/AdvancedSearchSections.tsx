@@ -2,8 +2,9 @@ import React from 'react';
 import { BsCalendarEvent, BsSun } from 'react-icons/bs';
 import { FaIcons, FaNewspaper, FaPlay, FaRegSmile, FaTag, FaTv, FaUsers } from 'react-icons/fa';
 import { FaToggleOff, FaToggleOn } from 'react-icons/fa6';
-import { useLookup } from '@/subscriber/store/hooks';
 import { Col, ToggleButton } from 'tno-core';
+
+import { useLookup } from '@/subscriber/store/hooks';
 
 import { useSearchSettings } from '../SearchSettingsContext';
 import { ExpandableRow } from './ExpandableRow';

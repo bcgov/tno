@@ -1,8 +1,9 @@
-import { FormPage } from '@/editor/components/formpage';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Col, FlexboxTable, IconButton, Row, type ISettingModel } from 'tno-core';
+
+import { FormPage } from '@/editor/components/formpage';
 import { useSettings } from '@/editor/store/hooks/admin';
-import { Col, FlexboxTable, IconButton, type ISettingModel, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { HistoryRetentionPanel } from './HistoryRetentionPanel';

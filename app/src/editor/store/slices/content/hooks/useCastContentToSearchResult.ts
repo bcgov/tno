@@ -1,6 +1,7 @@
 import React from 'react';
-import { useSettings } from '@/editor/store/hooks';
 import { ContentTypeName, type IContentModel } from 'tno-core';
+
+import { useSettings } from '@/editor/store/hooks';
 
 import { type IContentSearchResult } from '../interfaces';
 

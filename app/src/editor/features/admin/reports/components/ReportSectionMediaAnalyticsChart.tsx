@@ -13,15 +13,15 @@ import {
   FormikSelect,
   FormikText,
   groupByOptions,
-  type IOptionItem,
-  type IReportModel,
   legendAlignOptions,
   legendPositionOptions,
   mergeChartSettings,
-  type OptionItem,
   Row,
   Show,
   Text,
+  type IOptionItem,
+  type IReportModel,
+  type OptionItem,
 } from 'tno-core';
 
 export interface IReportSectionMediaAnalyticsChartProps {

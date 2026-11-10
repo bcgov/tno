@@ -12,14 +12,14 @@ const story = (contentId: number, sectionName = 'section-1'): IReportInstanceCon
     sectionName,
     sortOrder: contentId,
     content: { id: contentId, headline: `Headline ${contentId}`, publishedOn: '2026-01-01' },
-  } as unknown as IReportInstanceContentModel);
+  }) as unknown as IReportInstanceContentModel;
 
 const report = (content: IReportInstanceContentModel[]): IReportModel =>
   ({
     ...defaultReport(1, 1),
     id: 593,
     instances: [{ id: 7, reportId: 593, status: ReportStatusName.Pending, content }],
-  } as unknown as IReportModel);
+  }) as unknown as IReportModel;
 
 const save = (form: IReportForm, baseline?: IReportInstanceContentModel[], editable = true) =>
   shouldSaveContent(form, sanitizeReport(form), baseline, editable);

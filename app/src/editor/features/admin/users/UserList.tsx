@@ -1,8 +1,6 @@
-import { makeUserFilter } from '@/editor/features/admin/users/utils/makeUserFilter';
 import _ from 'lodash';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUsers } from '@/editor/store/hooks/admin';
 import {
   CellCheckbox,
   CellDate,
@@ -10,12 +8,15 @@ import {
   Col,
   Grid,
   IconButton,
-  type IGridHeaderColumnProps,
-  type IUserModel,
   Page,
   Row,
   SortDirection,
+  type IGridHeaderColumnProps,
+  type IUserModel,
 } from 'tno-core';
+
+import { makeUserFilter } from '@/editor/features/admin/users/utils/makeUserFilter';
+import { useUsers } from '@/editor/store/hooks/admin';
 
 import { type IUserListFilter } from './interfaces/IUserListFilter';
 import * as styled from './styled';

@@ -1,8 +1,9 @@
 import { useFormikContext } from 'formik';
 import _ from 'lodash';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useLookup } from '@/editor/store/hooks';
 import { type IOptionItem } from 'tno-core';
+
+import { useLookup } from '@/editor/store/hooks';
 
 import { useTagManagement } from './hooks/useTagManagement';
 import {
@@ -72,7 +73,7 @@ export const TagsProvider: React.FC<ITagsProviderProps> = ({
             label: tag.code,
             value: tag.id,
             isDisabled: !tag.isEnabled,
-          } as IOptionItem),
+          }) as IOptionItem,
       );
   }, [tags, values.tags]);
 

@@ -1,7 +1,8 @@
 import React from 'react';
 import Select from 'react-select';
+import { TopicTypeName, type ITopicModel } from 'tno-core';
+
 import { useLookup } from '@/editor/store/hooks';
-import { type ITopicModel, TopicTypeName } from 'tno-core';
 
 import {
   type IGroupedTopicOptions,
@@ -90,7 +91,7 @@ export const Topic: React.FC<ITopicProps> = ({
                 label: t.name,
                 topicType: t.topicType,
                 value: t.id,
-              } as ITopicOptionItem),
+              }) as ITopicOptionItem,
           ),
         });
       });

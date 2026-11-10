@@ -61,7 +61,7 @@ export const Toggle = <T,>({
                 disabled ? ' disabled' : ''
               }`}
               key={
-                option.id ?? (valueType === 'string' || valueType === 'number')
+                (option.id ?? (valueType === 'string' || valueType === 'number'))
                   ? `${option.value}`
                   : index
               }
