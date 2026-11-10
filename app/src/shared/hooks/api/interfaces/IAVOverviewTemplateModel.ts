@@ -1,10 +1,10 @@
-import { AVOverviewTemplateTypeName } from '../constants';
 import {
   IAuditColumnsModel,
   IAVOverviewTemplateSectionModel,
   IReportTemplateModel,
   IUserAVOverviewModel,
 } from '.';
+import { AVOverviewTemplateTypeName } from '../constants';
 
 export interface IAVOverviewTemplateModel extends IAuditColumnsModel {
   templateType: AVOverviewTemplateTypeName;

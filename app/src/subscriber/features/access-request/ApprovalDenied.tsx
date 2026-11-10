@@ -1,7 +1,7 @@
 import React from 'react';
 import { toast } from 'react-toastify';
-import { Button, Col, FieldSize, FormikText, FormikTextArea, IUserModel, Row } from 'tno-core';
 
+import { Button, Col, FieldSize, FormikText, FormikTextArea, IUserModel, Row } from '@/shared';
 import { FormikForm } from '@/subscriber/components/formik';
 import { useApp } from '@/subscriber/store/hooks';
 

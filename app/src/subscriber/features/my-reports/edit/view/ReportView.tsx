@@ -1,6 +1,7 @@
 import React from 'react';
 import { FaEye } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
+
 import {
   AISectionStatusName,
   Col,
@@ -8,8 +9,7 @@ import {
   MessageTargetKey,
   ReportPreviewStatus,
   Row,
-} from 'tno-core';
-
+} from '@/shared';
 import { useApiHub, useApp, useReportInstances } from '@/subscriber/store/hooks';
 import { useProfileStore } from '@/subscriber/store/slices';
 

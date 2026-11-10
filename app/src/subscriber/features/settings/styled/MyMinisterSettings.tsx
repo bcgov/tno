@@ -1,5 +1,6 @@
 import styled from 'styled-components';
-import { Col } from 'tno-core';
+
+import { Col } from '@/shared';
 
 export const MyMinisterSettings = styled(Col)`
   padding: 0.5em;

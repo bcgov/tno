@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Col, Show } from 'tno-core';
 
+import { Col, Show } from '@/shared';
 import { PageSection } from '@/subscriber/components/section';
 import { ManageFolder } from '@/subscriber/features/manage-folder';
 

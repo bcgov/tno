@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Row, Show, useWindowSize } from 'tno-core';
 
+import { Row, Show, useWindowSize } from '@/shared';
 import { BasicSearch } from '@/subscriber/components/basic-search';
 import { UserProfile } from '@/subscriber/components/user-profile';
 

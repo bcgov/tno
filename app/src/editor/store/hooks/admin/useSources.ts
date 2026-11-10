@@ -1,8 +1,8 @@
 import React from 'react';
-import { useApiAdminSources, type IPaged, type ISourceModel } from 'tno-core';
 
 import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
 import { useAdminStore, type IAdminState } from '@/editor/store/slices';
+import { useApiAdminSources, type IPaged, type ISourceModel } from '@/shared';
 
 interface ISourceController {
   findAllSources: () => Promise<ISourceModel[]>;

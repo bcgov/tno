@@ -1,5 +1,7 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
+
+import { useReports } from '@/editor/store/hooks/admin';
 import {
   Col,
   FormikCheckbox,
@@ -8,9 +10,7 @@ import {
   Row,
   type IReportModel,
   type OptionItem,
-} from 'tno-core';
-
-import { useReports } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 export const ReportContentOptions = () => {
   const { values, setFieldValue } = useFormikContext<IReportModel>();

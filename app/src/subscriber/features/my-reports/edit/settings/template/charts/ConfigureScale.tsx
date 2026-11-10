@@ -1,6 +1,6 @@
 import React from 'react';
-import { Col, FormikText, mergeChartSettings, Row } from 'tno-core';
 
+import { Col, FormikText, mergeChartSettings, Row } from '@/shared';
 import { useReportEditContext } from '@/subscriber/features/my-reports/edit/ReportEditContext';
 
 import { IChartSectionProps } from './IChartSectionProps';

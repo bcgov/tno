@@ -4,7 +4,7 @@ import {
   CellEllipsis,
   type ITableHookColumn,
   type IUserModel,
-} from 'tno-core';
+} from '@/shared';
 
 export const columns: Array<ITableHookColumn<IUserModel>> = [
   {

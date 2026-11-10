@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Col, FlexboxTable, IconButton, Row, type IDataLocationModel } from 'tno-core';
 
 import { useDataLocations } from '@/editor/store/hooks/admin';
+import { Col, FlexboxTable, IconButton, Row, type IDataLocationModel } from '@/shared';
 
 import { columns } from './constants';
 import { DataLocationFilter } from './DataLocationFilter';

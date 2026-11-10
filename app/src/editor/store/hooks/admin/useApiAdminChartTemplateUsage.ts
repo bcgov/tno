@@ -1,8 +1,8 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
-import { useApi } from 'tno-core';
 
 import { type IChartTemplateUsageModel } from '@/editor/features/admin/charts/interfaces';
+import { useApi } from '@/shared';
 
 export const useApiAdminChartTemplateUsage = () => {
   const api = useApi();

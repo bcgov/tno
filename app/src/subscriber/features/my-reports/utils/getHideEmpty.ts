@@ -1,4 +1,4 @@
-import { IReportSectionModel, ReportSectionTypeName } from 'tno-core';
+import { IReportSectionModel, ReportSectionTypeName } from '@/shared';
 
 /**
  * Determine if all sections that can contain content are hidden.

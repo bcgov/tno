@@ -18,8 +18,7 @@ export interface INavBarItem {
 }
 
 export interface INavBarItemProps
-  extends Omit<React.HTMLProps<HTMLButtonElement>, 'label'>,
-    INavBarItem {
+  extends Omit<React.HTMLProps<HTMLButtonElement>, 'label'>, INavBarItem {
   /**
    * prop used to determine whether the tab is active
    */

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Checkbox, Col, FormikCheckbox, FormikText, Row } from 'tno-core';
+
+import { Checkbox, Col, FormikCheckbox, FormikText, Row } from '@/shared';
 
 import { useReportEditContext } from '../../ReportEditContext';
 

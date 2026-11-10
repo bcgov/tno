@@ -1,6 +1,7 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { FormikSelect, type IIngestModel } from 'tno-core';
+
+import { FormikSelect, type IIngestModel } from '@/shared';
 
 import { VideoClip, VideoHDMI, VideoRPi, VideoStream, VideoTuner } from '.';
 import { serviceTypes } from './constants';

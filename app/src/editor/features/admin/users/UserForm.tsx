@@ -2,6 +2,10 @@ import React, { type ReactElement } from 'react';
 import { FaExclamationTriangle } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
+import { FormikForm } from '@/editor/components/formik';
+import { formatDate } from '@/editor/features/admin/users/utils/formatDate';
+import { useReports, useUsers } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -22,11 +26,7 @@ import {
   type IReportModel,
   type IUserModel,
   type IUserUpdateHistoryModel,
-} from 'tno-core';
-
-import { FormikForm } from '@/editor/components/formik';
-import { formatDate } from '@/editor/features/admin/users/utils/formatDate';
-import { useReports, useUsers } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import { defaultUser } from './constants';
 import * as styled from './styled';

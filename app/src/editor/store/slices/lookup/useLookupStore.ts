@@ -1,4 +1,6 @@
 import React from 'react';
+
+import { useAppDispatch, useAppSelector } from '@/editor/store';
 import {
   type IActionModel,
   type ICacheModel,
@@ -21,9 +23,7 @@ import {
   type ITonePoolModel,
   type ITopicModel,
   type IUserModel,
-} from 'tno-core';
-
-import { useAppDispatch, useAppSelector } from '@/editor/store';
+} from '@/shared';
 
 import {
   storeActions,

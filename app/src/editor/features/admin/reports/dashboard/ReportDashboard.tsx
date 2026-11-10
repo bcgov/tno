@@ -1,5 +1,8 @@
 import React from 'react';
 import { FaArrowAltCircleLeft, FaArrowAltCircleRight } from 'react-icons/fa';
+
+import { useApp } from '@/editor/store/hooks';
+import { useReports } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -11,10 +14,7 @@ import {
   Text,
   type IDashboardFilter,
   type IReportModel,
-} from 'tno-core';
-
-import { useApp } from '@/editor/store/hooks';
-import { useReports } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import { ReportCard } from './ReportCard';
 import * as styled from './styled';

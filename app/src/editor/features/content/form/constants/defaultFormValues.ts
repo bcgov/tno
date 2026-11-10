@@ -1,5 +1,6 @@
 import moment from 'moment';
-import { ContentStatusName, ContentTypeName } from 'tno-core';
+
+import { ContentStatusName, ContentTypeName } from '@/shared';
 
 import { type IContentForm } from '../interfaces';
 

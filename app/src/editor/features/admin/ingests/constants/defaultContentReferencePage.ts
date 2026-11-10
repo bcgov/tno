@@ -1,4 +1,4 @@
-import { type IPage } from 'tno-core';
+import { type IPage } from '@/shared';
 
 import { type IIngestContentReference } from '../interfaces';
 

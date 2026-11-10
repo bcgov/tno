@@ -1,8 +1,8 @@
 import React from 'react';
 import { FaClipboard, FaUserPlus } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
-import { IUserColleagueModel, Row, useModal } from 'tno-core';
 
+import { IUserColleagueModel, Row, useModal } from '@/shared';
 import { Action } from '@/subscriber/components/action';
 import { Modal } from '@/subscriber/components/modal';
 import { PageSection } from '@/subscriber/components/section';

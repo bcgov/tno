@@ -1,8 +1,8 @@
 import React from 'react';
-import { useApiAdminContributors, type IContributorModel } from 'tno-core';
 
 import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
 import { useAdminStore, type IAdminState } from '@/editor/store/slices';
+import { useApiAdminContributors, type IContributorModel } from '@/shared';
 
 interface IContributorController {
   findAllContributor: () => Promise<IContributorModel[]>;

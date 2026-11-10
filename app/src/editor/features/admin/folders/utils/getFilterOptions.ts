@@ -1,4 +1,4 @@
-import { getSortableOptions, OptionItem, type IFilterModel } from 'tno-core';
+import { getSortableOptions, OptionItem, type IFilterModel } from '@/shared';
 
 export const getFilterOptions = (filters: IFilterModel[], currentFilterId?: number) => {
   return getSortableOptions(

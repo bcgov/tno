@@ -1,4 +1,4 @@
-import { OptionItem } from 'tno-core';
+import { OptionItem } from '@/shared';
 
 export const timeFrames = [
   new OptionItem('Today', 0),

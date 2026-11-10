@@ -1,4 +1,4 @@
-import { SortDirection } from 'tno-core';
+import { SortDirection } from '@/shared';
 
 export const sortData = (aValue: any, bValue: any, direction: SortDirection) => {
   if (typeof aValue === 'boolean' && typeof bValue === 'boolean') {

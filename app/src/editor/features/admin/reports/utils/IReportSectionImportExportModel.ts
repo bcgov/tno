@@ -1,4 +1,4 @@
-import { type IReportSectionChartTemplateModel, type IReportSectionSettingsModel } from 'tno-core';
+import { type IReportSectionChartTemplateModel, type IReportSectionSettingsModel } from '@/shared';
 
 export interface IReportSectionImportExportModel {
   name: string;

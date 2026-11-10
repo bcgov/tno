@@ -1,6 +1,6 @@
+import { filterEnabledOptions } from '../';
 import { IOptionItem, OptionItem } from '../../components';
 import { ISortableModel } from '../../hooks';
-import { filterEnabledOptions } from '../';
 
 /**
  * Provides a sorting formula.

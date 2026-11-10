@@ -1,5 +1,5 @@
-import { ContentTypeName } from '../constants';
 import { IAuditColumnsModel, ISourceModel } from '.';
+import { ContentTypeName } from '../constants';
 
 export interface IEarnedMediaModel extends IAuditColumnsModel {
   sourceId: number;

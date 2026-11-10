@@ -2,6 +2,8 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaMagnifyingGlass } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
+
+import { useUsers } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -16,9 +18,7 @@ import {
   UserAccountTypeName,
   type ITransferAccount,
   type IUserModel,
-} from 'tno-core';
-
-import { useUsers } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import { defaultTransferAccount } from './constants';
 import { useTransferAccount } from './hooks';

@@ -1,4 +1,4 @@
-import { type ITagModel } from 'tno-core';
+import { type ITagModel } from '@/shared';
 
 export const defaultTag: ITagModel = {
   id: 0,

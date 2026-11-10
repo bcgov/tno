@@ -1,5 +1,6 @@
 import React from 'react';
-import { Text } from 'tno-core';
+
+import { Text } from '@/shared';
 
 export interface IDraftTextProps {
   name: string;

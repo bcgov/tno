@@ -1,4 +1,4 @@
-import { type ILicenseModel } from 'tno-core';
+import { type ILicenseModel } from '@/shared';
 
 export const defaultLicense: ILicenseModel = {
   id: 0,

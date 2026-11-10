@@ -1,4 +1,4 @@
-import { IReportModel } from 'tno-core';
+import { IReportModel } from '@/shared';
 
 import { defaultReportSchedule } from '../constants';
 import { IReportForm } from '../interfaces';

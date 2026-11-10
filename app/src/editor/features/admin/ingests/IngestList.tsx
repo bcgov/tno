@@ -1,6 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
+import { useIngests } from '@/editor/store/hooks/admin';
+import { useAdminStore } from '@/editor/store/slices';
 import {
   CellCheckbox,
   CellDate,
@@ -10,10 +13,7 @@ import {
   IconButton,
   Row,
   type IIngestModel,
-} from 'tno-core';
-
-import { useIngests } from '@/editor/store/hooks/admin';
-import { useAdminStore } from '@/editor/store/slices';
+} from '@/shared';
 
 import { IngestFilter } from './IngestFilter';
 import * as styled from './styled';

@@ -1,4 +1,4 @@
-import { IChartSectionSettingsModel } from 'tno-core';
+import { IChartSectionSettingsModel } from '@/shared';
 
 import { determineColor } from './determineColor';
 

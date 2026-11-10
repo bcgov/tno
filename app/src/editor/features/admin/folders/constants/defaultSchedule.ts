@@ -1,4 +1,4 @@
-import { ScheduleMonthName, ScheduleWeekDayName, type IFolderScheduleModel } from 'tno-core';
+import { ScheduleMonthName, ScheduleWeekDayName, type IFolderScheduleModel } from '@/shared';
 
 export const defaultSchedule: IFolderScheduleModel = {
   id: 0,

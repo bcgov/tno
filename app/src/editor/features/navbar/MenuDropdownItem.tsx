@@ -1,6 +1,7 @@
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import { Link } from 'react-router-dom';
-import { useKeycloakWrapper, type Claim, type ILinkProps } from 'tno-core';
+
+import { useKeycloakWrapper, type Claim, type ILinkProps } from '@/shared';
 
 export interface IMenuDropdownItemProps extends ILinkProps {
   claim?: Claim[] | Claim;

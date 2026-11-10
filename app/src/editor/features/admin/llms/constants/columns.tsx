@@ -1,5 +1,6 @@
 import { FaCopy, FaTrash } from 'react-icons/fa';
-import { CellCheckbox, CellEllipsis, type ILLMModel, type ITableHookColumn } from 'tno-core';
+
+import { CellCheckbox, CellEllipsis, type ILLMModel, type ITableHookColumn } from '@/shared';
 
 import { type ILLMConnectionModel } from '../interfaces';
 

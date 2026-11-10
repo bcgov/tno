@@ -9,7 +9,8 @@ import {
 } from '.';
 
 export interface ITableProps<T extends object>
-  extends ITableHookOptions<T>,
+  extends
+    ITableHookOptions<T>,
     ITableHookPaging<T>,
     ITableHookSorting<T>,
     ITableHookFilter<T>,

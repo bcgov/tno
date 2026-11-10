@@ -1,4 +1,4 @@
-import { type IContentReferenceFilter, type IContentReferenceModel } from 'tno-core';
+import { type IContentReferenceFilter, type IContentReferenceModel } from '@/shared';
 
 /** A content reference with the content imported for it. */
 export interface IIngestContentReference extends IContentReferenceModel {

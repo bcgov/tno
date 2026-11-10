@@ -1,10 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { Button, Col, FlexboxTable, IconButton, Row } from 'tno-core';
 
 import { FormPage } from '@/editor/components/formpage';
 import { useAutomationProfiles } from '@/editor/store/hooks/admin';
+import { Button, Col, FlexboxTable, IconButton, Row } from '@/shared';
 
 import { columns } from './constants';
 import { type IAutomationProfileModel, type IAutomationRunRequestModel } from './interfaces';

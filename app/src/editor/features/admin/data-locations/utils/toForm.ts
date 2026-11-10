@@ -1,4 +1,4 @@
-import { type IDataLocationModel } from 'tno-core';
+import { type IDataLocationModel } from '@/shared';
 
 import { type IDataLocationForm } from '../interfaces';
 

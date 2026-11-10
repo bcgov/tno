@@ -1,4 +1,5 @@
 import { generateMatchPhrase } from './generateMatchPhrase';
+
 /**
  * Generates an Elasticsearch query based on specified 'query'.
  * @param settings Form values that will be used to configure the elasticsearch query.

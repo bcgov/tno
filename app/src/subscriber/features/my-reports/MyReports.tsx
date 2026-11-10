@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
 import {
   Button,
   IReportMessageModel,
@@ -9,8 +10,7 @@ import {
   MessageTargetKey,
   Row,
   useModal,
-} from 'tno-core';
-
+} from '@/shared';
 import { Action } from '@/subscriber/components/action';
 import { Bar } from '@/subscriber/components/bar';
 import { Modal } from '@/subscriber/components/modal';

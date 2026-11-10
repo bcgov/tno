@@ -1,4 +1,4 @@
-import { ListOptionName } from 'tno-core';
+import { ListOptionName } from '@/shared';
 
 import { IGroupOption } from './IGroupOption';
 

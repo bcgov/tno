@@ -1,8 +1,8 @@
 import React from 'react';
 import { FaTrash, FaUserPlus, FaUsers } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import { Col, Grid, IUserColleagueModel, Text, useModal, validateEmail } from 'tno-core';
 
+import { Col, Grid, IUserColleagueModel, Text, useModal, validateEmail } from '@/shared';
 import { Action } from '@/subscriber/components/action';
 import { Button } from '@/subscriber/components/button';
 import { Modal } from '@/subscriber/components/modal';

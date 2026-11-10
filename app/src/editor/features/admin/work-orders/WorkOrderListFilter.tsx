@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+
+import { useWorkOrders } from '@/editor/store/hooks/admin';
 import {
   FieldSize,
   getEnumStringOptions,
@@ -8,9 +10,7 @@ import {
   Text,
   WorkOrderStatusName,
   WorkOrderTypeName,
-} from 'tno-core';
-
-import { useWorkOrders } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import { type IWorkOrderListFilter } from './interfaces/IWorkOrderListFilter';
 import * as styled from './styled';

@@ -1,13 +1,12 @@
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
-import { ActionMeta, GroupBase, Props } from 'react-select';
-import ReactSelect from 'react-select/dist/declarations/src/Select';
+import { ActionMeta, GroupBase, Props, SelectInstance } from 'react-select';
 
+import { SelectVariant } from '.';
+import { IOptionItem } from '..';
 import { Row } from '../../flex';
 import { Error, FieldSize } from '../../form';
-import { IOptionItem } from '..';
-import { SelectVariant } from '.';
 import * as styled from './styled';
 
 export interface ISelectBaseProps {
@@ -65,7 +64,7 @@ export type SelectProps = ISelectBaseProps &
   >;
 
 export interface ISelectProps<OptionType> extends SelectProps {
-  ref?: React.Ref<ReactSelect<OptionType, boolean, GroupBase<OptionType>>>;
+  ref?: React.Ref<SelectInstance<OptionType, boolean, GroupBase<OptionType>>>;
 }
 
 /**

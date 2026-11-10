@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
+
 import {
   Button,
   ButtonVariant,
@@ -14,7 +15,7 @@ import {
   ReportSectionDataTypeOptions,
   Row,
   Show,
-} from 'tno-core';
+} from '@/shared';
 
 import { useReportEditContext } from '../../ReportEditContext';
 import {

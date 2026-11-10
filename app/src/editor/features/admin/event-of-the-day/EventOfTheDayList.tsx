@@ -4,6 +4,22 @@ import { FaBinoculars, FaPaperPlane, FaTimes } from 'react-icons/fa';
 import { FaArrowsRotate } from 'react-icons/fa6';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
+import { FormPage } from '@/editor/components/formpage';
+import { getPreviewReportRoute } from '@/editor/features/content';
+import {
+  useContent,
+  useFolders,
+  useLookup,
+  useReportInstances,
+  useReports,
+} from '@/editor/store/hooks';
+import { useTopics } from '@/editor/store/hooks/admin';
+import {
+  IEventOfDayInstance,
+  IEventOfDayPreview,
+  useEventOfDayReports,
+} from '@/editor/store/hooks/editor/useEventOfDayReports';
 import {
   Button,
   ButtonVariant,
@@ -21,23 +37,7 @@ import {
   type IOptionItem,
   type IReportResultModel,
   type ITopicModel,
-} from 'tno-core';
-
-import { FormPage } from '@/editor/components/formpage';
-import { getPreviewReportRoute } from '@/editor/features/content';
-import {
-  useContent,
-  useFolders,
-  useLookup,
-  useReportInstances,
-  useReports,
-} from '@/editor/store/hooks';
-import { useTopics } from '@/editor/store/hooks/admin';
-import {
-  IEventOfDayInstance,
-  IEventOfDayPreview,
-  useEventOfDayReports,
-} from '@/editor/store/hooks/editor/useEventOfDayReports';
+} from '@/shared';
 
 import { TopicFormSmall } from '../topics';
 import { useColumns } from './hooks';

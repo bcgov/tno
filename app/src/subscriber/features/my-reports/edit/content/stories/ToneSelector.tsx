@@ -1,5 +1,6 @@
 import React from 'react';
-import { Col, IContentTonePoolModel, Row } from 'tno-core';
+
+import { Col, IContentTonePoolModel, Row } from '@/shared';
 
 import * as styled from './styled';
 

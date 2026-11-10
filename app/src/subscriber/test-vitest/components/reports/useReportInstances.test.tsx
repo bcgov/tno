@@ -10,7 +10,7 @@ const state = vi.hoisted(() => ({
 }));
 vi.mock('@/subscriber/store/hooks', () => ({ useAjaxWrapper: () => state.dispatch }));
 vi.mock('@/subscriber/store/slices', () => ({ useProfileStore: () => [{}, state.store] }));
-vi.mock('tno-core', () => ({
+vi.mock('@/shared', () => ({
   useApi: () => ({ get: vi.fn() }),
   useApiSubscriberReportInstances: () => state.api,
 }));

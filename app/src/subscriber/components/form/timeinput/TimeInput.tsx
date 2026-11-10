@@ -1,6 +1,7 @@
 import React, { InputHTMLAttributes } from 'react';
 import { FaClock } from 'react-icons/fa6';
-import { Col, Error, Row, Show } from 'tno-core';
+
+import { Col, Error, Row, Show } from '@/shared';
 
 import * as styled from './styled';
 

@@ -1,4 +1,4 @@
-import { type IDataLocationModel } from 'tno-core';
+import { type IDataLocationModel } from '@/shared';
 
 export interface IDataLocationForm extends Omit<IDataLocationModel, 'connectionId'> {
   connectionId: string | number;

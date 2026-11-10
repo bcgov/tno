@@ -3,8 +3,8 @@ import { FaCheck, FaSave } from 'react-icons/fa';
 import { FaBookmark, FaGear, FaPen, FaTrash } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { Col, Grid, IFilterModel, Loader, Row, Text, useModal } from 'tno-core';
 
+import { Col, Grid, IFilterModel, Loader, Row, Text, useModal } from '@/shared';
 import { Action } from '@/subscriber/components/action';
 import { Modal } from '@/subscriber/components/modal';
 import { useApp, useContent, useFilters } from '@/subscriber/store/hooks';

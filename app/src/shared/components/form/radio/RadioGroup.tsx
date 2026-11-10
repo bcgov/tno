@@ -2,13 +2,14 @@ import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { InputHTMLAttributes } from 'react';
 
-import { Error } from '../../form';
-import { instanceOfIOption, IOptionItem } from '..';
 import { Radio, RadioVariant } from '.';
+import { instanceOfIOption, IOptionItem } from '..';
+import { Error } from '../../form';
 import * as styled from './styled';
 
-export interface IRadioGroupProps<OT extends string | number | IOptionItem | HTMLOptionElement>
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
+export interface IRadioGroupProps<
+  OT extends string | number | IOptionItem | HTMLOptionElement,
+> extends Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
   /**
    * The control name.
    */

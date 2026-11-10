@@ -1,5 +1,6 @@
 import React from 'react';
 import { IoIosCog } from 'react-icons/io';
+
 import {
   Claim,
   Col,
@@ -8,8 +9,7 @@ import {
   Row,
   TextArea,
   type IFilterAIManualFilterProps,
-} from 'tno-core';
-
+} from '@/shared';
 import { useApp } from '@/subscriber/store/hooks';
 
 import { AdvancedSearchSections, ExpandableRow, MoreOptions, SearchInGroup } from './components';

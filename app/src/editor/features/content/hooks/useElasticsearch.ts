@@ -1,5 +1,6 @@
 import moment from 'moment';
 import React from 'react';
+
 import {
   ContentStatusName,
   generateQuery,
@@ -7,7 +8,7 @@ import {
   generateSimpleQueryString,
   generateTerm,
   type IFilterSettingsModel,
-} from 'tno-core';
+} from '@/shared';
 
 import { AdvancedSearchKeys } from '../constants';
 import { type IContentListAdvancedFilter, type IContentListFilter } from '../interfaces';

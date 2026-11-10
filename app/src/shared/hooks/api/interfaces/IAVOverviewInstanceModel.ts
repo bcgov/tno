@@ -1,5 +1,5 @@
-import { AVOverviewTemplateTypeName } from '../constants';
 import { IAuditColumnsModel, IAVOverviewSectionModel } from '.';
+import { AVOverviewTemplateTypeName } from '../constants';
 
 export interface IAVOverviewInstanceModel extends IAuditColumnsModel {
   id: number;

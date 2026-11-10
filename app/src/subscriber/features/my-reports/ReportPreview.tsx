@@ -2,6 +2,7 @@ import React from 'react';
 import { FaArrowsRotate, FaFileCirclePlus, FaPaperPlane, FaPen, FaX } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
 import {
   Col,
   getReportKind,
@@ -13,8 +14,7 @@ import {
   Show,
   Spinner,
   useModal,
-} from 'tno-core';
-
+} from '@/shared';
 import { Action } from '@/subscriber/components/action';
 import { Bar } from '@/subscriber/components/bar';
 import { Button } from '@/subscriber/components/button';

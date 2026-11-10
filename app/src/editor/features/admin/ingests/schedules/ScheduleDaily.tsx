@@ -1,5 +1,6 @@
 import { getIn, useFormikContext } from 'formik';
 import React from 'react';
+
 import {
   FieldSize,
   FormikCheckbox,
@@ -13,8 +14,8 @@ import {
   selectWeekDays,
   useNamespace,
   type IIngestModel,
-} from 'tno-core';
-import { Col, Row } from 'tno-core/dist/components/flex';
+} from '@/shared';
+import { Col, Row } from '@/shared/components/flex';
 
 import { defaultSchedule } from '../constants';
 import * as styled from './styled';

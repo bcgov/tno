@@ -1,4 +1,4 @@
-import { ContentTypeName } from 'tno-core';
+import { ContentTypeName } from '@/shared';
 
 /**
  * Determine the target field based on content type and the current active tab

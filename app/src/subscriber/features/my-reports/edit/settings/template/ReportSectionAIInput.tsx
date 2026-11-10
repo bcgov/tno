@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   Checkbox,
   Col,
@@ -9,7 +10,7 @@ import {
   Show,
   type IReportSectionModel,
   type IReportSectionSettingsModel,
-} from 'tno-core';
+} from '@/shared';
 
 import { aiInputFields, defaultAIInputFields } from './aiInputFields';
 

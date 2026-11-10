@@ -1,5 +1,6 @@
 import moment from 'moment';
-import { type IIngestModel } from 'tno-core';
+
+import { type IIngestModel } from '@/shared';
 
 export const isRunning = (ingest: IIngestModel, defaultDelayMS: number = 300000) => {
   const now = moment(Date.now());

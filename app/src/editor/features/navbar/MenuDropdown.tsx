@@ -1,5 +1,6 @@
 import NavDropdown, { type NavDropdownProps } from 'react-bootstrap/NavDropdown';
-import { useKeycloakWrapper, type Claim } from 'tno-core';
+
+import { useKeycloakWrapper, type Claim } from '@/shared';
 
 export interface IMenuDropdownProps extends NavDropdownProps {
   claim?: Claim[] | Claim;

@@ -1,4 +1,4 @@
-import { type ISettingModel } from 'tno-core';
+import { type ISettingModel } from '@/shared';
 
 export const defaultSetting: ISettingModel = {
   id: 0,

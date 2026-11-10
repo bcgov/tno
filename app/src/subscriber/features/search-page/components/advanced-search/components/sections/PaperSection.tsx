@@ -1,4 +1,4 @@
-import { FieldSize, Row, Text } from 'tno-core';
+import { FieldSize, Row, Text } from '@/shared';
 
 import { useSearchSettings } from '../../SearchSettingsContext';
 

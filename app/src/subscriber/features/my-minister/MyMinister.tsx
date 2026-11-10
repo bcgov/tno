@@ -1,8 +1,8 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import moment from 'moment';
 import React from 'react';
-import { Checkbox, generateQuery, IContentModel, Row } from 'tno-core';
 
+import { Checkbox, generateQuery, IContentModel, Row } from '@/shared';
 import { ContentList } from '@/subscriber/components/content-list';
 import { DateFilter } from '@/subscriber/components/date-filter';
 import { ContentListActionBar } from '@/subscriber/components/tool-bar';

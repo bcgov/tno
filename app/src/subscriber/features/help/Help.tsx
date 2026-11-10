@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaVideo } from 'react-icons/fa';
-import { Col, Row } from 'tno-core';
 
+import { Col, Row } from '@/shared';
 import { PageSection } from '@/subscriber/components/section';
 
 import * as styled from './styled/Help';

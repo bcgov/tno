@@ -2,8 +2,10 @@ import React from 'react';
 
 import { GridTable, IGridTableProps, IPage, IPageSizeOptions, PagingType } from '.';
 
-export interface IPagedTableProps<CT extends object = Record<string, unknown>>
-  extends Omit<IGridTableProps<CT>, 'data'> {
+export interface IPagedTableProps<CT extends object = Record<string, unknown>> extends Omit<
+  IGridTableProps<CT>,
+  'data'
+> {
   /** A page of data. */
   page: IPage<CT>;
   /** Page size options. */

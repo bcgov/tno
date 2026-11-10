@@ -7,6 +7,7 @@ import React from 'react';
 import { FaBookmark, FaCaretLeft, FaCaretRight } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
 import {
   Col,
   IContentModel,
@@ -15,8 +16,7 @@ import {
   Row,
   Show,
   useWindowSize,
-} from 'tno-core';
-
+} from '@/shared';
 import { BasicSearch } from '@/subscriber/components/basic-search';
 import { ContentList, ViewOptions } from '@/subscriber/components/content-list';
 import { DateFilter } from '@/subscriber/components/date-filter';

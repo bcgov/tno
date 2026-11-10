@@ -1,4 +1,4 @@
-import { NotificationStatusName } from 'tno-core';
+import { NotificationStatusName } from '@/shared';
 
 /**
  * Provides a message that represents the status.

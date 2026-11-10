@@ -1,4 +1,4 @@
-import { IContentModel, IReportSectionChartTemplateModel } from 'tno-core';
+import { IContentModel, IReportSectionChartTemplateModel } from '@/shared';
 
 import { calcAverageSentiment } from './calcAverageSentiment';
 import { isStoryCount } from './isStoryCount';

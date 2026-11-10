@@ -1,6 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
+import { FormikForm } from '@/editor/components/formik';
+import { useApp } from '@/editor/store/hooks';
 import {
   Button,
   ButtonVariant,
@@ -10,10 +13,7 @@ import {
   Row,
   UserStatusName,
   type IRegisterModel,
-} from 'tno-core';
-
-import { FormikForm } from '@/editor/components/formik';
-import { useApp } from '@/editor/store/hooks';
+} from '@/shared';
 
 export const PreapprovedRequest: React.FC = () => {
   const [, app] = useApp();

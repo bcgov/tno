@@ -3,13 +3,6 @@ import {
   type MsearchMultisearchBody,
 } from '@elastic/elasticsearch/lib/api/types';
 import React from 'react';
-import {
-  useApiEditorContents,
-  type IContentListModel,
-  type IContentModel,
-  type IContentTopicModel,
-  type INotificationInstanceModel,
-} from 'tno-core';
 
 import {
   type IContentListAdvancedFilter,
@@ -18,6 +11,13 @@ import {
 import { type ActionDelegate } from '@/editor/store';
 import { useContentStore } from '@/editor/store/slices';
 import { type IContentProps, type IContentState } from '@/editor/store/slices/content';
+import {
+  useApiEditorContents,
+  type IContentListModel,
+  type IContentModel,
+  type IContentTopicModel,
+  type INotificationInstanceModel,
+} from '@/shared';
 
 import { useAjaxWrapper } from '..';
 

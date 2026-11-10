@@ -1,4 +1,4 @@
-import { NotificationTypeName, ResendOptionName, type INotificationModel } from 'tno-core';
+import { NotificationTypeName, ResendOptionName, type INotificationModel } from '@/shared';
 
 import { defaultNotificationTemplate } from './defaultNotificationTemplate';
 

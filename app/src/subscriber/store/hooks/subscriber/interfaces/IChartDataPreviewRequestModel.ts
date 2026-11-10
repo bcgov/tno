@@ -1,4 +1,4 @@
-import { IChartSectionSettingsModel } from 'tno-core';
+import { IChartSectionSettingsModel } from '@/shared';
 
 export interface IChartDataPreviewRequestModel {
   /** The chart settings the form currently holds. */

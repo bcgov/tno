@@ -1,4 +1,4 @@
-import { IChartSectionSettingsModel } from 'tno-core';
+import { IChartSectionSettingsModel } from '@/shared';
 
 /**
  * Determines if the size of the chart will fit the axis labels.

@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom';
-import { Claim, NotAuthorized, Role, useKeycloakWrapper } from 'tno-core';
 
+import { Claim, NotAuthorized, Role, useKeycloakWrapper } from '@/shared';
 import { useApp } from '@/subscriber/store/hooks';
 
 /**

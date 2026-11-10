@@ -1,4 +1,4 @@
-import { type AVOverviewTemplateTypeName } from 'tno-core';
+import { type AVOverviewTemplateTypeName } from '@/shared';
 
 import { type IAVOverviewTemplateForm } from '../interfaces';
 

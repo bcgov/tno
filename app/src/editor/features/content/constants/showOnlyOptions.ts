@@ -1,4 +1,4 @@
-import { OptionItem } from 'tno-core';
+import { OptionItem } from '@/shared';
 
 import { ShowOnlyValues } from './ShowOnlyValues';
 

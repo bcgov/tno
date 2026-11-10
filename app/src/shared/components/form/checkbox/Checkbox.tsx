@@ -1,7 +1,7 @@
 import React, { InputHTMLAttributes } from 'react';
 
-import { Error } from '..';
 import { CheckboxSize, CheckboxVariant } from '.';
+import { Error } from '..';
 import { LabelPosition } from './constants';
 import * as styled from './styled';
 

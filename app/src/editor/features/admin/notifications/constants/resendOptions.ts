@@ -1,4 +1,4 @@
-import { OptionItem, ResendOptionName } from 'tno-core';
+import { OptionItem, ResendOptionName } from '@/shared';
 
 export const resendOptions = [
   new OptionItem('Never resend, only alert the first time published', ResendOptionName.Never),

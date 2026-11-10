@@ -2,8 +2,8 @@ import React from 'react';
 import { SketchPicker } from 'react-color';
 import { FaPalette } from 'react-icons/fa6';
 import CreatableSelect from 'react-select/creatable';
-import { Col, Row } from 'tno-core';
 
+import { Col, Row } from '@/shared';
 import { Action } from '@/subscriber/components/action';
 
 import * as styled from './styled';

@@ -3,7 +3,8 @@ import {
   type UseFiltersColumnOptions,
   type UseSortByColumnOptions,
 } from 'react-table';
-import { CellEllipsis, type ITagModel } from 'tno-core';
+
+import { CellEllipsis, type ITagModel } from '@/shared';
 
 /** columns for tag list popout when user is on the content form. */
 export const columns: Array<

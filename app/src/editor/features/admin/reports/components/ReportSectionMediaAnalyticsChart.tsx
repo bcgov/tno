@@ -1,6 +1,7 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaTrash } from 'react-icons/fa6';
+
 import {
   Button,
   ButtonVariant,
@@ -22,7 +23,7 @@ import {
   type IOptionItem,
   type IReportModel,
   type OptionItem,
-} from 'tno-core';
+} from '@/shared';
 
 export interface IReportSectionMediaAnalyticsChartProps {
   sectionIndex: number;

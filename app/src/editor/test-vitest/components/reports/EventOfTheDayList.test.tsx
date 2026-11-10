@@ -55,7 +55,7 @@ vi.mock('@/editor/components/formpage', () => ({
   FormPage: ({ children }: React.PropsWithChildren) => <div>{children}</div>,
 }));
 vi.mock('react-toastify', () => ({ toast: { success: vi.fn(), warn: vi.fn(), error: vi.fn() } }));
-vi.mock('tno-core', () => ({
+vi.mock('@/shared', () => ({
   Settings: { EventOfTheDayFolder: 'folder', EventOfTheDayReport: 'report' },
   ButtonVariant: { secondary: 'secondary' },
   Button: ({ children, variant, ...props }: any) => <button {...props}>{children}</button>,

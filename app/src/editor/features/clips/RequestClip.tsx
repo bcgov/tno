@@ -1,5 +1,9 @@
 import React from 'react';
 import { toast } from 'react-toastify';
+
+import { FormikForm } from '@/editor/components/formik';
+import { FormPage } from '@/editor/components/formpage';
+import { useApp } from '@/editor/store/hooks';
 import {
   Button,
   ButtonVariant,
@@ -15,11 +19,7 @@ import {
   type IIngestModel,
   type IOptionItem,
   type IScheduleModel,
-} from 'tno-core';
-
-import { FormikForm } from '@/editor/components/formik';
-import { FormPage } from '@/editor/components/formpage';
-import { useApp } from '@/editor/store/hooks';
+} from '@/shared';
 
 import { defaultSchedule } from './constants';
 import * as styled from './styled';

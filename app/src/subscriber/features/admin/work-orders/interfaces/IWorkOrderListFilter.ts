@@ -1,5 +1,4 @@
-import { WorkOrderStatusName, WorkOrderTypeName } from 'tno-core';
-
+import { WorkOrderStatusName, WorkOrderTypeName } from '@/shared';
 import { ISortBy } from '@/subscriber/features/utils/interfaces';
 
 export interface IWorkOrderListFilter {

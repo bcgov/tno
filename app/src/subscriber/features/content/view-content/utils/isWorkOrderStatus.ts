@@ -1,4 +1,4 @@
-import { IWorkOrderModel, WorkOrderStatusName, WorkOrderTypeName } from 'tno-core';
+import { IWorkOrderModel, WorkOrderStatusName, WorkOrderTypeName } from '@/shared';
 
 /**
  * Determines if there are any work orders of the specified 'type' in the specified 'status'.

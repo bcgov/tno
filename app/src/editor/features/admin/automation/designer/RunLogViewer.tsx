@@ -1,6 +1,7 @@
 import React from 'react';
 import { FaAngleLeft, FaAngleRight, FaAnglesLeft, FaAnglesRight } from 'react-icons/fa6';
-import { Button, ButtonVariant, Col, Row, Select, Show, Text, type IOptionItem } from 'tno-core';
+
+import { Button, ButtonVariant, Col, Row, Select, Show, Text, type IOptionItem } from '@/shared';
 
 import { createOption, findOptionByValue } from '../utils';
 import { outcomeBadgeClass, outcomeLabel, runLogOutcomeOptions } from './constants';

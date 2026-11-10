@@ -1,10 +1,11 @@
 import React from 'react';
 
+import { getSortId, ITableProps, SortFlag, TablePager, useTable } from '.';
 import { Box } from '../box';
 import { Text } from '../form';
-import { getSortId, ITableProps, SortFlag, TablePager, useTable } from '.';
 import * as styled from './styled';
 import { determineSortValue } from './utils/determineSort';
+
 export const FlexboxTable = <T extends object>({
   rowId,
   columns,

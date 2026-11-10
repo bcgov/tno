@@ -1,4 +1,4 @@
-import { IReportModel } from 'tno-core';
+import { IReportModel } from '@/shared';
 
 export const isAutoSend = (report: IReportModel) => {
   if (report.events === undefined) return false;

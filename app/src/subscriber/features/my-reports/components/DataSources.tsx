@@ -2,6 +2,7 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaArrowAltCircleRight } from 'react-icons/fa';
 import { FaBan, FaBookmark, FaChartBar, FaFolder } from 'react-icons/fa6';
+
 import {
   Col,
   FormikSelect,
@@ -11,8 +12,7 @@ import {
   ReportSectionTypeName,
   Row,
   Show,
-} from 'tno-core';
-
+} from '@/shared';
 import { Button } from '@/subscriber/components/button';
 import { IToggleOption, Toggle } from '@/subscriber/components/form';
 import { useFilters, useFolders, useReports } from '@/subscriber/store/hooks';

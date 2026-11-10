@@ -1,5 +1,5 @@
-import { ContentStatusName, ContentTypeName } from '../constants';
 import { IContentActionModel, IContentTonePoolModel, IFileReferenceModel } from '.';
+import { ContentStatusName, ContentTypeName } from '../constants';
 
 export interface IContentMessageModel {
   id: number;

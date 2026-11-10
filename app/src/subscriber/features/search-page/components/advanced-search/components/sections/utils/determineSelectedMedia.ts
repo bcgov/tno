@@ -1,4 +1,4 @@
-import { IFilterSettingsModel } from 'tno-core';
+import { IFilterSettingsModel } from '@/shared';
 
 import { IGroupOption } from '../../../interfaces/IGroupOption';
 import { sortableMediaOptions } from './sortableMediaOptions';

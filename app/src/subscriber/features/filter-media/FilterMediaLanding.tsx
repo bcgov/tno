@@ -1,5 +1,6 @@
 import moment from 'moment';
 import React from 'react';
+
 import {
   Checkbox,
   Col,
@@ -8,8 +9,7 @@ import {
   ListOptionName,
   Row,
   Show,
-} from 'tno-core';
-
+} from '@/shared';
 import { PageSection } from '@/subscriber/components/section';
 import { useSubMediaGroups } from '@/subscriber/features/hooks';
 import { ISubMediaGroupItem } from '@/subscriber/features/search-page/components/advanced-search/interfaces';

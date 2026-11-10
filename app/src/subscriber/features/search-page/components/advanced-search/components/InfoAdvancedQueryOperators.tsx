@@ -1,5 +1,6 @@
 import { FaInfoCircle } from 'react-icons/fa';
-import { Col } from 'tno-core';
+
+import { Col } from '@/shared';
 
 import { InfoTooltip } from './InfoTooltip';
 import * as styled from './styled';

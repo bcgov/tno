@@ -1,5 +1,6 @@
 import React from 'react';
-import { FormikText, FormikWysiwyg } from 'tno-core';
+
+import { FormikText, FormikWysiwyg } from '@/shared';
 
 import { useReportEditContext } from '../../ReportEditContext';
 

@@ -1,4 +1,4 @@
-import { WorkOrderStatusName, WorkOrderTypeName } from 'tno-core';
+import { WorkOrderStatusName, WorkOrderTypeName } from '@/shared';
 
 import { type IWorkOrderForm } from '../interfaces';
 

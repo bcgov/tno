@@ -1,5 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+
+import { FormPage } from '@/editor/components/formpage';
+import { useProducts } from '@/editor/store/hooks/admin';
 import {
   CellCheckbox,
   Col,
@@ -10,10 +13,7 @@ import {
   Row,
   SortDirection,
   type IProductModel,
-} from 'tno-core';
-
-import { FormPage } from '@/editor/components/formpage';
-import { useProducts } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import { ProductFilter } from './ProductFilter';
 import * as styled from './styled';

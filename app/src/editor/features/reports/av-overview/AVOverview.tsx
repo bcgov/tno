@@ -10,6 +10,9 @@ import {
 import { MdAdd, MdSave } from 'react-icons/md';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
+import { FormikForm } from '@/editor/components/formik';
+import { useAVOverviewInstances } from '@/editor/store/hooks';
 import {
   Button,
   ButtonVariant,
@@ -20,10 +23,7 @@ import {
   Show,
   useModal,
   type IAVOverviewInstanceModel,
-} from 'tno-core';
-
-import { FormikForm } from '@/editor/components/formik';
-import { useAVOverviewInstances } from '@/editor/store/hooks';
+} from '@/shared';
 
 import {
   defaultAVOverviewInstance,

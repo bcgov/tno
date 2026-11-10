@@ -1,8 +1,8 @@
 import React from 'react';
 import Draggable from 'react-draggable';
-import { Col, GridTable, Row, Show } from 'tno-core';
 
 import { useLookup } from '@/editor/store/hooks';
+import { Col, GridTable, Row, Show } from '@/shared';
 
 import { columns } from './constants/columns';
 

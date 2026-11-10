@@ -1,5 +1,6 @@
 import React from 'react';
-import { TextArea } from 'tno-core';
+
+import { TextArea } from '@/shared';
 
 import { useReportEditContext } from '../../ReportEditContext';
 import * as styled from './styled';

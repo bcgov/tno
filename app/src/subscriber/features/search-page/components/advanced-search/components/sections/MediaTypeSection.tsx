@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, ButtonVariant, Checkbox, FieldSize, Row, Select, Show } from 'tno-core';
 
+import { Button, ButtonVariant, Checkbox, FieldSize, Row, Select, Show } from '@/shared';
 import { useApp, useLookupOptions } from '@/subscriber/store/hooks';
 
 import { useSearchSettings } from '../../SearchSettingsContext';

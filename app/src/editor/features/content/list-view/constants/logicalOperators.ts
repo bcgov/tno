@@ -1,4 +1,4 @@
-import { LogicalOperator, OptionItem } from 'tno-core';
+import { LogicalOperator, OptionItem } from '@/shared';
 
 export const logicalOperators = [
   new OptionItem('Contains', LogicalOperator.Contains),

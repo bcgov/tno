@@ -1,5 +1,8 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
+
+import { useDistributionListMembership } from '@/editor/features/admin/users/hooks';
+import { useUsers } from '@/editor/store/hooks/admin';
 import {
   CellEllipsis,
   Checkbox,
@@ -8,10 +11,7 @@ import {
   type INotificationModel,
   type IUserFilter,
   type IUserModel,
-} from 'tno-core';
-
-import { useDistributionListMembership } from '@/editor/features/admin/users/hooks';
-import { useUsers } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import { NotificationFilter } from './NotificationFilter';
 

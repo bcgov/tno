@@ -1,4 +1,4 @@
-import { OptionItem } from 'tno-core';
+import { OptionItem } from '@/shared';
 
 export const Languages = [
   new OptionItem('English (Canada)', 'en-CA'),

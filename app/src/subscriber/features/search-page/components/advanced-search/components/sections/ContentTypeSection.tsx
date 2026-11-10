@@ -1,4 +1,4 @@
-import { Button, ButtonVariant, Checkbox, ContentTypeName, Row, Select, Show } from 'tno-core';
+import { Button, ButtonVariant, Checkbox, ContentTypeName, Row, Select, Show } from '@/shared';
 
 import { useSearchSettings } from '../../SearchSettingsContext';
 

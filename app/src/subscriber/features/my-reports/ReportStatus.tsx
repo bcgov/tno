@@ -1,4 +1,4 @@
-import { ReportStatusName } from 'tno-core';
+import { ReportStatusName } from '@/shared';
 
 import * as styled from './styled';
 import { getStatus } from './utils';

@@ -1,5 +1,8 @@
 import React from 'react';
 import { FaClock, FaFilter, FaIcons, FaUsers } from 'react-icons/fa';
+
+import { type IContentListFilter } from '@/editor/features/content/interfaces';
+import { useApp, useContent, useLookupOptions } from '@/editor/store/hooks';
 import {
   Col,
   FieldSize,
@@ -12,10 +15,7 @@ import {
   ToggleGroup,
   ToolBarSection,
   type IOptionItem,
-} from 'tno-core';
-
-import { type IContentListFilter } from '@/editor/features/content/interfaces';
-import { useApp, useContent, useLookupOptions } from '@/editor/store/hooks';
+} from '@/shared';
 
 import { DateRangeSection } from '.';
 import { InputOption } from './InputOption';

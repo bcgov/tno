@@ -10,12 +10,12 @@ import { BrowserRouter } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
 import { StyleSheetManager } from 'styled-components';
-import { createKeycloakInstance, Loading, Show, useKeycloakEventHandler } from 'tno-core';
 
 import { LayoutAnonymous } from '@/editor/components/layout';
 import { UploadContextWrapper } from '@/editor/features/content';
 import { AppRouter } from '@/editor/features/router';
 import { fixTooltipResizeObserver } from '@/editor/utils';
+import { createKeycloakInstance, Loading, Show, useKeycloakEventHandler } from '@/shared';
 
 const appName = 'Media Monitoring Insights';
 fixTooltipResizeObserver();

@@ -1,4 +1,4 @@
-import { OptionItem, ReportTypeName, type IReportTemplateModel } from 'tno-core';
+import { OptionItem, ReportTypeName, type IReportTemplateModel } from '@/shared';
 
 export const getReportTemplateOptions = (templates: IReportTemplateModel[]) => {
   return templates

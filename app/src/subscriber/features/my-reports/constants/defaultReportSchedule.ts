@@ -3,7 +3,7 @@ import {
   IReportScheduleModel,
   ScheduleMonthName,
   ScheduleWeekDayName,
-} from 'tno-core';
+} from '@/shared';
 
 import { getScheduleName } from '../utils';
 

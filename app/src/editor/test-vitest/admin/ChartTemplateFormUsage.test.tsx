@@ -8,8 +8,8 @@ import { store } from '@/editor/store';
 
 const mocks = vi.hoisted(() => ({ get: vi.fn() }));
 
-vi.mock('tno-core', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('tno-core')>()),
+vi.mock('@/shared', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/shared')>()),
   useApi: () => ({ get: mocks.get }),
 }));
 

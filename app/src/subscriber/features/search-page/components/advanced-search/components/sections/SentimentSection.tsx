@@ -1,4 +1,4 @@
-import { Col, SentimentSlider } from 'tno-core';
+import { Col, SentimentSlider } from '@/shared';
 
 import { useSearchSettings } from '../../SearchSettingsContext';
 

@@ -1,4 +1,4 @@
-import { IMediaTypeModel, ListOptionName } from 'tno-core';
+import { IMediaTypeModel, ListOptionName } from '@/shared';
 
 interface IGenerateMediaTypeOptions {
   _id?: number;

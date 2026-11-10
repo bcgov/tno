@@ -1,4 +1,4 @@
-import { getReportKind, IReportModel, ReportKindName } from 'tno-core';
+import { getReportKind, IReportModel, ReportKindName } from '@/shared';
 
 import * as styled from './styled';
 

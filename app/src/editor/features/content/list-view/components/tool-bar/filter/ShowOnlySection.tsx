@@ -1,5 +1,10 @@
 import React from 'react';
 import { FaEye } from 'react-icons/fa';
+
+import { showOnlyOptions, ShowOnlyValues } from '@/editor/features/content/constants';
+import { type IContentListFilter } from '@/editor/features/content/interfaces';
+import { type ActionDelegate } from '@/editor/store';
+import { useContent } from '@/editor/store/hooks';
 import {
   Checkbox,
   Col,
@@ -11,12 +16,7 @@ import {
   Show,
   ToolBarSection,
   type IOptionItem,
-} from 'tno-core';
-
-import { showOnlyOptions, ShowOnlyValues } from '@/editor/features/content/constants';
-import { type IContentListFilter } from '@/editor/features/content/interfaces';
-import { type ActionDelegate } from '@/editor/store';
-import { useContent } from '@/editor/store/hooks';
+} from '@/shared';
 
 import { InputOption } from './InputOption';
 

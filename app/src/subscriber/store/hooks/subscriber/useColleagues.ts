@@ -1,11 +1,11 @@
 import React from 'react';
+
 import {
   INotificationModel,
   IResponseErrorModel,
   IUserColleagueModel,
   useApiSubscriberColleagues,
-} from 'tno-core';
-
+} from '@/shared';
 import { useAjaxWrapper } from '@/subscriber/store/hooks';
 import { useProfileStore } from '@/subscriber/store/slices';
 

@@ -1,5 +1,6 @@
-import { type IOptionItem } from 'tno-core';
 import { object, string } from 'yup';
+
+import { type IOptionItem } from '@/shared';
 
 import { createOption } from '../utils';
 import { contentFieldOptions } from './defaultAutomationProfile';

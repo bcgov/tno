@@ -4,7 +4,7 @@ import {
   type IMediaTypeModel,
   type ISeriesModel,
   type ISourceModel,
-} from 'tno-core';
+} from '@/shared';
 
 import { FilterImportExportModel } from './FilterImportExportModel';
 import { type IFilterImportExportModel } from './IFilterImportExportModel';

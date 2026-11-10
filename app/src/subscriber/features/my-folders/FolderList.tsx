@@ -2,7 +2,8 @@ import React from 'react';
 import { FaCog } from 'react-icons/fa';
 import { FaFolderClosed, FaFolderOpen } from 'react-icons/fa6';
 import { useNavigate, useParams } from 'react-router-dom';
-import { IFolderModel, Row } from 'tno-core';
+
+import { IFolderModel, Row } from '@/shared';
 
 import * as styled from './styled';
 

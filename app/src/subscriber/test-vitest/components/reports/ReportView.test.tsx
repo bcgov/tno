@@ -38,7 +38,7 @@ vi.mock('../../../features/my-reports/edit/view/styled', () => ({ ReportView: 'd
 vi.mock('../../../features/my-reports/edit/view/ReportViewPromptButton', () => ({
   ReportViewPromptButton: () => null,
 }));
-vi.mock('tno-core', () => ({
+vi.mock('@/shared', () => ({
   AISectionStatusName: { NotStarted: 'NotStarted', Generating: 'Generating' },
   MessageTargetKey: { ReportStatus: 'ReportStatus' },
   Col: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,

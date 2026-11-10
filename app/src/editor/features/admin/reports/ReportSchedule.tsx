@@ -2,6 +2,7 @@ import { useFormikContext } from 'formik';
 import moment from 'moment';
 import React from 'react';
 import { FaEraser } from 'react-icons/fa';
+
 import {
   Button,
   ButtonVariant,
@@ -16,7 +17,7 @@ import {
   ScheduleWeekDayName,
   selectWeekDays,
   type IReportModel,
-} from 'tno-core';
+} from '@/shared';
 
 import * as styled from './styled';
 

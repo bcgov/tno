@@ -8,8 +8,8 @@ import {
   FaTrash,
 } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
-import { Col, isAISectionPending, ReportStatusName, Show, useModal } from 'tno-core';
 
+import { Col, isAISectionPending, ReportStatusName, Show, useModal } from '@/shared';
 import { Action } from '@/subscriber/components/action';
 import { Button } from '@/subscriber/components/button';
 import { Modal } from '@/subscriber/components/modal';

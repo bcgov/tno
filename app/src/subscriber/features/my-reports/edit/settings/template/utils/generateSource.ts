@@ -1,4 +1,4 @@
-import { ISourceModel } from 'tno-core';
+import { ISourceModel } from '@/shared';
 
 interface IGenerateSourceOptions {
   _id?: number;

@@ -1,10 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { Col, FlexboxTable, IconButton, Modal, Row, useModal, type ILLMModel } from 'tno-core';
 
 import { FormPage } from '@/editor/components/formpage';
 import { useLLMs } from '@/editor/store/hooks/admin';
+import { Col, FlexboxTable, IconButton, Modal, Row, useModal, type ILLMModel } from '@/shared';
 
 import { getColumns } from './constants';
 import { LLMFilter } from './LLMFilter';

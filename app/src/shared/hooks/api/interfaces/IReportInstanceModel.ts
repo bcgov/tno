@@ -1,5 +1,5 @@
-import { ReportStatusName } from '../constants';
 import { IAuditColumnsModel, IReportInstanceContentModel, IUserModel } from '.';
+import { ReportStatusName } from '../constants';
 
 export interface IReportInstanceModel extends IAuditColumnsModel {
   id: number;

@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   Button,
   ButtonVariant,
@@ -7,7 +8,7 @@ import {
   SelectDate,
   useApiReports,
   type IOptionItem,
-} from 'tno-core';
+} from '@/shared';
 
 import { defaultValues, reportDurations } from './constants';
 import { type ICBRAForm } from './interfaces';

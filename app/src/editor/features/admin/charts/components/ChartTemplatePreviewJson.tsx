@@ -8,9 +8,9 @@ import { highlight, languages } from 'prismjs';
 import React from 'react';
 import { FaAngleDown, FaEraser, FaMinus, FaPlay } from 'react-icons/fa6';
 import Editor from 'react-simple-code-editor';
-import { Col, Row, ToggleButton, type IChartPreviewRequestModel } from 'tno-core';
 
 import { useChartTemplates } from '@/editor/store/hooks/admin';
+import { Col, Row, ToggleButton, type IChartPreviewRequestModel } from '@/shared';
 
 import { useChartTemplateContext } from '../ChartTemplateContext';
 import { defaultChartTemplate } from '../constants';

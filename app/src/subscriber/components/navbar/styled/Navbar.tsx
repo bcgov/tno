@@ -1,5 +1,6 @@
 import styled from 'styled-components';
-import { Col } from 'tno-core';
+
+import { Col } from '@/shared';
 
 export const Navbar = styled(Col)<{ $expanded: boolean }>`
   svg:not(.expand-control) {

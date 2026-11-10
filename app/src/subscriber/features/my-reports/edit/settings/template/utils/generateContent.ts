@@ -1,5 +1,6 @@
 import moment from 'moment';
-import { ContentStatusName, ContentTypeName, IContentModel } from 'tno-core';
+
+import { ContentStatusName, ContentTypeName, IContentModel } from '@/shared';
 
 import { generateContentTopic } from './generateContentTopic';
 import { generateMediaType } from './generateMediaType';

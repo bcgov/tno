@@ -3,6 +3,10 @@ import moment from 'moment';
 import React from 'react';
 import { FaEraser } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+
+import { type IContentRowModel } from '@/editor/components/content';
+import { useContent } from '@/editor/store/hooks';
+import { useFilters } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -22,11 +26,7 @@ import {
   type IContentModel,
   type IFilterModel,
   type OptionItem,
-} from 'tno-core';
-
-import { type IContentRowModel } from '@/editor/components/content';
-import { useContent } from '@/editor/store/hooks';
-import { useFilters } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import { type IFolderForm } from './interfaces';
 import { createSchedule, getFilterOptions } from './utils';

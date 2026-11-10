@@ -1,4 +1,4 @@
-import { ScheduleWeekDayName } from 'tno-core';
+import { ScheduleWeekDayName } from '@/shared';
 
 export const weekDayNameAbbrev = (
   value: string | string[] | ScheduleWeekDayName | ScheduleWeekDayName[],

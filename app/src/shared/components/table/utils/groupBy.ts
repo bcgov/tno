@@ -10,14 +10,17 @@ export const groupBy = <T>(
   array: T[],
   predicate: (item: T, index: number, array: T[]) => string,
 ): ITableGroup<T>[] => {
-  const grouping = array.reduce((acc, value, index, array) => {
-    let key = predicate(value, index, array);
-    if (key === undefined || key === null) key = '_';
-    else key = `_${key}`;
+  const grouping = array.reduce(
+    (acc, value, index, array) => {
+      let key = predicate(value, index, array);
+      if (key === undefined || key === null) key = '_';
+      else key = `_${key}`;
 
-    (acc[key] ||= []).push(value);
-    return acc;
-  }, {} as { [key: string]: T[] });
+      (acc[key] ||= []).push(value);
+      return acc;
+    },
+    {} as { [key: string]: T[] },
+  );
 
   return Object.keys(grouping).map((key) => ({
     key: key.substring(1),

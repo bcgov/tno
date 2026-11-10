@@ -1,4 +1,7 @@
 import React from 'react';
+
+import { useLookup, type ILookupController } from '@/editor/store/hooks';
+import { type ILookupState } from '@/editor/store/slices';
 import {
   getSortableOptions,
   getSourceOptions,
@@ -7,10 +10,7 @@ import {
   type IOptionItem,
   type ISourceModel,
   type IUserModel,
-} from 'tno-core';
-
-import { useLookup, type ILookupController } from '@/editor/store/hooks';
-import { type ILookupState } from '@/editor/store/slices';
+} from '@/shared';
 
 export interface ILookupOptionsProps {
   sourceMap?: (item: ISourceModel) => IOptionItem<number>;

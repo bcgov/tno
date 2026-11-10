@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   AccountAuthStateName,
   Button,
@@ -6,8 +7,7 @@ import {
   MessageTargetKey,
   useKeycloakWrapper,
   useModal,
-} from 'tno-core';
-
+} from '@/shared';
 import { Modal } from '@/subscriber/components/modal';
 import { useApiHub, useApp } from '@/subscriber/store/hooks';
 import { useAppStore } from '@/subscriber/store/slices';

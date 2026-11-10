@@ -1,4 +1,4 @@
-import { IReportSectionModel } from 'tno-core';
+import { IReportSectionModel } from '@/shared';
 
 export interface IReportSectionForm extends IReportSectionModel {
   open?: boolean;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaFilter, FaX } from 'react-icons/fa6';
-import { Row, Text } from 'tno-core';
 
+import { Row, Text } from '@/shared';
 import { Button } from '@/subscriber/components/button';
 import { useProfileStore } from '@/subscriber/store/slices';
 

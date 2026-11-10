@@ -1,4 +1,4 @@
-import { type ITopicScoreRuleModel } from 'tno-core';
+import { type ITopicScoreRuleModel } from '@/shared';
 
 import { type ITopicScoreRuleForm } from '../interfaces';
 import { parsePage } from './page';

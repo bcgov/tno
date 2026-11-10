@@ -1,12 +1,12 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
-import { useApi } from 'tno-core';
 
 import {
   type ILLMMigrationCheckModel,
   type ILLMMigrationResultModel,
   type ILLMUsageModel,
 } from '@/editor/features/admin/llms/interfaces';
+import { useApi } from '@/shared';
 
 export const useApiAdminLLMUsage = () => {
   const api = useApi();

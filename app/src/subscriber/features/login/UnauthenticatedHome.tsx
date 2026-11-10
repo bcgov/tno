@@ -1,5 +1,6 @@
 import React from 'react';
-import { useKeycloakWrapper } from 'tno-core';
+
+import { useKeycloakWrapper } from '@/shared';
 
 import { AppLogin } from '.';
 import * as styled from './styled';

@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   IContributorModel,
   IFilterModel,
@@ -8,8 +9,7 @@ import {
   ISystemMessageModel,
   ITonePoolModel,
   IUserColleagueModel,
-} from 'tno-core';
-
+} from '@/shared';
 import { IReportResultForm } from '@/subscriber/features/my-reports/interfaces';
 import { ActionDelegate, useAppDispatch, useAppSelector } from '@/subscriber/store';
 

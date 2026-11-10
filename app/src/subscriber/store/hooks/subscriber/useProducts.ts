@@ -1,6 +1,6 @@
 import React from 'react';
-import { IProductModel, IUserProductModel, useApiSubscriberProducts } from 'tno-core';
 
+import { IProductModel, IUserProductModel, useApiSubscriberProducts } from '@/shared';
 import { useAjaxWrapper } from '@/subscriber/store/hooks';
 
 interface IProductController {

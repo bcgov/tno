@@ -1,5 +1,5 @@
-import { ContentTypeName, ValueType } from '../constants';
 import { ISortableModel } from '.';
+import { ContentTypeName, ValueType } from '../constants';
 
 export interface IActionModel extends ISortableModel<number> {
   defaultValue: string;

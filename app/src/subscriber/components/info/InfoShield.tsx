@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaShield } from 'react-icons/fa6';
-import { Col } from 'tno-core';
 
+import { Col } from '@/shared';
 import { TooltipMenu } from '@/subscriber/components/tooltip-menu';
 
 import * as styled from './styled';

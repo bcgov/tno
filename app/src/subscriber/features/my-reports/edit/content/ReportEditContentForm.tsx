@@ -1,8 +1,8 @@
 import React from 'react';
 import { FaAngleDown, FaArrowsRotate, FaMinus, FaToggleOff, FaToggleOn } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
-import { Checkbox, Loading, Show, ToggleButton, useModal } from 'tno-core';
 
+import { Checkbox, Loading, Show, ToggleButton, useModal } from '@/shared';
 import { Action } from '@/subscriber/components/action';
 import { Modal } from '@/subscriber/components/modal';
 import { RefreshButton } from '@/subscriber/components/refresh-button';

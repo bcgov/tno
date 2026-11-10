@@ -1,8 +1,8 @@
 import React from 'react';
 import Select from 'react-select';
-import { TopicTypeName, type ITopicModel } from 'tno-core';
 
 import { useLookup } from '@/editor/store/hooks';
+import { TopicTypeName, type ITopicModel } from '@/shared';
 
 import {
   type IGroupedTopicOptions,

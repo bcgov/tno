@@ -3,7 +3,7 @@ import {
   ScheduleWeekDayName,
   type IReportModel,
   type IReportScheduleModel,
-} from 'tno-core';
+} from '@/shared';
 
 export const defaultReportSchedule = (
   label: string,

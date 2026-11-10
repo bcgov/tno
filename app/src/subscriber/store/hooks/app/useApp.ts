@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   AccountAuthStateName,
   IRegisterModel,
@@ -9,8 +10,7 @@ import {
   useApiAuth,
   useKeycloakWrapper,
   UserStatusName,
-} from 'tno-core';
-
+} from '@/shared';
 import { IAppState, IErrorModel, useAppStore, useProfileStore } from '@/subscriber/store/slices';
 
 import { useAjaxWrapper } from '..';

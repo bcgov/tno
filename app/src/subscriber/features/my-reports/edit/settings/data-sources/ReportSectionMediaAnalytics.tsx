@@ -1,6 +1,6 @@
 import React from 'react';
-import { Col, FormikCheckbox, Row, Show } from 'tno-core';
 
+import { Col, FormikCheckbox, Row, Show } from '@/shared';
 import { DataSources } from '@/subscriber/features/my-reports/components';
 import { IReportForm } from '@/subscriber/features/my-reports/interfaces';
 

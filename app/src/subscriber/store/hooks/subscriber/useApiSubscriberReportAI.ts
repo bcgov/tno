@@ -1,6 +1,7 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
-import { defaultEnvelope, ILifecycleToasts, IReportSectionSettingsModel, useApi } from 'tno-core';
+
+import { defaultEnvelope, ILifecycleToasts, IReportSectionSettingsModel, useApi } from '@/shared';
 
 import {
   IReportAIPromptChatRequestModel,

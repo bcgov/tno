@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   Col,
   datasetOptions,
@@ -11,8 +12,7 @@ import {
   Row,
   Show,
   ToggleGroup,
-} from 'tno-core';
-
+} from '@/shared';
 import { useReportEditContext } from '@/subscriber/features/my-reports/edit/ReportEditContext';
 
 import { IChartSectionProps } from './IChartSectionProps';

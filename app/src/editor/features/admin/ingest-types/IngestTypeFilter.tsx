@@ -1,7 +1,7 @@
 import React from 'react';
-import { IconButton, Row, Text } from 'tno-core';
 
 import { useAdminStore } from '@/editor/store/slices';
+import { IconButton, Row, Text } from '@/shared';
 
 interface IIngestTypeFilterProps {
   onFilterChange?: (value: string) => void;

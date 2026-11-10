@@ -1,6 +1,6 @@
 import React from 'react';
-import { IReportSectionSettingsModel } from 'tno-core';
 
+import { IReportSectionSettingsModel } from '@/shared';
 import { useAjaxWrapper } from '@/subscriber/store/hooks';
 
 import {

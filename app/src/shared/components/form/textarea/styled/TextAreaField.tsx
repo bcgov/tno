@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
-import { TextVariant } from '../..';
 import { ITextAreaProps } from '..';
+import { TextVariant } from '../..';
 
 export const TextAreaField = styled.textarea<ITextAreaProps>`
   padding: 0.375rem 0.75rem;
@@ -17,8 +17,11 @@ export const TextAreaField = styled.textarea<ITextAreaProps>`
   font-size: 1rem;
   line-height: 1.6;
   border-radius: 0.25rem;
-  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
-    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  transition:
+    color 0.15s ease-in-out,
+    background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
   overflow: visible;
   text-transform: none;
 

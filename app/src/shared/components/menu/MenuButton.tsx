@@ -2,8 +2,8 @@ import { Menu as HMenu } from '@headlessui/react';
 import { LiHTMLAttributes } from 'react';
 import { IconType } from 'react-icons/lib';
 
-import { Claim, Role, useKeycloakWrapper } from '../../hooks';
 import { MenuStatus } from '.';
+import { Claim, Role, useKeycloakWrapper } from '../../hooks';
 
 interface IMenuButtonProps extends LiHTMLAttributes<HTMLLIElement> {
   /**

@@ -1,5 +1,6 @@
 import { DropResult } from 'react-beautiful-dnd';
-import { IReportInstanceContentModel } from 'tno-core';
+
+import { IReportInstanceContentModel } from '@/shared';
 
 /**
  * Determines the destination index in the array the item will be dropped into.

@@ -1,5 +1,6 @@
 import { FaCaretSquareDown, FaCheckSquare, FaInfoCircle } from 'react-icons/fa';
-import { Col, Row } from 'tno-core';
+
+import { Col, Row } from '@/shared';
 
 import { InfoTooltip } from './InfoTooltip';
 import * as styled from './styled';

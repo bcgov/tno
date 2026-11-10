@@ -1,8 +1,8 @@
 import React from 'react';
 import { DropResult } from 'react-beautiful-dnd';
 import { useNavigate, useParams } from 'react-router-dom';
-import { generateQuery, IContentModel, IFolderModel, Row } from 'tno-core';
 
+import { generateQuery, IContentModel, IFolderModel, Row } from '@/shared';
 import { Action } from '@/subscriber/components/action';
 import { ContentList } from '@/subscriber/components/content-list';
 import { reorderDragItems } from '@/subscriber/components/content-list/utils';

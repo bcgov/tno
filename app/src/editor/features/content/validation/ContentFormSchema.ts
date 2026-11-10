@@ -1,5 +1,6 @@
-import { ContentStatusName, ContentTypeName } from 'tno-core';
 import { array, date, number, object, string } from 'yup';
+
+import { ContentStatusName, ContentTypeName } from '@/shared';
 
 import { type IContentForm } from '../form/interfaces';
 

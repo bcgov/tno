@@ -1,4 +1,4 @@
-import { IContentModel } from 'tno-core';
+import { IContentModel } from '@/shared';
 
 export interface IContentSearchResult extends IContentModel {
   hasTranscript: boolean;

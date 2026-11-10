@@ -1,5 +1,6 @@
 import styled from 'styled-components';
-import { Col } from 'tno-core';
+
+import { Col } from '@/shared';
 
 export const EditBroadcastDetails = styled(Col)`
   transition: all 0.3s ease;

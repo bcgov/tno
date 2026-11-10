@@ -1,5 +1,6 @@
 import { KnnSearchResponse } from '@elastic/elasticsearch/lib/api/types';
-import { IContentModel, IFilterSettingsModel, IOptionItem } from 'tno-core';
+
+import { IContentModel, IFilterSettingsModel, IOptionItem } from '@/shared';
 
 export interface IContentState {
   // each page has own content and filter state

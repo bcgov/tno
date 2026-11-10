@@ -33,7 +33,7 @@ export const FormikStringEnumCheckbox = <TEnum extends unknown>({
   const originalFieldValue = getIn(values, fieldName);
   const isArray = Array.isArray(originalFieldValue);
 
-  const fieldValue = getIn(values, fieldName, isArray ? [] : defaultValue ?? '');
+  const fieldValue = getIn(values, fieldName, isArray ? [] : (defaultValue ?? ''));
   const isChecked =
     checked || (isArray ? fieldValue.some((v: any) => v === value) : fieldValue.includes(value));
 

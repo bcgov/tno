@@ -1,11 +1,11 @@
 import React from 'react';
+
+import { useAjaxWrapper } from '@/editor/store/hooks';
 import {
   useApiAdminAVOverviews,
   type AVOverviewTemplateTypeName,
   type IAVOverviewTemplateModel,
-} from 'tno-core';
-
-import { useAjaxWrapper } from '@/editor/store/hooks';
+} from '@/shared';
 
 interface IAVOverviewController {
   findAllAVOverview: () => Promise<IAVOverviewTemplateModel[]>;

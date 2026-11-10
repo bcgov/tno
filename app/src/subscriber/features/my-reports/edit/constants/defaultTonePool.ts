@@ -1,4 +1,4 @@
-import { ITonePoolModel } from 'tno-core';
+import { ITonePoolModel } from '@/shared';
 
 export const defaultTonePool: ITonePoolModel = {
   id: 0,

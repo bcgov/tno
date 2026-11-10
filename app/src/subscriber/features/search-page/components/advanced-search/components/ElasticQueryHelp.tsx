@@ -3,7 +3,8 @@ import { createPortal } from 'react-dom';
 import Draggable from 'react-draggable';
 import { FaInfoCircle } from 'react-icons/fa';
 import { FaX } from 'react-icons/fa6';
-import { Col, Row, Show } from 'tno-core';
+
+import { Col, Row, Show } from '@/shared';
 
 import * as styled from './styled';
 

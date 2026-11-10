@@ -2,7 +2,7 @@ import {
   type IReportSectionModel,
   type IReportSettingsModel,
   type IReportTemplateModel,
-} from 'tno-core';
+} from '@/shared';
 
 import { type IReportImportExportModel } from './IReportImportExportModel';
 import { type IReportSectionImportExportModel } from './IReportSectionImportExportModel';

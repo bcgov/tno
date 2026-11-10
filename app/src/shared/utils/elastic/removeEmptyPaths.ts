@@ -54,8 +54,7 @@ export const removeEmptyPaths = (elastic: MsearchMultisearchBody): MsearchMultis
 
       const must = elastic.query.bool?.must as QueryDslQueryContainer | QueryDslQueryContainer[];
       const mustNot = elastic.query.bool?.must_not as
-        | QueryDslQueryContainer
-        | QueryDslQueryContainer[];
+        QueryDslQueryContainer | QueryDslQueryContainer[];
 
       removeEmptyShouldClauses(must);
       removeEmptyShouldClauses(mustNot);

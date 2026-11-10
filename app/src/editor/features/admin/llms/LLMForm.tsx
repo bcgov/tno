@@ -3,6 +3,10 @@ import moment from 'moment';
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { number, object, string } from 'yup';
+
+import { FormikForm } from '@/editor/components/formik';
+import { useLLMs } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -24,11 +28,7 @@ import {
   Tabs,
   useModal,
   type ILLMModel,
-} from 'tno-core';
-import { number, object, string } from 'yup';
-
-import { FormikForm } from '@/editor/components/formik';
-import { useLLMs } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import { defaultLLM } from './constants';
 import { LLMUsage } from './LLMUsage';

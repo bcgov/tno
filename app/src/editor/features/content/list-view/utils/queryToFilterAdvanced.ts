@@ -1,6 +1,5 @@
-import { convertTo, fromQueryString } from 'tno-core';
-
 import { type IContentListAdvancedFilter } from '@/editor/features/content/interfaces';
+import { convertTo, fromQueryString } from '@/shared';
 
 /**
  * Updates the specified filter with query param values.

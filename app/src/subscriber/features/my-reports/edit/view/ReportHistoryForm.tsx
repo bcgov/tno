@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaClockRotateLeft, FaEye, FaRegClock } from 'react-icons/fa6';
-import { Col, IReportInstanceModel, Loading, ReportStatusName, Row, Show } from 'tno-core';
 
+import { Col, IReportInstanceModel, Loading, ReportStatusName, Row, Show } from '@/shared';
 import { Action } from '@/subscriber/components/action';
 import { getStatus } from '@/subscriber/features/my-reports/utils';
 import { formatDate, formatTime } from '@/subscriber/features/utils';

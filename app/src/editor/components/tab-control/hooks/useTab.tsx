@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toQueryString } from 'tno-core';
 
 import { useApp } from '@/editor/store/hooks';
+import { toQueryString } from '@/shared';
 
 import { NavigateOptions } from '../constants';
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { toast } from 'react-toastify';
+
 import {
   Button,
   ButtonVariant,
@@ -9,7 +10,7 @@ import {
   Show,
   TextArea,
   type IOptionItem,
-} from 'tno-core';
+} from '@/shared';
 
 import { createOption, findOptionByValue } from '../utils';
 import {

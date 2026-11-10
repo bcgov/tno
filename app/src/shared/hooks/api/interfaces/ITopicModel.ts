@@ -1,5 +1,5 @@
-import { TopicTypeName } from '../constants';
 import { ISortableModel } from '.';
+import { TopicTypeName } from '../constants';
 
 export interface ITopicModel extends ISortableModel<number> {
   topicType: TopicTypeName;

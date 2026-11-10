@@ -4,6 +4,10 @@ import React from 'react';
 import { FaEdit } from 'react-icons/fa';
 import { FaBugSlash } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
+
+import { FormPage } from '@/editor/components/formpage';
+import { useApiHub, useLookupOptions } from '@/editor/store/hooks';
+import { useIngests, useIngestTypes } from '@/editor/store/hooks/admin';
 import {
   Checkbox,
   Col,
@@ -13,11 +17,7 @@ import {
   Select,
   type IIngestMessageModel,
   type IIngestModel,
-} from 'tno-core';
-
-import { FormPage } from '@/editor/components/formpage';
-import { useApiHub, useLookupOptions } from '@/editor/store/hooks';
-import { useIngests, useIngestTypes } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import { getStatus } from '../ingests/utils';
 import { useIngestIcon } from './hooks';

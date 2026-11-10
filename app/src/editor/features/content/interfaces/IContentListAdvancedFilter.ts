@@ -1,4 +1,4 @@
-import { type LogicalOperator } from 'tno-core';
+import { type LogicalOperator } from '@/shared';
 
 import { type AdvancedSearchKeys } from '../constants';
 

@@ -1,4 +1,7 @@
 import React from 'react';
+
+import { useLookupStore } from '@/editor/store/slices';
+import { type ILookupState } from '@/editor/store/slices/lookup';
 import {
   fetchIfNoneMatch,
   getFromLocalStorage,
@@ -46,10 +49,7 @@ import {
   type ITonePoolModel,
   type ITopicModel,
   type IUserModel,
-} from 'tno-core';
-
-import { useLookupStore } from '@/editor/store/slices';
-import { type ILookupState } from '@/editor/store/slices/lookup';
+} from '@/shared';
 
 import { useAjaxWrapper } from '..';
 

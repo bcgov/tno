@@ -1,8 +1,8 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
-import { IFilterSettingsModel, useFilterAIGenerationGuard } from 'tno-core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { IFilterSettingsModel, useFilterAIGenerationGuard } from '@/shared';
 import { filterFormat } from '@/subscriber/features/search-page/utils/filterFormat';
 
 import { TestWrapper } from '../../utils';

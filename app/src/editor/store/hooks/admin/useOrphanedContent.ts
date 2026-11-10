@@ -1,8 +1,8 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
-import { useApi } from 'tno-core';
 
 import { useAjaxWrapper } from '@/editor/store/hooks';
+import { useApi } from '@/shared';
 
 export type OrphanSide = 'postgres' | 'elasticsearch';
 export type OrphanIndex = 'content' | 'published';

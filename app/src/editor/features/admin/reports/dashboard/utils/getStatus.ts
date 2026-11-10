@@ -1,4 +1,4 @@
-import { ReportStatusName } from 'tno-core';
+import { ReportStatusName } from '@/shared';
 
 /**
  * Provides a message that represents the status.

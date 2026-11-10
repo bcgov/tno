@@ -1,4 +1,4 @@
-import { type ITransferAccount } from 'tno-core';
+import { type ITransferAccount } from '@/shared';
 
 export const defaultTransferAccount: ITransferAccount = {
   fromAccountId: 0,

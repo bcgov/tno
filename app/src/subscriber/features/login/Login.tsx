@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom';
-import { useKeycloakWrapper } from 'tno-core';
+
+import { useKeycloakWrapper } from '@/shared';
 
 /**
  * Login will display content for an anonymous user.

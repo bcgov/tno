@@ -1,7 +1,7 @@
 import moment from 'moment';
 import React from 'react';
-import { IFilterSettingsModel, Row, Show } from 'tno-core';
 
+import { IFilterSettingsModel, Row, Show } from '@/shared';
 import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 
 import { IPreviousDate } from './interfaces';

@@ -2,12 +2,13 @@
 // Only the string literal is replaced, so formatting and import order are untouched.
 // Idempotent: run it again after merging `dev` to catch newly added files.
 //
-//   node tools/codemods/rewrite-specifiers.mjs design-roots   bare 'store', 'features/x'... -> '@/<design>/...'
+//   node tools/codemods/rewrite-specifiers.mjs design-roots   bare 'store', 'features/x'... -> '@/<design|shared>/...'
 //   node tools/codemods/rewrite-specifiers.mjs tno-core       'tno-core' -> '@/shared'
 //   node tools/codemods/rewrite-specifiers.mjs react-router   'react-router-dom' -> 'react-router'
 import fs from 'node:fs';
 import path from 'node:path';
-import ts from 'typescript';
+// TypeScript 7 has no JavaScript API; the codemods use the TypeScript 6 API under an alias.
+import ts from 'typescript-api';
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', '..');
 const src = path.join(root, 'src');
@@ -35,7 +36,7 @@ function files(dir) {
 
 function designOf(file) {
   const rel = path.relative(src, file).split(path.sep);
-  return rel[0] === 'editor' || rel[0] === 'subscriber' ? rel[0] : undefined;
+  return ['editor', 'subscriber', 'shared'].includes(rel[0]) ? rel[0] : undefined;
 }
 
 const rewriters = {
@@ -47,7 +48,8 @@ const rewriters = {
     // Vitest aliased `test` to `src/test-vitest`; the legacy Jest tests used `src/test`.
     if (head === 'test') folder = file.includes(`${path.sep}test-vitest${path.sep}`) ? 'test-vitest' : 'test';
     if (!fs.existsSync(path.join(src, design, folder))) return;
-    if (!['store', 'components', 'features', 'utils', 'test', 'css'].includes(head)) return;
+    const roots = design === 'shared' ? ['hooks', 'components', 'features', 'utils', 'css', 'assets'] : ['store', 'components', 'features', 'utils', 'test', 'css'];
+    if (!roots.includes(head)) return;
     return ['@', design, folder, ...rest].join('/');
   },
   'tno-core': (spec) => {

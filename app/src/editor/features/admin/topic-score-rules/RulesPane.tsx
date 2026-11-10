@@ -1,6 +1,9 @@
 import React from 'react';
 import { DragDropContext, Draggable, type DropResult } from 'react-beautiful-dnd';
 import { FaEdit, FaGripVertical, FaTrash } from 'react-icons/fa';
+
+import { StrictModeDroppable } from '@/editor/features/admin/automation/StrictModeDroppable';
+import { useLookup } from '@/editor/store/hooks';
 import {
   Button,
   ButtonVariant,
@@ -12,10 +15,7 @@ import {
   Show,
   Text,
   type ITopicScoreRuleModel,
-} from 'tno-core';
-
-import { StrictModeDroppable } from '@/editor/features/admin/automation/StrictModeDroppable';
-import { useLookup } from '@/editor/store/hooks';
+} from '@/shared';
 
 import { type ITopicScoreSourceModel } from './interfaces';
 import { formatPageRange, formatRange } from './utils';

@@ -1,5 +1,15 @@
 import { FaBug, FaCheckCircle, FaClock, FaFeather } from 'react-icons/fa';
 import { FaCirclePause, FaRegCircleRight } from 'react-icons/fa6';
+
+import { Status } from '@/editor/components/status';
+import { TabControl } from '@/editor/components/tab-control';
+import { AdvancedSearchKeys } from '@/editor/features/content/constants';
+import {
+  type IContentListAdvancedFilter,
+  type IContentListFilter,
+} from '@/editor/features/content/interfaces';
+import { useContent } from '@/editor/store/hooks';
+import { type IContentSearchResult } from '@/editor/store/slices';
 import {
   CellDate,
   CellEllipsis,
@@ -12,17 +22,7 @@ import {
   WorkOrderStatusName,
   type ITableHookColumn,
   type Page,
-} from 'tno-core';
-
-import { Status } from '@/editor/components/status';
-import { TabControl } from '@/editor/components/tab-control';
-import { AdvancedSearchKeys } from '@/editor/features/content/constants';
-import {
-  type IContentListAdvancedFilter,
-  type IContentListFilter,
-} from '@/editor/features/content/interfaces';
-import { useContent } from '@/editor/store/hooks';
-import { type IContentSearchResult } from '@/editor/store/slices';
+} from '@/shared';
 
 import { naturalSortValue } from '../utils/naturalSort';
 

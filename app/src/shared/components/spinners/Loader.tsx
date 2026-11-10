@@ -2,8 +2,7 @@ import { ISpinnerProps, Spinner } from '.';
 import * as styled from './styled';
 
 export interface ILoaderProps
-  extends ISpinnerProps,
-    Omit<React.HTMLAttributes<HTMLDivElement>, 'size'> {
+  extends ISpinnerProps, Omit<React.HTMLAttributes<HTMLDivElement>, 'size'> {
   /** Whether the overlay loader is visible */
   visible?: boolean;
 }

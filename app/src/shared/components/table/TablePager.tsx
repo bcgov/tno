@@ -1,9 +1,9 @@
 import React from 'react';
 import { BiFirstPage, BiLastPage, BiSkipNext, BiSkipPrevious } from 'react-icons/bi';
 
+import { ITableInternal } from '.';
 import { Button, ButtonVariant } from '../button';
 import { Text } from '../form';
-import { ITableInternal } from '.';
 
 export interface ITablePagerProps<T extends object> {
   /** The table */
@@ -24,8 +24,8 @@ export const TablePager = <T extends object>({ table }: ITablePagerProps<T>) => 
     table.pageIndex < pageMiddleIndex
       ? 0
       : pageCount - pageMiddleIndex <= table.pageIndex
-      ? pageCount - pageButtons
-      : table.pageIndex - pageMiddleIndex;
+        ? pageCount - pageButtons
+        : table.pageIndex - pageMiddleIndex;
   const buttons = pageButtons > 0 ? [...Array(pageButtons)] : [];
 
   React.useEffect(() => {

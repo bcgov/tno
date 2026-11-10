@@ -2,6 +2,8 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { createFilter } from 'react-select';
+
+import { useLookup } from '@/editor/store/hooks';
 import {
   Button,
   ButtonVariant,
@@ -13,9 +15,7 @@ import {
   Row,
   Show,
   type IIngestModel,
-} from 'tno-core';
-
-import { useLookup } from '@/editor/store/hooks';
+} from '@/shared';
 
 import { type ISyndicationFeed } from '../interfaces';
 import { TimeZones } from './constants';

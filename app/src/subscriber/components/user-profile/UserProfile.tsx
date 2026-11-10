@@ -3,8 +3,8 @@ import { BiLogOut } from 'react-icons/bi';
 import { FaChevronCircleDown, FaUmbrellaBeach, FaUserCircle } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
-import { Claim, Row, Show, useKeycloakWrapper, useWindowSize } from 'tno-core';
 
+import { Claim, Row, Show, useKeycloakWrapper, useWindowSize } from '@/shared';
 import { ScreenSizes } from '@/subscriber/components/layout/constants';
 import { toggleVacationMode } from '@/subscriber/features/settings/MyAccountSettings';
 import { useUsers } from '@/subscriber/store/hooks';

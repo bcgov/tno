@@ -1,4 +1,4 @@
-import { CellDate, CellEllipsis, type IReportInstanceModel, type ITableHookColumn } from 'tno-core';
+import { CellDate, CellEllipsis, type IReportInstanceModel, type ITableHookColumn } from '@/shared';
 
 export const instanceColumns = (): Array<ITableHookColumn<IReportInstanceModel>> => [
   {

@@ -7,7 +7,8 @@ import { useFormikContext } from 'formik';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
-import { Button, ButtonVariant, Col, generateQuery, Row, type INotificationModel } from 'tno-core';
+
+import { Button, ButtonVariant, Col, generateQuery, Row, type INotificationModel } from '@/shared';
 
 import { FilterSettingsForm } from '../filters';
 

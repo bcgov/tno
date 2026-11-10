@@ -1,4 +1,4 @@
-import { IContentModel, IFolderContentModel } from 'tno-core';
+import { IContentModel, IFolderContentModel } from '@/shared';
 
 /** transform the content to folder content before sending it to the API */
 export const toFolderContent = (content: IContentModel[]) => {

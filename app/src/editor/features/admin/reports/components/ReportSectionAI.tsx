@@ -1,6 +1,9 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaPaste } from 'react-icons/fa';
+
+import { useLookup } from '@/editor/store/hooks';
+import { useAppStore } from '@/editor/store/slices';
 import {
   Button,
   ButtonVariant,
@@ -18,10 +21,7 @@ import {
   Select,
   Show,
   type IReportModel,
-} from 'tno-core';
-
-import { useLookup } from '@/editor/store/hooks';
-import { useAppStore } from '@/editor/store/slices';
+} from '@/shared';
 
 import { ReportSectionAIInput } from './ReportSectionAIInput';
 

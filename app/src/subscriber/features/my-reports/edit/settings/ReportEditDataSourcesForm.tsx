@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaAngleDown, FaGripVertical, FaMinus } from 'react-icons/fa6';
-import { Col, ReportSectionTypeName, Row, Show } from 'tno-core';
 
+import { Col, ReportSectionTypeName, Row, Show } from '@/shared';
 import { Action } from '@/subscriber/components/action';
 import { Section } from '@/subscriber/components/section';
 import { SectionLabel } from '@/subscriber/features/my-reports/components';

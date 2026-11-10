@@ -1,4 +1,4 @@
-import { OptionItem } from 'tno-core';
+import { OptionItem } from '@/shared';
 
 export const toningOptions = [
   new OptionItem('-5', -5),

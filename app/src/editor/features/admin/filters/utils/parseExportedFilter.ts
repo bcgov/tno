@@ -5,7 +5,7 @@ import {
   type IMediaTypeModel,
   type ISeriesModel,
   type ISourceModel,
-} from 'tno-core';
+} from '@/shared';
 
 export const parseExportedFilter = (
   value: any,

@@ -1,9 +1,9 @@
 import React from 'react';
 
+import { MenuContext, MenuStatus } from '.';
+import { Button } from '..';
 import IconToggle from '../../assets/navbar-toggle-icon.svg';
 import { useKeycloakWrapper } from '../../hooks';
-import { Button } from '..';
-import { MenuContext, MenuStatus } from '.';
 import * as styled from './styled';
 
 export interface IMenuToggleProps {

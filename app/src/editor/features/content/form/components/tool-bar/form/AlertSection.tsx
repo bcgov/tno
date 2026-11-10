@@ -1,6 +1,10 @@
 import React from 'react';
 import { FaPaperPlane } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+
+import { ContentActions } from '@/editor/features/content/form';
+import { type IContentForm } from '@/editor/features/content/form/interfaces';
+import { useApiHub, useContent, useLookup } from '@/editor/store/hooks';
 import {
   Col,
   MessageTargetKey,
@@ -10,11 +14,7 @@ import {
   ToolBarSection,
   type IContentActionMessageModel,
   type INotificationInstanceModel,
-} from 'tno-core';
-
-import { ContentActions } from '@/editor/features/content/form';
-import { type IContentForm } from '@/editor/features/content/form/interfaces';
-import { useApiHub, useContent, useLookup } from '@/editor/store/hooks';
+} from '@/shared';
 
 export interface IAlertSectionProps {
   /** Form values. */

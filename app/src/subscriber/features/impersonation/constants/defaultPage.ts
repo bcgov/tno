@@ -1,4 +1,4 @@
-import { IPaged, IUserModel } from 'tno-core';
+import { IPaged, IUserModel } from '@/shared';
 
 export const defaultPage: IPaged<IUserModel> = {
   page: 1,

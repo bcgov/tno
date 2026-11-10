@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   IPaged,
   ISubscriberUserModel,
@@ -6,8 +7,7 @@ import {
   IUserModel,
   useApiAdminUsers,
   useApiSubscriberUsers,
-} from 'tno-core';
-
+} from '@/shared';
 import { useAjaxWrapper } from '@/subscriber/store/hooks';
 import { useAppStore, useProfileStore } from '@/subscriber/store/slices';
 

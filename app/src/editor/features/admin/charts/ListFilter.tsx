@@ -1,5 +1,6 @@
 import React from 'react';
-import { IconButton, Row, Text } from 'tno-core';
+
+import { IconButton, Row, Text } from '@/shared';
 
 interface IAdminFilterProps {
   onFilterChange?: (value: string) => void;

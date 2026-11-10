@@ -9,6 +9,15 @@ import {
   FaTrash,
 } from 'react-icons/fa';
 import styled from 'styled-components';
+
+import { FormPage } from '@/editor/components/formpage';
+import {
+  IOrphanedContent,
+  IOrphanScan,
+  OrphanIndex,
+  OrphanSide,
+  useOrphanedContent,
+} from '@/editor/store/hooks/admin/useOrphanedContent';
 import {
   Button,
   ButtonVariant,
@@ -21,16 +30,7 @@ import {
   SelectDate,
   Show,
   Spinner,
-} from 'tno-core';
-
-import { FormPage } from '@/editor/components/formpage';
-import {
-  IOrphanedContent,
-  IOrphanScan,
-  OrphanIndex,
-  OrphanSide,
-  useOrphanedContent,
-} from '@/editor/store/hooks/admin/useOrphanedContent';
+} from '@/shared';
 
 import { OrphanScanResponseError, parseOrphanScan } from './parseOrphanScan';
 

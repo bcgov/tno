@@ -1,6 +1,9 @@
 import { type AxiosError } from 'axios';
 import React from 'react';
 import { toast } from 'react-toastify';
+
+import { useApp } from '@/editor/store/hooks';
+import { useReports } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -10,10 +13,7 @@ import {
   Show,
   Text,
   type IReportModel,
-} from 'tno-core';
-
-import { useApp } from '@/editor/store/hooks';
-import { useReports } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import { useReportTemplateContext } from './ReportTemplateContext';
 import { collectionOnlySendMessage, isCollectionOnly } from './utils';

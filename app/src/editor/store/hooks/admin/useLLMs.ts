@@ -1,5 +1,4 @@
 import React from 'react';
-import { useApiAdminLLMs, type ILLMModel } from 'tno-core';
 
 import {
   type ILLMMigrationCheckModel,
@@ -8,6 +7,7 @@ import {
 } from '@/editor/features/admin/llms/interfaces';
 import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
 import { useAdminStore, type IAdminState } from '@/editor/store/slices';
+import { useApiAdminLLMs, type ILLMModel } from '@/shared';
 
 import { useApiAdminLLMUsage } from './useApiAdminLLMUsage';
 

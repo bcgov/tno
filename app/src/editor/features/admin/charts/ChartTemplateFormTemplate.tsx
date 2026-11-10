@@ -6,6 +6,7 @@ import 'prismjs/components/prism-json';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
+
 import {
   Button,
   ButtonVariant,
@@ -17,7 +18,7 @@ import {
   groupByOptions,
   Row,
   type OptionItem,
-} from 'tno-core';
+} from '@/shared';
 
 import { useChartTemplateContext } from './ChartTemplateContext';
 import {

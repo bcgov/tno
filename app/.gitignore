@@ -16,3 +16,8 @@
 npm-debug.log*
 
 .DS_Store
+
+# Left over in existing checkouts from the pre-merge app/editor and app/subscriber
+# projects (old node_modules, build output, .env). Untracked; safe to delete.
+/editor/
+/subscriber/

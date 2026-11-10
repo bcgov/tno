@@ -1,5 +1,6 @@
 import { FaFrown, FaMeh, FaSmile } from 'react-icons/fa';
-import { IContentTonePoolModel } from 'tno-core';
+
+import { IContentTonePoolModel } from '@/shared';
 
 export const determineToneIcon = (tone?: IContentTonePoolModel) => {
   const value = tone?.value ?? 0;

@@ -1,12 +1,12 @@
 import React from 'react';
+
+import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
 import {
   useApiEditorReports,
   type IReportFilter,
   type IReportModel,
   type IReportResultModel,
-} from 'tno-core';
-
-import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
+} from '@/shared';
 
 interface IReportController {
   findReports: (filter: IReportFilter) => Promise<IReportModel[]>;

@@ -1,7 +1,7 @@
 import React from 'react';
-import { UserAccountTypeName } from 'tno-core';
 
 import { useUsers } from '@/editor/store/hooks/admin';
+import { UserAccountTypeName } from '@/shared';
 
 /**
  * A subscriber of a report or notification, which may be a distribution list.

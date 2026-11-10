@@ -1,5 +1,8 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
+
+import { useLookup } from '@/editor/store/hooks';
+import { useConnections } from '@/editor/store/hooks/admin';
 import {
   Col,
   ConnectionTypeName,
@@ -10,10 +13,7 @@ import {
   Section,
   Show,
   type IIngestModel,
-} from 'tno-core';
-
-import { useLookup } from '@/editor/store/hooks';
-import { useConnections } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import { IngestConfiguration } from './configurations';
 import * as styled from './styled';

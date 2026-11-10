@@ -1,4 +1,4 @@
-import { OptionItem, ReportSectionTypeName } from 'tno-core';
+import { OptionItem, ReportSectionTypeName } from '@/shared';
 
 export const sectionOptions = [
   new OptionItem('Table of Contents', ReportSectionTypeName.TableOfContents),

@@ -6,7 +6,8 @@ import {
   FaClock,
   FaRegCircle,
 } from 'react-icons/fa6';
-import { ReportStatusName, Row } from 'tno-core';
+
+import { ReportStatusName, Row } from '@/shared';
 
 export interface IReportStatusIconProps {
   label?: string;

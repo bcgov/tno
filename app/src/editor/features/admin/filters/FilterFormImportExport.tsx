@@ -8,9 +8,9 @@ import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
 import { toast } from 'react-toastify';
-import { Button, ButtonVariant, Col, generateQuery, Row, Show, type IFilterModel } from 'tno-core';
 
 import { useLookupOptions } from '@/editor/store/hooks';
+import { Button, ButtonVariant, Col, generateQuery, Row, Show, type IFilterModel } from '@/shared';
 
 import { exportFilter, parseExportedFilter } from './utils';
 

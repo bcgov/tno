@@ -1,6 +1,7 @@
 import React from 'react';
 import { FaTimes } from 'react-icons/fa';
-import { Button, ButtonVariant, IconButton, Row, Text } from 'tno-core';
+
+import { Button, ButtonVariant, IconButton, Row, Text } from '@/shared';
 
 import { type ITopicScoreSourceModel } from './interfaces';
 

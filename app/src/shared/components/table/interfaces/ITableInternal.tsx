@@ -13,7 +13,8 @@ import {
 } from '.';
 
 export interface ITableInternal<T extends object>
-  extends ITableInternalPaging<T>,
+  extends
+    ITableInternalPaging<T>,
     ITableInternalSorting<T>,
     ITableInternalFilter<T>,
     ITableInternalGrouping<T> {

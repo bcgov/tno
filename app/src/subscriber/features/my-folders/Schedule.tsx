@@ -4,8 +4,8 @@ import ReactDatePicker from 'react-datepicker';
 import { FaInfoCircle } from 'react-icons/fa';
 import { FaGear } from 'react-icons/fa6';
 import { Tooltip } from 'react-tooltip';
-import { Checkbox, Col, FieldSize, IFolderScheduleModel, Row, Show } from 'tno-core';
 
+import { Checkbox, Col, FieldSize, IFolderScheduleModel, Row, Show } from '@/shared';
 import { TimeInput } from '@/subscriber/components/form/timeinput';
 
 import { daysOfWeek } from './constants/daysOfWeek';

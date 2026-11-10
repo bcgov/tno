@@ -1,4 +1,4 @@
-import { type IReportSettingsModel } from 'tno-core';
+import { type IReportSettingsModel } from '@/shared';
 
 import { type IReportSectionImportExportModel } from './IReportSectionImportExportModel';
 import { type IReportTemplateImportExportModel } from './IReportTemplateImportExportModel';

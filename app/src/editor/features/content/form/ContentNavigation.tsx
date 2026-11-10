@@ -1,9 +1,9 @@
 import React from 'react';
 import { FaChevronLeft, FaChevronRight, FaSpinner } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { Button, ButtonVariant, Row, Show, Spinner } from 'tno-core';
 
 import { useLocalStorage } from '@/editor/store/hooks';
+import { Button, ButtonVariant, Row, Show, Spinner } from '@/shared';
 
 import { useContentForm } from './hooks';
 import { type IContentForm } from './interfaces/IContentForm';

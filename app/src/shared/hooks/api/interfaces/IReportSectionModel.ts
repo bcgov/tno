@@ -1,4 +1,3 @@
-import { ReportSectionTypeName } from '../constants';
 import {
   IFilterModel,
   IFolderModel,
@@ -7,6 +6,7 @@ import {
   IReportSectionSettingsModel,
   ISortableModel,
 } from '.';
+import { ReportSectionTypeName } from '../constants';
 
 export interface IReportSectionModel extends ISortableModel<number> {
   reportId: number;

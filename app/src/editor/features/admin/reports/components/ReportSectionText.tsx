@@ -1,5 +1,6 @@
 import { useFormikContext } from 'formik';
-import { Checkbox, Col, FormikText, FormikTextArea, type IReportModel } from 'tno-core';
+
+import { Checkbox, Col, FormikText, FormikTextArea, type IReportModel } from '@/shared';
 
 export interface IReportSectionTextProps {
   index: number;

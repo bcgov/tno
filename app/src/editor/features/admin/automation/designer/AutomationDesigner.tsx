@@ -11,6 +11,7 @@ import {
   FaTrash,
 } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+
 import {
   Button,
   ButtonVariant,
@@ -21,7 +22,7 @@ import {
   TextArea,
   type IActionModel,
   type IOptionItem,
-} from 'tno-core';
+} from '@/shared';
 
 import { SectionInfoButton } from '../SectionInfoButton';
 import { StrictModeDroppable } from '../StrictModeDroppable';

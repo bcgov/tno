@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
-import { Claim, InternalServerError, NotFound } from 'tno-core';
 
+import { Claim, InternalServerError, NotFound } from '@/shared';
 import { DefaultLayout, LayoutAnonymous } from '@/subscriber/components/layout';
 import { AccessRequest } from '@/subscriber/features/access-request';
 import { AIAnalysisPage } from '@/subscriber/features/ai-analysis';

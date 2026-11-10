@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Col, FlexboxTable, IconButton, Row, type IConnectionModel } from 'tno-core';
 
 import { useConnections } from '@/editor/store/hooks/admin';
+import { Col, FlexboxTable, IconButton, Row, type IConnectionModel } from '@/shared';
 
 import { ConnectionFilter } from './ConnectionFilter';
 import { columns } from './constants';

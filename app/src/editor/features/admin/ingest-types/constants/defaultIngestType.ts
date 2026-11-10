@@ -1,4 +1,4 @@
-import { ContentTypeName, type IIngestTypeModel } from 'tno-core';
+import { ContentTypeName, type IIngestTypeModel } from '@/shared';
 
 export const defaultIngestType: IIngestTypeModel = {
   id: 0,

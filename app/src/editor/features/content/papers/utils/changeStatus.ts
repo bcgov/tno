@@ -1,4 +1,4 @@
-import { ContentStatusName } from 'tno-core';
+import { ContentStatusName } from '@/shared';
 
 import { PublishedStatuses } from '../constants';
 

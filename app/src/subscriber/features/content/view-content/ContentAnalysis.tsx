@@ -1,7 +1,7 @@
 import moment from 'moment';
 import React from 'react';
-import { Col, Show } from 'tno-core';
 
+import { Col, Show } from '@/shared';
 import { useContentAnalysis } from '@/subscriber/store/hooks/subscriber/useContentAnalysis';
 
 import { IContentAnalysisModel } from './IContentAnalysisModel';

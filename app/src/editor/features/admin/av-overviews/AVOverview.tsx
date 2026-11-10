@@ -2,6 +2,9 @@ import React from 'react';
 import { FaSpinner } from 'react-icons/fa';
 import { MdAdd, MdSave } from 'react-icons/md';
 import { toast } from 'react-toastify';
+
+import { FormikForm } from '@/editor/components/formik';
+import { useAVOverviewTemplates, useReportTemplates } from '@/editor/store/hooks/admin';
 import {
   AVOverviewTemplateTypeName,
   Button,
@@ -12,10 +15,7 @@ import {
   Show,
   Tab,
   Tabs,
-} from 'tno-core';
-
-import { FormikForm } from '@/editor/components/formik';
-import { useAVOverviewTemplates, useReportTemplates } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import {
   defaultAVOverviewTemplate,

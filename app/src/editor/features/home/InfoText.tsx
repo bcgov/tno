@@ -1,7 +1,7 @@
 import React from 'react';
-import { Show, type ISystemMessageModel } from 'tno-core';
 
 import { useSystemMessages } from '@/editor/store/hooks';
+import { Show, type ISystemMessageModel } from '@/shared';
 
 export const InfoText: React.FC = () => {
   const [, { findSystemMessages }] = useSystemMessages();

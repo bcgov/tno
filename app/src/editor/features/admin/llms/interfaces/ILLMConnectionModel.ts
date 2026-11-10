@@ -1,4 +1,4 @@
-import { type ILLMModel } from 'tno-core';
+import { type ILLMModel } from '@/shared';
 
 /**
  * An LLM connection with its function-calling capability. tno-core 1.0.48 adds

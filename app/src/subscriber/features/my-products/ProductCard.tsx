@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaFileLines, FaRotateLeft, FaUserMinus, FaUserPlus } from 'react-icons/fa6';
+
 import {
   Col,
   IProductModel,
@@ -8,8 +9,7 @@ import {
   Row,
   Show,
   UserAccountTypeName,
-} from 'tno-core';
-
+} from '@/shared';
 import { Action } from '@/subscriber/components/action';
 import { useApp } from '@/subscriber/store/hooks';
 

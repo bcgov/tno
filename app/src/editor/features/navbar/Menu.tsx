@@ -22,7 +22,8 @@ import {
   FaUsers,
 } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
-import { Claim, Row, useKeycloakWrapper } from 'tno-core';
+
+import { Claim, Row, useKeycloakWrapper } from '@/shared';
 
 import { MenuDropdown } from './MenuDropdown';
 import { MenuDropdownItem } from './MenuDropdownItem';

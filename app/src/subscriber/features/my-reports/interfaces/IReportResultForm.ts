@@ -1,4 +1,4 @@
-import { IReportResultModel } from 'tno-core';
+import { IReportResultModel } from '@/shared';
 
 export interface IReportResultForm extends IReportResultModel {
   instanceId?: number;

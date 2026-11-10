@@ -1,6 +1,8 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaArrowAltCircleRight } from 'react-icons/fa';
+
+import { useFilters, useFolders, useReports } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -18,9 +20,7 @@ import {
   type IReportModel,
   type IReportSectionChartTemplateModel,
   type OptionItem,
-} from 'tno-core';
-
-import { useFilters, useFolders, useReports } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import { getSortableItems } from '../utils';
 import { ReportSectionMediaAnalyticsChart } from './ReportSectionMediaAnalyticsChart';

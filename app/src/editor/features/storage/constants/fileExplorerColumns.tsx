@@ -11,7 +11,8 @@ import {
   FaTrash,
 } from 'react-icons/fa';
 import { type Column, type UseSortByColumnOptions } from 'react-table';
-import { Col, isImageFile, isVideoOrAudioFile, Row, Show, type IItemModel } from 'tno-core';
+
+import { Col, isImageFile, isVideoOrAudioFile, Row, Show, type IItemModel } from '@/shared';
 
 interface IColumnOptions {
   isStorage?: boolean;

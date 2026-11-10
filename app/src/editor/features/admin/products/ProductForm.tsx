@@ -6,6 +6,10 @@ import 'prismjs/components/prism-json';
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
+import { FormikForm } from '@/editor/components/formik';
+import { useApp } from '@/editor/store/hooks';
+import { useProducts } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -17,11 +21,7 @@ import {
   Tabs,
   useModal,
   type IProductModel,
-} from 'tno-core';
-
-import { FormikForm } from '@/editor/components/formik';
-import { useApp } from '@/editor/store/hooks';
-import { useProducts } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import { defaultProduct } from './constants';
 import { ProductDetailsForm } from './ProductDetailsForm';

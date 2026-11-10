@@ -2,6 +2,7 @@ import { useFormikContext } from 'formik';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
+
 import {
   Col,
   FieldSize,
@@ -12,7 +13,7 @@ import {
   Row,
   Show,
   type IReportTemplateModel,
-} from 'tno-core';
+} from '@/shared';
 
 /**
  * The page used to view and edit a report template.

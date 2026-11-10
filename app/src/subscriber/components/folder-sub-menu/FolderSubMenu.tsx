@@ -1,7 +1,7 @@
 import { FaFolderPlus } from 'react-icons/fa';
 import { Tooltip } from 'react-tooltip';
-import { IContentModel, IFolderContentModel, Row } from 'tno-core';
 
+import { IContentModel, IFolderContentModel, Row } from '@/shared';
 import { FolderMenu } from '@/subscriber/features/content/view-content/FolderMenu';
 
 import * as styled from './styled';

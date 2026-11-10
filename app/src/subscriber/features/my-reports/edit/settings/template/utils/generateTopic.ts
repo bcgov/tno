@@ -1,4 +1,4 @@
-import { ITopicModel, TopicTypeName } from 'tno-core';
+import { ITopicModel, TopicTypeName } from '@/shared';
 
 import { generateRandom } from './generateRandom';
 

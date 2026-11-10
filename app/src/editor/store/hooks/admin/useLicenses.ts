@@ -1,8 +1,8 @@
 import React from 'react';
-import { useApiAdminLicenses, type ILicenseModel } from 'tno-core';
 
 import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
 import { useAdminStore, type IAdminState } from '@/editor/store/slices';
+import { useApiAdminLicenses, type ILicenseModel } from '@/shared';
 
 interface ILicenseController {
   findAllLicenses: () => Promise<ILicenseModel[]>;

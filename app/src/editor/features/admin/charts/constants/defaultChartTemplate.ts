@@ -1,4 +1,4 @@
-import { type IChartTemplateModel } from 'tno-core';
+import { type IChartTemplateModel } from '@/shared';
 
 import { defaultChartJSOptions } from '.';
 

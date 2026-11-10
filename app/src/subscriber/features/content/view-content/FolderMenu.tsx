@@ -2,6 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import { FaFolderPlus, FaPen } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
+
 import {
   Button,
   Col,
@@ -11,8 +12,7 @@ import {
   Link,
   Row,
   Text,
-} from 'tno-core';
-
+} from '@/shared';
 import { useFolders } from '@/subscriber/store/hooks/subscriber/useFolders';
 import { useProfileStore } from '@/subscriber/store/slices';
 

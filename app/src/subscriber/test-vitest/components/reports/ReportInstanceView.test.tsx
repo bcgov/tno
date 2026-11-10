@@ -17,7 +17,7 @@ vi.mock('@/subscriber/store/slices', () => ({
   useProfileStore: () => [{ reportOutput: state.output }],
 }));
 vi.mock('../../../features/my-reports/styled', () => ({ ReportInstanceView: 'div' }));
-vi.mock('tno-core', () => ({
+vi.mock('@/shared', () => ({
   Col: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   Show: ({ visible, children }: { visible: boolean; children: React.ReactNode }) =>
     visible ? children : null,

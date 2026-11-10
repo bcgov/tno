@@ -1,4 +1,11 @@
 import React from 'react';
+
+import {
+  useAppStore,
+  type IAppState,
+  type IErrorModel,
+  type IUserOptions,
+} from '@/editor/store/slices';
 import {
   AccountAuthStateName,
   getFromLocalStorage,
@@ -9,14 +16,7 @@ import {
   type IRegisterModel,
   type IUserInfoModel,
   type IUserModel,
-} from 'tno-core';
-
-import {
-  useAppStore,
-  type IAppState,
-  type IErrorModel,
-  type IUserOptions,
-} from '@/editor/store/slices';
+} from '@/shared';
 
 import { useAjaxWrapper } from '..';
 import { useLookup } from '../lookup';

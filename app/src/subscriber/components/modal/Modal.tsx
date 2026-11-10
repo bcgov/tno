@@ -2,8 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 import { MdClose } from 'react-icons/md';
-import { Col, Row } from 'tno-core/dist/components/flex';
 
+import { Col, Row } from '@/shared/components/flex';
 import { Button } from '@/subscriber/components/button';
 
 import * as styled from './styled';

@@ -1,5 +1,5 @@
-import { ITableGroup } from '..';
 import { ITableInternalRow } from '.';
+import { ITableGroup } from '..';
 
 export interface ITableHookGrouping<T extends object> {
   groupBy?:

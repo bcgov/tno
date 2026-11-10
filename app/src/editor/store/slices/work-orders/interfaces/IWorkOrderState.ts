@@ -1,4 +1,4 @@
-import { type IWorkOrderFilter } from 'tno-core';
+import { type IWorkOrderFilter } from '@/shared';
 
 export interface IWorkOrderState {
   transcriptFilter: IWorkOrderFilter;

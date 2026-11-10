@@ -1,4 +1,4 @@
-import { ScheduleMonthName, ScheduleWeekDayName, type IFolderModel } from 'tno-core';
+import { ScheduleMonthName, ScheduleWeekDayName, type IFolderModel } from '@/shared';
 
 import { type IFolderForm } from '../interfaces';
 

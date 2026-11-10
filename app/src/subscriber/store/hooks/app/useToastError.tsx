@@ -1,6 +1,7 @@
 import React from 'react';
 import { toast } from 'react-toastify';
-import { Col } from 'tno-core';
+
+import { Col } from '@/shared';
 
 import { useApp } from './useApp';
 

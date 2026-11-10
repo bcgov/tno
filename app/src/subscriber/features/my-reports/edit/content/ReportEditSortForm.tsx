@@ -9,14 +9,14 @@ import {
   ResponderProvided,
 } from 'react-beautiful-dnd';
 import { FaToggleOff, FaToggleOn } from 'react-icons/fa6';
+
 import {
   getDistinct,
   IReportInstanceModel,
   OptionItem,
   ReportSectionTypeName,
   ToggleButton,
-} from 'tno-core';
-
+} from '@/shared';
 import { StartNextReportInfo } from '@/subscriber/features/my-reports/components';
 import { IReportInstanceContentForm } from '@/subscriber/features/my-reports/interfaces';
 import {

@@ -1,5 +1,6 @@
 import { useFormikContext } from 'formik';
-import { type IAVOverviewInstanceModel } from 'tno-core';
+
+import { type IAVOverviewInstanceModel } from '@/shared';
 
 import * as styled from './styled';
 import { type ISectionSummary } from './utils';

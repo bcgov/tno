@@ -1,7 +1,7 @@
 import { Navigate } from 'react-router-dom';
-import { NotAuthorized, useKeycloakWrapper, type Claim, type Role } from 'tno-core';
 
 import { useApp } from '@/editor/store/hooks';
+import { NotAuthorized, useKeycloakWrapper, type Claim, type Role } from '@/shared';
 
 /**
  * PrivateRoute properties.

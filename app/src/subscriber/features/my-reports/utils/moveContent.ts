@@ -1,5 +1,6 @@
 import { DropResult } from 'react-beautiful-dnd';
-import { IReportInstanceContentModel } from 'tno-core';
+
+import { IReportInstanceContentModel } from '@/shared';
 
 import { getDestinationIndex } from './getDestinationIndex';
 import { sortContent } from './sortContent';

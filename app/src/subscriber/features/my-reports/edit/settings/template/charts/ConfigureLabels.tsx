@@ -1,6 +1,6 @@
 import React from 'react';
-import { Col, FormikCheckbox, FormikText, mergeChartSettings, Row, Text } from 'tno-core';
 
+import { Col, FormikCheckbox, FormikText, mergeChartSettings, Row, Text } from '@/shared';
 import { Colours } from '@/subscriber/components/colours';
 import { useReportEditContext } from '@/subscriber/features/my-reports/edit/ReportEditContext';
 

@@ -1,8 +1,8 @@
 import { render, waitFor } from '@testing-library/react';
-import { ContentStatusName, ContentTypeName } from 'tno-core';
 
 import { AdvancedSearchKeys } from '@/editor/features/content/constants';
 import { mockContent, TestWrapper } from '@/editor/test/utils';
+import { ContentStatusName, ContentTypeName } from '@/shared';
 
 import ContentListView from './ContentListView';
 

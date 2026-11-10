@@ -7,8 +7,8 @@ import {
   ResponderProvided,
 } from 'react-beautiful-dnd';
 import { FaAngleDown, FaGripVertical, FaMinus, FaTrash } from 'react-icons/fa6';
-import { Col, ReportSectionTypeName, Row, Show, Text } from 'tno-core';
 
+import { Col, ReportSectionTypeName, Row, Show, Text } from '@/shared';
 import { Action } from '@/subscriber/components/action';
 import { Section } from '@/subscriber/components/section';
 import { SectionLabel } from '@/subscriber/features/my-reports/components';

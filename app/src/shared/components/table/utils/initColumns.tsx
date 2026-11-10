@@ -1,4 +1,3 @@
-import { Checkbox } from '../../form';
 import {
   getSortId,
   ITableHookColumn,
@@ -8,6 +7,7 @@ import {
   TableHookColumn,
   TableInternal,
 } from '..';
+import { Checkbox } from '../../form';
 
 /**
  * Applies sort rules to the specified columns.

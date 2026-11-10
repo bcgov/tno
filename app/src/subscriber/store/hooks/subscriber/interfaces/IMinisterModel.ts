@@ -1,4 +1,4 @@
-import { IOrganizationModel, ISortableModel } from 'tno-core';
+import { IOrganizationModel, ISortableModel } from '@/shared';
 
 export interface IMinisterModel extends ISortableModel<number> {
   aliases: string;

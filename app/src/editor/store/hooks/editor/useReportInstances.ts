@@ -1,7 +1,7 @@
 import React from 'react';
-import { useApiEditorReportInstances, type IReportResultModel } from 'tno-core';
 
 import { useAjaxWrapper } from '@/editor/store/hooks';
+import { useApiEditorReportInstances, type IReportResultModel } from '@/shared';
 
 interface IReportInstanceController {
   viewReportInstance: (

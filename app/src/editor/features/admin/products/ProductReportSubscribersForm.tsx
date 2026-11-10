@@ -1,4 +1,5 @@
 import { useFormikContext } from 'formik';
+
 import {
   CellEllipsis,
   Checkbox,
@@ -13,7 +14,7 @@ import {
   type IUserFilter,
   type IUserProductModel,
   type OptionItem,
-} from 'tno-core';
+} from '@/shared';
 
 export interface IProductReportSubscribersFormProps {
   users: IUserProductModel[];

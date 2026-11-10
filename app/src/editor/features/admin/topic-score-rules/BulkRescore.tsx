@@ -1,9 +1,9 @@
 import moment from 'moment';
 import React from 'react';
 import { toast } from 'react-toastify';
-import { Button, Col, Modal, OptionItem, Row, Select, Show, Text, useModal } from 'tno-core';
 
 import { useTopicScores } from '@/editor/store/hooks/admin';
+import { Button, Col, Modal, OptionItem, Row, Select, Show, Text, useModal } from '@/shared';
 
 import {
   RescoreStatusName,

@@ -1,5 +1,6 @@
 import React from 'react';
-import { FormikText } from 'tno-core';
+
+import { FormikText } from '@/shared';
 
 export interface IReportSectionTableOfContentsProps {
   index: number;

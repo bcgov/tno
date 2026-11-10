@@ -1,5 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+
+import { useSystemMessages } from '@/editor/store/hooks/admin';
 import {
   CellCheckbox,
   CellEllipsis,
@@ -11,9 +13,7 @@ import {
   type IGridHeaderColumnProps,
   type ISystemMessageModel,
   type SortDirection,
-} from 'tno-core';
-
-import { useSystemMessages } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import * as styled from './styled';
 import { SystemMessageFilter } from './SystemMessageFilter';

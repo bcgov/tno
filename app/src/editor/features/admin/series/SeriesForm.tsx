@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
-import { Col, IconButton, Row, Tab, Tabs } from 'tno-core';
+
+import { Col, IconButton, Row, Tab, Tabs } from '@/shared';
 
 import * as styled from './styled';
 

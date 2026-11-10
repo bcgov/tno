@@ -1,8 +1,8 @@
 import { FaSearch } from 'react-icons/fa';
 import { FaPlay } from 'react-icons/fa6';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { Button, IFilterSettingsModel, Row, Text, useWindowSize } from 'tno-core';
 
+import { Button, IFilterSettingsModel, Row, Text, useWindowSize } from '@/shared';
 import { defaultAdvancedSearch } from '@/subscriber/features/search-page/components/advanced-search/constants';
 import { handleEnterPressed, isNumber } from '@/subscriber/features/utils';
 import { useContent } from '@/subscriber/store/hooks';

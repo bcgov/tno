@@ -99,7 +99,7 @@ export const FilterAIPrompt: React.FC<IFilterAIPromptProps> = ({
         editor={editor}
         label={label}
         placeholder={placeholder}
-        value={editor === 'textarea' ? htmlToPromptText(prompt) : prompt ?? ''}
+        value={editor === 'textarea' ? htmlToPromptText(prompt) : (prompt ?? '')}
         onChange={onPromptChange}
         disabled={isGenerating}
       />

@@ -1,5 +1,4 @@
-import { IReportModel } from 'tno-core';
-
+import { IReportModel } from '@/shared';
 import { formatDate } from '@/subscriber/features/utils';
 
 /**

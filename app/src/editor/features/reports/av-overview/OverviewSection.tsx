@@ -2,6 +2,7 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaTrash } from 'react-icons/fa';
 import { MdAdd, MdClear } from 'react-icons/md';
+
 import {
   AVOverviewItemTypeName,
   Button,
@@ -11,7 +12,7 @@ import {
   Show,
   useModal,
   type IAVOverviewInstanceModel,
-} from 'tno-core';
+} from '@/shared';
 
 import { defaultAVOverviewSectionItem } from './constants';
 import { EditBroadcastDetails } from './EditBroadcastDetails';

@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   IFilterAIChatRequestModel,
   IFilterAIChatResultModel,
@@ -6,8 +7,7 @@ import {
   IFilterAIGenerateResultModel,
   IFilterModel,
   useApiSubscriberFilters,
-} from 'tno-core';
-
+} from '@/shared';
 import { useAjaxWrapper } from '@/subscriber/store/hooks';
 import { IProfileState, useProfileStore } from '@/subscriber/store/slices';
 

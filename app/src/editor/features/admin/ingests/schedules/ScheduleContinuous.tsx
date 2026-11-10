@@ -1,5 +1,6 @@
 import { getIn, useFormikContext } from 'formik';
 import React from 'react';
+
 import {
   Col,
   FieldSize,
@@ -15,7 +16,7 @@ import {
   Text,
   useNamespace,
   type IIngestModel,
-} from 'tno-core';
+} from '@/shared';
 
 import { defaultSchedule } from '../constants';
 import * as styled from './styled';

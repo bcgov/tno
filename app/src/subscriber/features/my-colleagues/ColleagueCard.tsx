@@ -1,6 +1,6 @@
 import React from 'react';
-import { IUserColleagueModel } from 'tno-core';
 
+import { IUserColleagueModel } from '@/shared';
 import { Action } from '@/subscriber/components/action';
 import { Section } from '@/subscriber/components/section';
 

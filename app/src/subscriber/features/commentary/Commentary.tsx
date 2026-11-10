@@ -1,14 +1,14 @@
 import { noop } from 'lodash';
 import React from 'react';
 import { FaArrowsRotate } from 'react-icons/fa6';
+
 import {
   generateQuery,
   IContentMessageModel,
   IContentModel,
   MessageTargetKey,
   Row,
-} from 'tno-core';
-
+} from '@/shared';
 import { ContentList } from '@/subscriber/components/content-list';
 import { RefreshButton } from '@/subscriber/components/refresh-button';
 import { PageSection } from '@/subscriber/components/section';

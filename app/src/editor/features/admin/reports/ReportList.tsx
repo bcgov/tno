@@ -1,10 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Col, FlexboxTable, IconButton, Row, type IReportModel } from 'tno-core';
 
 import { FormPage } from '@/editor/components/formpage';
 import { useReports } from '@/editor/store/hooks/admin';
 import { useAdminStore } from '@/editor/store/slices';
+import { Col, FlexboxTable, IconButton, Row, type IReportModel } from '@/shared';
 
 import { reportColumns } from './constants';
 import { ListFilter } from './ListFilter';

@@ -1,4 +1,4 @@
-import { ContentTypeName } from 'tno-core';
+import { ContentTypeName } from '@/shared';
 
 /**
  * Get the URL path for the specified `contentType`.

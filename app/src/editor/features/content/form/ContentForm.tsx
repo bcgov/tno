@@ -4,6 +4,11 @@ import React from 'react';
 import { FaBars, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import CreatableSelect from 'react-select/creatable';
+
+import { FormikForm } from '@/editor/components/formik';
+import { FormPage } from '@/editor/components/formpage';
+import { useLookup, useLookupOptions } from '@/editor/store/hooks';
+import { type IAjaxRequest } from '@/editor/store/slices';
 import {
   Area,
   Button,
@@ -38,12 +43,7 @@ import {
   type IOptionItem,
   type ISeriesModel,
   type ITimeTrackingModel,
-} from 'tno-core';
-
-import { FormikForm } from '@/editor/components/formik';
-import { FormPage } from '@/editor/components/formpage';
-import { useLookup, useLookupOptions } from '@/editor/store/hooks';
-import { type IAjaxRequest } from '@/editor/store/slices';
+} from '@/shared';
 
 import {
   ContentAnalysisForm,

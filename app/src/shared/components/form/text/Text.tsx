@@ -1,10 +1,10 @@
 import React, { InputHTMLAttributes } from 'react';
 import { FaInfoCircle } from 'react-icons/fa';
 
-import { Row } from '../../flex';
-import { Error } from '..';
-import { FieldSize } from '../constants';
 import { TextVariant } from '.';
+import { Error } from '..';
+import { Row } from '../../flex';
+import { FieldSize } from '../constants';
 import * as styled from './styled';
 
 export interface ITextProps extends InputHTMLAttributes<HTMLInputElement> {

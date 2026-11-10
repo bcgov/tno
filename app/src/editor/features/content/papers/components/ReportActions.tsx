@@ -2,6 +2,12 @@
 import { AxiosError } from 'axios';
 import * as React from 'react';
 import { toast } from 'react-toastify';
+
+import { ActionNames } from '@/editor/features/content/form/constants/actionsEnum';
+import { getDefaultCommentaryExpiryValue } from '@/editor/features/content/form/utils';
+import { type IContentListFilter } from '@/editor/features/content/interfaces';
+import { useContent, useLookup, useSettings } from '@/editor/store/hooks';
+import { type IContentSearchResult } from '@/editor/store/slices';
 import {
   Button,
   ButtonVariant,
@@ -12,13 +18,7 @@ import {
   Show,
   type IContentModel,
   type IPage,
-} from 'tno-core';
-
-import { ActionNames } from '@/editor/features/content/form/constants/actionsEnum';
-import { getDefaultCommentaryExpiryValue } from '@/editor/features/content/form/utils';
-import { type IContentListFilter } from '@/editor/features/content/interfaces';
-import { useContent, useLookup, useSettings } from '@/editor/store/hooks';
-import { type IContentSearchResult } from '@/editor/store/slices';
+} from '@/shared';
 
 import * as styled from './styled';
 

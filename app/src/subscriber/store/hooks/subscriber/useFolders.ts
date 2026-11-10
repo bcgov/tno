@@ -1,6 +1,6 @@
 import React from 'react';
-import { IFolderModel, useApiSubscriberFolders } from 'tno-core';
 
+import { IFolderModel, useApiSubscriberFolders } from '@/shared';
 import { sortFolders } from '@/subscriber/features/my-folders/utils';
 import { useAjaxWrapper } from '@/subscriber/store/hooks';
 import { IProfileState, useProfileStore } from '@/subscriber/store/slices';

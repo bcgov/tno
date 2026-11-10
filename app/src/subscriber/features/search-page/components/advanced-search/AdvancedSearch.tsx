@@ -28,6 +28,7 @@ import { IoIosCog, IoMdRefresh } from 'react-icons/io';
 import { useNavigate } from 'react-router-dom';
 import Editor from 'react-simple-code-editor';
 import { toast } from 'react-toastify';
+
 import {
   Button,
   Claim,
@@ -45,8 +46,7 @@ import {
   ToggleButton,
   ToggleGroup,
   useFilterAIGenerationGuard,
-} from 'tno-core';
-
+} from '@/shared';
 import { Button as AppButton } from '@/subscriber/components/button';
 import { PageSection } from '@/subscriber/components/section';
 import { useElastic } from '@/subscriber/features/my-searches/hooks';

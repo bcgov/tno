@@ -1,5 +1,4 @@
 import React from 'react';
-import { LogicalOperator } from 'tno-core';
 
 import { AdvancedSearchKeys } from '@/editor/features/content/constants';
 import {
@@ -7,6 +6,7 @@ import {
   type IContentListFilter,
 } from '@/editor/features/content/interfaces';
 import { useAppDispatch, useAppSelector, type ActionDelegate } from '@/editor/store';
+import { LogicalOperator } from '@/shared';
 
 import {
   storeContentFilter,

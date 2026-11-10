@@ -1,6 +1,6 @@
 import React from 'react';
-import { useApiSubscriberMinisters } from 'tno-core';
 
+import { useApiSubscriberMinisters } from '@/shared';
 import { useAjaxWrapper } from '@/subscriber/store/hooks';
 import { useLookupStore } from '@/subscriber/store/slices';
 

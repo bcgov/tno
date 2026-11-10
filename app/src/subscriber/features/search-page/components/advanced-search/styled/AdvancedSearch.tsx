@@ -1,5 +1,6 @@
 import styled from 'styled-components';
-import { Row } from 'tno-core';
+
+import { Row } from '@/shared';
 
 export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
   position: relative;

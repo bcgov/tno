@@ -1,6 +1,6 @@
 import { Form, Formik, FormikConfig, FormikValues } from 'formik';
-import { Box, SpinnerVariant } from 'tno-core';
 
+import { Box, SpinnerVariant } from '@/shared';
 import { useApp } from '@/subscriber/store/hooks';
 
 import * as styled from './styled';

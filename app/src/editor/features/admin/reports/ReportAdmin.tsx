@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Show, Tab, Tabs } from 'tno-core';
+
+import { Show, Tab, Tabs } from '@/shared';
 
 import { ReportList, ReportTemplateList } from '.';
 import { ChartList } from '../charts';

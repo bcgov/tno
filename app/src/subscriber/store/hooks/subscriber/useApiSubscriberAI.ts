@@ -1,6 +1,7 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
-import { defaultEnvelope, ILifecycleToasts, useApi } from 'tno-core';
+
+import { defaultEnvelope, ILifecycleToasts, useApi } from '@/shared';
 
 export const useApiSubscriberAI = (
   options: {

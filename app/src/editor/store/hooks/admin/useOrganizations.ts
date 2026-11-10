@@ -1,8 +1,8 @@
 import React from 'react';
-import { useApiAdminOrganizations, type IOrganizationModel } from 'tno-core';
 
 import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
 import { useAdminStore, type IAdminState } from '@/editor/store/slices';
+import { useApiAdminOrganizations, type IOrganizationModel } from '@/shared';
 
 interface IOrganizationController {
   findAllOrganizations: () => Promise<IOrganizationModel[]>;

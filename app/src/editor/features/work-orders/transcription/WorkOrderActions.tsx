@@ -1,7 +1,7 @@
 import { FaPen, FaStop } from 'react-icons/fa6';
-import { Row, Show, WorkOrderStatusName, type IWorkOrderModel } from 'tno-core';
 
 import { useTab } from '@/editor/components/tab-control';
+import { Row, Show, WorkOrderStatusName, type IWorkOrderModel } from '@/shared';
 
 export interface IWorkOrderActionsProps {
   row: IWorkOrderModel;

@@ -8,7 +8,8 @@ import {
   FaShareSquare,
 } from 'react-icons/fa';
 import { Tooltip } from 'react-tooltip';
-import { IContentModel, ITagModel, Row } from 'tno-core';
+
+import { IContentModel, ITagModel, Row } from '@/shared';
 
 import { ActionNames } from './constants';
 import { FolderMenu } from './FolderMenu';

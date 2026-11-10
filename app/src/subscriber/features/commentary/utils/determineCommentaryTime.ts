@@ -1,5 +1,6 @@
 import moment from 'moment';
-import { IContentActionModel } from 'tno-core';
+
+import { IContentActionModel } from '@/shared';
 
 import { isWeekday } from './isWeekday';
 

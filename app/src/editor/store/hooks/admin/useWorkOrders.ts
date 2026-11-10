@@ -1,14 +1,14 @@
 import React from 'react';
+
+import { type IWorkOrderListFilter } from '@/editor/features/admin/work-orders/interfaces/IWorkOrderListFilter';
+import { useAjaxWrapper } from '@/editor/store/hooks';
+import { useAdminStore, type IAdminState } from '@/editor/store/slices';
 import {
   useApiAdminWorkOrders,
   type IPaged,
   type IWorkOrderFilter,
   type IWorkOrderModel,
-} from 'tno-core';
-
-import { type IWorkOrderListFilter } from '@/editor/features/admin/work-orders/interfaces/IWorkOrderListFilter';
-import { useAjaxWrapper } from '@/editor/store/hooks';
-import { useAdminStore, type IAdminState } from '@/editor/store/slices';
+} from '@/shared';
 
 interface IWorkOrderController {
   findWorkOrders: (filter: IWorkOrderFilter) => Promise<IPaged<IWorkOrderModel>>;

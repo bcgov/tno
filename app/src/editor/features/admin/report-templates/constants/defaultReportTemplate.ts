@@ -1,4 +1,4 @@
-import { ReportTypeName, type IReportTemplateModel } from 'tno-core';
+import { ReportTypeName, type IReportTemplateModel } from '@/shared';
 
 export const defaultReportTemplate: IReportTemplateModel = {
   id: 0,

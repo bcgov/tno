@@ -1,6 +1,8 @@
 import isEqual from 'lodash/isEqual';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+
+import { useWorkOrders } from '@/editor/store/hooks/admin/useWorkOrders';
 import {
   CellDate,
   CellEllipsis,
@@ -11,9 +13,7 @@ import {
   SortDirection,
   type IGridHeaderColumnProps,
   type IWorkOrderModel,
-} from 'tno-core';
-
-import { useWorkOrders } from '@/editor/store/hooks/admin/useWorkOrders';
+} from '@/shared';
 
 import { type IWorkOrderListFilter } from './interfaces/IWorkOrderListFilter';
 import * as styled from './styled';

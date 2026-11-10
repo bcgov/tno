@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   Col,
   ContentTypeName,
@@ -8,8 +9,7 @@ import {
   Text,
   TextArea,
   Wysiwyg,
-} from 'tno-core';
-
+} from '@/shared';
 import { useApp } from '@/subscriber/store/hooks';
 import { useTonePool } from '@/subscriber/store/hooks/subscriber/useTonePool';
 import { useProfileStore } from '@/subscriber/store/slices';

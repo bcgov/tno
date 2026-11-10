@@ -30,8 +30,11 @@ export const SelectDate = styled.div<ISelectDateProps>`
       border-radius: 0.25em;
       font-size: 1rem;
       line-height: 1.6;
-      transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
-        border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+      transition:
+        color 0.15s ease-in-out,
+        background-color 0.15s ease-in-out,
+        border-color 0.15s ease-in-out,
+        box-shadow 0.15s ease-in-out;
       overflow: visible;
       text-transform: none;
       color: ${(props) => {

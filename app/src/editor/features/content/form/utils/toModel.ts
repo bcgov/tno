@@ -1,5 +1,6 @@
 import moment from 'moment';
-import { type IContentModel, type ITimeTrackingModel } from 'tno-core';
+
+import { type IContentModel, type ITimeTrackingModel } from '@/shared';
 
 import { type IContentForm } from '../interfaces';
 

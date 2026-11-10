@@ -2,6 +2,9 @@ import { useFormikContext } from 'formik';
 import moment from 'moment';
 import React from 'react';
 import { type SortingRule } from 'react-table';
+
+import { useApp, useLookup } from '@/editor/store/hooks';
+import { useContentReferences } from '@/editor/store/hooks/admin';
 import {
   FieldSize,
   IconButton,
@@ -14,10 +17,7 @@ import {
   WorkflowStatusName,
   type IIngestModel,
   type IPage,
-} from 'tno-core';
-
-import { useApp, useLookup } from '@/editor/store/hooks';
-import { useContentReferences } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import {
   contentReferenceColumns,

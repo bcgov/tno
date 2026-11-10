@@ -1,4 +1,4 @@
-import { TopicTypeName, type ITopicModel } from 'tno-core';
+import { TopicTypeName, type ITopicModel } from '@/shared';
 
 export const defaultTopic: ITopicModel = {
   id: 0,

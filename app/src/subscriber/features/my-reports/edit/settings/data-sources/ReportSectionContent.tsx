@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   Col,
   FormikCheckbox,
@@ -8,8 +9,7 @@ import {
   ReportSectionOrderByOptions,
   Row,
   Show,
-} from 'tno-core';
-
+} from '@/shared';
 import { IToggleOption, Toggle } from '@/subscriber/components/form';
 import { DataSources } from '@/subscriber/features/my-reports/components';
 

@@ -1,3 +1,5 @@
+import { type IUserListFilter } from '@/editor/features/admin/users/interfaces/IUserListFilter';
+import { type IWorkOrderListFilter } from '@/editor/features/admin/work-orders/interfaces/IWorkOrderListFilter';
 import {
   type IActionModel,
   type IChartTemplateModel,
@@ -28,10 +30,7 @@ import {
   type IUserFilter,
   type IUserModel,
   type IWorkOrderModel,
-} from 'tno-core';
-
-import { type IUserListFilter } from '@/editor/features/admin/users/interfaces/IUserListFilter';
-import { type IWorkOrderListFilter } from '@/editor/features/admin/work-orders/interfaces/IWorkOrderListFilter';
+} from '@/shared';
 
 export interface IAdminState {
   actionFilter: string;

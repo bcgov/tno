@@ -1,5 +1,5 @@
-import { ReportStatusName } from '../constants';
 import { IReportInstanceContentModel } from '.';
+import { ReportStatusName } from '../constants';
 
 export interface IReportContentMutationModel {
   reportId: number;

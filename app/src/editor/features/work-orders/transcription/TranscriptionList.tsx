@@ -1,4 +1,8 @@
 import React from 'react';
+
+import { FormPage } from '@/editor/components/formpage';
+import { useTab } from '@/editor/components/tab-control';
+import { useApiHub, useWorkOrders } from '@/editor/store/hooks';
 import {
   CellDate,
   CellEllipsis,
@@ -12,11 +16,7 @@ import {
   type IWorkOrderFilter,
   type IWorkOrderMessageModel,
   type IWorkOrderModel,
-} from 'tno-core';
-
-import { FormPage } from '@/editor/components/formpage';
-import { useTab } from '@/editor/components/tab-control';
-import { useApiHub, useWorkOrders } from '@/editor/store/hooks';
+} from '@/shared';
 
 import { WorkOrderFilter } from '../WorkOrderFilter';
 import * as styled from './styled';

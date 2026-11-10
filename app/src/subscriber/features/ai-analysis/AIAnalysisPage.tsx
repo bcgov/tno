@@ -1,6 +1,6 @@
 import React from 'react';
-import { BouncingSpinner, Show, Wysiwyg } from 'tno-core';
 
+import { BouncingSpinner, Show, Wysiwyg } from '@/shared';
 import { Button } from '@/subscriber/components/button';
 import { PageSection } from '@/subscriber/components/section';
 import { useAI } from '@/subscriber/store/hooks/subscriber';

@@ -1,6 +1,7 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
-import { defaultEnvelope, ILifecycleToasts, ILookupModel, useApi } from 'tno-core';
+
+import { defaultEnvelope, ILifecycleToasts, ILookupModel, useApi } from '@/shared';
 
 /**
  * Common hook to make requests to the API.

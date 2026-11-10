@@ -6,9 +6,9 @@ import {
   type IRetryPolicy,
 } from '@microsoft/signalr';
 import React from 'react';
-import { Settings, useKeycloakWrapper, type MessageTargetKey } from 'tno-core';
 
 import { useAppStore } from '@/editor/store/slices';
+import { Settings, useKeycloakWrapper, type MessageTargetKey } from '@/shared';
 
 const url = Settings.ApiPath + '/hub';
 let hub: HubConnection | null = null;

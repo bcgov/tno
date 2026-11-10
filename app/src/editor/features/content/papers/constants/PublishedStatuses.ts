@@ -1,3 +1,3 @@
-import { ContentStatusName } from 'tno-core';
+import { ContentStatusName } from '@/shared';
 
 export const PublishedStatuses = [ContentStatusName.Publish, ContentStatusName.Published];

@@ -1,6 +1,6 @@
 import React from 'react';
-import { getSortableOptions, getSourceOptions, IOptionItem } from 'tno-core';
 
+import { getSortableOptions, getSourceOptions, IOptionItem } from '@/shared';
 import { ILookupController, useLookup } from '@/subscriber/store/hooks';
 import { ILookupState } from '@/subscriber/store/slices';
 

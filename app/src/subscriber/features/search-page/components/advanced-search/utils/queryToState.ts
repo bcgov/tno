@@ -1,4 +1,4 @@
-import { fromQueryString } from 'tno-core';
+import { fromQueryString } from '@/shared';
 
 /** Function that returns advanced search filter state allowing the the inputs to stay in sync when the user is navigating back */
 export const queryToState = (queryString: string) => {

@@ -1,4 +1,3 @@
-import { NotificationTypeName, ResendOptionName } from '..';
 import {
   IFilterSettingsModel,
   INotificationInstanceModel,
@@ -7,6 +6,7 @@ import {
   IUserModel,
   IUserNotificationModel,
 } from '.';
+import { NotificationTypeName, ResendOptionName } from '..';
 
 export interface INotificationModel extends ISortableModel<number> {
   ownerId?: number;

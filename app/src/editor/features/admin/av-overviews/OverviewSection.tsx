@@ -2,13 +2,14 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaTrash } from 'react-icons/fa';
 import { MdAdd, MdClear } from 'react-icons/md';
+
 import {
   AVOverviewItemTypeName,
   Button,
   ButtonVariant,
   Row,
   type IAVOverviewTemplateModel,
-} from 'tno-core';
+} from '@/shared';
 
 import { defaultAVOverviewTemplateSectionItem } from './constants';
 import { EditBroadcastDetails } from './EditBroadcastDetails';

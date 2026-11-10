@@ -1,4 +1,4 @@
-import { AVOverviewTemplateType, AVOverviewTemplateTypeName } from 'tno-core';
+import { AVOverviewTemplateType, AVOverviewTemplateTypeName } from '@/shared';
 
 export const getAVOverviewTemplateTypeName = (templateType: AVOverviewTemplateType) => {
   switch (templateType) {

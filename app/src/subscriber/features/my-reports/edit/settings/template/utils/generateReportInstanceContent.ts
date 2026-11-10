@@ -1,4 +1,4 @@
-import { IContentModel, IReportInstanceContentModel } from 'tno-core';
+import { IContentModel, IReportInstanceContentModel } from '@/shared';
 
 import { generateContents } from './generateContent';
 import { generateRandom } from './generateRandom';

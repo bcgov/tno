@@ -1,7 +1,7 @@
 import { FaTrash } from 'react-icons/fa';
-import { Button, ButtonVariant, FieldSize, FormikText, type ITableHookColumn } from 'tno-core';
 
 import { ComboBox, type IComboOption } from '@/editor/features/admin/automation/designer';
+import { Button, ButtonVariant, FieldSize, FormikText, type ITableHookColumn } from '@/shared';
 
 export interface ISourceMappingItem {
   id: number;

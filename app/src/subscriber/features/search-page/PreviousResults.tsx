@@ -1,7 +1,7 @@
 import moment, { Moment } from 'moment';
 import React from 'react';
-import { Row } from 'tno-core';
 
+import { Row } from '@/shared';
 import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 import { useContent } from '@/subscriber/store/hooks';
 

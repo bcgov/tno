@@ -1,5 +1,6 @@
 import styled from 'styled-components';
-import { Row } from 'tno-core';
+
+import { Row } from '@/shared';
 
 export const BasicSearch = styled(Row)<{ inHeader?: boolean }>`
   @media only screen and (max-width: 900px) {

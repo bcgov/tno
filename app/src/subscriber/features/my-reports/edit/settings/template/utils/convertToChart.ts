@@ -2,7 +2,7 @@ import {
   IReportInstanceContentModel,
   IReportSectionChartTemplateModel,
   IReportSectionModel,
-} from 'tno-core';
+} from '@/shared';
 
 import { getDatasets } from './getDatasets';
 import { groupData } from './groupData';

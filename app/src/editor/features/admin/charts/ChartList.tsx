@@ -1,9 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Col, FlexboxTable, IconButton, Row, type IChartTemplateModel } from 'tno-core';
 
 import { FormPage } from '@/editor/components/formpage';
 import { useChartTemplates } from '@/editor/store/hooks/admin';
+import { Col, FlexboxTable, IconButton, Row, type IChartTemplateModel } from '@/shared';
 
 import { chartTemplateColumns } from './constants';
 import { ListFilter } from './ListFilter';

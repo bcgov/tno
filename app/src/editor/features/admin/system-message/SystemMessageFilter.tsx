@@ -1,6 +1,7 @@
 import React from 'react';
-import { IconButton, Text } from 'tno-core';
-import { Row } from 'tno-core/dist/components/flex';
+
+import { IconButton, Text } from '@/shared';
+import { Row } from '@/shared/components/flex';
 
 import * as styled from './styled';
 

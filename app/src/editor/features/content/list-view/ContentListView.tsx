@@ -3,6 +3,18 @@ import moment from 'moment';
 import React, { lazy, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
+import { Status } from '@/editor/components/status';
+import { NavigateOptions, TabControl, useTab } from '@/editor/components/tab-control';
+import {
+  useApiHub,
+  useApp,
+  useContent,
+  useLocalStorage,
+  useWorkOrders,
+} from '@/editor/store/hooks';
+import { type IContentSearchResult } from '@/editor/store/slices';
+import { useCastContentToSearchResult } from '@/editor/store/slices/content/hooks';
 import {
   CellEllipsis,
   Checkbox,
@@ -25,19 +37,7 @@ import {
   type IWorkOrderFilter,
   type IWorkOrderMessageModel,
   type IWorkOrderModel,
-} from 'tno-core';
-
-import { Status } from '@/editor/components/status';
-import { NavigateOptions, TabControl, useTab } from '@/editor/components/tab-control';
-import {
-  useApiHub,
-  useApp,
-  useContent,
-  useLocalStorage,
-  useWorkOrders,
-} from '@/editor/store/hooks';
-import { type IContentSearchResult } from '@/editor/store/slices';
-import { useCastContentToSearchResult } from '@/editor/store/slices/content/hooks';
+} from '@/shared';
 
 import { AdvancedSearchKeys } from '../constants';
 import { useElasticsearch } from '../hooks';

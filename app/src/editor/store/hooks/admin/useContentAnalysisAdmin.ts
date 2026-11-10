@@ -1,6 +1,5 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
-import { useApi } from 'tno-core';
 
 import {
   type IAnalysisBackfillModel,
@@ -12,6 +11,7 @@ import {
 } from '@/editor/features/admin/content-analysis/interfaces';
 import { type IAnalysisRequestModel } from '@/editor/features/content/form/interfaces';
 import { useAjaxWrapper } from '@/editor/store/hooks';
+import { useApi } from '@/shared';
 
 export interface IContentAnalysisAdminController {
   getSettings: () => Promise<IContentAnalysisSettingsModel>;

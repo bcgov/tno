@@ -1,5 +1,6 @@
 import { FaFileInvoice, FaPaperPlane, FaTrash } from 'react-icons/fa';
-import { CellDate, CellEllipsis, type IReportInstanceModel, type ITableHookColumn } from 'tno-core';
+
+import { CellDate, CellEllipsis, type IReportInstanceModel, type ITableHookColumn } from '@/shared';
 
 export const instanceColumns = (options: {
   onDelete?: (model: IReportInstanceModel) => void;

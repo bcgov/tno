@@ -1,5 +1,5 @@
-import { AVOverviewItemTypeName } from '..';
 import { IAuditColumnsModel } from '.';
+import { AVOverviewItemTypeName } from '..';
 
 export interface IAVOverviewTemplateSectionItemModel extends IAuditColumnsModel {
   id: number;

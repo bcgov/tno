@@ -1,4 +1,4 @@
-import { IReportModel } from 'tno-core';
+import { IReportModel } from '@/shared';
 
 /**
  * Generates a unique name for the schedule.

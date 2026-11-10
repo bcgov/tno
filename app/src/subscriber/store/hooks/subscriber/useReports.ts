@@ -1,5 +1,6 @@
 import { AxiosError } from 'axios';
 import React from 'react';
+
 import {
   IReportFilter,
   IReportInstanceContentModel,
@@ -11,8 +12,7 @@ import {
   sortable,
   useApi,
   useApiSubscriberReports,
-} from 'tno-core';
-
+} from '@/shared';
 import { useAjaxWrapper } from '@/subscriber/store/hooks';
 import { IProfileState, useProfileStore } from '@/subscriber/store/slices';
 

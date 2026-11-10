@@ -1,6 +1,7 @@
 import React from 'react';
 import { FaWater } from 'react-icons/fa';
 import { IoIosArrowDropdownCircle, IoIosArrowDroprightCircle } from 'react-icons/io';
+
 import {
   Button,
   ButtonVariant,
@@ -12,8 +13,7 @@ import {
   Row,
   Select,
   Show,
-} from 'tno-core';
-
+} from '@/shared';
 import { useSubMediaGroups } from '@/subscriber/features/hooks';
 
 import { ISubMediaGroupExpanded } from '../../interfaces';

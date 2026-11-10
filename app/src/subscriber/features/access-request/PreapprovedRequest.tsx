@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
 import {
   Button,
   ButtonVariant,
@@ -10,8 +11,7 @@ import {
   IRegisterModel,
   Row,
   UserStatusName,
-} from 'tno-core';
-
+} from '@/shared';
 import { FormikForm } from '@/subscriber/components/formik';
 import { useApp } from '@/subscriber/store/hooks';
 

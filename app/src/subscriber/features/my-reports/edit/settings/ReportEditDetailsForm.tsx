@@ -1,5 +1,6 @@
 import { FaInfoCircle } from 'react-icons/fa';
-import { FormikCheckbox, FormikText, FormikTextArea } from 'tno-core';
+
+import { FormikCheckbox, FormikText, FormikTextArea } from '@/shared';
 
 import { useReportEditContext } from '../ReportEditContext';
 import { CollectionOnlyOption } from './CollectionOnlyOption';

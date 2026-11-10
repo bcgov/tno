@@ -1,6 +1,6 @@
 import React from 'react';
-import { generateQuery, IFilterSettingsModel } from 'tno-core';
 
+import { generateQuery, IFilterSettingsModel } from '@/shared';
 import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 
 import { useContent } from './useContent';

@@ -17,7 +17,7 @@ vi.mock('@/editor/store/hooks/admin', () => ({
   useUsers: () => [{}, { getDistributionListById: vi.fn() }],
 }));
 vi.mock('../../../features/reports/styled', () => ({ ReportPreview: 'div' }));
-vi.mock('tno-core', () => ({
+vi.mock('@/shared', () => ({
   AISectionStatusName: { Generating: 'Generating' },
   MessageTargetKey: { ReportStatus: 'ReportStatus' },
   ButtonVariant: { link: 'link' },

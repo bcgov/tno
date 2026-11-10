@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
 import {
   Checkbox,
   Col,
@@ -11,8 +12,7 @@ import {
   Show,
   Spinner,
   useModal,
-} from 'tno-core';
-
+} from '@/shared';
 import { Modal } from '@/subscriber/components/modal';
 import { formatDate } from '@/subscriber/features/utils';
 import { useReportInstances, useReports } from '@/subscriber/store/hooks';

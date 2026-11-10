@@ -5,6 +5,7 @@ import { FaCircleXmark, FaRegNewspaper } from 'react-icons/fa6';
 import { Col, Row } from '../../flex';
 import { Show } from '../../show';
 import { IUrlOption } from './interfaces';
+
 export interface ICustomToolbarProps {
   onClickRaw: React.MouseEventHandler<HTMLButtonElement>;
   onClickRemoveFormat: React.MouseEventHandler<HTMLButtonElement>;
@@ -30,13 +31,16 @@ export const CustomToolbar: React.FC<ICustomToolbarProps> = ({
   actions,
 }) => {
   const groupedOptions =
-    urlOptions?.reduce((acc, option) => {
-      if (!acc[option.section]) {
-        acc[option.section] = [];
-      }
-      acc[option.section].push(option);
-      return acc;
-    }, {} as { [key: string]: IUrlOption[] }) || {}; // Ensures groupedOptions is an empty object if urlOptions is undefined
+    urlOptions?.reduce(
+      (acc, option) => {
+        if (!acc[option.section]) {
+          acc[option.section] = [];
+        }
+        acc[option.section].push(option);
+        return acc;
+      },
+      {} as { [key: string]: IUrlOption[] },
+    ) || {}; // Ensures groupedOptions is an empty object if urlOptions is undefined
   const [showContentSelect, setShowContentSelect] = React.useState(false);
   const [filterText, setFilterText] = React.useState('');
 

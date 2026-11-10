@@ -1,8 +1,8 @@
 import React from 'react';
 import { FaFolderPlus, FaWandMagicSparkles } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
-import { Col, Loader, Row, Text } from 'tno-core';
 
+import { Col, Loader, Row, Text } from '@/shared';
 import { useApp } from '@/subscriber/store/hooks';
 import { useFolders } from '@/subscriber/store/hooks/subscriber/useFolders';
 

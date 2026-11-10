@@ -20,7 +20,7 @@ import {
   type ITonePoolModel,
   type ITopicModel,
   type IUserModel,
-} from 'tno-core';
+} from '@/shared';
 
 export interface ILookupState {
   isReady: boolean;

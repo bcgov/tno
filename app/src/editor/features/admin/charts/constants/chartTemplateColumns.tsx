@@ -3,7 +3,7 @@ import {
   CellEllipsis,
   type IChartTemplateModel,
   type ITableHookColumn,
-} from 'tno-core';
+} from '@/shared';
 
 export const chartTemplateColumns: Array<ITableHookColumn<IChartTemplateModel>> = [
   {

@@ -1,4 +1,4 @@
-import { ContentTypeName } from 'tno-core';
+import { ContentTypeName } from '@/shared';
 
 export interface IAdvancedSearchFilter {
   /** array of actions to filter by */

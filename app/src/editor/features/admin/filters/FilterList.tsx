@@ -1,6 +1,10 @@
 import React from 'react';
 import { FaRegClipboard } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
+
+import { FormPage } from '@/editor/components/formpage';
+import { useFilters } from '@/editor/store/hooks/admin';
+import { useAdminStore } from '@/editor/store/slices';
 import {
   CellCheckbox,
   CellEllipsis,
@@ -12,11 +16,7 @@ import {
   SortDirection,
   type IFilterModel,
   type IPaged,
-} from 'tno-core';
-
-import { FormPage } from '@/editor/components/formpage';
-import { useFilters } from '@/editor/store/hooks/admin';
-import { useAdminStore } from '@/editor/store/slices';
+} from '@/shared';
 
 import { FilterAISettings } from './FilterAISettings';
 import { useGridBodyHeight } from './hooks';

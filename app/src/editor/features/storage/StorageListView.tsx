@@ -1,6 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { useQuery } from 'tno-core';
+
+import { useQuery } from '@/shared';
 
 import { FileManager } from '.';
 

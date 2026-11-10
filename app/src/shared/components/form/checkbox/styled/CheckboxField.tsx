@@ -22,8 +22,11 @@ export const CheckboxField = styled.input<CheckboxFieldProps>`
   font-size: 1rem;
   line-height: 1.6;
   border-radius: 0.25rem;
-  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
-    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  transition:
+    color 0.15s ease-in-out,
+    background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
   overflow: visible;
   text-transform: none;
 

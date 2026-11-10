@@ -1,4 +1,4 @@
-import { type IAuditColumnsModel } from 'tno-core';
+import { type IAuditColumnsModel } from '@/shared';
 
 /** The rule drawer's form values. A page range shares one prefix ("A") across min and max. */
 export interface ITopicScoreRuleForm extends IAuditColumnsModel {

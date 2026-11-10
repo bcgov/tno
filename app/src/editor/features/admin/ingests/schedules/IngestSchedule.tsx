@@ -1,5 +1,6 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
+
 import {
   Col,
   FieldSize,
@@ -9,7 +10,7 @@ import {
   ScheduleTypeName,
   Show,
   type IIngestModel,
-} from 'tno-core';
+} from '@/shared';
 
 import { ScheduleAdvanced, ScheduleContinuous, ScheduleDaily } from '.';
 import * as styled from './styled';

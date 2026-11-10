@@ -1,9 +1,9 @@
 import React from 'react';
 import { FaFileAlt, FaFileAudio, FaFileImage, FaFileInvoice } from 'react-icons/fa';
 import { GiFairyWand } from 'react-icons/gi';
-import { ContentTypeName, Row } from 'tno-core';
 
 import { NavigateOptions, useTab } from '@/editor/components/tab-control';
+import { ContentTypeName, Row } from '@/shared';
 
 import * as styled from './styled';
 

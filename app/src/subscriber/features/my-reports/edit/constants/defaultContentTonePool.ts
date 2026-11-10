@@ -1,4 +1,4 @@
-import { IContentTonePoolModel, ITonePoolModel } from 'tno-core';
+import { IContentTonePoolModel, ITonePoolModel } from '@/shared';
 
 import { defaultTonePool } from './defaultTonePool';
 

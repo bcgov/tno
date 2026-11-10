@@ -1,4 +1,4 @@
-import { IReportSectionSettingsModel } from 'tno-core';
+import { IReportSectionSettingsModel } from '@/shared';
 
 /** One message of a request to a model. */
 export interface ILlmMessageModel {

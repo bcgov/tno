@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+
 import {
   Button,
   ButtonVariant,
@@ -8,8 +9,7 @@ import {
   Row,
   Select,
   Show,
-} from 'tno-core';
-
+} from '@/shared';
 import { useLookup } from '@/subscriber/store/hooks';
 
 import { useSearchSettings } from '../../SearchSettingsContext';

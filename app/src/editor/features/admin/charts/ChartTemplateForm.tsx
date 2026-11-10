@@ -1,6 +1,9 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
+import { FormikForm } from '@/editor/components/formik';
+import { useChartTemplates } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -12,10 +15,7 @@ import {
   Tabs,
   useModal,
   type IChartTemplateModel,
-} from 'tno-core';
-
-import { FormikForm } from '@/editor/components/formik';
-import { useChartTemplates } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import { ChartTemplateContextProvider } from './ChartTemplateContext';
 import { ChartTemplateFormConfig } from './ChartTemplateFormConfig';

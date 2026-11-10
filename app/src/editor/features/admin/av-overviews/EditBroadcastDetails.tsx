@@ -2,6 +2,8 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaEyeSlash } from 'react-icons/fa';
 import { MdEdit } from 'react-icons/md';
+
+import { useLookupOptions } from '@/editor/store/hooks';
 import {
   Button,
   FieldSize,
@@ -12,9 +14,7 @@ import {
   Show,
   Text,
   type IAVOverviewTemplateModel,
-} from 'tno-core';
-
-import { useLookupOptions } from '@/editor/store/hooks';
+} from '@/shared';
 
 import * as styled from './styled';
 

@@ -1,6 +1,7 @@
 import { HubConnectionState } from '@microsoft/signalr';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { type IUserInfoModel } from 'tno-core';
+
+import { type IUserInfoModel } from '@/shared';
 
 import { type IAjaxRequest, type IAppState, type IErrorModel, type IUserOptions } from '.';
 

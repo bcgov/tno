@@ -1,4 +1,4 @@
-import { type WorkflowStatusName } from 'tno-core';
+import { type WorkflowStatusName } from '@/shared';
 
 import { type ISortBy } from '.';
 

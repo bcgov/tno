@@ -1,9 +1,9 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
+import { IFolderContentModel, IFolderFilter, IFolderModel, useApi } from '..';
 import { toQueryString } from '../../../utils';
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
-import { IFolderContentModel, IFolderFilter, IFolderModel, useApi } from '..';
 
 /**
  * Common hook to make requests to the API.

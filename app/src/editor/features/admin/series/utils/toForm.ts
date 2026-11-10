@@ -1,4 +1,4 @@
-import { type ISeriesModel } from 'tno-core';
+import { type ISeriesModel } from '@/shared';
 
 import { type ISeriesForm } from '../interfaces';
 

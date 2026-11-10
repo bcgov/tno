@@ -3,7 +3,7 @@ import {
   CellEllipsis,
   type IDataLocationModel,
   type ITableHookColumn,
-} from 'tno-core';
+} from '@/shared';
 
 export const columns: Array<ITableHookColumn<IDataLocationModel>> = [
   {

@@ -2,6 +2,8 @@ import { useFormikContext } from 'formik';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
+
+import { useAVOverviewTemplates, useNotifications, useReports } from '@/editor/store/hooks/admin';
 import {
   AVOverviewTemplateTypeName,
   Col,
@@ -18,9 +20,7 @@ import {
   Show,
   type IOptionItem,
   type IProductModel,
-} from 'tno-core';
-
-import { useAVOverviewTemplates, useNotifications, useReports } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 /**
  * The page used to view and edit reports.

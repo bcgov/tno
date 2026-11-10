@@ -1,5 +1,6 @@
 import { IMediaTypeModel } from '..';
 import { ListOptionName } from '../constants';
+
 export const mockMediaTypes: IMediaTypeModel[] = [
   {
     id: 1,

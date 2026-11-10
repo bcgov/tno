@@ -1,8 +1,8 @@
 import React from 'react';
-import { useApiAdminActions, type IActionFilter, type IActionModel, type IPaged } from 'tno-core';
 
 import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
 import { useAdminStore, type IAdminState } from '@/editor/store/slices';
+import { useApiAdminActions, type IActionFilter, type IActionModel, type IPaged } from '@/shared';
 
 interface IActionController {
   findAllActions: () => Promise<IActionModel[]>;

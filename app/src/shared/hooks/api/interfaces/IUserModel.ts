@@ -1,4 +1,3 @@
-import { UserAccountTypeName, UserStatusName } from '../constants';
 import {
   IAuditColumnsModel,
   IFilterModel,
@@ -12,6 +11,7 @@ import {
   IUserPreferencesModel,
   IUserUpdateHistoryModel,
 } from '.';
+import { UserAccountTypeName, UserStatusName } from '../constants';
 
 export interface IUserModel extends IAuditColumnsModel {
   id: number;

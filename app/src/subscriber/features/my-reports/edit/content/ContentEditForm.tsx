@@ -1,6 +1,6 @@
 import React from 'react';
-import { Col, ContentTypeName, IContentModel, IContentTonePoolModel } from 'tno-core';
 
+import { Col, ContentTypeName, IContentModel, IContentTonePoolModel } from '@/shared';
 import { Action } from '@/subscriber/components/action';
 import { Bar } from '@/subscriber/components/bar';
 import { Sentiment } from '@/subscriber/components/sentiment';

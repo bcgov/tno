@@ -1,5 +1,5 @@
-import { ContentTypeName } from '../constants';
 import { ISortableModel } from '.';
+import { ContentTypeName } from '../constants';
 
 export interface IIngestTypeModel extends ISortableModel<number> {
   contentType: ContentTypeName;

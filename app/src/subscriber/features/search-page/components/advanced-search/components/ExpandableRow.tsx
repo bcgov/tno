@@ -2,7 +2,8 @@ import React from 'react';
 import { FaWater } from 'react-icons/fa6';
 import { IoIosArrowDropdownCircle, IoIosArrowDroprightCircle } from 'react-icons/io';
 import { Tooltip } from 'react-tooltip';
-import { Col, Row } from 'tno-core';
+
+import { Col, Row } from '@/shared';
 
 export interface IExpandableRowProps {
   /** icon to be displayed on the row */

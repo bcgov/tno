@@ -1,6 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
+import { useLLMs } from '@/editor/store/hooks/admin';
 import {
   Button,
   FieldSize,
@@ -12,9 +14,7 @@ import {
   Show,
   useModal,
   type ILLMModel,
-} from 'tno-core';
-
-import { useLLMs } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import { getUsageColumns } from './constants';
 import {

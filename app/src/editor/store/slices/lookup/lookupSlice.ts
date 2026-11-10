@@ -1,4 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+
 import {
   type IActionModel,
   type ICacheModel,
@@ -21,7 +22,7 @@ import {
   type ITonePoolModel,
   type ITopicModel,
   type IUserModel,
-} from 'tno-core';
+} from '@/shared';
 
 import { type ILookupState } from './interfaces';
 

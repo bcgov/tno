@@ -1,5 +1,4 @@
 import React from 'react';
-import { type ITopicScoreRuleModel } from 'tno-core';
 
 import {
   type ITopicRescoreJobModel,
@@ -10,6 +9,7 @@ import {
   type ITopicScoreTestResultModel,
 } from '@/editor/features/admin/topic-score-rules/interfaces';
 import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
+import { type ITopicScoreRuleModel } from '@/shared';
 
 import { useApiAdminTopicScores } from './useApiAdminTopicScores';
 

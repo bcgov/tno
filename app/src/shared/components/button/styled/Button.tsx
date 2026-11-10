@@ -17,8 +17,11 @@ export const Button = styled.button<IButtonProps>`
   font-weight: 700;
   line-height: 1.6;
   border-radius: ${(props) => (props.rounded ? '1.25rem' : '0.25rem')};
-  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
-    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  transition:
+    color 0.15s ease-in-out,
+    background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
   overflow: visible;
   text-transform: none;
   cursor: pointer;

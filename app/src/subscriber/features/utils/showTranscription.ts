@@ -1,4 +1,4 @@
-import { ContentTypeName, IContentModel } from 'tno-core';
+import { ContentTypeName, IContentModel } from '@/shared';
 
 export const showTranscription = (content: IContentModel) => {
   if (content.contentType === ContentTypeName.AudioVideo && content.isApproved && !!content.body) {

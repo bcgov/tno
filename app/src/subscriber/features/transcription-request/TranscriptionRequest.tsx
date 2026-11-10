@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { Col, Row } from 'tno-core';
 
+import { Col, Row } from '@/shared';
 import { useWorkOrders } from '@/subscriber/store/hooks';
 
 import * as styled from './styled';

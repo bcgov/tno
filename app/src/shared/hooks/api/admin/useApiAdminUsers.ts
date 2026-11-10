@@ -1,9 +1,6 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
-import { toQueryString } from '../../../utils';
-import { defaultEnvelope, ILifecycleToasts } from '../../summon';
-import { useDownload } from '../../useDownload';
 import {
   IPaged,
   ITransferAccount,
@@ -15,6 +12,9 @@ import {
   IUserReportModel,
   useApi,
 } from '..';
+import { toQueryString } from '../../../utils';
+import { defaultEnvelope, ILifecycleToasts } from '../../summon';
+import { useDownload } from '../../useDownload';
 
 /**
  * Common hook to make requests to the API.

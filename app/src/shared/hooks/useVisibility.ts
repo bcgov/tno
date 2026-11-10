@@ -1,4 +1,4 @@
-import throttle from 'lodash.throttle';
+import throttle from 'lodash/throttle';
 import React from 'react';
 
 import { isInViewport } from '../utils/isInViewPort';

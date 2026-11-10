@@ -1,6 +1,6 @@
 import React from 'react';
-import { Col, FormikCheckbox, FormikSelect, OptionItem, Row, Settings, Show } from 'tno-core';
 
+import { Col, FormikCheckbox, FormikSelect, OptionItem, Row, Settings, Show } from '@/shared';
 import { DataSources } from '@/subscriber/features/my-reports/components';
 import { useLookup } from '@/subscriber/store/hooks';
 

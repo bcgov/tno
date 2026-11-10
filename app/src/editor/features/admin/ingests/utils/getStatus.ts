@@ -1,4 +1,4 @@
-import { type IIngestModel } from 'tno-core';
+import { type IIngestModel } from '@/shared';
 
 import { isRunning } from './isRunning';
 

@@ -1,5 +1,7 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
+
+import { useLookup } from '@/editor/store/hooks';
 import {
   Col,
   filterEnabledOptions,
@@ -9,9 +11,7 @@ import {
   OptionItem,
   Row,
   type IIngestModel,
-} from 'tno-core';
-
-import { useLookup } from '@/editor/store/hooks';
+} from '@/shared';
 
 import { FileTypes, Languages, TimeZones } from './constants';
 import { ImportContent } from './ImportContent';

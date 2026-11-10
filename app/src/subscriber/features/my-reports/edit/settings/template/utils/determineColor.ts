@@ -1,4 +1,4 @@
-import { IChartSectionSettingsModel } from 'tno-core';
+import { IChartSectionSettingsModel } from '@/shared';
 
 import { selectColorForDataset } from './selectColorForDataset';
 import { selectSentimentColorForDataset } from './selectSentimentColorForDataset';

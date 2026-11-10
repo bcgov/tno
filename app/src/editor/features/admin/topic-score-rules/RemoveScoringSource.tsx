@@ -1,5 +1,6 @@
 import React from 'react';
-import { Button, ButtonVariant, Col, Modal } from 'tno-core';
+
+import { Button, ButtonVariant, Col, Modal } from '@/shared';
 
 import { type ITopicScoreSourceModel } from './interfaces';
 

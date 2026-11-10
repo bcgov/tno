@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaTags } from 'react-icons/fa';
-import { Col, FieldSize, IOptionItem, ITagModel, Row, Select, useWindowSize } from 'tno-core';
 
+import { Col, FieldSize, IOptionItem, ITagModel, Row, Select, useWindowSize } from '@/shared';
 import { useLookup } from '@/subscriber/store/hooks';
 
 import * as styled from './styled';

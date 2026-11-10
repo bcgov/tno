@@ -1,6 +1,6 @@
 import React from 'react';
-import { ISystemMessageModel, useApiSubscriberSystemMessages } from 'tno-core';
 
+import { ISystemMessageModel, useApiSubscriberSystemMessages } from '@/shared';
 import { useAjaxWrapper } from '@/subscriber/store/hooks';
 import { IProfileState, useProfileStore } from '@/subscriber/store/slices';
 

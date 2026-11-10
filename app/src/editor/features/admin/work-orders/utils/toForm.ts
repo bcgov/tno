@@ -1,4 +1,4 @@
-import { type IWorkOrderModel } from 'tno-core';
+import { type IWorkOrderModel } from '@/shared';
 
 import { type IWorkOrderForm } from '../interfaces';
 

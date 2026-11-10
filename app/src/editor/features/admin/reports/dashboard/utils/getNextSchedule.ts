@@ -1,5 +1,6 @@
 import moment from 'moment';
-import { formatDashboardDate, type IReportModel } from 'tno-core';
+
+import { formatDashboardDate, type IReportModel } from '@/shared';
 
 import { calcNextScheduleSend } from './calcNextScheduleSend';
 

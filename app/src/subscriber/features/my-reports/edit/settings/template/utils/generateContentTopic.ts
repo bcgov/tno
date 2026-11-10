@@ -1,4 +1,4 @@
-import { IContentTopicModel } from 'tno-core';
+import { IContentTopicModel } from '@/shared';
 
 import { generateRandom } from './generateRandom';
 import { generateTopic } from './generateTopic';

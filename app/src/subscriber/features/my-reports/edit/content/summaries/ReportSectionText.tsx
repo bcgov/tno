@@ -1,5 +1,6 @@
 import React from 'react';
-import { FormikText, FormikWysiwyg } from 'tno-core';
+
+import { FormikText, FormikWysiwyg } from '@/shared';
 
 export interface IReportSectionTextProps extends React.AllHTMLAttributes<HTMLDivElement> {
   /** Array index position of section. */

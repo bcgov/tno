@@ -1,6 +1,6 @@
 import React from 'react';
-import { Col, Loading, NotFound, Show } from 'tno-core';
 
+import { Col, Loading, NotFound, Show } from '@/shared';
 import { useApp, useReportInstances } from '@/subscriber/store/hooks';
 import { useProfileStore } from '@/subscriber/store/slices';
 

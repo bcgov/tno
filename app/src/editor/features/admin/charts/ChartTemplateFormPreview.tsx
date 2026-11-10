@@ -4,7 +4,8 @@ import 'prismjs/components/prism-cshtml';
 import 'prismjs/components/prism-json';
 
 import React from 'react';
-import { Col } from 'tno-core';
+
+import { Col } from '@/shared';
 
 import { useChartTemplateContext } from './ChartTemplateContext';
 import {

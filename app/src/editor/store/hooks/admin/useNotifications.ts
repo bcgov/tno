@@ -1,4 +1,7 @@
 import React from 'react';
+
+import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
+import { useAdminStore, type IAdminState } from '@/editor/store/slices';
 import {
   useApiAdminNotifications,
   type IDashboardFilter,
@@ -6,10 +9,7 @@ import {
   type INotificationInstanceModel,
   type INotificationModel,
   type INotificationResultModel,
-} from 'tno-core';
-
-import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
-import { useAdminStore, type IAdminState } from '@/editor/store/slices';
+} from '@/shared';
 
 interface INotificationController {
   findNotifications: (filter?: INotificationFilter) => Promise<INotificationModel[]>;

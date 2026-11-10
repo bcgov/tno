@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Col, IContentModel, Row, Show } from 'tno-core';
 
+import { Col, IContentModel, Row, Show } from '@/shared';
 import { ViewOptions } from '@/subscriber/components/content-list';
 import { FilterOptions, FilterOptionsProvider } from '@/subscriber/components/media-type-filters';
 import {

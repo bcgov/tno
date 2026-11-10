@@ -1,6 +1,11 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
+import { FormikForm } from '@/editor/components/formik';
+import { useApp } from '@/editor/store/hooks';
+import { useReports } from '@/editor/store/hooks/admin';
+import { useAdminStore } from '@/editor/store/slices';
 import {
   Button,
   ButtonVariant,
@@ -16,12 +21,7 @@ import {
   useTabValidationToasts,
   type IReportModel,
   type IUserReportModel,
-} from 'tno-core';
-
-import { FormikForm } from '@/editor/components/formik';
-import { useApp } from '@/editor/store/hooks';
-import { useReports } from '@/editor/store/hooks/admin';
-import { useAdminStore } from '@/editor/store/slices';
+} from '@/shared';
 
 import { defaultReport, generateScheduleName } from './constants';
 import { ReportFormDetails } from './ReportFormDetails';

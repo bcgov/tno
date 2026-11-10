@@ -1,5 +1,6 @@
 import styled from 'styled-components';
-import { Col } from 'tno-core';
+
+import { Col } from '@/shared';
 
 export const PreviousResults = styled(Col)`
   .prev-result-row {

@@ -1,6 +1,6 @@
 import { FaCopyright, FaFeather, FaPlayCircle } from 'react-icons/fa';
-import { ContentTypeName, ITableHookColumn, Show } from 'tno-core';
 
+import { ContentTypeName, ITableHookColumn, Show } from '@/shared';
 import { Sentiment } from '@/subscriber/components/sentiment';
 import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 

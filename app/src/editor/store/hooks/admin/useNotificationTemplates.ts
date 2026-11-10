@@ -1,8 +1,8 @@
 import React from 'react';
-import { useApiAdminNotificationTemplates, type INotificationTemplateModel } from 'tno-core';
 
 import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
 import { useAdminStore, type IAdminState } from '@/editor/store/slices';
+import { useApiAdminNotificationTemplates, type INotificationTemplateModel } from '@/shared';
 
 interface INotificationTemplateController {
   findAllNotificationTemplates: () => Promise<INotificationTemplateModel[]>;

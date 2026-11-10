@@ -10,6 +10,7 @@ import {
   type ResponderProvided,
 } from 'react-beautiful-dnd';
 import { FaGripLines, FaTrash } from 'react-icons/fa';
+
 import {
   AVOverviewItemTypeName,
   castEnumToOptions,
@@ -21,7 +22,7 @@ import {
   Row,
   Show,
   type IAVOverviewTemplateModel,
-} from 'tno-core';
+} from '@/shared';
 
 import * as styled from './styled';
 

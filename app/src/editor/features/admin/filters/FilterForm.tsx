@@ -1,6 +1,10 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
+import { FormikForm } from '@/editor/components/formik';
+import { useApp } from '@/editor/store/hooks';
+import { useFilters } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -13,11 +17,7 @@ import {
   Tabs,
   useModal,
   type IFilterModel,
-} from 'tno-core';
-
-import { FormikForm } from '@/editor/components/formik';
-import { useApp } from '@/editor/store/hooks';
-import { useFilters } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import { defaultFilter } from './constants';
 import { FilterFormDetails } from './FilterFormDetails';

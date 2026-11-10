@@ -2,7 +2,8 @@ import moment from 'moment';
 import React from 'react';
 import { FaGripVertical } from 'react-icons/fa';
 import { FaX } from 'react-icons/fa6';
-import { Checkbox, Link, Sentiment, Show, Text } from 'tno-core';
+
+import { Checkbox, Link, Sentiment, Show, Text } from '@/shared';
 
 import { type IContentRowModel } from './interfaces';
 import * as styled from './styled';

@@ -1,6 +1,7 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { FormikSelect, FormikText, useFormikHelpers, type IIngestModel } from 'tno-core';
+
+import { FormikSelect, FormikText, useFormikHelpers, type IIngestModel } from '@/shared';
 
 import { Languages, TimeZones } from './constants';
 import { ImportContent } from './ImportContent';

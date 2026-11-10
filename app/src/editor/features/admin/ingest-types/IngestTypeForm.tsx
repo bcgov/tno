@@ -3,6 +3,9 @@ import moment from 'moment';
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
+import { FormikForm } from '@/editor/components/formik';
+import { useIngestTypes } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -20,10 +23,7 @@ import {
   Show,
   useModal,
   type IIngestTypeModel,
-} from 'tno-core';
-
-import { FormikForm } from '@/editor/components/formik';
-import { useIngestTypes } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import { contentTypeOptions, defaultIngestType } from './constants';
 import * as styled from './styled';

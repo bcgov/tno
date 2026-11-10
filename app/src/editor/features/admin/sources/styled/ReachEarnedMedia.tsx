@@ -1,5 +1,6 @@
 import styled from 'styled-components';
-import { Col } from 'tno-core/dist/components/flex/col';
+
+import { Col } from '@/shared/components/flex/col';
 
 export const ReachEarnedMedia = styled(Col)`
   & > div {

@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaTrash } from 'react-icons/fa';
+
 import {
   Button,
   ButtonVariant,
@@ -9,7 +10,7 @@ import {
   TopicTypeName,
   type ITableHookColumn,
   type ITopicModel,
-} from 'tno-core';
+} from '@/shared';
 
 export const useColumns = (
   onClick: (event: any) => {},

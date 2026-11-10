@@ -2,7 +2,7 @@
 // Use them to fetch values from the settings lookup.
 export const Settings = {
   /** URL and path to the API */
-  ApiPath: process.env.REACT_APP_API_URL ?? '/api',
+  ApiPath: import.meta.env.VITE_API_URL ?? '/api',
   /** URL to the subscriber app */
   SubscriberUrl: 'SubscriberUrl',
   /** URL to the editor app */

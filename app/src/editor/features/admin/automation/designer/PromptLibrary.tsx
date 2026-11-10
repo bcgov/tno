@@ -1,7 +1,8 @@
 import React from 'react';
 import { FaCopy, FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import { Button, ButtonVariant, Col, Modal, Row, Show, Text, TextArea, Wysiwyg } from 'tno-core';
+
+import { Button, ButtonVariant, Col, Modal, Row, Show, Text, TextArea, Wysiwyg } from '@/shared';
 
 import { DEFAULT_PROMPTS } from './constants';
 import { type IAutomationDefinition, type IAutomationPrompt } from './interfaces';

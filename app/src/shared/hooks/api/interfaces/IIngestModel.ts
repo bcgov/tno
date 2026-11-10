@@ -1,4 +1,3 @@
-import { ScheduleTypeName } from '../constants';
 import {
   IAuditColumnsModel,
   IConnectionModel,
@@ -8,6 +7,7 @@ import {
   IScheduleModel,
   ISourceModel,
 } from '.';
+import { ScheduleTypeName } from '../constants';
 
 export interface IIngestModel extends IAuditColumnsModel {
   id: number;

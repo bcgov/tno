@@ -1,9 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Col, FlexboxTable, IconButton, Row, type IMinisterModel } from 'tno-core';
 
 import { useApp } from '@/editor/store/hooks';
 import { useMinisters } from '@/editor/store/hooks/admin';
+import { Col, FlexboxTable, IconButton, Row, type IMinisterModel } from '@/shared';
 
 import { columns } from './constants';
 import { MinisterFilter } from './MinisterFilter';

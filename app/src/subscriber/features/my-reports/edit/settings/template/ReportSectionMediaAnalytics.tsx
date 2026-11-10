@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   Checkbox,
   Col,
@@ -11,8 +12,7 @@ import {
   Row,
   Select,
   Show,
-} from 'tno-core';
-
+} from '@/shared';
 import { Button } from '@/subscriber/components/button';
 import { useReports } from '@/subscriber/store/hooks';
 

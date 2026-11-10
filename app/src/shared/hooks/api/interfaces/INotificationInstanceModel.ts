@@ -1,5 +1,5 @@
-import { NotificationStatusName } from '../constants';
 import { IAuditColumnsModel, INotificationModel } from '.';
+import { NotificationStatusName } from '../constants';
 
 export interface INotificationInstanceModel extends IAuditColumnsModel {
   id: number;

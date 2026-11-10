@@ -1,5 +1,6 @@
 import moment from 'moment';
-import { CellEllipsis, type ITableHookColumn, type IWorkOrderModel } from 'tno-core';
+
+import { CellEllipsis, type ITableHookColumn, type IWorkOrderModel } from '@/shared';
 
 export const getColumns = (
   onClickOpen?: (contentId: number) => void,

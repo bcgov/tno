@@ -1,4 +1,4 @@
-import { IReportModel } from 'tno-core';
+import { IReportModel } from '@/shared';
 
 /** Shown when a collection-only report is asked to be sent; the API refuses with the same text. */
 export const collectionOnlySendMessage =

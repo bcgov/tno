@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaPlus, FaTrash } from 'react-icons/fa';
+
 import {
   Checkbox,
   Col,
@@ -10,7 +11,7 @@ import {
   TextArea,
   Wysiwyg,
   type IOptionItem,
-} from 'tno-core';
+} from '@/shared';
 
 import { createOption, findOptionByValue, toNumberOrUndefined } from '../utils';
 import { ComboBox } from './ComboBox';

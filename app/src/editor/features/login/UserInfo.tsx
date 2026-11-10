@@ -1,8 +1,8 @@
 import React from 'react';
-import { useKeycloakWrapper } from 'tno-core';
 
 import { useApp } from '@/editor/store/hooks';
 import { useAppStore } from '@/editor/store/slices';
+import { useKeycloakWrapper } from '@/shared';
 
 export interface IUserInfoProps {
   children?: React.ReactNode;

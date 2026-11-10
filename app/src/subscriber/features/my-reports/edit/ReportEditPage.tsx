@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
 import {
   Col,
   IReportInstanceContentModel,
@@ -8,8 +9,7 @@ import {
   MessageTargetKey,
   ReportStatusName,
   Show,
-} from 'tno-core';
-
+} from '@/shared';
 import { FormikForm } from '@/subscriber/components/formik';
 import { PageSection } from '@/subscriber/components/section';
 import {

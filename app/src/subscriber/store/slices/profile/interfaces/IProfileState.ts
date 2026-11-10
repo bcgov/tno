@@ -7,8 +7,7 @@ import {
   ISystemMessageModel,
   ITonePoolModel,
   IUserColleagueModel,
-} from 'tno-core';
-
+} from '@/shared';
 import { IReportResultForm } from '@/subscriber/features/my-reports/interfaces';
 
 export interface IProfileState {

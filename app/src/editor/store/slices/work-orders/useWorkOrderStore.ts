@@ -1,7 +1,7 @@
 import React from 'react';
-import { type IWorkOrderFilter } from 'tno-core';
 
 import { useAppDispatch, useAppSelector, type ActionDelegate } from '@/editor/store';
+import { type IWorkOrderFilter } from '@/shared';
 
 import { type IWorkOrderState } from './interfaces';
 import { storeTranscriptFilter } from './workOrderSlice';

@@ -1,4 +1,4 @@
-import { ISeriesModel } from 'tno-core';
+import { ISeriesModel } from '@/shared';
 
 interface IGenerateSeriesOptions {
   _id?: number;

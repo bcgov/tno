@@ -1,4 +1,4 @@
-import { IContentModel } from 'tno-core';
+import { IContentModel } from '@/shared';
 
 export const getSentimentLabel = (content?: IContentModel): string | undefined => {
   const value = content?.tonePools.length ? content.tonePools[0].value : undefined;

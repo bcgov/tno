@@ -1,6 +1,7 @@
 import React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { FaArrowsRotate } from 'react-icons/fa6';
+
 import {
   Col,
   FormikText,
@@ -12,8 +13,7 @@ import {
   Row,
   Show,
   useModal,
-} from 'tno-core';
-
+} from '@/shared';
 import { Modal } from '@/subscriber/components/modal';
 import { RefreshButton } from '@/subscriber/components/refresh-button';
 import { IReportInstanceContentForm } from '@/subscriber/features/my-reports/interfaces';

@@ -1,4 +1,4 @@
-import { type AVOverviewItemTypeName, type IAVOverviewSectionItemModel } from 'tno-core';
+import { type AVOverviewItemTypeName, type IAVOverviewSectionItemModel } from '@/shared';
 
 export const defaultAVOverviewSectionItem = (
   sectionId: number,

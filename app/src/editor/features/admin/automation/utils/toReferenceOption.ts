@@ -1,4 +1,4 @@
-import { type IOptionItem } from 'tno-core';
+import { type IOptionItem } from '@/shared';
 
 import { createOption } from './createOption';
 

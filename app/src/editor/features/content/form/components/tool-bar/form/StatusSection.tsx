@@ -1,9 +1,8 @@
-import { Col, Row, Show, ToolBarSection } from 'tno-core';
-
 import { Status } from '@/editor/components/status';
 import { ContentNavigation } from '@/editor/features/content/form';
 import { type IContentForm } from '@/editor/features/content/form/interfaces';
 import { getStatusText } from '@/editor/features/content/list-view/utils';
+import { Col, Row, Show, ToolBarSection } from '@/shared';
 
 export interface IStatusSectionProps {
   /** Form values. */

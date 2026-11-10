@@ -1,6 +1,7 @@
 import { useFormikContext } from 'formik';
 import { FaTrash } from 'react-icons/fa';
-import { Button, ButtonVariant, Col, FormikSelect, FormikText, Row } from 'tno-core';
+
+import { Button, ButtonVariant, Col, FormikSelect, FormikText, Row } from '@/shared';
 
 import { labelOptions } from './constants';
 import { type IContentForm } from './interfaces';

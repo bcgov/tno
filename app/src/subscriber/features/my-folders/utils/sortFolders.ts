@@ -1,4 +1,4 @@
-import { IFolderModel } from 'tno-core';
+import { IFolderModel } from '@/shared';
 
 /**
  * Sorts the folders.

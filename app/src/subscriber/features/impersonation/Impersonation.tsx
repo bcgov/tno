@@ -6,6 +6,7 @@ import {
   FaCaretRight,
   FaMagnifyingGlass,
 } from 'react-icons/fa6';
+
 import {
   Col,
   IPaged,
@@ -15,8 +16,7 @@ import {
   Row,
   Text,
   UserAccountTypeName,
-} from 'tno-core';
-
+} from '@/shared';
 import { Action } from '@/subscriber/components/action';
 import { Bar } from '@/subscriber/components/bar';
 import { Button } from '@/subscriber/components/button';

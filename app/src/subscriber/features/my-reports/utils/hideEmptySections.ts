@@ -1,4 +1,4 @@
-import { ReportSectionTypeName } from 'tno-core';
+import { ReportSectionTypeName } from '@/shared';
 
 import { IReportForm } from '../interfaces';
 

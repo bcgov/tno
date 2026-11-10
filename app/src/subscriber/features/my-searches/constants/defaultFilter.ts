@@ -1,4 +1,4 @@
-import { IFilterModel } from 'tno-core';
+import { IFilterModel } from '@/shared';
 
 export const defaultFilter: IFilterModel = {
   id: 0,

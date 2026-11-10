@@ -1,5 +1,6 @@
 import styled from 'styled-components';
-import { Col } from 'tno-core';
+
+import { Col } from '@/shared';
 
 export const ContentRow = styled(Col)<{ simpleView?: boolean }>`
   margin-bottom: 0.5rem;

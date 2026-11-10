@@ -1,5 +1,8 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
+
+import { InputOption } from '@/editor/features/content/list-view/components/tool-bar/filter';
+import { useLookup } from '@/editor/store/hooks';
 import {
   Col,
   FormikCheckbox,
@@ -12,10 +15,7 @@ import {
   Section,
   UserAccountTypeName,
   type IUserModel,
-} from 'tno-core';
-
-import { InputOption } from '@/editor/features/content/list-view/components/tool-bar/filter';
-import { useLookup } from '@/editor/store/hooks';
+} from '@/shared';
 
 /**
  * Provides a User Form to manage, create, update and delete a user.

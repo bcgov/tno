@@ -1,4 +1,4 @@
-import { type IOptionItem } from 'tno-core';
+import { type IOptionItem } from '@/shared';
 
 /**
  * One select option. Reference data that has been disabled is passed with `isDisabled` so it

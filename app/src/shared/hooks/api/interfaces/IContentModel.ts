@@ -1,13 +1,4 @@
 import {
-  ContentStatusName,
-  ContentTypeName,
-  IAuditColumnsModel,
-  ILicenseModel,
-  IMediaTypeModel,
-  ISeriesModel,
-  IUserModel,
-} from '..';
-import {
   IContentActionModel,
   IContentLabelModel,
   IContentLinkModel,
@@ -22,6 +13,15 @@ import {
   ITimeTrackingModel,
   IUserContentNotificationModel,
 } from '.';
+import {
+  ContentStatusName,
+  ContentTypeName,
+  IAuditColumnsModel,
+  ILicenseModel,
+  IMediaTypeModel,
+  ISeriesModel,
+  IUserModel,
+} from '..';
 
 export interface IContentModel extends IAuditColumnsModel {
   id: number;

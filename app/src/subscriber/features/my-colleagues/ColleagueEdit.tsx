@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaBackward, FaSave } from 'react-icons/fa';
-import { Col, FormikText, validateEmail } from 'tno-core';
 
+import { Col, FormikText, validateEmail } from '@/shared';
 import { Button } from '@/subscriber/components/button';
 import { FormikForm } from '@/subscriber/components/formik';
 import { PageSection } from '@/subscriber/components/section';

@@ -4,7 +4,8 @@ import {
   type UseFiltersColumnOptions,
   type UseSortByColumnOptions,
 } from 'react-table';
-import { CellDate } from 'tno-core';
+
+import { CellDate } from '@/shared';
 
 import { type IIngestContentReference } from '../interfaces';
 

@@ -1,6 +1,8 @@
 import React from 'react';
 import { FaRegClipboard } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+
+import { Topic } from '@/editor/features/content';
 import {
   Button,
   ButtonVariant,
@@ -15,9 +17,7 @@ import {
   type ITableHookColumn,
   type ITableInternalCell,
   type ITopicModel,
-} from 'tno-core';
-
-import { Topic } from '@/editor/features/content';
+} from '@/shared';
 
 const maxTopicScore: number = 200;
 // create an array with values 0-maxScore

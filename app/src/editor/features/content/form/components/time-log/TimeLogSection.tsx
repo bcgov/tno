@@ -1,10 +1,10 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaRegListAlt } from 'react-icons/fa';
-import { Button, ButtonVariant, Col, Error, FieldSize, Modal, Row, Text, useModal } from 'tno-core';
 
 import { type IContentForm } from '@/editor/features/content/form/interfaces';
 import { useApp } from '@/editor/store/hooks';
+import { Button, ButtonVariant, Col, Error, FieldSize, Modal, Row, Text, useModal } from '@/shared';
 
 import { TimeLogTable } from '../../TimeLogTable';
 import * as styled from './styled';

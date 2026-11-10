@@ -1,4 +1,4 @@
-import { IReportInstanceContentModel } from 'tno-core';
+import { IReportInstanceContentModel } from '@/shared';
 
 /**
  * Sorts the content by section and updates the sortOrder in each section.

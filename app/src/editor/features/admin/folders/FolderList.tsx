@@ -1,10 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Col, FlexboxTable, IconButton, Row, type IFolderModel } from 'tno-core';
 
 import { FormPage } from '@/editor/components/formpage';
 import { useFolders } from '@/editor/store/hooks/admin';
 import { useAdminStore } from '@/editor/store/slices';
+import { Col, FlexboxTable, IconButton, Row, type IFolderModel } from '@/shared';
 
 import { columns } from './constants';
 import { FolderFilter } from './FolderFilter';

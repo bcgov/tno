@@ -1,6 +1,8 @@
 import { getIn, useFormikContext } from 'formik';
 import React from 'react';
 import { FaHourglassHalf } from 'react-icons/fa';
+
+import { useLookup, useSettings } from '@/editor/store/hooks';
 import {
   Checkbox,
   ContentTypeName,
@@ -13,9 +15,7 @@ import {
   ValueType,
   type IActionModel,
   type IContentActionModel,
-} from 'tno-core';
-
-import { useLookup, useSettings } from '@/editor/store/hooks';
+} from '@/shared';
 
 import { ActionNames } from './constants/actionsEnum';
 import { type IContentForm } from './interfaces';

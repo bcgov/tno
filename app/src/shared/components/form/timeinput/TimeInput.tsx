@@ -7,8 +7,10 @@ import * as styled from './styled';
 
 const MaskedInput = MaskedInputBase as unknown as React.ComponentClass<MaskedInputProps>;
 
-export interface ITimeInputProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'children' | 'dangerouslySetInnerHTML'> {
+export interface ITimeInputProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  'children' | 'dangerouslySetInnerHTML'
+> {
   label?: string;
   /**
    * Display errors.

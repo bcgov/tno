@@ -1,10 +1,10 @@
 import moment from 'moment';
 import React from 'react';
 
+import { useApi } from '..';
 import { toQueryString } from '../../../utils';
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
 import { useDownload } from '../../useDownload';
-import { useApi } from '..';
 
 /**
  * Common hook to make requests to the API.

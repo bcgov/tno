@@ -2,6 +2,7 @@ import { useFormikContext } from 'formik';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
+
 import {
   Checkbox,
   Col,
@@ -13,7 +14,7 @@ import {
   type IOptionItem,
   type IReportModel,
   type OptionItem,
-} from 'tno-core';
+} from '@/shared';
 
 export interface IReportSectionDataProps {
   index: number;

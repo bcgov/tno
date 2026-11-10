@@ -3,7 +3,7 @@ import {
   type ContentTypeName,
   type IContentModel,
   type WorkOrderStatusName,
-} from 'tno-core';
+} from '@/shared';
 
 export interface IContentSearchResult {
   id: number;

@@ -1,4 +1,4 @@
-import { ListOptionName, type IMediaTypeModel } from 'tno-core';
+import { ListOptionName, type IMediaTypeModel } from '@/shared';
 
 export const defaultMediaType: IMediaTypeModel = {
   id: 0,

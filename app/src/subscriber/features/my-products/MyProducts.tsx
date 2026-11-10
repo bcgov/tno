@@ -1,6 +1,7 @@
 import React from 'react';
 import { FaEnvelope, FaUserPlus } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
+
 import {
   getEnumStringOptions,
   IProductModel,
@@ -13,8 +14,7 @@ import {
   Select,
   Show,
   useModal,
-} from 'tno-core';
-
+} from '@/shared';
 import { Modal } from '@/subscriber/components/modal';
 import { PageSection } from '@/subscriber/components/section';
 import { useApp, useProducts } from '@/subscriber/store/hooks';

@@ -1,8 +1,8 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
-import { useApi } from 'tno-core';
 
 import { type IHistoryPurgePreviewModel } from '@/editor/features/admin/settings/interfaces';
+import { useApi } from '@/shared';
 
 export const useApiAdminHistory = () => {
   const api = useApi();

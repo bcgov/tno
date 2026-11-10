@@ -1,8 +1,8 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { formatDate, Grid, Link, type IUserModel, type IUserReportModel } from 'tno-core';
 
 import { useUsers } from '@/editor/store/hooks/admin';
+import { formatDate, Grid, Link, type IUserModel, type IUserReportModel } from '@/shared';
 
 export const UserReportSubscriptions: React.FC = () => {
   const { values } = useFormikContext<IUserModel>();

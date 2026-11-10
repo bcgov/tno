@@ -1,4 +1,4 @@
-import { EXTENDED_QUERY_NAME, generateQuery, type IFilterSettingsModel } from 'tno-core';
+import { EXTENDED_QUERY_NAME, generateQuery, type IFilterSettingsModel } from '@/shared';
 
 const extendedQuery = {
   should: [{ match: { headline: 'nurse' } }, { match: { headline: 'doctor' } }],

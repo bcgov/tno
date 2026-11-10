@@ -1,4 +1,7 @@
 import React from 'react';
+
+import { useLookup } from '@/editor/store/hooks';
+import { useTopicScores } from '@/editor/store/hooks/admin';
 import {
   Button,
   Checkbox,
@@ -9,10 +12,7 @@ import {
   Show,
   Text,
   type ITopicScoreRuleModel,
-} from 'tno-core';
-
-import { useLookup } from '@/editor/store/hooks';
-import { useTopicScores } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import {
   type ITopicScoreSourceModel,

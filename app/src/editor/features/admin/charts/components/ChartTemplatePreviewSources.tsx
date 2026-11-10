@@ -2,7 +2,8 @@ import { highlight, languages } from 'prismjs';
 import React from 'react';
 import { FaAngleDown, FaMinus } from 'react-icons/fa6';
 import Editor from 'react-simple-code-editor';
-import { Col, OptionItem, Row, Select, Text, ToggleButton } from 'tno-core';
+
+import { Col, OptionItem, Row, Select, Text, ToggleButton } from '@/shared';
 
 import { useChartTemplateContext } from '../ChartTemplateContext';
 import * as styled from './styled';

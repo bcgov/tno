@@ -6,8 +6,8 @@ import {
   LogLevel,
 } from '@microsoft/signalr';
 import React from 'react';
-import { MessageTargetKey, Settings, useKeycloakWrapper } from 'tno-core';
 
+import { MessageTargetKey, Settings, useKeycloakWrapper } from '@/shared';
 import { useAppStore } from '@/subscriber/store/slices';
 
 const url = Settings.ApiPath + '/hub';

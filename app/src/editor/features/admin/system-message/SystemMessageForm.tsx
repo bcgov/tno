@@ -3,6 +3,9 @@ import moment from 'moment';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
+import { FormikForm } from '@/editor/components/formik';
+import { useSystemMessages } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -22,10 +25,7 @@ import {
   useApiAdminHub,
   useModal,
   type ISystemMessageModel,
-} from 'tno-core';
-
-import { FormikForm } from '@/editor/components/formik';
-import { useSystemMessages } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import { defaultSystemMessage } from './constants';
 import * as styled from './styled';

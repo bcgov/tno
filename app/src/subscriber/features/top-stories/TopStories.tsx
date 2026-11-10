@@ -1,7 +1,7 @@
 import moment from 'moment';
 import React from 'react';
-import { IContentModel, Show } from 'tno-core';
 
+import { IContentModel, Show } from '@/shared';
 import { ContentList } from '@/subscriber/components/content-list';
 import { DateFilter } from '@/subscriber/components/date-filter';
 import { ContentListActionBar } from '@/subscriber/components/tool-bar';

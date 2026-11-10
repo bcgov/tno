@@ -1,7 +1,8 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
-import { FilterAIWorkbench, IFilterAIManualFilterProps, IFilterSettingsModel } from 'tno-core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { FilterAIWorkbench, IFilterAIManualFilterProps, IFilterSettingsModel } from '@/shared';
 
 import { TestWrapper } from '../../utils';
 

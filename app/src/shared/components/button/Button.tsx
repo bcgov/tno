@@ -1,8 +1,8 @@
 import React, { ButtonHTMLAttributes } from 'react';
 import { Tooltip } from 'react-tooltip';
 
-import { BouncingSpinner } from '../spinners';
 import { ButtonHeight, ButtonVariant } from '.';
+import { BouncingSpinner } from '../spinners';
 import * as styled from './styled';
 
 export interface IButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

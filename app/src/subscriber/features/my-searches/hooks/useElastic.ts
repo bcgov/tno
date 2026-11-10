@@ -1,6 +1,6 @@
 import React from 'react';
-import { generateMustNotQuery, generateQuery, IFilterSettingsModel } from 'tno-core';
 
+import { generateMustNotQuery, generateQuery, IFilterSettingsModel } from '@/shared';
 import { useSettings } from '@/subscriber/store/hooks';
 
 /**

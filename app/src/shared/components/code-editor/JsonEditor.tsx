@@ -1,5 +1,5 @@
 import Editor, { BeforeMount, loader } from '@monaco-editor/react';
-import type * as MonacoEditor from 'monaco-editor/esm/vs/index';
+import type * as MonacoEditor from 'monaco-editor';
 import React from 'react';
 
 import { Spinner } from '../spinners';

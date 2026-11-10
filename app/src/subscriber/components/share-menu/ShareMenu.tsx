@@ -2,6 +2,7 @@ import React from 'react';
 import { FaEnvelope } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
+
 import {
   Button,
   IContentModel,
@@ -10,8 +11,7 @@ import {
   Settings,
   Text,
   useModal,
-} from 'tno-core';
-
+} from '@/shared';
 import { Modal } from '@/subscriber/components/modal';
 import { useColleagues, useLookup } from '@/subscriber/store/hooks';
 import { useProfileStore } from '@/subscriber/store/slices';

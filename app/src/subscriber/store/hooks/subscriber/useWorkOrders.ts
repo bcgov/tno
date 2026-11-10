@@ -1,12 +1,13 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
+
 import {
   IContentModel,
   IPaged,
   IWorkOrderFilter,
   IWorkOrderModel,
   useApiSubscriberWorkOrders,
-} from 'tno-core';
+} from '@/shared';
 
 import { useAjaxWrapper } from '..';
 

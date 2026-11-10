@@ -5,6 +5,7 @@ import { FaFeather } from 'react-icons/fa';
 import { FaCopyright } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
 import {
   Col,
   ContentTypeName,
@@ -20,8 +21,7 @@ import {
   useWindowSize,
   WorkOrderStatusName,
   WorkOrderTypeName,
-} from 'tno-core';
-
+} from '@/shared';
 import { Bar } from '@/subscriber/components/bar';
 import { Button } from '@/subscriber/components/button';
 import { Sentiment } from '@/subscriber/components/sentiment';

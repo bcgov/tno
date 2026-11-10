@@ -1,5 +1,6 @@
 import { useFormikContext } from 'formik';
-import { Col, FormikText, Row, type IConnectionModel } from 'tno-core';
+
+import { Col, FormikText, Row, type IConnectionModel } from '@/shared';
 
 export const HTTPConfiguration = () => {
   const { values } = useFormikContext<IConnectionModel>();

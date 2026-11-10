@@ -1,8 +1,8 @@
 import moment from 'moment';
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Col, IReportResultModel, Loader, Show } from 'tno-core';
 
+import { Col, IReportResultModel, Loader, Show } from '@/shared';
 import { DateFilter } from '@/subscriber/components/date-filter';
 import { useContent, useReportInstances, useSettings } from '@/subscriber/store/hooks';
 

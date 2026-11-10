@@ -1,6 +1,6 @@
 import React from 'react';
-import { IContentModel, Row } from 'tno-core';
 
+import { IContentModel, Row } from '@/shared';
 import { useContent, useNavigateAndScroll } from '@/subscriber/store/hooks';
 
 import * as styled from './styled';

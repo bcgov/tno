@@ -1,11 +1,12 @@
 import moment from 'moment';
+
 import {
   getDistinct,
   IReportInstanceContentModel,
   IReportSectionChartTemplateModel,
   IReportSectionModel,
   TopicTypeName,
-} from 'tno-core';
+} from '@/shared';
 
 import { IConvertToChartOptions } from './convertToChart';
 import { getChartData } from './getChartData';

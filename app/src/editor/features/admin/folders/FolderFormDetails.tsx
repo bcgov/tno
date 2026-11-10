@@ -2,6 +2,9 @@ import { useFormikContext } from 'formik';
 import { debounce, noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
+
+import { useApp } from '@/editor/store/hooks';
+import { useUsers } from '@/editor/store/hooks/admin';
 import {
   Col,
   FieldSize,
@@ -16,10 +19,7 @@ import {
   UserAccountTypeName,
   type IFolderModel,
   type OptionItem,
-} from 'tno-core';
-
-import { useApp } from '@/editor/store/hooks';
-import { useUsers } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 /**
  * The page used to view and edit folder.

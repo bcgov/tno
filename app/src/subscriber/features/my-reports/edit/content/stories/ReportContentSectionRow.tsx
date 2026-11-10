@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaGripVertical, FaX } from 'react-icons/fa6';
-import { Checkbox, Col, IOptionItem, Row, Select, Text } from 'tno-core';
 
+import { Checkbox, Col, IOptionItem, Row, Select, Text } from '@/shared';
 import { Action } from '@/subscriber/components/action';
 import { Sentiment } from '@/subscriber/components/sentiment';
 import { ReportContentInlineText } from '@/subscriber/features/my-reports/components';

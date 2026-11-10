@@ -2,6 +2,7 @@ import React from 'react';
 import { FaFolder } from 'react-icons/fa';
 
 import * as styled from './styled';
+
 export interface IBreadcrumbProps {
   /** A label */
   label?: string;

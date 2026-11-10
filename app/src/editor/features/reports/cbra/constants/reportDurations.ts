@@ -1,4 +1,4 @@
-import { OptionItem } from 'tno-core';
+import { OptionItem } from '@/shared';
 
 export const reportDurations = [
   new OptionItem<number>('Last 7 days', 0),

@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   Checkbox,
   Col,
@@ -9,7 +10,7 @@ import {
   ValueType,
   type IActionModel,
   type IOptionItem,
-} from 'tno-core';
+} from '@/shared';
 
 import { contentFieldOptionItems } from '../constants';
 import { createOption, findOptionByValue, hasValueSource, toNumberOrUndefined } from '../utils';

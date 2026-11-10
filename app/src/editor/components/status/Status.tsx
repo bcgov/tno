@@ -1,8 +1,8 @@
 import { FaBan, FaCheckCircle, FaRegCircle, FaSpinner } from 'react-icons/fa';
 import { FaRegCircleQuestion } from 'react-icons/fa6';
-import { ContentStatusName } from 'tno-core';
 
 import { getStatusText } from '@/editor/features/content/list-view/utils';
+import { ContentStatusName } from '@/shared';
 
 export interface IStatusProps {
   value: ContentStatusName;

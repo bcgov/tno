@@ -1,6 +1,13 @@
 import moment from 'moment';
 import React from 'react';
 import { FaArrowAltCircleRight, FaBinoculars } from 'react-icons/fa';
+
+import { AdvancedSearchKeys, advancedSearchOptions } from '@/editor/features/content/constants';
+import {
+  type IContentListAdvancedFilter,
+  type IContentListFilter,
+} from '@/editor/features/content/interfaces';
+import { useContent, useLookupOptions } from '@/editor/store/hooks';
 import {
   Checkbox,
   Col,
@@ -20,14 +27,7 @@ import {
   Text,
   ToolBarSection,
   type IOptionItem,
-} from 'tno-core';
-
-import { AdvancedSearchKeys, advancedSearchOptions } from '@/editor/features/content/constants';
-import {
-  type IContentListAdvancedFilter,
-  type IContentListFilter,
-} from '@/editor/features/content/interfaces';
-import { useContent, useLookupOptions } from '@/editor/store/hooks';
+} from '@/shared';
 
 export interface IAdvancedFilterProps {
   /** The current filter values. */

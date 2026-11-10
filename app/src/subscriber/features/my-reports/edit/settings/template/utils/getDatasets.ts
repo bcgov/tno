@@ -1,10 +1,11 @@
 import moment from 'moment';
+
 import {
   getDistinct,
   IReportInstanceContentModel,
   IReportSectionChartTemplateModel,
   TopicTypeName,
-} from 'tno-core';
+} from '@/shared';
 
 import { IConvertToChartOptions } from './convertToChart';
 import { getSentimentLabel } from './getSentimentLabel';

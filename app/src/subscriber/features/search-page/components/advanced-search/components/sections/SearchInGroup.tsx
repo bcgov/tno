@@ -1,5 +1,6 @@
 import React from 'react';
-import { Checkbox, CheckboxSize, Col, Row } from 'tno-core';
+
+import { Checkbox, CheckboxSize, Col, Row } from '@/shared';
 
 import { useSearchSettings } from '../../SearchSettingsContext';
 

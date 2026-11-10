@@ -1,7 +1,7 @@
 import React from 'react';
 import { toast } from 'react-toastify';
-import { Checkbox, getDistinct, ISubscriberUserModel, Row } from 'tno-core';
 
+import { Checkbox, getDistinct, ISubscriberUserModel, Row } from '@/shared';
 import { Button } from '@/subscriber/components/button';
 import { useLookup, useUsers } from '@/subscriber/store/hooks';
 import { useProfileStore } from '@/subscriber/store/slices';

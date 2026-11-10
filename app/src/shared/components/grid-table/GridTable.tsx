@@ -16,8 +16,8 @@ import {
   useTable,
 } from 'react-table';
 
-import { Loading, Show } from '..';
 import { IPageSizeOptions, Pager, SortIndicator } from '.';
+import { Loading, Show } from '..';
 import * as styled from './styled';
 
 export enum PagingType {

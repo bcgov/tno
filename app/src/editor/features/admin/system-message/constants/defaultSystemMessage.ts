@@ -1,4 +1,4 @@
-import { type ISystemMessageModel } from 'tno-core';
+import { type ISystemMessageModel } from '@/shared';
 
 export const defaultSystemMessage: ISystemMessageModel = {
   id: 0,

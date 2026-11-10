@@ -1,5 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { WorkOrderTypeName, type IWorkOrderFilter } from 'tno-core';
+
+import { WorkOrderTypeName, type IWorkOrderFilter } from '@/shared';
 
 import { type IWorkOrderState } from './interfaces';
 

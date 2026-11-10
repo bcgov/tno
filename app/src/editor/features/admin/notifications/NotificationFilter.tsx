@@ -1,5 +1,6 @@
 import React from 'react';
-import { Checkbox, IconButton, Row, Text } from 'tno-core';
+
+import { Checkbox, IconButton, Row, Text } from '@/shared';
 
 interface IAdminFilterProps {
   notificationId?: number;

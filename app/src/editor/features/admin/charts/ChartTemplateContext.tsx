@@ -1,6 +1,7 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { type IChartTemplateModel } from 'tno-core';
+
+import { type IChartTemplateModel } from '@/shared';
 
 import { defaultChartRequestForm, defaultChartTemplate } from './constants';
 import { type IChartRequestForm } from './interfaces';

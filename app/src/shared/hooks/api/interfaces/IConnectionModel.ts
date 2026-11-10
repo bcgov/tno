@@ -1,5 +1,5 @@
-import { ConnectionTypeName } from '..';
 import { ISortableModel } from '.';
+import { ConnectionTypeName } from '..';
 
 export interface IConnectionModel extends ISortableModel<number> {
   connectionType: ConnectionTypeName;

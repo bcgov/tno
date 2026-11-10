@@ -1,13 +1,13 @@
 import React from 'react';
+
+import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
+import { useAdminStore, type IAdminState } from '@/editor/store/slices';
 import {
   useApiAdminFolders,
   type IFolderContentModel,
   type IFolderFilter,
   type IFolderModel,
-} from 'tno-core';
-
-import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
-import { useAdminStore, type IAdminState } from '@/editor/store/slices';
+} from '@/shared';
 
 interface IFolderController {
   findFolders: (filter: IFolderFilter) => Promise<IFolderModel[]>;

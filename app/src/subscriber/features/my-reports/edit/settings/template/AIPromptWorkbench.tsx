@@ -1,14 +1,14 @@
 import React from 'react';
 import { FaCode, FaPaperPlane, FaPlay } from 'react-icons/fa6';
 import styled from 'styled-components';
+
 import {
   IReportMessageModel,
   IReportSectionSettingsModel,
   MessageTargetKey,
   Spinner,
   Wysiwyg,
-} from 'tno-core';
-
+} from '@/shared';
 import { Button } from '@/subscriber/components/button';
 import { useApiHub, useReportAI } from '@/subscriber/store/hooks';
 import {

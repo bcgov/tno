@@ -3,7 +3,7 @@ import {
   OptionItem,
   ReportTypeName,
   type IReportTemplateModel,
-} from 'tno-core';
+} from '@/shared';
 
 export const getReportTemplateOptions = (
   reportTemplates: IReportTemplateModel[],

@@ -1,5 +1,6 @@
 import { FaCircle, FaFrown, FaMeh, FaSmile } from 'react-icons/fa';
-import { Show } from 'tno-core';
+
+import { Show } from '@/shared';
 
 import * as styled from './styled';
 

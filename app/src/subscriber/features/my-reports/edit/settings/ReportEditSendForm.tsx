@@ -1,7 +1,7 @@
 import { FaInfoCircle } from 'react-icons/fa';
 import { FaClock, FaUser, FaUserClock } from 'react-icons/fa6';
-import { Checkbox, Col, getReportKind, ReportKindName, Row, Show } from 'tno-core';
 
+import { Checkbox, Col, getReportKind, ReportKindName, Row, Show } from '@/shared';
 import { Button } from '@/subscriber/components/button';
 import { IToggleOption, Toggle } from '@/subscriber/components/form';
 

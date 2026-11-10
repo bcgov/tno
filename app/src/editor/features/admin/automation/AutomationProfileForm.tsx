@@ -6,6 +6,18 @@ import { FaEdit, FaHistory, FaPlus, FaTrash } from 'react-icons/fa';
 import { FaRegCalendar, FaRegClock } from 'react-icons/fa6';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
+import { FormikForm } from '@/editor/components/formik';
+import { defaultFilter } from '@/editor/features/admin/filters/constants/defaultFilter';
+import { defaultLLM } from '@/editor/features/admin/llms/constants/defaultLLM';
+import { useApiHub, useLookup } from '@/editor/store/hooks';
+import {
+  useAutomationProfiles,
+  useFilters,
+  useLLMs,
+  useNotifications,
+  useReports,
+} from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -28,19 +40,7 @@ import {
   Text,
   useModal,
   type IOptionItem,
-} from 'tno-core';
-
-import { FormikForm } from '@/editor/components/formik';
-import { defaultFilter } from '@/editor/features/admin/filters/constants/defaultFilter';
-import { defaultLLM } from '@/editor/features/admin/llms/constants/defaultLLM';
-import { useApiHub, useLookup } from '@/editor/store/hooks';
-import {
-  useAutomationProfiles,
-  useFilters,
-  useLLMs,
-  useNotifications,
-  useReports,
-} from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import { AutomationDebugging } from './AutomationDebugging';
 import {

@@ -11,8 +11,8 @@ import { BrowserRouter } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
 import { StyleSheetManager } from 'styled-components';
-import { createKeycloakInstance, Loading, Show, useKeycloakEventHandler } from 'tno-core';
 
+import { createKeycloakInstance, Loading, Show, useKeycloakEventHandler } from '@/shared';
 import { ContentListProvider } from '@/subscriber/components/content-list/ContentListContext';
 import { LayoutAnonymous } from '@/subscriber/components/layout';
 import { AppRouter } from '@/subscriber/features/router';

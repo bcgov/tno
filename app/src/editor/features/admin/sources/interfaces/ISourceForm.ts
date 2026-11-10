@@ -1,4 +1,4 @@
-import { type IMediaTypeModel, type ISourceModel } from 'tno-core';
+import { type IMediaTypeModel, type ISourceModel } from '@/shared';
 
 export interface ISourceForm extends Omit<
   ISourceModel,

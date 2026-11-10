@@ -1,6 +1,7 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { type IReportModel, type IReportResultModel } from 'tno-core';
+
+import { type IReportModel, type IReportResultModel } from '@/shared';
 
 import { defaultReport } from './constants';
 import { openPreviewInNewTab } from './utils/openPreviewInNewTab';

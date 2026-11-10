@@ -1,6 +1,9 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
+import { FormikForm } from '@/editor/components/formik';
+import { useReportTemplates } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -13,10 +16,7 @@ import {
   Tabs,
   useModal,
   type IReportTemplateModel,
-} from 'tno-core';
-
-import { FormikForm } from '@/editor/components/formik';
-import { useReportTemplates } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import { defaultReportTemplate } from './constants';
 import { ReportTemplateFormCharts } from './ReportTemplateFormCharts';

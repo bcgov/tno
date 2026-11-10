@@ -1,6 +1,7 @@
 import React from 'react';
 import { FaCopy, FaTrash, FaUserPlus, FaUsers } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+
 import {
   Checkbox,
   Claim,
@@ -21,8 +22,7 @@ import {
   useModal,
   UserAccountTypeName,
   validateEmail,
-} from 'tno-core';
-
+} from '@/shared';
 import { Action } from '@/subscriber/components/action';
 import { Button } from '@/subscriber/components/button';
 import { useApp, useReports, useUsers } from '@/subscriber/store/hooks';

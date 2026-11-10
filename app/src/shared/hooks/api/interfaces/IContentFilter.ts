@@ -1,5 +1,5 @@
-import { ContentStatus, ContentTypeName, LogicalOperator } from '..';
 import { ISortPageFilter } from '.';
+import { ContentStatus, ContentTypeName, LogicalOperator } from '..';
 
 export interface IContentFilter extends ISortPageFilter {
   otherSource?: string;

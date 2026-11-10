@@ -1,9 +1,9 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
+import { INotificationModel, useApi } from '..';
 import { IUserColleagueModel } from '../..';
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
-import { INotificationModel, useApi } from '..';
 
 /**
  * Common hook to make requests to the API.

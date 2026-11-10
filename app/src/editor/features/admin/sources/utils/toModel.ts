@@ -1,4 +1,4 @@
-import { type ISourceModel } from 'tno-core';
+import { type ISourceModel } from '@/shared';
 
 import { type ISourceForm } from '../interfaces';
 

@@ -1,4 +1,7 @@
 import React from 'react';
+
+import { FormikForm } from '@/editor/components/formik';
+import { useApp } from '@/editor/store/hooks';
 import {
   Button,
   ButtonVariant,
@@ -9,10 +12,7 @@ import {
   ToggleGroup,
   TopicTypeName,
   type ITopicModel,
-} from 'tno-core';
-
-import { FormikForm } from '@/editor/components/formik';
-import { useApp } from '@/editor/store/hooks';
+} from '@/shared';
 
 import { defaultTopic } from './constants';
 import * as styled from './styled';

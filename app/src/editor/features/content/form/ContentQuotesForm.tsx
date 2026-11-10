@@ -1,5 +1,6 @@
 import { useFormikContext } from 'formik';
-import { Col, FormikCheckbox, FormikText, Row, type IQuoteModel } from 'tno-core';
+
+import { Col, FormikCheckbox, FormikText, Row, type IQuoteModel } from '@/shared';
 
 import { type IContentForm } from './interfaces';
 import * as styled from './styled';

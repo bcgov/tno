@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaCircle } from 'react-icons/fa';
-import { IReportModel } from 'tno-core';
 
+import { IReportModel } from '@/shared';
 import { useProfileStore } from '@/subscriber/store/slices';
 
 import * as styled from './styled';

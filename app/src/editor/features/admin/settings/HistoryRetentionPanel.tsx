@@ -1,7 +1,7 @@
 import React from 'react';
-import { Button, ButtonVariant, Col, Row, Show, type ISettingModel } from 'tno-core';
 
 import { useHistoryRetention } from '@/editor/store/hooks/admin';
+import { Button, ButtonVariant, Col, Row, Show, type ISettingModel } from '@/shared';
 
 import { type IHistoryPurgeModel, type IHistoryPurgePreviewModel } from './interfaces';
 

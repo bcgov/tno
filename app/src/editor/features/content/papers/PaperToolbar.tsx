@@ -2,6 +2,14 @@ import React from 'react';
 import { FaFileImage, FaFileInvoice } from 'react-icons/fa';
 import { FaFileArrowUp } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
+
+import {
+  useContent,
+  useLookupOptions,
+  useNotifications,
+  useReports,
+  useSettings,
+} from '@/editor/store/hooks';
 import {
   ContentTypeName,
   Modal,
@@ -13,15 +21,7 @@ import {
   ToolBarSection,
   useModal,
   type IOptionItem,
-} from 'tno-core';
-
-import {
-  useContent,
-  useLookupOptions,
-  useNotifications,
-  useReports,
-  useSettings,
-} from '@/editor/store/hooks';
+} from '@/shared';
 
 import { type IContentListFilter } from '../interfaces';
 import { CreateNewSection } from '../list-view/components/tool-bar/filter';

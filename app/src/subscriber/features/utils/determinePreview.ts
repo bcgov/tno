@@ -1,5 +1,4 @@
-import { ContentTypeName, IContentModel } from 'tno-core';
-
+import { ContentTypeName, IContentModel } from '@/shared';
 import { trimWords } from '@/subscriber/features/search-page/utils';
 
 export const determinePreview = (item: IContentModel) => {

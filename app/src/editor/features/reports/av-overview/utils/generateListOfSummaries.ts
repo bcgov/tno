@@ -2,7 +2,7 @@ import {
   getDistinct,
   type IAVOverviewSectionItemModel,
   type IAVOverviewSectionModel,
-} from 'tno-core';
+} from '@/shared';
 
 export interface ISectionSummary {
   key: string;

@@ -1,5 +1,6 @@
 import styled from 'styled-components';
-import { ToolBarSection } from 'tno-core';
+
+import { ToolBarSection } from '@/shared';
 
 export const CreateNewSection = styled(ToolBarSection)`
   .create-new {

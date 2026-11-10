@@ -8,7 +8,7 @@ const getAnalysis = vi.hoisted(() => vi.fn());
 vi.mock('@/subscriber/store/hooks/subscriber/useContentAnalysis', () => ({
   useContentAnalysis: () => getAnalysis,
 }));
-vi.mock('tno-core', () => ({
+vi.mock('@/shared', () => ({
   Col: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   Show: ({ visible, children }: { visible: boolean; children: React.ReactNode }) =>
     visible ? <>{children}</> : null,

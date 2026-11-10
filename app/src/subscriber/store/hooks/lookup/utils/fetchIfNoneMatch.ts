@@ -1,5 +1,6 @@
 import { AxiosError, AxiosResponse } from 'axios';
-import { addOrUpdateArray, getFromLocalStorage, ICacheModel } from 'tno-core';
+
+import { addOrUpdateArray, getFromLocalStorage, ICacheModel } from '@/shared';
 
 import { initFromLocalStorage } from '.';
 

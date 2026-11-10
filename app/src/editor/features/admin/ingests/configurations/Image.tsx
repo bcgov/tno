@@ -1,6 +1,7 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { FormikText, type IIngestModel } from 'tno-core';
+
+import { FormikText, type IIngestModel } from '@/shared';
 
 import { ImportContent } from './ImportContent';
 import * as styled from './styled';

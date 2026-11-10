@@ -1,6 +1,5 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
-import { useApi } from 'tno-core';
 
 import {
   type IAutomationActionDescriptor,
@@ -18,6 +17,7 @@ import {
   type IAutomationRunModel,
   type IAutomationRunRequestModel,
 } from '@/editor/features/admin/automation/interfaces';
+import { useApi } from '@/shared';
 
 export const useApiAdminAutomation = () => {
   const api = useApi();

@@ -1,6 +1,6 @@
 import React from 'react';
-import { IReportTemplateModel, useApiSubscriberReportTemplates } from 'tno-core';
 
+import { IReportTemplateModel, useApiSubscriberReportTemplates } from '@/shared';
 import { useAjaxWrapper } from '@/subscriber/store/hooks';
 
 interface IReportController {

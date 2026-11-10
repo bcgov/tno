@@ -1,13 +1,13 @@
 import React from 'react';
+
+import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
+import { useAdminStore, type IAdminState } from '@/editor/store/slices';
 import {
   useApiAdminIngestTypes,
   type IIngestTypeFilter,
   type IIngestTypeModel,
   type IPaged,
-} from 'tno-core';
-
-import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
-import { useAdminStore, type IAdminState } from '@/editor/store/slices';
+} from '@/shared';
 
 interface IIngestTypeController {
   findAllIngestTypes: () => Promise<IIngestTypeModel[]>;

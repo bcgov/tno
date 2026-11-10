@@ -1,9 +1,9 @@
 import { getIn } from 'formik';
-import { type IContentModel } from 'tno-core';
 
 import { naturalSortValue } from '@/editor/features/content/list-view/utils/naturalSort';
 import { type ISortBy } from '@/editor/features/interfaces';
 import { useLookup } from '@/editor/store/hooks';
+import { type IContentModel } from '@/shared';
 
 import { defaultSort } from '../constants';
 

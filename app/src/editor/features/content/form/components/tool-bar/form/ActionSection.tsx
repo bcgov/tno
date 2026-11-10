@@ -1,10 +1,10 @@
 import React from 'react';
 import { FaHighlighter } from 'react-icons/fa';
-import { Row, Settings, ToolBarSection } from 'tno-core';
 
 import { ContentActions } from '@/editor/features/content/form';
 import { type IContentForm } from '@/editor/features/content/form/interfaces';
 import { useLookup } from '@/editor/store/hooks';
+import { Row, Settings, ToolBarSection } from '@/shared';
 
 export interface IActionSectionProps {
   /** Form values. */

@@ -1,5 +1,6 @@
 import moment from 'moment';
-import { generateQuery } from 'tno-core';
+
+import { generateQuery } from '@/shared';
 
 /**
  * Generate an elasticsearch query.

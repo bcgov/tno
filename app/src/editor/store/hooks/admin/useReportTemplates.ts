@@ -1,8 +1,8 @@
 import React from 'react';
-import { useApiAdminReportTemplates, type IReportTemplateModel } from 'tno-core';
 
 import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
 import { useAdminStore, type IAdminState } from '@/editor/store/slices';
+import { useApiAdminReportTemplates, type IReportTemplateModel } from '@/shared';
 
 interface IReportTemplateController {
   findAllReportTemplates: () => Promise<IReportTemplateModel[]>;

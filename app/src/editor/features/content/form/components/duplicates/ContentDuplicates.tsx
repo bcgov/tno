@@ -1,7 +1,8 @@
 import React from 'react';
 import { FaClone } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import { useApi } from 'tno-core';
+
+import { useApi } from '@/shared';
 
 interface ILinkedContent {
   id: number;

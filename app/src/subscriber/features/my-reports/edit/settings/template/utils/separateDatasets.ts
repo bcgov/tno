@@ -1,5 +1,6 @@
 import { Moment } from 'moment';
-import { getDistinct, IReportInstanceContentModel } from 'tno-core';
+
+import { getDistinct, IReportInstanceContentModel } from '@/shared';
 
 import { IConvertToChartOptions } from './convertToChart';
 

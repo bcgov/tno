@@ -1,6 +1,7 @@
 import { Formik, useFormikContext } from 'formik';
 import React from 'react';
-import { type IFilterAIManualFilterProps, type IFilterSettingsModel } from 'tno-core';
+
+import { type IFilterAIManualFilterProps, type IFilterSettingsModel } from '@/shared';
 
 import { FilterSettingsForm } from './FilterSettingsForm';
 import * as styled from './styled';

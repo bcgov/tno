@@ -1,10 +1,11 @@
 import React, { InputHTMLAttributes } from 'react';
 
-import { instanceOfIOption, IOptionItem } from '..';
 import { Checkbox, CheckboxVariant } from '.';
+import { instanceOfIOption, IOptionItem } from '..';
 
-export interface ICheckboxGroupProps<CT extends string | number | IOptionItem | HTMLOptionElement>
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+export interface ICheckboxGroupProps<
+  CT extends string | number | IOptionItem | HTMLOptionElement,
+> extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
   /**
    * The control name.
    */

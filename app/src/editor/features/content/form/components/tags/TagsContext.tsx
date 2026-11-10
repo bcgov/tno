@@ -1,9 +1,9 @@
 import { useFormikContext } from 'formik';
 import _ from 'lodash';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { type IOptionItem } from 'tno-core';
 
 import { useLookup } from '@/editor/store/hooks';
+import { type IOptionItem } from '@/shared';
 
 import { useTagManagement } from './hooks/useTagManagement';
 import {

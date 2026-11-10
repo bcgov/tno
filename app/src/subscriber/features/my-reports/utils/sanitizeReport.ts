@@ -1,4 +1,4 @@
-import { IReportInstanceContentModel } from 'tno-core';
+import { IReportInstanceContentModel } from '@/shared';
 
 import { IReportForm } from '../interfaces';
 

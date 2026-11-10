@@ -1,5 +1,6 @@
 import parse from 'html-react-parser';
-import { IFilterSettingsModel } from 'tno-core';
+
+import { IFilterSettingsModel } from '@/shared';
 
 /**
  * Escapes special characters in a string to be used in a regular expression.

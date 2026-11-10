@@ -14,7 +14,7 @@ export const createKeycloakInstance = async (initOptions?: Keycloak.KeycloakInit
     const config = data as IKeycloakConfig;
 
     const result = new Keycloak({
-      url: process.env.REACT_APP_KEYCLOAK_AUTH_SERVER_URL ?? config['auth-server-url'],
+      url: import.meta.env.VITE_KEYCLOAK_AUTH_SERVER_URL ?? config['auth-server-url'],
       realm: config.realm,
       clientId: config.resource,
     });

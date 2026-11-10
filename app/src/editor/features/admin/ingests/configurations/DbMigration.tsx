@@ -2,6 +2,7 @@ import { useFormikContext } from 'formik';
 import moment from 'moment';
 import React from 'react';
 import { FaTrash } from 'react-icons/fa';
+
 import {
   Button,
   ButtonVariant,
@@ -16,7 +17,7 @@ import {
   Show,
   TimeInput,
   type IIngestModel,
-} from 'tno-core';
+} from '@/shared';
 
 import { ImportMigrationType } from './constants';
 import { ImportContent } from './ImportContent';

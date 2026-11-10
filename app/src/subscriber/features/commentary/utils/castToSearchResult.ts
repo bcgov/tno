@@ -1,5 +1,4 @@
-import { IContentMessageModel } from 'tno-core';
-
+import { IContentMessageModel } from '@/shared';
 import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 
 export const castToSearchResult = (message: IContentMessageModel): IContentSearchResult => {

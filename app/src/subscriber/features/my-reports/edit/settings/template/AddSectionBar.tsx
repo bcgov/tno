@@ -11,8 +11,8 @@ import {
   FaNewspaper,
 } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
-import { ReportSectionTypeName, Row, Settings } from 'tno-core';
 
+import { ReportSectionTypeName, Row, Settings } from '@/shared';
 import { Button } from '@/subscriber/components/button';
 import { defaultReportSection } from '@/subscriber/features/my-reports/constants';
 import { IReportForm } from '@/subscriber/features/my-reports/interfaces';

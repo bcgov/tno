@@ -1,4 +1,4 @@
-import { ContentStatusName } from 'tno-core';
+import { ContentStatusName } from '@/shared';
 
 /**
  * Changes the status based on the current status.

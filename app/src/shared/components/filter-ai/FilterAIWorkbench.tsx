@@ -191,7 +191,7 @@ export const FilterAIWorkbench: React.FC<IFilterAIWorkbenchProps> = ({
       setThread([]);
       setQuestion('');
       setChatError(undefined);
-      setDraftPrompt(editor === 'textarea' ? htmlToPromptText(prompt) : prompt ?? '');
+      setDraftPrompt(editor === 'textarea' ? htmlToPromptText(prompt) : (prompt ?? ''));
       // The stories listed are published ones unless the toggle is switched.
       const initialWorking = { ...settings, searchUnpublished: false };
       replaceWorking(initialWorking);
@@ -597,7 +597,7 @@ export const FilterAIWorkbench: React.FC<IFilterAIWorkbenchProps> = ({
                                 setDraftPrompt(
                                   editor === 'textarea'
                                     ? htmlToPromptText(turn.suggestedPrompt)
-                                    : turn.suggestedPrompt ?? '',
+                                    : (turn.suggestedPrompt ?? ''),
                                 )
                               }
                             >
@@ -761,8 +761,8 @@ export const FilterAIWorkbench: React.FC<IFilterAIWorkbenchProps> = ({
               !canApply
                 ? 'Generate the filter or change it first'
                 : isStale
-                ? 'Use this filter with the current draft prompt'
-                : 'Use this filter and prompt'
+                  ? 'Use this filter with the current draft prompt'
+                  : 'Use this filter and prompt'
             }
             onClick={() => void apply()}
           >

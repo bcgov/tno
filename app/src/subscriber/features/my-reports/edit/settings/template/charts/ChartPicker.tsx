@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   chartTypeOptions,
   Checkbox,
@@ -8,8 +9,7 @@ import {
   FormikText,
   mergeChartSettings,
   Row,
-} from 'tno-core';
-
+} from '@/shared';
 import { useReportEditContext } from '@/subscriber/features/my-reports/edit/ReportEditContext';
 
 import { IChartSectionProps } from './IChartSectionProps';

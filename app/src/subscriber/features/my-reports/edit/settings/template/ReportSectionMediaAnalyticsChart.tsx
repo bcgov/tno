@@ -9,8 +9,8 @@ import {
   FaTrash,
   FaWandMagicSparkles,
 } from 'react-icons/fa6';
-import { Col, IReportInstanceContentModel, Row, Show, ToggleButton } from 'tno-core';
 
+import { Col, IReportInstanceContentModel, Row, Show, ToggleButton } from '@/shared';
 import { Action } from '@/subscriber/components/action';
 import { useReports } from '@/subscriber/store/hooks';
 

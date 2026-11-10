@@ -1,6 +1,8 @@
 import { useFormikContext } from 'formik';
 import moment from 'moment';
 import * as React from 'react';
+
+import { useLookupOptions } from '@/editor/store/hooks';
 import {
   FieldSize,
   filterEnabledOptions,
@@ -11,9 +13,7 @@ import {
   Row,
   TimeInput,
   type IOptionItem,
-} from 'tno-core';
-
-import { useLookupOptions } from '@/editor/store/hooks';
+} from '@/shared';
 
 import { type IContentForm } from './interfaces';
 

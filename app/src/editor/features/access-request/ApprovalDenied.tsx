@@ -1,9 +1,9 @@
 import React from 'react';
 import { toast } from 'react-toastify';
-import { Button, Col, FieldSize, FormikText, FormikTextArea, Row, type IUserModel } from 'tno-core';
 
 import { FormikForm } from '@/editor/components/formik';
 import { useApp } from '@/editor/store/hooks';
+import { Button, Col, FieldSize, FormikText, FormikTextArea, Row, type IUserModel } from '@/shared';
 
 import { toUserModel } from './utils';
 

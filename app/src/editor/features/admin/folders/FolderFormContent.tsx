@@ -1,8 +1,8 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { Col } from 'tno-core';
 
 import { DragDropContentContext } from '@/editor/components/content';
+import { Col } from '@/shared';
 
 import { type IFolderForm } from './interfaces';
 

@@ -4,7 +4,7 @@ import {
   Row,
   type ITableHookColumn,
   type IUserAVOverviewModel,
-} from 'tno-core';
+} from '@/shared';
 
 import { type IAVOverviewTemplateForm } from '../interfaces';
 

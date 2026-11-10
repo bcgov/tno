@@ -22,7 +22,7 @@ export const getEnumStringOptions = (
   const prepend: IOptionItem[] = Array.isArray(prependOrOptions) ? prependOrOptions : [];
   const options: IEnumStringOptions = Array.isArray(prependOrOptions)
     ? { splitOnCapital: true }
-    : prependOrOptions ?? { splitOnCapital: true };
+    : (prependOrOptions ?? { splitOnCapital: true });
   const append: IOptionItem[] = options.append ? options.append : [];
 
   const items = Object.values(enumerable);

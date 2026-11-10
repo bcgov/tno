@@ -1,6 +1,8 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { toast } from 'react-toastify';
+
+import { useReports } from '@/editor/store/hooks/admin';
 import {
   Checkbox,
   FlexboxTable,
@@ -9,9 +11,7 @@ import {
   useModal,
   type IReportInstanceModel,
   type IReportModel,
-} from 'tno-core';
-
-import { useReports } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import { instanceColumns } from './constants';
 

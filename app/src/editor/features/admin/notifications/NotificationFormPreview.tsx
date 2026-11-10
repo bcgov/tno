@@ -2,6 +2,8 @@ import { type AxiosError } from 'axios';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { toast } from 'react-toastify';
+
+import { useNotifications } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -10,9 +12,7 @@ import {
   Text,
   type INotificationModel,
   type INotificationResultModel,
-} from 'tno-core';
-
-import { useNotifications } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 /**
  * The page used to view and edit reports.

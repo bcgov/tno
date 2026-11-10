@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   Checkbox,
   Claim,
@@ -13,8 +14,7 @@ import {
   Row,
   Select,
   Show,
-} from 'tno-core';
-
+} from '@/shared';
 import { useLookup, useReportAI } from '@/subscriber/store/hooks';
 import { IReportAISectionPromptModel } from '@/subscriber/store/hooks/subscriber/interfaces';
 import { useAppStore } from '@/subscriber/store/slices';

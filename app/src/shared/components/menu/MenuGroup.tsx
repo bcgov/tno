@@ -2,10 +2,10 @@ import { Menu as HMenu } from '@headlessui/react';
 import React, { HTMLAttributes } from 'react';
 import { IconType } from 'react-icons/lib';
 
+import { MenuStatus } from '.';
 import { useKeycloakWrapper } from '../../hooks/keycloak';
 import { Claim, Role } from '../../hooks/keycloak/constants';
 import { isInViewport } from '../../utils';
-import { MenuStatus } from '.';
 import * as styled from './styled';
 
 interface IMenuGroupProps extends HTMLAttributes<HTMLElement> {

@@ -2,6 +2,7 @@ import React from 'react';
 import { FaTelegramPlane } from 'react-icons/fa';
 import { FaRegClock } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
+
 import {
   Claim,
   Col,
@@ -13,8 +14,7 @@ import {
   Text,
   useModal,
   validateEmail,
-} from 'tno-core';
-
+} from '@/shared';
 import { Button } from '@/subscriber/components/button';
 import { Modal } from '@/subscriber/components/modal';
 import { ReportStatus } from '@/subscriber/features/my-reports/ReportStatus';

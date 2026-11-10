@@ -1,5 +1,6 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
+
 import {
   Button,
   ButtonVariant,
@@ -11,7 +12,7 @@ import {
   Text,
   type IColProps,
   type IIngestModel,
-} from 'tno-core';
+} from '@/shared';
 
 import { getStatus } from './utils';
 

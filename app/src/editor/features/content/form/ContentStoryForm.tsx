@@ -2,9 +2,9 @@ import 'react-quill-new/dist/quill.snow.css';
 
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { ContentTypeName, FormikContentWysiwyg, Show } from 'tno-core';
 
 import { useLookup } from '@/editor/store/hooks';
+import { ContentTypeName, FormikContentWysiwyg, Show } from '@/shared';
 
 import { useExtractTags } from './hooks';
 import { type IContentForm } from './interfaces';

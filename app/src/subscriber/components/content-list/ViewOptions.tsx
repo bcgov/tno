@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaGear } from 'react-icons/fa6';
-import { Checkbox, Col, ISubscriberUserModel, Radio, Row } from 'tno-core';
 
+import { Checkbox, Col, ISubscriberUserModel, Radio, Row } from '@/shared';
 import { TooltipMenu } from '@/subscriber/components/tooltip-menu';
 import { useUsers } from '@/subscriber/store/hooks';
 import { useAppStore } from '@/subscriber/store/slices';

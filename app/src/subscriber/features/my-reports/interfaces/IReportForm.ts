@@ -1,4 +1,4 @@
-import { IReportModel, IReportSettingsModel } from 'tno-core';
+import { IReportModel, IReportSettingsModel } from '@/shared';
 
 import { IReportSectionForm } from './IReportSectionForm';
 

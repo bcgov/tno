@@ -4,7 +4,7 @@ import {
   type IFilterModel,
   type IFolderModel,
   type IReportModel,
-} from 'tno-core';
+} from '@/shared';
 
 export const getSortableItems = <T extends IFolderModel | IFilterModel | IReportModel>(
   items: T[],

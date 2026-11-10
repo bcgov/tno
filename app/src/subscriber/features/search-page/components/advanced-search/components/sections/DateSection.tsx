@@ -2,7 +2,8 @@ import moment from 'moment';
 import React from 'react';
 import ReactDatePicker from 'react-datepicker';
 import { FaX } from 'react-icons/fa6';
-import { Row, ToggleGroup } from 'tno-core';
+
+import { Row, ToggleGroup } from '@/shared';
 
 import { useSearchSettings } from '../../SearchSettingsContext';
 import { QuickPickerNames } from './constants';

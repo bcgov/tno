@@ -1,4 +1,4 @@
-import { Button, Col, Show, useKeycloakWrapper } from 'tno-core';
+import { Button, Col, Show, useKeycloakWrapper } from '@/shared';
 
 export const LoginPanel: React.FC = () => {
   const keycloak = useKeycloakWrapper();

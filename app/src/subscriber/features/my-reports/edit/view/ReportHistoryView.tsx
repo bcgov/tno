@@ -1,6 +1,6 @@
 import { FaEye, FaRegClock, FaX } from 'react-icons/fa6';
-import { Col, Row } from 'tno-core';
 
+import { Col, Row } from '@/shared';
 import { Button } from '@/subscriber/components/button';
 import { formatDate, formatTime } from '@/subscriber/features/utils';
 import { useReportsStore } from '@/subscriber/store/slices';

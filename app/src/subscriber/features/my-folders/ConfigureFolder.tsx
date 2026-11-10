@@ -4,6 +4,7 @@ import { FaGear, FaTrash } from 'react-icons/fa6';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
+
 import {
   Checkbox,
   Col,
@@ -20,8 +21,7 @@ import {
   sortObject,
   Text,
   useModal,
-} from 'tno-core';
-
+} from '@/shared';
 import { Button } from '@/subscriber/components/button';
 import { Modal } from '@/subscriber/components/modal';
 import { useContent, useFilters, useFolders } from '@/subscriber/store/hooks';

@@ -1,4 +1,4 @@
-import { formatDashboardDate, type IReportModel } from 'tno-core';
+import { formatDashboardDate, type IReportModel } from '@/shared';
 
 export const getLastSent = (report: IReportModel) => {
   const sentOn = report.instances.find((i) => i.sentOn !== undefined)?.sentOn;

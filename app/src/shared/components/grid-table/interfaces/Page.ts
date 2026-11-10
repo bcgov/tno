@@ -1,5 +1,5 @@
-import { calcPages } from '../../../utils';
 import { IPage } from '.';
+import { calcPages } from '../../../utils';
 
 export class Page<T> implements IPage<T> {
   pageIndex: number;

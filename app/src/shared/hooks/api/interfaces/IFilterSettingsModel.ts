@@ -1,5 +1,5 @@
-import { ContentStatusName, ContentTypeName } from '../constants';
 import { IFilterActionSettingsModel, IFilterExtendedQuery, ISortField } from '.';
+import { ContentStatusName, ContentTypeName } from '../constants';
 
 export interface IFilterSettingsModel {
   /** The prompt used for the last successful generation of these settings. */

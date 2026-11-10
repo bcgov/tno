@@ -1,10 +1,10 @@
 import React, { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
-import { Claim, ContentTypeName, InternalServerError, NotFound } from 'tno-core';
 
 import { AdminRouter } from '@/editor/features/admin';
 import ReportInstancesRedirect from '@/editor/features/reports/ReportInstancesRedirect';
 import { useApp } from '@/editor/store/hooks';
+import { Claim, ContentTypeName, InternalServerError, NotFound } from '@/shared';
 
 const DefaultLayout = lazy(async () => await import('@/editor/components/layout/DefaultLayout'));
 const AccessRequest = lazy(

@@ -1,4 +1,4 @@
-import { IContentModel, IReportInstanceContentModel } from 'tno-core';
+import { IContentModel, IReportInstanceContentModel } from '@/shared';
 
 export type MinimalReportInstanceContent = Pick<
   IReportInstanceContentModel,

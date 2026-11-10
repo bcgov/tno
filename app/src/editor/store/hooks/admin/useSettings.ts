@@ -1,8 +1,8 @@
 import React from 'react';
-import { useApiAdminSettings, type ISettingModel } from 'tno-core';
 
 import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
 import { useAdminStore, type IAdminState } from '@/editor/store/slices';
+import { useApiAdminSettings, type ISettingModel } from '@/shared';
 
 interface ISettingController {
   findAllSettings: () => Promise<ISettingModel[]>;

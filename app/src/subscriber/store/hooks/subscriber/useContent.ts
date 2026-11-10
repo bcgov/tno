@@ -5,13 +5,13 @@ import {
 } from '@elastic/elasticsearch/lib/api/types';
 import { AxiosResponse } from 'axios';
 import React from 'react';
+
 import {
   IContentModel,
   IFilterSettingsModel,
   IOptionItem,
   useApiSubscriberContents,
-} from 'tno-core';
-
+} from '@/shared';
 import { useContentStore } from '@/subscriber/store/slices';
 import { IContentProps, IContentState } from '@/subscriber/store/slices/content';
 

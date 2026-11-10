@@ -1,5 +1,4 @@
-import { IFilterSettingsModel } from 'tno-core';
-
+import { IFilterSettingsModel } from '@/shared';
 import { defaultFilterSettings } from '@/subscriber/features/constants';
 
 export const createFilterSettings = (

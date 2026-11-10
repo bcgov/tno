@@ -2,6 +2,8 @@ import { useFormikContext } from 'formik';
 import React, { type ButtonHTMLAttributes } from 'react';
 import { FileUploader } from 'react-drag-drop-files';
 import { FaDownload, FaTrash, FaUpload } from 'react-icons/fa';
+
+import { type IContentForm } from '@/editor/features/content/form/interfaces';
 import {
   Button,
   ButtonVariant,
@@ -12,9 +14,7 @@ import {
   Show,
   Spinner,
   useModal,
-} from 'tno-core';
-
-import { type IContentForm } from '@/editor/features/content/form/interfaces';
+} from '@/shared';
 
 import { type IFile } from '.';
 import { useContentForm } from '../../hooks';

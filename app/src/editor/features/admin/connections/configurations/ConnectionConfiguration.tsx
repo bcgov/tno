@@ -1,6 +1,7 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { ConnectionTypeName, FormikTextArea, type IConnectionModel } from 'tno-core';
+
+import { ConnectionTypeName, FormikTextArea, type IConnectionModel } from '@/shared';
 
 import {
   AWSConfiguration,

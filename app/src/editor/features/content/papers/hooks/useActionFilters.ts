@@ -1,11 +1,11 @@
 import React from 'react';
-import { type IFilterActionSettingsModel } from 'tno-core';
 
 import {
   type IContentListAdvancedFilter,
   type IContentListFilter,
 } from '@/editor/features/content/interfaces';
 import { useLookup, useSettings } from '@/editor/store/hooks';
+import { type IFilterActionSettingsModel } from '@/shared';
 
 /**
  * Generate an array of action filters based on the specified 'filter' and array of 'actions'.

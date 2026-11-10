@@ -1,4 +1,4 @@
-import { ScheduleWeekDay, ScheduleWeekDayName } from 'tno-core';
+import { ScheduleWeekDay, ScheduleWeekDayName } from '@/shared';
 
 export const weekDayName = (value: ScheduleWeekDay | ScheduleWeekDay[]) => {
   const values = Array.isArray(value) ? value : [value];

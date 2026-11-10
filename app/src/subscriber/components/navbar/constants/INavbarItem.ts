@@ -1,4 +1,4 @@
-import { Claim } from 'tno-core';
+import { Claim } from '@/shared';
 
 export interface INavbarItem {
   label: string;

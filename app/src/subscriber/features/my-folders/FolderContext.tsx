@@ -1,5 +1,6 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
-import { IFolderModel } from 'tno-core';
+
+import { IFolderModel } from '@/shared';
 
 interface IFolderContext {
   folder: IFolderModel | undefined;

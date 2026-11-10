@@ -1,6 +1,6 @@
 import React from 'react';
-import { IReportMessageModel, MessageTargetKey, useApiSubscriberReportInstances } from 'tno-core';
 
+import { IReportMessageModel, MessageTargetKey, useApiSubscriberReportInstances } from '@/shared';
 import { useProfileStore } from '@/subscriber/store/slices';
 
 import { useApiHub } from '../signalr';

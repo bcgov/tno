@@ -1,7 +1,6 @@
-import { type IUserFilter } from 'tno-core';
-
 import { type IUserListFilter } from '@/editor/features/admin/users/interfaces/IUserListFilter';
 import { type ISortBy } from '@/editor/features/interfaces';
+import { type IUserFilter } from '@/shared';
 
 /**
  * Creates a IUserFilter that can be passed to the API hook endpoint.

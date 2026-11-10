@@ -2,6 +2,7 @@ import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import moment from 'moment';
 import React from 'react';
 import { FaFilterCircleXmark } from 'react-icons/fa6';
+
 import {
   FieldSize,
   generateQuery,
@@ -9,8 +10,7 @@ import {
   IFilterSettingsModel,
   Row,
   Select,
-} from 'tno-core';
-
+} from '@/shared';
 import { ContentList } from '@/subscriber/components/content-list';
 import { ContentListActionBar } from '@/subscriber/components/tool-bar';
 import { castToSearchResult, createFilterSettings } from '@/subscriber/features/utils';

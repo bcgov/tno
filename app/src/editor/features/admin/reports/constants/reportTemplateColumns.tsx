@@ -3,7 +3,7 @@ import {
   CellEllipsis,
   type IReportTemplateModel,
   type ITableHookColumn,
-} from 'tno-core';
+} from '@/shared';
 
 export const reportTemplateColumns: Array<ITableHookColumn<IReportTemplateModel>> = [
   {

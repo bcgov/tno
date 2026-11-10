@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaInfoCircle, FaSyncAlt } from 'react-icons/fa';
+
 import {
   Checkbox,
   Col,
@@ -11,8 +12,7 @@ import {
   ReportKindName,
   Row,
   Show,
-} from 'tno-core';
-
+} from '@/shared';
 import { Button } from '@/subscriber/components/button';
 import { hideEmptySections } from '@/subscriber/features/my-reports/utils';
 import { useReports } from '@/subscriber/store/hooks';

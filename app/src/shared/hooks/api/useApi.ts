@@ -1,5 +1,5 @@
-import { defaultEnvelope, ILifecycleToasts, useSummon } from '../summon';
 import { Settings } from '.';
+import { defaultEnvelope, ILifecycleToasts, useSummon } from '../summon';
 
 /**
  * Common hook to make requests to the APi.

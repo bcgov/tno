@@ -1,5 +1,6 @@
 import { FaCamera, FaNewspaper, FaPlayCircle, FaTv } from 'react-icons/fa';
-import { ContentTypeName } from 'tno-core';
+
+import { ContentTypeName } from '@/shared';
 
 import * as styled from '../components/styled';
 

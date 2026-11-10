@@ -1,6 +1,7 @@
 import React from 'react';
 import { DragDropContext, type DropResult, type ResponderProvided } from 'react-beautiful-dnd';
-import { sortObject } from 'tno-core';
+
+import { sortObject } from '@/shared';
 
 import { DroppableContentContainer, type IContentRowModel } from '.';
 

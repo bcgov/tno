@@ -1,9 +1,9 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
+import { IProductModel, useApi } from '..';
 import { toQueryString } from '../../../utils';
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
-import { IProductModel, useApi } from '..';
 import { IProductFilter } from '../interfaces/IProductFilter';
 
 /**

@@ -1,6 +1,5 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
-import { useApi, type ITopicScoreRuleModel } from 'tno-core';
 
 import {
   type ITopicRescoreJobModel,
@@ -10,6 +9,7 @@ import {
   type ITopicScoreTestRequestModel,
   type ITopicScoreTestResultModel,
 } from '@/editor/features/admin/topic-score-rules/interfaces';
+import { useApi, type ITopicScoreRuleModel } from '@/shared';
 
 export const useApiAdminTopicScores = () => {
   const api = useApi();

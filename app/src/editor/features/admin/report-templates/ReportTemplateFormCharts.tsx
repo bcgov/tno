@@ -1,6 +1,8 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaTrash } from 'react-icons/fa';
+
+import { useChartTemplates } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -11,9 +13,7 @@ import {
   type IChartTemplateModel,
   type IReportTemplateModel,
   type OptionItem,
-} from 'tno-core';
-
-import { useChartTemplates } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 /**
  * The page used to view and edit a report template.

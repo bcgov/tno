@@ -1,7 +1,7 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import React from 'react';
-import { generateMustQuery, IContentModel, IFilterSettingsModel, Loader } from 'tno-core';
 
+import { generateMustQuery, IContentModel, IFilterSettingsModel, Loader } from '@/shared';
 import { DateFilter } from '@/subscriber/components/date-filter';
 import { FrontPageGallery } from '@/subscriber/components/front-page-gallery';
 import { useApp, useContent, useSettings } from '@/subscriber/store/hooks';

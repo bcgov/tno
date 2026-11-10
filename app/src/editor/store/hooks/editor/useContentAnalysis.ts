@@ -1,11 +1,11 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
-import { useApi } from 'tno-core';
 
 import {
   type IAnalysisRequestModel,
   type IContentAnalysisDetailsModel,
 } from '@/editor/features/content/form/interfaces';
+import { useApi } from '@/shared';
 
 import { useAjaxWrapper } from '..';
 

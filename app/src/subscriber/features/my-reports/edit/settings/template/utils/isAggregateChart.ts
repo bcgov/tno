@@ -1,4 +1,4 @@
-import { IReportSectionChartTemplateModel } from 'tno-core';
+import { IReportSectionChartTemplateModel } from '@/shared';
 
 /**
  * Determine whether the chart's data comes from Elasticsearch aggregations instead of a list of stories.

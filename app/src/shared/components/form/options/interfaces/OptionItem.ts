@@ -1,8 +1,8 @@
 import { IOptionItem } from '.';
 
-export class OptionItem<T extends string | number | undefined = string | number | undefined>
-  implements IOptionItem<T>
-{
+export class OptionItem<
+  T extends string | number | undefined = string | number | undefined,
+> implements IOptionItem<T> {
   discriminator: 'IOption';
   label: string | React.ReactElement;
   value: T;

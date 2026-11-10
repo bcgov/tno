@@ -1,9 +1,9 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
+import { IPaged, ITagModel, useApi } from '..';
 import { toQueryString } from '../../../utils';
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
-import { IPaged, ITagModel, useApi } from '..';
 import { ITagFilter } from '../interfaces/ITagFilter';
 
 /**

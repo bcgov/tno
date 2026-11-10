@@ -1,5 +1,6 @@
 import React from 'react';
-import { Button, FlexboxTable, Row, Text, type ITableHookColumn } from 'tno-core';
+
+import { Button, FlexboxTable, Row, Text, type ITableHookColumn } from '@/shared';
 
 export class DemoData {
   id: number;

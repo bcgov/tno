@@ -1,4 +1,4 @@
-import { IReportInstanceContentModel, ReportStatusName } from 'tno-core';
+import { IReportInstanceContentModel, ReportStatusName } from '@/shared';
 
 export interface IReportContentMutationModel {
   reportId: number;

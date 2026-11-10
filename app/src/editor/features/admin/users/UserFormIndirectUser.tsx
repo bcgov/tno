@@ -1,5 +1,8 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
+
+import { InputOption } from '@/editor/features/content/list-view/components/tool-bar/filter';
+import { useLookupOptions } from '@/editor/store/hooks';
 import {
   Col,
   FormikSelect,
@@ -14,10 +17,7 @@ import {
   type IUserModel,
   type IUserUpdateHistoryModel,
   type OptionItem,
-} from 'tno-core';
-
-import { InputOption } from '@/editor/features/content/list-view/components/tool-bar/filter';
-import { useLookupOptions } from '@/editor/store/hooks';
+} from '@/shared';
 
 import { type IUserFormProps } from './UserForm';
 

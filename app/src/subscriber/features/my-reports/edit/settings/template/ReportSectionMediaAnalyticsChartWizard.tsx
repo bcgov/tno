@@ -2,8 +2,8 @@ import React from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { FaCaretRight } from 'react-icons/fa';
 import { FaCaretLeft } from 'react-icons/fa6';
-import { Row, Show } from 'tno-core';
 
+import { Row, Show } from '@/shared';
 import { Button } from '@/subscriber/components/button';
 
 import {

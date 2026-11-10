@@ -1,4 +1,4 @@
-import { CellCheckbox, CellEllipsis, type ISettingModel, type ITableHookColumn } from 'tno-core';
+import { CellCheckbox, CellEllipsis, type ISettingModel, type ITableHookColumn } from '@/shared';
 
 export const columns: Array<ITableHookColumn<ISettingModel>> = [
   {

@@ -1,6 +1,7 @@
 import React from 'react';
 import { FaCopyright, FaEyeSlash, FaX } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
+
 import {
   Checkbox,
   Col,
@@ -11,8 +12,7 @@ import {
   IFilterSettingsModel,
   Row,
   Show,
-} from 'tno-core';
-
+} from '@/shared';
 import { formatSearch } from '@/subscriber/features/search-page/utils';
 import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 

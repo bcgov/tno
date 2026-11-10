@@ -1,4 +1,4 @@
-import { IContentModel } from 'tno-core';
+import { IContentModel } from '@/shared';
 
 import { getSentimentValue } from './getSentimentValue';
 

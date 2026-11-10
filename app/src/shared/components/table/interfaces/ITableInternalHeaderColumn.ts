@@ -1,7 +1,9 @@
 import { ITableHookColumn, ITableInternalRow } from '.';
 
-export interface ITableInternalHeaderColumn<T extends object>
-  extends Omit<ITableHookColumn<T>, 'cell'> {
+export interface ITableInternalHeaderColumn<T extends object> extends Omit<
+  ITableHookColumn<T>,
+  'cell'
+> {
   index: number;
   accessor?: keyof T | string | ((data: T) => unknown);
   label: React.ReactNode;

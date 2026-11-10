@@ -1,4 +1,4 @@
-import { ProductTypeName, type IProductModel } from 'tno-core';
+import { ProductTypeName, type IProductModel } from '@/shared';
 
 export const defaultProduct: IProductModel = {
   id: 0,

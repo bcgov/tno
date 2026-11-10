@@ -268,17 +268,17 @@ export class TableInternal<T extends object> implements ITableInternal<T> {
     table.activeRowId =
       options.activeRowId ??
       (activeRow ? `${(activeRow.original as any)[table.rowId]}` : undefined);
-    table.activeRow = table.activeRowId ? null : activeRow ?? null;
+    table.activeRow = table.activeRowId ? null : (activeRow ?? null);
     table.onSelectedChanged = options.onSelectedChanged ? options.onSelectedChanged : () => {};
 
     // Paging
     table.pagingEnabled = paging.pagingEnabled ?? true;
     table.manualPaging = paging.manualPaging ?? false;
     table.pageIndex = paging.pageIndex ?? 0;
-    table.pageSize = table.pagingEnabled ? paging.pageSize ?? 10 : table.data.length;
+    table.pageSize = table.pagingEnabled ? (paging.pageSize ?? 10) : table.data.length;
     table.totalItems = paging.totalItems;
     table.pageButtons = paging.pageButtons ?? 5;
-    table.showPaging = table.pagingEnabled ? paging.showPaging ?? true : false;
+    table.showPaging = table.pagingEnabled ? (paging.showPaging ?? true) : false;
     table.scrollSize = paging.scrollSize ?? 0;
     table.onPageChange = paging.onPageChange ? paging.onPageChange : () => {};
 
@@ -333,7 +333,7 @@ export class TableInternal<T extends object> implements ITableInternal<T> {
 
     table.refreshRows(rowState);
     table.pageCount = table.manualPaging
-      ? paging.pageCount ?? table.calcPageCount()
+      ? (paging.pageCount ?? table.calcPageCount())
       : table.calcPageCount();
     return table;
   }

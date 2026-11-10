@@ -1,12 +1,12 @@
 import { AxiosError } from 'axios';
 import React from 'react';
+
 import {
   IReportInstanceModel,
   IReportResultModel,
   useApi,
   useApiSubscriberReportInstances,
-} from 'tno-core';
-
+} from '@/shared';
 import { useAjaxWrapper } from '@/subscriber/store/hooks';
 import { useProfileStore } from '@/subscriber/store/slices';
 

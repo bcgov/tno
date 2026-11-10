@@ -1,5 +1,5 @@
-import { useKeycloakWrapper } from '../../hooks';
 import { Button, ButtonVariant, LogoutButton } from '..';
+import { useKeycloakWrapper } from '../../hooks';
 import * as styled from './styled';
 
 /**

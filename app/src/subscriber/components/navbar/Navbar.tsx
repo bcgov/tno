@@ -2,8 +2,8 @@ import _ from 'lodash';
 import React from 'react';
 import { FaAnglesLeft, FaAnglesRight } from 'react-icons/fa6';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Row, Show, useWindowSize } from 'tno-core';
 
+import { Row, Show, useWindowSize } from '@/shared';
 import { InfoShield } from '@/subscriber/components/info';
 
 import { INavbarItem } from './constants/INavbarItem';

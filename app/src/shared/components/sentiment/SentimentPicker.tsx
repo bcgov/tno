@@ -8,8 +8,10 @@ import * as styled from './styled';
 
 const toningOptions = [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5];
 
-export interface ISentimentPickerProps<T>
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
+export interface ISentimentPickerProps<T> extends Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  'onChange'
+> {
   /** The name of the field. */
   name: string | keyof T;
   /** The label of the field. */

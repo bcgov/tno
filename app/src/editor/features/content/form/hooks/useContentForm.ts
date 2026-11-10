@@ -4,6 +4,16 @@ import moment from 'moment';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
+import { type IStream } from '@/editor/features/storage/interfaces';
+import {
+  useApiHub,
+  useApp,
+  useContent,
+  useLookup,
+  useLookupOptions,
+  useWorkOrders,
+} from '@/editor/store/hooks';
 import {
   ContentStatusName,
   ContentTypeName,
@@ -15,17 +25,7 @@ import {
   type IContentModel,
   type IResponseErrorModel,
   type IWorkOrderMessageModel,
-} from 'tno-core';
-
-import { type IStream } from '@/editor/features/storage/interfaces';
-import {
-  useApiHub,
-  useApp,
-  useContent,
-  useLookup,
-  useLookupOptions,
-  useWorkOrders,
-} from '@/editor/store/hooks';
+} from '@/shared';
 
 import { type IContentFormProps } from '..';
 import { type IFile } from '../components/upload';

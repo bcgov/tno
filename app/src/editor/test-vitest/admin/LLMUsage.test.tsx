@@ -11,8 +11,8 @@ const mocks = vi.hoisted(() => ({
   findAllLLMs: vi.fn(),
 }));
 
-vi.mock('tno-core', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('tno-core')>()),
+vi.mock('@/shared', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/shared')>()),
   useApi: () => ({ get: mocks.get }),
   useApiAdminLLMs: () => ({ findAllLLMs: mocks.findAllLLMs }),
 }));

@@ -1,9 +1,9 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
+import { IDirectoryModel, IItemModel, useApi } from '..';
 import { extractFileName, toQueryString } from '../../../utils';
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
-import { IDirectoryModel, IItemModel, useApi } from '..';
 
 /**
  * Common hook to make requests to the API.

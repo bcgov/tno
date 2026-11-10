@@ -1,8 +1,8 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { Checkbox, IconButton, Row, Text, type IReportModel, type IUserFilter } from 'tno-core';
 
 import { useAdminStore } from '@/editor/store/slices';
+import { Checkbox, IconButton, Row, Text, type IReportModel, type IUserFilter } from '@/shared';
 
 interface IAdminFilterProps {
   onFilterChange?: (value: IUserFilter) => void;

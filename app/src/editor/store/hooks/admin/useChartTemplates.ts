@@ -1,14 +1,14 @@
 import React from 'react';
+
+import { type IChartTemplateUsageModel } from '@/editor/features/admin/charts/interfaces';
+import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
+import { useAdminStore, type IAdminState } from '@/editor/store/slices';
 import {
   useApiAdminChartTemplates,
   type IChartPreviewRequestModel,
   type IChartResultModel,
   type IChartTemplateModel,
-} from 'tno-core';
-
-import { type IChartTemplateUsageModel } from '@/editor/features/admin/charts/interfaces';
-import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
-import { useAdminStore, type IAdminState } from '@/editor/store/slices';
+} from '@/shared';
 
 import { useApiAdminChartTemplateUsage } from './useApiAdminChartTemplateUsage';
 

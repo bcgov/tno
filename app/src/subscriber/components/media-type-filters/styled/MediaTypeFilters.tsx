@@ -1,5 +1,6 @@
 import styled from 'styled-components';
-import { Row } from 'tno-core';
+
+import { Row } from '@/shared';
 
 export const HomeFilters = styled(Row)`
   @media (min-width: 768px) {

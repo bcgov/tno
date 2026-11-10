@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaAngleDown, FaMinus } from 'react-icons/fa6';
+
 import {
   chartTypeOptions,
   Checkbox,
@@ -15,7 +16,7 @@ import {
   Text,
   ToggleButton,
   type OptionItem,
-} from 'tno-core';
+} from '@/shared';
 
 import { useChartTemplateContext } from '../ChartTemplateContext';
 import * as styled from './styled';

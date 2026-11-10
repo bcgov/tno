@@ -1,4 +1,4 @@
-import { IOptionItem, OptionItem } from 'tno-core';
+import { IOptionItem, OptionItem } from '@/shared';
 
 enum DaysOfWeek {
   Monday = 'Monday',

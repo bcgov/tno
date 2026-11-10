@@ -1,8 +1,8 @@
 import React from 'react';
-import { useApiEditorSystemMessages, type ISystemMessageModel } from 'tno-core';
 
 import { useAjaxWrapper } from '@/editor/store/hooks';
 import { useAdminStore, type IAdminState } from '@/editor/store/slices';
+import { useApiEditorSystemMessages, type ISystemMessageModel } from '@/shared';
 
 interface ISystemMessageController {
   findSystemMessages: () => Promise<ISystemMessageModel[]>;

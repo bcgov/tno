@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { UserAccountTypeName } from 'tno-core';
 
+import { UserAccountTypeName } from '@/shared';
 import { TableBuilder, TableExporter } from '@/subscriber/components/export';
 import { useUsers } from '@/subscriber/store/hooks';
 

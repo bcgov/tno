@@ -1,4 +1,4 @@
-import { type IContributorModel } from 'tno-core';
+import { type IContributorModel } from '@/shared';
 
 import { type IContributorForm } from '../interfaces';
 

@@ -1,7 +1,6 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
-import { toQueryString } from '../../../utils';
 import {
   defaultEnvelope,
   ILifecycleToasts,
@@ -10,6 +9,7 @@ import {
   useApi,
   useDownload,
 } from '../..';
+import { toQueryString } from '../../../utils';
 
 /**
  * Common hook to make requests to the API.

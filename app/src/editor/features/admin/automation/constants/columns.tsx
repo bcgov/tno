@@ -1,6 +1,7 @@
 import moment from 'moment';
 import { FaTrash } from 'react-icons/fa';
-import { CellCheckbox, CellEllipsis, type ITableHookColumn } from 'tno-core';
+
+import { CellCheckbox, CellEllipsis, type ITableHookColumn } from '@/shared';
 
 // Imported from the module, not the ../designer barrel: the barrel pulls in components that import
 // ../constants, which would cycle back into this file.

@@ -1,4 +1,6 @@
 import React from 'react';
+
+import { useLookup } from '@/editor/store/hooks';
 import {
   Breadcrumb,
   Col,
@@ -11,9 +13,7 @@ import {
   useModal,
   type IDirectoryModel,
   type IItemModel,
-} from 'tno-core';
-
-import { useLookup } from '@/editor/store/hooks';
+} from '@/shared';
 
 import { fileExplorerColumns } from './constants';
 import { FileExplorerFilter } from './FileExplorerFilter';

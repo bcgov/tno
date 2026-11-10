@@ -3,6 +3,9 @@ import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
 import { toast } from 'react-toastify';
+
+import { useLookup } from '@/editor/store/hooks';
+import { useReportTemplates } from '@/editor/store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -16,10 +19,7 @@ import {
   type IOptionItem,
   type IReportModel,
   type IReportTemplateModel,
-} from 'tno-core';
-
-import { useLookup } from '@/editor/store/hooks';
-import { useReportTemplates } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import { defaultReportTemplate } from './constants';
 import { getReportTemplateOptions } from './utils';

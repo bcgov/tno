@@ -9,6 +9,8 @@ import {
   type ResponderProvided,
 } from 'react-beautiful-dnd';
 import { FaGripLines, FaTrash } from 'react-icons/fa';
+
+import { useContent } from '@/editor/store/hooks';
 import {
   AVOverviewItemTypeName,
   castEnumToOptions,
@@ -26,9 +28,7 @@ import {
   type IAVOverviewTemplateSectionItemModel,
   type IContentModel,
   type IOptionItem,
-} from 'tno-core';
-
-import { useContent } from '@/editor/store/hooks';
+} from '@/shared';
 
 import * as styled from './styled';
 import { SummarySuggestion } from './SummarySuggestion';

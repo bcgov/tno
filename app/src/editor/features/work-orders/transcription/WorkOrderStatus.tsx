@@ -1,6 +1,7 @@
 import { FaCheckCircle } from 'react-icons/fa';
 import { FaBug, FaCirclePause, FaClock, FaRegCircleRight } from 'react-icons/fa6';
-import { Spinner, WorkOrderStatusName, type IWorkOrderModel } from 'tno-core';
+
+import { Spinner, WorkOrderStatusName, type IWorkOrderModel } from '@/shared';
 
 export interface IWorkOrderStatusProps {
   row: IWorkOrderModel;

@@ -3,7 +3,8 @@ import {
   type UseFiltersColumnOptions,
   type UseSortByColumnOptions,
 } from 'react-table';
-import { CellCheckbox, CellEllipsis, type IScheduleModel } from 'tno-core';
+
+import { CellCheckbox, CellEllipsis, type IScheduleModel } from '@/shared';
 
 import { weekDayNameAbbrev } from '../utils';
 

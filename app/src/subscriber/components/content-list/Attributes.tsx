@@ -1,7 +1,7 @@
 import moment from 'moment';
 import * as React from 'react';
-import { ContentTypeName, Row, Show } from 'tno-core';
 
+import { ContentTypeName, Row, Show } from '@/shared';
 import { formatDate } from '@/subscriber/features/utils';
 import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 import { useLookup, useSettings } from '@/subscriber/store/hooks';

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Header, Loading } from 'tno-core';
+
+import { Header, Loading } from '@/shared';
 
 import * as styled from './styled';
 

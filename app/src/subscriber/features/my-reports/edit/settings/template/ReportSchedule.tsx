@@ -1,4 +1,5 @@
 import { getIn } from 'formik';
+
 import {
   Col,
   FieldSize,
@@ -7,8 +8,7 @@ import {
   Row,
   ScheduleWeekDayName,
   selectWeekDays,
-} from 'tno-core';
-
+} from '@/shared';
 import { TimeInput } from '@/subscriber/components/form/timeinput';
 
 import { useReportEditContext } from '../../ReportEditContext';

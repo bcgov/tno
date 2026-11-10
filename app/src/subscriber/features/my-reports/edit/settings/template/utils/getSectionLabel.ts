@@ -1,4 +1,4 @@
-import { IChartSectionSettingsModel, IReportSectionModel } from 'tno-core';
+import { IChartSectionSettingsModel, IReportSectionModel } from '@/shared';
 
 export const getSectionLabel = (
   name: string | undefined | null,

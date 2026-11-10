@@ -1,5 +1,7 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
+
+import { useUsers } from '@/editor/store/hooks/admin';
 import {
   AVOverviewTemplateTypeName,
   CellEllipsis,
@@ -12,9 +14,7 @@ import {
   type IUserAVOverviewModel,
   type IUserFilter,
   type OptionItem,
-} from 'tno-core';
-
-import { useUsers } from '@/editor/store/hooks/admin';
+} from '@/shared';
 
 import { type IAVOverviewTemplateForm } from './interfaces';
 import { ListFilter } from './ListFilter';

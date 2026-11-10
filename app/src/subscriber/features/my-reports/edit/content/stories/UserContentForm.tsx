@@ -1,5 +1,6 @@
 import moment from 'moment';
 import React from 'react';
+
 import {
   Col,
   FieldSize,
@@ -14,8 +15,7 @@ import {
   TimeInput,
   toTitleCase,
   Wysiwyg,
-} from 'tno-core';
-
+} from '@/shared';
 import { IReportInstanceContentForm } from '@/subscriber/features/my-reports/interfaces';
 import { IContentValidationErrors } from '@/subscriber/features/my-reports/interfaces/IContentValidationErrors';
 import { getTime } from '@/subscriber/features/my-reports/utils';

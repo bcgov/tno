@@ -1,8 +1,7 @@
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { debounce } from 'lodash';
-import { InputHTMLAttributes } from 'react';
-import React from 'react';
+import React, { InputHTMLAttributes } from 'react';
 
 import { Error, FieldSize, TextVariant } from '../../form';
 import { Show } from '../../show';

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Checkbox, Col, Row, Settings, Text } from 'tno-core';
 
+import { Checkbox, Col, Row, Settings, Text } from '@/shared';
 import { useActionFilters } from '@/subscriber/features/search-page/hooks';
 import { useLookup, useSettings } from '@/subscriber/store/hooks';
 

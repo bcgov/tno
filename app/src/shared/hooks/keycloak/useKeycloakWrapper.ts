@@ -37,7 +37,7 @@ export function useKeycloakWrapper(): IKeycloak {
           claim !== undefined &&
           claim !== null &&
           (typeof claim === 'string'
-            ? (client_roles?.includes(claim) || resource_roles?.includes(claim)) ?? false
+            ? ((client_roles?.includes(claim) || resource_roles?.includes(claim)) ?? false)
             : claim.some((c) => client_roles?.includes(c) || resource_roles?.includes(c)))
         );
       },
@@ -51,7 +51,7 @@ export function useKeycloakWrapper(): IKeycloak {
           role !== undefined &&
           role !== null &&
           (typeof role === 'string'
-            ? token?.groups?.includes(role) ?? false
+            ? (token?.groups?.includes(role) ?? false)
             : role.some((r) => token?.groups?.includes(r)))
         );
       },

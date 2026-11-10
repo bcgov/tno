@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   Col,
   OptionItem,
@@ -8,7 +9,7 @@ import {
   Show,
   type IReportSectionModel,
   type IReportSectionSettingsModel,
-} from 'tno-core';
+} from '@/shared';
 
 const scopeOptions = [
   new OptionItem('Every content section in the report', 'Report'),

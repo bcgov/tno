@@ -1,5 +1,6 @@
 import { AxiosError, AxiosResponse } from 'axios';
-import { ICacheModel } from 'hooks';
+
+import { ICacheModel } from '@/shared/hooks';
 
 import { addOrUpdateArray, getFromLocalStorage, initFromLocalStorage } from '.';
 

@@ -1,4 +1,4 @@
-import { FormikCheckbox } from 'tno-core';
+import { FormikCheckbox } from '@/shared';
 
 /** Marks a report as collecting content for other reports only; shared by the Info and Preferences tabs. */
 export const CollectionOnlyOption = () => {

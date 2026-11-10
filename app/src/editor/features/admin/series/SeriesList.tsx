@@ -1,9 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Col, FlexboxTable, IconButton, Row, type ISeriesModel } from 'tno-core';
 
 import { FormPage } from '@/editor/components/formpage';
 import { useSeries } from '@/editor/store/hooks/admin';
+import { Col, FlexboxTable, IconButton, Row, type ISeriesModel } from '@/shared';
 
 import { columns } from './constants';
 import { SeriesFilter } from './SeriesFilter';

@@ -6,7 +6,7 @@ export const Col = styled.div.attrs<IColProps>(({ className }) => ({
   className,
 }))<IColProps>`
   display: flex;
-  flex-wrap: ${(props) => (props.nowrap ? 'nowrap' : props.wrap ?? 'wrap')};
+  flex-wrap: ${(props) => (props.nowrap ? 'nowrap' : (props.wrap ?? 'wrap'))};
   ${(props) => props.direction !== undefined && `flex-direction: ${props.direction};`}
   ${(props) => props.grow !== undefined && `flex-grow: ${props.grow};`}
   ${(props) => props.shrink !== undefined && `flex-shrink: ${props.shrink};`}

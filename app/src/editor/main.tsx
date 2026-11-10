@@ -1,13 +1,16 @@
 import './index.scss';
 import '@bcgov/bc-sans/css/BCSans.css';
+// Evaluate all shared code (and its third-party CSS) before the design's own modules,
+// as when it was the tno-core package. styled-components orders rules by definition order.
+import '@/shared';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { ThemeProvider } from 'styled-components';
-import { SummonProvider } from 'tno-core';
 
 import { store } from '@/editor/store';
+import { SummonProvider } from '@/shared';
 
 import App from './App';
 import css from './css/_variables.module.scss';

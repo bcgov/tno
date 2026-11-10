@@ -2,6 +2,12 @@ import { type SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
 import React, { useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
+import { Status } from '@/editor/components/status';
+import { NavigateOptions, TabControl, useTab } from '@/editor/components/tab-control';
+import { useApiHub, useApp, useContent, useLocalStorage, useSettings } from '@/editor/store/hooks';
+import { storeContentFilterAdvanced, type IContentSearchResult } from '@/editor/store/slices';
+import { useCastContentToSearchResult } from '@/editor/store/slices/content/hooks/useCastContentToSearchResult';
 import {
   CellEllipsis,
   Checkbox,
@@ -16,13 +22,7 @@ import {
   SortDirection,
   type IContentModel,
   type IGridHeaderColumnProps,
-} from 'tno-core';
-
-import { Status } from '@/editor/components/status';
-import { NavigateOptions, TabControl, useTab } from '@/editor/components/tab-control';
-import { useApiHub, useApp, useContent, useLocalStorage, useSettings } from '@/editor/store/hooks';
-import { storeContentFilterAdvanced, type IContentSearchResult } from '@/editor/store/slices';
-import { useCastContentToSearchResult } from '@/editor/store/slices/content/hooks/useCastContentToSearchResult';
+} from '@/shared';
 
 import { AdvancedSearchKeys } from '../constants';
 import { useElasticsearch } from '../hooks';

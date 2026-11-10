@@ -1,4 +1,4 @@
-import { IReportSectionModel, ReportSectionTypeName } from 'tno-core';
+import { IReportSectionModel, ReportSectionTypeName } from '@/shared';
 
 interface IGenerateReportSectionOptions {
   _id?: number;

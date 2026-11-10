@@ -1,4 +1,4 @@
-import { IFilterSettingsModel } from 'tno-core';
+import { IFilterSettingsModel } from '@/shared';
 
 export const filterFormat = (filter: IFilterSettingsModel) => {
   const settings: IFilterSettingsModel = {

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { IMediaTypeModel, ISeriesModel, ISourceModel, ListOptionName } from 'tno-core';
 
+import { IMediaTypeModel, ISeriesModel, ISourceModel, ListOptionName } from '@/shared';
 import { ISubMediaGroupItem } from '@/subscriber/features/search-page/components/advanced-search/interfaces';
 import { IGroupOption } from '@/subscriber/features/search-page/components/advanced-search/interfaces/IGroupOption';
 import { useApp } from '@/subscriber/store/hooks';

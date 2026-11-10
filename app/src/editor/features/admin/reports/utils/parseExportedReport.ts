@@ -4,7 +4,7 @@ import {
   type IFolderModel,
   type IReportModel,
   type IReportTemplateModel,
-} from 'tno-core';
+} from '@/shared';
 
 import { defaultReport } from '../constants';
 import { createReportSection } from './createReportSection';

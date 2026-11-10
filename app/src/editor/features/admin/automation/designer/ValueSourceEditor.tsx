@@ -1,5 +1,6 @@
 import React from 'react';
-import { Row, Select, Show, Text, type IOptionItem } from 'tno-core';
+
+import { Row, Select, Show, Text, type IOptionItem } from '@/shared';
 
 import { createOption, findOptionByValue } from '../utils';
 import { ComboBox } from './ComboBox';

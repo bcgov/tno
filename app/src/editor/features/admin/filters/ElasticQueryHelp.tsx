@@ -1,4 +1,4 @@
-import { Col } from 'tno-core';
+import { Col } from '@/shared';
 
 export interface IElasticQueryHelpProps {
   queryType?: 'simple-query-string' | 'query-string';

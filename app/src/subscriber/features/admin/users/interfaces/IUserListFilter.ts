@@ -1,5 +1,4 @@
-import { UserStatusName } from 'tno-core';
-
+import { UserStatusName } from '@/shared';
 import { ISortBy } from '@/subscriber/features/utils/interfaces';
 
 export interface IUserListFilter {

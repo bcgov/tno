@@ -6,6 +6,7 @@ import {
   FaNewspaper,
   FaTowerCell,
 } from 'react-icons/fa6';
+
 import {
   Button,
   ButtonHeight,
@@ -13,8 +14,7 @@ import {
   IFilterSettingsModel,
   ISubscriberUserModel,
   useWindowSize,
-} from 'tno-core';
-
+} from '@/shared';
 import { useContent, useLookup, useUsers } from '@/subscriber/store/hooks';
 import { useAppStore } from '@/subscriber/store/slices';
 

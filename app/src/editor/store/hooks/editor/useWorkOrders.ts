@@ -1,15 +1,15 @@
 import { type AxiosResponse } from 'axios';
 import React from 'react';
+
+import { type ActionDelegate } from '@/editor/store';
+import { useWorkOrderStore, type IWorkOrderState } from '@/editor/store/slices';
 import {
   useApiEditorWorkOrders,
   type IContentModel,
   type IPaged,
   type IWorkOrderFilter,
   type IWorkOrderModel,
-} from 'tno-core';
-
-import { type ActionDelegate } from '@/editor/store';
-import { useWorkOrderStore, type IWorkOrderState } from '@/editor/store/slices';
+} from '@/shared';
 
 import { useAjaxWrapper } from '..';
 

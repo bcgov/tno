@@ -1,5 +1,6 @@
 import { HubConnectionState } from '@microsoft/signalr';
-import { IUserInfoModel } from 'tno-core';
+
+import { IUserInfoModel } from '@/shared';
 
 import { IAjaxRequest, IErrorModel } from '.';
 

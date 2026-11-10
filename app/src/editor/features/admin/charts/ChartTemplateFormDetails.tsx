@@ -1,6 +1,7 @@
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
+
 import {
   Col,
   FieldSize,
@@ -10,7 +11,7 @@ import {
   FormikTextArea,
   Row,
   Show,
-} from 'tno-core';
+} from '@/shared';
 
 import { useChartTemplateContext } from './ChartTemplateContext';
 

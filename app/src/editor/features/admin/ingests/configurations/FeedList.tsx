@@ -2,6 +2,8 @@ import React from 'react';
 import { DragDropContext, Draggable, type DropResult } from 'react-beautiful-dnd';
 import { FaArrowDown, FaArrowUp, FaGripVertical, FaTrash } from 'react-icons/fa';
 import { type createFilter } from 'react-select';
+
+import { StrictModeDroppable } from '@/editor/features/admin/automation/StrictModeDroppable';
 import {
   Button,
   ButtonVariant,
@@ -11,9 +13,7 @@ import {
   FormikText,
   Row,
   type IOptionItem,
-} from 'tno-core';
-
-import { StrictModeDroppable } from '@/editor/features/admin/automation/StrictModeDroppable';
+} from '@/shared';
 
 import { type ISyndicationFeed } from '../interfaces';
 import * as styled from './styled';

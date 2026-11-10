@@ -1,4 +1,4 @@
-import { CellCheckbox, CellEllipsis, type ITableHookColumn } from 'tno-core';
+import { CellCheckbox, CellEllipsis, type ITableHookColumn } from '@/shared';
 
 import { type IChartTemplateUsageModel } from '../interfaces';
 

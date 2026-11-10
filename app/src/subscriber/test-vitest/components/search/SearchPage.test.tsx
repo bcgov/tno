@@ -61,7 +61,7 @@ vi.mock('../../../features/search-page/styled', () => ({
   SearchPage: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 vi.mock('../../../features/search-page/utils', () => ({ filterFormat: (f: any) => f }));
-vi.mock('tno-core', () => ({
+vi.mock('@/shared', () => ({
   Col: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   Row: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   Show: ({ children, visible }: { children: React.ReactNode; visible?: boolean }) =>

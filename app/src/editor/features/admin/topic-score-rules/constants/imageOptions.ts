@@ -1,4 +1,4 @@
-import { OptionItem } from 'tno-core';
+import { OptionItem } from '@/shared';
 
 /** The rule image condition: any, requires an image, or requires none. */
 export const imageOptions = [

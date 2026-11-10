@@ -1,5 +1,6 @@
-import { IReportInstanceContentModel, IReportModel, ReportStatusName } from 'tno-core';
 import { describe, expect, it } from 'vitest';
+
+import { IReportInstanceContentModel, IReportModel, ReportStatusName } from '@/shared';
 
 import { defaultReport } from '../features/my-reports/constants';
 import { IReportForm } from '../features/my-reports/interfaces';

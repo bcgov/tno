@@ -1,4 +1,3 @@
-import { UserStatusName } from '../constants';
 import {
   IAuditColumnsModel,
   IFilterModel,
@@ -10,6 +9,7 @@ import {
   IUserColleagueModel,
   IUserPreferencesModel,
 } from '.';
+import { UserStatusName } from '../constants';
 
 export interface ISubscriberUserModel extends IAuditColumnsModel {
   id: number;

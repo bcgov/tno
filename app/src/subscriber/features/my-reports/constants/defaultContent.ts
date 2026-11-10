@@ -1,4 +1,4 @@
-import { ContentStatusName, ContentTypeName, IContentModel } from 'tno-core';
+import { ContentStatusName, ContentTypeName, IContentModel } from '@/shared';
 
 export const defaultContent: IContentModel = {
   id: 0,

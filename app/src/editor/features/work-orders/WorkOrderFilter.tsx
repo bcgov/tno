@@ -1,4 +1,6 @@
 import React from 'react';
+
+import { useLookup } from '@/editor/store/hooks';
 import {
   Checkbox,
   IconButton,
@@ -8,9 +10,7 @@ import {
   Text,
   WorkOrderStatusName,
   type IWorkOrderFilter,
-} from 'tno-core';
-
-import { useLookup } from '@/editor/store/hooks';
+} from '@/shared';
 
 interface IWorkOrderFilterProps {
   filter: IWorkOrderFilter;

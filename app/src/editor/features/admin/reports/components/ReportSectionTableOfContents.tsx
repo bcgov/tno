@@ -1,4 +1,4 @@
-import { Col, FormikText, FormikTextArea } from 'tno-core';
+import { Col, FormikText, FormikTextArea } from '@/shared';
 
 export interface IReportSectionTableOfContentsProps {
   index: number;

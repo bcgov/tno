@@ -8,8 +8,9 @@ export const ToggleButton = styled.div<Partial<IToggleButtonProps>>`
     props.color
       ? props.color
       : props.disabled
-      ? props.theme.css.linkGrayColor
-      : props.theme.css.linkPrimaryColor}; // If not disabled, use the primary color from the theme
+        ? props.theme.css.linkGrayColor
+        : props.theme.css
+            .linkPrimaryColor}; // If not disabled, use the primary color from the theme
 
   > div {
     display: flex;
@@ -17,10 +18,10 @@ export const ToggleButton = styled.div<Partial<IToggleButtonProps>>`
       props.labelPosition === 'left'
         ? 'row-reverse'
         : props.labelPosition === 'right'
-        ? 'row'
-        : props.labelPosition === 'top'
-        ? 'column-reverse'
-        : 'column'};
+          ? 'row'
+          : props.labelPosition === 'top'
+            ? 'column-reverse'
+            : 'column'};
     gap: 0.5rem;
     align-items: center;
 
@@ -29,8 +30,8 @@ export const ToggleButton = styled.div<Partial<IToggleButtonProps>>`
         props.color
           ? props.color
           : props.disabled
-          ? props.theme.css.linkGrayColor
-          : props.theme.css.linkPrimaryHoverColor};
+            ? props.theme.css.linkGrayColor
+            : props.theme.css.linkPrimaryHoverColor};
       cursor: ${(props) => (props.disabled ? 'unset' : 'pointer')};
     }
 

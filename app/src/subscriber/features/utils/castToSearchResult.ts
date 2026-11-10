@@ -1,4 +1,4 @@
-import { ContentTypeName, IContentModel } from 'tno-core';
+import { ContentTypeName, IContentModel } from '@/shared';
 
 import { IContentSearchResult } from './interfaces';
 

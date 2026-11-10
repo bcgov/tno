@@ -1,4 +1,4 @@
-import { type INotificationTemplateModel } from 'tno-core';
+import { type INotificationTemplateModel } from '@/shared';
 
 export const defaultNotificationTemplate: INotificationTemplateModel = {
   id: 0,

@@ -1,6 +1,7 @@
 import React from 'react';
 import { FaCircleChevronDown, FaCircleChevronUp } from 'react-icons/fa6';
-import { NotificationStatusName, TextArea, type INotificationInstanceModel } from 'tno-core';
+
+import { NotificationStatusName, TextArea, type INotificationInstanceModel } from '@/shared';
 
 import { getLastSent, getStatus } from './utils';
 

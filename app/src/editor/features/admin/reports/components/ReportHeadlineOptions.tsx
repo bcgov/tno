@@ -1,4 +1,4 @@
-import { Col, FormikCheckbox } from 'tno-core';
+import { Col, FormikCheckbox } from '@/shared';
 
 export const ReportHeadlineOptions = () => {
   return (

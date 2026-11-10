@@ -1,5 +1,6 @@
 import React from 'react';
-import { Col, Row, Show } from 'tno-core';
+
+import { Col, Row, Show } from '@/shared';
 
 import {
   type IAutomationRunSummaryModel,

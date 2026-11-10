@@ -1,4 +1,4 @@
-import { IWorkOrderModel, WorkOrderTypeName } from 'tno-core';
+import { IWorkOrderModel, WorkOrderTypeName } from '@/shared';
 
 /**
  * Find and return the work order of the specified type.

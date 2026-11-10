@@ -1,8 +1,8 @@
 import React from 'react';
 import { FaEnvelope, FaSmile, FaToggleOff, FaToggleOn } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import { ISubscriberUserModel, ToggleButton } from 'tno-core';
 
+import { ISubscriberUserModel, ToggleButton } from '@/shared';
 import { useUsers } from '@/subscriber/store/hooks';
 import { useProfileStore } from '@/subscriber/store/slices';
 

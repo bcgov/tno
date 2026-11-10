@@ -1,8 +1,8 @@
 import { getIn, useFormikContext } from 'formik';
 import React from 'react';
-import { FieldSize, FormikText, Row, useNamespace, type IMetricModel } from 'tno-core';
 
 import { useLookup } from '@/editor/store/hooks';
+import { FieldSize, FormikText, Row, useNamespace, type IMetricModel } from '@/shared';
 
 import { type ISourceForm } from './interfaces';
 import * as styled from './styled';

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
 import {
   IReportMessageModel,
   ISystemMessageModel,
@@ -10,8 +11,7 @@ import {
   SummonContext,
   useKeycloakWrapper,
   useModal,
-} from 'tno-core';
-
+} from '@/shared';
 import { BasicSearch } from '@/subscriber/components/basic-search';
 import { Button } from '@/subscriber/components/button';
 import { Header } from '@/subscriber/components/header';
