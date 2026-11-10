@@ -59,10 +59,6 @@ vi.mock('@/editor/store/hooks', () => ({
   useLookupOptions: () => [lookupOptions, {}],
 }));
 
-vi.mock('@/editor/store/slices/content/hooks', () => ({
-  useCastContentToSearchResult: () => (item: unknown) => item,
-}));
-
 describe('ContentListView', () => {
   beforeEach(() => {
     findContentWithElasticsearch.mockReset();
