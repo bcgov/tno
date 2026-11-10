@@ -26,9 +26,10 @@ npm ci                          # install
 APP_MODE=editor npm run dev     # dev server on http://localhost:3000 (APP_MODE is required)
 npm run build                   # build both designs into dist/
 APP_MODE=subscriber npm run preview
-npm run typecheck
-npm test                        # Vitest (projects: editor, subscriber)
-npm run check                   # Prettier
+npm run typecheck               # TypeScript 7 (tsgo), app and tooling configs
+npm run lint                    # Oxlint, zero warnings
+npm run check                   # Prettier (npm run format writes)
+npm test                        # Vitest (projects: shared, editor, subscriber)
 ```
 
 Imports use one alias, `@/` → `src/`, e.g. `@/shared`, `@/editor/store`.
@@ -38,7 +39,10 @@ Imports use one alias, `@/` → `src/`, e.g. `@/shared`, `@/editor/store`.
 - `Dockerfile` — dev server used by docker-compose. The `editor` and `subscriber` services both
   build it and differ only in `APP_MODE`; `src/`, `public/` and the HTML documents are
   bind-mounted, so changes hot-reload.
-- `Dockerfile.nginx` — production image (static files served by nginx on port 8080).
+- `Dockerfile.nginx` — production image: static files served by nginx on port 8080 as any UID.
+  `nginx/start.sh` reads `APP_MODE` and starts `nginx/nginx.<APP_MODE>.conf`; a missing or
+  unknown value exits 64, so a misconfigured pod never becomes ready. Build arg `APP_VERSION`
+  is written to `/version.json`.
 
 ## Static files
 

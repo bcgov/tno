@@ -15,8 +15,7 @@ This folder contains Codex-oriented workspace guidance and reusable skills for t
 - `skills/keycloak-implementation.md`
 - `skills/ai-dependencies.md`
 - `skills/third-party-dependencies.md`
-- `skills/yarn-availability.md`
-- `skills/npm-core-pack-and-publish.md`
+- `skills/node-availability.md`
 
 ## Usage
 

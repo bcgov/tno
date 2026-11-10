@@ -40,12 +40,9 @@ run_build() {
   fi
 }
 
-if echo "$CHANGED" | grep -qE "^app/subscriber/"; then
-  run_build "subscriber" "$REPO_ROOT/app/subscriber" yarn build
-fi
-
-if echo "$CHANGED" | grep -qE "^app/editor/"; then
-  run_build "editor" "$REPO_ROOT/app/editor" yarn build
+# One Vite project builds both designs (editor and subscriber).
+if echo "$CHANGED" | grep -qE "^app/"; then
+  run_build "app" "$REPO_ROOT/app" npm run build
 fi
 
 if echo "$CHANGED" | grep -qE "^(libs/net|api/net|services/net)/"; then

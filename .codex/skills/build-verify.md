@@ -17,7 +17,7 @@ Use this skill when validating TNO changes before a commit, push, or PR, or inve
 
 - Keep documentation generation enabled. The API project treats missing documentation, malformed XML, unmatched/missing parameter tags, invalid `cref` references, and misplaced comments as errors (CS1570, CS1572, CS1573, CS1574, CS1584, CS1587, CS1591). Do not suppress these diagnostics or remove documentation generation to pass.
 - Read the compiler output, not only its exit code. `dotnet format` does not replace compiler XML checks; an incremental build may skip compilation and hide warnings. Fix new warnings before committing. When asked to clear XML warnings, fix all reported XML warnings even if they predate the branch.
-- For Editor changes, run `yarn lint`, relevant tests, and `yarn build`. Verify layout in a real browser when CSS changes; jsdom cannot validate alignment.
+- For `app/` changes (editor or subscriber design, or `src/shared`), run `npm run lint`, `npm run check`, `npm run typecheck`, relevant tests (`npm test`), and `npm run build` from `app/`. Verify layout in a real browser when CSS changes; jsdom cannot validate alignment.
 
 ## GitHub verification
 

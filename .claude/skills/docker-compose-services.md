@@ -34,7 +34,7 @@ Verify with `docker exec tno-<service> printenv <VAR>`.
 ## Service Names
 
 - `docker-compose.yml` — `database`, `keycloak`, `elastic`, `api`, `charts`, `editor`,
-  `subscriber`, `nginx`, `ssh`, `oracle`, `oracleclient`, `autoheal`, `indexer`,
+  `subscriber` (both build `app/`; `APP_MODE` picks the design), `nginx`, `ssh`, `oracle`, `oracleclient`, `autoheal`, `indexer`,
   `backup-service`
 - `db/kafka/docker-compose.yml` — `broker`, `kowl`
 - `services/docker-compose.yml` — `syndication`, `fileupload`, `image`, `filemonitor`, `content`,
@@ -96,8 +96,7 @@ docker-compose \
 | `services/net/<name>/` | `make refresh n=<name>` |
 | `api/net/` | `make refresh n=api` |
 | `libs/net/**` | `api` plus every service that consumes the change. `libs/net/models/Areas/Admin/**` is served to the UIs *by the API* — an editor-visible change there needs `api`, not `editor`. |
-| `app/editor/src/`, `app/subscriber/src/` | nothing — `src/` and `public/` are bind-mounted and Vite hot-reloads. Only changes outside `src/` (deps, Dockerfile, config) need `make refresh n=editor` / `n=subscriber`. |
-| `libs/npm/**` | re-pack into the app, then `make refresh n=editor` |
+| `app/src/`, `app/public/`, `app/*.html` | nothing — the `editor` and `subscriber` containers bind-mount them and Vite hot-reloads. Only changes outside those (deps, Dockerfile, `vite.config.mts`) need `make refresh n=editor` / `n=subscriber`. |
 
 Rebuilding `api` takes the API down for several minutes. The .NET services treat that as a
 critical failure — `The service is stopping: 'RequestFailed'`, then a ~120s restart backoff.

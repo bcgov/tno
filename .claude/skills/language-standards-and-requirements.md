@@ -2,8 +2,7 @@
 
 ## Runtime Requirements
 
-- Node: `18.x` (repo targets `>=18.11.0 <19.0.0`)
-- Yarn: `3.x` (Berry); use Yarn in `app/*`, `libs/npm`, and `api/node`
+- Node: `26.x` with npm for `app/` (`app/.nvmrc`); `api/node` stays on Node 18 with Yarn 3
 - .NET: `net10.0` projects across API/services/libs
 - Bash: scripts under `tools/scripts/**` and build helpers
 - Python: utility scripts only (keep dependencies minimal)
@@ -22,9 +21,9 @@
 ## TypeScript (React + Node)
 
 - Prefer typed models and hooks; avoid `any` unless unavoidable.
-- Frontend conventions: Redux slices/hooks, Formik controls, and `Show` from `tno-core`.
-- Keep import sorting and lint rules passing (`simple-import-sort`, React lint rules).
-- Validate with: `yarn build`, `yarn test`, `yarn lint` in affected package.
+- Frontend conventions: Redux Toolkit slices/hooks, Formik controls, and `Show` from `@/shared`; dates through `@/shared/utils/date` (Day.js).
+- Keep Oxlint and Prettier passing (Prettier sorts imports via `@ianvs/prettier-plugin-sort-imports`).
+- Validate with (from `app/`): `npm run lint`, `npm run check`, `npm run typecheck`, `npm test`, `npm run build`.
 
 ## JavaScript
 
