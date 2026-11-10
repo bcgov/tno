@@ -70,6 +70,9 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
       setInit(false);
       getFolder(Number(id), true)
         .then((folder) => {
+          // Re-arm only after a successful load: a folder that cannot be loaded (e.g. 403) was
+          // requested again on every render.
+          setInit(true);
           setCurrentFolder(folder);
           if (folder.filterId) {
             const selectedFilter = myFilters.find((f) => f.id === folder.filterId);
@@ -78,8 +81,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
             setActiveFilter(undefined);
           }
         })
-        .catch(() => {})
-        .finally(() => setInit(true));
+        .catch(() => {});
     } else {
       if (currentFolder && currentFolder.filterId) {
         const selectedFilter = myFilters.find((f) => f.id === currentFolder.filterId);
