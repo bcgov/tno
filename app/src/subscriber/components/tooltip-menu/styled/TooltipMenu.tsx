@@ -7,9 +7,8 @@ export const TooltipMenu = styled(Tooltip)`
   }
   z-index: 999;
   border-radius: 0.25em;
-  border: 1px solid ${({ theme }) => theme.linePrimaryColor};
-  background-color: ${({ theme }) => theme.bgPrimaryColor};
-  color: ${({ theme }) => theme.fPrimaryColor};
+  /* Border, background and text colours were meant to come from theme.css.linePrimaryColor,
+     bgPrimaryColor and fPrimaryColor, but read keys that do not exist and never applied. */
   opacity: 1;
   .option&:hover {
     text-decoration: underline;
