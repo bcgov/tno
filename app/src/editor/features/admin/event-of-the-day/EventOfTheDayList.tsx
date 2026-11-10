@@ -2,7 +2,7 @@ import moment from 'moment-timezone';
 import React from 'react';
 import { FaBinoculars, FaPaperPlane, FaTimes } from 'react-icons/fa';
 import { FaArrowsRotate } from 'react-icons/fa6';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import { toast } from 'react-toastify';
 
 import { FormPage } from '@/editor/components/formpage';

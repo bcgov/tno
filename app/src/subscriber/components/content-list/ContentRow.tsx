@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaCopyright, FaEyeSlash, FaX } from 'react-icons/fa6';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 import {
   Checkbox,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, Outlet, useLocation, useSearchParams } from 'react-router-dom';
+import { Link, Outlet, useLocation, useSearchParams } from 'react-router';
 import { toast } from 'react-toastify';
 
 import { UnauthenticatedHome } from '@/editor/features/home';

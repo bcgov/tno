@@ -1,6 +1,6 @@
 import isEqual from 'lodash/isEqual';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import { useWorkOrders } from '@/editor/store/hooks/admin/useWorkOrders';
 import {

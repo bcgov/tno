@@ -5,7 +5,7 @@ import {
 import moment, { Moment } from 'moment';
 import React from 'react';
 import { FaBookmark, FaCaretLeft, FaCaretRight } from 'react-icons/fa6';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { toast } from 'react-toastify';
 
 import {

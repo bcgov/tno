@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import ReportInstancePreview from '../../../features/reports/ReportInstancePreview';
 
 const state = vi.hoisted(() => ({ id: '31', view: vi.fn(), report: vi.fn() }));
-vi.mock('react-router-dom', () => ({ useParams: () => ({ id: state.id }) }));
+vi.mock('react-router', () => ({ useParams: () => ({ id: state.id }) }));
 vi.mock('@/editor/store/hooks', () => ({
   useReports: () => [{ getReport: state.report }],
   useReportInstances: () => [{ viewReportInstance: state.view }],

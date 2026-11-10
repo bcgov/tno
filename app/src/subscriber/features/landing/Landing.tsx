@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router';
 
 import { Col, IContentModel, Row, Show } from '@/shared';
 import { ViewOptions } from '@/subscriber/components/content-list';

@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { Navigate, Route, Routes, useNavigate } from 'react-router';
 
 import { AdminRouter } from '@/editor/features/admin';
 import ReportInstancesRedirect from '@/editor/features/reports/ReportInstancesRedirect';

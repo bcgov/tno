@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaCopy } from 'react-icons/fa6';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 
 import { useReports } from '@/editor/store/hooks';
 import { Button, ButtonVariant, Col, Loading, Show, type IReportResultModel } from '@/shared';

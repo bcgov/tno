@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router';
 
 const OrphanedContent = lazy(
   async () => await import('@/editor/features/admin/orphaned-content/OrphanedContent'),

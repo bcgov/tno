@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet, useNavigate, useParams } from 'react-router-dom';
+import { Outlet, useNavigate, useParams } from 'react-router';
 
 import { Col, IconButton, Row, Tab, Tabs } from '@/shared';
 

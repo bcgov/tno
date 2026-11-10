@@ -2,7 +2,7 @@ import { type AxiosError } from 'axios';
 import { type FormikHelpers, type FormikProps } from 'formik';
 import moment from 'moment';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 
 import { type IStream } from '@/editor/features/storage/interfaces';

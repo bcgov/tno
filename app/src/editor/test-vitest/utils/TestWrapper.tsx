@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router';
 import { ThemeProvider } from 'styled-components';
 
 import variables from '../../css/_variables.module.scss';

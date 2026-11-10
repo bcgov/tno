@@ -1,6 +1,6 @@
 import moment from 'moment';
 import React from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 
 import { Col, IReportResultModel, Loader, Show } from '@/shared';
 import { DateFilter } from '@/subscriber/components/date-filter';

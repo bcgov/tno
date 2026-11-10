@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaEye } from 'react-icons/fa6';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 
 import {
   AISectionStatusName,

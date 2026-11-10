@@ -1,6 +1,6 @@
 import { type SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
 import React, { useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { toast } from 'react-toastify';
 
 import { Status } from '@/editor/components/status';

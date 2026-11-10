@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { toast } from 'react-toastify';
 
 import { useReports } from '@/subscriber/store/hooks';

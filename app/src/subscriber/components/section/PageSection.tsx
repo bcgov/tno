@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 
 import { IContentModel, Row } from '@/shared';
 import { navbarOptions } from '@/subscriber/components/navbar/NavbarItems';

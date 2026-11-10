@@ -2,7 +2,7 @@ import { type FormikProps } from 'formik';
 import moment from 'moment';
 import React from 'react';
 import { FaBars, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router';
 import CreatableSelect from 'react-select/creatable';
 
 import { FormikForm } from '@/editor/components/formik';

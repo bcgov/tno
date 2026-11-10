@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaThumbtack } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 import { IReportModel, Row } from '@/shared';
 import { TooltipMenu } from '@/subscriber/components/tooltip-menu';

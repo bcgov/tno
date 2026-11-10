@@ -1,6 +1,6 @@
 import React, { type ReactElement } from 'react';
 import { FaExclamationTriangle } from 'react-icons/fa';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router';
 import { toast } from 'react-toastify';
 
 import { FormikForm } from '@/editor/components/formik';

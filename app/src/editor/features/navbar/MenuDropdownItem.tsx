@@ -1,5 +1,5 @@
 import NavDropdown from 'react-bootstrap/NavDropdown';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 import { useKeycloakWrapper, type Claim, type ILinkProps } from '@/shared';
 

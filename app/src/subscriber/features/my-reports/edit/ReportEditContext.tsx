@@ -1,6 +1,6 @@
 import { FormikErrors, useFormikContext } from 'formik';
 import React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router';
 import { toast } from 'react-toastify';
 
 import { IReportInstanceContentModel, IReportInstanceModel } from '@/shared';

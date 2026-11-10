@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaChartPie, FaEye, FaGear, FaTrashCan } from 'react-icons/fa6';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import { Col, IReportModel, ReportSectionTypeName, Row, Show, Spinner } from '@/shared';
 import { Action } from '@/subscriber/components/action';

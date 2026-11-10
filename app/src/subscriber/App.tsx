@@ -6,7 +6,7 @@ import 'prismjs';
 import isPropValid from '@emotion/is-prop-valid';
 import Keycloak from 'keycloak-js';
 import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router';
 import { ToastContainer } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
 import { StyleSheetManager } from 'styled-components';

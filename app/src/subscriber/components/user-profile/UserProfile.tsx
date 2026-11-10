@@ -1,7 +1,7 @@
 import React from 'react';
 import { BiLogOut } from 'react-icons/bi';
 import { FaChevronCircleDown, FaUmbrellaBeach, FaUserCircle } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { Tooltip } from 'react-tooltip';
 
 import { Claim, Row, Show, useKeycloakWrapper, useWindowSize } from '@/shared';

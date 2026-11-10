@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaCheck, FaSave } from 'react-icons/fa';
 import { FaBookmark, FaGear, FaPen, FaTrash } from 'react-icons/fa6';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 
 import { Col, Grid, IFilterModel, Loader, Row, Text, useModal } from '@/shared';

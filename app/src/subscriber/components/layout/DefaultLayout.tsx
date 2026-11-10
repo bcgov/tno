@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet, useParams } from 'react-router-dom';
+import { Outlet, useParams } from 'react-router';
 import { toast } from 'react-toastify';
 
 import {

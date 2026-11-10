@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaChevronLeft, FaChevronRight, FaSpinner } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import { useLocalStorage } from '@/editor/store/hooks';
 import { Button, ButtonVariant, Row, Show, Spinner } from '@/shared';

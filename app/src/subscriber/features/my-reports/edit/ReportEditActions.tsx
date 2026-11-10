@@ -7,7 +7,7 @@ import {
   FaLockOpen,
   FaTrash,
 } from 'react-icons/fa6';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import { Col, isAISectionPending, ReportStatusName, Show, useModal } from '@/shared';
 import { Action } from '@/subscriber/components/action';

@@ -22,7 +22,7 @@ const state = vi.hoisted(() => ({
     setPreviewLastUpdatedOn: vi.fn(),
   },
 }));
-vi.mock('react-router-dom', () => ({ useParams: () => ({ id: state.routeId }) }));
+vi.mock('react-router', () => ({ useParams: () => ({ id: state.routeId }) }));
 vi.mock('@/subscriber/store/hooks', () => ({
   useApp: () => [{ requests: state.requests }],
   useReportInstances: () => [{ viewReportInstance: state.view }],

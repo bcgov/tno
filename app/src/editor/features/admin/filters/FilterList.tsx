@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaRegClipboard } from 'react-icons/fa6';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import { FormPage } from '@/editor/components/formpage';
 import { useFilters } from '@/editor/store/hooks/admin';

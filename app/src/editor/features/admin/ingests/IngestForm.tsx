@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaEye, FaEyeSlash, FaSpinner } from 'react-icons/fa';
-import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate, useParams } from 'react-router';
 import { toast } from 'react-toastify';
 
 import { FormikForm } from '@/editor/components/formik';

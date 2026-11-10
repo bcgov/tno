@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import { useDataLocations } from '@/editor/store/hooks/admin';
 import { Col, FlexboxTable, IconButton, Row, type IDataLocationModel } from '@/shared';

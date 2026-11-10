@@ -1,7 +1,7 @@
 import { AxiosError } from 'axios';
 import React from 'react';
 import { FaPaperPlane } from 'react-icons/fa6';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 
 import {
   useApiHub,

@@ -35,7 +35,7 @@ vi.mock('@/subscriber/store/slices', () => ({
     { storeFrom: vi.fn(), storeFilter: state.storeFilter },
   ],
 }));
-vi.mock('react-router-dom', () => ({ useParams: () => state.params }));
+vi.mock('react-router', () => ({ useParams: () => state.params }));
 vi.mock('react-toastify', () => ({ toast: { warn: state.warn } }));
 vi.mock('@/subscriber/features/my-searches/hooks', () => ({
   useElastic: () => (settings: any) => ({ query: { settings }, from: 0 }),

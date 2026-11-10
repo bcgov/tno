@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import { makeUserFilter } from '@/editor/features/admin/users/utils/makeUserFilter';
 import { useUsers } from '@/editor/store/hooks/admin';

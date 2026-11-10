@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { FaArrowAltCircleRight, FaInfoCircle } from 'react-icons/fa';
 import { FaGear, FaTrash } from 'react-icons/fa6';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router';
 import { toast } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
 

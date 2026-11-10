@@ -8,7 +8,7 @@ import {
   FaSpinner,
 } from 'react-icons/fa';
 import { MdAdd, MdSave } from 'react-icons/md';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import { toast } from 'react-toastify';
 
 import { FormikForm } from '@/editor/components/formik';

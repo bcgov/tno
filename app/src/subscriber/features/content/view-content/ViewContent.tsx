@@ -3,7 +3,7 @@ import parse from 'html-react-parser';
 import React from 'react';
 import { FaFeather } from 'react-icons/fa';
 import { FaCopyright } from 'react-icons/fa6';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { toast } from 'react-toastify';
 
 import {

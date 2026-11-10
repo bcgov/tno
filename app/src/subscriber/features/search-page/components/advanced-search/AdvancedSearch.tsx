@@ -25,7 +25,7 @@ import {
   FaWandMagicSparkles,
 } from 'react-icons/fa6';
 import { IoIosCog, IoMdRefresh } from 'react-icons/io';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import Editor from 'react-simple-code-editor';
 import { toast } from 'react-toastify';
 

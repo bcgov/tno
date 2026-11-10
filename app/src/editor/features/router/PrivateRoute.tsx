@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate } from 'react-router';
 
 import { useApp } from '@/editor/store/hooks';
 import { NotAuthorized, useKeycloakWrapper, type Claim, type Role } from '@/shared';

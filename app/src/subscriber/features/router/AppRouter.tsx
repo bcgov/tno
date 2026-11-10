@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { Navigate, Route, Routes, useNavigate } from 'react-router';
 
 import { Claim, InternalServerError, NotFound } from '@/shared';
 import { DefaultLayout, LayoutAnonymous } from '@/subscriber/components/layout';

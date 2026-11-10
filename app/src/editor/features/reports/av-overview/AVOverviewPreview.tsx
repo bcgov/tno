@@ -1,7 +1,7 @@
 import moment from 'moment';
 import React from 'react';
 import { FaExternalLinkAlt, FaPaperPlane } from 'react-icons/fa';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { toast } from 'react-toastify';
 
 import { useAVOverviewInstances, useLookup } from '@/editor/store/hooks';

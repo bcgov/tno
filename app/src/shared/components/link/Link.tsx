@@ -1,5 +1,5 @@
 import { type JSX } from 'react';
-import { NavigateOptions, useNavigate } from 'react-router-dom';
+import { NavigateOptions, useNavigate } from 'react-router';
 
 import * as styled from './styled';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 
 import { useApp } from '@/editor/store/hooks';
 import { Row, Show, useKeycloakWrapper, UserStatusName } from '@/shared';

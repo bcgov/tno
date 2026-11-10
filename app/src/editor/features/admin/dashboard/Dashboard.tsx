@@ -3,7 +3,7 @@ import moment from 'moment';
 import React from 'react';
 import { FaEdit } from 'react-icons/fa';
 import { FaBugSlash } from 'react-icons/fa6';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import { FormPage } from '@/editor/components/formpage';
 import { useApiHub, useLookupOptions } from '@/editor/store/hooks';

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 import { FaAnglesLeft, FaAnglesRight } from 'react-icons/fa6';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 
 import { Row, Show, useWindowSize } from '@/shared';
 import { InfoShield } from '@/subscriber/components/info';

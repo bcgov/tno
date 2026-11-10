@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import { FormPage } from '@/editor/components/formpage';
 import { useReports } from '@/editor/store/hooks/admin';

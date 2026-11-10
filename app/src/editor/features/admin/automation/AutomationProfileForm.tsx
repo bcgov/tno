@@ -4,7 +4,7 @@ import moment from 'moment';
 import React from 'react';
 import { FaEdit, FaHistory, FaPlus, FaTrash } from 'react-icons/fa';
 import { FaRegCalendar, FaRegClock } from 'react-icons/fa6';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router';
 import { toast } from 'react-toastify';
 
 import { FormikForm } from '@/editor/components/formik';
