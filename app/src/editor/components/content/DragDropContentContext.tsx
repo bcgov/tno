@@ -1,7 +1,7 @@
 import React from 'react';
-import { DragDropContext, type DropResult, type ResponderProvided } from 'react-beautiful-dnd';
 
 import { sortObject } from '@/shared';
+import { DragDropContext, type DropResult, type ResponderProvided } from '@/shared/components/dnd';
 
 import { DroppableContentContainer, type IContentRowModel } from '.';
 

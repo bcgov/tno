@@ -1,6 +1,5 @@
-import { DropResult } from 'react-beautiful-dnd';
-
 import { IReportInstanceContentModel } from '@/shared';
+import { DropResult } from '@/shared/components/dnd';
 
 /**
  * Determines the destination index in the array the item will be dropped into.

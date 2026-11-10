@@ -1,6 +1,5 @@
-import { DropResult } from 'react-beautiful-dnd';
-
 import { IReportInstanceContentModel } from '@/shared';
+import { DropResult } from '@/shared/components/dnd';
 
 import { getDestinationIndex } from './getDestinationIndex';
 import { sortContent } from './sortContent';

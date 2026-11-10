@@ -1,14 +1,5 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import {
-  DragDropContext,
-  Draggable,
-  DraggableProvided,
-  Droppable,
-  DroppableProvided,
-  type DropResult,
-  type ResponderProvided,
-} from 'react-beautiful-dnd';
 import { FaGripLines, FaTrash } from 'react-icons/fa';
 
 import {
@@ -23,6 +14,15 @@ import {
   Show,
   type IAVOverviewTemplateModel,
 } from '@/shared';
+import {
+  DragDropContext,
+  Draggable,
+  DraggableProvided,
+  Droppable,
+  DroppableProvided,
+  type DropResult,
+  type ResponderProvided,
+} from '@/shared/components/dnd';
 
 import * as styled from './styled';
 

@@ -1,13 +1,6 @@
 import { useFormikContext } from 'formik';
 import moment from 'moment';
 import React from 'react';
-import {
-  DragDropContext,
-  Draggable,
-  Droppable,
-  type DropResult,
-  type ResponderProvided,
-} from 'react-beautiful-dnd';
 import { FaGripLines, FaTrash } from 'react-icons/fa';
 
 import { useContent } from '@/editor/store/hooks';
@@ -29,6 +22,13 @@ import {
   type IContentModel,
   type IOptionItem,
 } from '@/shared';
+import {
+  DragDropContext,
+  Draggable,
+  Droppable,
+  type DropResult,
+  type ResponderProvided,
+} from '@/shared/components/dnd';
 
 import * as styled from './styled';
 import { SummarySuggestion } from './SummarySuggestion';

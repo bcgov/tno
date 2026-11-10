@@ -1,8 +1,6 @@
 import React from 'react';
-import { DragDropContext, Draggable, type DropResult } from 'react-beautiful-dnd';
 import { FaEdit, FaGripVertical, FaTrash } from 'react-icons/fa';
 
-import { StrictModeDroppable } from '@/editor/features/admin/automation/StrictModeDroppable';
 import { useLookup } from '@/editor/store/hooks';
 import {
   Button,
@@ -16,6 +14,7 @@ import {
   Text,
   type ITopicScoreRuleModel,
 } from '@/shared';
+import { DragDropContext, Draggable, Droppable, type DropResult } from '@/shared/components/dnd';
 
 import { type ITopicScoreSourceModel } from './interfaces';
 import { formatPageRange, formatRange } from './utils';
@@ -137,7 +136,7 @@ export const RulesPane: React.FC<IRulesPaneProps> = ({
           <span></span>
         </div>
         <DragDropContext onDragEnd={handleDragEnd}>
-          <StrictModeDroppable droppableId="rules">
+          <Droppable droppableId="rules">
             {(provided) => (
               <div ref={provided.innerRef} {...provided.droppableProps}>
                 {items.map((rule, index) => (
@@ -195,7 +194,7 @@ export const RulesPane: React.FC<IRulesPaneProps> = ({
                 {provided.placeholder}
               </div>
             )}
-          </StrictModeDroppable>
+          </Droppable>
         </DragDropContext>
         <Show visible={!items.length}>
           <div className="rules-grid-empty">

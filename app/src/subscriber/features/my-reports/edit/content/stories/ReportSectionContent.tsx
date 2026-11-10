@@ -1,5 +1,4 @@
 import React from 'react';
-import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { FaArrowsRotate, FaPlus } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 
@@ -16,6 +15,7 @@ import {
   Show,
   useModal,
 } from '@/shared';
+import { Draggable, Droppable } from '@/shared/components/dnd';
 import { Action } from '@/subscriber/components/action';
 import { Modal } from '@/subscriber/components/modal';
 import { RefreshButton } from '@/subscriber/components/refresh-button';

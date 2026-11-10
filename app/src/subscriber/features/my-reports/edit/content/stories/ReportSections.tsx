@@ -1,8 +1,8 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { DragDropContext, DropResult, ResponderProvided } from 'react-beautiful-dnd';
 
 import { ReportSectionTypeName, Show } from '@/shared';
+import { DragDropContext, DropResult, ResponderProvided } from '@/shared/components/dnd';
 import { Section } from '@/subscriber/components/section';
 import { SectionLabel } from '@/subscriber/features/my-reports/components';
 import {

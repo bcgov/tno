@@ -1,10 +1,11 @@
 import React from 'react';
-import { Draggable, type DraggableProps } from 'react-beautiful-dnd';
+
+import { Draggable, type IDraggableProps } from '@/shared/components/dnd';
 
 import { ContentRow, type IContentRowProps } from '.';
 
 export interface IDraggableContentRowProps
-  extends Omit<DraggableProps, 'children'>, IContentRowProps {
+  extends Omit<IDraggableProps, 'children'>, IContentRowProps {
   className?: string;
   children?: ((props: IDraggableContentRowProps) => React.ReactNode) | React.ReactNode;
 }

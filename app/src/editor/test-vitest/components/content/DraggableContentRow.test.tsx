@@ -1,10 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
-import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 
 import { DraggableContentRow } from '@/editor/components/content/DraggableContentRow';
 import { TestWrapper } from '@/editor/test-vitest/utils';
 import { ContentStatusName, ContentTypeName, UserAccountTypeName, UserStatusName } from '@/shared';
+import { DragDropContext, Droppable } from '@/shared/components/dnd';
 
 describe('DraggableContentRow', () => {
   const mockRow = {

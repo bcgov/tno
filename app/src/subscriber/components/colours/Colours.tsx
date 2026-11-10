@@ -1,5 +1,5 @@
-import React from 'react';
 import Sketch from '@uiw/react-color-sketch';
+import React from 'react';
 import { FaPalette } from 'react-icons/fa6';
 import CreatableSelect from 'react-select/creatable';
 

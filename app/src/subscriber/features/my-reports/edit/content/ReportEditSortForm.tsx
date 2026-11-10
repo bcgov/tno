@@ -1,13 +1,4 @@
 import React from 'react';
-import {
-  DragDropContext,
-  Draggable,
-  DraggableProvided,
-  Droppable,
-  DroppableProvided,
-  DropResult,
-  ResponderProvided,
-} from 'react-beautiful-dnd';
 import { FaToggleOff, FaToggleOn } from 'react-icons/fa6';
 
 import {
@@ -17,6 +8,15 @@ import {
   ReportSectionTypeName,
   ToggleButton,
 } from '@/shared';
+import {
+  DragDropContext,
+  Draggable,
+  DraggableProvided,
+  Droppable,
+  DroppableProvided,
+  DropResult,
+  ResponderProvided,
+} from '@/shared/components/dnd';
 import { StartNextReportInfo } from '@/subscriber/features/my-reports/components';
 import { IReportInstanceContentForm } from '@/subscriber/features/my-reports/interfaces';
 import {

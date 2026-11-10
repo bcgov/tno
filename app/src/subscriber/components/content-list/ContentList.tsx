@@ -1,6 +1,5 @@
 import { AxiosError } from 'axios';
 import React from 'react';
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
@@ -13,6 +12,7 @@ import {
   Settings,
   Show,
 } from '@/shared';
+import { DragDropContext, Draggable, Droppable } from '@/shared/components/dnd';
 import { castToSearchResult } from '@/subscriber/features/utils';
 import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
 import { useApp, useContent, useLookup } from '@/subscriber/store/hooks';

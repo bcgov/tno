@@ -1,9 +1,7 @@
 import React from 'react';
-import { DragDropContext, Draggable, type DropResult } from 'react-beautiful-dnd';
 import { FaArrowDown, FaArrowUp, FaGripVertical, FaTrash } from 'react-icons/fa';
 import { type createFilter } from 'react-select';
 
-import { StrictModeDroppable } from '@/editor/features/admin/automation/StrictModeDroppable';
 import {
   Button,
   ButtonVariant,
@@ -14,6 +12,7 @@ import {
   Row,
   type IOptionItem,
 } from '@/shared';
+import { DragDropContext, Draggable, Droppable, type DropResult } from '@/shared/components/dnd';
 
 import { type ISyndicationFeed } from '../interfaces';
 import * as styled from './styled';
@@ -78,7 +77,7 @@ export const FeedList = React.forwardRef<HTMLDivElement, IFeedListProps>(
           <span></span>
         </div>
         <DragDropContext onDragEnd={handleDragEnd}>
-          <StrictModeDroppable droppableId="feeds">
+          <Droppable droppableId="feeds">
             {(provided) => (
               <div className="feed-rows" ref={provided.innerRef} {...provided.droppableProps}>
                 {feeds.map((feed, index) => (
@@ -149,7 +148,7 @@ export const FeedList = React.forwardRef<HTMLDivElement, IFeedListProps>(
                 {provided.placeholder}
               </div>
             )}
-          </StrictModeDroppable>
+          </Droppable>
         </DragDropContext>
       </styled.FeedList>
     );

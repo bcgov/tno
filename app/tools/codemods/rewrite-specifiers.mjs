@@ -5,6 +5,7 @@
 //   node tools/codemods/rewrite-specifiers.mjs design-roots   bare 'store', 'features/x'... -> '@/<design|shared>/...'
 //   node tools/codemods/rewrite-specifiers.mjs tno-core       'tno-core' -> '@/shared'
 //   node tools/codemods/rewrite-specifiers.mjs react-router   'react-router-dom' -> 'react-router'
+//   node tools/codemods/rewrite-specifiers.mjs dnd            'react-beautiful-dnd' -> '@/shared/components/dnd'
 import fs from 'node:fs';
 import path from 'node:path';
 // TypeScript 7 has no JavaScript API; the codemods use the TypeScript 6 API under an alias.
@@ -58,6 +59,7 @@ const rewriters = {
     if (spec.startsWith('tno-core/src/')) return `@/shared/${spec.slice('tno-core/src/'.length)}`;
   },
   'react-router': (spec) => (spec === 'react-router-dom' ? 'react-router' : undefined),
+  dnd: (spec) => (spec === 'react-beautiful-dnd' ? '@/shared/components/dnd' : undefined),
 };
 
 const rewrite = rewriters[mode];

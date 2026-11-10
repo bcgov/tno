@@ -1,5 +1,4 @@
 import React from 'react';
-import { DragDropContext, Draggable, type DropResult } from 'react-beautiful-dnd';
 import {
   FaChevronDown,
   FaChevronRight,
@@ -23,9 +22,9 @@ import {
   type IActionModel,
   type IOptionItem,
 } from '@/shared';
+import { DragDropContext, Draggable, Droppable, type DropResult } from '@/shared/components/dnd';
 
 import { SectionInfoButton } from '../SectionInfoButton';
-import { StrictModeDroppable } from '../StrictModeDroppable';
 import { findOptionByValue } from '../utils';
 import { ActionEditor } from './ActionEditor';
 import { AnalysisEditor } from './AnalysisEditor';
@@ -153,7 +152,7 @@ export const AutomationDesigner: React.FC<IAutomationDesignerProps> = ({
   // One drag context covers both lists; distinct droppable ids keep steps and actions (and
   // actions across steps) from mixing.
   const DragDropContextAny = DragDropContext as any;
-  const DroppableAny = StrictModeDroppable as any;
+  const DroppableAny = Droppable as any;
   const DraggableAny = Draggable as any;
 
   const onDragEnd = (result: DropResult) => {
