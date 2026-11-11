@@ -115,7 +115,7 @@ jobs:
           echo "✅ Tags swapped successfully in ACR."
 
       - name: Install oc CLI
-        uses: redhat-actions/openshift-tools-installer@v1
+        uses: redhat-actions/openshift-tools-installer@v3
         with:
           oc: latest
 

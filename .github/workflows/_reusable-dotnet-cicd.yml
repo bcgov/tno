@@ -126,7 +126,7 @@ jobs:
           acr_password: ${{ secrets.ACR_PASSWORD }}
 
       - name: Install oc CLI
-        uses: redhat-actions/openshift-tools-installer@v1
+        uses: redhat-actions/openshift-tools-installer@v3
         with:
           oc: latest
 
@@ -198,7 +198,7 @@ jobs:
           acr_password: ${{ secrets.ACR_PASSWORD }}
 
       - name: Install oc CLI
-        uses: redhat-actions/openshift-tools-installer@v1
+        uses: redhat-actions/openshift-tools-installer@v3
         with:
           oc: latest
 
