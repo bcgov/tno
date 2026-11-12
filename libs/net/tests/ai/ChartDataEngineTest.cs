@@ -54,4 +54,16 @@ public class ChartDataEngineTest
         Assert.Equal(TNO.API.Models.Charts.ChartColors.GetColors(colors, 1, "source", "a", "count"), TNO.TemplateEngine.ReportExtensions.GetColors(colors, 1, "source", "a", "count"));
         Assert.Equal("""["#2"]""", TNO.TemplateEngine.ReportExtensions.GetColors(colors, 1, "source", "a", "count"));
     }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void Colours_AnEmptyList_IsNoColour(int index)
+    {
+        // The chart editor leaves an empty list behind; a template must not hand Chart.js a colour it cannot find.
+        Assert.Equal("null", TNO.TemplateEngine.ReportExtensions.GetColors([], index, "source", "a", "count"));
+        Assert.Equal("null", TNO.TemplateEngine.ReportExtensions.GetColors(null, index, "source", "a", "count"));
+        // A sentiment dataset still gets its own colours.
+        Assert.Equal("""["green"]""", TNO.TemplateEngine.ReportExtensions.GetColors([], index, "sentimentSimple", "Positive", "count"));
+    }
 }

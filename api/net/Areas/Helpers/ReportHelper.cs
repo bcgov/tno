@@ -150,12 +150,14 @@ public class ReportHelper : IReportHelper
         {
             if (TNO.DAL.Models.ReportChartSupport.GetSource(section, _serializerOptions) == null) continue;
             var charts = section.ChartTemplatesManyToMany.Where(c => TNO.DAL.Models.ReportChartSupport.SupportsAggregation(c, _serializerOptions, byLine)).ToArray();
+            // A sent instance is a record of what went out. An unsent one follows the owner's edits,
+            // and the stories it charts from its own report or the report it is linked to.
+            var storiesChangedOn = instance.SentOn.HasValue ? null : _reportChartDataService.GetStoriesChangedOn(report, section, instanceId);
             var isCurrent = charts.All(chart =>
             {
                 var row = stored.FirstOrDefault(r => r.SectionId == section.Id && r.ChartTemplateId == chart.ChartTemplateId);
                 if (row == null) return false;
-                // A sent instance is a record of what went out. An unsent one follows the owner's edits.
-                return instance.SentOn.HasValue || (row.GeneratedOn >= chart.UpdatedOn && row.GeneratedOn >= section.UpdatedOn);
+                return instance.SentOn.HasValue || TNO.DAL.Models.ReportChartSupport.IsCurrent(row, chart, section, storiesChangedOn);
             });
             if (isCurrent) continue;
 

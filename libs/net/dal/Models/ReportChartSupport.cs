@@ -98,6 +98,23 @@ public static class ReportChartSupport
     }
 
     /// <summary>
+    /// Whether stored chart data still shows what the chart would compute now. The owner editing
+    /// the chart or its section makes it stale, and so does a change to the stories it counts:
+    /// a report, or the report it is linked to, gains and loses stories without the chart being touched.
+    /// </summary>
+    /// <param name="row">The stored chart data.</param>
+    /// <param name="chart"></param>
+    /// <param name="section"></param>
+    /// <param name="storiesChangedOn">When the stories the section charts last changed, or null when the section fetches its own.</param>
+    /// <returns></returns>
+    public static bool IsCurrent(ReportInstanceChart row, ReportSectionChartTemplate chart, ReportSection section, DateTime? storiesChangedOn)
+    {
+        if (row.GeneratedOn < chart.UpdatedOn || row.GeneratedOn < section.UpdatedOn) return false;
+        // Strictly after: a story stamped at the very moment the chart was generated may not be in it.
+        return !storiesChangedOn.HasValue || row.GeneratedOn > storiesChangedOn;
+    }
+
+    /// <summary>
     /// Whether the section needs no stories at all: a media analytics section with its own filter
     /// or folder, every chart of which aggregates. A section with a chart that still walks stories
     /// keeps fetching them, and a filter that declares its own aggregations keeps running because

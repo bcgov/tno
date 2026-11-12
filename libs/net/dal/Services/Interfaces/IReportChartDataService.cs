@@ -52,6 +52,18 @@ public interface IReportChartDataService : IBaseService
         int? requestorId);
 
     /// <summary>
+    /// Get when the stories a section charts last changed, for a section that charts the stories
+    /// listed in a report instance: every section of its own report ('use all content'), or a
+    /// linked report's current instance. It is the newest change to that instance or to the
+    /// stories in it. Stored chart data older than this no longer matches those stories.
+    /// </summary>
+    /// <param name="report">The report the section belongs to.</param>
+    /// <param name="section"></param>
+    /// <param name="instanceId">The instance of the report the stored chart data belongs to.</param>
+    /// <returns>The time, or null when the section fetches its own stories (a filter or folder), or there is no instance to read yet.</returns>
+    DateTime? GetStoriesChangedOn(Report report, ReportSection section, long instanceId);
+
+    /// <summary>
     /// Compute the data of every chart in the report's media analytics sections that can aggregate.
     /// Nothing is saved. A chart that cannot aggregate has no row and renders from stories.
     /// </summary>

@@ -6,6 +6,7 @@ import {
   evalScripts,
   getInt,
   getString,
+  removeUnsetColors,
 } from '.';
 import { ChartConfiguration, ScriptableContext } from 'chart.js';
 import { AnyObject } from 'chart.js/dist/types/basic';
@@ -31,7 +32,11 @@ export function generateCanvas(type: ChartTypes, req: Request) {
   const base64Options = getString(req, 'options') ?? convertChartJsConfigToBase64String({});
   const options = convertBase64ConfigToChartJsConfig(base64Options);
 
-  const config = { type, data: evalScripts(data), options } as ChartConfiguration;
+  const config = {
+    type,
+    data: evalScripts(removeUnsetColors(data)),
+    options,
+  } as ChartConfiguration;
 
   const canvas = new ChartCanvas(width, height);
   canvas.applyChart(config);

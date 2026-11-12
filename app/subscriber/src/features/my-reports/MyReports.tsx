@@ -22,6 +22,9 @@ import { ReportPreview } from './ReportPreview';
 import * as styled from './styled';
 import { isAISectionTestMessage } from './utils';
 
+/** How long to wait before asking again whether the list of reports is stale, in milliseconds. */
+const staleCheckInterval = 30000;
+
 export const MyReports: React.FC = () => {
   const [{ myReports, reportsFilter }, { findMyReports, deleteReport, getReport }] = useReports();
   const [{ getReportInstance }] = useReportInstances();
@@ -36,13 +39,31 @@ export const MyReports: React.FC = () => {
     return reports.filter((r) => r.name.toLowerCase().includes(filter.toLowerCase()));
   }, []);
 
+  // The list is kept while the app stays open, so it is checked for changes every time this page
+  // is opened. Only a list that has changed is fetched again.
+  const refresh = React.useRef(findMyReports);
+  refresh.current = findMyReports;
+
   React.useEffect(() => {
-    if (userInfo && !myReports.length) {
-      findMyReports().catch(() => {});
-    }
-    // Only do this on init.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (userInfo) refresh.current().catch(() => {});
   }, [userInfo]);
+
+  React.useEffect(() => {
+    // A tab left open is checked again when the user comes back to it.
+    let checkedOn = Date.now();
+    const check = () => {
+      if (document.visibilityState !== 'visible' || Date.now() - checkedOn < staleCheckInterval)
+        return;
+      checkedOn = Date.now();
+      refresh.current().catch(() => {});
+    };
+    document.addEventListener('visibilitychange', check);
+    window.addEventListener('focus', check);
+    return () => {
+      document.removeEventListener('visibilitychange', check);
+      window.removeEventListener('focus', check);
+    };
+  }, []);
 
   hub.useHubEffect(MessageTargetKey.ReportStatus, async (message: IReportMessageModel) => {
     // A finished AI section test run is for the prompt workbench; nothing about the report changed.
@@ -91,7 +112,8 @@ export const MyReports: React.FC = () => {
     [deleteReport],
   );
 
-  const isLoading = requests.some((r) => r.url === 'find-my-reports');
+  // Checking a list that is already on the page happens behind it.
+  const isLoading = !myReports.length && requests.some((r) => r.url === 'find-my-reports');
 
   return (
     <styled.MyReports>
