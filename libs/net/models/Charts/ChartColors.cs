@@ -60,13 +60,15 @@ public static class ChartColors
             }
         }
 
+        // An empty list is the same as no list. Chart.js draws a colour it cannot find in black, so
+        // the chart is given no colour and keeps the ones Chart.js picks, as the chart editor does.
+        if (colors == null || colors.Length == 0) return "null";
+
         // This will return a colour for each value in the dataset.
-        if (index < 0 || colors == null) return colors == null ? "null" : $"[{String.Join(",", colors.Select(c => $"\"{c}\""))}]";
+        if (index < 0) return $"[{String.Join(",", colors.Select(c => $"\"{c}\""))}]";
 
         // Use the index of the dataset to pick the colour.
-        index = index >= 0 ? index : 0;
         var length = colors.Length;
-        if (length == 0) return "null";
         var position = index < length ? index : index % length;
         return $"[\"{colors[position]}\"]";
     }

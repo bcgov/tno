@@ -13,6 +13,24 @@ export const convertBase64ConfigToChartJsConfig = (data: string) => {
 };
 
 /**
+ * Remove the dataset colours that were not set. JSON cannot say 'undefined', so a colour the
+ * chart was not given arrives as null, and Chart.js draws a null colour, or one from an empty
+ * list, in black. Without the property it picks its own colour, which is what the chart editor
+ * in the browser shows.
+ * @param data JSON object containing the chart data.
+ * @returns The chart data.
+ */
+export const removeUnsetColors = <T extends { datasets?: any[] }>(data: T): T => {
+  const isUnset = (color: unknown) =>
+    color === null || (Array.isArray(color) && color.length === 0);
+  data?.datasets?.forEach((dataset) => {
+    if (isUnset(dataset?.backgroundColor)) delete dataset.backgroundColor;
+    if (isUnset(dataset?.borderColor)) delete dataset.borderColor;
+  });
+  return data;
+};
+
+/**
  * Evaluate any possible scripts within the data or config.
  * @param data JSON object may contain chart config, or chart data.
  */

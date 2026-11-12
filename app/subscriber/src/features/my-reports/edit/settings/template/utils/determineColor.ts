@@ -15,7 +15,9 @@ export const determineColor = (
 
   if (!colors) return undefined;
 
-  if (chartSectionSettings.applyColorToValue) return colors;
+  // An empty list is the same as no list: Chart.js would draw a colour it cannot find in black,
+  // so the chart keeps the colours Chart.js gives it.
+  if (chartSectionSettings.applyColorToValue) return colors.length ? colors : undefined;
 
   if (dataset === '' && datasetValueProp === 'sentiment') {
     return selectSentimentColorForValue(0, colors);
@@ -23,5 +25,5 @@ export const determineColor = (
   if (dataset === 'sentiment' || dataset === 'sentimentSimple') {
     return selectSentimentColorForDataset(datasetLabel, colors);
   }
-  return selectColorForDataset(index, colors);
+  return colors.length ? selectColorForDataset(index, colors) : undefined;
 };

@@ -407,6 +407,33 @@ public class ReportChartDataServiceTest : IDisposable
         var perValue = (await Service.GetChartDataAsync(Request(new ChartSectionSettingsModel { Dataset = "source", GroupBy = "", DatasetColors = colors, ApplyColorToValue = true }))).Data;
         Assert.Equal("""["#111","#222"]""", JsonSerializer.Serialize(perValue.Datasets[0].BackgroundColor));
     }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Colours_AnEmptyList_IsNoColour(bool applyColorToValue)
+    {
+        // Choosing a dataset type in the chart editor leaves both lists empty. Chart.js draws a
+        // colour it cannot find in black, so the chart is given none and keeps its own.
+        Respond(Total(1, """{"l0":{"buckets":[{"key":"A","doc_count":1}]}}"""));
+        var settings = new ChartSectionSettingsModel { Dataset = "source", GroupBy = "", DatasetColors = [], DatasetBorderColors = [], ApplyColorToValue = applyColorToValue };
+
+        var dataset = (await Service.GetChartDataAsync(Request(settings))).Data.Datasets[0];
+
+        Assert.Equal("null", JsonSerializer.Serialize(dataset.BackgroundColor));
+        Assert.Equal("null", JsonSerializer.Serialize(dataset.BorderColor));
+    }
+
+    [Fact]
+    public async Task Colours_AnEmptyList_KeepsTheSentimentColours()
+    {
+        Respond(Total(1, """{"l0":{"v":{"buckets":[{"key":"Positive","doc_count":1,"docs":{"doc_count":1}}]}},"l0_none":{"doc_count":0}}"""));
+        var settings = new ChartSectionSettingsModel { Dataset = "sentimentSimple", GroupBy = "", DatasetColors = [], DatasetBorderColors = [] };
+
+        var dataset = (await Service.GetChartDataAsync(Request(settings))).Data.Datasets.First(d => d.Label == "Positive");
+
+        Assert.Equal("""["green"]""", JsonSerializer.Serialize(dataset.BackgroundColor));
+    }
     #endregion
 
     #region Support
