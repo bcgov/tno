@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.Net.Http.Headers;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Helpers;
 using TNO.API.Areas.Subscriber.Models.Report;
@@ -144,6 +145,7 @@ public class ReportController : ControllerBase
     [HttpGet("my-reports")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<ReportModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotModified)]
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult FindMyReports()
     {
@@ -155,6 +157,16 @@ public class ReportController : ControllerBase
         {
             OwnerId = user.Id
         };
+
+        // The app keeps this list for as long as the page stays open. The version lets it ask
+        // whether the list is stale, and be told it is not without the reports being read.
+        var version = new EntityTagHeaderValue($"\"{user.Id}-{_reportService.GetVersion(filter)}\"");
+        this.Response.Headers.ETag = version.ToString();
+        this.Response.Headers.CacheControl = "private, no-cache";
+        // A proxy that compresses the response marks the version as weak, so the comparison is weak too.
+        if (this.Request.GetTypedHeaders().IfNoneMatch.Any(tag => tag.Compare(version, useStrongComparison: false)))
+            return StatusCode((int)HttpStatusCode.NotModified);
+
         return new JsonResult(_reportService.Find(filter).Select(ds => new ReportModel(ds, _serializerOptions)));
     }
 
