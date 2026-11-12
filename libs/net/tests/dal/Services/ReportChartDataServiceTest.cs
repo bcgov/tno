@@ -458,6 +458,218 @@ public class ReportChartDataServiceTest : IDisposable
         section.ChartTemplatesManyToMany[0].ChartTemplate!.Settings = JsonDocument.Parse("""{"aggregations":{"topics":{"nested":{"path":"topics"}}}}""");
         Assert.True(ReportChartSupport.IsAnalyticsOnly(section, Options, false));
     }
+    #endregion
+
+    #region Stories changed
+    private const int OwnerId = 7;
+    /// <summary>The report's own instance, which a section linked to another report never reads.</summary>
+    private const long OwnInstanceId = 900;
+
+    private TNOContext Context => helper.Provider.GetRequiredService<TNOContext>();
+
+    private static (Report Report, ReportSection Section) LinkedSection(int linkedReportId, int? ownerId = OwnerId)
+    {
+        var report = new Report(1, "report", 1, ownerId);
+        return (report, new ReportSection(1, "chart", ReportSectionType.MediaAnalytics, 1, null, null, linkedReportId));
+    }
+
+    private void AddInstance(long instanceId, int reportId, int? ownerId = OwnerId, params long[] contentIds)
+    {
+        Context.ReportInstances.Add(new ReportInstance(instanceId, reportId, ownerId));
+        AddStories(instanceId, contentIds);
+    }
+
+    /// <summary>
+    /// The way 'Add to report' does it: the links are inserted and the instance is left as it was.
+    /// </summary>
+    private void AddStories(long instanceId, params long[] contentIds)
+    {
+        Context.ReportInstanceContents.AddRange(contentIds.Select(id => new ReportInstanceContent(instanceId, id, "stories", 0)));
+        Context.SaveChanges();
+        Context.ChangeTracker.Clear();
+    }
+
+    private static ReportSection AllContentSection(int? linkedReportId = null) =>
+        new(1, "chart", ReportSectionType.MediaAnalytics, 1, null, null, linkedReportId) { Settings = JsonDocument.Parse("""{"useAllContent":true}""") };
+
+    private static ReportInstanceChart StoredChart(DateTime generatedOn) =>
+        new(1, 1, 1, "chart", JsonDocument.Parse("{}")) { GeneratedOn = generatedOn };
+
+    [Fact]
+    public void StoriesChangedOn_IsNull_WhenTheSectionFetchesItsOwnStories()
+    {
+        // A filter or folder is run when the section is generated, so its chart is a snapshot of that run.
+        AddInstance(1001, 1, OwnerId, 1);
+        var report = new Report(1, "report", 1, OwnerId);
+        var filtered = new ReportSection(1, "chart", ReportSectionType.MediaAnalytics, 1, 8, null, null);
+        var folder = new ReportSection(1, "chart", ReportSectionType.MediaAnalytics, 1, null, 8, null);
+
+        Assert.Null(Service.GetStoriesChangedOn(report, filtered, 1001));
+        Assert.Null(Service.GetStoriesChangedOn(report, folder, 1001));
+    }
+
+    [Fact]
+    public void AllContent_IsNull_WithoutAnInstance()
+    {
+        Assert.Null(Service.GetStoriesChangedOn(new Report(1, "report", 1, OwnerId), AllContentSection(), 1010));
+    }
+
+    [Fact]
+    public void AllContent_Moves_WhenAStoryIsAddedToTheReport()
+    {
+        var report = new Report(1, "report", 1, OwnerId);
+        AddInstance(1011, 1, OwnerId, 1, 2);
+        var before = Service.GetStoriesChangedOn(report, AllContentSection(), 1011);
+
+        AddStories(1011, 3);
+        var after = Service.GetStoriesChangedOn(report, AllContentSection(), 1011);
+
+        Assert.NotNull(before);
+        Assert.True(after > before);
+        // A chart generated between the two no longer matches the report.
+        Assert.False(ReportChartSupport.IsCurrent(StoredChart(before!.Value.AddTicks(1)), new ReportSectionChartTemplate(1, 1, 0), AllContentSection(), after));
+    }
+
+    [Fact]
+    public void AllContent_ReadsTheReportsOwnInstance_NotALinkedReports()
+    {
+        var report = new Report(1, "report", 1, OwnerId);
+        AddInstance(1012, 1, OwnerId, 1);
+        AddInstance(1013, 112, OwnerId, 2);
+        var before = Service.GetStoriesChangedOn(report, AllContentSection(112), 1012);
+
+        // 'Use all content' wins over a linked report, as it does when the chart is computed.
+        AddStories(1013, 3);
+        Assert.Equal(before, Service.GetStoriesChangedOn(report, AllContentSection(112), 1012));
+
+        AddStories(1012, 4);
+        Assert.True(Service.GetStoriesChangedOn(report, AllContentSection(112), 1012) > before);
+    }
+
+    [Fact]
+    public void LinkedReport_IsNull_UntilItHasAnInstance()
+    {
+        var (report, section) = LinkedSection(102);
+        Assert.Null(Service.GetStoriesChangedOn(report, section, OwnInstanceId));
+    }
+
+    [Fact]
+    public void LinkedReport_Moves_WhenAStoryIsAdded()
+    {
+        var (report, section) = LinkedSection(103);
+        AddInstance(1003, 103, OwnerId, 1, 2);
+        var before = Service.GetStoriesChangedOn(report, section, OwnInstanceId);
+
+        AddStories(1003, 3);
+        var after = Service.GetStoriesChangedOn(report, section, OwnInstanceId);
+
+        Assert.NotNull(before);
+        Assert.True(after > before);
+        // A chart generated between the two no longer matches the linked report.
+        Assert.False(ReportChartSupport.IsCurrent(StoredChart(before!.Value.AddTicks(1)), new ReportSectionChartTemplate(1, 1, 0), section, after));
+    }
+
+    [Fact]
+    public void LinkedReport_Moves_WhenAStoryIsRemoved()
+    {
+        var (report, section) = LinkedSection(104);
+        AddInstance(1004, 104, OwnerId, 1, 2);
+        var before = Service.GetStoriesChangedOn(report, section, OwnInstanceId);
+
+        // Removing a story saves the instance with the links that remain.
+        var instance = Context.ReportInstances.Single(i => i.Id == 1004);
+        Context.ReportInstanceContents.Remove(Context.ReportInstanceContents.Single(c => c.InstanceId == 1004 && c.ContentId == 2));
+        Context.Update(instance);
+        Context.SaveChanges();
+        Context.ChangeTracker.Clear();
+
+        Assert.True(Service.GetStoriesChangedOn(report, section, OwnInstanceId) > before);
+    }
+
+    [Fact]
+    public void LinkedReport_Moves_WhenItStartsANewInstance()
+    {
+        var (report, section) = LinkedSection(105);
+        AddInstance(1005, 105, OwnerId, 1, 2);
+        var before = Service.GetStoriesChangedOn(report, section, OwnInstanceId);
+
+        AddInstance(1006, 105);
+
+        Assert.True(Service.GetStoriesChangedOn(report, section, OwnInstanceId) > before);
+    }
+
+    [Fact]
+    public void LinkedReport_ReadsTheInstanceTheChartReads_TheReportOwnersNewest()
+    {
+        var (report, section) = LinkedSection(107);
+        AddInstance(1007, 107, OwnerId, 1);
+        var mine = Service.GetStoriesChangedOn(report, section, OwnInstanceId);
+
+        // Another user's newer instance of the linked report is not where this chart's stories come from.
+        AddInstance(1008, 107, 99, 2, 3);
+
+        Assert.Equal(mine, Service.GetStoriesChangedOn(report, section, OwnInstanceId));
+    }
+
+    [Fact]
+    public void StoredChart_IsCurrent_UntilSomethingItShowsChanges()
+    {
+        var generatedOn = new DateTime(2026, 11, 12, 13, 10, 0, DateTimeKind.Utc);
+        var section = new ReportSection(1, "chart", ReportSectionType.MediaAnalytics, 1) { UpdatedOn = generatedOn.AddMinutes(-5) };
+        var chart = new ReportSectionChartTemplate(1, 1, 0) { UpdatedOn = generatedOn.AddMinutes(-5) };
+        var row = StoredChart(generatedOn);
+
+        Assert.True(ReportChartSupport.IsCurrent(row, chart, section, null));
+        Assert.True(ReportChartSupport.IsCurrent(row, chart, section, generatedOn.AddMinutes(-1)));
+        // Stories added after the chart was generated.
+        Assert.False(ReportChartSupport.IsCurrent(row, chart, section, generatedOn.AddMinutes(24)));
+        // A story stamped at the same moment may not have been counted.
+        Assert.False(ReportChartSupport.IsCurrent(row, chart, section, generatedOn));
+    }
+
+    [Fact]
+    public void StoredChart_IsStale_WhenItsChartOrSectionWasEdited()
+    {
+        var generatedOn = new DateTime(2026, 11, 12, 13, 10, 0, DateTimeKind.Utc);
+        var section = new ReportSection(1, "chart", ReportSectionType.MediaAnalytics, 1) { UpdatedOn = generatedOn.AddMinutes(-5) };
+        var chart = new ReportSectionChartTemplate(1, 1, 0) { UpdatedOn = generatedOn.AddMinutes(-5) };
+        var row = StoredChart(generatedOn);
+
+        chart.UpdatedOn = generatedOn.AddMinutes(1);
+        Assert.False(ReportChartSupport.IsCurrent(row, chart, section, null));
+
+        chart.UpdatedOn = generatedOn.AddMinutes(-5);
+        section.UpdatedOn = generatedOn.AddMinutes(1);
+        Assert.False(ReportChartSupport.IsCurrent(row, chart, section, null));
+    }
+
+    [Fact]
+    public async Task ComputedChart_IsStampedBeforeItsStoriesAreRead()
+    {
+        // A story added while the chart is being computed must count as newer than the chart.
+        var readOn = DateTime.MinValue;
+        var report = new Report(1, "report", 1, OwnerId);
+        var section = new ReportSection(1, "chart", ReportSectionType.MediaAnalytics, 1, null, null, 108);
+        section.ChartTemplatesManyToMany.Add(new ReportSectionChartTemplate(1, 1, 0)
+        {
+            ChartTemplate = new ChartTemplate("Custom", "") { Settings = JsonDocument.Parse("""{"aggregate":true}""") },
+            Settings = JsonSerializer.SerializeToDocument(new ChartSectionSettingsModel { GroupBy = "reportSection" }, Options),
+        });
+        report.Sections.Add(section);
+        reportService.Setup(r => r.GetCurrentReportInstance(108, OwnerId, false)).Returns(() =>
+        {
+            Thread.Sleep(20);
+            readOn = DateTime.UtcNow;
+            return (ReportInstance?)null;
+        });
+
+        var row = Assert.Single(await Service.ComputeChartsAsync(report, 1, null, OwnerId));
+
+        Assert.True(row.GeneratedOn < readOn);
+    }
+    #endregion
+
+    #region Convert
     [Fact]
     public void Convert_SmallNegativeSentiment_IsNotNegativeZero()
     {
