@@ -383,6 +383,116 @@ public class ReportServiceTest : IDisposable
         Assert.Equal(new long[] { 6 }, result["section"].Hits.Hits.Select(h => h.Source.Id));
     }
 
+    #region Version
+    private string Version(int ownerId = 1) =>
+        helper.Provider.GetRequiredService<IReportService>().GetVersion(new ReportFilter { OwnerId = ownerId });
+
+    /// <summary>
+    /// Save the change the way a request does, leaving nothing tracked for the next read.
+    /// </summary>
+    private void Save(Action<TNOContext> change)
+    {
+        var context = helper.Provider.GetRequiredService<TNOContext>();
+        change(context);
+        context.SaveChanges();
+        context.ChangeTracker.Clear();
+    }
+
+    [Fact]
+    public void Version_StaysTheSame_WhileTheReportsDo()
+    {
+        var report = SeedReport(helper.Provider.GetRequiredService<TNOContext>());
+        SeedSectionCharts(helper.Provider.GetRequiredService<TNOContext>(), report);
+
+        Assert.Equal(Version(), Version());
+    }
+
+    [Fact]
+    public void Version_Changes_WhenAReportIsAddedOrRemoved()
+    {
+        SeedReport(helper.Provider.GetRequiredService<TNOContext>());
+        var one = Version();
+
+        Save(context => context.Add(new Report(2, "second", 1, 1)));
+        var two = Version();
+        Save(context => context.Remove(context.Reports.Single(r => r.Id == 2)));
+
+        Assert.NotEqual(one, two);
+        // The added report was never saved again, so only its absence tells the two apart.
+        Assert.NotEqual(two, Version());
+    }
+
+    [Fact]
+    public void Version_Changes_WhenAReportIsSaved()
+    {
+        SeedReport(helper.Provider.GetRequiredService<TNOContext>());
+        var before = Version();
+
+        Save(context => context.Reports.Single(r => r.Id == 1).Name = "renamed");
+
+        Assert.NotEqual(before, Version());
+    }
+
+    [Fact]
+    public void Version_Changes_WhenASectionOrItsChartIsSaved()
+    {
+        var report = SeedReport(helper.Provider.GetRequiredService<TNOContext>());
+        SeedSectionCharts(helper.Provider.GetRequiredService<TNOContext>(), report);
+        var before = Version();
+
+        Save(context => context.ReportSections.Single(s => s.Id == 1).Description = "changed");
+        var section = Version();
+        Save(context => context.Set<ReportSectionChartTemplate>().Single(c => c.ChartTemplateId == 2).SortOrder = 5);
+        var chart = Version();
+        Save(context => context.Remove(context.Set<ReportSectionChartTemplate>().Single(c => c.ChartTemplateId == 2)));
+
+        Assert.NotEqual(before, section);
+        Assert.NotEqual(section, chart);
+        Assert.NotEqual(chart, Version());
+    }
+
+    [Fact]
+    public void Version_Changes_WhenAScheduleRuns()
+    {
+        // The scheduler saves the schedule each time it runs. The report itself is not saved.
+        SeedReport(helper.Provider.GetRequiredService<TNOContext>());
+        Save(context => context.Add(new EventSchedule("daily", EventScheduleType.Report, new Schedule("daily", 0) { Id = 1 }) { Id = 1, ReportId = 1 }));
+        var before = Version();
+
+        Save(context => context.Set<EventSchedule>().Single(e => e.Id == 1).RequestSentOn = DateTime.UtcNow);
+
+        Assert.NotEqual(before, Version());
+    }
+
+    [Fact]
+    public void Version_Changes_WhenASubscriberIsAddedOrChanged()
+    {
+        SeedReport(helper.Provider.GetRequiredService<TNOContext>());
+        var before = Version();
+
+        Save(context => context.Add(new UserReport(4, 1, true)));
+        var added = Version();
+        Save(context => context.Set<UserReport>().Single(u => u.UserId == 4 && u.ReportId == 1).IsSubscribed = false);
+
+        Assert.NotEqual(before, added);
+        Assert.NotEqual(added, Version());
+    }
+
+    [Fact]
+    public void Version_Ignores_ReportsTheFilterDoesNotMatch()
+    {
+        SeedReport(helper.Provider.GetRequiredService<TNOContext>());
+        var mine = Version();
+        var theirs = Version(2);
+
+        // Another owner's report is no reason to fetch this owner's reports again.
+        Save(context => context.Add(new Report(2, "theirs", 1, 2)));
+
+        Assert.Equal(mine, Version());
+        Assert.NotEqual(theirs, Version(2));
+    }
+    #endregion
+
     public void Dispose()
     {
         GC.SuppressFinalize(this);

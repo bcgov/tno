@@ -33,6 +33,16 @@ public interface IReportService : IBaseService<Report, int>
     IEnumerable<Report> Find(ReportFilter filter, bool populateFullModel = true);
 
     /// <summary>
+    /// Get a value that changes whenever the reports the filter matches change: a report is added
+    /// or removed, or a report, its sections, charts, schedules or subscribers are saved. A client
+    /// holding the reports from 'Find' can compare it to learn whether they are stale, without
+    /// fetching them again.
+    /// </summary>
+    /// <param name="filter"></param>
+    /// <returns>An opaque value, the same for the same reports in the same state.</returns>
+    string GetVersion(ReportFilter filter);
+
+    /// <summary>
     /// Provides a simple way to allow the caller to decide which includes are required.
     /// </summary>
     /// <param name="id"></param>

@@ -69,23 +69,7 @@ public class ReportService : BaseService<Report, int>, IReportService
                 .Include(r => r.Events).ThenInclude(s => s.Schedule)
                 .AsQueryable();
 
-        if (filter.IsPublic.HasValue)
-            query = query.Where(r => r.IsPublic);
-        if (filter.IsEnabled.HasValue)
-            query = query.Where(r => r.IsEnabled);
-
-        if (filter.OwnerId.HasValue && filter.IsPublicOrOwner == true)
-            query = query.Where(r => r.OwnerId == filter.OwnerId || r.IsPublic);
-        else if (filter.OwnerId.HasValue)
-            query = query.Where(r => r.OwnerId == filter.OwnerId);
-        if (filter.SubscriberUserId.HasValue)
-            query = query.Where(n => n.SubscribersManyToMany.Any(ns => ns.IsSubscribed && ns.UserId == filter.SubscriberUserId.Value));
-
-        if (!String.IsNullOrWhiteSpace(filter.Name))
-            query = query.Where(r => EF.Functions.Like(r.Name, $"%{filter.Name}%"));
-
-        if (filter.Ids?.Any() == true)
-            query = query.Where(r => filter.Ids.Contains(r.Id));
+        query = ApplyFilter(query, filter);
 
         if (filter.Sort?.Any() == true)
         {
@@ -107,6 +91,69 @@ public class ReportService : BaseService<Report, int>, IReportService
         }
 
         return query.AsSplitQuery().ToArray();
+    }
+
+    /// <summary>
+    /// Limit the reports to those the filter matches.
+    /// </summary>
+    /// <param name="query"></param>
+    /// <param name="filter"></param>
+    /// <returns></returns>
+    private static IQueryable<Report> ApplyFilter(IQueryable<Report> query, ReportFilter filter)
+    {
+        if (filter.IsPublic.HasValue)
+            query = query.Where(r => r.IsPublic);
+        if (filter.IsEnabled.HasValue)
+            query = query.Where(r => r.IsEnabled);
+
+        if (filter.OwnerId.HasValue && filter.IsPublicOrOwner == true)
+            query = query.Where(r => r.OwnerId == filter.OwnerId || r.IsPublic);
+        else if (filter.OwnerId.HasValue)
+            query = query.Where(r => r.OwnerId == filter.OwnerId);
+        if (filter.SubscriberUserId.HasValue)
+            query = query.Where(n => n.SubscribersManyToMany.Any(ns => ns.IsSubscribed && ns.UserId == filter.SubscriberUserId.Value));
+
+        if (!String.IsNullOrWhiteSpace(filter.Name))
+            query = query.Where(r => EF.Functions.Like(r.Name, $"%{filter.Name}%"));
+
+        if (filter.Ids?.Any() == true)
+            query = query.Where(r => filter.Ids.Contains(r.Id));
+
+        return query;
+    }
+
+    /// <inheritdoc />
+    public string GetVersion(ReportFilter filter)
+    {
+        // One row of numbers per report, in place of the reports, their templates and their sections.
+        var rows = ApplyFilter(this.Context.Reports.AsNoTracking(), filter)
+            .OrderBy(r => r.Id)
+            .Select(r => new
+            {
+                r.Id,
+                r.Version,
+                r.UpdatedOn,
+                Sections = r.Sections.Count(),
+                SectionsOn = r.Sections.Max(s => (DateTime?)s.UpdatedOn),
+                Charts = r.Sections.SelectMany(s => s.ChartTemplatesManyToMany).Count(),
+                ChartsOn = r.Sections.SelectMany(s => s.ChartTemplatesManyToMany).Max(c => (DateTime?)c.UpdatedOn),
+                // The scheduler and the reporting service save a schedule each time it runs, without saving its report.
+                Events = r.Events.Count(),
+                EventsOn = r.Events.Max(e => (DateTime?)e.UpdatedOn),
+                SchedulesOn = r.Events.Max(e => (DateTime?)e.Schedule!.UpdatedOn),
+                Subscribers = r.SubscribersManyToMany.Count(),
+                SubscribersOn = r.SubscribersManyToMany.Max(u => (DateTime?)u.UpdatedOn),
+            })
+            .ToArray();
+
+        var text = new System.Text.StringBuilder();
+        foreach (var row in rows)
+        {
+            text.Append(System.Globalization.CultureInfo.InvariantCulture,
+                $"{row.Id}:{row.Version}:{row.UpdatedOn.Ticks}:{row.Sections}:{row.SectionsOn?.Ticks}:{row.Charts}:{row.ChartsOn?.Ticks}:{row.Events}:{row.EventsOn?.Ticks}:{row.SchedulesOn?.Ticks}:{row.Subscribers}:{row.SubscribersOn?.Ticks};");
+        }
+        var hash = System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(text.ToString()));
+        return Convert.ToHexString(hash, 0, 16).ToLowerInvariant();
     }
 
     /// <summary>

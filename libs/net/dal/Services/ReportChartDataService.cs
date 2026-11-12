@@ -170,6 +170,36 @@ public class ReportChartDataService : BaseService, IReportChartDataService
     }
 
     /// <inheritdoc />
+    public DateTime? GetStoriesChangedOn(Report report, ReportSection section, long instanceId)
+    {
+        // The same instance BuildRequest reads the stories from.
+        var instances = this.Context.ReportInstances.AsNoTracking();
+        switch (ReportChartSupport.GetSource(section, _serializerOptions))
+        {
+            case ReportChartSource.InstanceIds:
+                instances = instances.Where(i => i.Id == instanceId);
+                break;
+            case ReportChartSource.LinkedInstanceIds:
+                var linkedId = section.LinkedReportId!.Value;
+                instances = instances.Where(i => i.ReportId == linkedId);
+                if (report.OwnerId.HasValue) instances = instances.Where(i => i.OwnerId == report.OwnerId);
+                break;
+            default:
+                // A filter or folder is run when the report or the section is generated, not when it is viewed.
+                return null;
+        }
+        var instance = instances.OrderByDescending(i => i.Id).Select(i => new { i.Id, i.UpdatedOn }).FirstOrDefault();
+        if (instance == null) return null;
+
+        // Adding a story to a report only inserts its link and leaves the instance as it was. Removing
+        // one saves the instance. Between them, the newer of the two covers every change.
+        var contentChangedOn = this.Context.ReportInstanceContents.AsNoTracking()
+            .Where(c => c.InstanceId == instance.Id)
+            .Max(c => (DateTime?)c.UpdatedOn);
+        return contentChangedOn > instance.UpdatedOn ? contentChangedOn : instance.UpdatedOn;
+    }
+
+    /// <inheritdoc />
     public async Task<IEnumerable<ReportInstanceChart>> ComputeChartsAsync(
         Report report,
         long? instanceId,
@@ -193,6 +223,8 @@ public class ReportChartDataService : BaseService, IReportChartDataService
             {
                 if (!ReportChartSupport.SupportsAggregation(chart, _serializerOptions, byLine)) continue;
                 var template = ReportChartSupport.GetTemplateSettings(chart, _serializerOptions)!;
+                // Stamped before the stories are read, so a story added while the chart is computed is newer than the chart.
+                var generatedOn = DateTime.UtcNow;
                 var request = BuildRequest(report, section, chart, source, instanceId, contentBySection, requestorId);
 
                 JsonDocument data;
@@ -217,7 +249,7 @@ public class ReportChartDataService : BaseService, IReportChartDataService
                 {
                     DocCount = docCount,
                     IsTruncated = truncated,
-                    GeneratedOn = DateTime.UtcNow,
+                    GeneratedOn = generatedOn,
                 });
             }
         }

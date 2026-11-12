@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
 import { IProfileState, useProfileStore } from 'store/slices';
@@ -47,6 +48,12 @@ interface IReportController {
   RequestToUnsubscribe: (id: number, email: string) => void;
 }
 
+/**
+ * The version of the list of reports in the store, as the API described it when it sent them.
+ * The list lives as long as the page does, so its version does too.
+ */
+let myReportsVersion: string | undefined;
+
 export const useReports = (): [IProfileState, IReportController] => {
   const api = useApiSubscriberReports();
   const http = React.useRef(useApi());
@@ -56,13 +63,40 @@ export const useReports = (): [IProfileState, IReportController] => {
   const controller = React.useMemo(
     () => ({
       findMyReports: async (filter?: IReportFilter) => {
-        const response = await dispatch<IReportModel[]>('find-my-reports', async () => {
-          return api.findMyReports(filter);
-        });
-        if (response.status === 200) {
-          storeMyReports(response.data);
+        // Only the whole list is kept, so only it can be checked. An empty store has nothing to keep.
+        const version = !filter && state.myReports.length ? myReportsVersion : undefined;
+        try {
+          const response = await dispatch<IReportModel[]>(
+            'find-my-reports',
+            async () => {
+              return version
+                ? http.current.get<IReportModel[]>('/subscriber/reports/my-reports', {
+                    headers: { 'If-None-Match': version },
+                  })
+                : api.findMyReports(filter);
+            },
+            undefined,
+            // Asking whether the list is stale is not something to make the user wait for.
+            !!version,
+          );
+          if (response.status === 200) {
+            // The list comes without report instances. Those already loaded stay with their report.
+            storeMyReports((reports) =>
+              response.data.map((report) => {
+                const instances = reports.find((r) => r.id === report.id)?.instances;
+                return instances?.length && !report.instances?.length
+                  ? { ...report, instances }
+                  : report;
+              }),
+            );
+            if (!filter) myReportsVersion = response.headers['etag'];
+          }
+          return response.data;
+        } catch (error) {
+          // The reports have not changed since they were stored.
+          if ((error as AxiosError).response?.status === 304) return state.myReports;
+          throw error;
         }
-        return response.data;
       },
       findPublicReports: async (filter?: IReportFilter) => {
         const response = await dispatch<IReportModel[]>('find-public-reports', () =>
@@ -309,7 +343,7 @@ export const useReports = (): [IProfileState, IReportController] => {
         return response.data;
       },
     }),
-    [api, dispatch, storeMyReports, storeReportContent],
+    [api, dispatch, state.myReports, storeMyReports, storeReportContent],
   );
 
   return [state, controller];
