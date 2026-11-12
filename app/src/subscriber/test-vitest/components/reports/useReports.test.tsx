@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { useReports } from '../../../store/hooks/subscriber/useReports';
+import { useReports } from '@/subscriber/store/hooks/subscriber/useReports';
 
 const state = vi.hoisted(() => ({
   api: { findMyReports: vi.fn() },
@@ -12,9 +12,11 @@ const state = vi.hoisted(() => ({
     request(),
   ),
 }));
-vi.mock('store/hooks', () => ({ useAjaxWrapper: () => state.dispatch }));
-vi.mock('store/slices', () => ({ useProfileStore: () => [state.profile, state.store] }));
-vi.mock('tno-core', () => ({
+vi.mock('@/subscriber/store/hooks', () => ({ useAjaxWrapper: () => state.dispatch }));
+vi.mock('@/subscriber/store/slices', () => ({
+  useProfileStore: () => [state.profile, state.store],
+}));
+vi.mock('@/shared', () => ({
   sortable: () => 0,
   useApi: () => state.http,
   useApiSubscriberReports: () => state.api,

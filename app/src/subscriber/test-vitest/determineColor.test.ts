@@ -1,10 +1,10 @@
-import { IChartSectionSettingsModel } from 'tno-core';
 import { describe, expect, it } from 'vitest';
 
-import { determineColor } from '../features/my-reports/edit/settings/template/utils/determineColor';
+import { IChartSectionSettingsModel } from '@/shared';
+import { determineColor } from '@/subscriber/features/my-reports/edit/settings/template/utils/determineColor';
 
 const settings = (values: Partial<IChartSectionSettingsModel> = {}) =>
-  ({ dataset: '', datasetValue: 'count', ...values } as IChartSectionSettingsModel);
+  ({ dataset: '', datasetValue: 'count', ...values }) as IChartSectionSettingsModel;
 
 describe('determineColor', () => {
   it('leaves the colour to Chart.js when no colours are set', () => {
