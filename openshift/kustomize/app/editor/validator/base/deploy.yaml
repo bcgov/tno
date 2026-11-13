@@ -7,7 +7,7 @@ metadata:
   namespace: default
   annotations:
     description: Defines how to deploy editor
-    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "editor:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"editor\")].image"}]'
+    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "app:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"editor\")].image"}]'
   labels:
     name: editor-validator
     part-of: tno
@@ -46,8 +46,12 @@ spec:
         - name: acr-secret
       containers:
         - name: editor-validator
-          image: bcgov-c4awhwfpcremdbga.azurecr.io/editor:latest
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/app:latest
           imagePullPolicy: Always
+          env:
+            # The app image serves both designs; this selects which one.
+            - name: APP_MODE
+              value: editor
           ports:
             - containerPort: 8080
               protocol: TCP

@@ -11,11 +11,9 @@ index requests against PostgreSQL. Background scan tests also verify migration r
 replica locking, durable checkpoints, bounded result paging, cancellation, grace-period rechecks,
 posted-date/eligibility filters, Pacific daylight-saving boundaries, date cursor continuation, PIT/search-after requests, and fail-closed partial responses. Without the environment variable they are skipped.
 
-The Editor interaction tests run with Node 22 (the installed Vitest/Vite toolchain requires it):
+The Editor interaction tests run with Vitest from `app/` (Node 26):
 
 ```sh
-cd app/editor
-yarn vitest run src/test-vitest/components/orphaned-content/OrphanedContent.test.tsx
+cd app
+npx vitest run src/editor/test-vitest/components/orphaned-content/OrphanedContent.test.tsx
 ```
-
-The Editor production build continues to use Node 18 and `yarn build`.

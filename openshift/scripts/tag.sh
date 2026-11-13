@@ -1,7 +1,7 @@
 #!/bin/bash
 # Retag an image in the Azure Container Registry, or locally.
 # Usage: tag.sh <component> <from-tag> <to-tag> [remote|local]
-#   component - short name (automation, notification, api, editor, ...); see acr-common.sh
+#   component - short name (automation, notification, api, app, ...); see acr-common.sh
 #   from-tag  - existing tag (e.g. latest)
 #   to-tag    - new tag (e.g. dev, test, prod)
 #   mode      - 'remote' (default): az acr import copies the manifest inside ACR - no image

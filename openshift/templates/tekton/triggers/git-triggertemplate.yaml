@@ -12,7 +12,7 @@ parameters:
     displayName: Application Name
     description: The name of the application.
     required: true
-    value: editor
+    value: app
 
 objects:
   # Create a pipeline run object.

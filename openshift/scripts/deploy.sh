@@ -813,8 +813,7 @@ echo "Tagging images in ACR ($ACR_HOST): $tag → $env"
 
 # Stateless Services
 acr_tag nginx
-acr_tag editor
-acr_tag subscriber
+acr_tag app
 acr_tag nginx-editor
 acr_tag nginx-subscriber
 acr_tag charts-api

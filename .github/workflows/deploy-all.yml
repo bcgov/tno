@@ -344,6 +344,24 @@ jobs:
           token: ${{ secrets.OPENSHIFT_TOKEN }}
           server: ${{ env.OPENSHIFT_SERVER }}
 
+      # Both frontend Deployments run the single app image and choose their design with APP_MODE.
+      # This job only restarts them, so fail if one still points at the retired editor/subscriber
+      # images (it would restart on a stale image while the run reported success).
+      - name: Check ${{ matrix.name }} runs the app image
+        run: |
+          set -eu
+          json=$(oc get "deployment/${{ matrix.deployment }}" -n "${{ env.OPENSHIFT_NAMESPACE }}" -o json)
+          image=$(echo "$json" | jq -r '.spec.template.spec.containers[0].image')
+          mode=$(echo "$json" | jq -r '.spec.template.spec.containers[0].env // [] | map(select(.name == "APP_MODE"))[0].value // ""')
+          case "$image" in
+            */app:*) ;;
+            *) echo "::error::deployment/${{ matrix.deployment }} runs $image, not the app image. Apply openshift/kustomize/app/${{ matrix.name }}/overlays/${{ inputs.environment }} first."; exit 1 ;;
+          esac
+          if [ "$mode" != "${{ matrix.name }}" ]; then
+            echo "::error::deployment/${{ matrix.deployment }} has APP_MODE='$mode', expected '${{ matrix.name }}'."
+            exit 1
+          fi
+
       - name: Deploy ${{ matrix.name }}
         uses: ./.github/actions/deploy-openshift-workload
         with:

@@ -36,8 +36,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 #
 #   component  image          prod Dockerfile (default)   local Dockerfile            context
 #   api        api            api/net/Dockerfile.openshift api/net/Dockerfile          .
-#   editor     editor         app/editor/Dockerfile.nginx  app/editor/Dockerfile       app/editor
-#   subscriber subscriber     app/subscriber/Dockerfile.nginx app/subscriber/Dockerfile app/subscriber
+#   app        app            app/Dockerfile.nginx         app/Dockerfile              app
 #   charts     charts-api     api/node/Dockerfile          api/node/Dockerfile.local   api/node
 #   db-migration db-migration libs/net/Dockerfile          (same for both)             libs/net
 #   elastic-migration elastic-migration tools/elastic/migration/Dockerfile (same)   .
@@ -73,23 +72,19 @@ resolve_image() {
         DOCKERFILE=${DOCKERFILE:-api/net/Dockerfile.openshift}
       fi
       ;;
-    editor)
-      IMAGE=${IMAGE:-editor}
-      CONTEXT=${CONTEXT:-app/editor}
+    app)
+      # One image serves both the editor and subscriber designs; APP_MODE on each Deployment picks one.
+      IMAGE=${IMAGE:-app}
+      CONTEXT=${CONTEXT:-app}
       if [ "$environment" = "local" ]; then
-        DOCKERFILE=${DOCKERFILE:-app/editor/Dockerfile}
+        DOCKERFILE=${DOCKERFILE:-app/Dockerfile}
       else
-        DOCKERFILE=${DOCKERFILE:-app/editor/Dockerfile.nginx}
+        DOCKERFILE=${DOCKERFILE:-app/Dockerfile.nginx}
       fi
       ;;
-    subscriber)
-      IMAGE=${IMAGE:-subscriber}
-      CONTEXT=${CONTEXT:-app/subscriber}
-      if [ "$environment" = "local" ]; then
-        DOCKERFILE=${DOCKERFILE:-app/subscriber/Dockerfile}
-      else
-        DOCKERFILE=${DOCKERFILE:-app/subscriber/Dockerfile.nginx}
-      fi
+    editor|subscriber)
+      echo "ERROR: the editor and subscriber run one image now; use n=app." >&2
+      return 1
       ;;
     charts)
       IMAGE=${IMAGE:-charts-api}

@@ -1,0 +1,75 @@
+import React from 'react';
+import { useNavigate } from 'react-router';
+
+import { FormPage } from '@/editor/components/formpage';
+import { useActions } from '@/editor/store/hooks/admin';
+import { Col, FlexboxTable, IconButton, Row, type IActionModel } from '@/shared';
+
+import { ActionFilter } from './ActionFilter';
+import { columns } from './constants';
+import * as styled from './styled';
+
+const ActionList: React.FC = () => {
+  const navigate = useNavigate();
+  const [{ actions }, api] = useActions();
+
+  const [items, setItems] = React.useState<IActionModel[]>([]);
+
+  React.useEffect(() => {
+    if (actions.length === 0) {
+      api.findAllActions().then((data) => {
+        setItems(data);
+      });
+    } else {
+      setItems(actions);
+    }
+  }, [api, actions]);
+
+  return (
+    <styled.ActionList>
+      <FormPage>
+        <Row className="add-media" justifyContent="flex-end">
+          <Col flex="1 1 0">
+            Actions provide a way for administrators to identify actions that should be performed on
+            content, or which reports content should be included in.
+          </Col>
+          <IconButton
+            iconType="plus"
+            label={'Add new action'}
+            onClick={() => {
+              navigate('/admin/actions/0');
+            }}
+          />
+        </Row>
+        <ActionFilter
+          onFilterChange={(filter) => {
+            if (filter && filter.length) {
+              const value = filter.toLocaleLowerCase();
+              setItems(
+                actions.filter(
+                  (i) =>
+                    i.name.toLocaleLowerCase().includes(value) ||
+                    i.description.toLocaleLowerCase().includes(value),
+                ),
+              );
+            } else {
+              setItems(actions);
+            }
+          }}
+        />
+        <FlexboxTable
+          rowId="id"
+          data={items}
+          columns={columns}
+          showSort={true}
+          onRowClick={(row) => {
+            navigate(`${row.original.id}`);
+          }}
+          pagingEnabled={false}
+        />
+      </FormPage>
+    </styled.ActionList>
+  );
+};
+
+export default ActionList;

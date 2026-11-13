@@ -43,7 +43,7 @@ patches:
     patch: |-
       - op: replace
         path: /spec/template/spec/containers/0/image
-        value: bcgov-c4awhwfpcremdbga.azurecr.io/editor:dev
+        value: bcgov-c4awhwfpcremdbga.azurecr.io/app:dev
       - op: replace
         path: /spec/replicas
         value: 1

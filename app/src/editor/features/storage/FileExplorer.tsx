@@ -1,0 +1,157 @@
+import React from 'react';
+
+import { useLookup } from '@/editor/store/hooks';
+import {
+  Breadcrumb,
+  Col,
+  FlexboxTable,
+  getDirectoryName,
+  Modal,
+  Row,
+  Show,
+  ToggleGroup,
+  useModal,
+  type IDirectoryModel,
+  type IItemModel,
+} from '@/shared';
+
+import { fileExplorerColumns } from './constants';
+import { FileExplorerFilter } from './FileExplorerFilter';
+import { type IFileItem } from './interfaces';
+import * as styled from './styled';
+
+export interface IFileExplorerProps {
+  /** The initial location Id */
+  locationId?: number;
+  /** The initial path to load */
+  path?: string;
+  /** The folder to display */
+  folder: IDirectoryModel;
+  /** Whether show other locations */
+  showLocations?: boolean;
+  /** Event when the delete button is clicked */
+  onDelete?: (item: IFileItem) => void;
+  /** Event play button is clicked */
+  onPlay?: (item?: IFileItem) => void;
+  /** Event when the download button is clicked */
+  onDownload?: (item: IFileItem) => void;
+  /** Event when the attach button is clicked */
+  onAttach?: (item: IFileItem) => void;
+  /** Event row is clicked */
+  onSelect?: (item: IFileItem) => void;
+  /** Event navigate to path */
+  onNavigate?: (locationId: number, path: string) => void;
+}
+
+/**
+ * FileExplorer component provides a way to navigate folders and files on the API and in remote locations.
+ * @param param0 Parameters for component
+ * @returns Component
+ */
+export const FileExplorer: React.FC<IFileExplorerProps> = ({
+  locationId = 0,
+  showLocations = false,
+  path = '',
+  folder,
+  onDelete,
+  onPlay,
+  onDownload,
+  onAttach,
+  onSelect,
+  onNavigate,
+}) => {
+  const [{ dataLocations }] = useLookup();
+  const { toggle, isShowing } = useModal();
+
+  const [item, setItem] = React.useState<IItemModel>();
+  const [search, setSearch] = React.useState('');
+
+  const directory = getDirectoryName(path) ?? '';
+  const isStorage = window.location.href.includes('/storage');
+  const locations = dataLocations.map((i) => ({
+    id: i.id,
+    label: i.name,
+    data: i,
+    onClick: () => {
+      onNavigate?.(i.id, '');
+    },
+  }));
+
+  const navigate = (item: IItemModel) => {
+    if (item?.isDirectory) {
+      onNavigate?.(locationId, `${directory}/${item?.name}`);
+    }
+    onSelect?.({ ...item, locationId, path });
+  };
+
+  return (
+    <styled.FileExplorer>
+      <Row>
+        <Show visible={showLocations}>
+          <ToggleGroup
+            label="Location"
+            defaultSelected={locationId}
+            options={locations}
+            alignItems="center"
+          />
+        </Show>
+        <Breadcrumb
+          label="Path"
+          path={directory}
+          onNavigate={(path) => {
+            onNavigate?.(locationId, path);
+          }}
+        />
+      </Row>
+      <Row>
+        <Col flex="1 1 100%">
+          <div className="file-table">
+            <FileExplorerFilter setGlobalFilter={setSearch} />
+            <FlexboxTable
+              rowId="name"
+              data={folder.items}
+              className="file-table"
+              pageSize={20}
+              search={search}
+              showSort
+              sortOrder={[
+                { id: 'name', index: 1, sort: 'name', isSorted: true, isSortedDesc: true },
+              ]}
+              columns={fileExplorerColumns({
+                onSelect: navigate,
+                onDelete: (item) => {
+                  setItem(item);
+                  toggle();
+                },
+                onPlay: (item) => onPlay?.({ ...item, locationId, path: directory }),
+                onDownload: (item) => onDownload?.({ ...item, locationId, path: directory }),
+                onAttach: (item) => onAttach?.({ ...item, locationId, path: directory }),
+                isStorage,
+              })}
+            />
+          </div>
+        </Col>
+      </Row>
+      {/* Modal to appear when deleting a file */}
+      <Modal
+        isShowing={isShowing}
+        hide={toggle}
+        type="delete"
+        headerText="Confirm Delete"
+        body={`Do you want to delete '${path}/${item?.name}'?`}
+        confirmText="Yes"
+        cancelText="No"
+        onConfirm={async () => {
+          try {
+            if (item) {
+              onPlay?.();
+              onDelete?.({ ...item, locationId, path });
+            }
+          } finally {
+            toggle();
+          }
+        }}
+      />
+    </styled.FileExplorer>
+  );
+};

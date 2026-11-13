@@ -1,0 +1,10 @@
+import { type IDataLocationModel } from '@/shared';
+
+import { type IDataLocationForm } from '../interfaces';
+
+export const toModel = (form: IDataLocationForm): IDataLocationModel => {
+  return {
+    ...form,
+    connectionId: !form.connectionId ? undefined : +form.connectionId,
+  };
+};

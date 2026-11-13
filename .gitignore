@@ -38,3 +38,6 @@ openshift/kustomize/.migration-backup/
 
 # Deployment update YAMLs - safe to commit (no secrets/routes)
 !openshift/kustomize/**/overlays/**/*-deployment-update.yaml
+
+# Left over in existing checkouts from the removed tno-core package (dist, node_modules). Safe to delete.
+/libs/npm/

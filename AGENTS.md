@@ -10,9 +10,8 @@ TNO is a BC Government news aggregation mono-repo. It ingests news from many sou
 
 | Layer                 | Technology                                          |
 | --------------------- | --------------------------------------------------- |
-| Frontend (editor)     | React 18, TypeScript, Redux, Formik, SCSS           |
-| Frontend (subscriber) | React 18, TypeScript, Redux                         |
-| Shared UI lib         | `tno-core` (internal npm package in `libs/npm`)     |
+| Frontend              | One Vite app (`app/`), React 19, TypeScript 7, Redux Toolkit, Formik, styled-components, SCSS; two designs: editor and subscriber |
+| Shared UI code        | `app/src/shared` (imported as `@/shared`)           |
 | API                   | .NET (C#), REST + SignalR                           |
 | Services              | .NET microservices (`services/net/`)                |
 | Database              | PostgreSQL                                          |
@@ -27,13 +26,14 @@ TNO is a BC Government news aggregation mono-repo. It ingests news from many sou
 
 ```text
 /
-├── app/
-│   ├── editor/          # React editor app (admin/editor users)
-│   └── subscriber/      # React subscriber app (public-facing)
+├── app/                 # React + Vite app, one image for both designs (APP_MODE)
+│   └── src/
+│       ├── shared/      # Code used by both designs (was tno-core)
+│       ├── editor/      # Editor design (admin/editor users)
+│       └── subscriber/  # Subscriber design (public-facing)
 ├── api/net/             # .NET REST API
 ├── services/net/        # .NET microservices (indexing, reporting, etc.)
 ├── libs/
-│   ├── npm/             # tno-core shared React component library
 │   └── net/             # Shared .NET libraries
 ├── db/
 │   ├── postgres/        # Migrations and seed scripts
@@ -73,30 +73,14 @@ Default ports after `make up`:
 ### Frontend (local, no Docker)
 
 ```bash
-cd app/editor
-nvm use 18.19.0
-yarn install
-yarn start
+cd app
+nvm use                         # Node 26 from .nvmrc
+npm ci
+APP_MODE=editor npm run dev     # or APP_MODE=subscriber; http://localhost:3000
 ```
 
-```bash
-cd app/subscriber
-nvm use 18.19.0
-yarn install
-yarn start
-```
-
-Package manager: **Yarn 3** (PnP/Berry). Do not use `npm install` in `app/` directories.
-
-### tno-core library
-
-```bash
-cd libs/npm
-yarn install
-yarn build
-```
-
-After building, link locally or publish. The apps reference `tno-core` by version in their `package.json`.
+Package manager: **npm** (`package-lock.json`). Yarn is no longer used. `APP_MODE` picks the
+design the dev server, preview and production image present; see `app/README.md`.
 
 ### .NET API / Services
 
@@ -114,16 +98,18 @@ Uses `appsettings.Development.json` for local config. Requires a running Postgre
 
 ### TypeScript / React
 
-- Components live under `app/editor/src/features/<feature>/` or `app/subscriber/src/features/<feature>/`.
-- Shared components and types come from `tno-core`; import from there, not from sibling apps.
-- Forms use **Formik**; use `FormikText`, `FormikCheckbox`, `FormikWysiwyg`, etc. from `tno-core`.
-- State management: **Redux** slices under `src/store/slices/`. API hooks under `src/store/hooks/`.
-- Use `Show` (from `tno-core`) for conditional rendering instead of inline ternaries where possible.
+- Components live under `app/src/editor/features/<feature>/` or `app/src/subscriber/features/<feature>/`.
+- Shared components and types come from `@/shared`; import from there, never from the other design. Code both designs need moves to `app/src/shared`, which must not import either design.
+- Imports use the `@/` alias (`@/shared`, `@/editor/store`, `@/subscriber/components/...`); relative imports stay within a feature.
+- Forms use **Formik**; use `FormikText`, `FormikCheckbox`, `FormikWysiwyg`, etc. from `@/shared` (the editor also has `@/editor/components/formik`).
+- State management: **Redux Toolkit** slices under `app/src/<design>/store/slices/`. API hooks under `app/src/<design>/store/hooks/`.
+- Use `Show` (from `@/shared`) for conditional rendering instead of inline ternaries where possible.
+- Dates use Day.js through `@/shared/utils/date` (never import `dayjs` or `moment` directly).
 
 #### Editor form alignment
 
-- Use the `tno-core` fields (`Select`, `SelectDate`, `Text`, or their Formik equivalents), including their `label` props, so each label and control share a `.frm-in` wrapper.
-- The global form rules in `app/editor/src/index.scss` own vertical spacing. Standalone `.frm-in` fields have `0.5em` bottom padding and zero bottom margin. Do not add field-specific margins, offsets, or transforms to align controls. The repeated `.frm-in` selector intentionally overrides later-injected component styles; `SelectDate` otherwise adds `0.25em` of bottom margin and shifts upward in a bottom-aligned row.
+- Use the shared fields (`Select`, `SelectDate`, `Text`, or their Formik equivalents), including their `label` props, so each label and control share a `.frm-in` wrapper.
+- The global form rules in `app/src/editor/index.scss` own vertical spacing. Standalone `.frm-in` fields have `0.5em` bottom padding and zero bottom margin. Do not add field-specific margins, offsets, or transforms to align controls. The repeated `.frm-in` selector intentionally overrides later-injected component styles; `SelectDate` otherwise adds `0.25em` of bottom margin and shifts upward in a bottom-aligned row.
 - For rows of single-line labeled filters **and their action buttons**, use `<Row className="field-row" gap="1rem">`. Keep the fields and buttons as direct children (`Show` is fine because it renders no wrapper). The global `.field-row` rule aligns children to the bottom and removes the fields' bottom padding; `Row` provides wrapping and `gap` provides spacing. `alignItems="flex-end"` alone aligns wrapper boxes and leaves buttons `0.5em` below the input borders. Do not recreate this rule in feature styles or compensate with button margins.
 - For forms with validation messages or multiline labels, check the label, control, and error layout explicitly; aligning wrapper bottoms alone is insufficient.
 - Verify alignment in a real browser at wide and wrapped widths, including populated, empty, and disabled fields and every adjacent action button (including conditional buttons). Compare the visible control and button borders, not just wrapper boxes; jsdom tests do not measure layout. Run lint, relevant tests, and the Editor build before declaring the change complete.
@@ -158,7 +144,7 @@ If the user requests consolidating migrations already applied locally, back up a
 
 The application integrates LLM functionality for AI-generated report summaries.
 
-- LLM models managed via `ILLMModel` (defined in `tno-core`).
+- LLM models managed via `ILLMModel` (defined in `@/shared`).
 - Admin can configure which models are public via `isPublic` flag.
 - Report sections can have AI mode; see `ReportSectionAI` component and `settings.llmId` on `IReportModel`.
 - API endpoint handles LLM calls server-side; the frontend only selects the model and triggers generation.
@@ -168,14 +154,14 @@ The application integrates LLM functionality for AI-generated report summaries.
 ## Testing
 
 ```bash
-# Frontend unit tests
-cd app/editor && yarn test
+# Frontend unit tests (Vitest projects: shared, editor, subscriber)
+cd app && npm test
 
 # e2e / integration
 cd test && <see test/README.md>
 ```
 
-Frontend tests: Jest + React Testing Library.
+Frontend tests: Vitest + React Testing Library (jsdom).
 E2e: Playwright (`playwright-automation/`).
 
 ---
@@ -195,8 +181,7 @@ After making any code changes, **always build the affected project and resolve a
 
 | Files changed | Build command |
 |---|---|
-| `app/subscriber/src/**` | `cd app/subscriber && yarn build` |
-| `app/editor/src/**` | `cd app/editor && yarn build` |
+| `app/**` | `cd app && npm run typecheck && npm run build` |
 | `libs/net/template/**` | `dotnet build libs/net/template/TNO.TemplateEngine.csproj` |
 | `libs/net/dal/**` | `dotnet build libs/net/dal/TNO.Dal.csproj` |
 | `api/net/**` | `dotnet build api/net/` |
@@ -207,7 +192,7 @@ If the build fails: read the error output, fix the root cause, rebuild, and repe
 
 ### Before committing, pushing, or creating a PR
 
-- Run the affected project's CI lint command as well as its build and relevant tests. For .NET projects, use `dotnet format <project.csproj> --verify-no-changes`; for Editor changes, run ESLint on changed TypeScript files (including tests) and `yarn build`. Use the SDK and Node versions required by the repository/CI.
+- Run the affected project's CI lint command as well as its build and relevant tests. For .NET projects, use `dotnet format <project.csproj> --verify-no-changes`; for `app/` changes, run `npm run lint`, `npm run check`, `npm run typecheck`, `npm test` and `npm run build` in `app/`. Use the SDK and Node versions required by the repository/CI.
 - For API changes, run a fresh CI-equivalent build: `dotnet build api/net/TNO.API.csproj --configuration Release --no-incremental`. The API treats XML diagnostics CS1570, CS1572, CS1573, CS1574, CS1584, CS1587, and CS1591 as errors, covering missing summaries, malformed XML, parameter/signature mismatches, unresolved references, and misplaced comments. Document public endpoints, records, properties, and protected overrides; update parameter tags when signatures change. Do not suppress the diagnostics. Follow the [build verification skill](.codex/skills/build-verify.md), including current-head GitHub annotation checks.
 - Review the build log for **new compiler warnings**, not only the exit code. A successful build can still produce GitHub warning annotations. Fix warnings introduced by the change before committing. Verify any claimed pre-existing warning against the base revision and report it separately; do not dismiss new warnings as existing noise.
 - After the final edit, rerun affected checks. Do not rely on a passing check from an earlier version of the files. After pushing, inspect the relevant GitHub checks and annotations for the current PR head SHA, and state explicitly if CI is still pending.
@@ -250,8 +235,8 @@ with `resolve_required_actions`). For API testing, get a token via `client_crede
 
 ## Do Not
 
-- Do not run `npm install` inside `app/` — use `yarn`.
+- Do not use Yarn in `app/` — it is an npm project (`npm ci`, `npm install <pkg>`).
 - Do not commit `.env` files.
 - Do not modify generated migration files after they have been applied to any environment.
-- Do not import from `app/editor` into `app/subscriber` or vice versa; use `tno-core` for shared code.
+- Do not import between `app/src/editor` and `app/src/subscriber`, or from either into `app/src/shared`; shared code goes in `app/src/shared`.
 - Do not bypass pre-commit hooks (`--no-verify`).

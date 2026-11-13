@@ -1,0 +1,504 @@
+import React from 'react';
+
+import { useLookupStore } from '@/editor/store/slices';
+import { type ILookupState } from '@/editor/store/slices/lookup';
+import {
+  fetchIfNoneMatch,
+  getFromLocalStorage,
+  saveToLocalStorage,
+  StorageKeys,
+  useApiEditorActions,
+  useApiEditorCache,
+  useApiEditorContributors,
+  useApiEditorDataLocations,
+  useApiEditorIngestTypes,
+  useApiEditorLicenses,
+  useApiEditorLookups,
+  useApiEditorMediaTypes,
+  useApiEditorMetrics,
+  useApiEditorMinisters,
+  useApiEditorRoles,
+  useApiEditorSeries,
+  useApiEditorSettings,
+  useApiEditorSourceActions,
+  useApiEditorSources,
+  useApiEditorTags,
+  useApiEditorTonePools,
+  useApiEditorTopics,
+  useApiEditorUsers,
+  useApiSubscriberLLMs,
+  type IActionModel,
+  type ICacheModel,
+  type IContributorModel,
+  type IDataLocationModel,
+  type IHolidayModel,
+  type IIngestTypeModel,
+  type ILicenseModel,
+  type ILLMModel,
+  type ILookupModel,
+  type IMediaTypeModel,
+  type IMetricModel,
+  type IMinisterModel,
+  type IOrganizationModel,
+  type IRoleModel,
+  type ISeriesModel,
+  type ISettingModel,
+  type ISourceActionModel,
+  type ISourceModel,
+  type ITagModel,
+  type ITonePoolModel,
+  type ITopicModel,
+  type IUserModel,
+} from '@/shared';
+
+import { useAjaxWrapper } from '..';
+
+export interface ILookupController {
+  getCache: () => Promise<ICacheModel[]>;
+  getLookups: () => Promise<ILookupModel>;
+  getActions: (refresh?: boolean) => Promise<IActionModel[]>;
+  getSourceActions: (refresh?: boolean) => Promise<ISourceActionModel[]>;
+  getMetrics: (refresh?: boolean) => Promise<IMetricModel[]>;
+  getTopics: (refresh?: boolean) => Promise<ITopicModel[]>;
+  getMediaTypes: (refresh?: boolean) => Promise<IMediaTypeModel[]>;
+  getLicenses: (refresh?: boolean) => Promise<ILicenseModel[]>;
+  getIngestTypes: (refresh?: boolean) => Promise<IIngestTypeModel[]>;
+  getSources: (refresh?: boolean) => Promise<ISourceModel[]>;
+  getSeries: (refresh?: boolean) => Promise<ISeriesModel[]>;
+  getContributors: (refresh?: boolean) => Promise<IContributorModel[]>;
+  getTags: (refresh?: boolean) => Promise<ITagModel[]>;
+  getTonePools: (refresh?: boolean) => Promise<ITonePoolModel[]>;
+  getUsers: (refresh?: boolean) => Promise<IUserModel[]>;
+  getDataLocations: (refresh?: boolean) => Promise<IDataLocationModel[]>;
+  getSettings: (refresh?: boolean) => Promise<ISettingModel[]>;
+  getMinisters: (refresh?: boolean) => Promise<IMinisterModel[]>;
+  getLLMs: (refresh?: boolean) => Promise<ILLMModel[]>;
+  init: (refresh?: boolean) => Promise<void>;
+}
+
+export const useLookup = (): [ILookupState, ILookupController] => {
+  const [state, store] = useLookupStore();
+  const dispatch = useAjaxWrapper();
+  const cache = useApiEditorCache();
+  const lookups = useApiEditorLookups();
+  const actions = useApiEditorActions();
+  const topics = useApiEditorTopics();
+  const mediaTypes = useApiEditorMediaTypes();
+  const sources = useApiEditorSources();
+  const licenses = useApiEditorLicenses();
+  const ingestTypes = useApiEditorIngestTypes();
+  const roles = useApiEditorRoles();
+  const series = useApiEditorSeries();
+  const contributors = useApiEditorContributors();
+  const sourceActions = useApiEditorSourceActions();
+  const sourceMetrics = useApiEditorMetrics();
+  const tags = useApiEditorTags();
+  const tonePools = useApiEditorTonePools();
+  const users = useApiEditorUsers();
+  const dataLocations = useApiEditorDataLocations();
+  const settings = useApiEditorSettings();
+  const ministers = useApiEditorMinisters();
+  const llms = useApiSubscriberLLMs();
+
+  const controller = React.useMemo(
+    () => ({
+      getCache: async () => {
+        const response = await dispatch<ICacheModel[]>('cache', async () => await cache.getCache());
+        store.storeCache(response.data);
+        return response.data;
+      },
+      getLookups: async () => {
+        return await fetchIfNoneMatch<ILookupModel>(
+          'lookups',
+          dispatch,
+          async (etag) => await lookups.getLookups(etag),
+          (results) => {
+            if (results) {
+              saveToLocalStorage(StorageKeys.Actions, results.actions, store.storeActions);
+              saveToLocalStorage(StorageKeys.Topics, results.topics, store.storeTopics);
+              saveToLocalStorage(StorageKeys.MediaTypes, results.mediaTypes, store.storeMediaTypes);
+              saveToLocalStorage(StorageKeys.Sources, results.sources, store.storeSources);
+              saveToLocalStorage(
+                StorageKeys.IngestTypes,
+                results.ingestTypes,
+                store.storeIngestTypes,
+              );
+              saveToLocalStorage(StorageKeys.Licenses, results.licenses, store.storeLicenses);
+              saveToLocalStorage(StorageKeys.Roles, results.roles, store.storeRoles);
+              saveToLocalStorage(StorageKeys.Series, results.series, store.storeSeries);
+              saveToLocalStorage(
+                StorageKeys.Contributors,
+                results.contributors,
+                store.storeContributors,
+              );
+              saveToLocalStorage(
+                StorageKeys.SourceActions,
+                results.sourceActions,
+                store.storeSourceActions,
+              );
+              saveToLocalStorage(StorageKeys.Metrics, results.metrics, store.storeMetrics);
+              saveToLocalStorage(StorageKeys.Tags, results.tags, store.storeTags);
+              saveToLocalStorage(StorageKeys.TonePools, results.tonePools, store.storeTonePools);
+              saveToLocalStorage(StorageKeys.Users, results.users, store.storeUsers);
+              saveToLocalStorage(
+                StorageKeys.DataLocations,
+                results.dataLocations,
+                store.storeDataLocations,
+              );
+              saveToLocalStorage(StorageKeys.Settings, results.settings, store.storeSettings);
+              saveToLocalStorage(StorageKeys.Holidays, results.holidays, store.storeHolidays);
+              saveToLocalStorage(StorageKeys.Ministers, results.ministers, store.storeMinisters);
+              saveToLocalStorage(
+                StorageKeys.Organizations,
+                results.organizations,
+                store.storeOrganizations,
+              );
+              return results;
+            } else {
+              const lookups = {
+                actions: getFromLocalStorage<IActionModel[]>(StorageKeys.Actions, []),
+                topics: getFromLocalStorage<ITopicModel[]>(StorageKeys.Topics, []),
+                mediaTypes: getFromLocalStorage<IMediaTypeModel[]>(StorageKeys.MediaTypes, []),
+                sources: getFromLocalStorage<ISourceModel[]>(StorageKeys.Sources, []),
+                ingestTypes: getFromLocalStorage<IIngestTypeModel[]>(StorageKeys.IngestTypes, []),
+                licenses: getFromLocalStorage<ILicenseModel[]>(StorageKeys.Licenses, []),
+                roles: getFromLocalStorage<IRoleModel[]>(StorageKeys.Roles, []),
+                series: getFromLocalStorage<ISeriesModel[]>(StorageKeys.Series, []),
+                contributors: getFromLocalStorage<IContributorModel[]>(
+                  StorageKeys.Contributors,
+                  [],
+                ),
+                sourceActions: getFromLocalStorage<ISourceActionModel[]>(
+                  StorageKeys.SourceActions,
+                  [],
+                ),
+                metrics: getFromLocalStorage<IMetricModel[]>(StorageKeys.Metrics, []),
+                tags: getFromLocalStorage<ITagModel[]>(StorageKeys.Tags, []),
+                tonePools: getFromLocalStorage<ITonePoolModel[]>(StorageKeys.TonePools, []),
+                users: getFromLocalStorage<IUserModel[]>(StorageKeys.Users, []),
+                dataLocations: getFromLocalStorage<IDataLocationModel[]>(
+                  StorageKeys.DataLocations,
+                  [],
+                ),
+                settings: getFromLocalStorage<ISettingModel[]>(StorageKeys.Settings, []),
+                holidays: getFromLocalStorage<IHolidayModel[]>(StorageKeys.Holidays, []),
+                ministers: getFromLocalStorage<IMinisterModel[]>(StorageKeys.Ministers, []),
+                organizations: getFromLocalStorage<IOrganizationModel[]>(
+                  StorageKeys.Organizations,
+                  [],
+                ),
+                systemMessages: [],
+              };
+              store.storeActions(lookups.actions);
+              store.storeTopics(lookups.topics);
+              store.storeMediaTypes(lookups.mediaTypes);
+              store.storeSources(lookups.sources);
+              store.storeIngestTypes(lookups.ingestTypes);
+              store.storeLicenses(lookups.licenses);
+              store.storeRoles(lookups.roles);
+              store.storeSeries(lookups.series);
+              store.storeContributors(lookups.contributors);
+              store.storeSourceActions(lookups.sourceActions);
+              store.storeMetrics(lookups.metrics);
+              store.storeTags(lookups.tags);
+              store.storeTonePools(lookups.tonePools);
+              store.storeUsers(lookups.users);
+              store.storeDataLocations(lookups.dataLocations);
+              store.storeSettings(lookups.settings);
+              store.storeHolidays(lookups.holidays);
+              store.storeMinisters(lookups.ministers);
+              store.storeOrganizations(lookups.organizations);
+              return lookups;
+            }
+          },
+          false,
+          'lookup',
+        );
+      },
+      getActions: async () => {
+        return await fetchIfNoneMatch<IActionModel[]>(
+          StorageKeys.Actions,
+          dispatch,
+          async (etag) => await actions.getActions(etag),
+          (results) => {
+            const values = results ?? [];
+            store.storeActions(values);
+            return values;
+          },
+          true,
+          'lookup',
+        );
+      },
+      getTopics: async (refresh?: boolean) => {
+        return await fetchIfNoneMatch<ITopicModel[]>(
+          StorageKeys.Topics,
+          dispatch,
+          async (etag) => await topics.getTopics(etag),
+          (results) => {
+            const values = results ?? [];
+            store.storeTopics(values);
+            if (refresh) saveToLocalStorage(StorageKeys.Topics, values, store.storeTopics);
+            return values;
+          },
+          true,
+          'lookup',
+        );
+      },
+      getMediaTypes: async () => {
+        return await fetchIfNoneMatch<IMediaTypeModel[]>(
+          StorageKeys.MediaTypes,
+          dispatch,
+          async (etag) => await mediaTypes.getMediaTypes(etag),
+          (results) => {
+            const values = results ?? [];
+            store.storeMediaTypes(values);
+            return values;
+          },
+          true,
+          'lookup',
+        );
+      },
+      getSources: async () => {
+        return await fetchIfNoneMatch<ISourceModel[]>(
+          StorageKeys.Sources,
+          dispatch,
+          async (etag) => await sources.getSources(etag),
+          (results) => {
+            const values = results ?? [];
+            store.storeSources(values);
+            return values;
+          },
+          true,
+          'lookup',
+        );
+      },
+      getLicenses: async () => {
+        return await fetchIfNoneMatch<ILicenseModel[]>(
+          StorageKeys.Licenses,
+          dispatch,
+          async (etag) => await licenses.getLicenses(etag),
+          (results) => {
+            const values = results ?? [];
+            store.storeLicenses(values);
+            return values;
+          },
+          true,
+          'lookup',
+        );
+      },
+      getIngestTypes: async () => {
+        return await fetchIfNoneMatch<IIngestTypeModel[]>(
+          StorageKeys.IngestTypes,
+          dispatch,
+          async (etag) => await ingestTypes.getIngestTypes(etag),
+          (results) => {
+            const values = results ?? [];
+            store.storeIngestTypes(values);
+            return values;
+          },
+          true,
+          'lookup',
+        );
+      },
+      getRoles: async () => {
+        return await fetchIfNoneMatch<IRoleModel[]>(
+          StorageKeys.Roles,
+          dispatch,
+          async (etag) => await roles.getRoles(etag),
+          (results) => {
+            const values = results ?? [];
+            store.storeRoles(values);
+            return values;
+          },
+          true,
+          'lookup',
+        );
+      },
+      getSeries: async () => {
+        return await fetchIfNoneMatch<ISeriesModel[]>(
+          StorageKeys.Series,
+          dispatch,
+          async (etag) => await series.getSeries(etag),
+          (results) => {
+            const values = results ?? [];
+            store.storeSeries(values);
+            return values;
+          },
+          true,
+          'lookup',
+        );
+      },
+      getContributors: async () => {
+        return await fetchIfNoneMatch<IContributorModel[]>(
+          StorageKeys.Contributors,
+          dispatch,
+          async (etag) => await contributors.getContributors(etag),
+          (results) => {
+            const values = results ?? [];
+            store.storeContributors(values);
+            return values;
+          },
+          true,
+          'lookup',
+        );
+      },
+      getSourceActions: async () => {
+        return await fetchIfNoneMatch<ISourceActionModel[]>(
+          StorageKeys.SourceActions,
+          dispatch,
+          async (etag) => await sourceActions.getActions(etag),
+          (results) => {
+            const values = results ?? [];
+            store.storeSourceActions(values);
+            return values;
+          },
+          true,
+          'lookup',
+        );
+      },
+      getMetrics: async () => {
+        return await fetchIfNoneMatch<IMetricModel[]>(
+          StorageKeys.Metrics,
+          dispatch,
+          async (etag) => await sourceMetrics.getMetrics(etag),
+          (results) => {
+            const values = results ?? [];
+            store.storeMetrics(values);
+            return values;
+          },
+          true,
+          'lookup',
+        );
+      },
+      getTags: async () => {
+        return await fetchIfNoneMatch<ITagModel[]>(
+          StorageKeys.Tags,
+          dispatch,
+          async (etag) => await tags.getTags(etag),
+          (results) => {
+            const values = results ?? [];
+            store.storeTags(values);
+            return values;
+          },
+          true,
+          'lookup',
+        );
+      },
+      getTonePools: async () => {
+        return await fetchIfNoneMatch<ITonePoolModel[]>(
+          StorageKeys.TonePools,
+          dispatch,
+          async (etag) => await tonePools.getTonePools(etag),
+          (results) => {
+            const values = results ?? [];
+            store.storeTonePools(values);
+            return values;
+          },
+          true,
+          'lookup',
+        );
+      },
+      getUsers: async () => {
+        return await fetchIfNoneMatch<IUserModel[]>(
+          StorageKeys.Users,
+          dispatch,
+          async (etag) => await users.getUsers(etag),
+          (results) => {
+            const values = results ?? [];
+            store.storeUsers(values);
+            return values;
+          },
+          true,
+          'lookup',
+        );
+      },
+      getDataLocations: async () => {
+        return await fetchIfNoneMatch<IDataLocationModel[]>(
+          StorageKeys.DataLocations,
+          dispatch,
+          async (etag) => await dataLocations.getDataLocations(etag),
+          (results) => {
+            const values = results ?? [];
+            store.storeDataLocations(values);
+            return values;
+          },
+          true,
+          'lookup',
+        );
+      },
+      getSettings: async () => {
+        return await fetchIfNoneMatch<ISettingModel[]>(
+          StorageKeys.Settings,
+          dispatch,
+          async (etag) => await settings.getSettings(etag),
+          (results) => {
+            const values = results ?? [];
+            store.storeSettings(values);
+            return values;
+          },
+          true,
+          'lookup',
+        );
+      },
+      getMinisters: async () => {
+        return await fetchIfNoneMatch<IMinisterModel[]>(
+          StorageKeys.Ministers,
+          dispatch,
+          async (etag) => await ministers.getMinisters(etag),
+          (results) => {
+            const values = results ?? [];
+            store.storeMinisters(values);
+            return values;
+          },
+          true,
+          'lookup',
+        );
+      },
+      getLLMs: async () => {
+        return await fetchIfNoneMatch<ILLMModel[]>(
+          'llms',
+          dispatch,
+          (etag) => llms.getLLMs(etag),
+          (results) => {
+            const values: ILLMModel[] = results ?? [];
+            store.storeLLMs(values);
+            return values;
+          },
+          true,
+          'lookup',
+        );
+      },
+      init: async () => {
+        // TODO: Handle failures
+        await controller.getLookups();
+        store.storeIsReady(true);
+      },
+    }),
+    [
+      dispatch,
+      store,
+      cache,
+      lookups,
+      actions,
+      topics,
+      mediaTypes,
+      sources,
+      licenses,
+      ingestTypes,
+      roles,
+      series,
+      contributors,
+      sourceActions,
+      sourceMetrics,
+      tags,
+      tonePools,
+      users,
+      dataLocations,
+      settings,
+      ministers,
+      llms,
+    ],
+  );
+
+  return [state, controller];
+};

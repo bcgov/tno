@@ -1,0 +1,156 @@
+// The purpose of this file is to help us create a theme so that when UI colour changes we can control them in one place.
+
+// Background
+$bk-primary: linear-gradient(179.77deg, #f0eeee 15.35%, #d9d9d9 101.64%);
+$bk-primary-25: linear-gradient(
+  179.77deg,
+  rgb(240, 238, 238, 0.25) 15.35%,
+  rgb(217, 217, 217, 0.25) 101.64%
+);
+$bk-primary-75: linear-gradient(
+  179.77deg,
+  rgb(240, 238, 238, 0.75) 15.35%,
+  rgb(217, 217, 217, 0.75) 101.64%
+);
+
+$bk-secondary: linear-gradient(0deg, #ffffff, #ffffff), linear-gradient(0deg, #f0eeee, #f0eeee);
+$bk-tertiary: #e8e9f1;
+$bk-quaternary: #e8e9f1;
+$bk-form: #ffff;
+$bk-static-gray: #f0eeee;
+$bk-error: #d9293b63;
+$bk-main: #dedede;
+$bk-white: #fff;
+$teaser-background: #f5f6f9;
+$sticky-note-color: #fff2cb;
+$bkInfo: #ecfcff;
+
+$production-background-color: #dedede;
+$development-background-color: #b51963;
+$test-background-color: #5ba300;
+
+// Highlights
+$highlightPrimary: #e8e9f1;
+$highlightSecondary: #f8f7f8;
+$highlightTertiary: #d6d9e7;
+$highlight-active: #03bfdc;
+$highlight-yellow: #fff6e2;
+$highlight-yellow-darker: #fff0cd;
+
+// Shadows
+$drop-shadow: drop-shadow(0 2px 6px 1px rgba(0, 0, 0, 25%));
+$box-shadow: 0 4px 6px 1px rgba(0, 0, 0, 25%);
+
+// Report Types
+$report-auto: #047a8c;
+$report-full-auto: #04814d;
+$report-manual: #876503;
+
+// Dialog boxes
+$dialog-box-bk-primary: #41393b;
+$dialog-box-bk-secondary: #ded9da;
+
+// Fonts
+$f-primary:
+  'Source Sans 3',
+  'BCSans',
+  'Noto Sans',
+  Arial,
+  sans serif;
+$f-secondary:
+  'BCSans',
+  'Noto Sans',
+  Arial,
+  sans serif;
+$f-semi-bold: 'Source Sans 3 Semibold';
+$f-primary-color: #41393b;
+$h-primary-color: #971d29;
+$f-red-color: #d9293a;
+$f-secondary-color: #ded9da;
+$fInfo: #047a8c;
+$f-primary-invert-color: #fff;
+
+// Tone related
+$tone-positive: #59e9be;
+$tone-negative: #eb8585;
+$tone-neutral: #f1c02d;
+
+// Links
+$link-primary-color: #6750a4;
+$link-primary-hover-color: #565a8b;
+$link-primary-active-color: #b3a5d3;
+$link-visited: #43425d;
+$link-gray-color: #9f9196;
+
+// Icons
+$icon-primary-color: #8084b1;
+$icon-secondary-color: #ded9da;
+$icon-tertiary-color: #6c5d62;
+$icon-purple-color: #babfd6;
+$icon-gray-color: #c1b8bb;
+$icon-dark-color: #56537a;
+$sidebar-icon-color: #a5a4bf;
+$sidebar-icon-hover-color: #da6d78;
+$icon-green: #19754c;
+$iconInfo: #047a8c;
+$overview-transcript: #047a8c;
+$overview-video: #702828;
+
+// Buttons
+$btn-bk-primary: #6750a4;
+$btn-primary-color: #fff;
+$btn-bk-secondary: #d6d9e7;
+$btn-secondary-color: #41393b;
+$btn-gray-color: #9f9196;
+$btn-red-color: #971d29;
+$btn-light-red-color: #971d2980;
+$btn-red-bk-color: #fef2f3;
+$btn-yellow-color: #876503;
+$btn-yellow-bk-color: #fff7e1;
+$btn-bk-disabled: #ece7eb;
+$btn-disabled-color: #41393b;
+$input-grey: #ece7eb;
+$icon-button-border-color: #ded9da;
+$btn-bk-success: #19754c;
+$btn-success-color: #fff;
+$btn-bk-warn: #ffc107;
+$btn-warn-color: #000;
+$btn-bk-error: #dc3545;
+$btn-error-color: #fff;
+$btn-edit-color: #fff7e1;
+$btn-edit-border-color: #dcc797;
+$btn-edit-hover-color: #ffebb3;
+
+// Lines
+$line-primary-color: #807e9b;
+$line-secondary-color: #f0eeee;
+$line-tertiary-color: #d6d9e7;
+$line-quaternary-color: #f8f7f8;
+$line-error-color: #971d29;
+
+// Code blocks
+$code-block-color: #f0eeee;
+$teaser-background-color: #f5f6f9;
+$tag-background-color: #e1fff3;
+
+// Navigation
+$nav-item-background-color: #605f73;
+$nav-item-secondary-background-color: #8084b1;
+
+// Tables
+$table-odd-row: unset;
+$table-even-row: #ededed;
+$table-active-row-color: #fff;
+$table-active-row: #8084b1;
+$table-hover-row: #ededed;
+
+// Sections
+$section-header: #646293;
+$section-header-text: #fff;
+$section-group-header: #231f20;
+
+// Header variants
+$dark-header-color: #363434;
+
+// Forms
+$inputRequiredBorderColor: #8084b1;

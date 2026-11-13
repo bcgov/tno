@@ -1,7 +1,7 @@
 #!/bin/bash
 # Push a locally built image to the Azure Container Registry.
 # Usage: push.sh <component> [tag]
-#   component - short name (automation, notification, api, editor, ...); see acr-common.sh
+#   component - short name (automation, notification, api, app, ...); see acr-common.sh
 #   tag       - image tag (default: latest)
 
 set -euo pipefail

@@ -96,8 +96,8 @@ spec:
         declare -A COMPONENT15=([id]="image" [name]="image-service" [build]="yes" [env]="dev test prod")
         declare -A COMPONENT16=([id]="auto-clipper" [name]="auto-clipper-service" [build]="yes" [env]="dev test prod")
         declare -A COMPONENT17=([id]="folder-collection" [name]="folder-collection-service" [build]="yes" [env]="dev test prod")
-        declare -A COMPONENT18=([id]="editor" [name]="editor" [build]="yes" [env]="dev test prod")
-        declare -A COMPONENT19=([id]="subscriber" [name]="subscriber" [build]="yes" [env]="dev test prod")
+        # One image serves both the editor and subscriber designs (APP_MODE).
+        declare -A COMPONENT18=([id]="app" [name]="app" [build]="yes" [env]="dev test prod")
         declare -A COMPONENT20=([id]="nginx-editor" [name]="nginx-editor" [build]="yes" [env]="dev test prod")
         declare -A COMPONENT21=([id]="nginx-subscriber" [name]="nginx-subscriber" [build]="yes" [env]="dev test prod")
 
@@ -150,6 +150,9 @@ spec:
         # ***************************************************
 
         # Applications
+        # [id] selects the component (BUILD_<ID>, DEPLOY=<id>), [name] is the workload, and [image]
+        # is the image when it differs from the workload name. The editor and subscriber
+        # Deployments both run the app image; DEPLOY=editor or DEPLOY=subscriber restarts one.
 
         declare -A COMPONENT0=(
           [id]="api"
@@ -172,7 +175,8 @@ spec:
         )
 
         declare -A COMPONENT2=(
-          [id]="editor"
+          [id]="app"
+          [image]="app"
           [name]="editor"
           [type]="deployment"
           [replicas]="1"
@@ -182,7 +186,8 @@ spec:
         )
 
         declare -A COMPONENT3=(
-          [id]="subscriber"
+          [id]="app"
+          [image]="app"
           [name]="subscriber"
           [type]="deployment"
           [replicas]="1"
@@ -410,12 +415,13 @@ spec:
 
           # Check if this image needs to be deployed.
           # If the component was auto built by the build step, or all components are to built, or a specific component was requested to be built.
-          if [ "${!COMPONENT}" = true ] || [ "$(params.DEPLOY)" = "all" ] || [ "$(params.DEPLOY)" = "${component[id]}" ]; then
+          if [ "${!COMPONENT}" = true ] || [ "$(params.DEPLOY)" = "all" ] || [ "$(params.DEPLOY)" = "${component[id]}" ] || [ "$(params.DEPLOY)" = "${component[name]}" ]; then
             for env in "${env_array[@]}"; do
               if [[ "$env" =~ "$(params.ENV)" ]]; then
                 if [[ "${component[build]}" = "yes" && -z "$(params.ACR_REGISTRY)" ]]; then
-                  echo "Tagging image to trigger deployment to ${component[name]}:$(params.ENV)"
-                  oc tag ${component[name]}:$(params.IMAGE_TAG) ${component[name]}:$(params.ENV)
+                  IMAGE=${component[image]:-${component[name]}}
+                  echo "Tagging image to trigger deployment to $IMAGE:$(params.ENV)"
+                  oc tag $IMAGE:$(params.IMAGE_TAG) $IMAGE:$(params.ENV)
                 fi
 
                 oc rollout restart ${component[type]}/${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV)

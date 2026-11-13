@@ -1,0 +1,10 @@
+import { IOrganizationModel, ISortableModel } from '@/shared';
+
+export interface IMinisterModel extends ISortableModel<number> {
+  aliases: string;
+  organizationId?: number;
+  organization?: IOrganizationModel;
+  position: string;
+  hide?: boolean;
+  contentCount?: number;
+}

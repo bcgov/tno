@@ -12,29 +12,38 @@ class DetectDeployChangesTests(unittest.TestCase):
         self.assertTrue(result["deploy_services"])
         self.assertTrue(result["deploy_frontend"])
         self.assertTrue(result["run_db_migration"])
-        self.assertEqual(len(result["build_matrix"]["include"]), 20)
+        self.assertEqual(len(result["build_matrix"]["include"]), 19)
         self.assertEqual(len(result["service_matrix"]["include"]), 17)
         self.assertEqual(len(result["frontend_matrix"]["include"]), 2)
 
-    def test_editor_change_only_builds_and_deploys_editor(self):
-        result = detect_deploy_changes(["app/editor/src/App.tsx"], "changed")
+    def test_app_change_builds_app_and_deploys_both_frontends(self):
+        result = detect_deploy_changes(["app/src/editor/App.tsx"], "changed")
 
         self.assertEqual(
             result["build_matrix"]["include"],
             [
                 {
-                    "name": "editor",
-                    "image": "editor",
-                    "dockerfile": "app/editor/Dockerfile.nginx",
-                    "context": "./app/editor",
-                    "build_arg_name": "REACT_APP_VERSION",
+                    "name": "app",
+                    "image": "app",
+                    "dockerfile": "app/Dockerfile.nginx",
+                    "context": "./app",
+                    "build_arg_name": "APP_VERSION",
                 }
             ],
         )
-        self.assertEqual(result["frontend_matrix"]["include"], [{"name": "editor", "deployment": "editor"}])
+        self.assertEqual(
+            result["frontend_matrix"]["include"],
+            [{"name": "editor", "deployment": "editor"}, {"name": "subscriber", "deployment": "subscriber"}],
+        )
         self.assertFalse(result["deploy_api"])
         self.assertFalse(result["deploy_services"])
         self.assertFalse(result["run_db_migration"])
+
+    def test_frontend_manifest_change_deploys_only_that_frontend(self):
+        result = detect_deploy_changes(["openshift/kustomize/app/subscriber/base/deploy.yaml"], "changed")
+
+        self.assertEqual(result["build_matrix"]["include"], [])
+        self.assertEqual(result["frontend_matrix"]["include"], [{"name": "subscriber", "deployment": "subscriber"}])
 
     def test_shared_dotnet_change_builds_api_and_dotnet_services(self):
         result = detect_deploy_changes(["libs/net/entities/Models/Content.cs"], "changed")
@@ -45,7 +54,7 @@ class DetectDeployChangesTests(unittest.TestCase):
         self.assertIn("content-service", build_names)
         self.assertIn("folder-collection-service", build_names)
         self.assertNotIn("charts-api", build_names)
-        self.assertNotIn("editor", build_names)
+        self.assertNotIn("app", build_names)
         self.assertTrue(result["deploy_api"])
         self.assertTrue(result["deploy_services"])
         self.assertIn("content-service", service_names)

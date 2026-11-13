@@ -1,0 +1,94 @@
+import 'react-toastify/dist/ReactToastify.css';
+import 'react-tooltip/dist/react-tooltip.css';
+import './components/snowplow/snowplow';
+import 'prismjs';
+
+import isPropValid from '@emotion/is-prop-valid';
+import Keycloak from 'keycloak-js';
+import React from 'react';
+import { BrowserRouter } from 'react-router';
+import { ToastContainer } from 'react-toastify';
+import { Tooltip } from 'react-tooltip';
+import { StyleSheetManager } from 'styled-components';
+
+import {
+  createKeycloakInstance,
+  KeycloakProvider,
+  Loading,
+  Show,
+  useKeycloakEventHandler,
+} from '@/shared';
+import { ContentListProvider } from '@/subscriber/components/content-list/ContentListContext';
+import { LayoutAnonymous } from '@/subscriber/components/layout';
+import { AppRouter } from '@/subscriber/features/router';
+import { SearchPageProvider } from '@/subscriber/features/search-page';
+import { fixTooltipResizeObserver } from '@/subscriber/features/utils';
+
+const appName = 'Media Monitoring Insights';
+fixTooltipResizeObserver();
+
+// This implements the default behavior from styled-components v5
+function shouldForwardProp(propName: any, target: any) {
+  if (typeof target === 'string') {
+    // For HTML elements, forward the prop if it is a valid HTML attribute
+    return isPropValid(propName);
+  }
+  // For other elements, forward all props
+  return true;
+}
+
+function App() {
+  const keycloakEventHandler = useKeycloakEventHandler();
+
+  const [keycloak, setKeycloak] = React.useState<Keycloak>();
+
+  React.useEffect(() => {
+    createKeycloakInstance().then((result) => {
+      setKeycloak(result);
+    });
+  }, []);
+  return (
+    <BrowserRouter>
+      <StyleSheetManager shouldForwardProp={shouldForwardProp}>
+        <Show visible={!!keycloak}>
+          <KeycloakProvider
+            initOptions={{ pkceMethod: 'S256', checkLoginIframe: false }}
+            authClient={keycloak!}
+            LoadingComponent={
+              <LayoutAnonymous name={appName}>
+                <Loading />
+              </LayoutAnonymous>
+            }
+            onEvent={keycloakEventHandler(keycloak!)}
+          >
+            <ContentListProvider>
+              <SearchPageProvider>
+                <AppRouter />
+              </SearchPageProvider>
+            </ContentListProvider>
+          </KeycloakProvider>
+        </Show>
+        <Show visible={!keycloak}>
+          <LayoutAnonymous name={appName}>
+            <Loading />
+          </LayoutAnonymous>
+        </Show>
+        <ToastContainer />
+        <Tooltip
+          opacity={1}
+          style={{
+            backgroundColor: '#FFFFCC',
+            color: 'black',
+            boxShadow: '0 0 8px #464545',
+            zIndex: '999',
+          }}
+          id="main-tooltip"
+          place="top"
+        />
+        <Tooltip variant="light" id="main-tooltip-right" place="right" />
+      </StyleSheetManager>
+    </BrowserRouter>
+  );
+}
+
+export default App;

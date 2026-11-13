@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Admin.Models.User;
 using TNO.Core.Exceptions;
@@ -16,6 +17,11 @@ namespace TNO.API.Keycloak;
 public class KeycloakHelper : IKeycloakHelper
 {
     #region Variables
+    /// <summary>
+    /// How many times a login is saved before a conflicting change to the user fails the sign-in.
+    /// </summary>
+    private const int MaxLoginSaveAttempts = 3;
+
     private readonly IKeycloakService _keycloakService;
     private readonly IUserService _userService;
     private readonly Config.KeycloakOptions _options;
@@ -219,13 +225,42 @@ public class KeycloakHelper : IKeycloakHelper
         }
 
         if (user != null)
-        {
-            // Save the login after the location is captured, the locations are stored in the user preferences.
-            auth = AuthorizeLocation(user, location);
-            user = _userService.UpdateLoginAndSave(user);
-        }
+            (user, auth) = SaveLogin(user, keycloakUid, location);
 
         return Tuple.Create(user, auth);
+    }
+
+    /// <summary>
+    /// Save the login, after the location is captured; the locations are stored in the user preferences.
+    /// One person signing in to the editor and the subscriber at the same moment saves two logins, and the
+    /// second finds the user changed since it was read. A login only records itself (key, last login and
+    /// locations), so it is applied again to the user as it is now instead of failing the sign-in. The
+    /// preferences are read again rather than overwritten, as they hold more than the locations.
+    /// </summary>
+    /// <param name="user">The user signing in, with the key and last login to save.</param>
+    /// <param name="keycloakUid">The user's Keycloak key.</param>
+    /// <param name="location">The location the user is signing in from.</param>
+    /// <returns>The saved user and whether the location is authorized.</returns>
+    private Tuple<Entities.User?, Models.Auth.AccountAuthState> SaveLogin(Entities.User user, Guid keycloakUid, Models.Auth.LocationModel? location)
+    {
+        var key = user.Key;
+        var lastLoginOn = user.LastLoginOn;
+        for (var attempt = 1; ; attempt++)
+        {
+            var auth = AuthorizeLocation(user, location);
+            try
+            {
+                return Tuple.Create<Entities.User?, Models.Auth.AccountAuthState>(_userService.UpdateLoginAndSave(user), auth);
+            }
+            catch (DbUpdateConcurrencyException) when (attempt < MaxLoginSaveAttempts)
+            {
+                _logger.LogWarning("User with key:[{key}] changed while their login was saved, saving it again (attempt {attempt}).", keycloakUid, attempt + 1);
+                _userService.ClearChangeTracker();
+                user = _userService.FindById(user.Id) ?? throw new NoContentException("User does not exist");
+                user.Key = key;
+                user.LastLoginOn = lastLoginOn;
+            }
+        }
     }
 
     /// <summary>

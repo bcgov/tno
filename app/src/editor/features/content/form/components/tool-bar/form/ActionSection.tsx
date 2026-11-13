@@ -1,0 +1,39 @@
+import React from 'react';
+import { FaHighlighter } from 'react-icons/fa';
+
+import { ContentActions } from '@/editor/features/content/form';
+import { type IContentForm } from '@/editor/features/content/form/interfaces';
+import { useLookup } from '@/editor/store/hooks';
+import { Row, Settings, ToolBarSection } from '@/shared';
+
+export interface IActionSectionProps {
+  /** Form values. */
+  values: IContentForm;
+}
+
+/**
+ * Component to display actions for the specified content.
+ * @param param0 Component properties.
+ * @returns Component.
+ */
+export const ActionSection: React.FC<IActionSectionProps> = ({ values }) => {
+  const [{ settings }] = useLookup();
+
+  const alertId = settings.find((s) => s.name === Settings.DefaultAlert)?.value ?? '0';
+
+  return (
+    <ToolBarSection
+      label="HIGHLIGHT STORY"
+      icon={<FaHighlighter />}
+      style={{ maxWidth: '50%' }}
+      children={
+        <Row gap="0.5rem" alignItems="center" justifyContent="center">
+          <ContentActions
+            init
+            filter={(a) => a.id !== +alertId && a.contentTypes?.includes(values.contentType)}
+          />
+        </Row>
+      }
+    />
+  );
+};

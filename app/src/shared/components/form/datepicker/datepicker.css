@@ -1,0 +1,15 @@
+/*
+ * react-datepicker 7+ marks the calendar up as an ARIA table (role="table", "rowgroup", "row")
+ * and the month title as an <h2>. Both designs have page styles aimed at those roles and at h2
+ * (written for data tables and headings), which stretched the calendar and upper-cased the title.
+ * Keep the calendar as it rendered before.
+ */
+.react-datepicker .react-datepicker__month-container div[role='rowgroup'] {
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+}
+
+.react-datepicker .react-datepicker__header .react-datepicker__current-month {
+  text-transform: none;
+}

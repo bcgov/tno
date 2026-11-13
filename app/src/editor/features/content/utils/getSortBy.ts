@@ -1,0 +1,32 @@
+import { type ISortBy } from '@/editor/features/interfaces';
+
+/**
+ * Creates an array of sort parameters from the provided sorting information.
+ * Cleans up the data to ensure it matches what is expected by the API.
+ * @param sortBy An array of sort objects.
+ * @returns An array of sort parameters.
+ */
+export const getSortBy = (sortBy?: ISortBy[]) => {
+  if (sortBy === undefined || sortBy.length === 0) return undefined;
+
+  const sort: any[] = [];
+  for (let i = 0; i < sortBy.length; i++) {
+    const column = sortBy[i].id;
+    const value = `${sortBy[i].desc ? 'desc' : 'asc'}`;
+    if (column === 'section') {
+      // sort by section will always include the source.sortOrder
+      // because the business wants content grouped by the manually set
+      // source.sortOrder when sorting by page/section
+      sort.push({ 'source.sortOrder': value });
+      sort.push({ page: value });
+      sort.push({ [column]: value });
+    } else if (column === 'mediaType') {
+      sort.push({ [column + '.name.keyword']: value });
+    } else if (column === 'owner') {
+      sort.push({ [column + '.username.keyword']: value });
+    } else {
+      sort.push({ [column]: value });
+    }
+  }
+  return sort;
+};

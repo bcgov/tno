@@ -1,0 +1,22 @@
+import { useFormikContext } from 'formik';
+import React from 'react';
+
+import { type ISourceModel } from '@/shared';
+
+import { SourceMetrics } from '.';
+import * as styled from './styled';
+
+interface IReachEarnedMediaProps {}
+
+const ReachEarnedMedia: React.FC<IReachEarnedMediaProps> = () => {
+  const { values } = useFormikContext<ISourceModel>();
+
+  return (
+    <styled.ReachEarnedMedia className="reach-earned-media" alignItems="center">
+      <h2>{values.name}</h2>
+      <SourceMetrics />
+    </styled.ReachEarnedMedia>
+  );
+};
+
+export default ReachEarnedMedia;

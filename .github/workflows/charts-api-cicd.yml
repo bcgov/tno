@@ -34,12 +34,14 @@ jobs:
     name: CI — Validate Node.js & TypeScript
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup Node.js 18
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 18
+          # api/node is a Yarn project; keep setup-node from caching it as it did before v7.
+          package-manager-cache: false
 
       - name: Install dependencies
         working-directory: api/node
@@ -59,7 +61,7 @@ jobs:
       IMAGE_TAG: dev
       OPENSHIFT_NAMESPACE: 9b301c-dev
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Build Docker Image
         run: |
@@ -74,7 +76,7 @@ jobs:
           image-ref: '${{ env.IMAGE_NAME }}:${{ github.sha }}'
 
       - name: Install oc CLI
-        uses: redhat-actions/openshift-tools-installer@v1
+        uses: redhat-actions/openshift-tools-installer@v3
         with:
           oc: latest
 
@@ -131,7 +133,7 @@ jobs:
       IMAGE_TAG: test
       OPENSHIFT_NAMESPACE: 9b301c-test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Build Docker Image
         run: |
@@ -146,7 +148,7 @@ jobs:
           image-ref: '${{ env.IMAGE_NAME }}:${{ github.sha }}'
 
       - name: Install oc CLI
-        uses: redhat-actions/openshift-tools-installer@v1
+        uses: redhat-actions/openshift-tools-installer@v3
         with:
           oc: latest
 

@@ -1,9 +1,19 @@
-# Test Documentation (Example for app/editor)
+# Frontend Test Documentation
+
+Tests run with Vitest from `app/`. The Vitest config (`app/vite.config.mts`) defines three projects:
+
+| Project | Tests | Setup |
+| --- | --- | --- |
+| `shared` | `src/shared/**/*.test.{ts,tsx}` | none |
+| `editor` | `src/editor/test-vitest/**/*.test.{ts,tsx}` | `src/editor/test-vitest/setup.ts` |
+| `subscriber` | `src/subscriber/test-vitest/**/*.test.{ts,tsx}` | `src/subscriber/test-vitest/setup.ts` |
+
+The structure below uses the editor as the example.
 
 ## Test Directory Structure 
 
 ```
-src/test-vitest/
+app/src/editor/test-vitest/
 ├── components/          # Component tests
 │   └── content/        # Content-related component tests
 ├── data/               # Test data
@@ -18,7 +28,8 @@ src/test-vitest/
 ### Global Setup (setup.ts)
 
 ```typescript
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
+
 import { cleanup } from '@testing-library/react';
 import { afterEach } from 'vitest';
 
@@ -121,20 +132,20 @@ describe('YourComponent', () => {
 We use Vitest as our testing framework. Here are commonly used test commands:
 
 ```bash
-# Run all tests (single run)
-yarn test
+# Run all tests (single run), from app/
+npm test
 
 # Run tests in watch mode (recommended during development)
-yarn test:watch
+npm run test:watch
 
 # Run tests with UI interface (convenient for debugging)
-yarn test:ui
+npm run test:ui
+
+# Run one project
+npm test -- --project editor
 
 # Run specific test file
-yarn test path/to/your/test.test.tsx
-
-# Run tests matching specific file pattern
-yarn test "components/**/*.test.tsx"
+npm test -- src/editor/test-vitest/path/to/your.test.tsx
 ```
 
 
@@ -147,24 +158,25 @@ Test-related configuration in `package.json`:
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage"
   }
 }
 ```
 
 ## Test Development Workflow
 
-1. During development, it's recommended to use `yarn test:watch`
+1. During development, it's recommended to use `npm run test:watch`
    - Real-time monitoring of file changes
    - Immediate test feedback
    - Support for test filtering
 
-2. Use `yarn test:ui` when debugging complex test cases
+2. Use `npm run test:ui` when debugging complex test cases
    - Provides visual interface
    - More intuitive test result display
    - Convenient debugging tools
 
-3. Use `yarn test` in CI/CD environments
+3. Use `npm test` in CI/CD environments
    - Single run of all tests
    - Suitable for automated processes
    

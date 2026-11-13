@@ -119,7 +119,8 @@ spec:
         - name: build
           workspace: build
 
-    - name: build-editor
+    # One image serves both the editor and subscriber designs; APP_MODE on each Deployment picks one.
+    - name: build-app
       taskRef:
         name: build-component
         kind: Task
@@ -127,38 +128,13 @@ spec:
         - build-db-migration
       params:
         - name: COMPONENT
-          value: editor
+          value: app
         - name: CONTEXT
-          value: $(params.CONTEXT)/app/editor
+          value: $(params.CONTEXT)/app
         - name: DOCKERFILE
-          value: Dockerfile.open
+          value: $(params.CONTEXT)/app/Dockerfile.nginx
         - name: IMAGE
-          value: editor
-        - name: IMAGE_TAG
-          value: $(params.IMAGE_TAG)
-      workspaces:
-        - name: source
-          workspace: source
-        - name: conditions
-          workspace: conditions
-        - name: build
-          workspace: build
-
-    - name: build-subscriber
-      taskRef:
-        name: build-component
-        kind: Task
-      runAfter:
-        - build-editor
-      params:
-        - name: COMPONENT
-          value: subscriber
-        - name: CONTEXT
-          value: $(params.CONTEXT)/app/subscriber
-        - name: DOCKERFILE
-          value: Dockerfile.open
-        - name: IMAGE
-          value: subscriber
+          value: app
         - name: IMAGE_TAG
           value: $(params.IMAGE_TAG)
       workspaces:
@@ -174,7 +150,7 @@ spec:
         name: build-component
         kind: Task
       runAfter:
-        - build-subscriber
+        - build-app
       params:
         - name: COMPONENT
           value: api
@@ -198,8 +174,7 @@ spec:
       runAfter:
         - build-db-migration
         - build-api
-        - build-editor
-        - build-subscriber
+        - build-app
       taskRef:
         name: db-migration-conditional
         kind: Task
@@ -236,7 +211,7 @@ spec:
         - name: OBJECT
           value: sts
 
-    - name: deploy-editor
+    - name: deploy-app
       runAfter:
         - deploy-api
       taskRef:
@@ -246,23 +221,9 @@ spec:
         - name: PROJECT_SHORTNAME
           value: $(params.PROJECT_SHORTNAME)
         - name: IMAGE
-          value: editor
-        - name: IMAGE_TAG
-          value: $(params.IMAGE_TAG)
-        - name: ENV
-          value: $(params.DEPLOY_TO)
-
-    - name: deploy-subscriber
-      runAfter:
-        - deploy-api
-      taskRef:
-        name: oc-deploy-with-tag
-        kind: Task
-      params:
-        - name: PROJECT_SHORTNAME
-          value: $(params.PROJECT_SHORTNAME)
-        - name: IMAGE
-          value: subscriber
+          value: app
+        - name: DEPLOYMENT
+          value: editor subscriber
         - name: IMAGE_TAG
           value: $(params.IMAGE_TAG)
         - name: ENV
@@ -274,8 +235,7 @@ spec:
         kind: Task
       runAfter:
         - deploy-api
-        - deploy-editor
-        - deploy-subscriber
+        - deploy-app
       params:
         - name: TARGET_URL
           value: $(params.EDITOR_URL)

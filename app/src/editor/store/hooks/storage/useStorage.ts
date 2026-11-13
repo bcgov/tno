@@ -1,0 +1,123 @@
+import React from 'react';
+
+import { useApiEditorStorage, type IDirectoryModel, type IItemModel } from '@/shared';
+
+import { useAjaxWrapper } from '..';
+
+interface IStorageController {
+  directoryExists: (locationId: number, path?: string) => Promise<boolean>;
+  getDirectory: (locationId: number, path?: string) => Promise<IDirectoryModel>;
+  upload: (
+    locationId: number,
+    path: string,
+    file: File,
+    overwrite?: boolean,
+    onUploadProgress?: (progressEvent: any) => void,
+  ) => Promise<IItemModel>;
+  download: (locationId: number, path: string) => Promise<unknown>;
+  stream: (locationId: number, path: string) => Promise<string>;
+  move: (locationId: number, path: string, destination: string) => Promise<IItemModel>;
+  delete: (locationId: number, path: string) => Promise<IItemModel>;
+  clip: (
+    locationId: number,
+    path: string,
+    start: string,
+    end: string,
+    outputName: string,
+  ) => Promise<IItemModel>;
+  join: (locationId: number, path: string, prefix: string) => Promise<IItemModel>;
+}
+
+export const useStorage = (): IStorageController => {
+  const dispatch = useAjaxWrapper();
+  const api = useApiEditorStorage();
+
+  const controller = React.useMemo(
+    () => ({
+      directoryExists: async (locationId?: number, path?: string) => {
+        const response = await dispatch<string>(
+          'storage-folder-exists',
+          async () => await api.directoryExists(locationId, path),
+        );
+
+        return response.status === 200;
+      },
+      getDirectory: async (locationId: number, path?: string) => {
+        return (
+          await dispatch<IDirectoryModel>(
+            'get-storage',
+            async () => await api.getDirectory(locationId, path),
+          )
+        ).data;
+      },
+      upload: async (
+        locationId: number,
+        path: string,
+        file: File,
+        overwrite?: boolean,
+        onUploadProgress?: (progressEvent: any) => void,
+      ) => {
+        return (
+          await dispatch<IItemModel>(
+            'storage-upload',
+            async () => await api.upload(locationId, path, file, overwrite, onUploadProgress),
+          )
+        ).data;
+      },
+      download: async (locationId: number, path: string) => {
+        return (
+          await dispatch<IItemModel>(
+            'storage-download',
+            async () => await api.download(locationId, path),
+          )
+        ).data;
+      },
+      stream: async (locationId: number, path: string) => {
+        return (
+          await dispatch<string>('storage-stream', async () => await api.stream(locationId, path))
+        ).data;
+      },
+      move: async (locationId: number, path: string, destination: string) => {
+        return (
+          await dispatch<IItemModel>(
+            'storage-move',
+            async () => await api.move(locationId, path, destination),
+          )
+        ).data;
+      },
+      delete: async (locationId: number, path: string) => {
+        return (
+          await dispatch<IItemModel>(
+            'storage-delete',
+            async () => await api.delete(locationId, path),
+          )
+        ).data;
+      },
+      clip: async (
+        locationId: number,
+        path: string,
+        start: string,
+        end: string,
+        outputName: string,
+      ) => {
+        return (
+          await dispatch<IItemModel>(
+            'storage-clip',
+            async () => await api.clip(locationId, path, start, end, outputName),
+          )
+        ).data;
+      },
+      join: async (locationId: number, path: string, prefix: string) => {
+        return (
+          await dispatch<IItemModel>(
+            'storage-join',
+            async () => await api.join(locationId, path, prefix),
+          )
+        ).data;
+      },
+    }),
+    [dispatch, api],
+  );
+
+  return controller;
+};

@@ -91,7 +91,8 @@ tkn task start oc-backup-deployment \
 ```bash
 tkn task start oc-deploy-with-tag \
   --param PROJECT=9b301c \
-  --param IMAGE_NAME=editor \
+  --param IMAGE_NAME=app \
+  --param DEPLOYMENT="editor subscriber" \
   --param IMAGE_TAG=latest \
   --param ENV=prod
 ```
@@ -101,7 +102,8 @@ tkn task start oc-deploy-with-tag \
 ```bash
 tkn task start oc-deploy-with-tag-deployment \
   --param PROJECT=9b301c \
-  --param IMAGE_NAME=editor \
+  --param IMAGE_NAME=app \
+  --param DEPLOYMENT="editor subscriber" \
   --param IMAGE_TAG=latest \
   --param ENV=dev \
   --param OBJECT=deployment
@@ -125,8 +127,11 @@ Both `deploy-all` and `deploy-all-deployment` manage the following services:
 ### Applications (3 services)
 
 - **charts-api** - Charts API service
-- **editor** - Editor web application
-- **subscriber** - Subscriber web application
+- **editor** - Editor web application (`app` image, `APP_MODE=editor`)
+- **subscriber** - Subscriber web application (`app` image, `APP_MODE=subscriber`)
+
+Both run the one `app` image, built when `app/` changes. `DEPLOY=app` (or `BUILD_APP=true`)
+tags it and restarts both; `DEPLOY=editor` or `DEPLOY=subscriber` restarts just one.
 
 ### Processing Services (11 services)
 
@@ -193,6 +198,8 @@ pipelines leave the routes alone: they keep pointing at these proxies throughout
 **Deployment version only:**
 
 - **OBJECT** - Kubernetes object type: `deployment` or `sts` (default: `deployment`)
+- **DEPLOYMENT** - Workloads to restart, space separated (default: the image name). The `app`
+  image runs `editor subscriber`.
 
 ## Workspaces
 
@@ -204,8 +211,7 @@ Example `build.env`:
 
 ```bash
 BUILD_API=true
-BUILD_EDITOR=true
-BUILD_SUBSCRIBER=false
+BUILD_APP=true
 # ... etc for each component
 ```
 

@@ -42,7 +42,7 @@ three different `iss` claims. All must be listed in `Keycloak__Issuer` (CSV → 
 Keycloak__Issuer=http://localhost:40001/realms/mmi,http://host.docker.internal:40001/realms/mmi,http://localhost:8080/realms/mmi,http://keycloak:8080/realms/mmi,mmi-app,mmi-service-account
 ```
 
-- `localhost:40001` — browser logins (editor/subscriber apps use `public/keycloak.json`)
+- `localhost:40001` — browser logins (both app designs read `/keycloak.json`, `app/public/shared/keycloak.json` locally)
 - `host.docker.internal:40001` / `localhost:8080` — .NET services fetching service-account tokens
 - `mmi-app,mmi-service-account` — production entries; keep them
 

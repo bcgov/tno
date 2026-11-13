@@ -1,0 +1,61 @@
+import { IFilterActionSettingsModel, IFilterExtendedQuery, ISortField } from '.';
+import { ContentStatusName, ContentTypeName } from '../constants';
+
+export interface IFilterSettingsModel {
+  /** The prompt used for the last successful generation of these settings. */
+  generatedPrompt?: string;
+  searchUnpublished: boolean;
+  activeSubGroup?: string;
+  id?: number;
+  boldKeywords?: boolean;
+  contentIds?: number[];
+  contentTypes?: ContentTypeName[];
+  contributorIds?: number[];
+  contributorNames?: string[];
+  edition?: string;
+  headline?: string;
+  summary?: string;
+  body?: string;
+  featured?: boolean;
+  hasTopic?: boolean;
+  inByline?: boolean;
+  inHeadline?: boolean;
+  inStory?: boolean;
+  inProgram?: boolean;
+  isHidden?: boolean;
+  mediaTypeIds?: number[];
+  names?: string;
+  otherSource?: string;
+  ownerId?: number;
+  page?: string;
+  pressMembers?: string[];
+  search?: string;
+  section?: string;
+  sentiment?: number[];
+  seriesIds?: number[];
+  actions?: IFilterActionSettingsModel[];
+  sourceIds?: number[];
+  /** When true the selected sourceIds become a NOT (must_not) condition. */
+  sourceIdsNegate?: boolean;
+  tags?: string[];
+  dateOffset?: number;
+  startDate?: string;
+  endDate?: string;
+  publishedOn?: string;
+  startPostedDate?: string;
+  endPostedDate?: string;
+  createdOn?: string;
+  updatedOn?: string;
+  status?: ContentStatusName;
+  userId?: number;
+  // Elasticsearch specific fields
+  from?: number;
+  size: number;
+  queryType?: 'query-string' | 'simple-query-string';
+  defaultOperator?: 'and' | 'or';
+  sort?: ISortField[];
+  /** Return one story per distinct value of this field (an Elasticsearch collapse). */
+  collapseField?: string;
+  /** Raw Elasticsearch bool clauses for conditions the settings cannot express. */
+  extendedQuery?: IFilterExtendedQuery;
+}

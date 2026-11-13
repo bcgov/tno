@@ -1,0 +1,197 @@
+import React from 'react';
+
+import {
+  Col,
+  datasetOptions,
+  datasetValueOptions,
+  FormikCheckbox,
+  FormikSelect,
+  groupByOptions,
+  mergeChartSettings,
+  OptionItem,
+  Row,
+  Show,
+  ToggleGroup,
+} from '@/shared';
+import { useReportEditContext } from '@/subscriber/features/my-reports/edit/ReportEditContext';
+
+import { IChartSectionProps } from './IChartSectionProps';
+
+/**
+ * Provides a way to configure the dataset for the chart.
+ * @param param0 Component properties.
+ * @returns Component.
+ */
+export const ConfigureDataset: React.FC<IChartSectionProps> = ({ sectionIndex, chartIndex }) => {
+  const { values, setFieldValue } = useReportEditContext();
+
+  const section = values.sections[sectionIndex];
+  const chart = section.chartTemplates[chartIndex];
+
+  const [allowedDatasetOptions] = React.useState(
+    datasetOptions.filter((o) => chart.settings.dataset.includes(o.value)),
+  );
+  const [allowedDatasetValueOptions] = React.useState(
+    datasetValueOptions.filter((o) => chart.settings.datasetValue.includes(o.value)),
+  );
+
+  return (
+    <Row gap="1rem">
+      <Col flex="1" gap="0.5rem" className="frm-in">
+        <Show visible={!!chart.settings.datasetValue.length}>
+          <label>Dataset Type</label>
+          <ToggleGroup
+            options={allowedDatasetValueOptions.map((o) => ({
+              id: o.value,
+              label: o.label,
+            }))}
+            defaultSelected={
+              datasetValueOptions.find((o) => o.value === chart.sectionSettings.datasetValue)
+                ?.value ?? undefined
+            }
+            onChange={(newValue: any) => {
+              var isSentiment = newValue.id === 'sentiment';
+              setFieldValue(
+                `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                  datasetValue: newValue.id ?? 'count',
+                  scaleSuggestedMin: isSentiment ? -5 : undefined,
+                  scaleSuggestedMax: isSentiment ? 5 : undefined,
+                  scaleTicksStepSize: isSentiment ? 1 : undefined,
+                  datasetColors:
+                    isSentiment && chart.sectionSettings.dataset === ''
+                      ? ['green', 'gold', 'red']
+                      : [],
+                  datasetBorderColors:
+                    isSentiment && chart.sectionSettings.dataset === ''
+                      ? ['green', 'gold', 'red']
+                      : [],
+                  minBarLength: isSentiment ? 10 : undefined,
+                }),
+              );
+            }}
+          />
+          <FormikCheckbox
+            label="Exclude Empty Values"
+            name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.excludeEmptyValues`}
+            checked={!!chart.sectionSettings.excludeEmptyValues}
+            onChange={(e) => {
+              setFieldValue(
+                `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                  excludeEmptyValues: e.target.checked,
+                }),
+              );
+            }}
+          />
+        </Show>
+        <Show visible={!!chart.settings.dataset.length}>
+          <p>
+            A dataset represents an array of values to display on the index axis (default X axis).
+            Each dataset provides a way to compare collections of content. Select a property to
+            separate the data.
+          </p>
+          <Row alignItems="center">
+            <FormikSelect
+              label="Dataset Grouping Property"
+              name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.dataset`}
+              value={datasetOptions.find((o) => o.value === chart.sectionSettings.dataset) ?? ''}
+              options={allowedDatasetOptions}
+              isClearable={false}
+              required
+              onChange={(e) => {
+                var option = e as OptionItem;
+                if (option.value === 'reportSection') {
+                  console.debug('onChange', option.value);
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.datasetOrder`,
+                    'asc',
+                  );
+                }
+              }}
+            />
+            <Col>
+              <Show
+                visible={
+                  values.sections[sectionIndex].chartTemplates[chartIndex].sectionSettings
+                    .dataset !== 'reportSection'
+                }
+              >
+                <FormikCheckbox
+                  label="Descending"
+                  name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.datasetOrder`}
+                  checked={chart.sectionSettings.datasetOrder === 'desc'}
+                  onChange={(e) => {
+                    const desc = e.target.checked;
+                    setFieldValue(
+                      `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.datasetOrder`,
+                      desc ? 'desc' : 'asc',
+                    );
+                  }}
+                />
+              </Show>
+              <FormikCheckbox
+                label="Stack Dataset"
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.stacked`}
+                checked={!!chart.sectionSettings.stacked}
+                onChange={(e) => {
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      stacked: e.target.checked,
+                    }),
+                  );
+                }}
+              />
+            </Col>
+          </Row>
+        </Show>
+        <Show visible={!!chart.settings.groupBy.length}>
+          <p>
+            Select the property to group by and will be plotted on the index axis (default X axes)
+            within each dataset.
+          </p>
+          <Row alignItems="center">
+            <FormikSelect
+              label="Index Axis Grouping Property"
+              name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.groupBy`}
+              value={groupByOptions.find((o) => o.value === chart.sectionSettings.groupBy) ?? ''}
+              options={groupByOptions.filter((o) => chart.settings.groupBy.includes(o.value))}
+              isClearable={false}
+              required
+              onChange={(e) => {
+                var option = e as OptionItem;
+                if (option.value === 'reportSection') {
+                  console.debug('onChange', option.value);
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.groupByOrder`,
+                    'asc',
+                  );
+                }
+              }}
+            />
+            <Show
+              visible={
+                values.sections[sectionIndex].chartTemplates[chartIndex].sectionSettings.groupBy !==
+                'reportSection'
+              }
+            >
+              <FormikCheckbox
+                label="Descending"
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.groupByOrder`}
+                checked={chart.sectionSettings.groupByOrder === 'desc'}
+                onChange={(e) => {
+                  const desc = e.target.checked;
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.groupByOrder`,
+                    desc ? 'desc' : 'asc',
+                  );
+                }}
+              />
+            </Show>
+          </Row>
+        </Show>
+      </Col>
+    </Row>
+  );
+};

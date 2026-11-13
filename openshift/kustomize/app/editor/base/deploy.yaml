@@ -45,8 +45,12 @@ spec:
         - name: acr-secret
       containers:
         - name: editor
-          image: bcgov-c4awhwfpcremdbga.azurecr.io/editor:dev
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/app:dev
           imagePullPolicy: Always
+          env:
+            # The app image serves both designs; this selects which one.
+            - name: APP_MODE
+              value: editor
           ports:
             - containerPort: 8080
               protocol: TCP

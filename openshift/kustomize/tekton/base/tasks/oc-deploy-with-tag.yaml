@@ -22,6 +22,10 @@ spec:
     - description: The name given to the built image.
       name: IMAGE
       type: string
+    - default: ''
+      description: The workloads to restart, space separated (defaults to the image name).
+      name: DEPLOYMENT
+      type: string
     - default: latest
       description: The tag given to the built image.
       name: IMAGE_TAG
@@ -96,11 +100,17 @@ spec:
           oc tag $(params.IMAGE):$(params.IMAGE_TAG) $(params.IMAGE):$(params.ENV)
         fi
 
-        echo "Waiting for deployment to roll out"
-        oc rollout restart $(params.OBJECT)/$(params.IMAGE) -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
+        # One image can run several workloads (the app image runs editor and subscriber).
+        DEPLOYMENTS="$(params.DEPLOYMENT)"
+        DEPLOYMENTS="${DEPLOYMENTS:-$(params.IMAGE)}"
 
-        # oc wait --for=condition=available --timeout=$(params.TIMEOUT) $(params.OBJECT)/$(params.IMAGE) -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
-        oc rollout status --watch --timeout=$(params.TIMEOUT) $(params.OBJECT)/$(params.IMAGE) -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
+        for deployment in $DEPLOYMENTS; do
+          echo "Waiting for $deployment to roll out"
+          oc rollout restart $(params.OBJECT)/$deployment -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
+
+          # oc wait --for=condition=available --timeout=$(params.TIMEOUT) $(params.OBJECT)/$deployment -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
+          oc rollout status --watch --timeout=$(params.TIMEOUT) $(params.OBJECT)/$deployment -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
+        done
 
         # timeout(10) {
         # dc.rollout().status('--watch=true')

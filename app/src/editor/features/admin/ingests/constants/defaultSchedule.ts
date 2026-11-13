@@ -1,0 +1,14 @@
+import { ScheduleMonthName, ScheduleWeekDayName, type IScheduleModel } from '@/shared';
+
+export const defaultSchedule = (): Omit<IScheduleModel, 'delayMS'> & { delayMS: number | '' } => ({
+  id: 0,
+  name: '',
+  description: '',
+  isEnabled: true,
+  delayMS: '',
+  runOnlyOnce: false,
+  repeat: false,
+  runOnWeekDays: ScheduleWeekDayName.NA,
+  runOnMonths: ScheduleMonthName.NA,
+  dayOfMonth: 0,
+});

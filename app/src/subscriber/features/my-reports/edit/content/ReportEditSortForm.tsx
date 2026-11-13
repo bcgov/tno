@@ -1,0 +1,223 @@
+import React from 'react';
+import { FaToggleOff, FaToggleOn } from 'react-icons/fa6';
+
+import {
+  getDistinct,
+  IReportInstanceModel,
+  OptionItem,
+  ReportSectionTypeName,
+  ToggleButton,
+} from '@/shared';
+import {
+  DragDropContext,
+  Draggable,
+  DraggableProvided,
+  Droppable,
+  DroppableProvided,
+  DropResult,
+  ResponderProvided,
+} from '@/shared/components/dnd';
+import { StartNextReportInfo } from '@/subscriber/features/my-reports/components';
+import { IReportInstanceContentForm } from '@/subscriber/features/my-reports/interfaces';
+import {
+  moveContent,
+  sortContent,
+  sortReportContent,
+} from '@/subscriber/features/my-reports/utils';
+import { useUsers } from '@/subscriber/store/hooks';
+import { useProfileStore } from '@/subscriber/store/slices';
+
+import { useReportEditContext } from '../ReportEditContext';
+import { ReportContentSectionRow } from './sort';
+import * as styled from './styled';
+
+export interface IReportEditSortFormProps {
+  /** Whether edit functionality is disabled. */
+  disabled?: boolean;
+  /** The active row. */
+  activeRow?: IReportInstanceContentForm;
+  /** Event fires when the content headline is clicked. */
+  onContentClick?: (content?: IReportInstanceContentForm, action?: 'previous' | 'next') => void;
+}
+
+export const ReportEditSortForm = React.forwardRef<HTMLDivElement | null, IReportEditSortFormProps>(
+  ({ disabled, activeRow, onContentClick }, ref) => {
+    const { values, setFieldValue } = useReportEditContext();
+    const [{ profile }] = useProfileStore();
+    const { updateUser } = useUsers();
+
+    const showFolders = !!profile?.preferences?.showReportFolderSections;
+    const instance = values.instances.length ? values.instances[0] : undefined;
+
+    const DragDropContextAny = DragDropContext as any;
+    const DroppableAny = Droppable as any;
+    const DraggableAny = Draggable as any;
+
+    const handleRemoveContent = React.useCallback(
+      async (index: number) => {
+        if (instance) {
+          var newItems = [...instance.content];
+          newItems.splice(index, 1);
+          newItems = newItems.map((c, index) => ({ ...c, sortOrder: index }));
+          setFieldValue('instances.0.content', sortContent(newItems));
+        }
+      },
+      [instance, setFieldValue],
+    );
+
+    const handleChangeSection = React.useCallback(
+      (sectionName: string, row: IReportInstanceContentForm, instance: IReportInstanceModel) => {
+        // Move the content to the specified section.
+        // Remove duplicates.
+        const content = getDistinct(
+          instance.content.map((c) =>
+            c.contentId === row.contentId && c.sectionName === row.sectionName
+              ? { ...row, sectionName, sortOrder: -1 }
+              : c,
+          ),
+          (c) => `${c.contentId}-${c.sectionName}`,
+        );
+        setFieldValue('instances.0.content', sortReportContent(values, content));
+      },
+      [setFieldValue, values],
+    );
+
+    const handleChangeSortOrder = React.useCallback(
+      (row: IReportInstanceContentForm, instance: IReportInstanceModel) => {
+        const content = instance.content.map((c) =>
+          c.contentId === row.contentId && c.sectionName === row.sectionName ? row : c,
+        );
+        setFieldValue(`instances.0.content`, sortReportContent(values, content));
+      },
+      [setFieldValue, values],
+    );
+
+    const handleDrop = React.useCallback(
+      (result: DropResult, provided: ResponderProvided) => {
+        if (instance) {
+          const newItems = moveContent(result, instance.content);
+          if (newItems) setFieldValue(`instances.0.content`, newItems);
+        }
+      },
+      [instance, setFieldValue],
+    );
+
+    if (!instance) return null;
+
+    return (
+      <styled.ReportEditSortForm className="report-edit-section" ref={ref}>
+        <StartNextReportInfo />
+        <div>
+          <ToggleButton
+            on={<FaToggleOn />}
+            off={<FaToggleOff />}
+            onClick={async (e) => {
+              try {
+                if (profile)
+                  await updateUser({
+                    ...profile,
+                    preferences: {
+                      ...profile?.preferences,
+                      showReportFolderSections: !showFolders,
+                    },
+                  });
+              } catch {}
+            }}
+            value={showFolders}
+            width="25px"
+            height="25px"
+            label="Show folder sections"
+          />
+        </div>
+        <DragDropContextAny onDragEnd={handleDrop}>
+          {values.sections
+            .filter(
+              (section) =>
+                [
+                  ReportSectionTypeName.Content,
+                  ReportSectionTypeName.Gallery,
+                  ReportSectionTypeName.MediaAnalytics,
+                ].includes(section.sectionType) && !(!showFolders && section.folderId),
+            )
+            .map((section) => {
+              const sectionContent =
+                instance?.content
+                  .filter((c) => c.sectionName === section.name)
+                  .map(
+                    (c) =>
+                      ({
+                        ...c,
+                        originalIndex: instance.content.findIndex(
+                          (oi) => oi.contentId === c.contentId && oi.sectionName === c.sectionName,
+                        ),
+                      }) as IReportInstanceContentForm,
+                  ) ?? [];
+              const sectionOptions = values.sections
+                .filter((s) =>
+                  [
+                    ReportSectionTypeName.Content,
+                    ReportSectionTypeName.Gallery,
+                    ReportSectionTypeName.MediaAnalytics,
+                  ].includes(s.sectionType),
+                )
+                .map((s) => new OptionItem(s.settings.label, s.name));
+
+              return (
+                <DroppableAny
+                  key={section.name}
+                  droppableId={section.name}
+                  isDropDisabled={disabled}
+                >
+                  {(droppableProvided: DroppableProvided) => (
+                    <div {...droppableProvided.droppableProps} ref={droppableProvided.innerRef}>
+                      {sectionContent.map((row, contentInSectionIndex) => {
+                        const isActive =
+                          row.sectionName === activeRow?.sectionName &&
+                          row.contentId === activeRow?.contentId;
+
+                        return (
+                          <DraggableAny
+                            key={`${row.sectionName}-${row.contentId}-${row.originalIndex}`}
+                            draggableId={`${row.sectionName}__${row.contentId}__${row.originalIndex}`}
+                            index={contentInSectionIndex}
+                            isDragDisabled={disabled}
+                          >
+                            {(draggable: DraggableProvided) => {
+                              return (
+                                <div
+                                  ref={draggable.innerRef}
+                                  className={isActive ? 'active-content' : ''}
+                                  {...draggable.dragHandleProps}
+                                  {...draggable.draggableProps}
+                                >
+                                  <ReportContentSectionRow
+                                    key={`${row.instanceId}-${row.sectionName}-${row.contentId}`}
+                                    contentIndex={contentInSectionIndex}
+                                    row={row}
+                                    disabled={disabled}
+                                    showSelectSection
+                                    showSortOrder
+                                    sectionOptions={sectionOptions}
+                                    onContentClick={onContentClick}
+                                    onRemove={(index) => handleRemoveContent(index)}
+                                    onChangeSection={(sectionName, row) => {
+                                      handleChangeSection(sectionName, row, instance);
+                                    }}
+                                    onBlurSortOrder={(row) => handleChangeSortOrder(row, instance)}
+                                  />
+                                </div>
+                              );
+                            }}
+                          </DraggableAny>
+                        );
+                      })}
+                    </div>
+                  )}
+                </DroppableAny>
+              );
+            })}
+        </DragDropContextAny>
+      </styled.ReportEditSortForm>
+    );
+  },
+);

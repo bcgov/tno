@@ -53,7 +53,7 @@ jobs:
           --health-cmd "pg_isready -U postgres"
           --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup .NET 10
         uses: actions/setup-dotnet@v5
@@ -84,7 +84,7 @@ jobs:
     if: github.ref == 'refs/heads/dev' && github.event_name != 'pull_request' && github.repository == 'bcgov/tno'
     environment: dev
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Build, scan, and push image
         uses: ./.github/actions/build-scan-push-image
@@ -105,7 +105,7 @@ jobs:
     if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request' && github.repository == 'bcgov/tno'
     environment: test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Build, scan, and push image
         uses: ./.github/actions/build-scan-push-image

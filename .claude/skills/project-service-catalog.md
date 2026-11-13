@@ -2,9 +2,7 @@
 
 ## Core Projects
 
-- `app/editor`: React admin/editor app. Run with `cd app/editor && yarn start`; test with `yarn test`; build with `yarn build`. Depends on API + Keycloak.
-- `app/subscriber`: React subscriber app. Run with `cd app/subscriber && yarn start`; test with `yarn test`; build with `yarn build`. Depends on API + Keycloak.
-- `libs/npm/core` (`tno-core`): shared React components/types/hooks. Build with `cd libs/npm/core && yarn build`.
+- `app`: React + Vite web app with two designs, editor (`app/src/editor`, admin/editor users) and subscriber (`app/src/subscriber`), plus shared code in `app/src/shared`. Node 26 + npm: run with `cd app && APP_MODE=editor npm run dev` (or `make up n=editor` / `n=subscriber`); test with `npm test`; build with `npm run build`. One `app` image serves both; `APP_MODE` selects the design. Depends on API + Keycloak.
 - `api/net`: primary .NET REST + SignalR API. Run with `cd api/net && dotnet run`; build with `dotnet build api/net/`. Depends on Postgres, Keycloak, Kafka, optional Elastic.
 - `api/node`: charts API (Node/TS). Run with `cd api/node && yarn start:watch`; build with `yarn build`.
 - `libs/net/*`: shared .NET packages (DAL, entities, services, keycloak, ai, template, etc.). Build all with `dotnet build libs/net/TNO.sln`.
@@ -36,7 +34,7 @@
 
 - First-level verification: `dotnet build` on changed project(s).
 - API/service integration checks: run required containers and call health endpoints.
-- Frontend checks: `yarn build` and targeted `yarn test` for modified app(s).
+- Frontend checks: in `app/`, `npm run typecheck`, `npm run lint`, `npm run build` and targeted `npm test`.
 - Repo integration tests: see `test/README.md` (Postman/e2e flows).
 
 ## Seeing a Change in a Running Stack
