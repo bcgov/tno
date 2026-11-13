@@ -1,0 +1,24 @@
+# Production image: both designs, served by nginx. APP_MODE (editor|subscriber) selects the design
+# when the container starts; the same image runs as both OpenShift Deployments.
+ARG NODE_IMAGE=bcgov-c4awhwfpcremdbga.azurecr.io/node:26-bookworm-slim
+ARG NGINX_IMAGE=bcgov-c4awhwfpcremdbga.azurecr.io/nginx-unprivileged:1.24
+
+FROM ${NODE_IMAGE} AS build
+WORKDIR /usr/src/app
+COPY package.json package-lock.json .npmrc ./
+COPY packages ./packages
+RUN npm ci --no-audit --no-fund
+COPY . .
+ARG APP_VERSION=
+RUN npm run build && printf '{"version":"%s"}\n' "${APP_VERSION}" > dist/version.json
+
+FROM ${NGINX_IMAGE}
+USER root
+# Replace the stock site (keeping nginx's 50x.html) and default server.
+RUN find /usr/share/nginx/html -mindepth 1 ! -name 50x.html -delete \
+  && rm -f /etc/nginx/conf.d/default.conf
+COPY --from=build /usr/src/app/dist /usr/share/nginx/html
+COPY nginx/ /etc/nginx/mmi/
+USER 1001
+EXPOSE 8080
+ENTRYPOINT ["/bin/sh", "/etc/nginx/mmi/start.sh"]

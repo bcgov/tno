@@ -1,0 +1,30 @@
+import { type IFilterModel } from '@/shared';
+
+export const defaultFilter: IFilterModel = {
+  id: 0,
+  name: '',
+  description: '',
+  ownerId: undefined,
+  query: {},
+  settings: {
+    searchUnpublished: false,
+    size: 100,
+    from: 0,
+    inHeadline: false,
+    inByline: false,
+    inStory: false,
+    sourceIds: [],
+    mediaTypeIds: [],
+    seriesIds: [],
+    contributorIds: [],
+    actions: [],
+    contentTypes: [],
+    tags: [],
+    sentiment: [],
+    hasTopic: undefined,
+  },
+  sortOrder: 0,
+  isEnabled: true,
+  reports: [],
+  folders: [],
+};

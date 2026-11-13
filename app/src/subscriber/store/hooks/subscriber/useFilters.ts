@@ -1,0 +1,106 @@
+import React from 'react';
+
+import {
+  IFilterAIChatRequestModel,
+  IFilterAIChatResultModel,
+  IFilterAIGenerateRequestModel,
+  IFilterAIGenerateResultModel,
+  IFilterModel,
+  useApiSubscriberFilters,
+} from '@/shared';
+import { useAjaxWrapper } from '@/subscriber/store/hooks';
+import { IProfileState, useProfileStore } from '@/subscriber/store/slices';
+
+interface IFilterController {
+  activeFilter?: IFilterModel;
+  findMyFilters: () => Promise<IFilterModel[]>;
+  getFilter: (id: number) => Promise<IFilterModel>;
+  addFilter: (model: IFilterModel) => Promise<IFilterModel>;
+  updateFilter: (model: IFilterModel) => Promise<IFilterModel>;
+  deleteFilter: (model: IFilterModel) => Promise<IFilterModel>;
+  generateFilter: (model: IFilterAIGenerateRequestModel) => Promise<IFilterAIGenerateResultModel>;
+  chatFilter: (model: IFilterAIChatRequestModel) => Promise<IFilterAIChatResultModel>;
+}
+
+export const useFilters = (): [IProfileState, IFilterController] => {
+  const api = useApiSubscriberFilters();
+  const dispatch = useAjaxWrapper();
+  const [state, store] = useProfileStore();
+
+  const controller = React.useMemo(
+    () => ({
+      findMyFilters: async () => {
+        const response = await dispatch<IFilterModel[]>('find-my-filter', () =>
+          api.findMyFilters(),
+        );
+        store.storeMyFilters(response.data);
+        return response.data;
+      },
+      getFilter: async (id: number) => {
+        const response = await dispatch<IFilterModel>('get-filter', () => api.getFilter(id));
+        const filter = response.data;
+        store.storeMyFilters((filters) =>
+          filters.map((ds) => {
+            if (ds.id === filter.id) return filter;
+            return ds;
+          }),
+        );
+        store.storeFilter((state) => (state?.id === id ? filter : state));
+        return filter;
+      },
+      addFilter: async (model: IFilterModel) => {
+        const response = await dispatch<IFilterModel>('add-filter', () => api.addFilter(model));
+        store.storeMyFilters((filters) => {
+          const updatedFilters = [...filters, response.data];
+          updatedFilters.sort((a, b) => a.name.localeCompare(b.name));
+          return updatedFilters;
+        });
+        store.storeFilter((state) => (state?.id === model.id ? response.data : state));
+        return response.data;
+      },
+      updateFilter: async (model: IFilterModel) => {
+        const response = await dispatch<IFilterModel>('update-filter', () =>
+          api.updateFilter(model),
+        );
+        store.storeMyFilters((filters) =>
+          filters.map((ds) => {
+            if (ds.id === response.data.id) return response.data;
+            return ds;
+          }),
+        );
+        store.storeFilter((state) => (state?.id === model.id ? response.data : state));
+        return response.data;
+      },
+      deleteFilter: async (model: IFilterModel) => {
+        const response = await dispatch<IFilterModel>('delete-filter', () =>
+          api.deleteFilter(model),
+        );
+        store.storeMyFilters((filters) => filters.filter((ds) => ds.id !== response.data.id));
+        store.storeFilter((state) => (state?.id === model.id ? undefined : state));
+        return response.data;
+      },
+      // The prompt shows its own progress, so these do not block the page.
+      generateFilter: async (model: IFilterAIGenerateRequestModel) => {
+        const response = await dispatch<IFilterAIGenerateResultModel>(
+          'generate-filter',
+          () => api.generateFilter(model),
+          undefined,
+          true,
+        );
+        return response.data;
+      },
+      chatFilter: async (model: IFilterAIChatRequestModel) => {
+        const response = await dispatch<IFilterAIChatResultModel>(
+          'chat-filter',
+          () => api.chatFilter(model),
+          undefined,
+          true,
+        );
+        return response.data;
+      },
+    }),
+    [api, dispatch, store],
+  );
+
+  return [state, controller];
+};

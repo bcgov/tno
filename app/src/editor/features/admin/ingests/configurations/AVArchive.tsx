@@ -1,0 +1,27 @@
+import { useFormikContext } from 'formik';
+import React from 'react';
+
+import { FormikText, type IIngestModel } from '@/shared';
+
+import { ImportContent } from './ImportContent';
+import * as styled from './styled';
+
+export const AVArchive: React.FC = (props) => {
+  const { values } = useFormikContext<IIngestModel>();
+
+  return (
+    <styled.IngestType>
+      <ImportContent />
+      <FormikText
+        label="Volume Range"
+        name="configuration.volumeRange"
+        value={values.configuration.volumeRange}
+      />
+      <FormikText
+        label="Frame Rate"
+        name="configuration.frameRate"
+        value={values.configuration.frameRate}
+      />
+    </styled.IngestType>
+  );
+};

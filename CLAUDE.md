@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-TNO / MMI (Media Monitoring Insights) — a BC Government news aggregation and media monitoring platform. Microservices architecture with a .NET 10 REST API, two React frontends, ~18 .NET background services, Kafka for inter-service messaging, PostgreSQL, and Elasticsearch.
+TNO / MMI (Media Monitoring Insights) — a BC Government news aggregation and media monitoring platform. Microservices architecture with a .NET 10 REST API, one React app with two designs (editor, subscriber), ~18 .NET background services, Kafka for inter-service messaging, PostgreSQL, and Elasticsearch.
 
 ## Build & Run Commands
 
@@ -49,8 +49,7 @@ reads the first name, so the rest are rebuilt without their stale image being dr
 | `services/net/<name>/` | that service — `make refresh n=<name>` |
 | `api/net/` | `make refresh n=api` |
 | `libs/net/**` (shared) | every container that consumes it — always `api`, plus each service in the change's blast radius. `libs/net/models/Areas/Admin/**` in particular is served to the UIs *by the API*, so an editor-visible change there needs `api` rebuilt, not `editor`. |
-| `app/editor/src/`, `app/subscriber/src/` | **nothing** — both bind-mount `src/` and `public/` into the container and Vite hot-reloads. Only a dependency, Dockerfile, or config change outside `src/` needs `make refresh n=editor` / `n=subscriber`. |
-| `libs/npm/**` | re-pack into the consuming app (see the tno-core workflow), then `make refresh n=editor` |
+| `app/src/`, `app/public/`, `app/*.html` | **nothing** — the `editor` and `subscriber` containers bind-mount them and Vite hot-reloads. Only a dependency (`package.json`), Dockerfile, or config change (`vite.config.mts`, `tools/`) needs `make refresh n=editor` / `n=subscriber`. |
 
 Rebuilding `api` takes the whole platform's API down for the duration. The .NET services treat a
 sustained API outage as a critical failure: they log `The service is stopping: 'RequestFailed'`
@@ -86,18 +85,26 @@ dotnet test                         # Run all tests
 dotnet test libs/net/tests/core/    # Run a specific test project
 ```
 
-### React (Editor / Subscriber apps)
+### React app (`app/`, editor and subscriber designs)
 
-Both apps use **Yarn 3** (not npm). Run commands from `app/editor/` or `app/subscriber/`:
+One Vite project on **Node 26 and npm** (no Yarn). Run commands from `app/`:
 
 ```bash
-yarn install
-yarn build
-yarn test             # Vitest (single run)
-yarn test:watch       # Vitest interactive
-yarn lint             # ESLint (zero warnings enforced)
-yarn lint:fix
+npm ci
+npm run build         # both designs into dist/
+npm run typecheck     # TypeScript 7
+npm run lint          # Oxlint (zero warnings enforced)
+npm run check         # Prettier (npm run format writes)
+npm test              # Vitest (single run; projects shared, editor, subscriber)
+npm run test:watch    # Vitest interactive
+APP_MODE=editor npm run dev   # dev server on :3000; APP_MODE picks the design
 ```
+
+Source lives in `app/src/{shared,editor,subscriber}`; imports use the `@/` alias (`@/shared`,
+`@/editor/store`). `src/shared` (which replaced the old `tno-core` package) never imports a
+design and the designs never import each other — Oxlint and the build both enforce it. A
+deployment presents one design, chosen at container start by `APP_MODE`; one `app` image serves
+both. See `app/README.md`.
 
 ### VS Code Debugging
 
@@ -109,22 +116,22 @@ yarn lint:fix
 
 **Kafka is the backbone.** All service-to-service communication flows through Kafka topics defined in each service's `appsettings.json` (e.g., `index`, `transcribe`, `notify`, `hub`, `reporting`, `analysis`, `ffmpeg`). The API itself is a Kafka consumer — it uses the `hub` topic to deliver SignalR messages to connected browser clients via `KafkaHubLifetimeManager`.
 
-**SignalR** hub is at `/hub`. Both React apps connect via SignalR for real-time updates. The API's `KafkaHubLifetimeManager` (in `libs/net/kafka/SignalR/`) consumes the `hub` Kafka topic and fans out messages to connected users.
+**SignalR** hub is at `/hub`. Both React designs connect via SignalR for real-time updates. The API's `KafkaHubLifetimeManager` (in `libs/net/kafka/SignalR/`) consumes the `hub` Kafka topic and fans out messages to connected users.
 
 ### Key Components
 
 | Path                   | Role                                                                                      |
 | ---------------------- | ----------------------------------------------------------------------------------------- |
 | `api/net/`             | ASP.NET Core 10 REST API — JWT auth, Swagger at `/api-docs`, versioned routes under `/api` |
-| `app/editor/`          | React editor UI — content creation, review, publishing                                    |
-| `app/subscriber/`      | React subscriber UI — report consumption, alerts                                          |
+| `app/src/editor/`      | React editor design — content creation, review, publishing                                |
+| `app/src/subscriber/`  | React subscriber design — report consumption, alerts                                      |
+| `app/src/shared/`      | Components, hooks, API clients and types shared by both designs                           |
 | `services/net/{name}/` | ~18 console microservices, each a Kafka consumer/producer                                 |
 | `libs/net/dal/`        | EF Core `TNOContext`, all 180+ migrations, entity configs                                 |
 | `libs/net/entities/`   | Domain model entities                                                                     |
 | `libs/net/models/`     | API DTOs / response models                                                                |
 | `libs/net/kafka/`      | `IKafkaListener`, `IKafkaMessenger`, `KafkaHubLifetimeManager`                            |
 | `libs/net/services/`   | Base class for all microservices (Serilog, health checks, service loop)                   |
-| `libs/npm/`            | Shared React component libraries consumed by both apps                                    |
 
 ### .NET Configuration Pattern
 
@@ -190,4 +197,4 @@ The browser apps call the API through nginx, not the API port directly — an ed
 
 ## Code Style
 
-`.editorconfig` enforces: 4-space indent for C# and TypeScript, 2-space for JSON/YAML/Markdown, LF line endings, final newline. CI fails on `dotnet format` violations and ESLint warnings (`--max-warnings 0`).
+`.editorconfig` enforces: 4-space indent for C# and TypeScript, 2-space for JSON/YAML/Markdown, LF line endings, final newline. `app/` has its own `.editorconfig` and Prettier config (2-space, single quotes, 100 columns, sorted imports). CI fails on `dotnet format` violations, Oxlint warnings (`--max-warnings 0`), Prettier differences and type errors.

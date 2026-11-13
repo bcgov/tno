@@ -1,0 +1,111 @@
+@use './colors' as *;
+@use './fonts' as *;
+
+:export {
+  // Links
+  linkPrimaryColor: $link-primary-color;
+  linkPrimaryHoverColor: $link-primary-hover-color;
+  linkPrimaryActiveColor: $link-primary-active-color;
+  linkGrayColor: $link-gray-color;
+
+  // Lines
+  linePrimaryColor: $line-primary-color;
+
+  // Tables
+  tableOddRow: $table-odd-row;
+  tableEvenRow: $table-even-row;
+  tableHoverRow: $table-hover-row;
+
+  // Icon
+  iconPrimaryColor: $icon-primary-color;
+  iconPrimaryHoverColor: $icon-primary-hover-color;
+
+  // ***************************************
+  // DO NOT USE ANY OF THESE BELOW THIS LINE
+  // ***************************************
+
+  actionButtonColor: $action-button-color;
+  backgroundColor: $background-color;
+  primaryColor: $primary-color;
+  primaryColorRgb: $primary-color-rgb;
+  primaryLightColor: $primary-light-color;
+  primaryLightColorRgb: $primary-light-color-rgb;
+  secondaryVariantColor: $secondary-variant-color;
+  secondaryVariantColorRgb: $secondary-variant-color-rgb;
+  lightVariantColor: $light-variant-color;
+  lightLabelColor: $light-label-color;
+  darkVariantColor: $dark-variant-color;
+  textColor: $text-color;
+  accentColor: $accent-color;
+  lightAccentColor: $light-accent-color;
+  submittedColor: $submitted-color;
+  dangerColor: $danger-color;
+  acceptedColor: $accepted-color;
+  completedColor: $completed-color;
+  lightDangerColor: $light-danger-color;
+  iconLightColor: $icon-light-color;
+  activeColor: $active-color;
+  cancelledColor: $cancelled-color;
+  filterBackgroundColor: $filter-background-color;
+  darkerBackgroundColor: $darker-background-color;
+  slideOutBlue: $slide-out-blue;
+  borderColor: $border-color;
+  actionIconColor: $action-icon-color;
+  activeTabColor: $active-tab-color;
+
+  productionBackgroundColor: $production-background-color;
+  developmentBackgroundColor: $development-background-color;
+  testBackgroundColor: $test-background-color;
+
+  // Table
+  tableColor: $table-color;
+  tableHeaderColor: $table-header-color;
+  tableEvenRowColor: $table-even-row-color;
+  tableOddRowColor: $table-odd-row-color;
+  tableHoverEvenRowColor: $table-hover-even-row-color;
+  tableHoverOddRowColor: $table-hover-odd-row-color;
+
+  // Subscriber
+  beigeBackgroundColor: $beige-background-color;
+  darkHeaderColor: $dark-header-color;
+  itemActiveColor: $item-active-color;
+  menuItemColor: $menu-item-color;
+  selectedMenuItemColor: $selected-menu-item-color;
+  lightInactiveButton: $light-inactive-button;
+  stickyNoteColor: $sticky-note-color;
+  lightBlue: $light-blue;
+  lightGray: $light-gray;
+  defaultRed: $bs-red;
+
+  // Form
+  formBackgroundColor: $form-background-color;
+  dropdownBackgroundColor: $dropdown-background-color;
+  inputRequiredBorderColor: $input-required-border-color;
+
+  primary: $bs-primary;
+  secondary: $bs-secondary;
+  success: $bs-success;
+  info: $bs-info;
+  warning: $bs-warning;
+  danger: $bs-danger;
+  light: $bs-light;
+  dark: $bs-dark;
+
+  primaryRgb: $bs-primary-rgb;
+  secondaryRgb: $bs-secondary-rgb;
+  successRgb: $bs-success-rgb;
+  infoRgb: $bs-info-rgb;
+  warningRgb: $bs-warning-rgb;
+  dangerRgb: $bs-danger-rgb;
+  lightRgb: $bs-light-rgb;
+  darkRgb: $bs-dark-rgb;
+  whiteRgb: $bs-white-rgb;
+  blackRgb: $bs-black-rgb;
+  textOpacity: $bs-text-opacity;
+
+  bcSans: $bc-sans;
+
+  // Event of the Day - Event Type
+  eotdEventTypeIssues: $eotd-event-type-issues;
+  eotdEventTypeProactive: $eotd-event-type-proactive;
+}

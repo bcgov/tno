@@ -1,0 +1,129 @@
+import React from 'react';
+
+import { type IChartTemplateUsageModel } from '@/editor/features/admin/charts/interfaces';
+import { useAjaxWrapper, useLookup } from '@/editor/store/hooks';
+import { useAdminStore, type IAdminState } from '@/editor/store/slices';
+import {
+  useApiAdminChartTemplates,
+  type IChartPreviewRequestModel,
+  type IChartResultModel,
+  type IChartTemplateModel,
+} from '@/shared';
+
+import { useApiAdminChartTemplateUsage } from './useApiAdminChartTemplateUsage';
+
+interface IChartTemplateController {
+  findAllChartTemplates: () => Promise<IChartTemplateModel[]>;
+  getChartTemplate: (id: number) => Promise<IChartTemplateModel>;
+  getChartTemplateUsage: (id: number) => Promise<IChartTemplateUsageModel[]>;
+  addChartTemplate: (model: IChartTemplateModel) => Promise<IChartTemplateModel>;
+  updateChartTemplate: (model: IChartTemplateModel) => Promise<IChartTemplateModel>;
+  deleteChartTemplate: (model: IChartTemplateModel) => Promise<IChartTemplateModel>;
+  previewJson: (model: IChartPreviewRequestModel) => Promise<IChartResultModel>;
+  previewBase64: (model: IChartPreviewRequestModel) => Promise<string>;
+  previewImage: (model: IChartPreviewRequestModel) => Promise<any>;
+}
+
+export const useChartTemplates = (): [
+  IAdminState & { initialized: boolean },
+  IChartTemplateController,
+] => {
+  const api = useApiAdminChartTemplates();
+  const usageApi = useApiAdminChartTemplateUsage();
+  const dispatch = useAjaxWrapper();
+  const [state, store] = useAdminStore();
+  const [, lookup] = useLookup();
+  const [initialized, setInitialized] = React.useState(false);
+
+  const controller = React.useMemo(
+    () => ({
+      findAllChartTemplates: async () => {
+        const response = await dispatch<IChartTemplateModel[]>(
+          'find-all-chart-templates',
+          async () => await api.findAllChartTemplates(),
+        );
+        store.storeChartTemplates(response.data);
+        setInitialized(true);
+        return response.data;
+      },
+      getChartTemplate: async (id: number) => {
+        const response = await dispatch<IChartTemplateModel>(
+          'get-chart-template',
+          async () => await api.getChartTemplate(id),
+        );
+        store.storeChartTemplates((chartTemplates) =>
+          chartTemplates.map((ds) => {
+            if (ds.id === response.data.id) return response.data;
+            return ds;
+          }),
+        );
+        return response.data;
+      },
+      getChartTemplateUsage: async (id: number) => {
+        const response = await dispatch<IChartTemplateUsageModel[]>(
+          'get-chart-template-usage',
+          async () => await usageApi.getChartTemplateUsage(id),
+        );
+        return response.data;
+      },
+      addChartTemplate: async (model: IChartTemplateModel) => {
+        const response = await dispatch<IChartTemplateModel>(
+          'add-chart-template',
+          async () => await api.addChartTemplate(model),
+        );
+        store.storeChartTemplates((chartTemplates) => [...chartTemplates, response.data]);
+        await lookup.getLookups();
+        return response.data;
+      },
+      updateChartTemplate: async (model: IChartTemplateModel) => {
+        const response = await dispatch<IChartTemplateModel>(
+          'update-chart-template',
+          async () => await api.updateChartTemplate(model),
+        );
+        store.storeChartTemplates((chartTemplates) =>
+          chartTemplates.map((ds) => {
+            if (ds.id === response.data.id) return response.data;
+            return ds;
+          }),
+        );
+        await lookup.getLookups();
+        return response.data;
+      },
+      deleteChartTemplate: async (model: IChartTemplateModel) => {
+        const response = await dispatch<IChartTemplateModel>(
+          'delete-chart-template',
+          async () => await api.deleteChartTemplate(model),
+        );
+        store.storeChartTemplates((chartTemplates) =>
+          chartTemplates.filter((ds) => ds.id !== response.data.id),
+        );
+        await lookup.getLookups();
+        return response.data;
+      },
+      previewJson: async (model: IChartPreviewRequestModel) => {
+        const response = await dispatch<IChartResultModel>(
+          'preview-chart-template-json',
+          async () => await api.previewJson(model),
+        );
+        return response.data;
+      },
+      previewBase64: async (model: IChartPreviewRequestModel) => {
+        const response = await dispatch<string>(
+          'preview-chart-template-base64',
+          async () => await api.previewBase64(model),
+        );
+        return response.data;
+      },
+      previewImage: async (model: IChartPreviewRequestModel) => {
+        const response = await dispatch<any>(
+          'preview-chart-template-image',
+          async () => await api.previewImage(model),
+        );
+        return response.data;
+      },
+    }),
+    [api, usageApi, dispatch, lookup, store],
+  );
+
+  return [{ ...state, initialized }, controller];
+};

@@ -1,0 +1,84 @@
+import React from 'react';
+
+import { generateMustQuery, IContentModel, IFilterSettingsModel, Loader } from '@/shared';
+import { MsearchMultisearchBody } from '@/shared/utils/elastic/esTypes';
+import { DateFilter } from '@/subscriber/components/date-filter';
+import { FrontPageGallery } from '@/subscriber/components/front-page-gallery';
+import { useApp, useContent, useSettings } from '@/subscriber/store/hooks';
+
+import * as styled from './styled';
+
+/** Component that displays front pages defaulting to today's date and adjustable via a date filter. */
+export const TodaysFrontPages: React.FC = () => {
+  const [
+    {
+      frontPage: { filter: frontPageFilter },
+    },
+    { findContentWithElasticsearch, storeFrontPageFilter: storeFilter },
+  ] = useContent();
+  const { frontPageImageMediaTypeId } = useSettings(true);
+  const [{ requests }] = useApp();
+
+  const [frontPages, setFrontPages] = React.useState<IContentModel[]>([]);
+  const [filter, setFilter] = React.useState<IFilterSettingsModel>();
+
+  React.useEffect(() => {
+    storeFilter({
+      size: 100,
+      searchUnpublished: false,
+      dateOffset: 0,
+      mediaTypeIds: frontPageImageMediaTypeId ? [frontPageImageMediaTypeId] : [],
+    });
+    // Only update the filter if the frontPageImageMediaTypeId changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [frontPageImageMediaTypeId]);
+
+  const fetchResults = React.useCallback(
+    async (query: MsearchMultisearchBody) => {
+      try {
+        const res: any = await findContentWithElasticsearch(query, false, 'frontPage');
+        const mappedResults = res.hits?.hits?.map((h: { _source: IContentModel }) => {
+          const content = h._source;
+          return {
+            id: content.id,
+            headline: content.headline,
+            section: content.section,
+            tonePools: content.tonePools,
+            otherSource: content.otherSource,
+            source: content.source,
+            page: content.page,
+            fileReferences: content.fileReferences,
+          };
+        });
+        setFrontPages(mappedResults);
+      } catch {}
+    },
+    [findContentWithElasticsearch],
+  );
+
+  React.useEffect(() => {
+    if (
+      frontPageFilter &&
+      frontPageFilter.mediaTypeIds?.length &&
+      (frontPageFilter?.dateOffset !== filter?.dateOffset ||
+        frontPageFilter?.startDate !== filter?.startDate ||
+        frontPageFilter?.endDate !== filter?.endDate)
+    ) {
+      fetchResults(generateMustQuery(frontPageFilter)).catch(() => {});
+      setFilter(frontPageFilter);
+    }
+  }, [fetchResults, filter?.dateOffset, filter?.endDate, filter?.startDate, frontPageFilter]);
+
+  return (
+    <styled.TodaysFrontPages>
+      <DateFilter
+        date={frontPageFilter.startDate}
+        onChangeDate={(start, end) =>
+          storeFilter({ ...frontPageFilter, startDate: start, endDate: end, dateOffset: undefined })
+        }
+      />
+      <Loader visible={requests.some((r) => r.url === 'find-contents-with-elasticsearch')} />
+      <FrontPageGallery frontpages={frontPages} />
+    </styled.TodaysFrontPages>
+  );
+};

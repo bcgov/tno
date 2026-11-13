@@ -1,0 +1,40 @@
+import React from 'react';
+
+import { IUserColleagueModel } from '@/shared';
+import { Action } from '@/subscriber/components/action';
+import { Section } from '@/subscriber/components/section';
+
+export interface IColleagueCardProps {
+  /** The report to display on this card. */
+  model: IUserColleagueModel;
+  /** Event fires when user requests to delete report. This event does not delete the report itself. */
+  onDelete?: (report: IUserColleagueModel) => void;
+}
+
+/**
+ * A card to display report information.
+ * @param param0 Component properties.
+ * @returns Component.
+ */
+export const ColleagueCard: React.FC<IColleagueCardProps> = ({ model, onDelete }) => {
+  return (
+    <Section
+      key={model.colleague?.id}
+      label={`${model.colleague?.username} - ${
+        model.colleague?.preferredEmail ? model.colleague?.preferredEmail : model.colleague?.email
+      }`}
+      showOpen={false}
+      actions={
+        <>
+          <Action
+            variant="trash"
+            title="Remove colleague"
+            onClick={() => {
+              onDelete?.(model);
+            }}
+          />
+        </>
+      }
+    />
+  );
+};

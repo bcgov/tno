@@ -1,0 +1,312 @@
+name: React Application
+
+# One project (app/) holds both designs; one image serves either, chosen by APP_MODE.
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [dev, master]
+    paths:
+      - app/**
+      - openshift/kustomize/app/**
+      - .github/workflows/react-app.yml
+  push:
+    branches: [dev, master]
+    paths:
+      - app/**
+      - openshift/kustomize/app/**
+      - .github/workflows/react-app.yml
+
+concurrency:
+  group: react-app-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write
+
+env:
+  WORKING_DIRECTORY: ./app
+  IMAGE_NAME: app
+  OPENSHIFT_SERVER: https://api.silver.devops.gov.bc.ca:6443
+  OPENSHIFT_TOOLS_NAMESPACE: 9b301c-tools
+  ACR_URL: bcgov-c4awhwfpcremdbga.azurecr.io
+
+jobs:
+  ci:
+    name: CI — Validate (NodeJS)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Use Node.js from .nvmrc
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: app/.nvmrc
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install Dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Linting
+        run: npm run lint
+
+      - name: Formatting
+        run: npm run check
+
+      - name: Type-checking
+        run: npm run typecheck
+
+      - name: Testing
+        run: npm test
+
+      - name: Building
+        run: npm run build
+
+  image:
+    name: CI — Image contract
+    runs-on: ubuntu-latest
+    needs: ci
+    steps:
+      - uses: actions/checkout@v7
+
+      # Public base images: pull requests have no ACR credentials.
+      - name: Build Docker Image
+        run: |
+          docker build \
+            -f app/Dockerfile.nginx \
+            --build-arg NODE_IMAGE=node:26-bookworm-slim \
+            --build-arg NGINX_IMAGE=nginxinc/nginx-unprivileged:1.24 \
+            --build-arg APP_VERSION=${{ github.sha }} \
+            -t app:contract \
+            ./app
+
+      - name: Check both designs, and that a missing or invalid APP_MODE stops the container
+        run: |
+          set -eu
+          for mode in editor subscriber; do
+            docker run -d --name "app-$mode" --read-only --tmpfs /tmp --user 1000870000:0 \
+              -e APP_MODE="$mode" -p "0:8080" app:contract
+          done
+          sleep 3
+          for mode in editor subscriber; do
+            port=$(docker port "app-$mode" 8080 | head -1 | sed 's/.*://')
+            url="http://localhost:$port"
+            curl -fsS "$url/nginx-status" | grep -q healthy
+            curl -fsS "$url/" | grep -q "static/$mode-"
+            curl -fsS "$url/some/deep/link" | grep -q "static/$mode-"
+            curl -fsS "$url/version.json" | grep -q "${{ github.sha }}"
+            curl -fsS -o /dev/null "$url/favicon.ico"
+            curl -fsS -o /dev/null "$url/monaco/vs/loader.js"
+            test "$(curl -s -o /dev/null -w '%{http_code}' "$url/_$mode/index.html")" = 404
+          done
+          cmp <(curl -fsS "http://localhost:$(docker port app-editor 8080 | head -1 | sed 's/.*://')/favicon.ico") app/public/editor/favicon.ico
+          cmp <(curl -fsS "http://localhost:$(docker port app-subscriber 8080 | head -1 | sed 's/.*://')/favicon.ico") app/public/subscriber/favicon.ico
+          for value in "" "admin"; do
+            set +e
+            docker run --rm -e APP_MODE="$value" app:contract
+            code=$?
+            set -e
+            test "$code" = 64
+          done
+
+  cd-dev:
+    name: CD — Deploy to Dev
+    runs-on: ubuntu-latest
+    needs: [ci, image]
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/dev' && github.repository == 'bcgov/tno'
+    environment:
+      name: dev
+      url: https://dev.mmi.gov.bc.ca
+    env:
+      IMAGE_TAG: dev
+      OPENSHIFT_NAMESPACE: 9b301c-dev
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Login to ACR
+        run: |
+          echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ env.ACR_URL }} \
+            -u ${{ secrets.ACR_USERNAME }} \
+            --password-stdin
+
+      - name: Build Docker Image
+        run: |
+          docker build \
+            -f app/Dockerfile.nginx \
+            -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --build-arg APP_VERSION=${{ github.sha }} \
+            ./app
+
+      - name: Trivy Container Scan
+        uses: ./.github/actions/trivy-scan
+        with:
+          image-ref: '${{ env.IMAGE_NAME }}:${{ github.sha }}'
+
+      - name: Install oc CLI
+        uses: redhat-actions/openshift-tools-installer@v3
+        with:
+          oc: latest
+
+      - name: Login to OpenShift
+        uses: ./.github/actions/openshift-login
+        with:
+          token: ${{ secrets.OPENSHIFT_TOKEN }}
+          server: ${{ env.OPENSHIFT_SERVER }}
+
+      - name: Backup current image tag
+        continue-on-error: true
+        run: |
+          echo "Backing up ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} → ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}-backup"
+          docker pull ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} && \
+          docker tag \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}-backup && \
+          docker push \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}-backup
+
+      - name: Push Image to ACR
+        run: |
+          docker tag \
+            ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          docker push \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+
+      # The editor and subscriber Deployments both run the app image (APP_MODE differs).
+      - name: Deploy via Kustomize
+        run: |
+          for design in editor subscriber; do
+            oc apply -k openshift/kustomize/app/$design/overlays/${{ env.IMAGE_TAG }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+          done
+
+      - name: Rollout Restart
+        run: |
+          for design in editor subscriber; do
+            oc rollout restart deployment/$design -n ${{ env.OPENSHIFT_NAMESPACE }}
+          done
+
+      - name: Verify Deployment
+        run: |
+          for design in editor subscriber; do
+            oc rollout status deployment/$design -n ${{ env.OPENSHIFT_NAMESPACE }} --timeout=180s
+          done
+
+      - name: Deployment Summary
+        if: always()
+        run: |
+          echo "## 🚀 Deployment Summary — React Application" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Detail | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Service** | React Application (editor and subscriber) |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Environment** | dev |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Namespace** | ${{ env.OPENSHIFT_NAMESPACE }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Image Tag** | ${{ env.IMAGE_TAG }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Commit SHA** | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Branch** | ${{ github.ref_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Triggered by** | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Workflow Run** | [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Timestamp (UTC)** | $(date -u '+%Y-%m-%d %H:%M:%S') |" >> $GITHUB_STEP_SUMMARY
+
+  cd-test:
+    name: CD — Deploy to Test
+    runs-on: ubuntu-latest
+    needs: [ci, image]
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && github.repository == 'bcgov/tno'
+    environment:
+      name: test
+      url: https://test.mmi.gov.bc.ca
+    env:
+      IMAGE_TAG: test
+      OPENSHIFT_NAMESPACE: 9b301c-test
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Login to ACR
+        run: |
+          echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ env.ACR_URL }} \
+            -u ${{ secrets.ACR_USERNAME }} \
+            --password-stdin
+
+      - name: Build Docker Image
+        run: |
+          docker build \
+            -f app/Dockerfile.nginx \
+            -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --build-arg APP_VERSION=${{ github.sha }} \
+            ./app
+
+      - name: Trivy Container Scan
+        uses: ./.github/actions/trivy-scan
+        with:
+          image-ref: '${{ env.IMAGE_NAME }}:${{ github.sha }}'
+
+      - name: Install oc CLI
+        uses: redhat-actions/openshift-tools-installer@v3
+        with:
+          oc: latest
+
+      - name: Login to OpenShift
+        uses: ./.github/actions/openshift-login
+        with:
+          token: ${{ secrets.OPENSHIFT_TOKEN }}
+          server: ${{ env.OPENSHIFT_SERVER }}
+
+      - name: Backup current image tag
+        continue-on-error: true
+        run: |
+          echo "Backing up ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} → ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}-backup"
+          docker pull ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} && \
+          docker tag \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}-backup && \
+          docker push \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}-backup
+
+      - name: Push Image to ACR
+        run: |
+          docker tag \
+            ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          docker push \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+
+      # The editor and subscriber Deployments both run the app image (APP_MODE differs).
+      - name: Deploy via Kustomize
+        run: |
+          for design in editor subscriber; do
+            oc apply -k openshift/kustomize/app/$design/overlays/${{ env.IMAGE_TAG }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+          done
+
+      - name: Rollout Restart
+        run: |
+          for design in editor subscriber; do
+            oc rollout restart deployment/$design -n ${{ env.OPENSHIFT_NAMESPACE }}
+          done
+
+      - name: Verify Deployment
+        run: |
+          for design in editor subscriber; do
+            oc rollout status deployment/$design -n ${{ env.OPENSHIFT_NAMESPACE }} --timeout=180s
+          done
+
+      - name: Deployment Summary
+        if: always()
+        run: |
+          echo "## 🚀 Deployment Summary — React Application" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Detail | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Service** | React Application (editor and subscriber) |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Environment** | test |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Namespace** | ${{ env.OPENSHIFT_NAMESPACE }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Image Tag** | ${{ env.IMAGE_TAG }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Commit SHA** | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Branch** | ${{ github.ref_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Triggered by** | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Workflow Run** | [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Timestamp (UTC)** | $(date -u '+%Y-%m-%d %H:%M:%S') |" >> $GITHUB_STEP_SUMMARY

@@ -12,6 +12,5 @@ This folder stores Claude-specific local configuration and reusable repository s
 - `skills/keycloak-implementation.md`
 - `skills/ai-dependencies.md`
 - `skills/third-party-dependencies.md`
-- `skills/yarn-availability.md`
-- `skills/npm-core-pack-and-publish.md`
+- `skills/node-availability.md`
 - `skills/morning-automation.md`

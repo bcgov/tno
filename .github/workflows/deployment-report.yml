@@ -42,8 +42,7 @@ jobs:
           # Query GitHub API for workflow runs of each CD workflow
           # -------------------------------------------------------
           declare -A WORKFLOWS=(
-            ["react-editor"]="react-editor.yml"
-            ["react-subscriber"]="react-subscriber.yml"
+            ["react-app"]="react-app.yml"
             ["folder-collection"]="folder-collection-cicd.yml"
             ["api-services"]="api-services-cicd.yml"
             ["content-service"]="content-service-cicd.yml"

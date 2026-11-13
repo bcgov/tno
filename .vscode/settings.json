@@ -31,20 +31,20 @@
   "editor.bracketPairColorization.enabled": false,
   "editor.semanticHighlighting.enabled": false,
   "editor.suggestSelection": "first",
-  // Import order is owned by eslint (simple-import-sort). VS Code's TypeScript "Organize Imports"
-  // sorts by module path ('../..' before '../../../utils'), which fights that rule on every save,
-  // so it is disabled here and eslint's fix runs instead.
+  // Import order is owned by Prettier (@ianvs/prettier-plugin-sort-imports, app/.prettierrc.json).
+  // VS Code's TypeScript "Organize Imports" sorts differently and would fight it on every save,
+  // so it is disabled here; format on save sorts, and Oxlint's fixes run explicitly.
   "editor.codeActionsOnSave": {
     "source.organizeImports": "never",
     "source.sortImports": "never",
-    "source.fixAll.eslint": "explicit"
+    "source.fixAll.oxc": "explicit"
   },
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.codeActionsOnSave": {
       "source.organizeImports": "never",
       "source.sortImports": "never",
-      "source.fixAll.eslint": "explicit"
+      "source.fixAll.oxc": "explicit"
     }
   },
   "[typescriptreact]": {
@@ -52,14 +52,12 @@
     "editor.codeActionsOnSave": {
       "source.organizeImports": "never",
       "source.sortImports": "never",
-      "source.fixAll.eslint": "explicit"
+      "source.fixAll.oxc": "explicit"
     }
   },
   "editor.quickSuggestionsDelay": 500,
-  "eslint.enable": true,
-  // Run eslint from the package that owns the file (app/editor, app/subscriber, libs/npm/core),
-  // so its plugins and prettier version resolve. The repo root has no node_modules.
-  "eslint.workingDirectories": [{ "mode": "auto" }],
+  // Oxlint (oxc.oxc-vscode) lints app/ with app/.oxlintrc.json; Prettier resolves from app/node_modules.
+  "oxc.enable": true,
   "editor.tabSize": 2,
   "editor.mouseWheelZoom": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",

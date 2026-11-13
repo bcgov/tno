@@ -1,0 +1,128 @@
+import { useEffect, useMemo, useState } from 'react';
+
+import { IMediaTypeModel, ISeriesModel, ISourceModel, ListOptionName } from '@/shared';
+import { ISubMediaGroupItem } from '@/subscriber/features/search-page/components/advanced-search/interfaces';
+import { IGroupOption } from '@/subscriber/features/search-page/components/advanced-search/interfaces/IGroupOption';
+import { useApp } from '@/subscriber/store/hooks';
+
+interface ILookup {
+  id: number;
+  label: string;
+  sortOrder: number;
+  options: IGroupOption[];
+}
+
+/**
+ * Custom hook to create and manage sub media groups.
+ * @param sources Array of source models.
+ * @param mediaTypes Array of media type models.
+ * @returns An object containing subMediaGroups, mediaGroupExpanded, and setMediaGroupExpanded function.
+ */
+export const useSubMediaGroups = (
+  sources: ISourceModel[],
+  series: ISeriesModel[],
+  mediaTypes: IMediaTypeModel[],
+): {
+  subMediaGroups: ISubMediaGroupItem[];
+} => {
+  const [subMediaGroups, setSubMediaGroups] = useState<ISubMediaGroupItem[]>([]);
+  const [{ userInfo }] = useApp();
+
+  // Determine mediaTypeSourceLookup only when sources or mediaTypes change
+  const mediaTypeSourceLookup = useMemo(() => {
+    const lookup: ILookup[] = [];
+    mediaTypes
+      .filter((x) => x.listOption === ListOptionName.Source)
+      .forEach((mt) => {
+        const l: ILookup = {
+          id: mt.id,
+          label: mt.name,
+          sortOrder: mt.sortOrder,
+          options: [],
+        };
+        sources
+          .filter(
+            (s) =>
+              s.mediaTypeSearchMappings !== undefined &&
+              s.mediaTypeSearchMappings.length > 0 &&
+              s.mediaTypeSearchMappings.findIndex((x) => x.id === mt.id) > -1,
+          )
+          .forEach((s) => {
+            l.options.push({
+              id: s.id,
+              listOption: ListOptionName.Source,
+              name: s.name,
+              sortOrder: s.sortOrder,
+              selected: false,
+            });
+          });
+        lookup.push(l);
+      });
+    return lookup;
+  }, [mediaTypes, sources]);
+
+  // Determine mediaTypeSourceLookup only when sources or mediaTypes change
+  const mediaTypeSeriesLookup = useMemo(() => {
+    const lookup: ILookup[] = [];
+    mediaTypes
+      .filter((x) => x.listOption === ListOptionName.Series)
+      .forEach((mt) => {
+        const l: ILookup = {
+          id: mt.id,
+          label: mt.name,
+          sortOrder: mt.sortOrder,
+          options: [],
+        };
+        series
+          .filter(
+            (s) =>
+              s.mediaTypeSearchMappings !== undefined &&
+              s.mediaTypeSearchMappings.length > 0 &&
+              s.mediaTypeSearchMappings.findIndex((x) => x.id === mt.id) > -1,
+          )
+          .forEach((s) => {
+            l.options.push({
+              id: s.id,
+              listOption: ListOptionName.Series,
+              name: s.name,
+              sortOrder: s.sortOrder,
+              selected: false,
+            });
+          });
+        lookup.push(l);
+      });
+    return lookup;
+  }, [series, mediaTypes]);
+
+  useEffect(() => {
+    if (!userInfo) return;
+    const subGroups: ISubMediaGroupItem[] = [];
+    mediaTypeSourceLookup.forEach((x) => {
+      subGroups.push({
+        key: x.id,
+        label: x.label,
+        sortOrder: x.sortOrder,
+        options: x.options,
+        listOption: ListOptionName.Source,
+      });
+    });
+    mediaTypeSeriesLookup.forEach((x) => {
+      subGroups.push({
+        key: x.id,
+        label: x.label,
+        sortOrder: x.sortOrder,
+        options: x.options,
+        listOption: ListOptionName.Series,
+      });
+    });
+    let newSubGroups = subGroups.sort((a, b) => a.sortOrder - b.sortOrder);
+    if (userInfo?.mediaTypes) {
+      newSubGroups = newSubGroups.filter((sg) => !userInfo?.mediaTypes.includes(sg.key));
+    }
+    setSubMediaGroups(newSubGroups);
+  }, [mediaTypeSeriesLookup, mediaTypeSourceLookup, mediaTypes, series, sources, userInfo]);
+
+  return {
+    subMediaGroups,
+  };
+};

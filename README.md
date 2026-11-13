@@ -10,9 +10,9 @@
 [![Stars](https://img.shields.io/github/stars/bcgov/tno.svg)](https://github.com/bcgov/tno/stargazers)
 [![Wachters](https://img.shields.io/github/watchers/bcgov/tno.svg)](https://github.com/bcgov/tno/watchers)
 
-**dev:** [![React Editor](https://github.com/bcgov/tno/actions/workflows/react-editor.yml/badge.svg?branch=dev)](https://github.com/bcgov/tno/actions/workflows/react-editor.yml) [![React Subscriber](https://github.com/bcgov/tno/actions/workflows/react-subscriber.yml/badge.svg?branch=dev)](https://github.com/bcgov/tno/actions/workflows/react-subscriber.yml)
+**dev:** [![React Application](https://github.com/bcgov/tno/actions/workflows/react-app.yml/badge.svg?branch=dev)](https://github.com/bcgov/tno/actions/workflows/react-app.yml)
 
-**master:** [![React Editor](https://github.com/bcgov/tno/actions/workflows/react-editor.yml/badge.svg?branch=master)](https://github.com/bcgov/tno/actions/workflows/react-editor.yml) [![React Subscriber](https://github.com/bcgov/tno/actions/workflows/react-subscriber.yml/badge.svg?branch=master)](https://github.com/bcgov/tno/actions/workflows/react-subscriber.yml)
+**master:** [![React Application](https://github.com/bcgov/tno/actions/workflows/react-app.yml/badge.svg?branch=master)](https://github.com/bcgov/tno/actions/workflows/react-app.yml)
 
 GCPE’s primary role is to inform the public about government programs, services, policies, and priorities through traditional communication practices and, increasingly, through direct engagement and online services.
 

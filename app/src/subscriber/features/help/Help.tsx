@@ -1,0 +1,172 @@
+import React from 'react';
+import { FaVideo } from 'react-icons/fa';
+
+import { Col, Row } from '@/shared';
+import { PageSection } from '@/subscriber/components/section';
+
+import * as styled from './styled/Help';
+
+export const Help: React.FC = () => {
+  return (
+    <styled.Help>
+      <PageSection header="Help" includeHeaderIcon>
+        <Row>
+          <Col className="help-content">
+            <h2>
+              <FaVideo className="list-icon" />
+              <span>Successfully logging into MMI</span>
+            </h2>
+            <Row>
+              <Col className="media-playback">
+                <video controls src={`/public/videos/login.mp4`} />
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+        <Row>
+          <Col className="help-content">
+            <h2>
+              <FaVideo className="list-icon" />
+              <span>Failed login attempt</span>
+            </h2>
+            <Row>
+              <Col className="media-playback">
+                <video controls src={`/public/videos/failedlogin.mp4`} />
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+        <Row>
+          <Col className="help-content">
+            <h2>
+              <FaVideo className="list-icon" />
+              <span>Home Page Tour</span>
+            </h2>
+            <Row>
+              <Col className="media-playback">
+                <video controls src={`/public/videos/homepagetour.mp4`} />
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+        <Row>
+          <Col className="help-content">
+            <h2>
+              <FaVideo className="list-icon" />
+              <span>My Minister</span>
+            </h2>
+            <Row>
+              <Col className="media-playback">
+                <video controls src={`/public/videos/myminister.mp4`} />
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+        <Row>
+          <Col className="help-content">
+            <h2>
+              <FaVideo className="list-icon" />
+              <span>Simple and Complex Searches</span>
+            </h2>
+            <Row>
+              <Col className="media-playback">
+                <video controls src={`/public/videos/simplecomplexsearch.mp4`} />
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+        <Row>
+          <Col className="help-content">
+            <h2>
+              <FaVideo className="list-icon" />
+              <span>Creating a Saved Search</span>
+            </h2>
+            <Row>
+              <Col className="media-playback">
+                <video controls src={`/public/videos/creatingsavedsearch.mp4`} />
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+        <Row>
+          <Col className="help-content">
+            <h2>
+              <FaVideo className="list-icon" />
+              <span>Editing a Saved Search</span>
+            </h2>
+            <Row>
+              <Col className="media-playback">
+                <video controls src={`/public/videos/editsavedsearch.mp4`} />
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+        <Row>
+          <Col className="help-content">
+            <h2>
+              <FaVideo className="list-icon" />
+              <span>Creating a Folder</span>
+            </h2>
+            <Row>
+              <Col className="media-playback">
+                <video controls src={`/public/videos/creatingfolder.mp4`} />
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+        <Row>
+          <Col className="help-content">
+            <h2>
+              <FaVideo className="list-icon" />
+              <span>Create My Colleagues List and Share Content</span>
+            </h2>
+            <Row>
+              <Col className="media-playback">
+                <video controls src={`/public/videos/sharecontent.mp4`} />
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+        <Row>
+          <Col className="help-content">
+            <h2>
+              <FaVideo className="list-icon" />
+              <span>Accessing Products</span>
+            </h2>
+            <Row>
+              <Col className="media-playback">
+                <video controls src={`/public/videos/products.mp4`} />
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+        <Row>
+          <Col className="help-content">
+            <h2>
+              <FaVideo className="list-icon" />
+              <span>Creating Basic Report</span>
+            </h2>
+            <Row>
+              <Col className="media-playback">
+                <video controls src={`/public/videos/creatingreport.mp4`} />
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+        <Row>
+          <Col className="help-content">
+            <h2>
+              <FaVideo className="list-icon" />
+              <span>Optimizing Searches - AI Workbench</span>
+            </h2>
+            <Row>
+              <Col className="media-playback">
+                <video controls src={`/public/videos/optimize-search.mp4`} />
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+      </PageSection>
+    </styled.Help>
+  );
+};

@@ -24,7 +24,7 @@ Use this skill when working on MMI automation profile features (the "morning pro
   parsing, action execution, run summary reporting (including every LLM response). The service
   also reconciles stale `Draft` runs (lost messages), fails abandoned `Running` runs, and prunes
   run history.
-- **Editor UI** (`app/editor/src/features/admin/automation`): profile form with schedules grid,
+- **Editor UI** (`app/src/editor/features/admin/automation`): profile form with schedules grid,
   collapsible step/action builder (drag+drop), Run button with live status, Runs tab with an
   outcome modal (LLM responses + action outcomes).
 - Conceptual reference: `docs/planning/mmi-automation/00-concept.md` (tokens, action types,

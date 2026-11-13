@@ -1,7 +1,7 @@
 #!/bin/bash
 # Build a linux/amd64 image tagged for the Azure Container Registry, ready to push.
 # Usage: build.sh <component> [tag] [environment]
-#   component   - short name (automation, notification, api, editor, ...); see acr-common.sh
+#   component   - short name (automation, notification, api, app, ...); see acr-common.sh
 #   tag         - image tag (default: latest)
 #   environment - which Dockerfile variant to build (default: prod)
 #                 'prod'  - the Dockerfile the OpenShift BuildConfig uses; what you push to ACR.

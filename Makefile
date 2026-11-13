@@ -44,8 +44,7 @@ help:
 setup: ## Setup local environment for development, generate configuration files.
 	$(info Setup local environment for development, generate configuration files.)
 	@./tools/scripts/gen-env-files.sh
-	@mkdir -p ./app/editor/node_modules
-	@mkdir -p ./app/subscriber/node_modules
+	@mkdir -p ./app/node_modules
 
 worktree: ## List available worktrees, copy .env files from selected source branch, and print cd command.
 	$(info List available worktrees and copy .env files from selected source branch)

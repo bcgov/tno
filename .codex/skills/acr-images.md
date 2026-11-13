@@ -30,8 +30,9 @@ Handled by `openshift/scripts/acr-common.sh`, mirroring the OpenShift BuildConfi
 - Any `<name>` with `services/net/<name>/Dockerfile` → image `<name>-service`
   (e.g. `n=automation` → `automation-service`, `n=content-analysis` → `content-analysis-service`,
   `n=notification` → `notification-service`).
-- `api` → `api` (`api/net/Dockerfile.openshift`), `editor` → `editor` (`app/editor/Dockerfile.nginx`),
-  `subscriber` → `subscriber` (`app/subscriber/Dockerfile.nginx`), `charts` → `charts-api`.
+- `api` → `api` (`api/net/Dockerfile.openshift`), `app` → `app` (`app/Dockerfile.nginx`; the one
+  image both the editor and subscriber Deployments run, `APP_MODE` picks the design),
+  `charts` → `charts-api`. `n=editor` / `n=subscriber` are rejected with a pointer to `n=app`.
 - Anything unusual: override with env vars `IMAGE=`, `DOCKERFILE=`, `CONTEXT=`
   (also `ACR_REGISTRY=`, `ACR_NAME=` for a different registry).
 

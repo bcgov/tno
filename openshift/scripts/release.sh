@@ -6,7 +6,7 @@
 #   environment - dev, test or prod.
 #   tag         - image tag to build, push and promote (default: the short git commit, so every
 #                 deployed image traces back to a commit).
-#   components  - build only these (build.sh names: api, editor, charts, content, ...).
+#   components  - build only these (build.sh names: api, app, charts, content, ...).
 #                 Default: every image deploy.sh promotes that can be built here.
 #
 # Options (environment variables):
@@ -65,7 +65,7 @@ component_for() {
   case "$1" in
     nginx) echo "" ;;
     charts-api) echo "charts" ;;
-    api|editor|subscriber|nginx-editor|nginx-subscriber|db-migration|elastic-migration) echo "$1" ;;
+    api|app|nginx-editor|nginx-subscriber|db-migration|elastic-migration) echo "$1" ;;
     *-service) echo "${1%-service}" ;;
     *) echo "" ;;
   esac

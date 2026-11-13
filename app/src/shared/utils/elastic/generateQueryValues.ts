@@ -1,0 +1,81 @@
+import { dayjs } from '@/shared/utils/date';
+
+import { IFilterSettingsModel } from '../../hooks';
+import { generatePostedOnQuery } from './generatePostedOnQuery';
+import { generateQueryForActions } from './generateQueryForActions';
+import { generateQueryForExistCheck } from './generateQueryForExistCheck';
+import { generateRangeForArrayField } from './generateRangeForArrayField';
+import { generateRangeForDates } from './generateRangeForDates';
+import { generateShouldQuery } from './generateShouldQuery';
+import { generateTerm } from './generateTerm';
+import { generateTerms } from './generateTerms';
+import { generateTermsForArrayField } from './generateTermsForArrayField';
+import { generateTextQuery } from './generateTextQuery';
+
+/**
+ * Generates an Elasticsearch query based on specified 'query'.
+ * @param settings Form values that will be used to configure the elasticsearch query.
+ * @param query Original query object.
+ * @returns Elasticsearch query JSON.
+ */
+export const generateQueryValues = (
+  settings: Omit<IFilterSettingsModel, 'size' | 'searchUnpublished'>,
+): any[] => {
+  const actionFilters = generateQueryForActions(settings.actions ?? []);
+  const values = [
+    generatePostedOnQuery(settings),
+    settings.sourceIds?.length && settings.sourceIdsNegate
+      ? { bool: { must_not: [generateTerms('sourceId', settings.sourceIds)] } }
+      : generateTerms('sourceId', settings.sourceIds),
+    generateTerms('mediaTypeId', settings.mediaTypeIds),
+    generateTerms('seriesId', settings.seriesIds),
+    generateTerms('contributorId', settings.contributorIds),
+    generateTerms('contentType', settings.contentTypes),
+    generateTerms('id', settings.contentIds),
+    generateTermsForArrayField('tags.code', settings.tags),
+    generateRangeForArrayField('tonePools.value', settings.sentiment),
+    actionFilters.length > 1 ? { bool: { should: actionFilters } } : undefined,
+    actionFilters.length === 1 ? actionFilters[0] : undefined,
+    generateTextQuery(settings),
+    generateShouldQuery(
+      ['byline', 'headline', 'summary', 'body', 'series.name'],
+      settings,
+      settings.pressMembers ?? [],
+    ),
+    generateShouldQuery(
+      ['byline', 'headline', 'summary', 'body', 'series.name'],
+      settings,
+      settings.contributorNames ?? [],
+    ),
+    settings.edition ? generateTerm('edition', settings.edition) : undefined,
+    settings.section ? generateTerm('section', settings.section) : undefined,
+    settings.page ? generateTerm('page', settings.page) : undefined,
+    settings.status ? generateTerm('status', settings.status) : undefined,
+    settings.userId ? generateTerm('ownerId', +settings.userId) : undefined,
+    settings.hasTopic ? generateQueryForExistCheck('topics') : undefined,
+    settings.id ? generateTerm('id', settings.id) : undefined,
+    settings.isHidden !== undefined ? generateTerm('isHidden', settings.isHidden) : undefined,
+    settings.publishedOn
+      ? generateRangeForDates(
+          'publishedOn',
+          dayjs(settings.publishedOn).startOf('day'),
+          dayjs(settings.publishedOn).endOf('day'),
+        )
+      : undefined,
+    settings.createdOn
+      ? generateRangeForDates(
+          'createdOn',
+          dayjs(settings.createdOn).startOf('day'),
+          dayjs(settings.createdOn).endOf('day'),
+        )
+      : undefined,
+    settings.updatedOn
+      ? generateRangeForDates(
+          'updatedOn',
+          dayjs(settings.updatedOn).startOf('day'),
+          dayjs(settings.updatedOn).endOf('day'),
+        )
+      : undefined,
+  ].filter((v) => (v !== undefined && !Array.isArray(v)) || (Array.isArray(v) && v.length > 0));
+  return values;
+};

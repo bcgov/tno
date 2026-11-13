@@ -1,0 +1,27 @@
+import { type ISortBy } from '@/editor/features/interfaces';
+import { type ContentTypeName } from '@/shared';
+
+export interface IContentListFilter {
+  pageIndex: number;
+  pageSize: number;
+  onlyPublished: boolean;
+  hasTopic: boolean;
+  isHidden: boolean | '';
+  ownerId: number | '';
+  userId: number | '';
+  timeFrame: number | '';
+  startDate?: string | null;
+  otherSource: string;
+  contentTypes: ContentTypeName[];
+  mediaTypeIds: number[];
+  sourceIds: number[];
+  excludeSourceIds: number[];
+  contentIds?: number[];
+  // Actions
+  showOnly?: string;
+  commentary: boolean;
+  topStory: boolean;
+  featuredStory: boolean;
+  sort: ISortBy[];
+  pendingTranscript?: boolean;
+}

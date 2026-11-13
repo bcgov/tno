@@ -12,7 +12,7 @@ parameters:
     displayName: Application Name
     description: The name of the application.
     required: true
-    value: editor
+    value: app
 
   - name: GIT_SOURCE
     displayName: Git Source Name
@@ -23,7 +23,7 @@ parameters:
   - name: CONTEXT_DIR
     displayName: Context Directory
     description: Set this to use a subdirectory of the source code repository
-    value: app/editor
+    value: app
 
 objects:
   # The GIT push event will generate a pipeline run.

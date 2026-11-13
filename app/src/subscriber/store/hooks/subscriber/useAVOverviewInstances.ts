@@ -1,0 +1,37 @@
+import React from 'react';
+
+import { IAVOverviewInstanceModel, useApiSubscriberAVOverviews } from '@/shared';
+import { useAjaxWrapper } from '@/subscriber/store/hooks';
+
+interface IAVOverviewController {
+  findAVOverview: (
+    publishedOn?: Date | string | null,
+  ) => Promise<IAVOverviewInstanceModel | undefined>;
+  viewAVOverview: (instanceId: number) => Promise<never>;
+}
+
+export const useAVOverviewInstances = (): [IAVOverviewController] => {
+  const api = useApiSubscriberAVOverviews();
+  const dispatch = useAjaxWrapper();
+
+  const controller = React.useMemo(
+    () => ({
+      findAVOverview: async (publishedOn?: Date | string | null) => {
+        const response = await dispatch<IAVOverviewInstanceModel | undefined>(
+          'find-av-overviews',
+          () => api.findAVOverview(publishedOn),
+        );
+        return response.data;
+      },
+      viewAVOverview: async (instanceId: number) => {
+        const response = await dispatch<never>('view-av-overview', () =>
+          api.viewAVOverview(instanceId),
+        );
+        return response.data;
+      },
+    }),
+    [api, dispatch],
+  );
+
+  return [controller];
+};

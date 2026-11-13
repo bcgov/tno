@@ -7,7 +7,7 @@ metadata:
   namespace: default
   annotations:
     description: Defines how to deploy subscriber
-    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "subscriber:latest", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"subscriber\")].image"}]'
+    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "app:latest", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"subscriber\")].image"}]'
   labels:
     name: subscriber-validator
     part-of: tno
@@ -49,8 +49,12 @@ spec:
         - name: acr-secret
       containers:
         - name: subscriber-validator
-          image: bcgov-c4awhwfpcremdbga.azurecr.io/subscriber:latest
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/app:latest
           imagePullPolicy: Always
+          env:
+            # The app image serves both designs; this selects which one.
+            - name: APP_MODE
+              value: subscriber
           ports:
             - containerPort: 8080
               protocol: TCP

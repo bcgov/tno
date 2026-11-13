@@ -52,17 +52,18 @@ This can be helpful if your computer's performance is unable to support developm
 
 | Dependency                                                                             |  Version | Description                                                |
 | -------------------------------------------------------------------------------------- | -------: | ---------------------------------------------------------- |
-| [Node](https://nodejs.org/en/download/)                                                | v18.19.0 |                                                            |
+| [Node](https://nodejs.org/en/download/)                                                |      v26 | `app/` (read from `app/.nvmrc`); `api/node` still uses v18 |
 | [nvm](https://github.com/coreybutler/nvm-windows#node-version-manager-nvm-for-windows) |          | Required if you need to support different versions of node |
-| [npm](https://docs.npmjs.com/cli/v7/configuring-npm/install)                           |   10.2.3 |                                                            |
-| [yarn](https://classic.yarnpkg.com/en/docs/install/#windows-stable)                    |    3.2.5 |                                                            |
+| [npm](https://docs.npmjs.com/cli/configuring-npm/install)                              |      11+ | Ships with Node 26; the package manager for `app/`         |
+| [yarn](https://yarnpkg.com/getting-started/install)                                    |    3.2.0 | Only for `api/node` (charts API)                           |
 
-To install the correct version of yarn.
+To use the right Node version for the web app.
 
 ```bash
-cd ./app/editor
-nvm use 18.19.0
-npm install --global yarn
+cd ./app
+nvm install    # reads .nvmrc
+nvm use
+npm ci
 ```
 
 ## Standup Local Environment

@@ -1,0 +1,253 @@
+import 'react-quill-new/dist/quill.snow.css';
+
+import { html_beautify } from 'js-beautify';
+import React from 'react';
+import ReactQuill, { EmitterSource } from 'react-quill-new';
+
+import { CustomToolbar } from './CustomToolbar';
+import { ExpandedWysiwyg } from './ExpandedWysiwyg';
+import { IUrlOption } from './interfaces';
+import { removeFormatting } from './removeFormatting';
+import * as styled from './styled';
+
+const formats = [
+  'header',
+  'font',
+  'size',
+  'bold',
+  'italic',
+  'underline',
+  'strike',
+  'blockquote',
+  'list',
+  'indent',
+  'link',
+  'image',
+  'color',
+  'align',
+];
+
+export interface IStateProps {
+  html: string;
+  text: string;
+}
+
+export interface IWysiwygProps {
+  /** Additional action buttons displayed in the editor toolbar. */
+  toolbarActions?: React.ReactNode;
+  /** Input id attribute. */
+  id?: string;
+  /** the field name that is being used within the WYSIWYG */
+  name?: string;
+  /** optional label to appear above the WYSIWYG */
+  label?: string;
+  /** options to choose from a dropdown that will hyperlink the url attribute */
+  urlOptions?: { label: string; url: string; section: string }[];
+  /** Whether component is disabled. */
+  disabled?: boolean;
+  /** whether or not it is a required field */
+  required?: boolean;
+  /** The value */
+  value?: string;
+  /** Whether to enable raw view */
+  viewRaw?: boolean;
+  /** Default height of component. */
+  height?: string;
+  /** className */
+  className?: string;
+  /** placeholder text */
+  placeholder?: string;
+  onKeyDown?: (event: React.KeyboardEvent) => void;
+  onChange?: (text: string, editor?: any) => void;
+  onBlur?: (
+    previousSelection: ReactQuill.Range,
+    source: EmitterSource,
+    editor: ReactQuill.UnprivilegedEditor,
+  ) => void;
+}
+/**
+ * A WYSIWYG component.
+ * @param props Component props.
+ * @returns A component.
+ */
+export const Wysiwyg: React.FC<IWysiwygProps> = (props) => {
+  const [toolBarNode, setToolBarNode] = React.useState();
+
+  const quill = React.useRef<ReactQuill>(null);
+  const [normalState, setNormalState] = React.useState<IStateProps>({
+    html: '',
+    text: '',
+  });
+  const [expand, setExpand] = React.useState(false);
+  const [showRaw, setShowRaw] = React.useState(false);
+  const dialogRef = React.useRef<HTMLDialogElement>(null);
+  // The last value emitted to the parent via onChange. When the parent echoes it back through
+  // props.value it must be ignored; re-applying it resets the Quill editor contents and moves
+  // the cursor while the user is typing.
+  const lastEmittedValue = React.useRef<string | undefined>(undefined);
+
+  // carry over editor value to raw html or v.v when toggling
+  const syncViews = (htmlFromRaw: boolean) => {
+    if (htmlFromRaw) setNormalState((state) => ({ ...state, html: state.text }));
+    else setNormalState((state) => ({ ...state, text: state.html }));
+  };
+
+  // toggle raw html view
+  const onClickRaw = () => {
+    const fromRawHtml = showRaw;
+    setShowRaw(!showRaw);
+    syncViews(fromRawHtml);
+  };
+
+  const stripHtml = React.useCallback(() => {
+    const html = removeFormatting(normalState.text);
+    setNormalState((state) => ({ ...state, html }));
+    lastEmittedValue.current = html;
+    props.onChange?.(html);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.onChange, normalState.text]);
+
+  const onClickFormatRaw = () => {
+    const text = html_beautify(normalState.text);
+    setNormalState((state) => ({ ...state, text }));
+    lastEmittedValue.current = text;
+    props.onChange?.(text);
+  };
+
+  const handleChange = (html: string) => {
+    setNormalState((state) => ({ ...state, html }));
+    const value = html === '<p><br></p>' ? '' : html;
+    lastEmittedValue.current = value;
+    props.onChange?.(value);
+  };
+
+  const modules = React.useMemo(() => {
+    // toolbar configuration
+    // https://quilljs.com/docs/modules/toolbar/
+    // why we have matchVisual: false:
+    // it will prevent the editor reate clicked bullet list button in full screen modal.
+    // There is a bug in quilljs 2.0, in this situation, it will create a new line after refresh,
+    // and it will inpact useEffect related to value change, and it causes infinite loop to create a new line.
+    const config = {
+      toolbar: {
+        container: toolBarNode,
+      },
+      clipboard: {
+        matchVisual: false,
+      },
+    };
+
+    return config;
+  }, [toolBarNode]);
+
+  const onChangeContentSelect = (value: IUrlOption) => {
+    if (!quill.current) return;
+    try {
+      const editor = quill.current.getEditor();
+      // put tag at current cursor position or at the end of the text
+      const selection = editor.getSelection();
+      const index = selection ? selection.index : editor.getLength() - 1;
+
+      editor.insertText(index, value.label, 'link', value.url);
+    } catch (error) {
+      console.error('Failed to insert text:', error);
+    }
+  };
+
+  const handleClear = () => {
+    setNormalState({ text: '', html: '' });
+  };
+
+  const formatText = (text: string) => {
+    return text.replace(/\n+/g, '<br>') ?? '';
+  };
+
+  React.useEffect(() => {
+    // Ignore the parent echoing back the editor's own change. Re-applying it would reset the
+    // Quill contents with stale state, losing keystrokes and moving the cursor mid-typing.
+    if ((props.value ?? '') === (lastEmittedValue.current ?? '')) return;
+    lastEmittedValue.current = props.value;
+
+    const formattedValue = props.value ? formatText(props.value) : '';
+    setNormalState((state) => {
+      if (props.value && formattedValue !== state.html)
+        return { ...state, text: formattedValue, html: formattedValue };
+      if (props.value && formattedValue !== state.text) return { ...state, text: formattedValue };
+      if (!props.value && (state.text || state.html)) return { text: '', html: '' };
+      return state;
+    });
+    // only update when value changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.value]);
+
+  React.useEffect(() => {
+    if (expand) {
+      dialogRef.current?.showModal();
+    } else {
+      dialogRef.current?.close();
+    }
+  }, [expand]);
+
+  return (
+    <styled.Wysiwyg viewRaw={showRaw} className={props.className}>
+      {props.label && <label className={props.required ? 'required' : ''}>{props.label}</label>}
+      <CustomToolbar
+        actions={props.toolbarActions}
+        onClickRaw={onClickRaw}
+        onChangeContentSelect={onChangeContentSelect}
+        urlOptions={props.urlOptions}
+        onClickRemoveFormat={stripHtml}
+        onClickFormatRaw={onClickFormatRaw}
+        onClickClear={handleClear}
+        onClickExpand={() => {
+          setExpand(true);
+        }}
+        innerRef={setToolBarNode}
+      />
+      {!!toolBarNode && (
+        <>
+          <ReactQuill
+            // Report the editor's own HTML, as before; semantic HTML turns every space into &nbsp;.
+            useSemanticHTML={false}
+            className="editor"
+            value={normalState.html}
+            onChange={handleChange}
+            theme="snow"
+            modules={modules}
+            formats={formats}
+            ref={quill}
+            onBlur={props.onBlur}
+            readOnly={props.disabled}
+            onKeyDown={props.onKeyDown}
+            placeholder={props.placeholder}
+          />
+          <textarea
+            id={props.id}
+            name={props.name}
+            disabled={props.disabled}
+            className="raw-editor"
+            onChange={(e) => {
+              const text = e.target.value;
+              setNormalState((state) => ({ ...state, text }));
+            }}
+            value={normalState.text}
+            placeholder={props.placeholder}
+          />
+        </>
+      )}
+      {expand && !!toolBarNode && (
+        <dialog id="expand-modal" ref={dialogRef}>
+          <ExpandedWysiwyg
+            {...props}
+            normalState={normalState}
+            setNormalState={setNormalState}
+            expand={expand}
+            className="expanded"
+            setExpand={setExpand}
+            placeholder={props.placeholder}
+          />
+        </dialog>
+      )}
+    </styled.Wysiwyg>
+  );
+};

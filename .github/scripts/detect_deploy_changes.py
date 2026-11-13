@@ -8,18 +8,12 @@ BUILD_TARGETS = [
     {"name": "api", "image": "api", "dockerfile": "api/net/Dockerfile", "context": "."},
     {"name": "charts-api", "image": "charts-api", "dockerfile": "api/node/Dockerfile", "context": "api/node"},
     {
-        "name": "editor",
-        "image": "editor",
-        "dockerfile": "app/editor/Dockerfile.nginx",
-        "context": "./app/editor",
-        "build_arg_name": "REACT_APP_VERSION",
-    },
-    {
-        "name": "subscriber",
-        "image": "subscriber",
-        "dockerfile": "app/subscriber/Dockerfile.nginx",
-        "context": "./app/subscriber",
-        "build_arg_name": "REACT_APP_VERSION",
+        # Both frontend designs (editor and subscriber) are one image; APP_MODE selects the design.
+        "name": "app",
+        "image": "app",
+        "dockerfile": "app/Dockerfile.nginx",
+        "context": "./app",
+        "build_arg_name": "APP_VERSION",
     },
     {"name": "content-service", "image": "content-service", "dockerfile": "services/net/content/Dockerfile", "context": "."},
     {"name": "indexing-service", "image": "indexing-service", "dockerfile": "services/net/indexing/Dockerfile", "context": "."},
@@ -111,6 +105,7 @@ ENVIRONMENT_DEPLOYMENTS = {
     "prod": {"indexing-service": "indexing-service-cloud"},
 }
 
+# Deployments that run the app image.
 FRONTEND_TARGETS = [
     {"name": "editor", "deployment": "editor"},
     {"name": "subscriber", "deployment": "subscriber"},
@@ -229,11 +224,13 @@ def detect_deploy_changes(changed_files, scope, environment="dev"):
         elif path.startswith("api/node/") or path.startswith("openshift/kustomize/charts/"):
             build_names.add("charts-api")
             service_names.add("charts-api")
-        elif path.startswith("app/editor/") or path.startswith("openshift/kustomize/app/editor/"):
-            build_names.add("editor")
+        elif path.startswith("app/"):
+            # One image serves both designs, so both Deployments roll out.
+            build_names.add("app")
+            frontend_names.update({"editor", "subscriber"})
+        elif path.startswith("openshift/kustomize/app/editor/"):
             frontend_names.add("editor")
-        elif path.startswith("app/subscriber/") or path.startswith("openshift/kustomize/app/subscriber/"):
-            build_names.add("subscriber")
+        elif path.startswith("openshift/kustomize/app/subscriber/"):
             frontend_names.add("subscriber")
         elif path.startswith("libs/net/"):
             build_names.add("api")

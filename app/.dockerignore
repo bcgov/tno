@@ -1,0 +1,13 @@
+.git
+.vscode
+*Dockerfile*
+*docker-compose*
+.env
+.env.*
+coverage/
+dist/
+node_modules/
+
+# Left over from the pre-merge projects in existing checkouts
+/editor/
+/subscriber/

@@ -1,0 +1,69 @@
+import { AxiosResponse } from 'axios';
+import React from 'react';
+
+import {
+  IFilterAIChatRequestModel,
+  IFilterAIChatResultModel,
+  IFilterAIGenerateRequestModel,
+  IFilterAIGenerateResultModel,
+  IFilterFilter,
+  IFilterModel,
+  useApi,
+} from '..';
+import { toQueryString } from '../../../utils';
+import { defaultEnvelope, ILifecycleToasts } from '../../summon';
+
+/**
+ * Common hook to make requests to the API.
+ * @returns CustomAxios object setup for the API.
+ */
+export const useApiAdminFilters = (
+  options: {
+    lifecycleToasts?: ILifecycleToasts;
+    selector?: Function;
+    envelope?: typeof defaultEnvelope;
+    baseURL?: string;
+  } = {},
+) => {
+  const api = useApi(options);
+
+  return React.useRef({
+    findFilters: (filter: IFilterFilter) => {
+      const query = toQueryString(filter);
+      return api.get<never, AxiosResponse<IFilterModel[]>, any>(`/admin/filters?${query}`);
+    },
+    getFilter: (id: number) => {
+      return api.get<never, AxiosResponse<IFilterModel>, any>(`/admin/filters/${id}`);
+    },
+    addFilter: (model: IFilterModel) => {
+      return api.post<IFilterModel, AxiosResponse<IFilterModel>, any>(`/admin/filters`, model);
+    },
+    updateFilter: (model: IFilterModel) => {
+      return api.put<IFilterModel, AxiosResponse<IFilterModel>, any>(
+        `/admin/filters/${model.id}`,
+        model,
+      );
+    },
+    deleteFilter: (model: IFilterModel) => {
+      return api.delete<IFilterModel, AxiosResponse<IFilterModel>, any>(
+        `/admin/filters/${model.id}`,
+        {
+          data: model,
+        },
+      );
+    },
+    generateFilter: (model: IFilterAIGenerateRequestModel) => {
+      return api.post<
+        IFilterAIGenerateRequestModel,
+        AxiosResponse<IFilterAIGenerateResultModel>,
+        any
+      >(`/admin/filters/ai/generate`, model);
+    },
+    chatFilter: (model: IFilterAIChatRequestModel) => {
+      return api.post<IFilterAIChatRequestModel, AxiosResponse<IFilterAIChatResultModel>, any>(
+        `/admin/filters/ai/chat`,
+        model,
+      );
+    },
+  }).current;
+};

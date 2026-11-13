@@ -1,0 +1,161 @@
+import React from 'react';
+
+import { useAppDispatch, useAppSelector } from '@/editor/store';
+import {
+  type IActionModel,
+  type ICacheModel,
+  type IContributorModel,
+  type IDataLocationModel,
+  type IHolidayModel,
+  type IIngestTypeModel,
+  type ILicenseModel,
+  type ILLMModel,
+  type IMediaTypeModel,
+  type IMetricModel,
+  type IMinisterModel,
+  type IOrganizationModel,
+  type IRoleModel,
+  type ISeriesModel,
+  type ISettingModel,
+  type ISourceActionModel,
+  type ISourceModel,
+  type ITagModel,
+  type ITonePoolModel,
+  type ITopicModel,
+  type IUserModel,
+} from '@/shared';
+
+import {
+  storeActions,
+  storeCache,
+  storeContributors,
+  storeDataLocations,
+  storeHolidays,
+  storeIngestTypes,
+  storeIsReady,
+  storeLicenses,
+  storeLLMs,
+  storeMediaTypes,
+  storeMetrics,
+  storeMinisters,
+  storeOrganizations,
+  storeRoles,
+  storeSeries,
+  storeSettings,
+  storeSourceActions,
+  storeSources,
+  storeTags,
+  storeTonePools,
+  storeTopics,
+  storeUsers,
+  updateCache,
+} from '.';
+import { type ILookupState } from './interfaces';
+
+export interface ILookupStore {
+  storeIsReady: (isReady: boolean) => void;
+  storeCache: (cache: ICacheModel[]) => void;
+  updateCache: (cache: ICacheModel) => void;
+  storeActions: (actions: IActionModel[]) => void;
+  storeTopics: (topics: ITopicModel[]) => void;
+  storeMediaTypes: (contentTypes: IMediaTypeModel[]) => void;
+  storeSources: (sources: ISourceModel[]) => void;
+  storeLicenses: (licenses: ILicenseModel[]) => void;
+  storeIngestTypes: (ingestTypes: IIngestTypeModel[]) => void;
+  storeRoles: (roles: IRoleModel[]) => void;
+  storeSeries: (series: ISeriesModel[]) => void;
+  storeContributors: (contributors: IContributorModel[]) => void;
+  storeSourceActions: (actions: ISourceActionModel[]) => void;
+  storeMetrics: (metrics: IMetricModel[]) => void;
+  storeTags: (tags: ITagModel[]) => void;
+  storeTonePools: (contentTypes: ITonePoolModel[]) => void;
+  storeUsers: (users: IUserModel[]) => void;
+  storeDataLocations: (dataLocations: IDataLocationModel[]) => void;
+  storeSettings: (settings: ISettingModel[]) => void;
+  storeHolidays: (users: IHolidayModel[]) => void;
+  storeMinisters: (ministers: IMinisterModel[]) => void;
+  storeLLMs: (llms: ILLMModel[]) => void;
+  storeOrganizations: (organizations: IOrganizationModel[]) => void;
+}
+
+export const useLookupStore = (): [ILookupState, ILookupStore] => {
+  const dispatch = useAppDispatch();
+  const state = useAppSelector((store) => store.lookup);
+
+  const controller = React.useMemo(
+    () => ({
+      storeIsReady: (isReady: boolean) => {
+        dispatch(storeIsReady(isReady));
+      },
+      storeCache: (cache: ICacheModel[]) => {
+        dispatch(storeCache(cache));
+      },
+      updateCache: (cache: ICacheModel) => {
+        dispatch(updateCache(cache));
+      },
+      storeActions: (actions: IActionModel[]) => {
+        dispatch(storeActions(actions));
+      },
+      storeTopics: (topics: ITopicModel[]) => {
+        dispatch(storeTopics(topics));
+      },
+      storeMediaTypes: (contentTypes: IMediaTypeModel[]) => {
+        dispatch(storeMediaTypes(contentTypes));
+      },
+      storeSources: (sources: ISourceModel[]) => {
+        dispatch(storeSources(sources));
+      },
+      storeLicenses: (licenses: ILicenseModel[]) => {
+        dispatch(storeLicenses(licenses));
+      },
+      storeIngestTypes: (ingestTypes: IIngestTypeModel[]) => {
+        dispatch(storeIngestTypes(ingestTypes));
+      },
+      storeRoles: (roles: IRoleModel[]) => {
+        dispatch(storeRoles(roles));
+      },
+      storeSeries: (series: ISeriesModel[]) => {
+        dispatch(storeSeries(series));
+      },
+      storeContributors: (contributors: IContributorModel[]) => {
+        dispatch(storeContributors(contributors));
+      },
+      storeSourceActions: (actions: ISourceActionModel[]) => {
+        dispatch(storeSourceActions(actions));
+      },
+      storeMetrics: (metrics: IMetricModel[]) => {
+        dispatch(storeMetrics(metrics));
+      },
+      storeTags: (tags: ITagModel[]) => {
+        dispatch(storeTags(tags));
+      },
+      storeTonePools: (tonePools: ITonePoolModel[]) => {
+        dispatch(storeTonePools(tonePools));
+      },
+      storeUsers: (users: IUserModel[]) => {
+        dispatch(storeUsers(users));
+      },
+      storeDataLocations: (dataLocations: IDataLocationModel[]) => {
+        dispatch(storeDataLocations(dataLocations));
+      },
+      storeSettings: (settings: ISettingModel[]) => {
+        dispatch(storeSettings(settings));
+      },
+      storeHolidays: (holidays: IHolidayModel[]) => {
+        dispatch(storeHolidays(holidays));
+      },
+      storeLLMs: (llms: ILLMModel[]) => {
+        dispatch(storeLLMs(llms));
+      },
+      storeMinisters: (ministers: IMinisterModel[]) => {
+        dispatch(storeMinisters(ministers));
+      },
+      storeOrganizations: (organizations: IOrganizationModel[]) => {
+        dispatch(storeOrganizations(organizations));
+      },
+    }),
+    [dispatch],
+  );
+
+  return [state, controller];
+};

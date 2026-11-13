@@ -10,4 +10,5 @@ if [ ! $1 ]; then
 fi
 SERVICE=$1
 
-docker exec -it "tno-$SERVICE" bash -c "yarn install"
+# The web app uses npm (package-lock.json); the charts API (api/node) still uses Yarn.
+docker exec -it "tno-$SERVICE" bash -c "if [ -f package-lock.json ]; then npm ci; else yarn install; fi"

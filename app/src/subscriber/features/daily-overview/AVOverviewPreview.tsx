@@ -1,0 +1,170 @@
+import parse from 'html-react-parser';
+import React, { type JSX } from 'react';
+import { useSearchParams } from 'react-router';
+
+import { Col, IReportResultModel, Loader, Show } from '@/shared';
+import { dayjs } from '@/shared/utils/date';
+import { DateFilter } from '@/subscriber/components/date-filter';
+import { useAVOverviewInstances, useContent, useLookup } from '@/subscriber/store/hooks';
+
+import * as styled from './styled';
+
+const AVOverviewPreview: React.FC = () => {
+  const [
+    {
+      avOverview: { filter: avOverviewFilter },
+    },
+    { storeAvOverviewDateFilter: storeFilter },
+  ] = useContent();
+  const [params] = useSearchParams();
+  const dateUrlParam = params.get('date');
+  const [{ findAVOverview, viewAVOverview }] = useAVOverviewInstances();
+  const [{ settings }] = useLookup();
+  const [date, setDate] = React.useState<string>();
+
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [preview, setPreview] = React.useState<IReportResultModel | undefined>();
+  const [isPublished, setIsPublished] = React.useState(false);
+  const [reactElements, setReactElements] = React.useState<string | JSX.Element | JSX.Element[]>();
+
+  // Evening overviews older than the report retention have been purged.
+  const retentionDays = Number(settings.find((s) => s.name === 'ReportRetentionDays')?.value ?? 0);
+  const isPurged =
+    retentionDays > 0 &&
+    !!date &&
+    dayjs(date).isBefore(dayjs().startOf('day').subtract(retentionDays, 'days'));
+
+  const clear = () => {
+    setIsLoading(true);
+    setPreview(undefined);
+    setReactElements(undefined);
+  };
+
+  // Only used on initial load when a date hasn't been manually selected
+  // Default to display the most recent published Evening Overview report
+  const getLatestPublishedOverview = React.useCallback(async () => {
+    try {
+      clear();
+
+      let instance = await findAVOverview();
+
+      if (!!instance?.id) {
+        // set date to latest published av overview
+        const latestPublishedOnDate = dayjs(instance.publishedOn).startOf('day').toISOString();
+        if (latestPublishedOnDate !== avOverviewFilter?.startDate) {
+          setDate(latestPublishedOnDate);
+          storeFilter({
+            ...avOverviewFilter,
+            startDate: dayjs(latestPublishedOnDate).add(1, 'days').startOf('day').toISOString(),
+            endDate: dayjs(latestPublishedOnDate).add(1, 'days').endOf('day').toISOString(),
+          });
+        }
+        const preview = await viewAVOverview(instance.id);
+        setIsPublished(instance.isPublished);
+        setPreview(preview);
+      } else {
+        // if nothing found, just set date to current date
+        setDate(dayjs().startOf('day').toISOString());
+      }
+    } catch {
+    } finally {
+      setIsLoading(false);
+    }
+    // Ignoring updates to avOverviewFilter since that's handled in the below useEffect
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [findAVOverview, viewAVOverview]);
+
+  // Used to refresh preview data for newly selected date
+  const handleChangeReportDate = React.useCallback(
+    async (overrideDate?: string) => {
+      try {
+        clear();
+
+        const filterDate = dayjs(overrideDate ?? avOverviewFilter?.startDate)
+          .startOf('day')
+          .toISOString();
+        let instance = await findAVOverview(filterDate);
+
+        setDate(filterDate);
+        if (!!instance?.id) {
+          const preview = await viewAVOverview(instance.id);
+          setIsPublished(instance.isPublished);
+          setPreview(preview);
+        }
+      } catch {
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [findAVOverview, viewAVOverview, avOverviewFilter],
+  );
+
+  React.useEffect(() => {
+    if (!date && dateUrlParam) {
+      // Case 1: No date stored in memory, but there's a date parameter in path
+      // in this case use that date param, set local state & fetch the overview
+      setDate(dayjs(dateUrlParam).startOf('day').toISOString());
+      storeFilter({
+        ...avOverviewFilter,
+        startDate: dayjs(dateUrlParam).startOf('day').toISOString(),
+        endDate: dayjs(dateUrlParam).endOf('day').toISOString(),
+      });
+      handleChangeReportDate(dateUrlParam);
+      // Case 2: No date in memory, and no date param in path, in this
+      // case simply just fetch the latest published overview
+    } else if (!date && !dateUrlParam) {
+      getLatestPublishedOverview();
+      // Case 3: There's a date in memory, but that doesn't match the date
+      // which the filter is showing. In this case, fetch overview for filter
+      // date and update the date in memory so it's matching.
+    } else if (!!date && date !== avOverviewFilter?.startDate) {
+      handleChangeReportDate();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [date, getLatestPublishedOverview, handleChangeReportDate, avOverviewFilter, dateUrlParam]);
+
+  React.useEffect(() => {
+    window.history.pushState({}, '', `?date=${dayjs(date).format('YYYY/MM/DD')}`);
+    // we only want to update the date in the url when date in memory changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [date]);
+
+  React.useEffect(() => {
+    if (!preview?.body) return;
+    const htmlToReactElements = parse(preview?.body ?? '');
+    setReactElements(htmlToReactElements);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preview?.body]);
+
+  return (
+    <styled.AVOverviewPreview>
+      <Loader visible={isLoading} />
+      <Show visible={!isLoading}>
+        <DateFilter
+          date={avOverviewFilter.startDate}
+          onChangeDate={(start, end) =>
+            storeFilter({
+              ...avOverviewFilter,
+              startDate: start,
+              endDate: end,
+              dateOffset: undefined,
+            })
+          }
+        />
+        <Show visible={!isLoading && !!isPublished && !!reactElements}>
+          <Col className="preview-report">
+            <div className="preview-body">{reactElements}</div>
+          </Col>
+        </Show>
+      </Show>
+      <Show visible={(!isPublished || !reactElements) && !isPurged}>
+        No report has been published yet. Please check back later.
+      </Show>
+      <Show visible={(!isPublished || !reactElements) && isPurged}>
+        {`Evening overviews are kept for ${retentionDays} days, and this date is no longer available.`}
+      </Show>
+    </styled.AVOverviewPreview>
+  );
+};
+
+export default AVOverviewPreview;

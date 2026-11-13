@@ -1,0 +1,434 @@
+import React from 'react';
+import { FaBookmark, FaCaretLeft, FaCaretRight } from 'react-icons/fa6';
+import { useParams } from 'react-router';
+import { toast } from 'react-toastify';
+
+import {
+  Col,
+  IContentModel,
+  IFilterSettingsModel,
+  Loader,
+  Row,
+  Show,
+  useWindowSize,
+} from '@/shared';
+import { dayjs, type Dayjs } from '@/shared/utils/date';
+import { IndicesValidateQueryResponse, KnnSearchResponse } from '@/shared/utils/elastic/esTypes';
+import { BasicSearch } from '@/subscriber/components/basic-search';
+import { ContentList, ViewOptions } from '@/subscriber/components/content-list';
+import { DateFilter } from '@/subscriber/components/date-filter';
+import { FilterOptions } from '@/subscriber/components/media-type-filters';
+import { PageSection } from '@/subscriber/components/section';
+import { ContentListActionBar } from '@/subscriber/components/tool-bar';
+import { useElastic } from '@/subscriber/features/my-searches/hooks';
+import { castToSearchResult } from '@/subscriber/features/utils';
+import { IContentSearchResult } from '@/subscriber/features/utils/interfaces';
+import { useApp, useContent, useFilters, useSettings } from '@/subscriber/store/hooks';
+import { useProfileStore } from '@/subscriber/store/slices';
+
+import { AdvancedSearch } from './components';
+import { PreviousResults } from './PreviousResults';
+import { useSearchPageContext } from './SearchPageContext';
+import * as styled from './styled';
+import { filterFormat } from './utils';
+
+export interface ISearchType {
+  showAdvanced?: boolean;
+  showDate?: boolean;
+}
+
+// Simple component to display users search results
+export const SearchPage: React.FC<ISearchType> = ({ showAdvanced, showDate: initShowDate }) => {
+  const { id } = useParams();
+  const [
+    {
+      search: { filter },
+      searchResults: { filter: secondaryFilter },
+    },
+    { findContentWithElasticsearch, storeSearchFilter, validateElasticsearchQuery },
+  ] = useContent();
+  // The query can't be generated until this setting has been loaded.
+  const { frontPageImageMediaTypeId } = useSettings();
+  const { width } = useWindowSize();
+  const genQuery = useElastic();
+  const [, { getFilter }] = useFilters();
+  const [{ from, filter: activeFilter }, { storeFrom, storeFilter }] = useProfileStore();
+  const [{ requests }] = useApp();
+  const [queryValidateResult, setQueryValidateResult] = React.useState<string[]>(['']);
+
+  const [init, setInit] = React.useState(true); // React hooks are horrible...
+  const [currDateResults, setCurrDateResults] = React.useState<IContentSearchResult[]>([]);
+  const [prevDateResults, setPrevDateResults] = React.useState<IContentSearchResult[]>([]);
+  const [selected, setSelected] = React.useState<IContentModel[]>([]);
+  const { expanded } = useSearchPageContext();
+  const [startDate, setStartDate] = React.useState<Dayjs>(dayjs());
+  const filterId = React.useMemo(() => (id ? parseInt(id) : 0), [id]);
+  const [searchFilter, setSearchFilter] = React.useState<IFilterSettingsModel | null>(null);
+  const [showResults, setShowResults] = React.useState(false);
+
+  const [dateVisible, setDateVisible] = React.useState(initShowDate); // show/hide the date navigation component.
+  const [selectedDate, setSelectedDate] = React.useState<string | undefined>(); // The selected date for the navigation component.
+
+  React.useEffect(() => {
+    // Fetch the active filter if required.
+    if (filterId && init && activeFilter?.id !== filterId) {
+      setInit(false);
+      getFilter(filterId)
+        .then((filter) => {
+          // Store the settings first, the search runs as soon as the active filter matches the route.
+          storeSearchFilter(filter.settings);
+          storeFilter(filter);
+        })
+        .catch(() => {});
+    } else if (!filterId) {
+      storeFilter(undefined);
+    }
+  }, [activeFilter, getFilter, filterId, init, storeFilter, storeSearchFilter]);
+
+  React.useEffect(() => {
+    setDateVisible(initShowDate);
+  }, [initShowDate]);
+
+  const groupResults = React.useCallback(
+    (res: KnnSearchResponse<IContentModel>, currStartDate: Dayjs, groupStoredContent: boolean) => {
+      const currDateResults: IContentSearchResult[] = [],
+        prevDateResults: IContentSearchResult[] = [];
+      res.hits.hits.forEach((h) => {
+        if (!h._source) return;
+        const content = castToSearchResult(h._source);
+        const resDate = dayjs(content.publishedOn);
+        if (resDate >= currStartDate) {
+          // result occurred during currently selected date
+          currDateResults.push(content);
+        } else {
+          prevDateResults.push(content);
+        }
+      });
+      setCurrDateResults(currDateResults);
+      setPrevDateResults(prevDateResults);
+      if (!groupStoredContent) {
+        if (
+          (typeof res.hits.total === 'number' && res.hits.total === 0) ||
+          (res.hits.total !== undefined &&
+            typeof res.hits.total !== 'number' &&
+            'value' in res.hits.total &&
+            res.hits.total.value === 0)
+        )
+          toast.warn('No results found.');
+        if (currDateResults.length >= 500)
+          toast.warn(
+            'Search returned 500+ results, only showing first 500. Please consider refining your search.',
+          );
+      }
+    },
+    [],
+  );
+
+  const parseValidationResults = (data: IndicesValidateQueryResponse | undefined) => {
+    if (!data?.valid) {
+      const error = data?.explanations?.find((x) => x.error)?.error;
+      const regex = / at line \d+, column \d+/;
+      const found = (error ?? '').match(regex);
+      if (found) {
+        return [`ERROR: ${found[0]}`];
+      }
+      return ['--Failed to parse query--'];
+    }
+    return [];
+  };
+
+  const advancedQuerySyntaxHasWarning = React.useCallback((filter: IFilterSettingsModel) => {
+    try {
+      const warnings = [];
+      const query = filter.search;
+      if (filter.queryType === 'query-string') {
+        if (query) {
+          const regex = /[^|&][|&][^|&]/;
+          var match = regex.exec(query);
+          if (match) {
+            warnings.push(`WARNING: index: ${Number(match.index)}`);
+          }
+        }
+      }
+      if (warnings.length > 0) {
+        return warnings;
+      }
+    } catch {
+    } finally {
+    }
+    return [];
+  }, []);
+
+  const validationResults = React.useCallback(
+    (res: IndicesValidateQueryResponse | undefined, filter: IFilterSettingsModel) => {
+      const errors = parseValidationResults(res);
+      if (errors.length < 1) {
+        const warnings = advancedQuerySyntaxHasWarning(filter);
+        setQueryValidateResult(warnings);
+        return;
+      }
+      setQueryValidateResult(errors);
+    },
+    [advancedQuerySyntaxHasWarning],
+  );
+
+  // Check the secondary filter (FilterOptions component) and merge the options according to each search criteria.
+  const mergeFilters = React.useCallback(
+    (currentFilter: IFilterSettingsModel) => {
+      const newFilter = { ...currentFilter };
+      if (newFilter.contentTypes) {
+        const contentTypesArray = [...newFilter.contentTypes];
+        secondaryFilter.contentTypes?.forEach((c) => {
+          contentTypesArray.push(c);
+        });
+        newFilter.contentTypes = contentTypesArray;
+      }
+      if (
+        newFilter.mediaTypeIds &&
+        secondaryFilter.mediaTypeIds &&
+        secondaryFilter.mediaTypeIds.length > 0
+      ) {
+        newFilter.mediaTypeIds = secondaryFilter.mediaTypeIds;
+      }
+      if (
+        newFilter.sourceIds &&
+        secondaryFilter.sourceIds &&
+        secondaryFilter.sourceIds.length > 0
+      ) {
+        newFilter.sourceIds = secondaryFilter.sourceIds;
+      }
+      return newFilter;
+    },
+    [secondaryFilter],
+  );
+
+  const fetchResults = React.useCallback(
+    async (
+      filter: IFilterSettingsModel,
+      storedContent?: KnnSearchResponse<IContentModel>,
+      oneDay: boolean = false,
+    ) => {
+      try {
+        setShowResults(false);
+        let newFilter = filter;
+        if (filter.dateOffset !== undefined) {
+          newFilter = {
+            ...filter,
+            dateOffset: filter.dateOffset + 7,
+          };
+        }
+        const offset = filter.dateOffset ?? 0;
+
+        let offsetDate =
+          offset <= 2 ? dayjs().add(offset * 24 * -1, 'hour') : dayjs().add(offset * -1, 'day');
+        if (offset > 2 || offset === 0) offsetDate = offsetDate.startOf('day');
+
+        // if no date offset/ start date this means the user is looking for all content
+        // unix epoch used as a default start date for all content
+        const currStartDate = filter.startDate
+          ? dayjs(filter.startDate)
+          : filter.dateOffset !== undefined
+            ? dayjs(offsetDate)
+            : dayjs(1432252800); // 1970
+        const prevStartDate = dayjs(currStartDate).add(-7, 'day');
+
+        const currEndDate = (filter.endDate ? dayjs(filter.endDate) : dayjs()).endOf('day');
+
+        setStartDate(currStartDate);
+        if (filter.startDate && filter.endDate) {
+          newFilter = {
+            ...filter,
+            dateOffset: undefined,
+            startDate: oneDay ? currStartDate.toISOString() : prevStartDate.toISOString(),
+            endDate: currEndDate.toISOString(),
+          };
+        }
+        newFilter = mergeFilters(newFilter);
+        const settings = filterFormat(newFilter);
+        const query = genQuery(settings);
+        if (!query) return;
+        let res;
+        let groupStoredContent = false;
+        if (!storedContent) {
+          storeFrom(query.from ?? 0);
+          res = await findContentWithElasticsearch(query, filter.searchUnpublished, 'search');
+        } else {
+          res = storedContent;
+          groupStoredContent = true;
+        }
+        groupResults(res, currStartDate, groupStoredContent);
+      } catch {
+      } finally {
+        setShowResults(true);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [findContentWithElasticsearch, genQuery, groupResults, mergeFilters],
+  );
+
+  const validateQueryString = React.useCallback(
+    async (
+      filter: IFilterSettingsModel,
+      storedContent?: KnnSearchResponse<IContentModel>,
+      oneDay: boolean = false,
+    ) => {
+      try {
+        const settings = filterFormat(filter);
+        const query = genQuery(settings);
+        let res;
+        if (!storedContent) {
+          storeFrom(query?.from ?? 0);
+          res = await validateElasticsearchQuery(query ?? {}, filter.searchUnpublished, 'headline');
+          validationResults(res, filter);
+        }
+      } catch {
+      } finally {
+      }
+    },
+    [genQuery, storeFrom, validateElasticsearchQuery, validationResults],
+  );
+
+  // The search runs by itself once when the page is ready, and again whenever the result filter buttons change.
+  // Everything else (search button, paging, date navigation) calls fetchResults directly.
+  // The ref makes the effect idempotent, so React StrictMode replaying it on mount doesn't search twice.
+  const autoSearch = React.useRef<{ ran: boolean; secondaryFilter?: IFilterSettingsModel }>({
+    ran: false,
+  });
+  React.useEffect(() => {
+    if (!frontPageImageMediaTypeId) return; // Settings are still loading, no query can be generated yet.
+    if (filterId && activeFilter?.id !== filterId) return; // A saved search is still loading.
+    if (autoSearch.current.ran && autoSearch.current.secondaryFilter === secondaryFilter) return;
+    autoSearch.current = { ran: true, secondaryFilter };
+    fetchResults(filter);
+    // Typing in the search box changes `filter`; that must not search until the user asks for it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [frontPageImageMediaTypeId, filterId, activeFilter?.id, secondaryFilter, fetchResults]);
+
+  const handleContentSelected = React.useCallback((content: IContentModel[]) => {
+    setSelected(content);
+  }, []);
+
+  return (
+    <styled.SearchPage expanded={expanded}>
+      <Row className="search-container">
+        {/* LEFT SIDE */}
+        <Show visible={showAdvanced}>
+          <Col className="adv-search-container">
+            <AdvancedSearch
+              onSearch={fetchResults}
+              setSearchFilter={setSearchFilter}
+              validateQuery={validateQueryString}
+              queryValidateResult={queryValidateResult}
+            />
+          </Col>
+        </Show>
+        {/* RIGHT SIDE */}
+        <Col className={showAdvanced ? 'result-container' : 'result-container-full'}>
+          <Show visible={!showAdvanced && !!width && width > 900}>
+            <BasicSearch onSearch={() => fetchResults(filter)} />
+          </Show>
+          <PageSection
+            header={
+              <Col className="header-col">
+                <Row className="header-row">
+                  <div className="title">{`Search Results`}</div>
+                  <FilterOptions filterStoreName={'searchResults'} />
+                  <ViewOptions />
+                </Row>
+                <Row gap="1rem" className="search-results">
+                  {!!currDateResults.length && (
+                    <p className="result-total">{`${currDateResults.length} stories found`}</p>
+                  )}
+                  <Row className="search-results-paging">
+                    {!!from && (
+                      <FaCaretLeft
+                        className="btn"
+                        title="Previous Page"
+                        onClick={() => {
+                          const position = from ? from - filter.size : 0;
+                          const newFilter = {
+                            ...filter,
+                            from: position > 0 ? position : undefined,
+                          };
+                          fetchResults(newFilter);
+                        }}
+                      />
+                    )}
+                    p.
+                    {from >= filter.size ? Math.floor(from / filter.size) + 1 : 1}
+                    {filter.size === currDateResults.length && (
+                      <FaCaretRight
+                        className="btn"
+                        title="Next Page"
+                        onClick={() => {
+                          const position = from + filter.size;
+                          const newFilter = { ...filter, from: position };
+                          fetchResults(newFilter);
+                        }}
+                      />
+                    )}
+                  </Row>
+                </Row>
+              </Col>
+            }
+          >
+            <ContentListActionBar
+              content={selected}
+              onClear={() => setSelected([])}
+              onSelectAll={(e) => {
+                const values = currDateResults.map((c) => c.id);
+                const oldSelected = selected.filter((s) => !values.includes(s.id));
+                e.target.checked
+                  ? setSelected([...oldSelected, ...currDateResults])
+                  : setSelected(oldSelected);
+              }}
+              className="search"
+            />
+            <Show visible={dateVisible}>
+              <DateFilter
+                date={selectedDate}
+                onChangeDate={(start, end) => {
+                  setSelectedDate(start);
+                  fetchResults(
+                    { ...filter, startDate: start, endDate: end, dateOffset: undefined },
+                    undefined,
+                    true,
+                  );
+                }}
+              />
+            </Show>
+            <br />
+            <Show visible={!!activeFilter}>
+              <div className="viewed-name ">
+                <FaBookmark />
+                <div className="filter-name">{activeFilter?.name}</div>
+              </div>
+            </Show>
+            <Show visible={showResults && !!currDateResults.length}>
+              <ContentList
+                onContentSelected={handleContentSelected}
+                content={currDateResults}
+                selected={selected}
+                showDate
+                showTime
+                showSeries
+                scrollWithin
+                filter={searchFilter ?? undefined}
+              />
+            </Show>
+            <Show visible={!currDateResults.length}>
+              <PreviousResults
+                currDateResults={currDateResults}
+                prevDateResults={prevDateResults}
+                startDate={startDate}
+                setResults={setPrevDateResults}
+                executeSearch={fetchResults}
+              />
+            </Show>
+            <Loader visible={requests.some((r) => r.url === 'find-contents-with-elasticsearch')} />
+          </PageSection>
+        </Col>
+      </Row>
+    </styled.SearchPage>
+  );
+};

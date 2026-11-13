@@ -1,0 +1,63 @@
+import { useFormikContext } from 'formik';
+
+import { type IAVOverviewInstanceModel } from '@/shared';
+
+import * as styled from './styled';
+import { type ISectionSummary } from './utils';
+
+export interface ISummarySuggestionProps {
+  show?: boolean;
+  sectionIndex: number;
+  itemIndex: number;
+  suggestions?: ISectionSummary[];
+  onClose: (itemIndex: number) => void;
+}
+
+/**
+ * Provides a popup containing summaries to pick from.
+ * @param param0 Component properties
+ * @returns component
+ */
+export const SummarySuggestion: React.FC<ISummarySuggestionProps> = ({
+  show,
+  sectionIndex,
+  itemIndex,
+  suggestions,
+  onClose,
+}) => {
+  const { values, setFieldValue } = useFormikContext<IAVOverviewInstanceModel>();
+
+  const item = values.sections[sectionIndex].items[itemIndex];
+  const items =
+    suggestions?.filter(
+      (s) =>
+        s.key !== `${sectionIndex}-${itemIndex}` &&
+        s.text.toLocaleLowerCase().startsWith(item.summary.toLocaleLowerCase()),
+    ) ?? [];
+
+  return (
+    <>
+      {items.length > 0 && show && (
+        <styled.AutoCompleteContainer>
+          {items.map((suggestion: ISectionSummary) => {
+            return (
+              <styled.AutoCompleteItem key={suggestion.key}>
+                <styled.AutoCompleteItemButton
+                  onClick={() => {
+                    setFieldValue(
+                      `sections.${sectionIndex}.items.${itemIndex}.summary`,
+                      suggestion.text,
+                    );
+                    onClose(itemIndex);
+                  }}
+                >
+                  {suggestion.text}
+                </styled.AutoCompleteItemButton>
+              </styled.AutoCompleteItem>
+            );
+          })}
+        </styled.AutoCompleteContainer>
+      )}
+    </>
+  );
+};

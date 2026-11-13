@@ -1,8 +1,0 @@
-{
-  "realm": "mmi",
-  "auth-server-url": "http://localhost:40001/",
-  "ssl-required": "external",
-  "resource": "mmi-app",
-  "public-client": true,
-  "confidential-port": 0
-}

@@ -8,16 +8,16 @@
 # DO NOT add application-level CVEs here — those must be fixed in code.
 #
 # Planned base image upgrades:
-#   - node:18-bullseye (Debian 11 EOL) → node:18-bookworm (Debian 12)
-#   - nginxinc/nginx-unprivileged:1.24 → nginx-unprivileged:1.26-alpine
+#   - nginxinc/nginx-unprivileged:1.24 (Debian 11 EOL) → a Debian 12 or alpine release
+#     (the app image's runtime stage; its Node 26 build stage is not shipped)
 #   - mcr.microsoft.com/dotnet/aspnet:9.0 — rebuild to pick up latest patch
 #
 # Last reviewed: 2026-04-28
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# Debian 11 (Bullseye) — node:18-bullseye base image (editor, subscriber)
-# These will all be eliminated by upgrading to node:18-bookworm
+# Debian 11 (Bullseye) — nginx-unprivileged:1.24, runtime stage of the app image
+# (editor, subscriber). Eliminated by moving the runtime stage to a newer nginx image.
 # -----------------------------------------------------------------------------
 
 # -- libxml2 (2.9.10) --------------------------------------------------------
