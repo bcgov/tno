@@ -1,12 +1,16 @@
 import React from 'react';
+import { useStore } from 'react-redux';
 
-import { AdvancedSearchKeys } from '@/editor/features/content/constants';
 import {
   type IContentListAdvancedFilter,
   type IContentListFilter,
 } from '@/editor/features/content/interfaces';
-import { useAppDispatch, useAppSelector, type ActionDelegate } from '@/editor/store';
-import { LogicalOperator } from '@/shared';
+import {
+  useAppDispatch,
+  useAppSelector,
+  type ActionDelegate,
+  type RootState,
+} from '@/editor/store';
 
 import {
   storeContentFilter,
@@ -31,49 +35,42 @@ export interface IContentStore {
   ) => void;
 }
 
-let filterAdvanced: IContentListAdvancedFilter = {
-  fieldType: AdvancedSearchKeys.Source,
-  logicalOperator: '',
-  searchTerm: '',
-  secondaryFieldType: AdvancedSearchKeys.Source,
-  secondaryLogicalOperator: LogicalOperator.Contains,
-  secondarySearchTerm: '',
-};
-
 export const useContentStore = (props?: IContentProps): [IContentState, IContentStore] => {
   const dispatch = useAppDispatch();
   const state = useAppSelector((store) => store.content);
-
-  // We need to do this because react useEffects are garbage.
-  // Reset the value every time so that the memo has the correct value.
-  filterAdvanced = state.filterAdvanced;
+  // Updates given as a function apply to the store as it is when they are made. The 'state' this
+  // render selected can be out of date by then: two requests started together would each apply their
+  // update to the same old value, and the last to finish would discard the other's.
+  const store = useStore<RootState>();
 
   const controller = React.useMemo(
     () => ({
       storeFilter: (filter: IContentListFilter | ActionDelegate<IContentListFilter>) => {
-        if (typeof filter === 'function') dispatch(storeContentFilter(filter(state.filter)));
+        if (typeof filter === 'function')
+          dispatch(storeContentFilter(filter(store.getState().content.filter)));
         else dispatch(storeContentFilter(filter));
       },
       storeFilterAdvanced: (
         filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
       ) => {
         if (typeof filter === 'function') {
-          dispatch(storeContentFilterAdvanced(filter(filterAdvanced)));
+          dispatch(storeContentFilterAdvanced(filter(store.getState().content.filterAdvanced)));
         } else dispatch(storeContentFilterAdvanced(filter));
       },
       storeFilterPaper: (filter: IContentListFilter | ActionDelegate<IContentListFilter>) => {
-        if (typeof filter === 'function') dispatch(storeFilterPaper(filter(state.filterPaper)));
+        if (typeof filter === 'function')
+          dispatch(storeFilterPaper(filter(store.getState().content.filterPaper)));
         else dispatch(storeFilterPaper(filter));
       },
       storeFilterPaperAdvanced: (
         filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
       ) => {
         if (typeof filter === 'function') {
-          dispatch(storeFilterPaperAdvanced(filter(filterAdvanced)));
+          dispatch(storeFilterPaperAdvanced(filter(store.getState().content.filterPaperAdvanced)));
         } else dispatch(storeFilterPaperAdvanced(filter));
       },
     }),
-    [dispatch, state.filter, state.filterPaper],
+    [dispatch, store],
   );
 
   return [state, controller];
