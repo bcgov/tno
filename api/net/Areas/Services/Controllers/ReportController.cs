@@ -169,9 +169,10 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult GetCurrentInstance(int id, int? ownerId)
     {
-        var instance = _service.GetCurrentReportInstance(id, ownerId, true);
-        if (instance == null) return NoContent();
         var report = _service.FindById(id);
+        var collectionOnly = report != null && (JsonSerializer.Deserialize<TNO.API.Models.Settings.ReportSettingsModel>(report.Settings, _serializerOptions)?.CollectionOnly ?? false);
+        var instance = _service.GetCurrentReportInstance(id, ownerId, true, collectionOnly);
+        if (instance == null) return NoContent();
         instance.Report = report;
         return new JsonResult(new ReportInstanceModel(instance, _serializerOptions));
     }

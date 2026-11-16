@@ -267,13 +267,15 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
             var reportingException = ex as ReportingException;
             if (reportingException != null)
             {
-                message.Value.ReportInstanceId = reportingException.InstanceId;
-                message.Value.Data = JsonSerializer.SerializeToDocument(new { reportingException.Error, FailureCount = failureCount + 1 }, _serializationOptions);
+                message.Value.ReportInstanceId = reportingException.Error == ReportingErrors.FailedToUpdateInstance
+                    ? null : reportingException.InstanceId;
             }
-            else
-            {
-                message.Value.Data = JsonSerializer.SerializeToDocument(new { FailureCount = failureCount + 1 }, _serializationOptions);
-            }
+            // A run that saved its output is retried against that instance, whatever failed after
+            // it; a failure that sends the report back to collection has no saved output to keep.
+            var backToCollection = reportingException != null && !message.Value.ReportInstanceId.HasValue;
+            var outputInstanceId = backToCollection ? null : GetOutputInstanceId(message.Value);
+            if (outputInstanceId.HasValue) message.Value.ReportInstanceId = outputInstanceId;
+            message.Value.Data = JsonSerializer.SerializeToDocument(new RetryState(reportingException?.Error, failureCount + 1, outputInstanceId), _serializationOptions);
             // Add the report request back to Kafka so that it runs again.
             await this.Api.SendMessageAsync(message.Value);
         }
@@ -647,7 +649,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
                     PublishedOn = DateTime.UtcNow,
                     Content = instanceContent,
                 };
-                instanceModel = await this.Api.UpdateReportInstanceAsync(instanceModel, true) ?? throw new InvalidOperationException($"Report instance failed to be returned by API. ReportId:{instanceModel.ReportId}, InstanceId:{instanceModel.Id}");
+                instanceModel = await SaveCollectedContentAsync(instanceModel);
             }
             catch (Exception ex)
             {
@@ -669,6 +671,43 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
         }
 
         return (instanceModel, sectionContent);
+    }
+
+    /// <summary>
+    /// Save the stories collected into the report instance.
+    /// A failed request does not say whether the API saved them, so the instance is read again.
+    /// A version that has not moved means nothing was saved and the same update is sent again.
+    /// A version that has moved means the update was saved, and that copy of the instance is used.
+    /// An update the API rejected because the instance had changed is not sent again: the stories
+    /// were collected from the copy that was replaced, so the failure goes back to collection.
+    /// </summary>
+    /// <param name="instance"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    private async Task<API.Areas.Services.Models.ReportInstance.ReportInstanceModel> SaveCollectedContentAsync(API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance)
+    {
+        for (var attempt = 1; ; attempt++)
+        {
+            try
+            {
+                return await this.Api.UpdateReportInstanceAsync(instance, true) ?? throw new InvalidOperationException($"Report instance failed to be returned by API. ReportId:{instance.ReportId}, InstanceId:{instance.Id}");
+            }
+            catch (Exception ex)
+            {
+                if (await ApiService.IsConcurrencyErrorAsync(ex)) throw;
+
+                this.Logger.LogWarning(ex, "Failed to save the stories of a report instance; checking whether they were saved. ReportId:{reportId} InstanceId:{instanceId} Attempt:{attempt}", instance.ReportId, instance.Id, attempt);
+                var latest = await this.Api.GetReportInstanceAsync(instance.Id) ?? throw new InvalidOperationException($"Report instance failed to be returned by API. ReportId:{instance.ReportId}, InstanceId:{instance.Id}");
+                if (latest.Version != instance.Version)
+                {
+                    this.Logger.LogInformation("The stories of the report instance were saved by the failed request. ReportId:{reportId} InstanceId:{instanceId}", instance.ReportId, instance.Id);
+                    return latest;
+                }
+
+                if (attempt >= this.Options.RetryLimit) throw;
+                await Task.Delay(this.Options.RetryDelayMS);
+            }
+        }
     }
 
     /// <summary>
@@ -716,16 +755,53 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
     /// Determine if this request is a retry.
     /// A retry is due to a failure in the prior attempt.
     /// A retry will result in a report being sent only to failed subscribers.
-    /// A retry reuses the instance's output, so the output must exist; a failure before it was
-    /// generated (i.e. fetching content) requires generating it again.
+    /// A retry reuses the instance's output. The output is saved when a run reaches the point of
+    /// sending the emails, where it is known to be correct, and the request is marked then. Whatever
+    /// fails after that, the retry sends the same subject and body. A request that is not marked
+    /// (i.e. it failed fetching content) has to generate its output, even when the instance holds
+    /// output from an earlier send.
     /// </summary>
     /// <param name="request"></param>
     /// <param name="instance"></param>
     /// <returns></returns>
     private static bool IsRetry(ReportRequestModel request, API.Areas.Services.Models.ReportInstance.ReportInstanceModel? instance)
     {
-        var errorStatus = request.Data.GetElementValue<ReportingErrors?>(".error");
-        return !IsResend(request, instance) && errorStatus.HasValue && !String.IsNullOrWhiteSpace(instance?.Subject) && !String.IsNullOrWhiteSpace(instance?.Body);
+        return !IsResend(request, instance) && instance != null && GetOutputInstanceId(request) == instance.Id && !String.IsNullOrWhiteSpace(instance.Subject) && !String.IsNullOrWhiteSpace(instance.Body);
+    }
+
+    /// <summary>
+    /// What a request that is being retried carries about the attempts before it.
+    /// The names are fixed, as they are read by path whatever naming policy the service is configured with.
+    /// </summary>
+    /// <param name="Error">The failure of the attempt before this one.</param>
+    /// <param name="FailureCount">The number of attempts that have failed.</param>
+    /// <param name="OutputInstanceId">The instance an attempt saved its subject and body to.</param>
+    private sealed record RetryState(
+        [property: System.Text.Json.Serialization.JsonPropertyName("error")] ReportingErrors? Error,
+        [property: System.Text.Json.Serialization.JsonPropertyName("failureCount")] int FailureCount,
+        [property: System.Text.Json.Serialization.JsonPropertyName("outputInstanceId")] long? OutputInstanceId);
+
+    /// <summary>
+    /// Get the instance an earlier attempt of this request saved its output to.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    private static long? GetOutputInstanceId(ReportRequestModel request)
+    {
+        return request.Data.GetElementValue<long?>(".outputInstanceId");
+    }
+
+    /// <summary>
+    /// Record on the request the instance its output was saved to, or that it has none.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="instanceId"></param>
+    private void SetOutputInstanceId(ReportRequestModel request, long? instanceId)
+    {
+        request.Data = JsonSerializer.SerializeToDocument(new RetryState(
+            request.Data.GetElementValue<ReportingErrors?>(".error"),
+            request.Data.GetElementValue<int?>(".failureCount") ?? 0,
+            instanceId), _serializationOptions);
     }
 
     /// <summary>
@@ -741,6 +817,13 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
         var retry = IsRetry(request, instance);
         var report = instance.Report ?? throw new ArgumentException("Report instance must include the report model.");
         var sections = report.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s));
+
+        if (report.Settings.CollectionOnly)
+        {
+            await this.Api.GenerateReportInstanceChartsAsync(instance.Id, request.RequestorId);
+            await SendReportAsync(request, report, instance, new());
+            return;
+        }
 
         var searchResults = !resending && !retry ? await this.Api.GetContentForReportInstanceIdAsync(instance.Id) : Array.Empty<API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel>();
         var sectionContent = GetSectionContent(sections, searchResults);
@@ -927,6 +1010,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
         API.Areas.Services.Models.ReportInstance.ReportInstanceModel? instance,
         Dictionary<string, ReportSectionModel> sectionContent)
     {
+        var hadSavedOutput = GetOutputInstanceId(request).HasValue;
         try
         {
             if (report.Settings.CollectionOnly)
@@ -979,7 +1063,16 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
         {
             if (request.GenerateInstance && instance != null)
             {
-                await UpdateReportInstanceAsync(instance, false);
+                try
+                {
+                    await UpdateReportInstanceAsync(instance, false);
+                }
+                catch
+                {
+                    // Output this run generated was not saved, so a retry has nothing to reuse.
+                    if (!hadSavedOutput) SetOutputInstanceId(request, null);
+                    throw;
+                }
             }
         }
     }
@@ -1098,6 +1191,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
                 if (instance.PublishedOn == null) instance.PublishedOn = DateTime.UtcNow;
                 if (request.SendToSubscribers)
                     instance.SentOn = DateTime.UtcNow; // We track when it was sent, even if it failed.
+                // The output is correct at this point, so a retry of anything that fails from here on reuses it.
+                SetOutputInstanceId(request, instance.Id);
             }
 
             if (sendLinkOnly)
@@ -1215,10 +1310,14 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
                     latestInstanceModel.Status = instance.Status;
                     latestInstanceModel.Response = instance.Response;
                     latestInstanceModel.PublishedOn = instance.PublishedOn;
+                    if (!updateContent) latestInstanceModel.Content = [];
                     instance = await this.Api.UpdateReportInstanceAsync(latestInstanceModel, updateContent) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
                 }
                 else
+                {
+                    if (!updateContent) instance.Content = [];
                     instance = await this.Api.UpdateReportInstanceAsync(instance, updateContent) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
+                }
 
                 isUpdated = true;
             }

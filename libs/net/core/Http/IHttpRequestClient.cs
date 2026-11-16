@@ -14,7 +14,7 @@ namespace TNO.Core.Http
         Task<HttpResponseMessage> DeleteJsonAsync<T>(string url, T? data = null) where T : class;
 
         Task<HttpResponseMessage> SendAsync(string url, HttpMethod? method = null, HttpContent? content = null);
-        Task<HttpResponseMessage> SendAsync(string url, HttpMethod method, HttpRequestHeaders headers, HttpContent? content = null, string? etag = null);
+        Task<HttpResponseMessage> SendAsync(string url, HttpMethod method, HttpRequestHeaders headers, HttpContent? content = null, string? etag = null, bool bufferResponse = true, CancellationToken cancellationToken = default);
         Task<HttpResponseMessage> GetAsync(string url);
         Task<HttpResponseMessage> PostAsync(string url, HttpContent? content = null);
         Task<HttpResponseMessage> PutAsync(string url, HttpContent? content = null);

@@ -168,6 +168,31 @@ public class ApiService : IApiService
             }
         }
     }
+
+    private static readonly JsonSerializerOptions _errorSerializerOptions = new(JsonSerializerDefaults.Web);
+
+    /// <summary>
+    /// Determine whether the API rejected the request because the record had changed since it was read.
+    /// A request the API answered this way saved nothing.
+    /// </summary>
+    /// <param name="exception"></param>
+    /// <returns></returns>
+    public static async Task<bool> IsConcurrencyErrorAsync(Exception exception)
+    {
+        if (exception is not HttpClientRequestException { Response: not null } requestException) return false;
+        try
+        {
+            var body = await requestException.Response.Content.ReadAsStringAsync();
+            if (String.IsNullOrWhiteSpace(body)) return false;
+            var error = JsonSerializer.Deserialize<API.Models.ErrorResponseModel>(body, _errorSerializerOptions);
+            return error?.Type == nameof(Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException);
+        }
+        catch (Exception)
+        {
+            // The body is not the API's error model, a gateway's error page for one.
+            return false;
+        }
+    }
     #endregion
 
     #region Kafka Methods
@@ -1078,7 +1103,10 @@ public class ApiService : IApiService
     public async Task<API.Areas.Services.Models.ReportInstance.ReportInstanceModel?> UpdateReportInstanceAsync(API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance, bool updateContent)
     {
         var url = this.Options.ApiUrl.Append($"services/report/instances/{instance.Id}?updateContent={updateContent}");
-        return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(url, JsonContent.Create(instance)));
+        // A failed response can follow a committed write, so this is not retried here: sending the
+        // same version again after it was saved fails as a concurrency error. The caller reads the
+        // instance again to find out whether it was saved.
+        return await this.OpenClient.PutAsync<API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(url, JsonContent.Create(instance));
     }
 
     /// <summary>

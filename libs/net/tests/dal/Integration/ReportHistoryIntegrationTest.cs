@@ -64,6 +64,29 @@ public class ReportHistoryIntegrationTest
     #endregion
 
     #region Tests
+    [PostgresFact]
+    public void CollectionProjectionTranslatesAndDoesNotSelectStoryText()
+    {
+        var commands = new Commands();
+        using var context = _fixture.CreateContext(commands);
+        var ownerId = context.Users.OrderBy(u => u.Id).Select(u => u.Id).First();
+        var report = AddReport(context, ownerId, "{}");
+        try
+        {
+            var content = _fixture.AddContent(context, configure: c => { c.Body = new string('x', 100_000); c.Summary = "summary"; });
+            AddInstance(context, report, null, content);
+            context.ChangeTracker.Clear();
+            commands.Sql.Clear();
+            var instance = CreateService(context).GetCurrentReportInstance(report.Id, ownerId, true, true)!;
+            var collected = Assert.Single(instance.ContentManyToMany).Content!;
+            Assert.Equal(content.Headline, collected.Headline);
+            Assert.Empty(collected.Body);
+            Assert.Empty(collected.Summary);
+            Assert.DoesNotContain(commands.Sql, sql => sql.Contains("c.body") || sql.Contains("c.summary") || sql.Contains("c.versions"));
+        }
+        finally { Remove(context, report); }
+    }
+
     private sealed class Commands : DbCommandInterceptor
     {
         public List<string> Sql { get; } = [];
@@ -99,8 +122,10 @@ public class ReportHistoryIntegrationTest
             var previous = new ReportInstance(report.Id, owners[0],
                 [new ReportInstanceContent(0, story.Id, "section"), new ReportInstanceContent(0, story.Id, "headlines", 4)])
             {
-                PublishedOn = DateTime.UtcNow.AddDays(-2), SentOn = DateTime.UtcNow.AddDays(-2),
-                Body = new string('x', 1_000_000), Subject = "Unused historical subject",
+                PublishedOn = DateTime.UtcNow.AddDays(-2),
+                SentOn = DateTime.UtcNow.AddDays(-2),
+                Body = new string('x', 1_000_000),
+                Subject = "Unused historical subject",
             };
             context.ReportInstances.Add(previous);
             context.SaveChanges();

@@ -143,9 +143,9 @@ public class ReportingRecoveryTest
     {
         public Manager(IKafkaListener<string, ReportRequestModel> listener, IApiService api, Clock clock, bool retry = false,
             IReportEngine? engine = null, IChesService? ches = null)
-            : base(listener, api, new ClaimsPrincipal(), engine ?? Mock.Of<IReportEngine>(), ches ?? Mock.Of<IChesService>(),
+            : base(listener, api, new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.Email, "service@test.com")])), engine ?? Mock.Of<IReportEngine>(), ches ?? Mock.Of<IChesService>(),
                 Microsoft.Extensions.Options.Options.Create(new ChesOptions()), Microsoft.Extensions.Options.Options.Create(new JsonSerializerOptions()),
-                Microsoft.Extensions.Options.Options.Create(new ReportingOptions { Topics = "reporting", ResendOnFailure = retry }), NullLogger<ReportingManager>.Instance, clock)
+                Microsoft.Extensions.Options.Options.Create(new ReportingOptions { Topics = "reporting", ResendOnFailure = retry, RetryDelayMS = 0 }), NullLogger<ReportingManager>.Instance, clock)
         { }
 
         public Task Handle(ConsumeResult<string, ReportRequestModel> message) => HandleMessageAsync(message);
@@ -307,6 +307,248 @@ public class ReportingRecoveryTest
         listener.Verify(l => l.Resume(), Times.Never);
     }
 
+    [Theory]
+    // The request is marked with the instance its output was saved to, so whatever failed afterwards reuses it.
+    [InlineData("{\"error\":5,\"outputInstanceId\":66842}", true)]
+    [InlineData("{\"error\":4,\"outputInstanceId\":66842}", true)]
+    [InlineData("{\"failureCount\":1,\"outputInstanceId\":66842}", true)]
+    // The instance holds output from an earlier send, which this request did not save.
+    [InlineData("{\"error\":5}", false)]
+    [InlineData("{\"error\":3}", false)]
+    [InlineData("{\"failureCount\":1,\"outputInstanceId\":null}", false)]
+    [InlineData("{\"error\":5,\"outputInstanceId\":66841}", false)]
+    public void RetryReusesOutputOnlyWhenTheRequestSavedIt(string data, bool expected)
+    {
+        var request = new ReportRequestModel { Data = JsonDocument.Parse(data) };
+        var instance = new TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel { Id = 66842, Subject = "old subject", Body = "old output" };
+        var method = typeof(ReportingManager).GetMethod("IsRetry", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!;
+        Assert.Equal(expected, (bool)method.Invoke(null, [request, instance])!);
+    }
+
+    /// <summary>
+    /// An API holding a report with one subscriber and an unsent instance of it.
+    /// </summary>
+    private static (Mock<IApiService> Api, TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel Instance) SendingApi(HttpClient http)
+    {
+        var report = new TNO.API.Areas.Services.Models.Report.ReportModel
+        {
+            Id = 591,
+            Name = "Daily",
+            Subscribers =
+            [
+                new TNO.API.Areas.Services.Models.Report.UserReportModel
+                {
+                    UserId = 5,
+                    ReportId = 591,
+                    IsSubscribed = true,
+                    Format = TNO.Entities.ReportDistributionFormat.FullText,
+                    User = new TNO.API.Areas.Services.Models.Report.UserModel { Id = 5, Email = "subscriber@test.com" },
+                },
+            ],
+        };
+        var instance = new TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel { Id = 66842, ReportId = 591, Report = report, Version = 1 };
+        var api = new Mock<IApiService>();
+        api.Setup(a => a.OpenClient.Client).Returns(http);
+        api.Setup(a => a.GetReportInstanceAsync(66842)).ReturnsAsync(instance);
+        api.Setup(a => a.GetContentForReportInstanceIdAsync(66842)).ReturnsAsync([]);
+        api.Setup(a => a.GetReportInstanceChartsAsync(66842, It.IsAny<int?>())).ReturnsAsync([]);
+        api.Setup(a => a.GetUserReportInstancesAsync(66842)).ReturnsAsync([]);
+        api.Setup(a => a.UpdateReportInstanceAsync(It.IsAny<TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(), false))
+            .ReturnsAsync((TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel model, bool _) => model);
+        return (api, instance);
+    }
+
+    [Fact]
+    public async Task FailureAfterTheOutputIsSavedMarksTheRetryToReuseIt()
+    {
+        using var http = new HttpClient();
+        var (api, instance) = SendingApi(http);
+        var engine = new Mock<IReportEngine>();
+        engine.SetReturnsDefault(Task.FromResult("generated"));
+        var ches = new Mock<IChesService>();
+        ches.SetReturnsDefault(Task.FromException<TNO.Ches.Models.EmailResponseModel>(new TNO.Core.Exceptions.ChesException("CHES is down")));
+        var listener = new Mock<IKafkaListener<string, ReportRequestModel>>();
+        var manager = new Manager(listener.Object, api.Object, new Clock(), true, engine.Object, ches.Object);
+        var message = Message();
+        message.Message.Value.SendToSubscribers = true;
+
+        await manager.Handle(message);
+
+        ches.Verify(c => c.SendEmailAsync(It.IsAny<TNO.Ches.Models.IEmail>()), Times.AtLeastOnce);
+        Assert.Equal("generated", instance.Subject);
+        Assert.Equal("generated", instance.Body);
+        api.Verify(a => a.SendMessageAsync(It.Is<ReportRequestModel>(r => r.ReportInstanceId == 66842
+            && r.Data.RootElement.GetProperty("outputInstanceId").GetInt64() == 66842
+            && r.Data.RootElement.GetProperty("failureCount").GetInt32() == 1)), Times.Once);
+        listener.Verify(l => l.Commit(message), Times.Once);
+    }
+
+    [Fact]
+    public async Task RetryOfARequestThatSavedItsOutputSendsItWithoutGeneratingItAgain()
+    {
+        using var http = new HttpClient();
+        var (api, instance) = SendingApi(http);
+        instance.Subject = "saved subject";
+        instance.Body = "saved body";
+        var engine = new Mock<IReportEngine>();
+        engine.SetReturnsDefault(Task.FromResult("generated"));
+        var sent = new List<string>();
+        var ches = new Mock<IChesService>();
+        ches.Setup(c => c.SendEmailAsync(It.IsAny<TNO.Ches.Models.IEmail>()))
+            .Callback<TNO.Ches.Models.IEmail>(email => sent.Add($"{email.Subject}|{email.Body}"))
+            .ReturnsAsync(new TNO.Ches.Models.EmailResponseModel());
+        var listener = new Mock<IKafkaListener<string, ReportRequestModel>>();
+        var manager = new Manager(listener.Object, api.Object, new Clock(), true, engine.Object, ches.Object);
+        var message = Message();
+        message.Message.Value.SendToSubscribers = true;
+        // The failure was not an email failure: the emails went out and a later step failed.
+        message.Message.Value.Data = JsonDocument.Parse("{\"failureCount\":1,\"outputInstanceId\":66842}");
+
+        await manager.Handle(message);
+
+        Assert.Equal(["saved subject|saved body"], sent);
+        Assert.DoesNotContain(engine.Invocations, i => i.Method.Name == nameof(IReportEngine.GenerateReportSubjectAsync));
+        api.Verify(a => a.GetContentForReportInstanceIdAsync(It.IsAny<long>()), Times.Never);
+        api.Verify(a => a.SendMessageAsync(It.IsAny<ReportRequestModel>()), Times.Never);
+        listener.Verify(l => l.Commit(message), Times.Once);
+    }
+
+    [Fact]
+    public async Task CollectionFailureDropsTheSavedOutputMark()
+    {
+        using var http = new HttpClient();
+        var api = CollectionApi(http);
+        api.Setup(a => a.GetCurrentReportInstanceAsync(591, It.IsAny<int?>())).ThrowsAsync(new HttpRequestException("Bad gateway"));
+        var listener = new Mock<IKafkaListener<string, ReportRequestModel>>();
+        var manager = new Manager(listener.Object, api.Object, new Clock(), true);
+        var message = CollectionMessage();
+        message.Message.Value.Data = JsonDocument.Parse("{\"outputInstanceId\":66842}");
+
+        await manager.Handle(message);
+
+        api.Verify(a => a.SendMessageAsync(It.Is<ReportRequestModel>(r => r.ReportInstanceId == null
+            && r.Data.RootElement.GetProperty("outputInstanceId").ValueKind == JsonValueKind.Null)), Times.Once);
+    }
+
+    /// <summary>
+    /// An API holding a collection-only report whose current instance is at version 10.
+    /// </summary>
+    private static Mock<IApiService> CollectionApi(HttpClient http)
+    {
+        var report = new TNO.API.Areas.Services.Models.Report.ReportModel
+        {
+            Id = 591,
+            Settings = new TNO.API.Models.Settings.ReportSettingsModel { CollectionOnly = true },
+        };
+        var api = new Mock<IApiService>();
+        api.Setup(a => a.OpenClient.Client).Returns(http);
+        api.Setup(a => a.GetReportAsync(591)).ReturnsAsync(report);
+        api.Setup(a => a.GetCurrentReportInstanceAsync(591, It.IsAny<int?>()))
+            .ReturnsAsync(new TNO.API.Areas.Services.Models.Report.ReportInstanceModel { Id = 66842, ReportId = 591, Version = 10 });
+        api.Setup(a => a.GenerateReportInstanceChartsAsync(66842, It.IsAny<int?>())).ReturnsAsync([]);
+        // Saving the status afterwards succeeds.
+        api.Setup(a => a.UpdateReportInstanceAsync(It.IsAny<TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(), false))
+            .ReturnsAsync((TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel model, bool _) => model);
+        return api;
+    }
+
+    private static TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel Instance(long version) => new() { Id = 66842, ReportId = 591, Version = version };
+
+    private static ConsumeResult<string, ReportRequestModel> CollectionMessage()
+    {
+        var message = Message();
+        message.Message.Value.ReportInstanceId = null;
+        return message;
+    }
+
+    [Fact]
+    public async Task CollectionWriteSavedByAFailedRequestIsNotSentAgain()
+    {
+        using var http = new HttpClient();
+        var api = CollectionApi(http);
+        api.Setup(a => a.UpdateReportInstanceAsync(It.IsAny<TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(), true))
+            .ThrowsAsync(new HttpRequestException("Response lost after commit"));
+        // The version moved, so the request that failed was saved.
+        api.Setup(a => a.GetReportInstanceAsync(66842)).ReturnsAsync(() => Instance(11));
+        var listener = new Mock<IKafkaListener<string, ReportRequestModel>>();
+        var manager = new Manager(listener.Object, api.Object, new Clock(), true);
+        var message = CollectionMessage();
+
+        await manager.Handle(message);
+
+        api.Verify(a => a.UpdateReportInstanceAsync(It.IsAny<TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(), true), Times.Once);
+        api.Verify(a => a.GenerateReportInstanceChartsAsync(66842, It.IsAny<int?>()), Times.Once);
+        api.Verify(a => a.SendMessageAsync(It.IsAny<ReportRequestModel>()), Times.Never);
+        listener.Verify(l => l.Commit(message), Times.Once);
+    }
+
+    [Fact]
+    public async Task CollectionWriteThatWasNotSavedIsSentAgain()
+    {
+        using var http = new HttpClient();
+        var api = CollectionApi(http);
+        api.SetupSequence(a => a.UpdateReportInstanceAsync(It.IsAny<TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(), true))
+            .ThrowsAsync(new HttpRequestException("Bad gateway"))
+            .ReturnsAsync(Instance(11));
+        // The version has not moved, so nothing was saved.
+        api.SetupSequence(a => a.GetReportInstanceAsync(66842)).ReturnsAsync(Instance(10)).ReturnsAsync(Instance(11));
+        var listener = new Mock<IKafkaListener<string, ReportRequestModel>>();
+        var manager = new Manager(listener.Object, api.Object, new Clock(), true);
+        var message = CollectionMessage();
+
+        await manager.Handle(message);
+
+        api.Verify(a => a.UpdateReportInstanceAsync(It.Is<TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(i => i.Version == 10), true), Times.Exactly(2));
+        api.Verify(a => a.GenerateReportInstanceChartsAsync(66842, It.IsAny<int?>()), Times.Once);
+        api.Verify(a => a.SendMessageAsync(It.IsAny<ReportRequestModel>()), Times.Never);
+        listener.Verify(l => l.Commit(message), Times.Once);
+    }
+
+    [Fact]
+    public async Task CollectionWriteThatKeepsFailingGoesBackToCollection()
+    {
+        using var http = new HttpClient();
+        var api = CollectionApi(http);
+        api.Setup(a => a.UpdateReportInstanceAsync(It.IsAny<TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(), true))
+            .ThrowsAsync(new HttpRequestException("Bad gateway"));
+        api.Setup(a => a.GetReportInstanceAsync(66842)).ReturnsAsync(() => Instance(10));
+        var listener = new Mock<IKafkaListener<string, ReportRequestModel>>();
+        var manager = new Manager(listener.Object, api.Object, new Clock(), true);
+        var message = CollectionMessage();
+
+        await manager.Handle(message);
+
+        api.Verify(a => a.UpdateReportInstanceAsync(It.IsAny<TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(), true), Times.Exactly(new ReportingOptions().RetryLimit));
+        api.Verify(a => a.SendMessageAsync(It.Is<ReportRequestModel>(r => r.ReportId == 591 && r.ReportInstanceId == null)), Times.Once);
+        listener.Verify(l => l.Commit(message), Times.Once);
+    }
+
+    [Fact]
+    public async Task CollectionWriteRejectedAsStaleGoesBackToCollectionWithoutBeingSentAgain()
+    {
+        using var http = new HttpClient();
+        using var response = new HttpResponseMessage(System.Net.HttpStatusCode.BadRequest)
+        {
+            Content = new StringContent("{\"type\":\"DbUpdateConcurrencyException\"}", System.Text.Encoding.UTF8, "application/json"),
+        };
+        var api = CollectionApi(http);
+        api.Setup(a => a.UpdateReportInstanceAsync(It.IsAny<TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(), true))
+            .ThrowsAsync(new TNO.Core.Exceptions.HttpClientRequestException(response));
+        // Another change moved the version; this request saved nothing.
+        api.Setup(a => a.GetReportInstanceAsync(66842)).ReturnsAsync(() => Instance(11));
+        var listener = new Mock<IKafkaListener<string, ReportRequestModel>>();
+        var manager = new Manager(listener.Object, api.Object, new Clock(), true);
+        var message = CollectionMessage();
+
+        await manager.Handle(message);
+
+        api.Verify(a => a.UpdateReportInstanceAsync(It.IsAny<TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(), true), Times.Once);
+        api.Verify(a => a.GetReportInstanceAsync(It.IsAny<long>()), Times.Never);
+        api.Verify(a => a.GenerateReportInstanceChartsAsync(It.IsAny<long>(), It.IsAny<int?>()), Times.Never);
+        api.Verify(a => a.SendMessageAsync(It.Is<ReportRequestModel>(r => r.ReportId == 591 && r.ReportInstanceId == null)), Times.Once);
+        listener.Verify(l => l.Commit(message), Times.Once);
+    }
+
     [Fact]
     public async Task CollectionOnlyReportIsCollectedButNeverRenderedOrSent()
     {
@@ -331,7 +573,7 @@ public class ReportingRecoveryTest
         api.Setup(a => a.OpenClient.Client).Returns(http);
         api.Setup(a => a.GetReportInstanceAsync(66842)).ReturnsAsync(instance);
         api.Setup(a => a.GetContentForReportInstanceIdAsync(66842)).ReturnsAsync([]);
-        api.Setup(a => a.GetReportInstanceChartsAsync(66842, It.IsAny<int?>())).ReturnsAsync([]);
+        api.Setup(a => a.GenerateReportInstanceChartsAsync(66842, It.IsAny<int?>())).ReturnsAsync([]);
         api.Setup(a => a.UpdateReportInstanceAsync(It.IsAny<TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(), It.IsAny<bool>()))
             .Callback<TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel, bool>((model, _) => saved = model)
             .ReturnsAsync((TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel model, bool _) => model);
@@ -347,6 +589,8 @@ public class ReportingRecoveryTest
         // Not marked sent, so the next run keeps collecting into the same instance.
         Assert.Null(saved.SentOn);
         Assert.Equal("", saved.Body);
+        api.Verify(a => a.GetContentForReportInstanceIdAsync(It.IsAny<long>()), Times.Never);
+        api.Verify(a => a.GenerateReportInstanceChartsAsync(66842, It.IsAny<int?>()), Times.Once);
         Assert.Empty(engine.Invocations);
         Assert.Empty(ches.Invocations);
         api.Verify(a => a.SendMessageAsync(It.IsAny<ReportRequestModel>()), Times.Never);
