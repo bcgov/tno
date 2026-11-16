@@ -409,6 +409,15 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
                 originalBySection.TryAdd((ric.ContentId, ric.SectionName), ric);
             }
 
+            // A story linked without its content only has to exist. Ask once for all of them; a
+            // collection can link tens of thousands of stories in one update.
+            var linkedIds = entity.ContentManyToMany
+                .Where(ric => ric.Content == null && !originalBySection.ContainsKey((ric.ContentId, ric.SectionName)))
+                .Select(ric => ric.ContentId).Distinct().ToArray();
+            var existingLinkedIds = linkedIds.Length == 0
+                ? []
+                : this.Context.Contents.Where(c => linkedIds.Contains(c.Id)).Select(c => c.Id).ToHashSet();
+
             var updatedContent = new Dictionary<long, Content>();
             // Delete removed content and add new content.
             originalInstanceContents.Except(entity.ContentManyToMany).ForEach(ric =>
@@ -431,7 +440,7 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
                         .Include(c => c.TonePoolsManyToMany)
                         .FirstOrDefault(c => c.Id == ric.ContentId);
                     var addContent = ric.Content == null
-                        ? this.Context.Contents.Any(c => c.Id == ric.ContentId)
+                        ? existingLinkedIds.Contains(ric.ContentId)
                         : originalContent != null;
 
                     // If the content is new too, upload it to the database.

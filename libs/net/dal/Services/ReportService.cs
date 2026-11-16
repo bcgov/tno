@@ -1009,6 +1009,8 @@ public class ReportService : BaseService<Report, int>, IReportService
             var links = instance.ContentManyToMany.ToDictionary(c => (c.ContentId, c.SectionName));
             foreach (var item in metadata)
             {
+                // A story linked after the instance was read is not in it; the next read returns it.
+                if (!links.TryGetValue((item.ContentId, item.SectionName), out var link)) continue;
                 var content = new Content(item.Uid, item.Headline, item.OtherSource, item.ContentType, item.LicenseId, item.MediaTypeId)
                 {
                     Id = item.ContentId,
@@ -1026,7 +1028,7 @@ public class ReportService : BaseService<Report, int>, IReportService
                     topic.Link.Topic = topic.Topic;
                     content.TopicsManyToMany.Add(topic.Link);
                 }
-                links[(item.ContentId, item.SectionName)].Content = content;
+                link.Content = content;
             }
             instance.Body = "";
         }
