@@ -120,7 +120,7 @@ public class ReportInstanceController : ControllerBase
     {
         var result = _reportInstanceService.FindById(id);
         if (result == null) return NoContent();
-        return new JsonResult(new ReportInstanceModel(result, _serializerOptions));
+        return new JsonResult(new ReportInstanceModel(result, _serializerOptions, includeContent: false));
     }
 
     /// <summary>
@@ -145,7 +145,7 @@ public class ReportInstanceController : ControllerBase
                 new KafkaHubMessage(HubEvent.SendUser, user.Username, new KafkaInvocationMessage(MessageTarget.ReportStatus, new[] { new ReportMessageModel(result) }))
             );
         }
-        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ReportInstanceModel(result, _serializerOptions));
+        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ReportInstanceModel(result, _serializerOptions, includeContent: false));
     }
 
     /// <summary>
@@ -176,7 +176,7 @@ public class ReportInstanceController : ControllerBase
                 new KafkaHubMessage(HubEvent.SendUser, user.Username, new KafkaInvocationMessage(MessageTarget.ReportStatus, new[] { new ReportMessageModel(result) }))
             );
         }
-        return new JsonResult(new ReportInstanceModel(result, _serializerOptions));
+        return new JsonResult(new ReportInstanceModel(result, _serializerOptions, includeContent: false));
     }
 
     /// <summary>

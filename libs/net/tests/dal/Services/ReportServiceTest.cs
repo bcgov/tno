@@ -39,6 +39,32 @@ public class ReportServiceTest : IDisposable
     }
     #endregion
 
+    [Fact]
+    public void CollectionReadsPreserveSortingMetadataWithoutStoryText()
+    {
+        var context = helper.Provider.GetRequiredService<TNOContext>();
+        var report = SeedReport(context);
+        SeedContent(context, (101, "A headline"));
+        var story = context.Contents.Local.Single();
+        story.Summary = "large summary";
+        story.Byline = "A reporter";
+        AddInstance(context, 101, report.Id, 1, null, 101);
+        context.SaveChanges();
+        context.ChangeTracker.Clear();
+
+        var service = helper.Provider.GetRequiredService<IReportService>();
+        var collection = service.GetCurrentReportInstance(report.Id, 1, true, true)!;
+        var content = Assert.Single(collection.ContentManyToMany).Content!;
+        Assert.Equal("A headline", content.Headline);
+        Assert.Equal("A reporter", content.Byline);
+        Assert.Equal("Print", content.MediaType!.Name);
+        Assert.Empty(content.Body);
+        Assert.Empty(content.Summary);
+        Assert.Empty(content.Versions);
+        var full = service.GetCurrentReportInstance(report.Id, 1, true)!;
+        Assert.Equal("story body", Assert.Single(full.ContentManyToMany).Content!.Body);
+    }
+
     #region Helpers
     private Report SeedReport(TNOContext context)
     {

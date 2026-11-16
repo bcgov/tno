@@ -76,13 +76,19 @@ namespace TNO.Core.Http
         /// <returns></returns>
         public async Task<TModel?> DeserializeAsync<TModel>(HttpResponseMessage response)
         {
-            var responseStream = await response.Content.ReadAsStreamAsync();
+            using var timeout = new CancellationTokenSource(this.Client.Timeout);
+            return await DeserializeAsync<TModel>(response, timeout.Token);
+        }
+
+        private async Task<TModel?> DeserializeAsync<TModel>(HttpResponseMessage response, CancellationToken cancellationToken)
+        {
+            var responseStream = await response.Content.ReadAsStreamAsync(cancellationToken);
             // var data = await response.Content.ReadAsByteArrayAsync();
             var contentType = response.Content.Headers.ContentType;
             try
             {
                 if (contentType?.MediaType?.Contains("json", StringComparison.InvariantCultureIgnoreCase) == true && response.IsSuccessStatusCode)
-                    return JsonSerializer.Deserialize<TModel>(responseStream, _serializeOptions);
+                    return await JsonSerializer.DeserializeAsync<TModel>(responseStream, _serializeOptions, cancellationToken);
                 else if (response.IsSuccessStatusCode)
                     return default;
                 else if (response.StatusCode == HttpStatusCode.NotModified)
@@ -158,8 +164,11 @@ namespace TNO.Core.Http
         /// <param name="headers"></param>
         /// <param name="content"></param>
         /// <returns></returns>
+        /// <param name="etag">Optional cache validator.</param>
+        /// <param name="bufferResponse">Whether to buffer the response body before returning.</param>
+        /// <param name="cancellationToken">Cancels the request.</param>
         public virtual async Task<HttpResponseMessage> SendAsync(string url, HttpMethod? method, HttpRequestHeaders? headers, HttpContent? content = null,
-                string? etag = null)
+                string? etag = null, bool bufferResponse = true, CancellationToken cancellationToken = default)
         {
             if (String.IsNullOrWhiteSpace(url)) throw new ArgumentException($"Argument '{nameof(url)}' must be a valid URL.");
 
@@ -190,10 +199,9 @@ namespace TNO.Core.Http
 
             _logger.LogDebug("HTTP request made: {method}:{uri} (User-Agent: {userAgent})",
                 message.Method, message.RequestUri, userAgent);
-            // Buffer the full response (ResponseContentRead) so that HttpClient.Timeout covers the body.
-            // With ResponseHeadersRead a server that stalls mid-body hangs the caller's content read
-            // forever, because callers read the content without a cancellation token.
-            return await this.Client.SendAsync(message, HttpCompletionOption.ResponseContentRead);
+            // Raw callers retain buffering so HttpClient.Timeout covers their body reads.
+            // Typed JSON callers stream with an explicit deadline through deserialization.
+            return await this.Client.SendAsync(message, bufferResponse ? HttpCompletionOption.ResponseContentRead : HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         }
 
         /// <summary>
@@ -481,14 +489,16 @@ namespace TNO.Core.Http
         /// <returns></returns>
         public virtual async Task<TModel?> SendAsync<TModel>(string url, HttpMethod? method, HttpRequestHeaders? headers, HttpContent? content = null, Func<HttpResponseMessage, bool>? onError = null)
         {
-            var response = await SendAsync(url, method, headers, content);
+            using var timeout = new CancellationTokenSource(this.Client.Timeout);
+            var response = await SendAsync(url, method, headers, content, bufferResponse: false, cancellationToken: timeout.Token);
 
             if (response.IsSuccessStatusCode)
             {
-                if (response.StatusCode == HttpStatusCode.NoContent)
-                    return default;
-
-                return await DeserializeAsync<TModel>(response);
+                using (response)
+                {
+                    if (response.StatusCode == HttpStatusCode.NoContent) return default;
+                    return await DeserializeAsync<TModel>(response, timeout.Token);
+                }
             }
 
             // If the error handle is not provided, or if it returns false throw an error.
@@ -498,7 +508,11 @@ namespace TNO.Core.Http
                 // service objected to - Elasticsearch answers a rejected query with a 400 whose
                 // reason is in the body alone. Without it a caller is left with method, status
                 // and URL, which name the request but never the problem.
-                var body = await ReadErrorBodyAsync(response);
+                var body = await ReadErrorBodyAsync(response, timeout.Token);
+                // Preserve the small error body for existing concurrency handlers, but release
+                // the network stream before handing the response to the exception.
+                response.Content.Dispose();
+                response.Content = new StringContent(body ?? "");
                 var error = String.IsNullOrWhiteSpace(body)
                     ? new HttpClientRequestException(response)
                     : new HttpClientRequestException(response, $"HTTP Request failed [{response.RequestMessage?.Method}]:[{response.StatusCode}]:{response.RequestMessage?.RequestUri}:{body}");
@@ -506,6 +520,7 @@ namespace TNO.Core.Http
                 throw error;
             }
 
+            response.Dispose();
             return default;
         }
 
@@ -518,16 +533,24 @@ namespace TNO.Core.Http
         /// reported as nothing rather than thrown.
         /// </summary>
         /// <param name="response"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        private async Task<string?> ReadErrorBodyAsync(HttpResponseMessage response)
+        private async Task<string?> ReadErrorBodyAsync(HttpResponseMessage response, CancellationToken cancellationToken)
         {
             try
             {
-                var body = await response.Content.ReadAsStringAsync();
+                using var reader = new StreamReader(await response.Content.ReadAsStreamAsync(cancellationToken));
+                var buffer = new char[MaxErrorBodyChars + 1];
+                var length = 0;
+                while (length < buffer.Length)
+                {
+                    var read = await reader.ReadAsync(buffer.AsMemory(length), cancellationToken);
+                    if (read == 0) break;
+                    length += read;
+                }
+                var body = new string(buffer, 0, Math.Min(length, MaxErrorBodyChars));
                 if (String.IsNullOrWhiteSpace(body)) return null;
-                return body.Length <= MaxErrorBodyChars
-                    ? body
-                    : $"{body[..MaxErrorBodyChars]}...[truncated, {body.Length - MaxErrorBodyChars} more character(s)]";
+                return length > MaxErrorBodyChars ? body + "...[truncated]" : body;
             }
             catch (Exception ex)
             {

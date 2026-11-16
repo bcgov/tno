@@ -168,8 +168,9 @@ public interface IReportService : IBaseService<Report, int>
     /// <param name="reportId"></param>
     /// <param name="ownerId"></param>
     /// <param name="includeContent"></param>
+    /// <param name="collectionOnly">Load sorting metadata without story text.</param>
     /// <returns></returns>
-    ReportInstance? GetCurrentReportInstance(int reportId, int? ownerId = null, bool includeContent = false);
+    ReportInstance? GetCurrentReportInstance(int reportId, int? ownerId = null, bool includeContent = false, bool collectionOnly = false);
 
     /// <summary>
     /// Find the previous report instance created for the specified report 'id' and 'ownerId'.

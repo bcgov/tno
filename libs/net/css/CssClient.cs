@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -162,8 +163,11 @@ public class CssClient : HttpRequestClient, ICssClient
     /// <param name="headers"></param>
     /// <param name="content"></param>
     /// <returns></returns>
+    /// <param name="etag">Optional cache validator.</param>
+    /// <param name="bufferResponse">Whether to buffer the response body.</param>
+    /// <param name="cancellationToken">Cancels the request.</param>
     public override async Task<HttpResponseMessage> SendAsync(string url, HttpMethod? method, HttpRequestHeaders? headers, HttpContent? content = null,
-            string? etag = null)
+            string? etag = null, bool bufferResponse = true, CancellationToken cancellationToken = default)
     {
         if (String.IsNullOrWhiteSpace(url)) throw new ArgumentException($"Argument '{nameof(url)}' must be a valid URL.");
         method ??= HttpMethod.Get;
@@ -173,7 +177,7 @@ public class CssClient : HttpRequestClient, ICssClient
         var token = await RequestAccessTokenAsync();
         if (!String.IsNullOrWhiteSpace(token)) headers.Add("Authorization", token.ToString());
 
-        return await base.SendAsync(url, method, headers, content, etag);
+        return await base.SendAsync(url, method, headers, content, etag, bufferResponse, cancellationToken);
 
     }
     #endregion

@@ -389,10 +389,15 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
         if (updateChildren)
         {
             // Fetch all content currently belonging to this report instance.
-            var original = this.Context.ReportInstances
-                .Include(ri => ri.ContentManyToMany)
-                .ThenInclude(ric => ric.Content)
-                .FirstOrDefault(ri => ri.Id == entity.Id) ?? throw new InvalidOperationException("Report instance does not exist");
+            var query = this.Context.ReportInstances.Include(ri => ri.ContentManyToMany).AsQueryable();
+            if (entity.ContentManyToMany.Any(c => c.Content != null))
+                query = query.Include(ri => ri.ContentManyToMany).ThenInclude(ric => ric.Content);
+            var original = query.FirstOrDefault(ri => ri.Id == entity.Id)
+                ?? throw new InvalidOperationException("Report instance does not exist");
+            // Private stories removed from a collection still need their existing deletion semantics.
+            var removedIds = original.ContentManyToMany.Except(entity.ContentManyToMany).Select(c => c.ContentId).ToArray();
+            var removedPrivate = this.Context.Contents.Where(c => removedIds.Contains(c.Id) && c.IsPrivate).ToArray();
+            this.Context.Contents.RemoveRange(removedPrivate);
             var originalInstanceContents = original.ContentManyToMany.ToArray();
             // Look the original stories up once; an instance can hold tens of thousands of them.
             // The first copy wins, as content can be in more than one section.
@@ -421,11 +426,13 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
                 if (originalInstanceContent == null)
                 {
                     // Fetch the original content from the database to compare.
-                    originalContent = this.Context.Contents
+                    originalContent = ric.Content == null ? null : this.Context.Contents
                         .AsNoTracking()
                         .Include(c => c.TonePoolsManyToMany)
                         .FirstOrDefault(c => c.Id == ric.ContentId);
-                    var addContent = originalContent != null;
+                    var addContent = ric.Content == null
+                        ? this.Context.Contents.Any(c => c.Id == ric.ContentId)
+                        : originalContent != null;
 
                     // If the content is new too, upload it to the database.
                     if (ric.Content?.Id == 0)

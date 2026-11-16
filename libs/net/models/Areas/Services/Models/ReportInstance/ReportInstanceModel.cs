@@ -78,7 +78,8 @@ public class ReportInstanceModel : AuditColumnsModel
     /// </summary>
     /// <param name="entity"></param>
     /// <param name="options"></param>
-    public ReportInstanceModel(Entities.ReportInstance entity, JsonSerializerOptions options) : base(entity)
+    /// <param name="includeContent">Include content relationships and stories in the response.</param>
+    public ReportInstanceModel(Entities.ReportInstance entity, JsonSerializerOptions options, bool includeContent = true) : base(entity)
     {
         this.Id = entity.Id;
         this.ReportId = entity.ReportId;
@@ -91,7 +92,7 @@ public class ReportInstanceModel : AuditColumnsModel
         this.Subject = entity.Subject;
         this.Body = entity.Body;
 
-        this.Content = entity.ContentManyToMany.OrderBy(c => c.SectionName).ThenBy(c => c.SortOrder).Select(m => new ReportInstanceContentModel(m)).ToArray();
+        this.Content = includeContent ? entity.ContentManyToMany.OrderBy(c => c.SectionName).ThenBy(c => c.SortOrder).Select(m => new ReportInstanceContentModel(m)).ToArray() : [];
     }
     #endregion
 

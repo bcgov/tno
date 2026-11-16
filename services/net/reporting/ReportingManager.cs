@@ -267,7 +267,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
             var reportingException = ex as ReportingException;
             if (reportingException != null)
             {
-                message.Value.ReportInstanceId = reportingException.InstanceId;
+                message.Value.ReportInstanceId = reportingException.Error == ReportingErrors.FailedToUpdateInstance
+                    ? null : reportingException.InstanceId;
                 message.Value.Data = JsonSerializer.SerializeToDocument(new { reportingException.Error, FailureCount = failureCount + 1 }, _serializationOptions);
             }
             else
@@ -725,7 +726,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
     private static bool IsRetry(ReportRequestModel request, API.Areas.Services.Models.ReportInstance.ReportInstanceModel? instance)
     {
         var errorStatus = request.Data.GetElementValue<ReportingErrors?>(".error");
-        return !IsResend(request, instance) && errorStatus.HasValue && !String.IsNullOrWhiteSpace(instance?.Subject) && !String.IsNullOrWhiteSpace(instance?.Body);
+        return !IsResend(request, instance) && errorStatus == ReportingErrors.FailedToEmail && !String.IsNullOrWhiteSpace(instance?.Subject) && !String.IsNullOrWhiteSpace(instance?.Body);
     }
 
     /// <summary>
@@ -741,6 +742,13 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
         var retry = IsRetry(request, instance);
         var report = instance.Report ?? throw new ArgumentException("Report instance must include the report model.");
         var sections = report.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s));
+
+        if (report.Settings.CollectionOnly)
+        {
+            await this.Api.GenerateReportInstanceChartsAsync(instance.Id, request.RequestorId);
+            await SendReportAsync(request, report, instance, new());
+            return;
+        }
 
         var searchResults = !resending && !retry ? await this.Api.GetContentForReportInstanceIdAsync(instance.Id) : Array.Empty<API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel>();
         var sectionContent = GetSectionContent(sections, searchResults);
@@ -1215,10 +1223,14 @@ public class ReportingManager : ServiceManager<ReportingOptions>, IServiceHealth
                     latestInstanceModel.Status = instance.Status;
                     latestInstanceModel.Response = instance.Response;
                     latestInstanceModel.PublishedOn = instance.PublishedOn;
+                    if (!updateContent) latestInstanceModel.Content = [];
                     instance = await this.Api.UpdateReportInstanceAsync(latestInstanceModel, updateContent) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
                 }
                 else
+                {
+                    if (!updateContent) instance.Content = [];
                     instance = await this.Api.UpdateReportInstanceAsync(instance, updateContent) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
+                }
 
                 isUpdated = true;
             }

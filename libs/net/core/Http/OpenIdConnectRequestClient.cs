@@ -264,9 +264,11 @@ namespace TNO.Core.Http
         /// <param name="headers"></param>
         /// <param name="content"></param>
         /// <param name="etag"></param>
+        /// <param name="bufferResponse">Whether to buffer the response body before returning.</param>
+        /// <param name="cancellationToken">Cancels the request.</param>
         /// <returns></returns>
         public override async Task<HttpResponseMessage> SendAsync(string url, HttpMethod? method, HttpRequestHeaders? headers, HttpContent? content = null,
-                string? etag = null)
+                string? etag = null, bool bufferResponse = true, CancellationToken cancellationToken = default)
         {
             if (String.IsNullOrWhiteSpace(url)) throw new ArgumentException($"Argument '{nameof(url)}' must be a valid URL.");
             method ??= HttpMethod.Get;
@@ -282,7 +284,7 @@ namespace TNO.Core.Http
                     headers.Authorization = new AuthenticationHeaderValue(token.ToString());
             }
 
-            var response = await base.SendAsync(url, method, headers, content, etag);
+            var response = await base.SendAsync(url, method, headers, content, etag, bufferResponse, cancellationToken);
 
             // The server can stop accepting a token before it expires, the next request needs a new one.
             if (response.StatusCode == HttpStatusCode.Unauthorized)

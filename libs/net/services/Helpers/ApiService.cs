@@ -1078,7 +1078,9 @@ public class ApiService : IApiService
     public async Task<API.Areas.Services.Models.ReportInstance.ReportInstanceModel?> UpdateReportInstanceAsync(API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance, bool updateContent)
     {
         var url = this.Options.ApiUrl.Append($"services/report/instances/{instance.Id}?updateContent={updateContent}");
-        return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(url, JsonContent.Create(instance)));
+        // A failed response can follow a committed write. Let the reporting workflow reload
+        // and reconcile instead of replaying the same optimistic-concurrency version.
+        return await this.OpenClient.PutAsync<API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(url, JsonContent.Create(instance));
     }
 
     /// <summary>

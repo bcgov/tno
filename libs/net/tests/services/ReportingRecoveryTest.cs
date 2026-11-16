@@ -307,6 +307,46 @@ public class ReportingRecoveryTest
         listener.Verify(l => l.Resume(), Times.Never);
     }
 
+    [Theory]
+    [InlineData(ReportingErrors.FailedToUpdateInstance, false)]
+    [InlineData(ReportingErrors.FailedToGenerateOutput, false)]
+    [InlineData(ReportingErrors.FailedToEmail, true)]
+    public void OnlyDeliveryRetriesReuseExistingOutput(ReportingErrors error, bool expected)
+    {
+        var request = new ReportRequestModel { Data = JsonSerializer.SerializeToDocument(new { error }) };
+        var instance = new TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel { Subject = "old subject", Body = "old output" };
+        var method = typeof(ReportingManager).GetMethod("IsRetry", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!;
+        Assert.Equal(expected, (bool)method.Invoke(null, [request, instance])!);
+    }
+
+    [Fact]
+    public async Task AmbiguousCollectionWriteQueuesPopulationInsteadOfAnInstanceResend()
+    {
+        using var http = new HttpClient();
+        var report = new TNO.API.Areas.Services.Models.Report.ReportModel
+        {
+            Id = 591,
+            Settings = new TNO.API.Models.Settings.ReportSettingsModel { CollectionOnly = true },
+        };
+        var api = new Mock<IApiService>();
+        api.Setup(a => a.OpenClient.Client).Returns(http);
+        api.Setup(a => a.GetReportAsync(591)).ReturnsAsync(report);
+        api.Setup(a => a.GetCurrentReportInstanceAsync(591, It.IsAny<int?>()))
+            .ReturnsAsync(new TNO.API.Areas.Services.Models.Report.ReportInstanceModel { Id = 66842, ReportId = 591, Version = 10 });
+        api.Setup(a => a.UpdateReportInstanceAsync(It.IsAny<TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(), true))
+            .ThrowsAsync(new HttpRequestException("Response lost after commit"));
+        var listener = new Mock<IKafkaListener<string, ReportRequestModel>>();
+        var manager = new Manager(listener.Object, api.Object, new Clock(), true);
+        var message = Message();
+        message.Message.Value.ReportInstanceId = null;
+
+        await manager.Handle(message);
+
+        api.Verify(a => a.SendMessageAsync(It.Is<ReportRequestModel>(r => r.ReportId == 591 && r.ReportInstanceId == null)), Times.Once);
+        api.Verify(a => a.UpdateReportInstanceAsync(It.IsAny<TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(), true), Times.Once);
+        listener.Verify(l => l.Commit(message), Times.Once);
+    }
+
     [Fact]
     public async Task CollectionOnlyReportIsCollectedButNeverRenderedOrSent()
     {
@@ -331,7 +371,7 @@ public class ReportingRecoveryTest
         api.Setup(a => a.OpenClient.Client).Returns(http);
         api.Setup(a => a.GetReportInstanceAsync(66842)).ReturnsAsync(instance);
         api.Setup(a => a.GetContentForReportInstanceIdAsync(66842)).ReturnsAsync([]);
-        api.Setup(a => a.GetReportInstanceChartsAsync(66842, It.IsAny<int?>())).ReturnsAsync([]);
+        api.Setup(a => a.GenerateReportInstanceChartsAsync(66842, It.IsAny<int?>())).ReturnsAsync([]);
         api.Setup(a => a.UpdateReportInstanceAsync(It.IsAny<TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(), It.IsAny<bool>()))
             .Callback<TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel, bool>((model, _) => saved = model)
             .ReturnsAsync((TNO.API.Areas.Services.Models.ReportInstance.ReportInstanceModel model, bool _) => model);
@@ -347,6 +387,8 @@ public class ReportingRecoveryTest
         // Not marked sent, so the next run keeps collecting into the same instance.
         Assert.Null(saved.SentOn);
         Assert.Equal("", saved.Body);
+        api.Verify(a => a.GetContentForReportInstanceIdAsync(It.IsAny<long>()), Times.Never);
+        api.Verify(a => a.GenerateReportInstanceChartsAsync(66842, It.IsAny<int?>()), Times.Once);
         Assert.Empty(engine.Invocations);
         Assert.Empty(ches.Invocations);
         api.Verify(a => a.SendMessageAsync(It.IsAny<ReportRequestModel>()), Times.Never);
