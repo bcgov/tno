@@ -509,10 +509,6 @@ namespace TNO.Core.Http
                 // reason is in the body alone. Without it a caller is left with method, status
                 // and URL, which name the request but never the problem.
                 var body = await ReadErrorBodyAsync(response, timeout.Token);
-                // Preserve the small error body for existing concurrency handlers, but release
-                // the network stream before handing the response to the exception.
-                response.Content.Dispose();
-                response.Content = new StringContent(body ?? "");
                 var error = String.IsNullOrWhiteSpace(body)
                     ? new HttpClientRequestException(response)
                     : new HttpClientRequestException(response, $"HTTP Request failed [{response.RequestMessage?.Method}]:[{response.StatusCode}]:{response.RequestMessage?.RequestUri}:{body}");
@@ -531,6 +527,9 @@ namespace TNO.Core.Http
         /// Read the body of a failed response, capped and marked when it is cut short. Reading it
         /// cannot be allowed to replace the original failure, so a body that cannot be read is
         /// reported as nothing rather than thrown.
+        /// The response keeps its whole body and its headers: handlers of the exception parse the
+        /// body as JSON (concurrency errors) and choose how by its content type (CHES), so only the
+        /// returned text is capped.
         /// </summary>
         /// <param name="response"></param>
         /// <param name="cancellationToken"></param>
@@ -539,22 +538,21 @@ namespace TNO.Core.Http
         {
             try
             {
-                using var reader = new StreamReader(await response.Content.ReadAsStreamAsync(cancellationToken));
-                var buffer = new char[MaxErrorBodyChars + 1];
-                var length = 0;
-                while (length < buffer.Length)
-                {
-                    var read = await reader.ReadAsync(buffer.AsMemory(length), cancellationToken);
-                    if (read == 0) break;
-                    length += read;
-                }
-                var body = new string(buffer, 0, Math.Min(length, MaxErrorBodyChars));
+                // The request was streamed, so buffer the body here. That also drains the network
+                // stream, and it leaves the content readable again by whoever catches the exception.
+                await response.Content.LoadIntoBufferAsync(this.Client.MaxResponseContentBufferSize, cancellationToken);
+                var body = await response.Content.ReadAsStringAsync(cancellationToken);
                 if (String.IsNullOrWhiteSpace(body)) return null;
-                return length > MaxErrorBodyChars ? body + "...[truncated]" : body;
+                return body.Length <= MaxErrorBodyChars
+                    ? body
+                    : $"{body[..MaxErrorBodyChars]}...[truncated, {body.Length - MaxErrorBodyChars} more character(s)]";
             }
             catch (Exception ex)
             {
                 _logger.LogDebug(ex, "Failed to read the body of an unsuccessful response.");
+                // A half read stream is of no use to a handler and holds the connection open.
+                response.Content.Dispose();
+                response.Content = new ByteArrayContent([]);
                 return null;
             }
         }
