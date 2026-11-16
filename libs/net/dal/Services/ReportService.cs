@@ -956,8 +956,9 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// <param name="id"></param>
     /// <param name="ownerId"></param>
     /// <param name="includeContent"></param>
+    /// <param name="collectionOnly">Load sorting metadata without story text.</param>
     /// <returns></returns>
-    public ReportInstance? GetCurrentReportInstance(int id, int? ownerId = null, bool includeContent = false)
+    public ReportInstance? GetCurrentReportInstance(int id, int? ownerId = null, bool includeContent = false, bool collectionOnly = false)
     {
         var query = this.Context.ReportInstances
             .AsNoTracking()
@@ -967,7 +968,7 @@ public class ReportService : BaseService<Report, int>, IReportService
         if (ownerId.HasValue == true)
             query = query.Where(ri => ri.OwnerId == ownerId);
 
-        if (includeContent)
+        if (includeContent && !collectionOnly)
             query = query
                 .Include(i => i.ContentManyToMany)
                     .ThenInclude(c => c.Content).ThenInclude(c => c!.TonePoolsManyToMany).ThenInclude(ct => ct.TonePool)
@@ -978,7 +979,60 @@ public class ReportService : BaseService<Report, int>, IReportService
         else
             query = query.Include(i => i.ContentManyToMany);
 
-        return query.OrderByDescending(i => i.Id).FirstOrDefault();
+        var instance = query.OrderByDescending(i => i.Id).FirstOrDefault();
+        if (instance != null && collectionOnly)
+        {
+            // Select only collection/sort metadata in SQL. Never materialize story bodies,
+            // summaries, per-user versions or other large content payloads.
+            var metadata = this.Context.ReportInstanceContents.AsNoTracking().AsSplitQuery()
+                .Where(c => c.InstanceId == instance.Id && c.Content != null)
+                .Select(c => new
+                {
+                    c.ContentId,
+                    c.SectionName,
+                    c.Content!.Uid,
+                    c.Content.Headline,
+                    c.Content.OtherSource,
+                    c.Content.ContentType,
+                    c.Content.LicenseId,
+                    c.Content.MediaTypeId,
+                    c.Content.PublishedOn,
+                    c.Content.Byline,
+                    c.Content.SourceId,
+                    c.Content.Source,
+                    c.Content.MediaType,
+                    c.Content.Series,
+                    c.Content.Contributor,
+                    Tones = c.Content.TonePoolsManyToMany.ToArray(),
+                    Topics = c.Content.TopicsManyToMany.Select(t => new { Link = t, t.Topic }).ToArray(),
+                }).ToArray();
+            var links = instance.ContentManyToMany.ToDictionary(c => (c.ContentId, c.SectionName));
+            foreach (var item in metadata)
+            {
+                // A story linked after the instance was read is not in it; the next read returns it.
+                if (!links.TryGetValue((item.ContentId, item.SectionName), out var link)) continue;
+                var content = new Content(item.Uid, item.Headline, item.OtherSource, item.ContentType, item.LicenseId, item.MediaTypeId)
+                {
+                    Id = item.ContentId,
+                    PublishedOn = item.PublishedOn,
+                    Byline = item.Byline,
+                    SourceId = item.SourceId,
+                    Source = item.Source,
+                    MediaType = item.MediaType,
+                    Series = item.Series,
+                    Contributor = item.Contributor,
+                };
+                content.TonePoolsManyToMany.AddRange(item.Tones);
+                foreach (var topic in item.Topics)
+                {
+                    topic.Link.Topic = topic.Topic;
+                    content.TopicsManyToMany.Add(topic.Link);
+                }
+                link.Content = content;
+            }
+            instance.Body = "";
+        }
+        return instance;
     }
 
     /// <summary>
