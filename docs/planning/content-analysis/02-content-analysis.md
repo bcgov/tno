@@ -48,7 +48,7 @@ the hook; series is not an analysis input, so no request is needed.
 | `analysis` | API | Content-Analysis | Added and changed content, reanalysis, replay |
 | `analysis-backfill` | Event Handler | Content-Analysis | Backfill (its own consumer, so it never delays new content) |
 | `analysis-retry` | Content-Analysis | Content-Analysis | Failed requests waiting out their backoff |
-| `analysis-dlq` | Content-Analysis | nobody (inspect in Kowl) | Requests whose retries are exhausted |
+| `analysis-dlq` | Content-Analysis | nobody (inspect in Kafbat Kafka-UI) | Requests whose retries are exhausted |
 | `work-order` | API | Event Handler | Work orders, including backfills |
 
 Every analysis message is keyed by content ID, so requests for one content item are handled in

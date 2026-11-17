@@ -36,7 +36,7 @@ Verify with `docker exec tno-<service> printenv <VAR>`.
 - `docker-compose.yml` — `database`, `keycloak`, `elastic`, `api`, `charts`, `editor`,
   `subscriber` (both build `app/`; `APP_MODE` picks the design), `nginx`, `ssh`, `oracle`, `oracleclient`, `autoheal`, `indexer`,
   `backup-service`
-- `db/kafka/docker-compose.yml` — `broker`, `kowl`
+- `db/kafka/docker-compose.yml` — `broker`, `kafka-ui`
 - `services/docker-compose.yml` — `syndication`, `fileupload`, `image`, `filemonitor`, `content`,
   `contentmigration`, `indexing`, `transcription`, `auto-clipper`, `notification`,
   `reporting`, `folder-collection`, `automation`, `content-analysis`, `ffmpeg`, `scheduler`,
@@ -87,7 +87,7 @@ docker-compose \
 - API: `http://localhost:40010`
 - Keycloak: `http://localhost:40001`
 - Elastic: `http://localhost:40003`
-- Kafka UI (kowl): `http://localhost:40180`
+- Kafka UI (kafka-ui): `http://localhost:40180`
 
 ## Rebuilding After a Code Change
 

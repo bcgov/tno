@@ -1,0 +1,39 @@
+# Temporarily uses the route IP allowlist without Keycloak login.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: 9b301c-prod
+resources:
+  - ../../base
+patches:
+  - target:
+      kind: Deployment
+      name: kafka-ui
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 1
+      - op: remove
+        path: /spec/template/spec/containers/0/env
+      - op: remove
+        path: /spec/template/spec/containers/0/volumeMounts
+      - op: remove
+        path: /spec/template/spec/volumes
+  - target:
+      kind: Route
+      name: kafka-ui
+    patch: |-
+      - op: replace
+        path: /spec/host
+        value: kafka-ui.apps.silver.devops.gov.bc.ca
+  - target:
+      kind: ConfigMap
+      name: kafka-ui
+    patch: |-
+      - op: replace
+        path: /data/KAFKA_UI_PUBLIC_URL
+        value: https://kafka-ui.apps.silver.devops.gov.bc.ca
+      - op: replace
+        path: /data/AUTH_TYPE
+        value: DISABLED
+      - op: remove
+        path: /data/SPRING_CONFIG_ADDITIONALLOCATION
