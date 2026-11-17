@@ -3,15 +3,15 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: kowl
+  name: kafka-ui
   namespace: default
   annotations:
     description: Exposes and load balances the application pods.
   labels:
-    name: kowl
+    name: kafka-ui
     part-of: tno
     version: 1.0.0
-    component: kowl
+    component: kafka-ui
     managed-by: kustomize
     created-by: jeremy.foster
 spec:
@@ -22,6 +22,6 @@ spec:
       targetPort: 8080
   selector:
     part-of: tno
-    component: kowl
+    component: kafka-ui
   sessionAffinity: None
   type: ClusterIP

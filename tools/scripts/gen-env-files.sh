@@ -83,7 +83,7 @@ EVENTHANDER_PORT=$portEventHandler
 
 KAFKA_BROKER_ADVERTISED_HOST_PORT=$portKafkaBrokerAdvertisedHost
 KAFKA_BROKER_ADVERTISED_EXTERNAL_PORT=$portKafkaBrokerAdvertisedExternal
-KAFKA_KOWL_PORT=$portKafkaKowl" >> ./.env
+KAFKA_UI_PORT=$portKafkaUI" >> ./.env
     echo "./.env created"
 fi
 
@@ -329,23 +329,6 @@ KAFKA_JVM_PERFORMANCE_OPTS='-server -XX:MetaspaceSize=96m  -XX:G1HeapRegionSize=
 KAFKA_NUM_PARTITIONS=3
 KAFKA_DEFAULT_REPLICATION_FACTOR=1" >> ./db/kafka/broker/.env
     echo "./db/kafka/broker/.env created"
-fi
-
-# Kafka Kowl
-if test -f "./db/kafka/kowl/.env"; then
-    echo "./db/kafka/kowl/.env exists"
-else
-echo \
-"# See: https://github.com/cloudhut/kowl/tree/master/docs/config for reference config files.
-# This is a YAML file because of Kowl's lack of configuration options.
-# Keep this as a .env so it doesn't get committed to source.
-kafka:
-  brokers:
-    - broker:29092
-
-# server:
-  # listenPort: 8080" >> ./db/kafka/kowl/.env
-    echo "./db/kafka/kowl/.env created"
 fi
 
 ###########################################################################

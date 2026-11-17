@@ -806,7 +806,7 @@ podsSyndication=$(getPods syndication-service deployment $env)
 podsImage=$(getPods image-service deployment $env)
 
 # Supporting Services
-podsKowl=$(getPods kowl deployment $env)
+podsKafkaUI=$(getPods kafka-ui deployment $env)
 
 # Tag all images in ACR ($tag → $env)
 echo "Tagging images in ACR ($ACR_HOST): $tag → $env"
@@ -886,7 +886,7 @@ scale image-service $podsImage deployment $env
 
 # Supporting Services
 # scale oracle $podsOracle deployment $env  # Not deployed in dev
-scale kowl $podsKowl deployment $env
+scale kafka-ui $podsKafkaUI deployment $env
 
 if [[ ${#_failures[@]} -gt 0 ]]; then
   echo

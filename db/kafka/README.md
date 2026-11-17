@@ -17,7 +17,103 @@
 | Schema Connect  |         8083 | Connect schema with Control Center        |
 | KSQL DB         |         8088 | Streaming services                        |
 | REST API        |         8082 | REST API v2                               |
-| Kowl            |         8080 | UI to manage Kafka                        |
+| Kafbat Kafka-UI            |         8080 | UI to manage Kafka                        |
+
+## Kafka-UI (Kafbat)
+
+The image is pinned to `ghcr.io/kafbat/kafka-ui:v1.5.0` ([upstream release](https://github.com/kafbat/kafka-ui/releases/tag/v1.5.0)).
+Configuration uses [Kafbat environment variables](https://ui.docs.kafbat.io/configuration/configuration-file).
+Dynamic cluster configuration is disabled. The JVM heap is capped at 512 MiB within a 1 GiB container limit.
+
+### Local Docker
+
+From the repository root, start the UI and broker:
+
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.override.yml \
+  -f db/kafka/docker-compose.yml -f services/docker-compose.yml \
+  --profile kafka-ui up -d --build kafka-ui
+```
+
+The local UI binds only to loopback and does not require login. Open http://localhost:40180. Set `KAFKA_UI_PORT` in the root `.env` to override the port;
+existing `KAFKA_KOWL_PORT` settings remain a fallback. No UI-specific `.env` is required.
+The old `db/kafka/kowl/.env` is no longer used. Remove the old local container with
+`docker rm -f tno-kowl` if it exists after verifying the replacement.
+
+### OpenShift migration
+
+The manifests use `bcgov-c4awhwfpcremdbga.azurecr.io/kafka-ui:v1.5.0`.
+Import the image and check the ACR vulnerability scan before deploying:
+
+```bash
+az acr import --name bcgov \
+  --source ghcr.io/kafbat/kafka-ui:v1.5.0 --image kafka-ui:v1.5.0
+```
+
+The registry resource name defaults to `bcgov` in `openshift/scripts/acr-common.sh`.
+DEV, TEST and PROD temporarily run without Keycloak login, protected by route IP allowlists. Each overlay
+removes the authentication configuration mount and OIDC Secret references and sets `AUTH_TYPE=DISABLED`.
+To enable login in an environment, remove its authentication-disabling
+patches after provisioning the client and Secret below.
+
+For environments with login enabled, provision a confidential Keycloak OIDC client
+with Standard Flow enabled and an exact callback URL:
+`https://kafka-ui[-dev|-test].apps.silver.devops.gov.bc.ca/login/oauth2/code/keycloak`
+(use the corresponding route hostname below, not the bracket notation).
+The issuer comes from the existing `keycloak` ConfigMap's `KEYCLOAK_AUTHORITY`.
+
+Configure a client-role mapper for the approved role source, emitting a multivalued `roles`
+claim into the ID token and userinfo. Only the role named by `admin-role` receives Kafka
+cluster, topic, consumer-group and ACL administration permissions. There is no default role.
+Use a dedicated client and restrict its role scope mappings to the approved role.
+
+Create a `kafka-ui-oidc` Secret in each namespace with keys `client-id`, `client-secret`, and
+`admin-role`. Supply these through the existing secret-management process; never commit them.
+When login is enabled, missing credentials prevent the deployment from starting.
+
+Routes are `kafka-ui-dev.apps.silver.devops.gov.bc.ca`,
+`kafka-ui-test.apps.silver.devops.gov.bc.ca`, and `kafka-ui.apps.silver.devops.gov.bc.ca`.
+The committed route allowlist is **loopback only** until approved government and external
+CIDRs are supplied. Do not remove the allowlist annotation or use `0.0.0.0/0`.
+Keep real addresses outside this public repository. Apply an environment-specific private
+Kustomize patch replacing `haproxy.router.openshift.io/ip_whitelist` with a space-separated
+list of approved IPs/CIDRs. Always deploy through that private overlay; applying the public
+overlay resets the allowlist to loopback only.
+
+A private overlay can reference the repository's `overlays/dev` and add this patch
+(substitute approved addresses; do not apply the placeholder):
+
+```yaml
+patches:
+  - target:
+      kind: Route
+      name: kafka-ui
+    patch: |-
+      - op: replace
+        path: /metadata/annotations/haproxy.router.openshift.io~1ip_whitelist
+        value: APPROVED_SPACE_SEPARATED_IPS_AND_CIDRS
+```
+
+Apply the private overlay, then check `oc -n 9b301c-dev rollout status deployment/kafka-ui`.
+Verify that allowed source IPs reach Kafka-UI and unapproved sources cannot reach it.
+When login is enabled, also verify that anonymous requests cannot read Kafka data, approved-role
+users can access the cluster, and users without the role cannot. IP enforcement must be tested through the OpenShift router;
+local Docker tests do not validate the router's source-IP handling.
+
+Verify topics and consumer groups in the replacement, then remove the old resources:
+
+```bash
+oc -n 9b301c-dev delete deployment,service,configmap,route kowl --ignore-not-found
+```
+
+Applying the new manifests does not remove Kowl automatically. Update operational bookmarks.
+The `*-deployment-update.yaml` files are rendered from their overlays and contain Deployment,
+ConfigMaps and Service; use the full private overlay for the initial migration to create the Route too.
+Keep the old image available until rollout verification is complete. To roll back, apply the
+previous revision's Kowl overlay; it uses separate resource names.
+
+Replacing Kowl removes its obsolete OpenSSH packages, but does not establish that the new image
+is free of other vulnerabilities. Scan the imported image and revisit the pinned version regularly.
 
 ## Kafka CLI
 

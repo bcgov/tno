@@ -107,7 +107,7 @@ scale ches-retry-service $(replicas ches-retry-service $env) deployment $env
 scale automation-service $(replicas automation-service $env) deployment $env
 scale content-analysis-service $(replicas content-analysis-service $env) deployment $env
 
-# scale kowl 1 deployment $env
+# scale kafka-ui 1 deployment $env
 
 if [[ ${#_failures[@]} -gt 0 ]]; then
   echo "ERROR: the environment did not fully start:" >&2

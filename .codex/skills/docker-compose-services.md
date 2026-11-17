@@ -45,7 +45,7 @@ docker-compose \
 - API: `http://localhost:40010`
 - Keycloak: `http://localhost:40001`
 - Elastic: `http://localhost:40003`
-- Kafka UI (kowl): `http://localhost:40180`
+- Kafka UI (kafka-ui): `http://localhost:40180`
 
 ## Troubleshooting
 

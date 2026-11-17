@@ -182,7 +182,7 @@ Nginx provides a reverse proxy, which handles communication with the API.
 | Subscriber app     | subscriber | [http://localhost:40083](http://localhost:40083)  |
 | API                | api        | [http://localhost:40010](http://localhost:40010)  |
 | Keycloak           | keycloak   | [http://localhost:40001/](http://localhost:40001) |
-| Kafka Kowl         | kowl       | [http://localhost:40180](http://localhost:40180)  |
+| Kafbat Kafka-UI         | kafka-ui       | [http://localhost:40180](http://localhost:40180)  |
 | Elasticsearch      | elastic    | [http://localhost:40003](http://localhost:40003)  |
 
 Once the core containers are running you can then start up the other services and utilities.

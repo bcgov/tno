@@ -58,4 +58,4 @@ if [[ ${#_failures[@]} -gt 0 ]]; then
   exit 1
 fi
 
-# scale kowl 0 deployment $env
+# scale kafka-ui 0 deployment $env

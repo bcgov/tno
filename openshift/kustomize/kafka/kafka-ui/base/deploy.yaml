@@ -1,0 +1,113 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: kafka-ui
+  namespace: default
+  annotations:
+    description: Defines how to deploy Kafbat Kafka-UI
+  labels:
+    name: kafka-ui
+    part-of: tno
+    version: 1.0.0
+    component: kafka-ui
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: kafka-ui
+      part-of: tno
+      component: kafka-ui
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      name: kafka-ui
+      labels:
+        name: kafka-ui
+        part-of: tno
+        component: kafka-ui
+    spec:
+      imagePullSecrets:
+        - name: acr-secret
+      containers:
+        - name: kafka-ui
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/kafka-ui:v1.5.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: '1'
+              memory: 1Gi
+          envFrom:
+            - configMapRef:
+                name: kafka-ui
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 60
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          env:
+            - name: KAFKA_UI_ISSUER_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: keycloak
+                  key: KEYCLOAK_AUTHORITY
+            - name: KAFKA_UI_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: kafka-ui-oidc
+                  key: client-id
+            - name: KAFKA_UI_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: kafka-ui-oidc
+                  key: client-secret
+            - name: KAFKA_UI_ADMIN_ROLE
+              valueFrom:
+                secretKeyRef:
+                  name: kafka-ui-oidc
+                  key: admin-role
+          volumeMounts:
+            - name: auth
+              mountPath: /etc/kafka-ui
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: auth
+          configMap:
+            name: kafka-ui-auth
