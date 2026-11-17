@@ -183,4 +183,4 @@ export portEventHandler=40036
 
 export portKafkaBrokerAdvertisedHost=40101
 export portKafkaBrokerAdvertisedExternal=40102
-export portKafkaKowl=40180
+export portKafkaUI=40180

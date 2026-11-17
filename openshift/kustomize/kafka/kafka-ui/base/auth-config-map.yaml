@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka-ui-auth
+  namespace: default
+data:
+  auth.yaml: |
+    auth:
+      type: OAUTH2
+      oauth2:
+        client:
+          keycloak:
+            clientId: ${KAFKA_UI_CLIENT_ID}
+            clientSecret: ${KAFKA_UI_CLIENT_SECRET}
+            scope: openid
+            issuer-uri: ${KAFKA_UI_ISSUER_URI}
+            user-name-attribute: preferred_username
+            client-name: BC Government Keycloak
+            provider: keycloak
+            redirect-uri: ${KAFKA_UI_PUBLIC_URL}/login/oauth2/code/keycloak
+            authorization-grant-type: authorization_code
+            custom-params:
+              type: oauth
+              roles-field: roles
+    rbac:
+      roles:
+        - name: kafka-admin
+          clusters:
+            - tno
+          subjects:
+            - provider: oauth
+              type: role
+              value: ${KAFKA_UI_ADMIN_ROLE}
+          permissions:
+            - resource: clusterconfig
+              actions: all
+            - resource: topic
+              value: .*
+              actions: all
+            - resource: consumer
+              value: .*
+              actions: all
+            - resource: acl
+              actions: all

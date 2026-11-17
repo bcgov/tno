@@ -1,0 +1,179 @@
+# Generated from this overlay; Route is managed separately.
+apiVersion: v1
+data:
+  AUTH_TYPE: DISABLED
+  DYNAMIC_CONFIG_ENABLED: 'false'
+  JAVA_OPTS: -Xms128m -Xmx512m
+  KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-broker-0.kafka-headless:29092,kafka-broker-1.kafka-headless:29092,kafka-broker-2.kafka-headless:29092
+  KAFKA_CLUSTERS_0_NAME: tno
+  KAFKA_UI_PUBLIC_URL: https://kafka-ui-dev.apps.silver.devops.gov.bc.ca
+  MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED: 'true'
+kind: ConfigMap
+metadata:
+  annotations:
+    description: Kafka-UI cluster and runtime configuration
+  labels:
+    component: kafka-ui
+    created-by: jeremy.foster
+    managed-by: kustomize
+    name: kafka-ui
+    part-of: tno
+    version: 1.0.0
+  name: kafka-ui
+  namespace: 9b301c-dev
+---
+apiVersion: v1
+data:
+  auth.yaml: |
+    auth:
+      type: OAUTH2
+      oauth2:
+        client:
+          keycloak:
+            clientId: ${KAFKA_UI_CLIENT_ID}
+            clientSecret: ${KAFKA_UI_CLIENT_SECRET}
+            scope: openid
+            issuer-uri: ${KAFKA_UI_ISSUER_URI}
+            user-name-attribute: preferred_username
+            client-name: BC Government Keycloak
+            provider: keycloak
+            redirect-uri: ${KAFKA_UI_PUBLIC_URL}/login/oauth2/code/keycloak
+            authorization-grant-type: authorization_code
+            custom-params:
+              type: oauth
+              roles-field: roles
+    rbac:
+      roles:
+        - name: kafka-admin
+          clusters:
+            - tno
+          subjects:
+            - provider: oauth
+              type: role
+              value: ${KAFKA_UI_ADMIN_ROLE}
+          permissions:
+            - resource: clusterconfig
+              actions: all
+            - resource: topic
+              value: .*
+              actions: all
+            - resource: consumer
+              value: .*
+              actions: all
+            - resource: acl
+              actions: all
+kind: ConfigMap
+metadata:
+  name: kafka-ui-auth
+  namespace: 9b301c-dev
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    description: Exposes and load balances the application pods.
+  labels:
+    component: kafka-ui
+    created-by: jeremy.foster
+    managed-by: kustomize
+    name: kafka-ui
+    part-of: tno
+    version: 1.0.0
+  name: kafka-ui
+  namespace: 9b301c-dev
+spec:
+  ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    component: kafka-ui
+    part-of: tno
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    description: Defines how to deploy Kafbat Kafka-UI
+  labels:
+    component: kafka-ui
+    created-by: jeremy.foster
+    managed-by: kustomize
+    name: kafka-ui
+    part-of: tno
+    version: 1.0.0
+  name: kafka-ui
+  namespace: 9b301c-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: kafka-ui
+      name: kafka-ui
+      part-of: tno
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        component: kafka-ui
+        name: kafka-ui
+        part-of: tno
+      name: kafka-ui
+    spec:
+      containers:
+        - envFrom:
+            - configMapRef:
+                name: kafka-ui
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/kafka-ui:v1.5.0
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            periodSeconds: 10
+            timeoutSeconds: 5
+          name: kafka-ui
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            limits:
+              cpu: '1'
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+          startupProbe:
+            failureThreshold: 60
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            periodSeconds: 10
+            timeoutSeconds: 5
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+        - name: acr-secret
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30

@@ -1,0 +1,23 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: kafka-ui
+  namespace: default
+  annotations:
+    description: Kafka-UI cluster and runtime configuration
+  labels:
+    name: kafka-ui
+    part-of: tno
+    version: 1.0.0
+    component: kafka-ui
+    managed-by: kustomize
+    created-by: jeremy.foster
+data:
+  AUTH_TYPE: OAUTH2
+  KAFKA_CLUSTERS_0_NAME: tno
+  KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-broker-0.kafka-headless:29092,kafka-broker-1.kafka-headless:29092,kafka-broker-2.kafka-headless:29092
+  DYNAMIC_CONFIG_ENABLED: 'false'
+  JAVA_OPTS: -Xms128m -Xmx512m
+  MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED: 'true'
+  SPRING_CONFIG_ADDITIONALLOCATION: file:/etc/kafka-ui/auth.yaml
+  KAFKA_UI_PUBLIC_URL: https://kafka-ui.apps.silver.devops.gov.bc.ca
