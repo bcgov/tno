@@ -237,7 +237,7 @@ def detect_deploy_changes(changed_files, scope, environment="dev"):
             build_names.update(DOTNET_SERVICE_NAMES)
             service_names.update(DOTNET_SERVICE_NAMES)
             deploy_api = True
-            if path.startswith("src/libs/dal/"):
+            if path.startswith("src/libs/dal/") or path == "src/libs/Dockerfile":
                 run_db_migration = True
         elif path.startswith("openshift/kustomize/api/") or path.startswith("openshift/kustomize/api-services/"):
             deploy_api = True

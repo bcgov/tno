@@ -1,234 +1,77 @@
-# Tekton Pipeline Tasks
+# Manual Tekton releases
 
-This directory contains Tekton pipeline tasks for deploying and managing the TNO application in OpenShift.
+GitHub Actions owns automatic releases: `dev` → `9b301c-dev`, `master` →
+`9b301c-test`. Tekton is a manually invoked fallback for those environments.
+The `git-webhook-dev` and `git-webhook-master` EventListeners now reject push
+notifications through a constant-false CEL filter. Their definitions remain in
+Git so reapplying them cannot accidentally re-enable duplicate releases.
 
-## Overview
+## Reconcile installed definitions after merge
 
-There are **two versions** of key Tekton tasks to support both DeploymentConfig (legacy) and Deployment (current) resource types during the migration period.
-
-## Task Versions
-
-### DeploymentConfig Tasks (Legacy - for prod until migrated)
-
-Use these tasks for environments still running DeploymentConfigs:
-
-- **`deploy-all`** - Orchestrates deployment of all services using DeploymentConfigs
-- **`oc-backup`** - Database backup task using `dc/` syntax
-- **`oc-deploy-with-tag`** - Image tagging and deployment using DeploymentConfigs
-
-### Deployment Tasks (Current - for dev/test/migrated environments)
-
-Use these tasks for environments migrated to Kubernetes Deployments:
-
-- **`deploy-all-deployment`** - Orchestrates deployment of all services using Deployments
-- **`oc-backup-deployment`** - Database backup task using pod selectors
-- **`oc-deploy-with-tag-deployment`** - Image tagging and deployment using Deployments
-
-## Usage
-
-### Deploying Tasks to OpenShift
-
-**For DeploymentConfig environments (e.g., prod before migration):**
+From the repository root, while no release is active:
 
 ```bash
-oc apply -f base/tasks/deploy-all.yaml
-oc apply -f base/tasks/oc-backup.yaml
-oc apply -f base/tasks/oc-deploy-with-tag.yaml
+bash openshift/scripts/release/install-tekton.sh --dry-run=server
+bash openshift/scripts/release/install-tekton.sh
 ```
 
-**For Deployment environments (e.g., dev, test, or migrated prod):**
+The script disables automatic listeners first and installs the current git,
+build, migration, deployment tasks and `buildah-all`/`deploy-all` pipelines.
+It uses the cluster-provided `openshift/cli:latest` image stream, matching the live
+tasks; the retired ACR `openshift-cli:latest` tag is not used. It does not start a
+release or change application workloads. Existing service
+accounts, registry secrets, bindings, and storage must already exist.
+
+The previous live build task used retired `services/net/...` Dockerfile paths.
+The current task uses `src/...`, resolves Dockerfiles against their actual build
+contexts, and checks out the requested Git commit rather than silently using the
+latest branch head. It does not trace registry credentials. Rotate the registry
+credential previously exposed by the old task's shell tracing using the normal
+credential-management procedure; the installer does not rotate credentials.
+
+## Start a manual release
+
+Use the OpenShift Pipelines UI to start **buildah-all**, or copy
+`base/pipeline-runs/manual-release.yaml`, replace `GIT_REF` with the exact merged
+commit SHA, select the matching branch/environment, and run `oc create -f` on the
+edited file. Use `dev`/`dev` or `master`/`test`. The default example targets dev.
+Do not run it concurrently with GitHub Actions deployment to the same environment.
+
+`COMPONENT=all` builds the supported components and runs the migration. `*` selects
+components changed in the chosen commit; a component ID selects that component in
+addition to detected changes. For a multi-commit recovery release, prefer `all`.
+The source workspace uses the existing `repo` PVC; the conditions workspace gets
+its own PVC. Use an image tag unique to the release instead of reusing `latest`.
+
+Release order:
+
+1. Check out the exact commit and identify changes.
+2. Build images and push to ACR.
+3. Run the required database migration, using `montford` in dev or `mooncrest` in
+   test. A failure blocks the pipeline.
+4. Promote selected images, stop/update/start StatefulSet `api`, and roll Deployment
+   `api-services`. Both APIs must become ready before any other service starts.
+5. Roll the remaining selected Deployments in parallel, preserving their replica
+   counts. Any failed rollout fails the task.
+
+The deployment task runs `openshift/scripts/release/rollout.sh` from the checked-out
+commit. Therefore the fallback must use a commit containing the updated scripts.
+Test uses `indexing-service-cloud`; both frontends use the single `app` image.
+The API StatefulSet is the only non-rolling workload in this release path.
+
+`deploy-all` is a deployment-only pipeline for already-built images and uses the
+same migration/API gates. Legacy pipeline examples elsewhere in this directory
+are not installed by the reconciliation script. Production and Elasticsearch
+migration orchestration are outside this dev/test fallback.
+
+## Verification
 
 ```bash
-oc apply -f base/tasks/deploy-all-deployment.yaml
-oc apply -f base/tasks/oc-backup-deployment.yaml
-oc apply -f base/tasks/oc-deploy-with-tag-deployment.yaml
+python3 -m unittest discover -s .github/scripts -v
+python3 -m unittest discover -s openshift/scripts/tests -p 'test_release*.py' -v
 ```
 
-### Running Pipelines
-
-**Deploy All Services (DeploymentConfig version):**
-
-```bash
-tkn task start deploy-all \
-  --param PROJECT_SHORTNAME=9b301c \
-  --param IMAGE_TAG=latest \
-  --param ENV=prod \
-  --param DEPLOY=all \
-  --workspace name=conditions,claimName=pipeline-workspace
-```
-
-**Deploy All Services (Deployment version):**
-
-```bash
-tkn task start deploy-all-deployment \
-  --param PROJECT_SHORTNAME=9b301c \
-  --param IMAGE_TAG=latest \
-  --param ENV=dev \
-  --param DEPLOY=all \
-  --workspace name=conditions,claimName=pipeline-workspace
-```
-
-**Database Backup (DeploymentConfig version):**
-
-```bash
-tkn task start oc-backup \
-  --param PROJECT_NAMESPACE=9b301c-prod \
-  --param DEPLOYMENT_CONFIG=backup \
-  --param ARGS="-1"
-```
-
-**Database Backup (Deployment version):**
-
-```bash
-tkn task start oc-backup-deployment \
-  --param PROJECT_NAMESPACE=9b301c-dev \
-  --param DEPLOYMENT_NAME=backup \
-  --param ARGS="-1"
-```
-
-**Deploy Single Service with Tag (DeploymentConfig version):**
-
-```bash
-tkn task start oc-deploy-with-tag \
-  --param PROJECT=9b301c \
-  --param IMAGE_NAME=app \
-  --param DEPLOYMENT="editor subscriber" \
-  --param IMAGE_TAG=latest \
-  --param ENV=prod
-```
-
-**Deploy Single Service with Tag (Deployment version):**
-
-```bash
-tkn task start oc-deploy-with-tag-deployment \
-  --param PROJECT=9b301c \
-  --param IMAGE_NAME=app \
-  --param DEPLOYMENT="editor subscriber" \
-  --param IMAGE_TAG=latest \
-  --param ENV=dev \
-  --param OBJECT=deployment
-```
-
-## Key Differences Between Versions
-
-| Feature              | DeploymentConfig Version                        | Deployment Version                                                               |
-| -------------------- | ----------------------------------------------- | -------------------------------------------------------------------------------- |
-| **Task Names**       | `deploy-all`, `oc-backup`, `oc-deploy-with-tag` | `deploy-all-deployment`, `oc-backup-deployment`, `oc-deploy-with-tag-deployment` |
-| **Resource Type**    | `dc` (DeploymentConfig)                         | `deployment` (Deployment)                                                        |
-| **Backup Parameter** | `DEPLOYMENT_CONFIG`                             | `DEPLOYMENT_NAME`                                                                |
-| **Pod Access**       | `dc/$(params.DEPLOYMENT_CONFIG)`                | Pod selector: `-l name=$(params.DEPLOYMENT_NAME)`                                |
-| **Rollout Command**  | `oc rollout status dc/...`                      | `oc rollout status deployment/...`                                               |
-| **API Service**      | `sts` (StatefulSet)                             | `sts` (StatefulSet) - same for both                                              |
-
-## Component Types in deploy-all Tasks
-
-Both `deploy-all` and `deploy-all-deployment` manage the following services:
-
-### Applications (3 services)
-
-- **charts-api** - Charts API service
-- **editor** - Editor web application (`app` image, `APP_MODE=editor`)
-- **subscriber** - Subscriber web application (`app` image, `APP_MODE=subscriber`)
-
-Both run the one `app` image, built when `src/app/` changes. `DEPLOY=app` (or `BUILD_APP=true`)
-tags it and restarts both; `DEPLOY=editor` or `DEPLOY=subscriber` restarts just one.
-
-### Processing Services (11 services)
-
-- **content-service** - Content processing
-- **indexing-service** - Content indexing
-- **indexing-service-cloud** - Cloud-based indexing (test/prod only)
-- **transcription-service** - Audio/video transcription
-- **reporting-service** - Report generation
-- **notification-service** - Notification handling
-- **scheduler-service** - Task scheduling
-- **folder-collection-service** - Folder monitoring
-- **ffmpeg-service** - Media processing
-- **event-handler-service** - Event processing
-- **ches-retry-service** - CHES retry logic
-
-### Ingest Services (3 services)
-
-- **syndication-service** - Content syndication
-- **filemonitor-service** - File monitoring
-- **image-service** - Image processing
-
-### Reverse Proxies (2 services)
-
-- **nginx-editor** - Routes the editor host to the editor app and its `/api` to the api pods
-- **nginx-subscriber** - Routes the subscriber host to the subscriber app and its `/api` to the api pods
-
-Built when `dependencies/reverse-proxy/<app>` changes, and rolled without stopping anything. The
-pipelines leave the routes alone: they keep pointing at these proxies throughout a deploy.
-
-### API Service (1 service)
-
-- **api** - Main API (StatefulSet)
-
-## Migration Strategy
-
-1. **Current State**: Prod uses DeploymentConfig tasks, dev/test use Deployment tasks
-2. **During Migration**: Both task versions are deployed to OpenShift
-3. **After Migration**: Once all environments use Deployments, DeploymentConfig tasks can be deprecated
-4. **Cleanup**: Remove DeploymentConfig task versions after successful migration
-
-## Parameters
-
-### Common Parameters (both versions)
-
-- **PROJECT_SHORTNAME** - Project namespace prefix (default: `9b301c`)
-- **IMAGE_TAG** - Image tag to deploy (default: `latest`)
-- **ENV** - Target environment (`dev`, `test`, or `prod`)
-- **TIMEOUT** - Deployment timeout (default: `600s`)
-- **DEPLOY** - Component to deploy: `*` (current), `all`, or specific component name
-- **WAIT** - Wait for pods to scale up: `yes` or `no` (default: `no`)
-
-### Backup-Specific Parameters
-
-**DeploymentConfig version:**
-
-- **DEPLOYMENT_CONFIG** - Name of the DeploymentConfig running backup service
-
-**Deployment version:**
-
-- **DEPLOYMENT_NAME** - Name of the Deployment running backup service
-
-### Deploy-with-Tag Parameters
-
-**Deployment version only:**
-
-- **OBJECT** - Kubernetes object type: `deployment` or `sts` (default: `deployment`)
-- **DEPLOYMENT** - Workloads to restart, space separated (default: the image name). The `app`
-  image runs `editor subscriber`.
-
-## Workspaces
-
-The `deploy-all` and `deploy-all-deployment` tasks require a workspace:
-
-- **conditions** - Workspace containing `build.env` file with build flags
-
-Example `build.env`:
-
-```bash
-BUILD_API=true
-BUILD_APP=true
-# ... etc for each component
-```
-
-## Templates
-
-Template versions of tasks are also available in `/openshift/templates/tekton/`:
-
-- `tasks/oc-backup.yaml` - DeploymentConfig version
-- `tasks/oc-backup-deployment.yaml` - Deployment version
-- `tasks/oc-deploy-with-tag.yaml` - DeploymentConfig version
-- `tasks/oc-deploy-with-tag-deployment.yaml` - Deployment version
-- `pipelines/backup-database.yaml` - DeploymentConfig version
-- `pipelines/backup-database-deployment.yaml` - Deployment version
-
-## Support
-
-For issues or questions about Tekton tasks, refer to:
-
-- [OpenShift Pipelines Documentation](https://docs.openshift.com/container-platform/latest/cicd/pipelines/understanding-openshift-pipelines.html)
-- [Tekton Documentation](https://tekton.dev/docs/)
+Tests use fake OpenShift/Buildah commands to exercise failure handling, migration
+timeouts, both API gates, replica preservation, and build paths. Server-side dry
+run checks the installed Tekton API schema. An actual dev release is still needed
+to validate cluster capacity, image pulls, migrations, and application readiness.

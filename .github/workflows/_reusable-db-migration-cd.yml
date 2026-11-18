@@ -172,6 +172,12 @@ jobs:
             sleep 5
           done
 
+          if [ "$PHASE" != "Succeeded" ]; then
+            echo "::error::Database migration did not succeed before the timeout (phase: $PHASE)."
+            oc logs ${{ env.IMAGE_NAME }} -n ${{ inputs.openshift_namespace }} || true
+            exit 1
+          fi
+
           echo "--- migration logs ---"
           oc logs ${{ env.IMAGE_NAME }} -n ${{ inputs.openshift_namespace }}
 

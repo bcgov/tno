@@ -161,3 +161,16 @@ runs:
           "${IMAGE_NAME}:${SOURCE_TAG}" \
           "${ACR_URL}/${IMAGE_NAME}:${IMAGE_TAG}"
         docker push "${ACR_URL}/${IMAGE_NAME}:${IMAGE_TAG}"
+
+    - name: Record published image
+      shell: bash
+      env:
+        IMAGE_NAME: ${{ inputs.image_name }}
+        IMAGE_TAG: ${{ inputs.image_tag }}
+        SOURCE_TAG: ${{ inputs.source_tag }}
+        ACR_URL: ${{ inputs.acr_url }}
+      run: |
+        {
+          printf '### Published %s:%s\n\nSource: `%s`\n\n' "$IMAGE_NAME" "$IMAGE_TAG" "$SOURCE_TAG"
+          docker image inspect "$ACR_URL/$IMAGE_NAME:$IMAGE_TAG" --format '{{join .RepoDigests "\n"}}'
+        } >> "$GITHUB_STEP_SUMMARY"
