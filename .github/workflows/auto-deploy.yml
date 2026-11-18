@@ -25,7 +25,6 @@ jobs:
     uses: ./.github/workflows/deploy-all.yml
     with:
       environment: ${{ fromJSON('{"refs/heads/dev":"dev","refs/heads/master":"test"}')[github.ref] }}
-      skip_db_migration: false
       deploy_scope: changed
     secrets:
       OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}

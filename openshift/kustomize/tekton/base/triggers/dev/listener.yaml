@@ -26,48 +26,8 @@ spec:
             name: github
         - params:
             - name: filter
-              value: |-
-                body.ref == 'refs/heads/dev' && (body.commits.exists(c, c.added.exists(m, m.startsWith('src/app/')))
-                  || body.commits.exists(c, c.modified.exists(m, m.startsWith('src/app/')))
-                  || body.commits.exists(c, c.removed.exists(m, m.startsWith('src/app/')))
-                  || body.head_commit.added.exists(m, m.startsWith('src/app/'))
-                  || body.head_commit.modified.exists(m, m.startsWith('src/app/'))
-                  || body.head_commit.removed.exists(m, m.startsWith('src/app/'))
-
-                  || body.commits.exists(c, c.added.exists(m, m.startsWith('src/api')))
-                  || body.commits.exists(c, c.modified.exists(m, m.startsWith('src/api')))
-                  || body.commits.exists(c, c.removed.exists(m, m.startsWith('src/api')))
-                  || body.head_commit.added.exists(m, m.startsWith('src/api'))
-                  || body.head_commit.modified.exists(m, m.startsWith('src/api'))
-                  || body.head_commit.removed.exists(m, m.startsWith('src/api'))
-
-                  || body.commits.exists(c, c.added.exists(m, m.startsWith('src/charts-api')))
-                  || body.commits.exists(c, c.modified.exists(m, m.startsWith('src/charts-api')))
-                  || body.commits.exists(c, c.removed.exists(m, m.startsWith('src/charts-api')))
-                  || body.head_commit.added.exists(m, m.startsWith('src/charts-api'))
-                  || body.head_commit.modified.exists(m, m.startsWith('src/charts-api'))
-                  || body.head_commit.removed.exists(m, m.startsWith('src/charts-api'))
-
-                  || body.commits.exists(c, c.added.exists(m, m.startsWith('src/libs')))
-                  || body.commits.exists(c, c.modified.exists(m, m.startsWith('src/libs')))
-                  || body.commits.exists(c, c.removed.exists(m, m.startsWith('src/libs')))
-                  || body.head_commit.added.exists(m, m.startsWith('src/libs'))
-                  || body.head_commit.modified.exists(m, m.startsWith('src/libs'))
-                  || body.head_commit.removed.exists(m, m.startsWith('src/libs'))
-
-                  || body.commits.exists(c, c.added.exists(m, m.startsWith('src/tools/elastic')))
-                  || body.commits.exists(c, c.modified.exists(m, m.startsWith('src/tools/elastic')))
-                  || body.commits.exists(c, c.removed.exists(m, m.startsWith('src/tools/elastic')))
-                  || body.head_commit.added.exists(m, m.startsWith('src/tools/elastic'))
-                  || body.head_commit.modified.exists(m, m.startsWith('src/tools/elastic'))
-                  || body.head_commit.removed.exists(m, m.startsWith('src/tools/elastic'))
-
-                  || body.commits.exists(c, c.added.exists(m, m.startsWith('src/services')))
-                  || body.commits.exists(c, c.modified.exists(m, m.startsWith('src/services')))
-                  || body.commits.exists(c, c.removed.exists(m, m.startsWith('src/services')))
-                  || body.head_commit.added.exists(m, m.startsWith('src/services'))
-                  || body.head_commit.modified.exists(m, m.startsWith('src/services'))
-                  || body.head_commit.removed.exists(m, m.startsWith('src/services')))
+              # GitHub Actions owns automatic releases. Tekton is manual fallback only.
+              value: 'false'
             - name: overlays
               value: null
           ref:

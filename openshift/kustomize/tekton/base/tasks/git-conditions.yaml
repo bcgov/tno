@@ -42,7 +42,7 @@ spec:
       name: pull
       script: |
         #!/usr/bin/env bash
-        # set -xe
+        set -euo pipefail
         pwd
 
         # Resolve dubious ownership issue
@@ -60,17 +60,17 @@ spec:
         git fetch origin master
         git fetch origin dev
 
-        git checkout $(params.GIT_SOURCE)
-        # TODO: Make the branch equal to the GIT_REF
-        git reset --hard origin/$(params.GIT_SOURCE)
-        # git pull
+        revision="$(params.GIT_REF)"
+        if [ -z "$revision" ]; then revision="origin/$(params.GIT_SOURCE)"; fi
+        git checkout --detach "$revision"
+        git reset --hard "$revision"
         git show -s
 
         # Identify what has changed.
         DIFF=$(git diff --name-only --diff-filter=AMDR @~..@)
         cd $(workspaces.output.path)
         pwd
-        touch build.env
+        : > build.env
 
         # Identify what needs to be built and deployed.
         function build_service {
@@ -83,7 +83,7 @@ spec:
           BUILD=BUILD_${buildVar}=true
           if grep -s src/services/$folderName <<< $DIFF; then
             echo $BUILD >> build.env
-          elif grep -s src/libs/services <<< $DIFF; then
+          elif grep -s '^src/libs/' <<< "$DIFF"; then
             echo $BUILD >> build.env
           elif grep -s src/libs/kafka <<< $DIFF; then
             echo $BUILD >> build.env
@@ -94,7 +94,7 @@ spec:
           fi
         }
 
-        if grep -s src/libs/dal <<< $DIFF; then
+        if grep -Eq '^(src/libs/dal/|src/libs/Dockerfile$)' <<< "$DIFF"; then
           echo 'BUILD_DB=true' >> build.env
         fi
 
@@ -111,27 +111,7 @@ spec:
           echo 'BUILD_NGINX_SUBSCRIBER=true' >> build.env
         fi
 
-        if grep -s src/api <<< $DIFF; then
-          echo 'BUILD_API=true' >> build.env
-        elif grep -s src/libs/ches <<< $DIFF; then
-          echo 'BUILD_API=true' >> build.env
-        elif grep -s src/libs/core <<< $DIFF; then
-          echo 'BUILD_API=true' >> build.env
-        elif grep -s src/libs/dal <<< $DIFF; then
-          echo 'BUILD_API=true' >> build.env
-        elif grep -s src/libs/elastic <<< $DIFF; then
-          echo 'BUILD_API=true' >> build.env
-        elif grep -s src/libs/entities <<< $DIFF; then
-          echo 'BUILD_API=true' >> build.env
-        elif grep -s src/libs/kafka <<< $DIFF; then
-          echo 'BUILD_API=true' >> build.env
-        elif grep -s src/libs/keycloak <<< $DIFF; then
-          echo 'BUILD_API=true' >> build.env
-        elif grep -s src/libs/models <<< $DIFF; then
-          echo 'BUILD_API=true' >> build.env
-        elif grep -s src/libs/reports <<< $DIFF; then
-          echo 'BUILD_API=true' >> build.env
-        elif grep -s src/libs/template <<< $DIFF; then
+        if grep -Eq '^(src/api/|src/libs/)' <<< "$DIFF"; then
           echo 'BUILD_API=true' >> build.env
         fi
 
@@ -163,6 +143,7 @@ spec:
           echo 'BUILD_REPORTING=true' >> build.env
         fi
 
+        build_service 'contentmigration'
         build_service 'capture'
         build_service 'ches-retry'
         build_service 'clip'

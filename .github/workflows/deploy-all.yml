@@ -10,11 +10,6 @@ on:
         options:
           - dev
           - test
-      skip_db_migration:
-        description: 'Skip DB migration (use when no schema changes)'
-        required: false
-        type: boolean
-        default: false
       deploy_scope:
         description: 'Deployment scope'
         required: false
@@ -33,10 +28,6 @@ on:
       environment:
         required: true
         type: string
-      skip_db_migration:
-        required: false
-        type: boolean
-        default: false
       deploy_scope:
         required: false
         type: string
@@ -132,12 +123,61 @@ jobs:
             --changed-files changed-files.txt \
             --github-output "$GITHUB_OUTPUT"
 
+  validate-components:
+    name: Validate ${{ matrix.name }}
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.has_builds == 'true' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix: ${{ fromJSON(needs.detect-changes.outputs.build_matrix) }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-dotnet@v5
+        if: matrix.name != 'app' && matrix.name != 'charts-api'
+        with:
+          dotnet-version: 10.x
+      - uses: actions/setup-node@v6
+        if: matrix.name == 'app'
+        with:
+          node-version-file: src/app/.nvmrc
+      - uses: actions/setup-node@v6
+        if: matrix.name == 'charts-api'
+        with:
+          node-version: 18
+          package-manager-cache: false
+      - name: Validate component before publishing
+        env:
+          COMPONENT: ${{ matrix.name }}
+          DOCKERFILE: ${{ matrix.dockerfile }}
+        run: |
+          if [ "$COMPONENT" = app ]; then
+            cd src/app
+            npm ci --no-audit --no-fund
+            npm run lint
+            npm run check
+            npm run typecheck
+            npm test
+            npm run build
+          elif [ "$COMPONENT" = charts-api ]; then
+            cd src/charts-api
+            yarn install --immutable
+            yarn run build
+          else
+            projects=("$(dirname "$DOCKERFILE")"/*.csproj)
+            test "${#projects[@]}" -eq 1
+            dotnet restore "${projects[0]}" --configfile NuGet.Config
+            dotnet format "${projects[0]}" --verify-no-changes
+            dotnet build "${projects[0]}" --configuration Release --no-incremental --no-restore
+          fi
+
   # ---------------------------------------------------------------------------
   # Phase 1 — Build selected images in parallel and push to ACR
   # ---------------------------------------------------------------------------
   build:
     name: Build ${{ matrix.name }}
-    needs: detect-changes
+    needs: [detect-changes, validate-components]
     if: ${{ needs.detect-changes.outputs.has_builds == 'true' }}
     runs-on: ubuntu-latest
     strategy:
@@ -170,14 +210,13 @@ jobs:
   db-migration:
     name: DB Migration
     needs: [detect-changes, build]
-    # Run migration only when detection requested it, the user did not skip it,
+    # Run migration whenever detection requested it,
     # and the image build phase did not fail.
     if: >-
       ${{
         always() &&
-        inputs.skip_db_migration == false &&
         needs.detect-changes.outputs.run_db_migration == 'true' &&
-        (needs.build.result == 'success' || needs.build.result == 'skipped')
+        (needs.build.result == 'success' || (needs.build.result == 'skipped' && needs.detect-changes.outputs.has_builds == 'false'))
       }}
     uses: ./.github/workflows/_reusable-db-migration-cd.yml
     with:
@@ -202,7 +241,7 @@ jobs:
       ${{
         always() &&
         needs.detect-changes.outputs.deploy_api == 'true' &&
-        (needs.build.result == 'success' || needs.build.result == 'skipped') &&
+        (needs.build.result == 'success' || (needs.build.result == 'skipped' && needs.detect-changes.outputs.has_builds == 'false')) &&
         (needs.db-migration.result == 'success' || needs.db-migration.result == 'skipped')
       }}
     runs-on: ubuntu-latest
@@ -240,16 +279,15 @@ jobs:
           statefulset_image: ${{ env.ACR_URL }}/api:${{ env.IMAGE_TAG }}
 
       - name: Verify API Health
-        continue-on-error: true
         run: |
           POD=$(oc get pod -l component=api-services \
             -n ${{ env.OPENSHIFT_NAMESPACE }} \
             --sort-by=.metadata.creationTimestamp \
             -o jsonpath='{.items[-1].metadata.name}')
           oc port-forward $POD 8080:8080 -n ${{ env.OPENSHIFT_NAMESPACE }} &
-          sleep 15
-          curl -sf http://localhost:8080/health
-          kill %1
+          FORWARD_PID=$!
+          trap 'kill "$FORWARD_PID" 2>/dev/null || true' EXIT
+          curl --retry 12 --retry-connrefused --retry-delay 5 --fail http://localhost:8080/health
 
   # ---------------------------------------------------------------------------
   # Phase 4 — Deploy all backend services (parallel)
@@ -263,7 +301,7 @@ jobs:
       ${{
         always() &&
         needs.detect-changes.outputs.deploy_services == 'true' &&
-        (needs.build.result == 'success' || needs.build.result == 'skipped') &&
+        (needs.build.result == 'success' || (needs.build.result == 'skipped' && needs.detect-changes.outputs.has_builds == 'false')) &&
         (needs.db-migration.result == 'success' || needs.db-migration.result == 'skipped') &&
         (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'skipped')
       }}
@@ -271,7 +309,6 @@ jobs:
     environment: ${{ inputs.environment }}
     strategy:
       fail-fast: false
-      max-parallel: 4
       matrix: ${{ fromJSON(needs.detect-changes.outputs.service_matrix) }}
     env:
       OPENSHIFT_NAMESPACE: 9b301c-${{ inputs.environment }}
@@ -300,24 +337,22 @@ jobs:
           resource_type: deployment
           resource_name: ${{ matrix.deployment }}
           rollout_timeout: 300s
-          continue_on_error_verify: 'true'
 
   # ---------------------------------------------------------------------------
-  # Phase 5 — Deploy frontend (editor + subscriber)
+  # Phase 4 — Deploy frontend alongside backend services
   # ---------------------------------------------------------------------------
   deploy-frontend:
     name: Deploy ${{ matrix.name }}
-    needs: [detect-changes, build, db-migration, deploy-api, deploy-services]
-    # Deploy frontend apps only when selected, after all earlier rollout phases
+    needs: [detect-changes, build, db-migration, deploy-api]
+    # Deploy frontend apps only when selected, after the API rollout phase
     # have either completed successfully or were skipped.
     if: >-
       ${{
         always() &&
         needs.detect-changes.outputs.deploy_frontend == 'true' &&
-        (needs.build.result == 'success' || needs.build.result == 'skipped') &&
+        (needs.build.result == 'success' || (needs.build.result == 'skipped' && needs.detect-changes.outputs.has_builds == 'false')) &&
         (needs.db-migration.result == 'success' || needs.db-migration.result == 'skipped') &&
-        (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'skipped') &&
-        (needs.deploy-services.result == 'success' || needs.deploy-services.result == 'skipped')
+        (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'skipped')
       }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
@@ -369,14 +404,13 @@ jobs:
           resource_type: deployment
           resource_name: ${{ matrix.deployment }}
           rollout_timeout: 300s
-          continue_on_error_verify: 'true'
 
   # ---------------------------------------------------------------------------
   # Summary
   # ---------------------------------------------------------------------------
   summary:
     name: Deployment Summary
-    needs: [validate-request, detect-changes, build, db-migration, deploy-api, deploy-services, deploy-frontend]
+    needs: [validate-request, detect-changes, validate-components, build, db-migration, deploy-api, deploy-services, deploy-frontend]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -388,6 +422,7 @@ jobs:
           echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| Validate Request | ${{ needs.validate-request.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Detect Deploy Targets | ${{ needs.detect-changes.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Validate Components | ${{ needs.validate-components.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Build Images | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| DB Migration | ${{ needs.db-migration.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Deploy API | ${{ needs.deploy-api.result }} |" >> $GITHUB_STEP_SUMMARY

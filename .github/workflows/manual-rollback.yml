@@ -125,29 +125,19 @@ jobs:
           token: ${{ secrets.OPENSHIFT_TOKEN }}
           server: ${{ env.OPENSHIFT_SERVER }}
 
-      - name: Rollout Restart
+      - name: Restore workloads and verify readiness
+        env:
+          NAMESPACE: ${{ env.OPENSHIFT_NAMESPACE }}
+          SERVICE: ${{ inputs.service }}
+          DEPLOYMENTS: ${{ steps.svc.outputs.deploy }}
+          IMAGE: ${{ env.ACR_URL }}/${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }}
         run: |
-          for deploy in ${{ steps.svc.outputs.deploy }}; do
-            oc rollout restart ${{ steps.svc.outputs.resource_type }}/$deploy \
-              -n ${{ env.OPENSHIFT_NAMESPACE }}
+          if [ "$SERVICE" = api ]; then
+            bash openshift/scripts/release/rollout.sh "$NAMESPACE" statefulset api 1200s "$IMAGE"
+          fi
+          for deploy in $DEPLOYMENTS; do
+            bash openshift/scripts/release/rollout.sh "$NAMESPACE" deployment "$deploy" 600s "$IMAGE"
           done
-
-      - name: Verify Rollout
-        run: |
-          for deploy in ${{ steps.svc.outputs.deploy }}; do
-            oc rollout status ${{ steps.svc.outputs.resource_type }}/$deploy \
-              -n ${{ env.OPENSHIFT_NAMESPACE }} \
-              --timeout=180s
-          done
-
-      - name: Rollout API StatefulSet
-        if: ${{ inputs.service == 'api' }}
-        continue-on-error: true
-        run: |
-          oc set image statefulset/api api=${{ env.ACR_URL }}/${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }} \
-            -n ${{ env.OPENSHIFT_NAMESPACE }}
-          oc rollout restart statefulset/api -n ${{ env.OPENSHIFT_NAMESPACE }}
-          oc rollout status statefulset/api -n ${{ env.OPENSHIFT_NAMESPACE }} --timeout=180s
 
       - name: Rollback Summary
         if: always()

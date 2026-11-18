@@ -75,12 +75,12 @@ class DetectDeployChangesTests(unittest.TestCase):
         self.assertTrue(result["deploy_services"])
         self.assertTrue(result["run_db_migration"])
 
-    def test_libs_net_dockerfile_change_does_not_run_db_migration(self):
+    def test_migration_dockerfile_change_runs_db_migration(self):
         result = detect_deploy_changes(["src/libs/Dockerfile"], "changed")
 
         self.assertTrue(result["deploy_api"])
         self.assertTrue(result["deploy_services"])
-        self.assertFalse(result["run_db_migration"])
+        self.assertTrue(result["run_db_migration"])
 
     def test_service_change_only_selects_that_service(self):
         result = detect_deploy_changes(["src/services/indexing/IndexingService.cs"], "changed")
