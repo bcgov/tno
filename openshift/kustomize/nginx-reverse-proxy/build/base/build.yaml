@@ -40,7 +40,7 @@ spec:
     git:
       uri: https://github.com/bcgov/tno.git
       ref: dev
-    contextDir: network/reverse-proxy/editor
+    contextDir: dependencies/reverse-proxy/editor
   strategy:
     type: Docker
     dockerStrategy:
@@ -101,7 +101,7 @@ spec:
     git:
       uri: https://github.com/bcgov/tno.git
       ref: dev
-    contextDir: network/reverse-proxy/subscriber
+    contextDir: dependencies/reverse-proxy/subscriber
   strategy:
     type: Docker
     dockerStrategy:

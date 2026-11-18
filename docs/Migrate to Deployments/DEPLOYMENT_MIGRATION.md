@@ -89,32 +89,32 @@ metadata:
 #### Services with Trigger Annotations (28 total):
 
 - api-services
-- app/editor
-- app/subscriber
+- src/app/editor
+- src/app/subscriber
 - charts-api
 - corenlp
 - nginx
 - nginx-reverse-proxy (not currently used)
 - oracle (not currently used)
-- tools/psql (only used in dev)
-- services/ches-retry
-- services/content (content-service pod)
-- services/content-historic (not currently used)
-- services/contentmigration-current (not currently used)
-- services/contentmigration-historic (not currently used)
-- services/event-handler (event-handler-service pod)
-- services/extract-quotes
-- services/ffmpeg
-- services/filemonitor
-- services/folder-collection
-- services/image
-- services/indexing
-- services/nlp
-- services/notification
-- services/reporting
-- services/scheduler
-- services/syndication
-- services/transcription
+- src/tools/psql (only used in dev)
+- src/services/ches-retry
+- src/services/content (content-service pod)
+- src/services/content-historic (not currently used)
+- src/services/contentmigration-current (not currently used)
+- src/services/contentmigration-historic (not currently used)
+- src/services/event-handler (event-handler-service pod)
+- src/services/extract-quotes
+- src/services/ffmpeg
+- src/services/filemonitor
+- src/services/folder-collection
+- src/services/image
+- src/services/indexing
+- src/services/nlp
+- src/services/notification
+- src/services/reporting
+- src/services/scheduler
+- src/services/syndication
+- src/services/transcription
 
 #### Services Without ImageChange Triggers (4 total):
 
@@ -123,7 +123,7 @@ These services only had ConfigChange triggers and don't need annotations:
 - kafka/kowl
 - postgres/crunchy
 - tekton
-- tools/indexer
+- src/tools/indexer
 
 ### 4. Kustomization Updates (79 files)
 
@@ -485,7 +485,7 @@ oc kustomize openshift/kustomize/<service>/overlays/<env> | oc create -f -
 **Migration Method:**
 
 ```bash
-./tools/scripts/migrate-deployments.sh dev
+./src/tools/scripts/migrate-deployments.sh dev
 ```
 
 **Duration:** ~2 hours (including fixes and validation)
@@ -510,7 +510,7 @@ oc kustomize openshift/kustomize/<service>/overlays/<env> | oc create -f -
 **Ready to migrate:**
 
 ```bash
-./tools/scripts/migrate-deployments.sh test
+./src/tools/scripts/migrate-deployments.sh test
 ```
 
 ### Production Environment - PENDING ⏳

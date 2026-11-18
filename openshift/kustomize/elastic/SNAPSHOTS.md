@@ -9,7 +9,7 @@ openshift/kustomize/elastic/scripts/snapshots.sh [--local] <command>   # no argu
 ```
 
 The script targets DEV by default (`NS=9b301c-dev`, through `oc exec` into `elastic-0`). `--local` targets the
-`tno-elastic` container and reads `ELASTIC_PASSWORD` from `db/elasticsearch/.env`. Every command fails when
+`tno-elastic` container and reads `ELASTIC_PASSWORD` from `dependencies/elasticsearch/.env`. Every command fails when
 Elasticsearch returns an error.
 
 TEST and PROD use Elastic Cloud, which has its own managed snapshots (the `found-snapshots` repository). This
@@ -37,8 +37,8 @@ retention removes the older one. Retention only deletes snapshots the `nightly` 
 | ----------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------- |
 | Repository storage            | Docker volume `tno-elastic-snapshots`                          | PVC `elastic-snapshots`: 50 Gi, `ReadWriteMany`, `netapp-file-backup` (the platform also backs it up off-site) |
 | Mounted at                    | `/usr/share/elasticsearch/snapshots`                          | `/usr/share/elasticsearch/snapshots` on every node                    |
-| `path.repo`                   | `db/elasticsearch/elasticsearch.yml`                          | `path.repo` env var (the image turns dotted env vars into settings)   |
-| Defined in                    | `docker-compose.yml`, `db/elasticsearch/Dockerfile`           | `components/snapshots`, included by `overlays/dev` only               |
+| `path.repo`                   | `dependencies/elasticsearch/elasticsearch.yml`                          | `path.repo` env var (the image turns dotted env vars into settings)   |
+| Defined in                    | `docker-compose.yml`, `dependencies/elasticsearch/Dockerfile`           | `components/snapshots`, included by `overlays/dev` only               |
 
 The Local Dockerfile pre-creates the mount directory owned by `elasticsearch`. A new Docker volume copies that
 ownership, so Elasticsearch can write to it.
@@ -73,7 +73,7 @@ openshift/kustomize/elastic/scripts/snapshots.sh --local setup  # register, veri
 
 ### DEV
 
-Applied on 2026-11-01. See [UPGRADE-8.19.21.md](./UPGRADE-8.19.21.md) phase 1. The base now carries the 8.19.21
+Applied on 2026-11-01. See [UPGRADE-8.19.21.md](UPGRADE-8.19.21.md) phase 1. The base now carries the 8.19.21
 image, so on a 7.17.9 cluster never run a full overlay apply just to change snapshot settings; follow that plan's
 phases. The new volume needs a rolling restart, which is
 `hold` → apply → `run`. Then run `scripts/snapshots.sh setup`. Its `_verify` output must list all three nodes;

@@ -4,10 +4,10 @@ These workflows build TNO images, push them to ACR, and roll workloads out to
 OpenShift.
 
 For the full deployment flow and changed-component detection rules, see
-[DEPLOYMENT.md](./DEPLOYMENT.md).
+[DEPLOYMENT.md](DEPLOYMENT.md).
 
 For adding a normal .NET service to deployment, see
-[ADDING_SERVICE.md](./ADDING_SERVICE.md).
+[ADDING_SERVICE.md](ADDING_SERVICE.md).
 
 ## Main Workflows
 
@@ -30,7 +30,7 @@ Production is not wired into this flow yet.
 
 ## Current Notes
 
-- DB migration runs in changed mode when `libs/net/dal/**` changes.
+- DB migration runs in changed mode when `src/libs/dal/**` changes.
 - API deployment updates both `deployment/api-services` and `statefulset/api`.
 - CronJobs are not handled by `deploy-all.yml`; they still use their own
   workflows.

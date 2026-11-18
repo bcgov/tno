@@ -1,11 +1,11 @@
 # Phase 2 — Content-Analysis Service
 
-A new service, `services/net/content-analysis`, analyzes content after it is added or updated,
+A new service, `src/services/content-analysis`, analyzes content after it is added or updated,
 persists structured analysis, populates empty editorial fields, and replaces Quote Extraction.
 
 ## Service shape
 
-- Follows the existing service conventions (`libs/net/services` runner, `ApiService`, health,
+- Follows the existing service conventions (`src/libs/services` runner, `ApiService`, health,
   configuration, Docker Compose and OpenShift deployment).
 - Calls models through `TNO.AI` `LlmDirectClient` with Azure AI deployments from the `llm` table,
   using the limits added in Phase 1.
@@ -141,7 +141,7 @@ In one transaction, acceptance:
 
 After commit it sends a hub `ContentUpdated` message with reason `analysis`, and the editor form
 merges populated fields and the new version the way it handles `quotes` today
-(`app/editor/src/features/content/form/hooks/useContentForm.ts`). Acceptance never sends another
+(`src/app/editor/src/features/content/form/hooks/useContentForm.ts`). Acceptance never sends another
 analysis request.
 
 ## Population and ownership
@@ -220,9 +220,9 @@ the indexing service's index names differ.
 ## Replacing Quote Extraction and NLP
 
 1. Fix the quotes endpoint to send an index request (ships immediately, independent of the rest).
-2. Remove `services/net/extract-quotes` and its deployment. Content-Analysis extracts and applies
+2. Remove `src/services/extract-quotes` and its deployment. Content-Analysis extracts and applies
    quotes when its service is configured to run the `Quotes` process.
-5. Retire `services/net/nlp` (not deployed today): the service, its `nlp` topic, the editor NLP
+5. Retire `src/services/nlp` (not deployed today): the service, its `nlp` topic, the editor NLP
    work-order request, and its OpenShift folder.
 
 ## Tests

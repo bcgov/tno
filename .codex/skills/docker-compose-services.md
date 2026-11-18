@@ -4,8 +4,8 @@
 
 - `docker-compose.yml`
 - `docker-compose.override.yml`
-- `db/kafka/docker-compose.yml`
-- `services/docker-compose.yml`
+- `dependencies/kafka/docker-compose.yml`
+- `src/services/docker-compose.yml`
 
 ## Recommended (Make Wrapper)
 
@@ -21,8 +21,8 @@ docker-compose \
   --env-file .env \
   -f docker-compose.yml \
   -f docker-compose.override.yml \
-  -f db/kafka/docker-compose.yml \
-  -f services/docker-compose.yml \
+  -f dependencies/kafka/docker-compose.yml \
+  -f src/services/docker-compose.yml \
   up -d
 ```
 

@@ -30,12 +30,12 @@ model, and observability — see [01-engine.md](01-engine.md).
 
 | Path | Role |
 | ---- | ---- |
-| `services/net/automation/` | The service: Kafka listener, run claim, watchdog, pruning |
-| `services/net/automation/Engine/` | The execution engine (`AutomationEngine`, `RunContext`, `PromptBuilder`, `RunLogger`) |
-| `libs/net/models/Areas/Admin/Automation/` | Definition model, validator, `ActionCatalog` (the single source of truth for action types) |
-| `api/net/Areas/Admin/Controllers/AutomationController.cs` | Profile CRUD, runs, run logs, descriptors, validation, debug assistant |
-| `app/editor/src/features/admin/automation/` | The admin page: designer, run history, live log, debugging |
-| `libs/net/dal/Migrations/1.5.3` + `20260821171416_1.5.3` | The consolidated schema migration (adds run log/definition columns, drops the v1 tables) |
+| `src/services/automation/` | The service: Kafka listener, run claim, watchdog, pruning |
+| `src/services/automation/Engine/` | The execution engine (`AutomationEngine`, `RunContext`, `PromptBuilder`, `RunLogger`) |
+| `src/libs/models/Areas/Admin/Automation/` | Definition model, validator, `ActionCatalog` (the single source of truth for action types) |
+| `src/api/Areas/Admin/Controllers/AutomationController.cs` | Profile CRUD, runs, run logs, descriptors, validation, debug assistant |
+| `src/app/editor/src/features/admin/automation/` | The admin page: designer, run history, live log, debugging |
+| `src/libs/dal/Migrations/1.5.3` + `20260821171416_1.5.3` | The consolidated schema migration (adds run log/definition columns, drops the v1 tables) |
 
 ## Operations
 

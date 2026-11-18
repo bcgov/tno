@@ -61,7 +61,7 @@ spec:
     - name: build-charts-api
       params:
         - name: CONTEXT
-          value: $(params.CONTEXT)/api/node
+          value: $(params.CONTEXT)/src/charts-api
         - name: DOCKERFILE
           value: Dockerfile
         - name: IMAGE

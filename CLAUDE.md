@@ -21,12 +21,12 @@ make nuke             # Full reset: down v=1 + delete all config
 ```
 
 All `make` commands use four compose files together:
-`docker-compose.yml`, `docker-compose.override.yml`, `db/kafka/docker-compose.yml`, `services/docker-compose.yml`
+`docker-compose.yml`, `docker-compose.override.yml`, `dependencies/kafka/docker-compose.yml`, `src/services/docker-compose.yml`
 
 #### `n=` is the compose **service** name, never the container name
 
 Containers are named `tno-<service>` (`api` → `tno-api`, `automation` → `tno-automation`), but
-`n=` always takes the **service** name. `make refresh` calls `tools/scripts/docker-remove.sh`,
+`n=` always takes the **service** name. `make refresh` calls `src/tools/scripts/docker-remove.sh`,
 which prepends the prefix itself (`docker rm -f tno-$1`), so `n=tno-api` looks for a container
 `tno-tno-api` and a compose service `tno-api` — neither exists.
 
@@ -34,7 +34,7 @@ List the real service names rather than guessing them:
 
 ```bash
 docker-compose -f docker-compose.yml -f docker-compose.override.yml \
-  -f db/kafka/docker-compose.yml -f services/docker-compose.yml \
+  -f dependencies/kafka/docker-compose.yml -f src/services/docker-compose.yml \
   --profile all config --services | sort
 ```
 
@@ -46,10 +46,10 @@ reads the first name, so the rest are rebuilt without their stale image being dr
 
 | Changed | Rebuild |
 | --- | --- |
-| `services/net/<name>/` | that service — `make refresh n=<name>` |
-| `api/net/` | `make refresh n=api` |
-| `libs/net/**` (shared) | every container that consumes it — always `api`, plus each service in the change's blast radius. `libs/net/models/Areas/Admin/**` in particular is served to the UIs *by the API*, so an editor-visible change there needs `api` rebuilt, not `editor`. |
-| `app/src/`, `app/public/`, `app/*.html` | **nothing** — the `editor` and `subscriber` containers bind-mount them and Vite hot-reloads. Only a dependency (`package.json`), Dockerfile, or config change (`vite.config.mts`, `tools/`) needs `make refresh n=editor` / `n=subscriber`. |
+| `src/services/<name>/` | that service — `make refresh n=<name>` |
+| `src/api/` | `make refresh n=api` |
+| `src/libs/**` (shared) | every container that consumes it — always `api`, plus each service in the change's blast radius. `src/libs/models/Areas/Admin/**` in particular is served to the UIs *by the API*, so an editor-visible change there needs `api` rebuilt, not `editor`. |
+| `src/app/src/`, `src/app/public/`, `src/app/*.html` | **nothing** — the `editor` and `subscriber` containers bind-mount them and Vite hot-reloads. Only a dependency (`package.json`), Dockerfile, or config change (`vite.config.mts`, `src/tools/`) needs `make refresh n=editor` / `n=subscriber`. |
 
 Rebuilding `api` takes the whole platform's API down for the duration. The .NET services treat a
 sustained API outage as a critical failure: they log `The service is stopping: 'RequestFailed'`
@@ -68,7 +68,7 @@ make kafka-update     # Apply Kafka topic migrations (n=version, r=1 rollback n,
 
 `cd openshift && make kafka-update e={dev,test,prod}` applies the same Kafka migrations to an
 OpenShift environment (`oc login` first); partitions, replication factor and per-topic settings are
-in `db/kafka/environments/<environment>.conf`.
+in `dependencies/kafka/environments/<environment>.conf`.
 
 `db-update` and `elastic-update` each build an image and run it as a one-shot container
 **on `tno-net`**, reaching postgres and elasticsearch by their compose service names
@@ -82,12 +82,12 @@ dotnet restore
 dotnet build
 dotnet format --verify-no-changes   # Lint check (used in CI)
 dotnet test                         # Run all tests
-dotnet test libs/net/tests/core/    # Run a specific test project
+dotnet test src/tests/core/    # Run a specific test project
 ```
 
-### React app (`app/`, editor and subscriber designs)
+### React app (`src/app/`, editor and subscriber designs)
 
-One Vite project on **Node 26 and npm** (no Yarn). Run commands from `app/`:
+One Vite project on **Node 26 and npm** (no Yarn). Run commands from `src/app/`:
 
 ```bash
 npm ci
@@ -100,11 +100,11 @@ npm run test:watch    # Vitest interactive
 APP_MODE=editor npm run dev   # dev server on :3000; APP_MODE picks the design
 ```
 
-Source lives in `app/src/{shared,editor,subscriber}`; imports use the `@/` alias (`@/shared`,
+Source lives in `src/app/src/{shared,editor,subscriber}`; imports use the `@/` alias (`@/shared`,
 `@/editor/store`). `src/shared` (which replaced the old `tno-core` package) never imports a
 design and the designs never import each other — Oxlint and the build both enforce it. A
 deployment presents one design, chosen at container start by `APP_MODE`; one `app` image serves
-both. See `app/README.md`.
+both. See `src/app/README.md`.
 
 ### VS Code Debugging
 
@@ -116,22 +116,22 @@ both. See `app/README.md`.
 
 **Kafka is the backbone.** All service-to-service communication flows through Kafka topics defined in each service's `appsettings.json` (e.g., `index`, `transcribe`, `notify`, `hub`, `reporting`, `analysis`, `ffmpeg`). The API itself is a Kafka consumer — it uses the `hub` topic to deliver SignalR messages to connected browser clients via `KafkaHubLifetimeManager`.
 
-**SignalR** hub is at `/hub`. Both React designs connect via SignalR for real-time updates. The API's `KafkaHubLifetimeManager` (in `libs/net/kafka/SignalR/`) consumes the `hub` Kafka topic and fans out messages to connected users.
+**SignalR** hub is at `/hub`. Both React designs connect via SignalR for real-time updates. The API's `KafkaHubLifetimeManager` (in `src/libs/kafka/SignalR/`) consumes the `hub` Kafka topic and fans out messages to connected users.
 
 ### Key Components
 
 | Path                   | Role                                                                                      |
 | ---------------------- | ----------------------------------------------------------------------------------------- |
-| `api/net/`             | ASP.NET Core 10 REST API — JWT auth, Swagger at `/api-docs`, versioned routes under `/api` |
-| `app/src/editor/`      | React editor design — content creation, review, publishing                                |
-| `app/src/subscriber/`  | React subscriber design — report consumption, alerts                                      |
-| `app/src/shared/`      | Components, hooks, API clients and types shared by both designs                           |
-| `services/net/{name}/` | ~18 console microservices, each a Kafka consumer/producer                                 |
-| `libs/net/dal/`        | EF Core `TNOContext`, all 180+ migrations, entity configs                                 |
-| `libs/net/entities/`   | Domain model entities                                                                     |
-| `libs/net/models/`     | API DTOs / response models                                                                |
-| `libs/net/kafka/`      | `IKafkaListener`, `IKafkaMessenger`, `KafkaHubLifetimeManager`                            |
-| `libs/net/services/`   | Base class for all microservices (Serilog, health checks, service loop)                   |
+| `src/api/`             | ASP.NET Core 10 REST API — JWT auth, Swagger at `/api-docs`, versioned routes under `/api` |
+| `src/app/src/editor/`      | React editor design — content creation, review, publishing                                |
+| `src/app/src/subscriber/`  | React subscriber design — report consumption, alerts                                      |
+| `src/app/src/shared/`      | Components, hooks, API clients and types shared by both designs                           |
+| `src/services/{name}/` | ~18 console microservices, each a Kafka consumer/producer                                 |
+| `src/libs/dal/`        | EF Core `TNOContext`, all 180+ migrations, entity configs                                 |
+| `src/libs/entities/`   | Domain model entities                                                                     |
+| `src/libs/models/`     | API DTOs / response models                                                                |
+| `src/libs/kafka/`      | `IKafkaListener`, `IKafkaMessenger`, `KafkaHubLifetimeManager`                            |
+| `src/libs/services/`   | Base class for all microservices (Serilog, health checks, service loop)                   |
 
 ### .NET Configuration Pattern
 
@@ -149,7 +149,7 @@ Keycloak (local: `host.docker.internal:40001/realms/mmi`, production: `loginprox
 
 ### Database
 
-PostgreSQL via EF Core. Migrations live in `libs/net/dal/Migrations/`. Always run `make db-update` after pulling changes that add migrations. The `TNOContext` in `libs/net/dal/` is the single EF context shared across API and all services.
+PostgreSQL via EF Core. Migrations live in `src/libs/dal/Migrations/`. Always run `make db-update` after pulling changes that add migrations. The `TNOContext` in `src/libs/dal/` is the single EF context shared across API and all services.
 
 Migrations derive from `SeedMigration`, not `Migration`. Each one may carry raw SQL beside its
 generated DDL, in `Migrations/<version>/Up/{PreUp,PostUp}/*.sql` (and `Down/{PreDown,PostDown}/`),
@@ -160,7 +160,7 @@ run in filename order around the EF operations. Two consequences:
   TYPE integer` that postgres rejects.
 - `SeedMigration` resolves the scripts from `AppDomain.CurrentDomain.BaseDirectory/Migrations`
   at runtime and **skips them silently** when that folder is missing (a postgres `NOTICE`, no
-  error). Anything that packages the migrations — `libs/net/Dockerfile` builds an `efbundle` —
+  error). Anything that packages the migrations — `src/libs/Dockerfile` builds an `efbundle` —
   must copy the `.sql` files next to the executable.
 
 Seed scripts are expected to be idempotent (`ON CONFLICT DO NOTHING`) and to guard on their
@@ -168,7 +168,7 @@ prerequisites, so they no-op rather than fail on a database that lacks them.
 
 ### Elasticsearch
 
-Index migrations live in `tools/elastic/migration/Migrations/<version>/up/{pre,post}/*.json` and
+Index migrations live in `src/tools/elastic/migration/Migrations/<version>/up/{pre,post}/*.json` and
 create versioned indexes (`content_v1.0.10`) behind the aliases the API queries (`content`,
 `unpublished_content`).
 
@@ -197,4 +197,4 @@ The browser apps call the API through nginx, not the API port directly — an ed
 
 ## Code Style
 
-`.editorconfig` enforces: 4-space indent for C# and TypeScript, 2-space for JSON/YAML/Markdown, LF line endings, final newline. `app/` has its own `.editorconfig` and Prettier config (2-space, single quotes, 100 columns, sorted imports). CI fails on `dotnet format` violations, Oxlint warnings (`--max-warnings 0`), Prettier differences and type errors.
+`.editorconfig` enforces: 4-space indent for C# and TypeScript, 2-space for JSON/YAML/Markdown, LF line endings, final newline. `src/app/` has its own `.editorconfig` and Prettier config (2-space, single quotes, 100 columns, sorted imports). CI fails on `dotnet format` violations, Oxlint warnings (`--max-warnings 0`), Prettier differences and type errors.

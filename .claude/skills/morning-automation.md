@@ -7,16 +7,16 @@ Use this skill when working on MMI automation profile features (the "morning pro
 - **Profile → Steps → Actions** model persisted in the database (`automation_profile`,
   `automation_step`, `automation_action`, `automation_run`). No separate curate/dispatch stages or
   execution modes — one profile executes ordered steps.
-- **API** (`api/net/Areas/Admin/Controllers/AutomationController.cs`): profile CRUD (including
+- **API** (`src/api/Areas/Admin/Controllers/AutomationController.cs`): profile CRUD (including
   schedule reconciliation), run queueing (`POST profiles/{id}/run` creates a `Draft` run and
   publishes the Kafka work item), atomic run claim (`POST runs/{id}/claim`, Draft -> Running),
   run update (`PUT runs/{id}`, used by the service), history, diff (serves the run summary),
   retention prune. Run statuses: Draft (queued), Running, Completed, Failed - no approval workflow.
 - **Scheduling**: profiles hold zero or more schedules (`event_schedule` rows, type `Automation`,
   FK `automation_profile_id`), managed in a grid on the profile form. The **scheduler service**
-  (`services/net/scheduler`) fires them and requests runs through the API — the automation service
+  (`src/services/scheduler`) fires them and requests runs through the API — the automation service
   performs no schedule evaluation, so it can be horizontally scaled.
-- **Automation service** (`services/net/automation`): a Kafka consumer (topic `automation`,
+- **Automation service** (`src/services/automation`): a Kafka consumer (topic `automation`,
   group `Automation`, long-running-job mode so runs may exceed the Kafka poll interval) — one
   instance atomically claims and executes each queued run. Execution: Elasticsearch filter
   iteration (full paging — a filter's stored `size` is never a cap), prompt composition, LLM calls
@@ -24,7 +24,7 @@ Use this skill when working on MMI automation profile features (the "morning pro
   parsing, action execution, run summary reporting (including every LLM response). The service
   also reconciles stale `Draft` runs (lost messages), fails abandoned `Running` runs, and prunes
   run history.
-- **Editor UI** (`app/src/editor/features/admin/automation`): profile form with schedules grid,
+- **Editor UI** (`src/app/src/editor/features/admin/automation`): profile form with schedules grid,
   collapsible step/action builder (drag+drop), Run button with live status, Runs tab with an
   outcome modal (LLM responses + action outcomes).
 - Conceptual reference: `docs/planning/mmi-automation/00-concept.md` (tokens, action types,

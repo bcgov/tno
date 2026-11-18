@@ -1,7 +1,7 @@
 # Elasticsearch
 
-- [Upgrade 7.17.9 → 8.19.21 (Local and DEV)](./UPGRADE-8.19.21.md)
-- [Snapshots](./SNAPSHOTS.md): `scripts/snapshots.sh` (backup and restore), `scripts/rolling-update.sh` (one node at a time)
+- [Upgrade 7.17.9 → 8.19.21 (Local and DEV)](UPGRADE-8.19.21.md)
+- [Snapshots](SNAPSHOTS.md): `scripts/snapshots.sh` (backup and restore), `scripts/rolling-update.sh` (one node at a time)
 
 ## External access (DEV)
 

@@ -38,7 +38,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Build Docker Image
-        working-directory: ./libs/net
+        working-directory: ./src/libs
         run: |
           docker build \
             -f Dockerfile \

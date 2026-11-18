@@ -34,7 +34,7 @@ Seeded by migration PostUp SQL and added to `AdminConfigurableSettingNames`.
 - The scheduler forwards it to the event-handler service, as it does `CleanFolder`.
 - The event-handler calls the admin purge endpoints. Each purge deletes in batches with
   `ExecuteDelete`, following the automation run prune
-  (`libs/net/dal/Services/AutomationRunService.cs:96-104`), and logs counts per table.
+  (`src/libs/dal/Services/AutomationRunService.cs:96-104`), and logs counts per table.
 - A dry-run endpoint returns the counts a purge would delete, for the settings page and testing.
 
 ## Report purge

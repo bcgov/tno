@@ -38,4 +38,4 @@
 ## Notes
 
 - Makefile scripts assume bash-compatible shell.
-- Many targets call scripts in `tools/scripts/`; inspect there for implementation details.
+- Many targets call scripts in `src/tools/scripts/`; inspect there for implementation details.

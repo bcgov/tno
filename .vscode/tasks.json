@@ -7,7 +7,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/api/net/TNO.API.csproj",
+        "${workspaceFolder}/src/api/TNO.API.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -19,7 +19,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/api/net/TNO.API.csproj",
+        "${workspaceFolder}/src/api/TNO.API.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -29,7 +29,7 @@
       "label": "watch",
       "command": "dotnet",
       "type": "process",
-      "args": ["watch", "run", "--project", "${workspaceFolder}/api/net/TNO.API.csproj"],
+      "args": ["watch", "run", "--project", "${workspaceFolder}/src/api/TNO.API.csproj"],
       "problemMatcher": "$msCompile"
     },
     {
@@ -38,7 +38,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/services/net/syndication/TNO.Services.Syndication.csproj",
+        "${workspaceFolder}/src/services/syndication/TNO.Services.Syndication.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -50,7 +50,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/services/net/syndication/TNO.Services.Syndication.csproj",
+        "${workspaceFolder}/src/services/syndication/TNO.Services.Syndication.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -64,7 +64,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/syndication/TNO.Services.Syndication.csproj"
+        "${workspaceFolder}/src/services/syndication/TNO.Services.Syndication.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
@@ -74,7 +74,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/services/net/content/TNO.Services.Content.csproj",
+        "${workspaceFolder}/src/services/content/TNO.Services.Content.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -86,7 +86,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/services/net/content/TNO.Services.Content.csproj",
+        "${workspaceFolder}/src/services/content/TNO.Services.Content.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -100,7 +100,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/content/TNO.Services.Content.csproj"
+        "${workspaceFolder}/src/services/content/TNO.Services.Content.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
@@ -110,7 +110,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/services/net/contentmigration/TNO.Services.ContentMigration.csproj",
+        "${workspaceFolder}/src/services/contentmigration/TNO.Services.ContentMigration.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -122,7 +122,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/services/net/contentmigration/TNO.Services.ContentMigration.csproj",
+        "${workspaceFolder}/src/services/contentmigration/TNO.Services.ContentMigration.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -136,7 +136,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/contentmigration/TNO.Services.ContentMigration.csproj"
+        "${workspaceFolder}/src/services/contentmigration/TNO.Services.ContentMigration.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
@@ -146,7 +146,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/services/net/indexing/TNO.Services.Indexing.csproj",
+        "${workspaceFolder}/src/services/indexing/TNO.Services.Indexing.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -158,7 +158,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/services/net/indexing/TNO.Services.Indexing.csproj",
+        "${workspaceFolder}/src/services/indexing/TNO.Services.Indexing.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -172,7 +172,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/indexing/TNO.Services.Indexing.csproj"
+        "${workspaceFolder}/src/services/indexing/TNO.Services.Indexing.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
@@ -182,7 +182,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/services/net/transcription/TNO.Services.Transcription.csproj",
+        "${workspaceFolder}/src/services/transcription/TNO.Services.Transcription.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -194,7 +194,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/services/net/transcription/TNO.Services.Transcription.csproj",
+        "${workspaceFolder}/src/services/transcription/TNO.Services.Transcription.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -208,7 +208,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/atranscription/TNO.Services.Transcription.csproj"
+        "${workspaceFolder}/src/services/transcription/TNO.Services.Transcription.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
@@ -218,7 +218,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/services/net/auto-clipper/TNO.Services.AutoClipper.csproj",
+        "${workspaceFolder}/src/services/auto-clipper/TNO.Services.AutoClipper.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -230,7 +230,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/services/net/auto-clipper/TNO.Services.AutoClipper.csproj",
+        "${workspaceFolder}/src/services/auto-clipper/TNO.Services.AutoClipper.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -244,7 +244,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/auto-clipper/TNO.Services.TranAutoClipperscription.csproj"
+        "${workspaceFolder}/src/services/auto-clipper/TNO.Services.AutoClipper.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
@@ -254,7 +254,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/services/net/filemonitor/TNO.Services.FileMonitor.csproj",
+        "${workspaceFolder}/src/services/filemonitor/TNO.Services.FileMonitor.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -266,7 +266,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/services/net/filemonitor/TNO.Services.FileMonitor.csproj",
+        "${workspaceFolder}/src/services/filemonitor/TNO.Services.FileMonitor.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -280,7 +280,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/filemonitor/TNO.Services.FileMonitor.csproj"
+        "${workspaceFolder}/src/services/filemonitor/TNO.Services.FileMonitor.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
@@ -290,7 +290,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/services/net/image/TNO.Services.Image.csproj",
+        "${workspaceFolder}/src/services/image/TNO.Services.Image.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -302,7 +302,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/services/net/image/TNO.Services.Image.csproj",
+        "${workspaceFolder}/src/services/image/TNO.Services.Image.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -316,7 +316,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/image/TNO.Services.Image.csproj"
+        "${workspaceFolder}/src/services/image/TNO.Services.Image.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
@@ -326,7 +326,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/tools/elastic/migration/TNO.Elastic.Migration.csproj",
+        "${workspaceFolder}/src/tools/elastic/migration/TNO.Elastic.Migration.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -338,7 +338,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/tools/elastic/migration/TNO.Elastic.Migration.csproj",
+        "${workspaceFolder}/src/tools/elastic/migration/TNO.Elastic.Migration.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -352,7 +352,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/tools/elastic/migration/TNO.Elastic.Migration.csproj"
+        "${workspaceFolder}/src/tools/elastic/migration/TNO.Elastic.Migration.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
@@ -362,7 +362,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/services/net/notification/TNO.Services.Notification.csproj",
+        "${workspaceFolder}/src/services/notification/TNO.Services.Notification.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -374,7 +374,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/services/net/notification/TNO.Services.Notification.csproj",
+        "${workspaceFolder}/src/services/notification/TNO.Services.Notification.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -388,7 +388,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/notification/TNO.Services.Notification.csproj"
+        "${workspaceFolder}/src/services/notification/TNO.Services.Notification.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
@@ -398,7 +398,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/services/net/reporting/TNO.Services.Reporting.csproj",
+        "${workspaceFolder}/src/services/reporting/TNO.Services.Reporting.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -410,7 +410,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/services/net/reporting/TNO.Services.Reporting.csproj",
+        "${workspaceFolder}/src/services/reporting/TNO.Services.Reporting.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -424,7 +424,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/reporting/TNO.Services.Reporting.csproj"
+        "${workspaceFolder}/src/services/reporting/TNO.Services.Reporting.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
@@ -434,7 +434,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/services/net/scheduler/TNO.Services.Scheduler.csproj",
+        "${workspaceFolder}/src/services/scheduler/TNO.Services.Scheduler.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -446,7 +446,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/services/net/scheduler/TNO.Services.Scheduler.csproj",
+        "${workspaceFolder}/src/services/scheduler/TNO.Services.Scheduler.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -460,7 +460,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/scheduler/TNO.Services.Scheduler.csproj"
+        "${workspaceFolder}/src/services/scheduler/TNO.Services.Scheduler.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
@@ -470,7 +470,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/services/net/folder-collection/TNO.Services.FolderCollection.csproj",
+        "${workspaceFolder}/src/services/folder-collection/TNO.Services.FolderCollection.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -482,7 +482,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/services/net/folder-collection/TNO.Services.FolderCollection.csproj",
+        "${workspaceFolder}/src/services/folder-collection/TNO.Services.FolderCollection.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -496,7 +496,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/folder-collection/TNO.Services.FolderCollection.csproj"
+        "${workspaceFolder}/src/services/folder-collection/TNO.Services.FolderCollection.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
@@ -506,7 +506,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/services/net/ffmpeg/TNO.Services.FFmpeg.csproj",
+        "${workspaceFolder}/src/services/ffmpeg/TNO.Services.FFmpeg.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -518,7 +518,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/services/net/ffmpeg/TNO.Services.FFmpeg.csproj",
+        "${workspaceFolder}/src/services/ffmpeg/TNO.Services.FFmpeg.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -532,7 +532,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/ffmpeg/TNO.Services.FFmpeg.csproj"
+        "${workspaceFolder}/src/services/ffmpeg/TNO.Services.FFmpeg.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
@@ -542,7 +542,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/services/net/content-analysis/TNO.Services.ContentAnalysis.csproj",
+        "${workspaceFolder}/src/services/content-analysis/TNO.Services.ContentAnalysis.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -554,7 +554,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/services/net/content-analysis/TNO.Services.ContentAnalysis.csproj",
+        "${workspaceFolder}/src/services/content-analysis/TNO.Services.ContentAnalysis.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -568,7 +568,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/content-analysis/TNO.Services.ContentAnalysis.csproj"
+        "${workspaceFolder}/src/services/content-analysis/TNO.Services.ContentAnalysis.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
@@ -578,7 +578,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/services/net/event-handler/TNO.Services.EventHandler.csproj",
+        "${workspaceFolder}/src/services/event-handler/TNO.Services.EventHandler.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -590,7 +590,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/services/net/event-handler/TNO.Services.EventHandler.csproj",
+        "${workspaceFolder}/src/services/event-handler/TNO.Services.EventHandler.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -604,7 +604,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/event-handler/TNO.Services.EventHandler.csproj"
+        "${workspaceFolder}/src/services/event-handler/TNO.Services.EventHandler.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
@@ -614,7 +614,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/services/net/ches-retry/TNO.Services.ChesRetry.csproj",
+        "${workspaceFolder}/src/services/ches-retry/TNO.Services.ChesRetry.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -626,7 +626,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/services/net/ches-retry/TNO.Services.ChesRetry.csproj",
+        "${workspaceFolder}/src/services/ches-retry/TNO.Services.ChesRetry.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -640,7 +640,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/ches-retry/TNO.Services.ChesRetry.csproj"
+        "${workspaceFolder}/src/services/ches-retry/TNO.Services.ChesRetry.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
@@ -650,7 +650,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/tools/indexer/TNO.Tools.ElasticIndexer.csproj",
+        "${workspaceFolder}/src/tools/indexer/TNO.Tools.ElasticIndexer.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -662,7 +662,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/tools/indexer/TNO.Tools.ElasticIndexer.csproj",
+        "${workspaceFolder}/src/tools/indexer/TNO.Tools.ElasticIndexer.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -676,7 +676,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/tools/indexer/TNO.Tools.ElasticIndexer.csproj"
+        "${workspaceFolder}/src/tools/indexer/TNO.Tools.ElasticIndexer.csproj"
       ],
       "problemMatcher": "$msCompile"
     }

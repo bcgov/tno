@@ -5,15 +5,15 @@ on:
   pull_request:
     branches: [dev, master]
     paths:
-      - services/net/syndication/**
-      - libs/net/**
+      - src/services/syndication/**
+      - src/libs/**
       - openshift/kustomize/services/syndication/**
       - .github/workflows/syndication-service-cicd.yml
   push:
     branches: [dev, master]
     paths:
-      - services/net/syndication/**
-      - libs/net/**
+      - src/services/syndication/**
+      - src/libs/**
       - openshift/kustomize/services/syndication/**
       - .github/workflows/syndication-service-cicd.yml
 
@@ -30,8 +30,8 @@ jobs:
     uses: ./.github/workflows/_reusable-dotnet-cicd.yml
     with:
       image_name: syndication-service
-      csproj_path: services/net/syndication/TNO.Services.Syndication.csproj
-      dockerfile: services/net/syndication/Dockerfile
+      csproj_path: src/services/syndication/TNO.Services.Syndication.csproj
+      dockerfile: src/services/syndication/Dockerfile
       component: syndication-service
       deployment_name: syndication-service
       kustomize_dev_path: openshift/kustomize/services/syndication/overlays/dev

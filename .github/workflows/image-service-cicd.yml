@@ -5,15 +5,15 @@ on:
   pull_request:
     branches: [dev, master]
     paths:
-      - services/net/image/**
-      - libs/net/**
+      - src/services/image/**
+      - src/libs/**
       - openshift/kustomize/services/image/**
       - .github/workflows/image-service-cicd.yml
   push:
     branches: [dev, master, image-service]
     paths:
-      - services/net/image/**
-      - libs/net/**
+      - src/services/image/**
+      - src/libs/**
       - openshift/kustomize/services/image/**
       - .github/workflows/image-service-cicd.yml
 
@@ -30,8 +30,8 @@ jobs:
     uses: ./.github/workflows/_reusable-dotnet-cicd.yml
     with:
       image_name: image-service
-      csproj_path: services/net/image/TNO.Services.Image.csproj
-      dockerfile: services/net/image/Dockerfile
+      csproj_path: src/services/image/TNO.Services.Image.csproj
+      dockerfile: src/services/image/Dockerfile
       component: image-service
       deployment_name: image-service
       kustomize_dev_path: openshift/kustomize/services/image/overlays/dev

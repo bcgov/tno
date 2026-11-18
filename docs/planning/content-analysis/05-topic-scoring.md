@@ -13,7 +13,7 @@ Event of the Day filter and report helpers exclude the "Not Applicable" topic an
 ## Current behavior
 
 - `topic_score_rule` rows (about 44 across roughly 15 sources) are matched by
-  `TopicScoreHelper.GetScore` (`api/net/Areas/Helpers/TopicScoreHelper.cs`): rules for the content's
+  `TopicScoreHelper.GetScore` (`src/api/Areas/Helpers/TopicScoreHelper.cs`): rules for the content's
   source, in `SortOrder`, first match wins. No match returns nothing and the score stays 0.
 - Scoring runs on editor add (always overwrites), editor update (only when a topic arrives without
   a score), and services add/ingest (always overwrites, including incoming legacy scores). It never
@@ -27,7 +27,7 @@ Event of the Day filter and report helpers exclude the "Not Applicable" topic an
 
 | # | Defect | Location |
 | --- | --- | --- |
-| 1 | Edits that change only series or times are silently not saved: `TopicScoreRule.Equals` ignores `SeriesId`, `TimeMin`, `TimeMax`, and `Update` skips "equal" rules. | `libs/net/entities/TopicScoreRule.cs`, `libs/net/dal/Services/TopicScoreRuleService.cs:29-40` |
+| 1 | Edits that change only series or times are silently not saved: `TopicScoreRule.Equals` ignores `SeriesId`, `TimeMin`, `TimeMax`, and `Update` skips "equal" rules. | `src/libs/entities/TopicScoreRule.cs`, `src/libs/dal/Services/TopicScoreRuleService.cs:29-40` |
 | 2 | `HasImage` is not evaluated (TODO), so image/no-image rule pairs always take the first. | `TopicScoreHelper.cs:118` |
 | 3 | A rule without a page never matches a lettered page ("A1"), so catch-all print rules are dead. | `TopicScoreHelper.cs:139-195` |
 | 4 | Content without a page number passes page-range checks; prefix comparison is case-sensitive. | `TopicScoreHelper.cs:139-195` |
@@ -36,8 +36,8 @@ Event of the Day filter and report helpers exclude the "Not Applicable" topic an
 | 7 | Character counts include HTML markup. | `TopicScoreHelper.cs:203` |
 | 8 | Scoring checks only `Source.UseInTopics`; the editor form also honours `Series.UseInTopics` and hides topics for Image content. | Editor and Services `ContentController` |
 | 9 | "Not Applicable" is identified by ID 1 in code and by name in reports and the Event of the Day filter. | `TopicScoreHelper.cs:51,74`, `Topic.tsx:37`, filter SQL |
-| 10 | Admin page: `sortOrder` is a global row index and can duplicate; deleting an unsaved row sends `Delete` for ID 0; series is not cleared when the source changes; page inputs have no length limit; validation checks only trailing page digits. | `app/editor/src/features/admin/topic-score-rules/` |
-| 11 | Event of the Day page: the sort compares an item's page with itself; `handleAddOrUpdate` can wipe or duplicate topics; `handleTopicChange` can throw on empty topics; switching from "Not Applicable" to a topic leaves score 0. | `app/editor/src/features/admin/event-of-the-day/` |
+| 10 | Admin page: `sortOrder` is a global row index and can duplicate; deleting an unsaved row sends `Delete` for ID 0; series is not cleared when the source changes; page inputs have no length limit; validation checks only trailing page digits. | `src/app/editor/src/features/admin/topic-score-rules/` |
+| 11 | Event of the Day page: the sort compares an item's page with itself; `handleAddOrUpdate` can wipe or duplicate topics; `handleTopicChange` can throw on empty topics; switching from "Not Applicable" to a topic leaves score 0. | `src/app/editor/src/features/admin/event-of-the-day/` |
 | 12 | The full rule table ships in the editor and subscriber lookups, though only the admin page uses it. | `Editor/Controllers/LookupController.cs:165` |
 | 13 | No unit tests for scoring or the rule service. | — |
 
@@ -55,7 +55,7 @@ Event of the Day filter and report helpers exclude the "Not Applicable" topic an
 
 ## Scoring service
 
-Move scoring from `api/net/Areas/Helpers/TopicScoreHelper.cs` into a DAL service
+Move scoring from `src/api/Areas/Helpers/TopicScoreHelper.cs` into a DAL service
 (`TopicScoreService`) so the API, ingest, Content-Analysis acceptance, and bulk rescore share one
 implementation. It returns the score, the matched rule ID (or "source default"), and, for the
 tester, why each other rule did not match.

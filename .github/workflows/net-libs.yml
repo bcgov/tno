@@ -6,19 +6,21 @@ on:
       - master
       - dev
     paths:
-      - libs/net/**
+      - src/libs/**
+      - src/tests/**
   pull_request:
     branches:
       - master
       - dev
     paths:
-      - libs/net/**
+      - src/libs/**
+      - src/tests/**
 
 jobs:
   build-net-libs:
     runs-on: ubuntu-latest
     env:
-      working-directory: ./libs/net
+      working-directory: ./src/libs
       codeCov-token: ${{ secrets.CodeCov }}
 
     steps:
@@ -74,7 +76,7 @@ jobs:
         #
         # The final `coverage.opencover.xml` is the one we want
       - name: Generate code coverage
-        working-directory: ${{env.working-directory}}/tests
+        working-directory: ./src/tests
         run: |
           mkdir -p TestResults
           rm -rf dal/TestResults
@@ -107,7 +109,7 @@ jobs:
           # Repository upload token - get it from codecov.io. Required only for private repositories
           token: ${{env.codeCov-token}}
           # Path to coverage file to upload
-          file: ${{env.working-directory}}/tests/TestResults/coverage.opencover.xml
+          file: ./src/tests/TestResults/coverage.opencover.xml
           # Flag upload to group coverage metrics (e.g. unittests | integration | ui,chrome)
           flags: unittests
           # Environment variables to tag the upload with (e.g. PYTHON | OS,PYTHON)

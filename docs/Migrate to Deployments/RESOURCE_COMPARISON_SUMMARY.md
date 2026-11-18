@@ -136,34 +136,34 @@ Dev environment has been successfully migrated to Deployments and is running in 
 
 ### Comparison Scripts
 
-- `./tools/scripts/compare-prod-resources-simple.sh` - Compare prod resources
-- `./tools/scripts/compare-test-resources.sh` - Compare test resources
+- `./src/tools/scripts/compare-prod-resources-simple.sh` - Compare prod resources
+- `./src/tools/scripts/compare-test-resources.sh` - Compare test resources
 
 ### Backup Scripts
 
-- `./tools/scripts/backup-test-resources.sh` - Backup test DeploymentConfigs
+- `./src/tools/scripts/backup-test-resources.sh` - Backup test DeploymentConfigs
 
 ### Sync Scripts
 
-- `./tools/scripts/sync-overlays-from-backups.sh <env>` - Generate overlay patches from backups
-- `./tools/scripts/update-prod-replicas-from-backup.sh` - Update replica counts
+- `./src/tools/scripts/sync-overlays-from-backups.sh <env>` - Generate overlay patches from backups
+- `./src/tools/scripts/update-prod-replicas-from-backup.sh` - Update replica counts
 
 ### Generation Scripts
 
-- `./tools/scripts/generate-all-deployment-yamls.sh <env>` - Generate all deployment YAMLs
-- `./tools/scripts/extract-cluster-env-files.sh <env>` - Extract secret files from cluster
+- `./src/tools/scripts/generate-all-deployment-yamls.sh <env>` - Generate all deployment YAMLs
+- `./src/tools/scripts/extract-cluster-env-files.sh <env>` - Extract secret files from cluster
 
 ### Migration Scripts
 
-- `./tools/scripts/migrate-deployments.sh <env>` - Full migration (backup, apply, verify)
+- `./src/tools/scripts/migrate-deployments.sh <env>` - Full migration (backup, apply, verify)
 
 ## Next Steps
 
 ### For Test
 
-1. Run: `./tools/scripts/update-prod-replicas-from-backup.sh` (modify for test)
+1. Run: `./src/tools/scripts/update-prod-replicas-from-backup.sh` (modify for test)
 2. Create missing secret placeholder: `touch openshift/kustomize/services/extract-quotes/overlays/test/llm-api-keys.env`
-3. Run: `./tools/scripts/generate-all-deployment-yamls.sh test`
+3. Run: `./src/tools/scripts/generate-all-deployment-yamls.sh test`
 4. Review and test in test environment
 
 ### For Prod
@@ -171,8 +171,8 @@ Dev environment has been successfully migrated to Deployments and is running in 
 1. ✅ Prod overlays are ready
 2. ✅ All replicas match
 3. ✅ All deployment YAMLs generated
-4. ⚠️ Extract secret files from prod cluster: `./tools/scripts/extract-cluster-env-files.sh prod`
-5. ⚠️ Have manager run migration: `./tools/scripts/migrate-deployments.sh prod`
+4. ⚠️ Extract secret files from prod cluster: `./src/tools/scripts/extract-cluster-env-files.sh prod`
+5. ⚠️ Have manager run migration: `./src/tools/scripts/migrate-deployments.sh prod`
 
 ## Summary
 

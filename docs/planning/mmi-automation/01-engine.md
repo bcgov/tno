@@ -1,7 +1,7 @@
 # The Automation Engine
 
 This document describes the automation execution engine as it is implemented
-(`services/net/automation/Engine/AutomationEngine.cs`) and the definition document it executes.
+(`src/services/automation/Engine/AutomationEngine.cs`) and the definition document it executes.
 It replaces the original engine-v2 design proposal; the design shipped, and the v1 engine it was
 written against has been removed.
 
@@ -170,7 +170,7 @@ working-copy field (`{ "from": "extract.byline" }`), a literal, or a token templ
 
 ## Actions
 
-The **action catalog** (`libs/net/models/Areas/Admin/Automation/ActionCatalog.cs`) is the single
+The **action catalog** (`src/libs/models/Areas/Admin/Automation/ActionCatalog.cs`) is the single
 source of truth: the validator checks definitions against it, the engine dispatches by it, and the
 editor renders each action's configuration form from its descriptor
 (`GET /api/admin/automation/descriptors`). Adding an action type means one descriptor plus one

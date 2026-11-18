@@ -41,19 +41,24 @@ help:
 # Solution Configuration
 ##############################################################################
 
-setup: ## Setup local environment for development, generate configuration files.
+move: ## Move existing local .env files to src/ and dependencies/ without overwriting settings.
+	@python3 ./src/tools/scripts/move-env-files.py
+
+.PHONY: move
+
+setup: move ## Setup local environment for development, generate configuration files.
 	$(info Setup local environment for development, generate configuration files.)
-	@./tools/scripts/gen-env-files.sh
-	@mkdir -p ./app/node_modules
+	@./src/tools/scripts/gen-env-files.sh
+	@mkdir -p ./src/app/node_modules
 
 worktree: ## List available worktrees, copy .env files from selected source branch, and print cd command.
 	$(info List available worktrees and copy .env files from selected source branch)
-	@./tools/scripts/worktree.sh
+	@./src/tools/scripts/worktree.sh
 
 nuke: ## Stop all containers, delete all containers, volumes, and configuration (y=1 skips the confirmation)
 	$(info Stop all containers, delete all containers, volumes, and configuration)
 	@make down v=1 $(if $(y),y=$(y),)
-	@./tools/scripts/nuke.sh
+	@./src/tools/scripts/nuke.sh
 
 ##############################################################################
 # Openshift Management
@@ -65,7 +70,7 @@ project: ## Switch to TNO project namespace within Openshift: 9b301c
 
 switch: ## Switch to the specified oc project (n=environment)
 	$(info Switch to the specified oc project n=$(if $(n),$(n),tools))
-	@./tools/scripts/switch-project.sh $(n)
+	@./src/tools/scripts/switch-project.sh $(n)
 
 ##############################################################################
 # Docker Management
@@ -76,8 +81,8 @@ build: ## Builds all containers or the one specified (args: n={service name}, p=
 	@docker-compose \
 		-f docker-compose.yml \
 		-f docker-compose.override.yml \
-		-f ./db/kafka/docker-compose.yml \
-		-f ./services/docker-compose.yml \
+		-f ./dependencies/kafka/docker-compose.yml \
+		-f ./src/services/docker-compose.yml \
 		$(if $(p),--profile $(p),$(if $(n),--profile all,)) \
 		build --force-rm $(n)
 
@@ -87,8 +92,8 @@ up: ## Starts all containers or the one specified (args: n={service name}, p={pr
 		--env-file .env \
 		-f docker-compose.yml \
 		-f docker-compose.override.yml \
-		-f ./db/kafka/docker-compose.yml \
-		-f ./services/docker-compose.yml \
+		-f ./dependencies/kafka/docker-compose.yml \
+		-f ./src/services/docker-compose.yml \
 		$(if $(p),--profile $(p),$(if $(n),--profile all,)) \
 		up -d $(n)
 
@@ -97,19 +102,19 @@ stop: ## Stops all containers or the one specified (args: n={service name}, p={p
 	@docker-compose \
 		-f docker-compose.yml \
 		-f docker-compose.override.yml \
-		-f ./db/kafka/docker-compose.yml \
-		-f ./services/docker-compose.yml \
+		-f ./dependencies/kafka/docker-compose.yml \
+		-f ./src/services/docker-compose.yml \
 		$(if $(p),--profile $(p),$(if $(n),--profile all,--profile all)) \
 		stop $(n)
 
 down: ## Stops all containers and removes them (p={profile name, [all,api,editor,subscriber,kafka,service,utility,ingest]}, v=1 also deletes the volumes (all local data), y=1 skips the confirmation)
 	$(info Stops all containers and removes them (p=$(p), v=$(v)))
-	@$(if $(v),./tools/scripts/confirm.sh "$(DOWN_VOLUMES_WARNING)" "$(y)",true)
+	@$(if $(v),./src/tools/scripts/confirm.sh "$(DOWN_VOLUMES_WARNING)" "$(y)",true)
 	@docker-compose \
 		-f docker-compose.yml \
 		-f docker-compose.override.yml \
-		-f ./db/kafka/docker-compose.yml \
-		-f ./services/docker-compose.yml \
+		-f ./dependencies/kafka/docker-compose.yml \
+		-f ./src/services/docker-compose.yml \
 		$(if $(p),--profile $(p),--profile all) \
 		down $(if $(v),-v,)
 	@$(if $(v),true,echo "$(P) Volumes kept. Use 'make down v=1' to also delete all local data.")
@@ -122,15 +127,15 @@ restart: ## Restart all containers or the one specified (n={service name}, p={pr
 refresh: ## Stop, build, and start all containers or the one specified (args: n={service name}, p={profile name, [all,api,editor,subscriber,kafka,service,utility,ingest]}))
 	$(info Stop, build, and start all containers or the one specified (n=$(n), p=$(p)))
 	@make stop $(if $(n),n=$(n),) $(if $(p),p=$(p),)
-	@./tools/scripts/docker-remove.sh $(n)
+	@./src/tools/scripts/docker-remove.sh $(n)
 	@make build $(if $(n),n=$(n),) $(if $(p),p=$(p),)
 	@make up $(if $(n),n=$(n),) $(if $(p),p=$(p),)
 
 refresh-keycloak: ## Stop, build, drop DB and recreate
 	$(info Stop, build, drop DB and recreate)
 	@make stop n=keycloak
-	@./tools/scripts/docker-remove.sh keycloak
-	@./tools/scripts/refresh-keycloak.sh
+	@./src/tools/scripts/docker-remove.sh keycloak
+	@./src/tools/scripts/refresh-keycloak.sh
 	@make build n=keycloak
 	@make up n=keycloak
 
@@ -154,11 +159,11 @@ renew: ## Refresh all relevant services that were impacted by prior Pull Request
 
 db-update: ## Run the database migration update.
 	$(info Run the database migration update)
-	@./tools/scripts/db-update.sh
+	@./src/tools/scripts/db-update.sh
 
 db-refresh: ## Drop database and reinitialize
 	$(info Drop database and reinitialize)
-	@./tools/scripts/db-drop.sh
+	@./src/tools/scripts/db-drop.sh
 	@make db-update
 
 db-nuke: ## Stop and delete the database container and volume, then rebuild and start.
@@ -177,7 +182,7 @@ db-nuke: ## Stop and delete the database container and volume, then rebuild and 
 
 elastic-update: ## Run the elasticsearch migration.
 	$(info Run the elasticsearch migration)
-	@./tools/scripts/elastic-update.sh
+	@./src/tools/scripts/elastic-update.sh
 
 ##############################################################################
 # Kafka Commands
@@ -185,18 +190,18 @@ elastic-update: ## Run the elasticsearch migration.
 
 reset-consumer-offset: ## Reset the consumer group topic offset.
 	$(info Reset the consumer group topic offset)
-	@cd ./db/kafka/scripts/reset-consumer-offset.sh
+	@cd ./dependencies/kafka/scripts/reset-consumer-offset.sh
 
 kafka-update: ## Apply the Kafka topic migrations (e=environment {local,dev,test,prod} [local], n=version [all], r=1 roll back version n, b=bootstrap server, p=default partitions, f=default replication factor, d=1 dry run, y=1 skip confirmation)
 	$(info Run the kafka migration (e=$(if $(e),$(e),local)$(if $(n), n=$(n),)))
-	@./db/kafka/scripts/migration.sh -e $(if $(e),$(e),local) $(if $(n),-n $(n),) $(if $(r),-r,) $(if $(b),-z $(b),) $(if $(p),-p $(p),) $(if $(f),--replication $(f),) $(if $(d),-d,) $(if $(y),-y,)
+	@./dependencies/kafka/scripts/migration.sh -e $(if $(e),$(e),local) $(if $(n),-n $(n),) $(if $(r),-r,) $(if $(b),-z $(b),) $(if $(p),-p $(p),) $(if $(f),--replication $(f),) $(if $(d),-d,) $(if $(y),-y,)
 
 kafka-topic-add: ## Create or update a kafka topic (e=environment [local], t=topic, b=bootstrap server, p=partitions, r=replication factor, c=config key=value[,...], i=broker pod index, d=1 dry run)
 	$(info Add a new kafka topic (e=$(if $(e),$(e),local), t=$(t)))
-	@./db/kafka/scripts/topic-add.sh -e $(if $(e),$(e),local) $(if $(t),-t $(t),) $(if $(b),-z $(b),) $(if $(p),-p $(p),) $(if $(r),-r $(r),) $(if $(c),-c $(c),) $(if $(i),-i $(i),) $(if $(d),-d,)
+	@./dependencies/kafka/scripts/topic-add.sh -e $(if $(e),$(e),local) $(if $(t),-t $(t),) $(if $(b),-z $(b),) $(if $(p),-p $(p),) $(if $(r),-r $(r),) $(if $(c),-c $(c),) $(if $(i),-i $(i),) $(if $(d),-d,)
 
 kafka-topic-delete: ## Delete a kafka topic and its messages (e=environment [local], t=topic, b=bootstrap server, i=broker pod index, d=1 dry run, y=1 skip confirmation)
 	$(info Delete a kafka topic (e=$(if $(e),$(e),local), t=$(t)))
-	@./db/kafka/scripts/topic-delete.sh -e $(if $(e),$(e),local) $(if $(t),-t $(t),) $(if $(b),-z $(b),) $(if $(i),-i $(i),) $(if $(d),-d,) $(if $(y),-y,)
+	@./dependencies/kafka/scripts/topic-delete.sh -e $(if $(e),$(e),local) $(if $(t),-t $(t),) $(if $(b),-z $(b),) $(if $(i),-i $(i),) $(if $(d),-d,) $(if $(y),-y,)
 
 .PHONY: local

@@ -14,10 +14,11 @@ This document explains how the orchestrated GitHub Actions deployment flow works
 It only starts when the push changes one of these paths:
 
 ```text
-api/**
-app/**
-services/**
-libs/**
+src/api/**
+src/charts-api/**
+src/app/**
+src/services/**
+src/libs/**
 openshift/**
 .github/workflows/auto-deploy.yml
 .github/workflows/deploy-all.yml
@@ -100,34 +101,34 @@ These source paths build a new image and deploy the matching workload.
 
 | Changed path | Result |
 | ------------ | ------ |
-| `api/net/**` | Build `api`, deploy API |
-| `api/node/**` | Build/deploy `charts-api` |
-| `app/**` | Build `app`, deploy `editor` and `subscriber` (one image serves both; `APP_MODE` picks the design) |
-| `services/net/content/**` | Build/deploy `content-service` |
-| `services/net/indexing/**` | Build/deploy `indexing-service` |
-| `services/net/transcription/**` | Build/deploy `transcription-service` |
-| `services/net/content-analysis/**` | Build/deploy `content-analysis-service` |
-| `services/net/reporting/**` | Build/deploy `reporting-service` |
-| `services/net/notification/**` | Build/deploy `notification-service` |
-| `services/net/scheduler/**` | Build/deploy `scheduler-service` |
-| `services/net/ffmpeg/**` | Build/deploy `ffmpeg-service` |
-| `services/net/event-handler/**` | Build/deploy `event-handler-service` |
-| `services/net/ches-retry/**` | Build/deploy `ches-retry-service` |
-| `services/net/syndication/**` | Build/deploy `syndication-service` |
-| `services/net/filemonitor/**` | Build/deploy `filemonitor-service` |
-| `services/net/image/**` | Build/deploy `image-service` |
-| `services/net/auto-clipper/**` | Build/deploy `auto-clipper-service` |
-| `services/net/contentmigration/**` | Build/deploy `contentmigration-service` |
-| `services/net/folder-collection/**` | Build/deploy `folder-collection-service` |
+| `src/api/**` | Build `api`, deploy API |
+| `src/charts-api/**` | Build/deploy `charts-api` |
+| `src/app/**` | Build `app`, deploy `editor` and `subscriber` (one image serves both; `APP_MODE` picks the design) |
+| `src/services/content/**` | Build/deploy `content-service` |
+| `src/services/indexing/**` | Build/deploy `indexing-service` |
+| `src/services/transcription/**` | Build/deploy `transcription-service` |
+| `src/services/content-analysis/**` | Build/deploy `content-analysis-service` |
+| `src/services/reporting/**` | Build/deploy `reporting-service` |
+| `src/services/notification/**` | Build/deploy `notification-service` |
+| `src/services/scheduler/**` | Build/deploy `scheduler-service` |
+| `src/services/ffmpeg/**` | Build/deploy `ffmpeg-service` |
+| `src/services/event-handler/**` | Build/deploy `event-handler-service` |
+| `src/services/ches-retry/**` | Build/deploy `ches-retry-service` |
+| `src/services/syndication/**` | Build/deploy `syndication-service` |
+| `src/services/filemonitor/**` | Build/deploy `filemonitor-service` |
+| `src/services/image/**` | Build/deploy `image-service` |
+| `src/services/auto-clipper/**` | Build/deploy `auto-clipper-service` |
+| `src/services/contentmigration/**` | Build/deploy `contentmigration-service` |
+| `src/services/folder-collection/**` | Build/deploy `folder-collection-service` |
 
 ## Shared .NET Rules
 
 | Changed path | Result |
 | ------------ | ------ |
-| `libs/net/**` | Build API and all .NET services, then deploy API and all .NET services |
-| `libs/net/dal/**` | Same as `libs/net/**`, plus DB migration |
+| `src/libs/**` | Build API and all .NET services, then deploy API and all .NET services |
+| `src/libs/dal/**` | Same as `src/libs/**`, plus DB migration |
 
-`db/postgres/**` is not part of auto-deploy detection.
+`dependencies/postgres/**` is not part of auto-deploy detection.
 
 ## OpenShift Manifest Rules
 
@@ -149,11 +150,11 @@ CronJobs still use their own workflows.
 
 ## DB Migration
 
-In `changed` mode, DB migration runs only when `libs/net/dal/**` changes.
+In `changed` mode, DB migration runs only when `src/libs/dal/**` changes.
 
 In `all` mode, DB migration runs unless `skip_db_migration` is `true`.
 
-The migration job builds the EF migration bundle from `libs/net` and runs it as
+The migration job builds the EF migration bundle from `src/libs` and runs it as
 a temporary OpenShift pod.
 
 DB migration uses the same local `install-oc` and `openshift-login` actions as

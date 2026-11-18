@@ -45,7 +45,7 @@ spec:
     type: Docker
     dockerStrategy:
       imageOptimizationPolicy: SkipLayers
-      dockerfilePath: services/net/image/Dockerfile
+      dockerfilePath: src/services/image/Dockerfile
   output:
     to:
       kind: DockerImage

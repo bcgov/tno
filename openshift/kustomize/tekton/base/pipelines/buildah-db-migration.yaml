@@ -63,7 +63,7 @@ spec:
         - name: COMPONENT
           value: db
         - name: CONTEXT
-          value: $(params.CONTEXT)/libs/net
+          value: $(params.CONTEXT)/src/libs
         - name: IMAGE
           value: db-migration
         - name: IMAGE_TAG

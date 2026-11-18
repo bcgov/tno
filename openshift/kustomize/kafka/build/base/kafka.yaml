@@ -38,7 +38,7 @@ spec:
     git:
       uri: https://github.com/bcgov/tno.git
       ref: dev
-    contextDir: db/kafka/broker
+    contextDir: dependencies/kafka/broker
   strategy:
     type: Docker
     dockerStrategy:

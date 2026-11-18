@@ -18,8 +18,8 @@ oc kustomize ./overlays/dev | oc create -f -
 
 | Service                                                 | Description                                               |
 | ------------------------------------------------------- | --------------------------------------------------------- |
-| [CrunchyDB HA Cluster](./postgres/crunchy/README.md)    | High availability PostgreSQL database cluster.            |
-| [CrunchyDB HA Monitoring](./postgres/monitor/README.md) | High availability PostgreSQL database cluster monitoring. |
+| [CrunchyDB HA Cluster](postgres/crunchy/README.md)    | High availability PostgreSQL database cluster.            |
+| [CrunchyDB HA Monitoring](postgres/monitor/README.md) | High availability PostgreSQL database cluster monitoring. |
 
 ## Setup Environment
 
@@ -42,7 +42,7 @@ Deploy the application components.
 ```bash
 oc kustomize nginx/overlays/test | oc create -f -
 oc kustomize api/overlays/test | oc create -f -
-oc kustomize app/editor/overlays/test | oc create -f -
+oc kustomize src/app/editor/overlays/test | oc create -f -
 ```
 
 Once the application is running you will need to do the following.
@@ -57,21 +57,21 @@ Keycloak needs to be setup manually.
 
 The simplest way to update the database requires the following steps.
 
-- Update the `/libs/net/dal/.env` with the appropriate configuration for the environment
+- Update the `/src/libs/dal/.env` with the appropriate configuration for the environment
 - Run the `make db-connect e=test` command in the `/openshift` folder.
-- Run the `make db-update` command in the `/libs/net` folder.
+- Run the `make db-update` command in the `/src/libs` folder.
 
 Deploy the services below.
 
 ```bash
-oc kustomize services/syndication/overlays/test | oc create -f -
-oc kustomize services/capture/overlays/test | oc create -f -
-oc kustomize services/clip/overlays/test | oc create -f -
-oc kustomize services/image/overlays/test | oc create -f -
-oc kustomize services/filemonitor/overlays/test | oc create -f -
-oc kustomize services/content/overlays/test | oc create -f -
-oc kustomize services/indexing/overlays/test | oc create -f -
-oc kustomize services/transcription/overlays/test | oc create -f -
+oc kustomize src/services/syndication/overlays/test | oc create -f -
+oc kustomize src/services/capture/overlays/test | oc create -f -
+oc kustomize src/services/clip/overlays/test | oc create -f -
+oc kustomize src/services/image/overlays/test | oc create -f -
+oc kustomize src/services/filemonitor/overlays/test | oc create -f -
+oc kustomize src/services/content/overlays/test | oc create -f -
+oc kustomize src/services/indexing/overlays/test | oc create -f -
+oc kustomize src/services/transcription/overlays/test | oc create -f -
 ```
 
 Deploy the tools below.

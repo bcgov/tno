@@ -5,8 +5,8 @@ How to create, apply, roll back, remove, and merge EF Core migrations in this re
 
 ## Where migrations live
 
-- Project: `libs/net/dal` (`TNO.DAL`). The design-time factory `TNOContextFactory` is in the same
-  project, so `dotnet ef` runs from `libs/net/dal` with **no separate startup project**.
+- Project: `src/libs/dal` (`TNO.DAL`). The design-time factory `TNOContextFactory` is in the same
+  project, so `dotnet ef` runs from `src/libs/dal` with **no separate startup project**.
 - Files per migration: `Migrations/<timestamp>_<version>.cs` + `.Designer.cs`, plus the shared
   `TNOContextModelSnapshot.cs` (current model state — updated by every add/remove).
 - Migrations are **named by version**, e.g. `1.6.8`. EF prefixes the 14-digit timestamp; the
@@ -18,7 +18,7 @@ How to create, apply, roll back, remove, and merge EF Core migrations in this re
 ## `make db-*` commands (apply-only, run inside the `tno-net` Docker network)
 
 - `make db-update` — Build the migration image and run `dotnet ef database update` (applies **all
-  pending** migrations forward). Standard local apply. Uses `libs/net/dal/.env` (`Host=database:5432`).
+  pending** migrations forward). Standard local apply. Uses `src/libs/dal/.env` (`Host=database:5432`).
 - `make db-refresh` — `db-drop.sh` (`DROP SCHEMA public CASCADE`) then `make db-update`. Full clean
   rebuild of the schema from scratch. **Destroys all data.**
 - `make db-nuke` — Delete the DB container + volume, recreate, `db-update`, restart keycloak. Nuclear reset.
@@ -28,7 +28,7 @@ use `dotnet ef` directly for that.
 
 ## Direct `dotnet ef` commands (add / list / rollback / remove)
 
-Run from `libs/net/dal`. Install the tool if missing: `dotnet tool install --global dotnet-ef`
+Run from `src/libs/dal`. Install the tool if missing: `dotnet tool install --global dotnet-ef`
 (then `export PATH="$PATH:$HOME/.dotnet/tools"`).
 
 **Connection string:** `dal/.env` points at `Host=database:5432` (Docker-internal). Any command that

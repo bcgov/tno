@@ -16,7 +16,7 @@ except Exception:
 ' 2>/dev/null || echo false)
 
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
-CHANGED=$(git -C "$REPO_ROOT" status --porcelain 2>/dev/null | awk '{print $2}')
+CHANGED=$(git -C "$REPO_ROOT" status --porcelain --untracked-files=all 2>/dev/null | awk '{print $2}')
 
 if [ -z "$CHANGED" ]; then
   exit 0
@@ -41,11 +41,11 @@ run_build() {
 }
 
 # One Vite project builds both designs (editor and subscriber).
-if echo "$CHANGED" | grep -qE "^app/"; then
-  run_build "app" "$REPO_ROOT/app" npm run build
+if echo "$CHANGED" | grep -qE "^src/app/"; then
+  run_build "app" "$REPO_ROOT/src/app" npm run build
 fi
 
-if echo "$CHANGED" | grep -qE "^(libs/net|api/net|services/net)/"; then
+if echo "$CHANGED" | grep -qE "^(src/libs|src/tests|src/api|src/services|src/tools/elastic|src/tools/indexer)/"; then
   run_build ".NET solution" "$REPO_ROOT" dotnet build
 fi
 

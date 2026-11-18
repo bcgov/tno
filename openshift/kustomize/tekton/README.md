@@ -130,7 +130,7 @@ Both `deploy-all` and `deploy-all-deployment` manage the following services:
 - **editor** - Editor web application (`app` image, `APP_MODE=editor`)
 - **subscriber** - Subscriber web application (`app` image, `APP_MODE=subscriber`)
 
-Both run the one `app` image, built when `app/` changes. `DEPLOY=app` (or `BUILD_APP=true`)
+Both run the one `app` image, built when `src/app/` changes. `DEPLOY=app` (or `BUILD_APP=true`)
 tags it and restarts both; `DEPLOY=editor` or `DEPLOY=subscriber` restarts just one.
 
 ### Processing Services (11 services)
@@ -158,7 +158,7 @@ tags it and restarts both; `DEPLOY=editor` or `DEPLOY=subscriber` restarts just 
 - **nginx-editor** - Routes the editor host to the editor app and its `/api` to the api pods
 - **nginx-subscriber** - Routes the subscriber host to the subscriber app and its `/api` to the api pods
 
-Built when `network/reverse-proxy/<app>` changes, and rolled without stopping anything. The
+Built when `dependencies/reverse-proxy/<app>` changes, and rolled without stopping anything. The
 pipelines leave the routes alone: they keep pointing at these proxies throughout a deploy.
 
 ### API Service (1 service)

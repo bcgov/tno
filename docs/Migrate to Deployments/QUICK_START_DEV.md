@@ -18,7 +18,7 @@ oc login https://api.silver.devops.gov.bc.ca:6443
 oc project 9b301c-dev    # or 9b301c-test, 9b301c-prod
 
 # 3. Run the migration script
-./tools/scripts/migrate-deployments.sh dev    # or test, prod
+./src/tools/scripts/migrate-deployments.sh dev    # or test, prod
 ```
 
 **The script will:**
@@ -38,7 +38,7 @@ If you prefer to migrate one service at a time:
 
 ```bash
 # Migrate a single service
-./tools/scripts/migrate-deployments.sh dev nginx
+./src/tools/scripts/migrate-deployments.sh dev nginx
 
 # The script handles everything:
 # 1. Checks current state

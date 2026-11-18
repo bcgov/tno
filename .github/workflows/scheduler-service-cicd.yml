@@ -5,15 +5,15 @@ on:
   pull_request:
     branches: [dev, master]
     paths:
-      - services/net/scheduler/**
-      - libs/net/**
+      - src/services/scheduler/**
+      - src/libs/**
       - openshift/kustomize/services/scheduler/**
       - .github/workflows/scheduler-service-cicd.yml
   push:
     branches: [dev, master, scheduler-service]
     paths:
-      - services/net/scheduler/**
-      - libs/net/**
+      - src/services/scheduler/**
+      - src/libs/**
       - openshift/kustomize/services/scheduler/**
       - .github/workflows/scheduler-service-cicd.yml
 
@@ -30,8 +30,8 @@ jobs:
     uses: ./.github/workflows/_reusable-dotnet-cicd.yml
     with:
       image_name: scheduler-service
-      csproj_path: services/net/scheduler/TNO.Services.Scheduler.csproj
-      dockerfile: services/net/scheduler/Dockerfile
+      csproj_path: src/services/scheduler/TNO.Services.Scheduler.csproj
+      dockerfile: src/services/scheduler/Dockerfile
       component: scheduler-service
       deployment_name: scheduler-service
       kustomize_dev_path: openshift/kustomize/services/scheduler/overlays/dev

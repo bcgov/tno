@@ -2,11 +2,11 @@
 
 ## Where Keycloak Is Implemented
 
-- Container/runtime config: `auth/keycloak/**`
-- API auth wiring: `api/net/Program.cs`
-- Keycloak helper layer: `api/net/Keycloak/**`
-- Shared Keycloak client library: `libs/net/keycloak/**`
-- Admin endpoints for sync/ops: `api/net/Areas/Admin/Controllers/KeycloakController.cs`
+- Container/runtime config: `dependencies/keycloak/**`
+- API auth wiring: `src/api/Program.cs`
+- Keycloak helper layer: `src/api/Keycloak/**`
+- Shared Keycloak client library: `src/libs/keycloak/**`
+- Admin endpoints for sync/ops: `src/api/Areas/Admin/Controllers/KeycloakController.cs`
 
 ## API Authentication Flow
 
@@ -28,9 +28,9 @@
 ## Local Setup Notes
 
 - Keycloak depends on Postgres in compose.
-- Realm import files live in `auth/keycloak/config` and mount into container.
+- Realm import files live in `dependencies/keycloak/config` and mount into container.
 - After first startup, verify realm exists at `http://localhost:40001`.
-- Update API Keycloak secrets using `./tools/scripts/kc-key-update.sh` when needed.
+- Update API Keycloak secrets using `./src/tools/scripts/kc-key-update.sh` when needed.
 
 ## Sync And User Management
 
