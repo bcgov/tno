@@ -28,5 +28,25 @@ public class NotificationOptions : ServiceOptions
     /// get/set - The path files are uploaded to in the API.
     /// </summary>
     public string? UploadPath { get; set; }
+
+    /// <summary>
+    /// get/set - Maximum number of emails sent to CHES at the same time.
+    /// </summary>
+    public int MaxConcurrentSends { get; set; } = 10;
+
+    /// <summary>
+    /// get/set - Whether emails that could not be handed to CHES are sent back to Kafka to be tried again.
+    /// </summary>
+    public bool ResendOnFailure { get; set; } = true;
+
+    /// <summary>
+    /// get/set - Maximum number of times a failed email is sent back to Kafka.
+    /// </summary>
+    public int ResendAttemptLimit { get; set; } = 3;
+
+    /// <summary>
+    /// get/set - Number of milliseconds to wait before a failed email is tried again.
+    /// </summary>
+    public int ResendDelayMS { get; set; } = 30000;
     #endregion
 }

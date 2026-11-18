@@ -28,6 +28,7 @@
     <ProjectReference Include="..\..\libs\services\TNO.Services.csproj" />
     <ProjectReference Include="..\..\services\syndication\TNO.Services.Syndication.csproj" />
     <ProjectReference Include="..\..\services\reporting\TNO.Services.Reporting.csproj" />
+    <ProjectReference Include="..\..\services\notification\TNO.Services.Notification.csproj" />
   </ItemGroup>
 
 </Project>

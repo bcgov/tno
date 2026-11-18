@@ -32,6 +32,12 @@ namespace TNO.Ches
         /// </summary>
         private static readonly System.Text.Json.JsonSerializerOptions _errorSerializerOptions = new() { PropertyNameCaseInsensitive = true };
         private TokenModel? _token = null;
+
+        /// <summary>
+        /// One token request at a time. Without it every send that finds the token expired asks
+        /// for its own, so a burst of emails becomes a burst of token requests.
+        /// </summary>
+        private readonly SemaphoreSlim _tokenLock = new(1, 1);
         private readonly JwtSecurityTokenHandler _tokenHandler;
         private readonly ILogger<IChesService> _logger;
 
@@ -75,17 +81,85 @@ namespace TNO.Ches
         }
 
         /// <summary>
+        /// Determine whether the current access token can still be used.
+        /// </summary>
+        /// <returns></returns>
+        private bool HasActiveAccessToken()
+        {
+            return _token != null && !String.IsNullOrWhiteSpace(_token.AccessToken) && _tokenHandler.ReadJwtToken(_token.AccessToken).ValidTo > DateTime.UtcNow;
+        }
+
+        /// <summary>
         /// Ensure we have an active access token.
         /// Make an HTTP request if one is needed.
         /// </summary>
         /// <returns></returns>
         private async Task RefreshAccessTokenAsync()
         {
-            // Check if token has expired.  If it has refresh it.
-            if (_token == null || String.IsNullOrWhiteSpace(_token.AccessToken) || _tokenHandler.ReadJwtToken(_token.AccessToken).ValidTo <= DateTime.UtcNow)
+            if (HasActiveAccessToken()) return;
+
+            await _tokenLock.WaitAsync();
+            try
             {
-                _token = await GetTokenAsync();
+                // Another request may have fetched the token while this one waited.
+                if (!HasActiveAccessToken())
+                    _token = await GetTokenAsync();
             }
+            finally
+            {
+                _tokenLock.Release();
+            }
+        }
+
+        /// <summary>
+        /// Convert a failed HTTP request into a ChesException.
+        /// CHES answers with problem+json (with a field-level 'errors' array on a validation
+        /// failure such as 422), but a gateway in front of it or of the token endpoint answers with
+        /// HTML or nothing at all. The body is only parsed when it is JSON, so an unexpected body
+        /// can never replace the ChesException callers rely on with a parsing error.
+        /// </summary>
+        /// <param name="ex"></param>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        private async Task<ChesException> CreateExceptionAsync(HttpClientRequestException ex, string url)
+        {
+            if (ex.Response != null && ex.Response.Content.Headers.ContentType?.MediaType?.Contains("json", StringComparison.InvariantCultureIgnoreCase) == true)
+            {
+                string? body = null;
+                try
+                {
+                    // The shared DeserializeAsync only parses successful responses, read the error body directly.
+                    body = await ex.Response.Content.ReadAsStringAsync();
+                }
+                catch
+                {
+                    // The body could not be read; the failure is reported without it below.
+                }
+
+                if (!String.IsNullOrWhiteSpace(body))
+                {
+                    Ches.Models.ErrorResponseModel? response = null;
+                    try
+                    {
+                        response = System.Text.Json.JsonSerializer.Deserialize<Ches.Models.ErrorResponseModel>(body, _errorSerializerOptions);
+                    }
+                    catch
+                    {
+                        // Body was not the expected shape; the raw body is logged below.
+                    }
+
+                    var error = String.Join(Environment.NewLine, response?.Errors.Select(e => e.Message) ?? []);
+                    if (String.IsNullOrWhiteSpace(error))
+                        error = !String.IsNullOrWhiteSpace(response?.Title) || !String.IsNullOrWhiteSpace(response?.Detail)
+                            ? $"{response?.Title}: {response?.Detail}".Trim(':', ' ')
+                            : body;
+
+                    _logger.LogError(ex, "Failed to send/receive request: {code} {url}.  Error: {error}", ex.StatusCode, url, error);
+                    return new ChesException(ex, this.Client, response);
+                }
+            }
+            _logger.LogError(ex, "Failed to send/receive request: {code} {url}.  Error: {error}", ex.StatusCode, url, ex.GetAllMessages());
+            return new ChesException("Failed to send message to CHES", ex);
         }
 
         /// <summary>
@@ -111,13 +185,7 @@ namespace TNO.Ches
             }
             catch (HttpClientRequestException ex)
             {
-                _logger.LogError(ex, "Failed to send/receive request: {status} {url}", ex.StatusCode, url);
-                if (ex.Response != null)
-                {
-                    var response = await this.Client.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
-                    throw new ChesException(ex, this.Client, response);
-                }
-                throw new ChesException("Failed to send message to CHES", ex);
+                throw await CreateExceptionAsync(ex, url);
             }
         }
 
@@ -143,13 +211,7 @@ namespace TNO.Ches
             }
             catch (HttpClientRequestException ex)
             {
-                _logger.LogError(ex, "Failed to send/receive request: {status} {url}", ex.StatusCode, url);
-                if (ex.Response != null)
-                {
-                    var response = await this.Client.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
-                    throw new ChesException(ex, this.Client, response);
-                }
-                throw new ChesException("Failed to send message to CHES", ex);
+                throw await CreateExceptionAsync(ex, url);
             }
         }
 
@@ -179,37 +241,7 @@ namespace TNO.Ches
             }
             catch (HttpClientRequestException ex)
             {
-                if (ex.Response != null && ex.Response.Content.Headers.ContentType?.MediaType?.Contains("json", StringComparison.InvariantCultureIgnoreCase) == true)
-                {
-                    // Read the error body directly. CHES returns a problem+json payload (with a
-                    // field-level 'errors' array) on a validation failure such as 422. The shared
-                    // DeserializeAsync only parses successful responses and the previous stream guard
-                    // never matched, so the real reason was being discarded; parse it here instead.
-                    var body = await ex.Response.Content.ReadAsStringAsync();
-                    if (!String.IsNullOrWhiteSpace(body))
-                    {
-                        Ches.Models.ErrorResponseModel? response = null;
-                        try
-                        {
-                            response = System.Text.Json.JsonSerializer.Deserialize<Ches.Models.ErrorResponseModel>(body, _errorSerializerOptions);
-                        }
-                        catch
-                        {
-                            // Body was not the expected shape; the raw body is logged below.
-                        }
-
-                        var error = String.Join(Environment.NewLine, response?.Errors.Select(e => e.Message) ?? []);
-                        if (String.IsNullOrWhiteSpace(error))
-                            error = !String.IsNullOrWhiteSpace(response?.Title) || !String.IsNullOrWhiteSpace(response?.Detail)
-                                ? $"{response?.Title}: {response?.Detail}".Trim(':', ' ')
-                                : body;
-
-                        _logger.LogError(ex, "Failed to send/receive request: {code} {url}.  Error: {error}", ex.StatusCode, url, error);
-                        throw new ChesException(ex, this.Client, response);
-                    }
-                }
-                _logger.LogError(ex, "Failed to send/receive request: {code} {url}.  Error: {error}", ex.StatusCode, url, ex.GetAllMessages());
-                throw new ChesException("Failed to send message to CHES", ex);
+                throw await CreateExceptionAsync(ex, url);
             }
             catch (Exception ex)
             {
@@ -243,13 +275,13 @@ namespace TNO.Ches
             }
             catch (HttpClientRequestException ex)
             {
-                _logger.LogError(ex, "Failed to send/receive request: {code} {url}", ex.StatusCode, this.Options.AuthUrl);
-                if (ex.Response != null)
-                {
-                    var response = await this.Client.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
-                    throw new ChesException(ex, this.Client, response);
-                }
-                throw new ChesException("Failed to send message to CHES", ex);
+                throw await CreateExceptionAsync(ex, this.Options.AuthUrl);
+            }
+            catch (Exception ex)
+            {
+                // A timeout or dropped connection is not an HTTP response, report it the same way.
+                _logger.LogError(ex, "Failed to send/receive request: {url}.  Error: {error}", this.Options.AuthUrl, ex.GetAllMessages());
+                throw new ChesException("Failed to get a CHES access token", ex);
             }
         }
 

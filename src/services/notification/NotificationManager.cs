@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+using System.Net;
 using System.Security.Claims;
 using System.Text.Json;
 using Confluent.Kafka;
@@ -13,6 +15,7 @@ using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Services.Managers;
 using TNO.Services.Notification.Config;
+using TNO.Services.Notification.Models;
 using TNO.Services.Notification.Validation;
 using TNO.TemplateEngine;
 using TNO.TemplateEngine.Config;
@@ -22,7 +25,7 @@ namespace TNO.Services.Notification;
 /// <summary>
 /// NotificationManager class, provides a Kafka Consumer service which imports audio from all active topics.
 /// </summary>
-public class NotificationManager : ServiceManager<NotificationOptions>
+public class NotificationManager : ServiceManager<NotificationOptions>, IServiceHealth
 {
     #region Variables
     private CancellationTokenSource? _cancelToken;
@@ -31,6 +34,24 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     private int _retries = 0;
     private readonly JsonSerializerOptions _serializationOptions;
     private readonly ClaimsPrincipal _user;
+    private readonly TimeProvider _time;
+    private readonly object _healthLock = new();
+    private long? _failedSince;
+    private readonly SemaphoreSlim _sendLimit;
+    private readonly ConcurrentDictionary<int, long> _filterErrorEmails = new();
+    private static readonly TimeSpan _filterErrorEmailInterval = TimeSpan.FromHours(1);
+
+    /// <summary>
+    /// One email to hand to CHES: who it goes to, its subject, and the subscriber it is for
+    /// (null when the request named its own recipients).
+    /// </summary>
+    private sealed record NotificationEmail(
+        IReadOnlyList<EmailContextModel> Contexts,
+        string Subject,
+        API.Areas.Services.Models.Notification.UserModel? Subscriber)
+    {
+        public string Emails => String.Join(", ", this.Contexts.Select(c => String.Join(", ", c.To)));
+    }
     #endregion
 
     #region Properties
@@ -53,6 +74,36 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// get - Notification validator.
     /// </summary>
     protected INotificationValidator NotificationValidator { get; }
+
+    /// <summary>
+    /// get - The reason this worker must be replaced, or null while it is healthy.
+    /// A failed service resumes on its own after 'RetryAfterCriticalFailureDelayMS'.  It is only
+    /// unhealthy when it is still failed after that should have happened, or straight away when
+    /// 'AutoRestartAfterCriticalFailure' is off, because nothing else will bring it back.
+    /// </summary>
+    public string? HealthFailureReason
+    {
+        get
+        {
+            lock (_healthLock)
+            {
+                if (this.State.Status != ServiceStatus.Failed)
+                {
+                    _failedSince = null;
+                    return null;
+                }
+
+                _failedSince ??= _time.GetTimestamp();
+                var failedFor = _time.GetElapsedTime(_failedSince.Value);
+                var allowed = this.Options.AutoRestartAfterCriticalFailure
+                    ? TimeSpan.FromMilliseconds((double)this.Options.RetryAfterCriticalFailureDelayMS + (2d * this.Options.DefaultDelayMS))
+                    : TimeSpan.Zero;
+                return failedFor > allowed
+                    ? $"The service has been in the '{ServiceStatus.Failed}' state for {(int)failedFor.TotalSeconds} seconds and is not consuming notifications."
+                    : null;
+            }
+        }
+    }
     #endregion
 
     #region Constructors
@@ -70,6 +121,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// <param name="reportingOptions"></param>
     /// <param name="notificationValidator"></param>
     /// <param name="logger"></param>
+    /// <param name="timeProvider">Optional monotonic clock used to time a failed state.</param>
     public NotificationManager(
         IKafkaListener<string, NotificationRequestModel> listener,
         IApiService api,
@@ -81,10 +133,13 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         IOptions<NotificationOptions> notificationOptions,
         IOptions<TemplateOptions> reportingOptions,
         INotificationValidator notificationValidator,
-        ILogger<NotificationManager> logger)
+        ILogger<NotificationManager> logger,
+        TimeProvider? timeProvider = null)
         : base(api, chesService, chesOptions, notificationOptions, logger)
     {
         _user = user;
+        _time = timeProvider ?? TimeProvider.System;
+        _sendLimit = new SemaphoreSlim(Math.Max(1, this.Options.MaxConcurrentSends));
         this.NotificationEngine = notificationEngine;
         this.TemplateOptions = reportingOptions.Value;
         _serializationOptions = serializationOptions.Value;
@@ -108,46 +163,72 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         // Always keep looping until an unexpected failure occurs.
         while (true)
         {
-            if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause || this.State.Status == ServiceStatus.RequestFailed)
-            {
-                // An API request or failures have requested the service to stop.
-                this.Logger.LogInformation("The service is stopping: '{Status}'", this.State.Status);
-                this.State.Stop();
-
-                // The service is stopping or has stopped, consume should stop too.
-                this.Listener.Stop();
-            }
-            else if (this.State.Status != ServiceStatus.Running)
-            {
-                this.Logger.LogDebug("The service is not running: '{Status}'", this.State.Status);
-            }
-            else
-            {
-                try
-                {
-                    var topics = this.Options.Topics.Split(',', StringSplitOptions.RemoveEmptyEntries);
-
-                    if (topics.Length != 0)
-                    {
-                        this.Listener.Subscribe(topics);
-                        ConsumeMessages();
-                    }
-                    else if (topics.Length == 0)
-                    {
-                        this.Listener.Stop();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    this.Logger.LogError(ex, "Service had an unexpected failure.");
-                    this.State.RecordFailure();
-                    await this.SendErrorEmailAsync("Service had an Unexpected Failure", ex);
-                }
-            }
+            await RunOnceAsync();
 
             // The delay ensures we don't have a run away thread.
             this.Logger.LogDebug("Service sleeping for {delay} ms", delay);
             await Task.Delay(delay);
+        }
+    }
+
+    /// <summary>
+    /// Act on the current state of the service: stop when asked to, recover from a critical failure,
+    /// and otherwise make sure the Kafka consumer is running.
+    /// </summary>
+    /// <returns></returns>
+    protected async Task RunOnceAsync()
+    {
+        if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause || this.State.Status == ServiceStatus.RequestFailed)
+        {
+            // An API request or failures have requested the service to stop.
+            this.Logger.LogInformation("The service is stopping: '{Status}'", this.State.Status);
+            this.State.Stop();
+
+            // The service is stopping or has stopped, consume should stop too.
+            this.Listener.Stop();
+
+            // Start timing a failed state now rather than when it is next asked about.
+            _ = this.HealthFailureReason;
+        }
+        else if (this.State.Status == ServiceStatus.Failed)
+        {
+            this.Logger.LogInformation("The service has failed: '{Status}'", this.State.Status);
+            _ = this.HealthFailureReason;
+            if (this.Options.AutoRestartAfterCriticalFailure)
+            {
+                // Recover after a delay so that the service does not remain failed indefinitely.
+                // The consumer subscribes again the next time through the loop.
+                await Task.Delay(this.Options.RetryAfterCriticalFailureDelayMS);
+                this.State.Resume();
+                this.Logger.LogInformation("The service is resuming after a critical failure");
+            }
+        }
+        else if (this.State.Status != ServiceStatus.Running)
+        {
+            this.Logger.LogDebug("The service is not running: '{Status}'", this.State.Status);
+        }
+        else
+        {
+            try
+            {
+                var topics = this.Options.Topics.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+                if (topics.Length != 0)
+                {
+                    this.Listener.Subscribe(topics);
+                    ConsumeMessages();
+                }
+                else if (topics.Length == 0)
+                {
+                    this.Listener.Stop();
+                }
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, "Service had an unexpected failure.");
+                this.State.RecordFailure();
+                await this.SendErrorEmailAsync("Service had an Unexpected Failure", ex);
+            }
         }
     }
 
@@ -224,7 +305,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// </summary>
     /// <param name="result"></param>
     /// <returns></returns>
-    private async Task HandleMessageAsync(ConsumeResult<string, NotificationRequestModel> result)
+    protected async Task HandleMessageAsync(ConsumeResult<string, NotificationRequestModel> result)
     {
         try
         {
@@ -279,6 +360,10 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         var request = result.Message.Value;
         if (request.Destination.HasFlag(NotificationDestination.NotificationService))
         {
+            // A request this service sent back to Kafka because emails failed carries its retry state.
+            var retry = request.NotificationId.HasValue && request.ContentId.HasValue ? NotificationRetryModel.From((object?)request.Data) : null;
+            if (retry != null) await WaitToRetryAsync(request, retry);
+
             if (request.ContentId.HasValue)
             {
                 var content = await this.Api.FindContentByIdAsync(request.ContentId.Value, true);
@@ -293,8 +378,8 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                         if (notification != null && notification.IsEnabled)
                         {
                             this.NotificationValidator.InitializeNotification(notification);
-                            if (request.IgnoreValidation || await this.NotificationValidator.ConfirmSendAsync())
-                                await SendNotificationAsync(request, notification, content);
+                            if (request.IgnoreValidation || await ConfirmSendAsync(notification, content))
+                                await SendNotificationAsync(request, notification, content, retry);
                             else
                                 this.Logger.LogInformation("Notification not sent.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
                         }
@@ -312,7 +397,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                         foreach (var notification in notifications)
                         {
                             this.NotificationValidator.InitializeNotification(notification);
-                            if (request.IgnoreValidation || await this.NotificationValidator.ConfirmSendAsync())
+                            if (request.IgnoreValidation || await ConfirmSendAsync(notification, content))
                                 await SendNotificationAsync(request, notification, content);
                             else
                                 this.Logger.LogDebug("Notification not sent.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
@@ -343,7 +428,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                             foreach (var content in results.Hits.Hits.Select(h => h.Source).Where(c => c != null))
                             {
                                 this.NotificationValidator.Initialize(notification, content);
-                                if (request.IgnoreValidation || await this.NotificationValidator.ConfirmSendAsync())
+                                if (request.IgnoreValidation || await ConfirmSendAsync(notification, content))
                                     await SendNotificationAsync(request, notification, content);
 
                                 await ResetAlertAsync(content);
@@ -416,49 +501,95 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     }
 
     /// <summary>
-    /// Send an email merge to CHES.
-    /// This will send out a separate email to each context provided.
+    /// Determine whether the 'notification' should be sent for the 'content'.
+    /// A notification whose own search Elasticsearch rejects is skipped rather than failing the
+    /// request: the error belongs to that one notification, and treating it as a service failure
+    /// stops every other notification for the content and, after enough of them, the service.
+    /// </summary>
+    /// <param name="notification"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    private async Task<bool> ConfirmSendAsync(
+        API.Areas.Services.Models.Notification.NotificationModel notification,
+        API.Areas.Services.Models.Content.ContentModel content)
+    {
+        try
+        {
+            return await this.NotificationValidator.ConfirmSendAsync();
+        }
+        catch (HttpClientRequestException ex) when (ex.StatusCode == HttpStatusCode.BadRequest)
+        {
+            this.Logger.LogError(ex, "Notification filter is invalid, the notification was skipped.  Notification: {notificationId} '{name}', Content ID: {contentId}", notification.Id, notification.Name, content.Id);
+
+            // Every content item is tested against the notification, only report it occasionally.
+            var now = _time.GetTimestamp();
+            var report = !_filterErrorEmails.TryGetValue(notification.Id, out var last) || _time.GetElapsedTime(last, now) >= _filterErrorEmailInterval;
+            if (report)
+            {
+                _filterErrorEmails[notification.Id] = now;
+                await this.SendErrorEmailAsync($"Notification filter is invalid - {notification.Id}:{notification.Name}", ex,
+                    $"Notification {notification.Id} '{notification.Name}' is skipped for all content until its filter is corrected.");
+            }
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Wait until a request that was sent back to Kafka is due to be tried again.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="retry"></param>
+    /// <returns></returns>
+    private async Task WaitToRetryAsync(NotificationRequestModel request, NotificationRetryModel retry)
+    {
+        this.Logger.LogInformation("Retrying notification after failure.  Notification: {notificationId}, Content ID: {contentId}, Attempt: {attempt} of {limit}",
+            request.NotificationId, request.ContentId, retry.FailureCount, this.Options.ResendAttemptLimit);
+
+        if (!retry.RetryAfter.HasValue) return;
+
+        // Never wait longer than configured, whatever clock wrote the request.
+        var limit = TimeSpan.FromMilliseconds(Math.Max(0, this.Options.ResendDelayMS));
+        var wait = retry.RetryAfter.Value.ToUniversalTime() - DateTime.UtcNow;
+        if (wait > limit) wait = limit;
+        if (wait > TimeSpan.Zero) await Task.Delay(wait);
+    }
+
+    /// <summary>
+    /// Send the notification for the content to each subscriber.
+    /// Every email is handed to CHES before this returns, so the request is only complete once the
+    /// outcome of each one is known.  Emails that failed are sent back to Kafka to be tried again.
     /// </summary>
     /// <param name="request"></param>
     /// <param name="notification"></param>
     /// <param name="content"></param>
+    /// <param name="retry">The retry state when this request is a retry, which limits it to the subscribers that failed.</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
     private async Task SendNotificationAsync(
         NotificationRequestModel request,
         API.Areas.Services.Models.Notification.NotificationModel notification,
-        API.Areas.Services.Models.Content.ContentModel content)
+        API.Areas.Services.Models.Content.ContentModel content,
+        NotificationRetryModel? retry = null)
     {
         await HandleChesEmailOverrideAsync(request);
 
         var subscribers = await GetNotificationSubscribersAsync(notification, content);
 
         var body = await GenerateNotificationBodyAsync(notification, content, this.Options.UploadPath, request.IsPreview);
-        var subject = string.Empty;
+        var emails = new List<NotificationEmail>();
         if (!String.IsNullOrWhiteSpace(request.To))
         {
-            var contexts = new List<EmailContextModel>();
             // When a notification request has specified 'To' it means only send it to the emails in that property.
             var requestTo = request.To.Split(",").Select(v => v.Trim());
-            contexts.Add(new EmailContextModel(requestTo, new Dictionary<string, object>(), DateTime.Now));
-            // There are no subscribers, or a notification has been sent for this content to all the subscribers.
-            if (!contexts.Any())
-            {
-                if (!subscribers.Any())
-                {
-                    this.Logger.LogDebug("Notification does not have subscribers. Notification: {notificationId}", notification.Id);
-                }
-                else
-                {
-                    this.Logger.LogInformation("Notification is not sent because all users has already received this content. Notification: {notificationId}", notification.Id);
-                }
-                return;
-            }
-            subject = await GenerateNotificationSubjectAsync(notification, content, request.IsPreview, false);
-            SendOutNotificationEmailsAsync(contexts, subject, body, new List<API.Areas.Services.Models.Notification.UserModel>(), request, notification, content);
+            var contexts = new List<EmailContextModel> { new(requestTo, new Dictionary<string, object>(), DateTime.Now) };
+            var subject = await GenerateNotificationSubjectAsync(notification, content, request.IsPreview, false);
+            emails.Add(new NotificationEmail(contexts, subject, null));
         }
         else
         {
+            // A retry is only for the subscribers whose email failed.
+            if (retry != null) subscribers = subscribers.Where(s => retry.UserIds.Contains(s.Id)).ToArray();
+
             foreach (var subscriber in subscribers)
             {
                 var contexts = new List<EmailContextModel>();
@@ -471,64 +602,161 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                                                 subscriber.DisplayName, notification.Id);
                     continue;
                 }
-                subject = await GenerateNotificationSubjectAsync(notification, content, request.IsPreview, subscriber.EnableReportSentiment());
-                SendOutNotificationEmailsAsync(contexts, subject, body, new List<API.Areas.Services.Models.Notification.UserModel> { subscriber }, request, notification, content);
+                var subject = await GenerateNotificationSubjectAsync(notification, content, request.IsPreview, subscriber.EnableReportSentiment());
+                emails.Add(new NotificationEmail(contexts, subject, subscriber));
+
+                // Add the subscriber to the notification validator so that they don't receive more than one email for a specific content item.
+                this.NotificationValidator.AddUsers(new[] { subscriber });
             }
+        }
+
+        var errors = await Task.WhenAll(emails.Select(email => SendEmailAsync(email, body, request, notification, content)));
+        var failed = emails.Zip(errors, (email, error) => (Email: email, Error: error))
+            .Where(r => r.Error != null)
+            .Select(r => (r.Email, Error: r.Error!))
+            .ToArray();
+        if (failed.Length == 0 || request.IsPreview) return;
+
+        // Try again later rather than give up, a failure to reach CHES is usually brief.
+        var failureCount = retry?.FailureCount ?? 0;
+        if (this.Options.ResendOnFailure && failureCount < this.Options.ResendAttemptLimit)
+        {
+            try
+            {
+                var resend = new NotificationRequestModel()
+                {
+                    Destination = NotificationDestination.NotificationService,
+                    NotificationId = notification.Id,
+                    ContentId = content.Id,
+                    RequestorId = request.RequestorId,
+                    AssignedId = request.AssignedId,
+                    To = request.To,
+                    // This content has already been confirmed, and the emails that were sent have
+                    // since recorded an instance that the resend rule would reject.
+                    IgnoreValidation = true,
+                    Data = new NotificationRetryModel()
+                    {
+                        FailureCount = failureCount + 1,
+                        UserIds = failed.Where(f => f.Email.Subscriber != null).Select(f => f.Email.Subscriber!.Id).ToArray(),
+                        RetryAfter = DateTime.UtcNow.AddMilliseconds(Math.Max(0, this.Options.ResendDelayMS)),
+                    }.ToData(),
+                };
+                await this.Api.SendMessageAsync(resend);
+                this.Logger.LogWarning("Notification will be tried again for {count} email(s) that failed.  Notification: {notificationId}, Content ID: {contentId}, Attempt: {attempt} of {limit}",
+                    failed.Length, notification.Id, content.Id, failureCount + 1, this.Options.ResendAttemptLimit);
+                return;
+            }
+            catch (Exception ex)
+            {
+                // The failure must not be lost, record it instead.
+                this.Logger.LogError(ex, "Failed to send the notification back to Kafka to be tried again.  Notification: {notificationId}, Content ID: {contentId}", notification.Id, content.Id);
+            }
+        }
+        else
+        {
+            this.Logger.LogError("Notification failed for {count} email(s) and will not be tried again.  Notification: {notificationId}, Content ID: {contentId}, Attempts: {attempts}",
+                failed.Length, notification.Id, content.Id, failureCount + 1);
+        }
+
+        foreach (var (email, error) in failed)
+        {
+            var response = error.Data["error"] ?? new { message = error.GetAllMessages() };
+            await SaveNotificationInstanceAsync(request, notification, content, email, body, NotificationStatus.Failed, response);
         }
     }
 
-    private async void SendOutNotificationEmailsAsync(IEnumerable<EmailContextModel> contexts, string subject, string body,
-        IEnumerable<API.Areas.Services.Models.Notification.UserModel> subscriber,
+    /// <summary>
+    /// Send an email merge to CHES and record that it was accepted.
+    /// This never throws: one email that cannot be sent must not stop the others, and the
+    /// caller decides what happens to the ones that failed.
+    /// </summary>
+    /// <param name="email"></param>
+    /// <param name="body"></param>
+    /// <param name="request"></param>
+    /// <param name="notification"></param>
+    /// <param name="content"></param>
+    /// <returns>The reason the email was not sent, or null when CHES accepted it.</returns>
+    private async Task<Exception?> SendEmailAsync(
+        NotificationEmail email,
+        string body,
         NotificationRequestModel request,
         API.Areas.Services.Models.Notification.NotificationModel notification,
         API.Areas.Services.Models.Content.ContentModel content)
     {
-        var merge = new EmailMergeModel(this.ChesOptions.From, contexts, subject, body)
-        {
-            // TODO: Extract values from notification settings.
-            Encoding = EmailEncodings.Utf8,
-            BodyType = EmailBodyTypes.Html,
-            Priority = EmailPriorities.Normal,
-        };
-        // Add the subscribers to the notification validator so that they don't receive more than one email for a specific content item.
-        this.NotificationValidator.AddUsers(subscriber);
-        var allEmails = String.Join(", ", contexts.Select(c => String.Join(", ", c.To)));
-
+        // Limit how many emails are in flight, a notification can have hundreds of subscribers.
+        await _sendLimit.WaitAsync();
         try
         {
-            var response = await this.Ches.SendEmailAsync(merge);
-            this.Logger.LogInformation($"Notification sent to CHES. Notification: {notification.Id}, Content ID: {content.Id}, Subscriber: {subscriber.FirstOrDefault()?.DisplayName}, Emails: {allEmails}");
+            var merge = new EmailMergeModel(this.ChesOptions.From, email.Contexts, email.Subject, body)
+            {
+                // TODO: Extract values from notification settings.
+                Encoding = EmailEncodings.Utf8,
+                BodyType = EmailBodyTypes.Html,
+                Priority = EmailPriorities.Normal,
+            };
+
+            EmailResponseModel response;
+            try
+            {
+                response = await this.Ches.SendEmailAsync(merge);
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, "Failed to send email.  Notification: {notificationId}, Content ID: {contentId}, Emails: {emails}", notification.Id, content.Id, email.Emails);
+                return ex;
+            }
+
+            this.Logger.LogInformation("Notification sent to CHES. Notification: {notificationId}, Content ID: {contentId}, Subscriber: {subscriber}, Emails: {emails}",
+                notification.Id, content.Id, email.Subscriber?.DisplayName, email.Emails);
 
             if (!request.IsPreview)
-            {
-                // Save the notification instance.
-                var instance = new NotificationInstance(notification.Id, content.Id)
-                {
-                    Status = NotificationStatus.Accepted,
-                    SentOn = DateTime.UtcNow,
-                    OwnerId = request.RequestorId ?? notification.OwnerId,
-                    Response = JsonSerializer.SerializeToDocument(response, _serializationOptions),
-                    Subject = subject,
-                    Body = body,
-                };
-                await this.Api.AddNotificationInstanceAsync(new API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel(instance, _serializationOptions));
-            }
+                await SaveNotificationInstanceAsync(request, notification, content, email, body, NotificationStatus.Accepted, response);
+            return null;
         }
-        catch (ChesException ex)
+        finally
         {
-            this.Logger.LogError(ex, "Failed to send email.  Notification: {notificationId}, Content ID: {contentId}, Emails: {emails}", notification.Id, content.Id, allEmails);
-            if (!request.IsPreview)
+            _sendLimit.Release();
+        }
+    }
+
+    /// <summary>
+    /// Record the outcome of an email as a notification instance.
+    /// A failure to record it is logged rather than thrown: the email has already been dealt with
+    /// and sending it again because the record failed would duplicate it.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="notification"></param>
+    /// <param name="content"></param>
+    /// <param name="email"></param>
+    /// <param name="body"></param>
+    /// <param name="status"></param>
+    /// <param name="response">The CHES response, or the error when the email failed.</param>
+    /// <returns></returns>
+    private async Task SaveNotificationInstanceAsync(
+        NotificationRequestModel request,
+        API.Areas.Services.Models.Notification.NotificationModel notification,
+        API.Areas.Services.Models.Content.ContentModel content,
+        NotificationEmail email,
+        string body,
+        NotificationStatus status,
+        object? response)
+    {
+        try
+        {
+            var instance = new NotificationInstance(notification.Id, content.Id)
             {
-                var instance = new NotificationInstance(notification.Id, content.Id)
-                {
-                    Status = NotificationStatus.Failed,
-                    OwnerId = request.RequestorId ?? notification.OwnerId,
-                    Response = JsonSerializer.SerializeToDocument(ex.Data["error"], _serializationOptions),
-                    Subject = subject,
-                    Body = body,
-                };
-                await this.Api.AddNotificationInstanceAsync(new API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel(instance, _serializationOptions));
-            }
+                Status = status,
+                SentOn = status == NotificationStatus.Accepted ? DateTime.UtcNow : null,
+                OwnerId = request.RequestorId ?? notification.OwnerId,
+                Response = JsonSerializer.SerializeToDocument(response, _serializationOptions),
+                Subject = email.Subject,
+                Body = body,
+            };
+            await this.Api.AddNotificationInstanceAsync(new API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel(instance, _serializationOptions));
+        }
+        catch (Exception ex)
+        {
+            this.Logger.LogError(ex, "Failed to record the notification instance.  Notification: {notificationId}, Content ID: {contentId}, Status: {status}, Emails: {emails}", notification.Id, content.Id, status, email.Emails);
         }
     }
 
