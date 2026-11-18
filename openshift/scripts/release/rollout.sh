@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Shared by GitHub Actions and the manual Tekton release.
+# Shared by GitHub Actions and the manual Tekton release. Requires only Bash and oc.
 set -euo pipefail
 namespace=${1:?namespace required}
 kind=${2:?kind required}
@@ -9,15 +9,21 @@ image=${5:-}
 container=${6:-$name}
 resource="$kind/$name"
 
+pod_selector() {
+  local selector
+  selector=$(oc get "$resource" -n "$namespace" -o 'go-template={{range $key, $value := .spec.selector.matchLabels}}{{$key}}={{$value}},{{end}}')
+  selector=${selector%,}
+  [[ -n "$selector" ]] || { echo "$resource has no pod selector" >&2; return 1; }
+  printf '%s' "$selector"
+}
+
 if [[ "$kind" == statefulset ]]; then
   # The API cannot overlap old/new instances. Preserve its configured capacity.
-  workload=$(oc get "$resource" -n "$namespace" -o json)
-  replicas=$(jq -r '.spec.replicas' <<< "$workload")
+  replicas=$(oc get "$resource" -n "$namespace" -o 'jsonpath={.spec.replicas}')
   (( replicas > 0 )) || { echo "$resource has no desired replicas; cannot verify API readiness" >&2; exit 1; }
-  selector=$(jq -r '.spec.selector.matchLabels | to_entries | map(.key + "=" + .value) | join(",")' <<< "$workload")
-  [[ -n "$selector" ]] || { echo 'Missing StatefulSet pod selector' >&2; exit 1; }
+  selector=$(pod_selector)
   oc scale "$resource" -n "$namespace" --replicas=0
-  if [[ $(oc get pods -n "$namespace" -l "$selector" -o json | jq '.items | length') -gt 0 ]]; then
+  if [[ -n $(oc get pods -n "$namespace" -l "$selector" -o name) ]]; then
     oc wait pod -n "$namespace" -l "$selector" --for=delete --timeout="$timeout"
   fi
   # Leave it stopped on failure: never start downstream services after a partial API update.
@@ -25,25 +31,22 @@ if [[ "$kind" == statefulset ]]; then
     oc set image "$resource" "$container=$image" -n "$namespace"
   fi
   oc scale "$resource" -n "$namespace" --replicas="$replicas"
-  if (( replicas > 0 )); then
-    # Works for both OnDelete and RollingUpdate StatefulSets after a full stop/start.
-    seconds=${timeout%s}
-    deadline=$((SECONDS + seconds))
-    while :; do
-      status=$(oc get "$resource" -n "$namespace" -o json)
-      if jq -e --argjson replicas "$replicas" '
-        .status.observedGeneration >= .metadata.generation and
-        .status.readyReplicas == $replicas and
-        .status.currentRevision == .status.updateRevision' <<< "$status" >/dev/null; then
-        break
-      fi
-      (( SECONDS < deadline )) || { echo "$resource readiness timed out" >&2; exit 1; }
-      sleep 5
-    done
-  fi
+  # Works for both OnDelete and RollingUpdate StatefulSets after a full stop/start.
+  seconds=${timeout%s}
+  deadline=$((SECONDS + seconds))
+  while :; do
+    status=$(oc get "$resource" -n "$namespace" -o 'jsonpath={.metadata.generation}{"|"}{.status.observedGeneration}{"|"}{.status.readyReplicas}{"|"}{.status.currentRevision}{"|"}{.status.updateRevision}')
+    IFS='|' read -r generation observed ready current_revision update_revision <<< "$status"
+    if (( ${observed:-0} >= ${generation:-1} && ${ready:-0} == replicas )) &&
+      [[ -n "$update_revision" && "$current_revision" == "$update_revision" ]]; then
+      break
+    fi
+    (( SECONDS < deadline )) || { echo "$resource readiness timed out" >&2; exit 1; }
+    sleep 5
+  done
 elif [[ "$kind" == deployment ]]; then
   if [[ "$name" == api-services ]]; then
-    replicas=$(oc get "$resource" -n "$namespace" -o json | jq -r '.spec.replicas')
+    replicas=$(oc get "$resource" -n "$namespace" -o 'jsonpath={.spec.replicas}')
     (( replicas > 0 )) || { echo "$resource has no desired replicas; cannot verify API readiness" >&2; exit 1; }
   fi
   # Merge patch removes Recreate and preserves replica counts and other settings.
@@ -60,6 +63,6 @@ else
 fi
 oc get "$resource" -n "$namespace" -o wide
 # Print the resolved running digests as release evidence, not just mutable tag names.
-selector=$(oc get "$resource" -n "$namespace" -o json | jq -r '.spec.selector.matchLabels | to_entries | map(.key + "=" + .value) | join(",")')
+selector=$(pod_selector)
 oc get pods -n "$namespace" -l "$selector" \
   -o 'custom-columns=NAME:.metadata.name,READY:.status.containerStatuses[*].ready,IMAGE:.status.containerStatuses[*].imageID'
