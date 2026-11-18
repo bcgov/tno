@@ -6,8 +6,10 @@ Only content specifically related to the source code will be contained within th
 | Section                                                   | Description                                                                    |
 | --------------------------------------------------------- | ------------------------------------------------------------------------------ |
 | [Wiki](https://github.com/bcgov/tno/wiki)                 | Wiki containing documentation for TNO solution                                 |
-| [Begin Development](./DEVELOPMENT.md)                     | How to setup your environment for development and run the TNO solution locally |
-| [Testing](../test/README.md)                              | 3rd party testing tools                                                        |
-| [Keycloak](../auth/keycloak/README.md)                    | Keycloak setup and configuration                                               |
+| [Begin Development](DEVELOPMENT.md)                     | How to setup your environment for development and run the TNO solution locally |
+| [Postman](POSTMAN.md)                              | Import the API collection and request an access token                                                        |
+| [Keycloak](../dependencies/keycloak/README.md)                    | Keycloak setup and configuration                                               |
 | [Openshift](../openshift/README.md)                       | Infrastructure as code, how to setup DevOps and environments in Openshift      |
-| [Content Analysis](./planning/content-analysis/README.md) | Plan for the Content-Analysis service and scalable report AI                   |
+| [Content Analysis](planning/content-analysis/README.md) | Plan for the Content-Analysis service and scalable report AI                   |
+
+See [.NET tests](../src/tests/README.md) for automated tests and coverage.

@@ -5,15 +5,15 @@ on:
   pull_request:
     branches: [dev, master]
     paths:
-      - services/net/ches-retry/**
-      - libs/net/**
+      - src/services/ches-retry/**
+      - src/libs/**
       - openshift/kustomize/services/ches-retry/**
       - .github/workflows/ches-retry-service-cicd.yml
   push:
     branches: [dev, master, ches-retry-service]
     paths:
-      - services/net/ches-retry/**
-      - libs/net/**
+      - src/services/ches-retry/**
+      - src/libs/**
       - openshift/kustomize/services/ches-retry/**
       - .github/workflows/ches-retry-service-cicd.yml
 
@@ -30,8 +30,8 @@ jobs:
     uses: ./.github/workflows/_reusable-dotnet-cicd.yml
     with:
       image_name: ches-retry-service
-      csproj_path: services/net/ches-retry/TNO.Services.ChesRetry.csproj
-      dockerfile: services/net/ches-retry/Dockerfile
+      csproj_path: src/services/ches-retry/TNO.Services.ChesRetry.csproj
+      dockerfile: src/services/ches-retry/Dockerfile
       component: ches-retry-service
       deployment_name: ches-retry-service
       kustomize_dev_path: openshift/kustomize/services/ches-retry/overlays/dev

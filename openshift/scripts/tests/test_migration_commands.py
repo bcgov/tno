@@ -105,7 +105,7 @@ class MigrationCommands(unittest.TestCase):
         self.assertIn('make deploy e=test n=elastic-migration t=test', output)
         calls = self.calls()
         self.assertIn('docker build --platform linux/amd64 -t ', calls)
-        self.assertIn('-f tools/elastic/migration/Dockerfile .', calls)
+        self.assertIn('-f src/tools/elastic/migration/Dockerfile .', calls)
         for command in ('push', 'pull', 'tag'):
             self.assertIn(f'docker {command} bcgov-c4awhwfpcremdbga.azurecr.io/elastic-migration:candidate', calls)
         self.assertIn('docker buildx imagetools create --tag ', calls)

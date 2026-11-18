@@ -40,7 +40,7 @@ spec:
     git:
       uri: https://github.com/bcgov/tno.git
       ref: dev
-    contextDir: db/tools
+    contextDir: dependencies/tools
   strategy:
     type: Docker
     dockerStrategy:

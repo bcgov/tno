@@ -63,7 +63,7 @@ spec:
         - name: CONTEXT
           value: $(params.CONTEXT)
         - name: DOCKERFILE
-          value: $(params.CONTEXT)/tools/elastic/migration/Dockerfile
+          value: $(params.CONTEXT)/src/tools/elastic/migration/Dockerfile
         - name: IMAGE
           value: elastic-migration
         - name: IMAGE_TAG

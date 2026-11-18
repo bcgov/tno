@@ -5,10 +5,11 @@ on:
   push:
     branches: [dev, master]
     paths:
-      - api/**
-      - app/**
-      - services/**
-      - libs/**
+      - src/api/**
+      - src/charts-api/**
+      - src/app/**
+      - src/services/**
+      - src/libs/**
       - openshift/**
       - .github/workflows/auto-deploy.yml
       - .github/workflows/deploy-all.yml

@@ -12,7 +12,7 @@ This directory contains all documentation related to the DeploymentConfig to Dep
 
 ### 🚀 Getting Started
 
-- **[QUICK_START_DEV.md](./QUICK_START_DEV.md)** - Migration quick start guide
+- **[QUICK_START_DEV.md](QUICK_START_DEV.md)** - Migration quick start guide
   - How to use the migration script
   - Manual deployment steps
   - Testing and verification
@@ -20,7 +20,7 @@ This directory contains all documentation related to the DeploymentConfig to Dep
 
 ### 📋 Migration Guide
 
-- **[DEPLOYMENT_MIGRATION.md](./DEPLOYMENT_MIGRATION.md)** - Complete migration documentation
+- **[DEPLOYMENT_MIGRATION.md](DEPLOYMENT_MIGRATION.md)** - Complete migration documentation
   - What changed (DeploymentConfig → Deployment)
   - All 32 services migrated
   - Trigger mechanism preservation
@@ -29,7 +29,7 @@ This directory contains all documentation related to the DeploymentConfig to Dep
 
 ### 📅 Deployment Plan
 
-- **[DEPLOYMENT_PLAN.md](./DEPLOYMENT_PLAN.md)** - Actual migration process and results
+- **[DEPLOYMENT_PLAN.md](DEPLOYMENT_PLAN.md)** - Actual migration process and results
   - Service categories and deployment strategies
   - Dev environment completion (all 24 services)
   - Test environment preparation
@@ -39,13 +39,13 @@ This directory contains all documentation related to the DeploymentConfig to Dep
 
 ### 🔧 Scripts and Tools
 
-- **[migrate-deployments.sh](../../tools/scripts/migrate-deployments.sh)** - Interactive migration script
+- **[migrate-deployments.sh](../../src/tools/scripts/migrate-deployments.sh)** - Interactive migration script
 
   - Migrates DeploymentConfigs to Deployments with validation at each step
-  - Usage: `./tools/scripts/migrate-deployments.sh <dev|test|prod> [service-name]`
+  - Usage: `./src/tools/scripts/migrate-deployments.sh <dev|test|prod> [service-name]`
   - Examples:
-    - `./tools/scripts/migrate-deployments.sh dev` - Migrate all services in dev
-    - `./tools/scripts/migrate-deployments.sh prod nginx` - Migrate only nginx in prod
+    - `./src/tools/scripts/migrate-deployments.sh dev` - Migrate all services in dev
+    - `./src/tools/scripts/migrate-deployments.sh prod nginx` - Migrate only nginx in prod
   - Features:
     - Interactive prompts for safety
     - Automatic health checks
@@ -54,7 +54,7 @@ This directory contains all documentation related to the DeploymentConfig to Dep
     - Scales down old DeploymentConfigs
     - Handles Kafka consumers carefully
 
-- **[compare_deployments.sh](./compare_deployments.sh)** - Compare deployed services with production
+- **[compare_deployments.sh](compare_deployments.sh)** - Compare deployed services with production
   - Usage: `./compare_deployments.sh <service-name> <dev|test|prod>`
   - Example: `./compare_deployments.sh corenlp dev`
 
@@ -70,14 +70,14 @@ oc login
 oc project 9b301c-dev    # or 9b301c-test, 9b301c-prod
 
 # Run migration script
-./tools/scripts/migrate-deployments.sh dev    # or test, prod
+./src/tools/scripts/migrate-deployments.sh dev    # or test, prod
 ```
 
 ### Migrate Single Service
 
 ```bash
 # Migrate just one service
-./tools/scripts/migrate-deployments.sh dev nginx
+./src/tools/scripts/migrate-deployments.sh dev nginx
 
 # Or manually
 oc apply -k openshift/kustomize/nginx/overlays/dev
@@ -140,7 +140,7 @@ Rolling update safe - old and new pods can coexist:
 - **Preparation**: Complete
 - **Ready to migrate**: Yes
 - **Expected duration**: ~2 hours
-- **Command**: `./tools/scripts/migrate-deployments.sh test`
+- **Command**: `./src/tools/scripts/migrate-deployments.sh test`
 
 ### Production Environment ⏳
 
@@ -150,8 +150,8 @@ Rolling update safe - old and new pods can coexist:
 
 ## Need Help?
 
-- Check [QUICK_START_DEV.md](./QUICK_START_DEV.md) for common issues
-- Review [DEPLOYMENT_PLAN.md](./DEPLOYMENT_PLAN.md) for detailed procedures
+- Check [QUICK_START_DEV.md](QUICK_START_DEV.md) for common issues
+- Review [DEPLOYMENT_PLAN.md](DEPLOYMENT_PLAN.md) for detailed procedures
 - Use `oc <command> --help` for command syntax
 
 ## Related Documentation

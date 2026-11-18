@@ -5,7 +5,7 @@ every environment runs one Elasticsearch version.
 
 | Environment | Cluster                                                    | Version on 2026-11-01 | Target  |
 | ----------- | ---------------------------------------------------------- | --------------------- | ------- |
-| Local       | `tno-elastic` container (`db/elasticsearch`)               | 7.17.9 → **8.19.21** (done) | 8.19.21 |
+| Local       | `tno-elastic` container (`dependencies/elasticsearch`)               | 7.17.9 → **8.19.21** (done) | 8.19.21 |
 | DEV         | `elastic` StatefulSet, 3 nodes, `9b301c-dev`               | 7.17.9 → **8.19.21** (done) | 8.19.21 |
 | TEST        | Elastic Cloud `test-mmi` (local StatefulSet scaled to 0)   | 8.19.21               | —       |
 | PROD        | Elastic Cloud `prod-mmi` (local StatefulSet scaled to 0)   | 8.19.21               | —       |
@@ -16,12 +16,12 @@ move to 9 is a later, all-environment change, and it needs every 7.x-created ind
 No application change is needed:
 
 - NEST 7.17.5 (API, DAL, reporting) already sends the compatibility header (`EnableApiVersioningHeader()` in
-  `libs/net/elastic/TNOElasticClient.cs`), which is how it works against TEST/PROD today.
+  `src/libs/elastic/TNOElasticClient.cs`), which is how it works against TEST/PROD today.
 - The indexing service and the migration tool use `Elastic.Clients.Elasticsearch` 8.19.27.
 
 ## 1. What changes
 
-### Local (`db/elasticsearch`), done on 2026-11-01
+### Local (`dependencies/elasticsearch`), done on 2026-11-01
 
 | File                 | Change                                                                                              |
 | -------------------- | --------------------------------------------------------------------------------------------------- |
@@ -53,7 +53,7 @@ data-tier roles. Deleting the settings keeps the roles exactly as they are.
 
 ### Snapshots
 
-Both environments get an `fs` snapshot repository. See [SNAPSHOTS.md](./SNAPSHOTS.md). This is a prerequisite:
+Both environments get an `fs` snapshot repository. See [SNAPSHOTS.md](SNAPSHOTS.md). This is a prerequisite:
 the upgrade cannot be undone in place (a node that has run 8.x cannot go back to 7.17), so the rollback path is
 a snapshot.
 

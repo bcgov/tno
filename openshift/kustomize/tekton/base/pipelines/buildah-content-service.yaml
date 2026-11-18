@@ -67,7 +67,7 @@ spec:
         - name: CONTEXT
           value: $(params.CONTEXT)
         - name: DOCKERFILE
-          value: $(params.CONTEXT)/services/net/$(params.SERVICE_NAME)/Dockerfile
+          value: $(params.CONTEXT)/src/services/$(params.SERVICE_NAME)/Dockerfile
         - name: IMAGE
           value: $(params.SERVICE_NAME)-service
         - name: IMAGE_TAG

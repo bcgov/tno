@@ -1,21 +1,21 @@
 # Adding a New Service
 
-Use this checklist for a normal .NET service under `services/net`.
+Use this checklist for a normal .NET service under `src/services`.
 
 ## 1. Add the Service Files
 
 Create the service code and Dockerfile:
 
 ```text
-services/net/<service>/
-services/net/<service>/Dockerfile
+src/services/<service>/
+src/services/<service>/Dockerfile
 ```
 
 Example:
 
 ```text
-services/net/my-service/
-services/net/my-service/Dockerfile
+src/services/my-service/
+src/services/my-service/Dockerfile
 ```
 
 ## 2. Add OpenShift Manifests
@@ -67,8 +67,8 @@ KUSTOMIZE_SERVICE_PATHS
 For `my-service`, the entries should point to:
 
 ```text
-services/net/my-service/
-services/net/my-service/Dockerfile
+src/services/my-service/
+src/services/my-service/Dockerfile
 openshift/kustomize/services/my-service/
 ```
 
@@ -82,7 +82,7 @@ Update:
 
 At minimum, make sure:
 
-- `services/net/<service>/**` builds and deploys the service.
+- `src/services/<service>/**` builds and deploys the service.
 - `openshift/kustomize/services/<service>/**` deploys the service.
 - `deploy_scope: all` includes the service.
 

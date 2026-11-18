@@ -1,0 +1,58 @@
+services:
+  broker:
+    image: tno:kafka-broker
+    profiles:
+      - init
+      - all
+      - kafka
+      - kafka-ui
+      - service
+      - main
+    restart: "no"
+    hostname: broker
+    container_name: tno-broker
+    build:
+      context: dependencies/kafka/broker
+    env_file:
+      - dependencies/kafka/broker/.env
+    ports:
+      - ${KAFKA_BROKER_ADVERTISED_HOST_PORT:-40101}:9092
+      - ${KAFKA_BROKER_ADVERTISED_EXTERNAL_PORT:-40102}:29094
+    volumes:
+      - tno-broker-data:/var/lib/kafka/data
+      - tno-broker-secrets:/etc/kafka/secrets
+    networks:
+      - tno
+
+  ####################### Utilities #######################
+
+  kafka-ui:
+    image: tno:kafka-ui
+    profiles:
+      - all
+      - kafka-ui
+    restart: "no"
+    hostname: kafka-ui
+    container_name: tno-kafka-ui
+    build:
+      context: dependencies/kafka-ui
+    environment:
+      KAFKA_CLUSTERS_0_NAME: tno
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: broker:29092
+      DYNAMIC_CONFIG_ENABLED: "false"
+      JAVA_OPTS: -Xms128m -Xmx512m
+      MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED: "true"
+    mem_limit: 1g
+    depends_on:
+      - broker
+    ports:
+      - 127.0.0.1:${KAFKA_UI_PORT:-${KAFKA_KOWL_PORT:-40180}}:8080
+    networks:
+      - tno
+
+####################### Volumes Definition #######################
+volumes:
+  tno-broker-data:
+    name: tno-broker-data
+  tno-broker-secrets:
+    name: tno-broker-secrets

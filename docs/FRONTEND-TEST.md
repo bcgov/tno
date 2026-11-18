@@ -1,6 +1,6 @@
 # Frontend Test Documentation
 
-Tests run with Vitest from `app/`. The Vitest config (`app/vite.config.mts`) defines three projects:
+Tests run with Vitest from `src/app/`. The Vitest config (`src/app/vite.config.mts`) defines three projects:
 
 | Project | Tests | Setup |
 | --- | --- | --- |
@@ -13,7 +13,7 @@ The structure below uses the editor as the example.
 ## Test Directory Structure 
 
 ```
-app/src/editor/test-vitest/
+src/app/src/editor/test-vitest/
 ├── components/          # Component tests
 │   └── content/        # Content-related component tests
 ├── data/               # Test data
@@ -132,7 +132,7 @@ describe('YourComponent', () => {
 We use Vitest as our testing framework. Here are commonly used test commands:
 
 ```bash
-# Run all tests (single run), from app/
+# Run all tests (single run), from src/app/
 npm test
 
 # Run tests in watch mode (recommended during development)

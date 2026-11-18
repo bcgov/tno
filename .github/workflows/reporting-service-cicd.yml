@@ -5,15 +5,15 @@ on:
   pull_request:
     branches: [dev, master]
     paths:
-      - services/net/reporting/**
-      - libs/net/**
+      - src/services/reporting/**
+      - src/libs/**
       - openshift/kustomize/services/reporting/**
       - .github/workflows/reporting-service-cicd.yml
   push:
     branches: [dev, master, reporting-service]
     paths:
-      - services/net/reporting/**
-      - libs/net/**
+      - src/services/reporting/**
+      - src/libs/**
       - openshift/kustomize/services/reporting/**
       - .github/workflows/reporting-service-cicd.yml
 
@@ -30,8 +30,8 @@ jobs:
     uses: ./.github/workflows/_reusable-dotnet-cicd.yml
     with:
       image_name: reporting-service
-      csproj_path: services/net/reporting/TNO.Services.Reporting.csproj
-      dockerfile: services/net/reporting/Dockerfile
+      csproj_path: src/services/reporting/TNO.Services.Reporting.csproj
+      dockerfile: src/services/reporting/Dockerfile
       component: reporting-service
       deployment_name: reporting-service
       kustomize_dev_path: openshift/kustomize/services/reporting/overlays/dev

@@ -21,7 +21,7 @@
 
 - React 19, React Router 8, Redux Toolkit, Formik, styled-components (built with Vite 8, TypeScript 7, Oxlint, Prettier, Vitest)
 - SignalR client (`@microsoft/signalr`)
-- Keycloak JS adapter (`keycloak-js`, wrapped by the app's own `KeycloakProvider` in `app/src/shared`)
+- Keycloak JS adapter (`keycloak-js`, wrapped by the app's own `KeycloakProvider` in `src/app/src/shared`)
 - Chart stack (`chart.js`, plugin libraries)
 
 ## .NET Ecosystem Highlights
@@ -33,7 +33,7 @@
 
 ## Dependency Management Rules
 
-- Use npm in `app/` (`package-lock.json`, Node 26); `api/node` still uses Yarn 3.
+- Use npm in `src/app/` (`package-lock.json`, Node 26); `src/charts-api` still uses Yarn 3.
 - Prefer free/open-source, maintained packages; flag licence changes before upgrading.
 - Keep versions aligned with existing workspace `package.json` files.
 - Prefer adding shared dependencies at library layer when reused across services.

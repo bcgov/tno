@@ -12,9 +12,9 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[3]
-MIGRATION = ROOT / 'db/kafka/scripts/migration.sh'
-TOPIC_ADD = ROOT / 'db/kafka/scripts/topic-add.sh'
-TOPIC_DELETE = ROOT / 'db/kafka/scripts/topic-delete.sh'
+MIGRATION = ROOT / 'dependencies/kafka/scripts/migration.sh'
+TOPIC_ADD = ROOT / 'dependencies/kafka/scripts/topic-add.sh'
+TOPIC_DELETE = ROOT / 'dependencies/kafka/scripts/topic-delete.sh'
 
 # Topics that exist are listed in EXISTING (comma-separated); PARTITIONS_<topic> sets the partition
 # count 'describe' reports (6 by default).

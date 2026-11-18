@@ -5,15 +5,15 @@ on:
   pull_request:
     branches: [dev, master]
     paths:
-      - services/net/auto-clipper/**
-      - libs/net/**
+      - src/services/auto-clipper/**
+      - src/libs/**
       - openshift/kustomize/services/auto-clipper/**
       - .github/workflows/auto-clipper-cicd.yml
   push:
     branches: [dev, master, auto-clipper]
     paths:
-      - services/net/auto-clipper/**
-      - libs/net/**
+      - src/services/auto-clipper/**
+      - src/libs/**
       - openshift/kustomize/services/auto-clipper/**
       - .github/workflows/auto-clipper-cicd.yml
 
@@ -30,8 +30,8 @@ jobs:
     uses: ./.github/workflows/_reusable-dotnet-cicd.yml
     with:
       image_name: auto-clipper-service
-      csproj_path: services/net/auto-clipper/TNO.Services.AutoClipper.csproj
-      dockerfile: services/net/auto-clipper/Dockerfile
+      csproj_path: src/services/auto-clipper/TNO.Services.AutoClipper.csproj
+      dockerfile: src/services/auto-clipper/Dockerfile
       component: auto-clipper-service
       deployment_name: auto-clipper-service
       kustomize_dev_path: openshift/kustomize/services/auto-clipper/overlays/dev

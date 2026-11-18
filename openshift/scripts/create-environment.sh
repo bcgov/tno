@@ -23,7 +23,7 @@ oc kustomize nginx/overlays/prod | oc create -f -
 # API Image tag & deploy API
 oc -n 9b301c-tools tag 9b301c-tools/api:dev api:prod
 oc kustomize api/overlays/prod | oc create -f -
-oc kustomize app/editor/overlays/prod | oc create -f -
+oc kustomize src/app/editor/overlays/prod | oc create -f -
 
 # Deploy shared services resources - This will create ingest-storage pvc & services configmap.
 
@@ -41,11 +41,11 @@ oc -n 9b301c-tools tag 9b301c-tools/transcription-service:dev transcription-serv
 
 
 # Deploy images to prod.
-oc kustomize services/syndication/overlays/prod | oc create -f -
-oc kustomize services/capture/overlays/prod | oc create -f -
-oc kustomize services/clip/overlays/prod | oc create -f -
-oc kustomize services/image/overlays/prod | oc create -f -
-oc kustomize services/filemonitor/overlays/prod | oc create -f -
-oc kustomize services/content/overlays/prod | oc create -f -
-oc kustomize services/indexing/overlays/prod | oc create -f -
-oc kustomize services/transcription/overlays/prod | oc create -f -
+oc kustomize src/services/syndication/overlays/prod | oc create -f -
+oc kustomize src/services/capture/overlays/prod | oc create -f -
+oc kustomize src/services/clip/overlays/prod | oc create -f -
+oc kustomize src/services/image/overlays/prod | oc create -f -
+oc kustomize src/services/filemonitor/overlays/prod | oc create -f -
+oc kustomize src/services/content/overlays/prod | oc create -f -
+oc kustomize src/services/indexing/overlays/prod | oc create -f -
+oc kustomize src/services/transcription/overlays/prod | oc create -f -

@@ -10,7 +10,7 @@ Depends on phases 1 and 2.
 ### Mapping change
 
 Both content indexes (`index-content.json` and `index-published.json`, copied from
-`tools/elastic/migration/Migrations/1.0.11/indexes/`) gain keyword sub-fields:
+`src/tools/elastic/migration/Migrations/1.0.11/indexes/`) gain keyword sub-fields:
 
 | Field | Today | Added |
 | --- | --- | --- |
@@ -24,7 +24,7 @@ the values on every document, so the migration re-indexes.
 
 ### Migration mechanics
 
-`tools/elastic/migration/Migrations/1.0.12.cs` (`[Migration("1.0.12")]`, `: TNOMigration`) with
+`src/tools/elastic/migration/Migrations/1.0.12.cs` (`[Migration("1.0.12")]`, `: TNOMigration`) with
 `SupportsSteps => true` and the same four steps as 1.0.11 (`prepare`, `copy`, `verify`,
 `cutover`), reusing its native `_reindex` copy and alias cutover. Differences from 1.0.11:
 
@@ -33,7 +33,7 @@ the values on every document, so the migration re-indexes.
   as 1.0.11 does.
 - `verify` compares document counts and a sample of `byline.keyword` values; there is no analysis
   rehydration step.
-- Follow the live procedure in `tools/elastic/migration/README.md`: a second indexing service
+- Follow the live procedure in `src/tools/elastic/migration/README.md`: a second indexing service
   writes to the destinations between `prepare` and `cutover`; writers are never paused
   (memory rule: no maintenance-window migrations).
 - `down/` recreates the 1.0.11 aliases on the previous indexes as 1.0.10's `down/pre` scripts do.
@@ -104,7 +104,7 @@ Down restoring them.
 
 ### Admin editor
 
-The editor app's chart template form (`app/editor/src/features/admin/charts`) gains a JSON editor
+The editor app's chart template form (`src/app/editor/src/features/admin/charts`) gains a JSON editor
 for `settings.aggregations` next to the Razor template, and the admin preview
 (`ChartTemplateController` `POST preview/json` / `POST preview/base64`,
 `ChartPreviewRequestModel`) accepts `Aggregations` so an administrator can see buckets while
@@ -119,7 +119,7 @@ writing the template. `ChartPreviewRequestModel` already carries `Filter`/`Filte
 - `ReportChartDataServiceTest`: `byline` query and `Unknown` relabel; `series` with
   `otherSeries.keyword` fallback; `AggregateAsync` converts a canned nested response into
   `AggregationRootModel`.
-- Template tests (`libs/net/tests/ai`): rewritten `Event of the Day` renders identical JSON from
+- Template tests (`src/tests/ai`): rewritten `Event of the Day` renders identical JSON from
   buckets as the old template did from a fixture content list.
 - Flag off/on behaviour for `Reports:ByLineAggregation`.
 

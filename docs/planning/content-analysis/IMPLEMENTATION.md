@@ -13,18 +13,18 @@ order) and Kafka topic migration `1.0.1`.
 
 | Migration | Contents |
 | --- | --- |
-| EF `1.5.6` (`libs/net/dal/Migrations/20260930220328_1.5.6.cs`) | `llm` limits; `report_ai_result`; topic scoring columns, `topic_rescore_job`, score check constraint; analysis tables (`analysis_job`, `content_analysis`, `content_field_ownership`, `analysis_topic`, `analysis_backfill`), quote provenance; `content.projection_revision`; history indexes. SQL: `Migrations/1.5.6/Up/PreUp/00-TopicScoring.sql`, `Up/PostUp/00-HistoryRetention.sql`, `Up/PostUp/01-TopicScoring.sql`, `Down/PreDown/*`. |
-| EF `1.5.7` (`libs/net/dal/Migrations/20261007235520_1.5.7.cs`) | Drops `analysis_job` and `analysis_backfill` (Kafka is the source of analysis work; backfills are work orders) and `topic_rescore_job` (bulk rescores are work orders); adds `content.metadata` (`jsonb`, run history under `analysis`). SQL: `Migrations/1.5.7/Up/PostUp/00-ContentAnalysisMetadata.sql` (partial index `IX_content_analysis_failed`), `Down/PreDown/*`. |
-| Kafka `1.0.1` (`db/kafka/migrations/V1.0.1.sh`) | Topics `analysis-backfill`, `analysis-retry`, `analysis-dlq`, `work-order`. |
-| Elasticsearch `1.0.11` (`tools/elastic/migration/Migrations/1.0.11*`) | Rebuilds the content indexes **from the database** with external versions (projection revision), adds `analysis` (`dynamic: strict`), `topics.isSystem`, `projectionRevision`, `index.gc_deletes: 1h`, and creates the evidence index. See [Elasticsearch migration safety](#elasticsearch-migration-safety). |
+| EF `1.5.6` (`src/libs/dal/Migrations/20260930220328_1.5.6.cs`) | `llm` limits; `report_ai_result`; topic scoring columns, `topic_rescore_job`, score check constraint; analysis tables (`analysis_job`, `content_analysis`, `content_field_ownership`, `analysis_topic`, `analysis_backfill`), quote provenance; `content.projection_revision`; history indexes. SQL: `Migrations/1.5.6/Up/PreUp/00-TopicScoring.sql`, `Up/PostUp/00-HistoryRetention.sql`, `Up/PostUp/01-TopicScoring.sql`, `Down/PreDown/*`. |
+| EF `1.5.7` (`src/libs/dal/Migrations/20261007235520_1.5.7.cs`) | Drops `analysis_job` and `analysis_backfill` (Kafka is the source of analysis work; backfills are work orders) and `topic_rescore_job` (bulk rescores are work orders); adds `content.metadata` (`jsonb`, run history under `analysis`). SQL: `Migrations/1.5.7/Up/PostUp/00-ContentAnalysisMetadata.sql` (partial index `IX_content_analysis_failed`), `Down/PreDown/*`. |
+| Kafka `1.0.1` (`dependencies/kafka/migrations/V1.0.1.sh`) | Topics `analysis-backfill`, `analysis-retry`, `analysis-dlq`, `work-order`. |
+| Elasticsearch `1.0.11` (`src/tools/elastic/migration/Migrations/1.0.11*`) | Rebuilds the content indexes **from the database** with external versions (projection revision), adds `analysis` (`dynamic: strict`), `topics.isSystem`, `projectionRevision`, `index.gc_deletes: 1h`, and creates the evidence index. See [Elasticsearch migration safety](#elasticsearch-migration-safety). |
 
 ## Status
 
 | Document | Built |
 | --- | --- |
 | 01 Report synthesis | `TNO.AI` tokens, chunker, synthesizer; `ReportAISectionGenerator`; `report_ai_result` store (API + reporting service); LLM limits in the admin form; AI scope / source sections / output mode on AI sections (editor and subscriber). Analyzed stories contribute evidence (summary, facts, entities, quotes), ordered by topic so related stories share a request. |
-| 02 Content analysis | `services/net/content-analysis` consuming the Kafka analysis topics (lifecycle, retry, and backfill consumers; dead-letter topic) and running the processes it is configured for; analysis requests recorded by the DAL save hook and sent by `AnalysisRequestFilter`; run history in `content.metadata`; ownership, population, topic registry; services/editor/admin endpoints; editor Analysis tab; `/admin/content-analysis`. Quote Extraction and NLP services removed. |
-| 03 Indexing reliability | Projection revisions incremented in the save's transaction; index requests sent to Kafka by the API before it responds (a Kafka failure fails the request); versioned writes with retries in the indexing service, `tools/indexer`, and the migration tool; subscriber delete, `tools/indexer` transcript leak, and `MaxFailLimit` fixed. No reconciliation (out of scope). |
+| 02 Content analysis | `src/services/content-analysis` consuming the Kafka analysis topics (lifecycle, retry, and backfill consumers; dead-letter topic) and running the processes it is configured for; analysis requests recorded by the DAL save hook and sent by `AnalysisRequestFilter`; run history in `content.metadata`; ownership, population, topic registry; src/services/editor/admin endpoints; editor Analysis tab; `/admin/content-analysis`. Quote Extraction and NLP services removed. |
+| 03 Indexing reliability | Projection revisions incremented in the save's transaction; index requests sent to Kafka by the API before it responds (a Kafka failure fails the request); versioned writes with retries in the indexing service, `src/tools/indexer`, and the migration tool; subscriber delete, `src/tools/indexer` transcript leak, and `MaxFailLimit` fixed. No reconciliation (out of scope). |
 | 04 Backfill | Backfill work orders (`AnalysisBackfillService`), run a page at a time by the Event Handler (`ContentAnalysisBackfillHandler`); admin endpoints and panel. |
 | 05 Topic scoring | Calculator, save hook, bulk rescore work orders (run by the Event Handler), rebuilt `/admin/topic-scores`, system topic flag. |
 | 06 History retention | Purge service, `Purge History` schedule (02:00 daily), admin panel; purged report links show Not Found. |
@@ -61,7 +61,7 @@ order) and Kafka topic migration `1.0.1`.
   then logs the failure and moves on. There is no reconciliation.
 - **Expired report links.** `GET subscriber/report/instances/{id}/view` answers `204` when the
   instance no longer exists; the "view on web" page shows Not Found.
-- **CoreNLP removed** (compose, `tools/corenlp`, OpenShift `core-nlp`, CI, scripts). A local
+- **CoreNLP removed** (compose, `src/tools/corenlp`, OpenShift `core-nlp`, CI, scripts). A local
   `tno-corenlp` container from before is no longer managed by `make`; remove it with
   `docker rm -f tno-corenlp`.
 - **Unapproved transcripts.** `ContentModel.ToPublishedDocument()` blanks the body *and* the
@@ -96,7 +96,7 @@ order) and Kafka topic migration `1.0.1`.
 ## Deployment order
 
 1. Create the Kafka topics: `make kafka-update` locally, `cd openshift && make kafka-update e=<env>`
-   on OpenShift (partitions per `db/kafka/environments/<env>.conf`). Deploy the API, indexing service, reporting, event-handler, scheduler, and
+   on OpenShift (partitions per `dependencies/kafka/environments/<env>.conf`). Deploy the API, indexing service, reporting, event-handler, scheduler, and
    content-analysis images; apply EF `1.5.6` and `1.5.7` (`make db-update` locally). Requests still
    in `analysis_job` when `1.5.7` drops it are not carried over; run a missing-or-stale backfill over
    the affected range afterwards.
@@ -142,8 +142,8 @@ the old `*_v1.0.10` indexes are kept.
 
 ## Testing
 
-- `dotnet test libs/net/tests/ai` — synthesis, chunking, AI sections, content analyzer (fake LLM).
-- `dotnet test libs/net/tests/dal` — scoring, retention rules, and, with
+- `dotnet test src/tests/ai` — synthesis, chunking, AI sections, content analyzer (fake LLM).
+- `dotnet test src/tests/dal` — scoring, retention rules, and, with
   `TNO_TEST_POSTGRES="Host=localhost:40000;Database=tno;Username=admin;Password=..."`, database
   integration tests of index requests (revisions, rollback), analysis claims and submission (processes applied), AI
   result claims, and purges (they add and remove their own content).

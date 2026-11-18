@@ -4,6 +4,14 @@ from detect_deploy_changes import detect_deploy_changes
 
 
 class DetectDeployChangesTests(unittest.TestCase):
+    def test_api_and_charts_changes_deploy_independently(self):
+        for path, expected in (("src/api/Program.cs", "api"), ("src/charts-api/src/server.ts", "charts-api")):
+            with self.subTest(path=path):
+                result = detect_deploy_changes([path], "changed")
+                self.assertEqual([item["name"] for item in result["build_matrix"]["include"]], [expected])
+                self.assertEqual(result["deploy_api"], expected == "api")
+                self.assertEqual(result["deploy_services"], expected == "charts-api")
+
     def test_all_scope_selects_everything(self):
         result = detect_deploy_changes([], "all")
 
@@ -17,7 +25,7 @@ class DetectDeployChangesTests(unittest.TestCase):
         self.assertEqual(len(result["frontend_matrix"]["include"]), 2)
 
     def test_app_change_builds_app_and_deploys_both_frontends(self):
-        result = detect_deploy_changes(["app/src/editor/App.tsx"], "changed")
+        result = detect_deploy_changes(["src/app/src/editor/App.tsx"], "changed")
 
         self.assertEqual(
             result["build_matrix"]["include"],
@@ -25,8 +33,8 @@ class DetectDeployChangesTests(unittest.TestCase):
                 {
                     "name": "app",
                     "image": "app",
-                    "dockerfile": "app/Dockerfile.nginx",
-                    "context": "./app",
+                    "dockerfile": "src/app/Dockerfile.nginx",
+                    "context": "./src/app",
                     "build_arg_name": "APP_VERSION",
                 }
             ],
@@ -46,7 +54,7 @@ class DetectDeployChangesTests(unittest.TestCase):
         self.assertEqual(result["frontend_matrix"]["include"], [{"name": "subscriber", "deployment": "subscriber"}])
 
     def test_shared_dotnet_change_builds_api_and_dotnet_services(self):
-        result = detect_deploy_changes(["libs/net/entities/Models/Content.cs"], "changed")
+        result = detect_deploy_changes(["src/libs/entities/Models/Content.cs"], "changed")
         build_names = {item["name"] for item in result["build_matrix"]["include"]}
         service_names = {item["name"] for item in result["service_matrix"]["include"]}
 
@@ -61,21 +69,21 @@ class DetectDeployChangesTests(unittest.TestCase):
         self.assertFalse(result["run_db_migration"])
 
     def test_dal_change_runs_db_migration(self):
-        result = detect_deploy_changes(["libs/net/dal/Migrations/20260512034029_1.5.0.cs"], "changed")
+        result = detect_deploy_changes(["src/libs/dal/Migrations/20260512034029_1.5.0.cs"], "changed")
 
         self.assertTrue(result["deploy_api"])
         self.assertTrue(result["deploy_services"])
         self.assertTrue(result["run_db_migration"])
 
     def test_libs_net_dockerfile_change_does_not_run_db_migration(self):
-        result = detect_deploy_changes(["libs/net/Dockerfile"], "changed")
+        result = detect_deploy_changes(["src/libs/Dockerfile"], "changed")
 
         self.assertTrue(result["deploy_api"])
         self.assertTrue(result["deploy_services"])
         self.assertFalse(result["run_db_migration"])
 
     def test_service_change_only_selects_that_service(self):
-        result = detect_deploy_changes(["services/net/indexing/IndexingService.cs"], "changed")
+        result = detect_deploy_changes(["src/services/indexing/IndexingService.cs"], "changed")
 
         self.assertEqual(result["build_matrix"]["include"][0]["name"], "indexing-service")
         self.assertEqual(result["service_matrix"]["include"], [{"name": "indexing-service", "deployment": "indexing-service"}])
@@ -86,14 +94,14 @@ class DetectDeployChangesTests(unittest.TestCase):
     def test_indexing_service_deploys_to_cloud_indexer_in_test_and_prod(self):
         for environment in ("test", "prod"):
             for scope in ("all", "changed"):
-                result = detect_deploy_changes(["services/net/indexing/IndexingService.cs"], scope, environment)
+                result = detect_deploy_changes(["src/services/indexing/IndexingService.cs"], scope, environment)
                 deployments = {item["name"]: item["deployment"] for item in result["service_matrix"]["include"]}
 
                 self.assertEqual(deployments["indexing-service"], "indexing-service-cloud")
                 self.assertNotIn("indexing-service", deployments.values())
 
     def test_indexing_service_deploys_to_local_indexer_in_dev(self):
-        result = detect_deploy_changes(["services/net/indexing/IndexingService.cs"], "changed", "dev")
+        result = detect_deploy_changes(["src/services/indexing/IndexingService.cs"], "changed", "dev")
 
         self.assertEqual(result["service_matrix"]["include"], [{"name": "indexing-service", "deployment": "indexing-service"}])
 

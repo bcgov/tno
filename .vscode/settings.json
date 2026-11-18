@@ -16,7 +16,6 @@
     "Idir",
     "insertable",
     "Keycloak",
-    "kowl",
     "Kustomization",
     "kustomize",
     "notnull",
@@ -31,7 +30,7 @@
   "editor.bracketPairColorization.enabled": false,
   "editor.semanticHighlighting.enabled": false,
   "editor.suggestSelection": "first",
-  // Import order is owned by Prettier (@ianvs/prettier-plugin-sort-imports, app/.prettierrc.json).
+  // Import order is owned by Prettier (@ianvs/prettier-plugin-sort-imports, src/app/.prettierrc.json).
   // VS Code's TypeScript "Organize Imports" sorts differently and would fight it on every save,
   // so it is disabled here; format on save sorts, and Oxlint's fixes run explicitly.
   "editor.codeActionsOnSave": {
@@ -56,7 +55,7 @@
     }
   },
   "editor.quickSuggestionsDelay": 500,
-  // Oxlint (oxc.oxc-vscode) lints app/ with app/.oxlintrc.json; Prettier resolves from app/node_modules.
+  // Oxlint (oxc.oxc-vscode) lints src/app/ with src/app/.oxlintrc.json; Prettier resolves from src/app/node_modules.
   "oxc.enable": true,
   "editor.tabSize": 2,
   "editor.mouseWheelZoom": true,

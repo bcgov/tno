@@ -1,8 +1,8 @@
 # Elasticsearch Migration 1.0.11
 
 Operations runbook for running Elasticsearch migration 1.0.11 in OpenShift. For the ordered steps and commands, use the
-[1.0.11 checklist](./1.0.11.md). How the tool works internally (task reconnection, repair, alias cutover, rollback)
-is described in the [tool README](../../../tools/elastic/migration/README.md).
+[1.0.11 checklist](1.0.11.md). How the tool works internally (task reconnection, repair, alias cutover, rollback)
+is described in the [tool README](../../../src/tools/elastic/migration/README.md).
 
 ## What the Migration Does
 
@@ -25,7 +25,7 @@ There are two ways to run it:
   [second indexing service](#second-indexing-service), started after `prepare`, writes the same changes into the new
   indexes while they are copied and verified. Every write is versioned by `projectionRevision`, so the two services,
   the copy and the repairs can overlap in any order. Search stays current throughout. The
-  [1.0.11 checklist](./1.0.11.md) follows this way.
+  [1.0.11 checklist](1.0.11.md) follows this way.
 - **Single run, indexing off.** The indexing service that writes to the migrated cluster (`indexing-service` in DEV,
   `indexing-service-cloud` in TEST and PROD) is scaled to 0 and one Job runs every step. Content changes wait in the
   Kafka `index` topic, kept for 7 days, and are indexed into the new indexes when indexing is turned back on after
@@ -42,7 +42,7 @@ There are two ways to run it:
 Only the primary cluster is migrated. TEST and PROD still run a local OpenShift `elastic` StatefulSet and its
 `indexing-service`, which are retired before the migration and are not migrated. `indexing-service-cloud` then becomes
 the only indexing service and needs `INDEX_ONLY=false`; the steps are in
-[1.0.11 checklist 3.1](./1.0.11.md#31-pause-indexing-and-retire-the-local-cluster).
+[1.0.11 checklist 3.1](1.0.11.md#31-pause-indexing-and-retire-the-local-cluster).
 
 ### State on 2026-10-09
 
@@ -208,11 +208,11 @@ on, so it writes to the same cluster as the migration. The `folder` messages sto
 indexing image with that change; an older image forwards them, so `folder-collection` handles each change twice.
 
 Start it after `prepare` and before `copy`, so no change made during the copy is missed. The
-[1.0.11 checklist](./1.0.11.md) does this during a short pause with every indexing service stopped, and first sets the
+[1.0.11 checklist](1.0.11.md) does this during a short pause with every indexing service stopped, and first sets the
 `IndexingMigration` group to the live group's positions, so both start from the same message (step 3 below). Without
 a pause, skip step 3: a new group starts at the newest message, and `verify` repairs anything in between.
 
-`syncgroup` and `lag` are defined in [section 0 of the checklist](./1.0.11.md#0-set-up-your-shell). The live group is
+`syncgroup` and `lag` are defined in [section 0 of the checklist](1.0.11.md#0-set-up-your-shell). The live group is
 `Indexing` in DEV and `IndexingCloud` in TEST and PROD; `useenv` sets it as `$G`.
 
 ```bash

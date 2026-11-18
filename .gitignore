@@ -8,16 +8,16 @@ bash.exe.stackdump
 *.mdc
 .scannerwork/
 .sonarqube/
-auth/keycloak/config/hsperfdata_jboss/
-auth/keycloak/config/*.log
+dependencies/keycloak/config/hsperfdata_jboss/
+dependencies/keycloak/config/*.log
 .DS_Store
 /misc
 /capture
 /clips
 ~
 *.class
-/services/net/image/keys
-/services/net/image/data
+/src/services/image/keys
+/src/services/image/data
 *.lscache
 
 **/[Bb]in/
@@ -40,4 +40,15 @@ openshift/kustomize/.migration-backup/
 !openshift/kustomize/**/overlays/**/*-deployment-update.yaml
 
 # Left over in existing checkouts from the removed tno-core package (dist, node_modules). Safe to delete.
+/src/libs/npm/
+
+# Ignored artifacts left at the former paths after pulling the folder restructure.
+/auth/keycloak/config/hsperfdata_jboss/
+/auth/keycloak/config/*.log
+/services/net/image/keys/
+/services/net/image/data/
 /libs/npm/
+
+# Ignored artifacts left by the intermediate src/services/net layout.
+/src/services/net/image/keys/
+/src/services/net/image/data/

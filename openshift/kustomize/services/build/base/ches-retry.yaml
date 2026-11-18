@@ -45,7 +45,7 @@ spec:
     type: Docker
     dockerStrategy:
       imageOptimizationPolicy: SkipLayers
-      dockerfilePath: services/net/ches-retry/Dockerfile
+      dockerfilePath: src/services/ches-retry/Dockerfile
   output:
     to:
       kind: DockerImage

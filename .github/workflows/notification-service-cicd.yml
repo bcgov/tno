@@ -5,15 +5,15 @@ on:
   pull_request:
     branches: [dev, master]
     paths:
-      - services/net/notification/**
-      - libs/net/**
+      - src/services/notification/**
+      - src/libs/**
       - openshift/kustomize/services/notification/**
       - .github/workflows/notification-service-cicd.yml
   push:
     branches: [dev, master, notification-service]
     paths:
-      - services/net/notification/**
-      - libs/net/**
+      - src/services/notification/**
+      - src/libs/**
       - openshift/kustomize/services/notification/**
       - .github/workflows/notification-service-cicd.yml
 
@@ -30,8 +30,8 @@ jobs:
     uses: ./.github/workflows/_reusable-dotnet-cicd.yml
     with:
       image_name: notification-service
-      csproj_path: services/net/notification/TNO.Services.Notification.csproj
-      dockerfile: services/net/notification/Dockerfile
+      csproj_path: src/services/notification/TNO.Services.Notification.csproj
+      dockerfile: src/services/notification/Dockerfile
       component: notification-service
       deployment_name: notification-service
       kustomize_dev_path: openshift/kustomize/services/notification/overlays/dev

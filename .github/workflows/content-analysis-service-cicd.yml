@@ -5,15 +5,15 @@ on:
   pull_request:
     branches: [dev, master]
     paths:
-      - services/net/content-analysis/**
-      - libs/net/**
+      - src/services/content-analysis/**
+      - src/libs/**
       - openshift/kustomize/services/content-analysis/**
       - .github/workflows/content-analysis-service-cicd.yml
   push:
     branches: [dev, master, content-analysis-service]
     paths:
-      - services/net/content-analysis/**
-      - libs/net/**
+      - src/services/content-analysis/**
+      - src/libs/**
       - openshift/kustomize/services/content-analysis/**
       - .github/workflows/content-analysis-service-cicd.yml
 
@@ -30,8 +30,8 @@ jobs:
     uses: ./.github/workflows/_reusable-dotnet-cicd.yml
     with:
       image_name: content-analysis-service
-      csproj_path: services/net/content-analysis/TNO.Services.ContentAnalysis.csproj
-      dockerfile: services/net/content-analysis/Dockerfile
+      csproj_path: src/services/content-analysis/TNO.Services.ContentAnalysis.csproj
+      dockerfile: src/services/content-analysis/Dockerfile
       component: content-analysis-service
       deployment_name: content-analysis-service
       kustomize_dev_path: openshift/kustomize/services/content-analysis/overlays/dev

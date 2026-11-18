@@ -4,8 +4,8 @@
 
 - `docker-compose.yml`
 - `docker-compose.override.yml`
-- `db/kafka/docker-compose.yml`
-- `services/docker-compose.yml`
+- `dependencies/kafka/docker-compose.yml`
+- `src/services/docker-compose.yml`
 
 ## Recommended (Make Wrapper)
 
@@ -25,7 +25,7 @@ read when the container is **created**. After editing any `.env`, recreate the c
 
 ```bash
 docker-compose -f docker-compose.yml -f docker-compose.override.yml \
-  -f db/kafka/docker-compose.yml -f services/docker-compose.yml up -d <service>
+  -f dependencies/kafka/docker-compose.yml -f src/services/docker-compose.yml up -d <service>
 ```
 
 Compose detects the env change and recreates only that container (no image rebuild needed).
@@ -34,10 +34,10 @@ Verify with `docker exec tno-<service> printenv <VAR>`.
 ## Service Names
 
 - `docker-compose.yml` — `database`, `keycloak`, `elastic`, `api`, `charts`, `editor`,
-  `subscriber` (both build `app/`; `APP_MODE` picks the design), `nginx`, `ssh`, `oracle`, `oracleclient`, `autoheal`, `indexer`,
+  `subscriber` (both build `src/app/`; `APP_MODE` picks the design), `nginx`, `ssh`, `oracle`, `oracleclient`, `autoheal`, `indexer`,
   `backup-service`
-- `db/kafka/docker-compose.yml` — `broker`, `kafka-ui`
-- `services/docker-compose.yml` — `syndication`, `fileupload`, `image`, `filemonitor`, `content`,
+- `dependencies/kafka/docker-compose.yml` — `broker`, `kafka-ui`
+- `src/services/docker-compose.yml` — `syndication`, `fileupload`, `image`, `filemonitor`, `content`,
   `contentmigration`, `indexing`, `transcription`, `auto-clipper`, `notification`,
   `reporting`, `folder-collection`, `automation`, `content-analysis`, `ffmpeg`, `scheduler`,
   `event-handler`, `elasticsearch-mcp`
@@ -46,14 +46,14 @@ Regenerate the list rather than trusting this one to stay current:
 
 ```bash
 docker-compose -f docker-compose.yml -f docker-compose.override.yml \
-  -f db/kafka/docker-compose.yml -f services/docker-compose.yml \
+  -f dependencies/kafka/docker-compose.yml -f src/services/docker-compose.yml \
   --profile all config --services | sort
 ```
 
 `--profile all` omits services gated behind their own profile (e.g. `indexer`); swap in that
 profile name, or read the compose file, when you need one of those.
 
-`ches-retry` has a `services/net/` project but **no** compose service — build and run it directly.
+`ches-retry` has a `src/services/` project but **no** compose service — build and run it directly.
 
 ## Direct Docker Compose Equivalent
 
@@ -62,8 +62,8 @@ docker-compose \
   --env-file .env \
   -f docker-compose.yml \
   -f docker-compose.override.yml \
-  -f db/kafka/docker-compose.yml \
-  -f services/docker-compose.yml \
+  -f dependencies/kafka/docker-compose.yml \
+  -f src/services/docker-compose.yml \
   up -d
 ```
 
@@ -93,10 +93,10 @@ docker-compose \
 
 | Changed | Rebuild |
 | --- | --- |
-| `services/net/<name>/` | `make refresh n=<name>` |
-| `api/net/` | `make refresh n=api` |
-| `libs/net/**` | `api` plus every service that consumes the change. `libs/net/models/Areas/Admin/**` is served to the UIs *by the API* — an editor-visible change there needs `api`, not `editor`. |
-| `app/src/`, `app/public/`, `app/*.html` | nothing — the `editor` and `subscriber` containers bind-mount them and Vite hot-reloads. Only changes outside those (deps, Dockerfile, `vite.config.mts`) need `make refresh n=editor` / `n=subscriber`. |
+| `src/services/<name>/` | `make refresh n=<name>` |
+| `src/api/` | `make refresh n=api` |
+| `src/libs/**` | `api` plus every service that consumes the change. `src/libs/models/Areas/Admin/**` is served to the UIs *by the API* — an editor-visible change there needs `api`, not `editor`. |
+| `src/app/src/`, `src/app/public/`, `src/app/*.html` | nothing — the `editor` and `subscriber` containers bind-mount them and Vite hot-reloads. Only changes outside those (deps, Dockerfile, `vite.config.mts`) need `make refresh n=editor` / `n=subscriber`. |
 
 Rebuilding `api` takes the API down for several minutes. The .NET services treat that as a
 critical failure — `The service is stopping: 'RequestFailed'`, then a ~120s restart backoff.

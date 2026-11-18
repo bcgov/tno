@@ -2,15 +2,15 @@
   "folders": [
     {
       "name": "API",
-      "path": "api/net"
+      "path": "src/api"
     },
     {
       "name": "Libraries",
-      "path": "libs/net"
+      "path": "src/libs"
     },
     {
       "name": "Services",
-      "path": "services/net"
+      "path": "src/services"
     }
   ]
 }

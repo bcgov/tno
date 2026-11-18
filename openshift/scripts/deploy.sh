@@ -435,7 +435,7 @@ if [[ "$name" == "db-migration" || "$name" == "elastic-migration" ]]; then
   fi
 
   # The connection is assembled by TNOContextFactory from three values (see
-  # libs/net/dal/TNOContextFactory.cs:76-80). Read where they come from off the live api
+  # src/libs/dal/TNOContextFactory.cs:76-80). Read where they come from off the live api
   # StatefulSet rather than hard-coding them: the credential secret is named differently in
   # every environment (montford in dev, mooncrest in test, moonstep in prod), and the
   # 'database' secret named in api/base/statefulset.yaml is stale.

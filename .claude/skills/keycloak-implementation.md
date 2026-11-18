@@ -2,11 +2,11 @@
 
 ## Where Keycloak Is Implemented
 
-- Container/runtime config: `auth/keycloak/**`
-- API auth wiring: `api/net/Program.cs`
-- Keycloak helper layer: `api/net/Keycloak/**`
-- Shared Keycloak client library: `libs/net/keycloak/**`
-- Admin endpoints for sync/ops: `api/net/Areas/Admin/Controllers/KeycloakController.cs`
+- Container/runtime config: `dependencies/keycloak/**`
+- API auth wiring: `src/api/Program.cs`
+- Keycloak helper layer: `src/api/Keycloak/**`
+- Shared Keycloak client library: `src/libs/keycloak/**`
+- Admin endpoints for sync/ops: `src/api/Areas/Admin/Controllers/KeycloakController.cs`
 
 ## API Authentication Flow
 
@@ -28,21 +28,21 @@
 ## Local Setup Notes
 
 - Keycloak depends on Postgres in compose.
-- Realm import files live in `auth/keycloak/config` and mount into container.
+- Realm import files live in `dependencies/keycloak/config` and mount into container.
 - After first startup, verify realm exists at `http://localhost:40001`.
-- Update API Keycloak secrets using `./tools/scripts/kc-key-update.sh` when needed.
+- Update API Keycloak secrets using `./src/tools/scripts/kc-key-update.sh` when needed.
 
 ## Local Dev Auth — Verified Working Config (2026-10)
 
 Local Keycloak is reached through **three different hostnames**, so JWTs arrive at the API with
 three different `iss` claims. All must be listed in `Keycloak__Issuer` (CSV → `ValidIssuers`) in
-`api/net/.env` or the API returns 401 for valid tokens:
+`src/api/.env` or the API returns 401 for valid tokens:
 
 ```
 Keycloak__Issuer=http://localhost:40001/realms/mmi,http://host.docker.internal:40001/realms/mmi,http://localhost:8080/realms/mmi,http://keycloak:8080/realms/mmi,mmi-app,mmi-service-account
 ```
 
-- `localhost:40001` — browser logins (both app designs read `/keycloak.json`, `app/public/shared/keycloak.json` locally)
+- `localhost:40001` — browser logins (both app designs read `/keycloak.json`, `src/app/public/shared/keycloak.json` locally)
 - `host.docker.internal:40001` / `localhost:8080` — .NET services fetching service-account tokens
 - `mmi-app,mmi-service-account` — production entries; keep them
 
@@ -59,11 +59,11 @@ the configured `ValidIssuers`, and the discovery document's issuer side by side.
 old environment; use `docker-compose <the four -f files> up -d api`. Verify with
 `docker exec tno-api printenv Keycloak__Issuer`.
 
-### Service-account secrets in `services/net/*/.env`
+### Service-account secrets in `src/services/*/.env`
 
 Generated `.env` files ship with the placeholder `{YOU WILL NEED TO GET THIS FROM KEYCLOAK}` in
 `Auth__Keycloak__Secret`. The real local secret is the `mmi-service-account` client `secret` in
-`auth/keycloak/config/realm-export.json`. Symptom when unset: Keycloak logs
+`dependencies/keycloak/config/realm-export.json`. Symptom when unset: Keycloak logs
 `CLIENT_LOGIN_ERROR ... invalid_client_credentials` every ~5s and the service gets 401s from the API.
 
 Some older `.env` files also carry the pre-rename realm: `Auth__OIDC__Token=/realms/tno/...` and
@@ -73,7 +73,7 @@ Some older `.env` files also carry the pre-rename realm: `Auth__OIDC__Token=/rea
 
 ### Local test credentials
 
-- Keycloak admin console (`master` realm): `admin` / `password` (see `auth/keycloak/.env`)
+- Keycloak admin console (`master` realm): `admin` / `password` (see `dependencies/keycloak/.env`)
 - Realm `mmi` seeded users: `editor`, `admin`, `subscriber` — password `password`. Direct
   password grants fail with `resolve_required_actions` (browser login works fine); for API
   testing use client credentials instead:

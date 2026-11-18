@@ -1,18 +1,18 @@
 name: React Application
 
-# One project (app/) holds both designs; one image serves either, chosen by APP_MODE.
+# One project (src/app/) holds both designs; one image serves either, chosen by APP_MODE.
 on:
   workflow_dispatch:
   pull_request:
     branches: [dev, master]
     paths:
-      - app/**
+      - src/app/**
       - openshift/kustomize/app/**
       - .github/workflows/react-app.yml
   push:
     branches: [dev, master]
     paths:
-      - app/**
+      - src/app/**
       - openshift/kustomize/app/**
       - .github/workflows/react-app.yml
 
@@ -25,7 +25,7 @@ permissions:
   security-events: write
 
 env:
-  WORKING_DIRECTORY: ./app
+  WORKING_DIRECTORY: ./src/app
   IMAGE_NAME: app
   OPENSHIFT_SERVER: https://api.silver.devops.gov.bc.ca:6443
   OPENSHIFT_TOOLS_NAMESPACE: 9b301c-tools
@@ -37,16 +37,16 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: app
+        working-directory: src/app
     steps:
       - uses: actions/checkout@v7
 
       - name: Use Node.js from .nvmrc
         uses: actions/setup-node@v7
         with:
-          node-version-file: app/.nvmrc
+          node-version-file: src/app/.nvmrc
           cache: npm
-          cache-dependency-path: app/package-lock.json
+          cache-dependency-path: src/app/package-lock.json
 
       - name: Install Dependencies
         run: npm ci --no-audit --no-fund
@@ -77,12 +77,12 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build \
-            -f app/Dockerfile.nginx \
+            -f src/app/Dockerfile.nginx \
             --build-arg NODE_IMAGE=node:26-bookworm-slim \
             --build-arg NGINX_IMAGE=nginxinc/nginx-unprivileged:1.24 \
             --build-arg APP_VERSION=${{ github.sha }} \
             -t app:contract \
-            ./app
+            ./src/app
 
       - name: Check both designs, and that a missing or invalid APP_MODE stops the container
         run: |
@@ -103,8 +103,8 @@ jobs:
             curl -fsS -o /dev/null "$url/monaco/vs/loader.js"
             test "$(curl -s -o /dev/null -w '%{http_code}' "$url/_$mode/index.html")" = 404
           done
-          cmp <(curl -fsS "http://localhost:$(docker port app-editor 8080 | head -1 | sed 's/.*://')/favicon.ico") app/public/editor/favicon.ico
-          cmp <(curl -fsS "http://localhost:$(docker port app-subscriber 8080 | head -1 | sed 's/.*://')/favicon.ico") app/public/subscriber/favicon.ico
+          cmp <(curl -fsS "http://localhost:$(docker port app-editor 8080 | head -1 | sed 's/.*://')/favicon.ico") src/app/public/editor/favicon.ico
+          cmp <(curl -fsS "http://localhost:$(docker port app-subscriber 8080 | head -1 | sed 's/.*://')/favicon.ico") src/app/public/subscriber/favicon.ico
           for value in "" "admin"; do
             set +e
             docker run --rm -e APP_MODE="$value" app:contract
@@ -136,10 +136,10 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build \
-            -f app/Dockerfile.nginx \
+            -f src/app/Dockerfile.nginx \
             -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
             --build-arg APP_VERSION=${{ github.sha }} \
-            ./app
+            ./src/app
 
       - name: Trivy Container Scan
         uses: ./.github/actions/trivy-scan
@@ -235,10 +235,10 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build \
-            -f app/Dockerfile.nginx \
+            -f src/app/Dockerfile.nginx \
             -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
             --build-arg APP_VERSION=${{ github.sha }} \
-            ./app
+            ./src/app
 
       - name: Trivy Container Scan
         uses: ./.github/actions/trivy-scan

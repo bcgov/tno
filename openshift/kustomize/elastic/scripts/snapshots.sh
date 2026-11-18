@@ -5,7 +5,7 @@
 #
 # Targets the OpenShift cluster by default (namespace $NS, default 9b301c-dev; `oc login` first).
 # --local targets the docker-compose container ($LOCAL_CONTAINER, default tno-elastic) and reads
-# ELASTIC_PASSWORD from db/elasticsearch/.env when it is not already set.
+# ELASTIC_PASSWORD from dependencies/elasticsearch/.env when it is not already set.
 #
 # Elasticsearch snapshot repository (works on 7.17 and 8.x):
 #   setup                     Register the 'snapshots' repository, verify every node can write to it,
@@ -49,7 +49,7 @@ if [ "${1:-}" = "--local" ]; then
 fi
 
 if $LOCAL && [ -z "${ELASTIC_PASSWORD+x}" ]; then
-  ENV_FILE="$(git rev-parse --show-toplevel 2>/dev/null || pwd)/db/elasticsearch/.env"
+  ENV_FILE="$(git rev-parse --show-toplevel 2>/dev/null || pwd)/dependencies/elasticsearch/.env"
   if [ -f "$ENV_FILE" ]; then
     ELASTIC_PASSWORD="$(grep -E '^ELASTIC_PASSWORD=' "$ENV_FILE" | cut -d= -f2- | tr -d "'\"")"
   fi

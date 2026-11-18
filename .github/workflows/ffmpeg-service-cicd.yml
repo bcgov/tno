@@ -5,15 +5,15 @@ on:
   pull_request:
     branches: [dev, master]
     paths:
-      - services/net/ffmpeg/**
-      - libs/net/**
+      - src/services/ffmpeg/**
+      - src/libs/**
       - openshift/kustomize/services/ffmpeg/**
       - .github/workflows/ffmpeg-service-cicd.yml
   push:
     branches: [dev, master, ffmpeg-service]
     paths:
-      - services/net/ffmpeg/**
-      - libs/net/**
+      - src/services/ffmpeg/**
+      - src/libs/**
       - openshift/kustomize/services/ffmpeg/**
       - .github/workflows/ffmpeg-service-cicd.yml
 
@@ -26,8 +26,8 @@ jobs:
     uses: ./.github/workflows/_reusable-dotnet-cicd.yml
     with:
       image_name: ffmpeg-service
-      csproj_path: services/net/ffmpeg/TNO.Services.FFmpeg.csproj
-      dockerfile: services/net/ffmpeg/Dockerfile
+      csproj_path: src/services/ffmpeg/TNO.Services.FFmpeg.csproj
+      dockerfile: src/services/ffmpeg/Dockerfile
       component: ffmpeg-service
       deployment_name: ffmpeg-service
       kustomize_dev_path: openshift/kustomize/services/ffmpeg/overlays/dev

@@ -10,14 +10,14 @@ Use this skill when validating TNO changes before a commit, push, or PR, or inve
 - For API changes, run with .NET 10:
 
   ```bash
-  dotnet format api/net/TNO.API.csproj --verify-no-changes
-  dotnet build api/net/TNO.API.csproj --configuration Release --no-incremental
-  dotnet test libs/net/tests/api/TNO.Test.API.csproj --configuration Release
+  dotnet format src/api/TNO.API.csproj --verify-no-changes
+  dotnet build src/api/TNO.API.csproj --configuration Release --no-incremental
+  dotnet test src/tests/api/TNO.Test.API.csproj --configuration Release
   ```
 
 - Keep documentation generation enabled. The API project treats missing documentation, malformed XML, unmatched/missing parameter tags, invalid `cref` references, and misplaced comments as errors (CS1570, CS1572, CS1573, CS1574, CS1584, CS1587, CS1591). Do not suppress these diagnostics or remove documentation generation to pass.
 - Read the compiler output, not only its exit code. `dotnet format` does not replace compiler XML checks; an incremental build may skip compilation and hide warnings. Fix new warnings before committing. When asked to clear XML warnings, fix all reported XML warnings even if they predate the branch.
-- For `app/` changes (editor or subscriber design, or `src/shared`), run `npm run lint`, `npm run check`, `npm run typecheck`, relevant tests (`npm test`), and `npm run build` from `app/`. Verify layout in a real browser when CSS changes; jsdom cannot validate alignment.
+- For `src/app/` changes (editor or subscriber design, or `src/shared`), run `npm run lint`, `npm run check`, `npm run typecheck`, relevant tests (`npm test`), and `npm run build` from `src/app/`. Verify layout in a real browser when CSS changes; jsdom cannot validate alignment.
 
 ## GitHub verification
 

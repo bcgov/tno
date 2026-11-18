@@ -52,15 +52,15 @@ This can be helpful if your computer's performance is unable to support developm
 
 | Dependency                                                                             |  Version | Description                                                |
 | -------------------------------------------------------------------------------------- | -------: | ---------------------------------------------------------- |
-| [Node](https://nodejs.org/en/download/)                                                |      v26 | `app/` (read from `app/.nvmrc`); `api/node` still uses v18 |
+| [Node](https://nodejs.org/en/download/)                                                |      v26 | `src/app/` (read from `src/app/.nvmrc`); `src/charts-api` still uses v18 |
 | [nvm](https://github.com/coreybutler/nvm-windows#node-version-manager-nvm-for-windows) |          | Required if you need to support different versions of node |
-| [npm](https://docs.npmjs.com/cli/configuring-npm/install)                              |      11+ | Ships with Node 26; the package manager for `app/`         |
-| [yarn](https://yarnpkg.com/getting-started/install)                                    |    3.2.0 | Only for `api/node` (charts API)                           |
+| [npm](https://docs.npmjs.com/cli/configuring-npm/install)                              |      11+ | Ships with Node 26; the package manager for `src/app/`         |
+| [yarn](https://yarnpkg.com/getting-started/install)                                    |    3.2.0 | Only for `src/charts-api` (charts API)                           |
 
 To use the right Node version for the web app.
 
 ```bash
-cd ./app
+cd ./src/app
 nvm install    # reads .nvmrc
 nvm use
 npm ci
@@ -74,7 +74,7 @@ This process will generate `.env` files in the required locations so that the so
 
 If you have installed `make` you can use the helper method.
 If you haven't installed `make` you can use the docker-compose cli.
-Review the `Makefile` and the related scripts `./tools/scripts` to understand how to do this.
+Review the `Makefile` and the related scripts `./src/tools/scripts` to understand how to do this.
 
 When using `make` commands you can review the options by using the following command.
 
@@ -120,7 +120,7 @@ make up n=keycloak
 # Copy the mmi-service-account credentials secret.
 # Copy the mmi-app GUID (get it from the URL path in Keycloak).
 # Run command line tool
-./tools/scripts/kc-key-update.sh -s {your-mmi-service-account-secret} -id {your-mmi-app-GUID}
+./src/tools/scripts/kc-key-update.sh -s {your-mmi-service-account-secret} -id {your-mmi-app-GUID}
 # Setup the database
 make db-update
 
@@ -169,7 +169,7 @@ Then you can login to the web application with one of those default users.
 
 Be aware most of the api endpoints will require a valid JWToken.
 Use Postman to interact with the API independently from the web application.
-Read more [here](../test/README.md).
+Read more [here](../docs/POSTMAN.md).
 
 Use the Nginx proxy to use the Editor and Subscriber apps.
 Nginx provides a reverse proxy, which handles communication with the API.

@@ -2,28 +2,28 @@
 
 ## Runtime Requirements
 
-- Node: `26.x` with npm for `app/` (`app/.nvmrc`); `api/node` stays on Node 18 with Yarn 3
+- Node: `26.x` with npm for `src/app/` (`src/app/.nvmrc`); `src/charts-api` stays on Node 18 with Yarn 3
 - .NET: `net10.0` projects across API/services/libs
-- Bash: scripts under `tools/scripts/**` and build helpers
+- Bash: scripts under `src/tools/scripts/**` and build helpers
 - Python: utility scripts only (keep dependencies minimal)
 
 ## C# (.NET)
 
-- Use DI and options binding patterns already used in `api/net/Program.cs`.
-- Keep controllers under `api/net/Areas/**/Controllers` and business logic in services/helpers.
+- Use DI and options binding patterns already used in `src/api/Program.cs`.
+- Keep controllers under `src/api/Areas/**/Controllers` and business logic in src/services/helpers.
 - Use nullable reference types and async/await patterns consistently.
 - Structured logging does not sanitize field values. Use fixed labels for allowlisted choices and remove CR/LF from request-derived text before logging. Do not pass email delivery exceptions to application logs when they may contain recipients or message bodies; retain a safe failure event and test that private data is absent.
 - Document public/protected members with meaningful XML summaries or appropriate `inheritdoc`. Keep comments immediately before the member or its attributes. When signatures change, update every `param`/`typeparam` tag to match the actual names and resolve `cref` references with an import or qualified type name.
 - API XML diagnostics CS1570, CS1572, CS1573, CS1574, CS1584, CS1587, and CS1591 are build errors. Do not suppress them or disable documentation generation.
 - Before committing, run the CI formatter, a fresh Release build, and relevant tests with the CI SDK. Inspect compiler warnings as well as errors; `dotnet format` alone does not validate XML documentation. See the [build verification workflow](../../.codex/skills/build-verify.md).
-- Database rule: add a new migration in `db/postgres/` for schema changes.
+- Database rule: add a new migration in `dependencies/postgres/` for schema changes.
 
 ## TypeScript (React + Node)
 
 - Prefer typed models and hooks; avoid `any` unless unavoidable.
 - Frontend conventions: Redux Toolkit slices/hooks, Formik controls, and `Show` from `@/shared`; dates through `@/shared/utils/date` (Day.js).
 - Keep Oxlint and Prettier passing (Prettier sorts imports via `@ianvs/prettier-plugin-sort-imports`).
-- Validate with (from `app/`): `npm run lint`, `npm run check`, `npm run typecheck`, `npm test`, `npm run build`.
+- Validate with (from `src/app/`): `npm run lint`, `npm run check`, `npm run typecheck`, `npm test`, `npm run build`.
 
 ## JavaScript
 
@@ -42,7 +42,7 @@
 - Use `#!/usr/bin/env bash` shebang for new scripts.
 - Use strict mode for new scripts: `set -euo pipefail`.
 - Quote paths/variables, especially with spaces.
-- Prefer reusable scripts in `tools/scripts/` and call them from `Makefile` targets.
+- Prefer reusable scripts in `src/tools/scripts/` and call them from `Makefile` targets.
 
 ## Python
 
@@ -50,7 +50,7 @@
 - Prefer stdlib (`argparse`, `json`, `pathlib`) over new dependencies.
 - Make script behavior explicit and deterministic for CI/local tooling.
 
-## Node (api/node)
+## Node (src/charts-api)
 
 - Keep Chart API in TypeScript and compile via `yarn build`.
 - Runtime entry is compiled output (`node build/server.js`).

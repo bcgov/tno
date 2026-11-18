@@ -7,8 +7,8 @@ You can find all templates files and instructions for Openshift in this folder.
 ## Elasticsearch migration image and deployment
 
 From the repository root, build and push the migration tool to ACR, then run it in DEV as described in the
-[operations runbook](./kustomize/elastic-migration/README.md). How the tool works is in the
-[tool README](../tools/elastic/migration/README.md).
+[operations runbook](kustomize/elastic-migration/README.md). How the tool works is in the
+[tool README](../src/tools/elastic/migration/README.md).
 
 ```bash
 make -C openshift build n=elastic-migration t=latest
@@ -18,7 +18,7 @@ make -C openshift deploy n=elastic-migration e=dev t=latest
 
 The image commands also support `pull n=elastic-migration t=latest` and
 `tag n=elastic-migration f=latest t=dev` (add `r=local` to tag locally).
-Build uses `tools/elastic/migration/Dockerfile` with the repository root as its context.
+Build uses `src/tools/elastic/migration/Dockerfile` with the repository root as its context.
 The build option `e=prod` (the default) selects the Dockerfile variant, whereas deploy's
 `e=dev|test|prod` selects the target namespace.
 
@@ -50,7 +50,7 @@ history (including the inspected TEST/PROD Cloud instances), explicitly pass
 
 Add `p=prepare`, `p=copy`, `p=verify` or `p=cutover` (with `m=`) to run one step of a migration as its
 own Job, which lets a second indexing service keep the new indexes current with no downtime; see the
-[operations runbook](./kustomize/elastic-migration/README.md#run-the-migration).
+[operations runbook](kustomize/elastic-migration/README.md#run-the-migration).
 
 See the runbook for storage checks, partial-index cleanup, task recovery, and validation. The default Job execution
 budget is 24 hours for Elasticsearch and 30 minutes for database migrations; override with
@@ -70,9 +70,9 @@ python3 -m unittest discover -s openshift/scripts/tests -v
 
 ## Kafka topic migrations
 
-Apply the Kafka topic migrations (`db/kafka/migrations`) to an environment's brokers. Log in with
+Apply the Kafka topic migrations (`dependencies/kafka/migrations`) to an environment's brokers. Log in with
 `oc login` first. The settings (partitions, replication factor, topic configuration, per-topic
-overrides) are in `db/kafka/environments/<environment>.conf`; see `db/kafka/README.md`.
+overrides) are in `dependencies/kafka/environments/<environment>.conf`; see `dependencies/kafka/README.md`.
 
 ```bash
 make kafka-update e=dev d=1     # dry run: show what would change
@@ -304,7 +304,7 @@ az login
 az acr login --name bcgov
 
 # Build the image
-docker build --platform linux/amd64 -t bcgov-c4awhwfpcremdbga.azurecr.io/transcription-service:latest -f services/net/transcription/Dockerfile .
+docker build --platform linux/amd64 -t bcgov-c4awhwfpcremdbga.azurecr.io/transcription-service:latest -f src/services/transcription/Dockerfile .
 
 # Tag if required (skip if already tagged above)
 docker push bcgov-c4awhwfpcremdbga.azurecr.io/transcription-service:latest
@@ -333,7 +333,7 @@ Deploy database migration **1.5.13** with the API change. It prevents deleting s
 media types, licenses, and series referenced by content; deleting a contributor instead
 clears the content's contributor reference. The API also refreshes affected search documents.
 
-API deployments now use `services/EMAIL_FAILURE_TO` for `Service__EmailTo`, matching the
+API deployments now use `src/services/EMAIL_FAILURE_TO` for `Service__EmailTo`, matching the
 indexing service. `Service__SendEmailOnFailure=true` enables API index-dispatch alerts;
 CHES configuration and email authorization still apply. Exhausted Elasticsearch write
 retries use the indexing service's existing error-email mechanism. Alerts do not provide

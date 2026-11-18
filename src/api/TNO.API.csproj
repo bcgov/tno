@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>TNO.API</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- Keep XML documentation valid in local builds and CI, including parameter and type references. -->
+    <WarningsAsErrors>$(WarningsAsErrors);CS1570;CS1572;CS1573;CS1574;CS1584;CS1587;CS1591</WarningsAsErrors>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DotNetEnv" Version="3.2.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.3.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.14" />
+    <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="10.2.1" />
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.23.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="10.3.1" />
+    <PackageReference Include="prometheus-net.AspNetCore" Version="8.2.1" />
+    <PackageReference Include="FTTLib.dll" Version="1.1.9" />
+    <PackageReference Include="SSH.NET" Version="2026.0.0" />
+
+
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- [ApiVersion] on every controller resolves from Asp.Versioning. -->
+    <Using Include="Asp.Versioning" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\libs\ches\TNO.Ches.csproj" />
+    <ProjectReference Include="..\libs\core\TNO.Core.csproj" />
+    <ProjectReference Include="..\libs\css\TNO.CSS.csproj" />
+    <ProjectReference Include="..\libs\dal\TNO.DAL.csproj" />
+    <ProjectReference Include="..\libs\kafka\TNO.Kafka.csproj" />
+    <ProjectReference Include="..\libs\keycloak\TNO.Keycloak.csproj" />
+    <ProjectReference Include="..\libs\models\TNO.Models.csproj" />
+    <ProjectReference Include="..\libs\reports\TNO.Reports.csproj" />
+    <ProjectReference Include="..\libs\template\TNO.TemplateEngine.csproj" />
+  </ItemGroup>
+</Project>
