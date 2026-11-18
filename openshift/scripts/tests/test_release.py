@@ -26,10 +26,13 @@ args=sys.argv[1:]
 with open(os.environ['CALLS'], 'a') as f: f.write(json.dumps(args)+'\\n')
 if os.environ.get('FAIL') and os.environ['FAIL'] in ' '.join(args): sys.exit(1)
 if args[0]=='get':
-    if args[1]=='pods': print('{"items":[{"metadata":{"name":"api-0"}}]}')
-    elif 'jsonpath={.status.phase}' in args: print(os.environ.get('PHASE','Succeeded'))
-    elif 'json' in args:
-        print(json.dumps({'metadata':{'generation':4},'spec':{'replicas':3,'selector':{'matchLabels':{'component':'api'}}},'status':{'observedGeneration':4,'readyReplicas':3,'currentRevision':'new','updateRevision':'new'}}))
+    output=args[args.index('-o')+1] if '-o' in args else ''
+    if output=='jsonpath={.status.phase}': print(os.environ.get('PHASE','Succeeded'))
+    elif output=='jsonpath={.spec.replicas}': print('3')
+    elif output.startswith('go-template='): print('component=api,')
+    elif output.startswith('jsonpath={.metadata.generation}'):
+        print(os.environ.get('READINESS','4|4|3|new|new'))
+    elif args[1]=='pods' and output=='name': print('pod/api-0')
 ''')
         self.stub('sleep', '#!/bin/sh\nexit 0\n')
 
@@ -62,6 +65,19 @@ if args[0]=='get':
         result = self.run_script(ROLLOUT, 'test', 'statefulset', 'api', '10s', 'registry/api:sha', FAIL='wait pod')
         self.assertNotEqual(result.returncode, 0)
         self.assertFalse(any('--replicas=3' in c for c in self.calls()))
+
+    def test_statefulset_readiness_requires_observed_generation_and_matching_revision(self):
+        for readiness in ['4|3|3|new|new', '4|4|3|old|new', '4|4|2|new|new', '4||||']:
+            with self.subTest(readiness=readiness):
+                result = self.run_script(ROLLOUT, 'test', 'statefulset', 'api', '0s', READINESS=readiness)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn('readiness timed out', result.stderr)
+
+    def test_rollout_does_not_require_jq_in_the_openshift_cli_image(self):
+        self.stub('jq', '#!/bin/sh\nexit 99\n')
+        for kind, name in [('statefulset', 'api'), ('deployment', 'api-services')]:
+            result = self.run_script(ROLLOUT, 'test', kind, name, '10s')
+            self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_deployment_preserves_replicas_and_requires_rollout_success(self):
         result = self.run_script(ROLLOUT, 'test', 'deployment', 'content-service', FAIL='rollout status')
