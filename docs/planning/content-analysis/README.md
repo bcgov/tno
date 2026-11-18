@@ -70,8 +70,8 @@ Verified against the code; these are the constraints each phase starts from.
 
 | Area | Current behavior |
 | --- | --- |
-| Quote Extraction | Consumes the `index` topic but only acts on `Publish` (`ExtractQuotesOnPublish=true`, `OnIndex=false`). LLM configured in appsettings (Gemini primary, Mistral fallback), not the `llm` table. Rate limiter registered but never called. No transcript-approval check (TODO at `services/net/extract-quotes/ExtractQuotesManager.cs:300`). |
-| Quote persistence | `POST services/contents/{id}/quotes` sends only a SignalR hub message, **no index request**, so new quotes are not searchable until the next re-index. `Quote` has no provenance or offsets. |
+| Quote Extraction | Consumes the `index` topic but only acts on `Publish` (`ExtractQuotesOnPublish=true`, `OnIndex=false`). LLM configured in appsettings (Gemini primary, Mistral fallback), not the `llm` table. Rate limiter registered but never called. No transcript-approval check (TODO at `src/services/extract-quotes/ExtractQuotesManager.cs:300`). |
+| Quote persistence | `POST src/services/contents/{id}/quotes` sends only a SignalR hub message, **no index request**, so new quotes are not searchable until the next re-index. `Quote` has no provenance or offsets. |
 | Content concurrency | `AuditColumns.Version` is an EF concurrency token incremented in `SaveChanges`. Conflicts return HTTP 400. The topics endpoint does not increment it; `UpdateStatusOnly` does (including the indexer's publish); series merge (`ExecuteUpdate`) bypasses it. |
 | Kafka publishing | Always after the database commit — no outbox. A crash or Kafka failure after commit loses the index request. Failed messages are skipped, not retried. |
 | Indexing | Reads latest content from the API, writes full documents to `unpublished_content` and (published) `content` with no versioning. Every index sends a `notify` message and forwards to `folder`. A second `IndexOnly` indexer writes Elastic Cloud, where names are `content` (all) and `published_content`. |
@@ -144,10 +144,10 @@ All values are configuration; the defaults are proposals to confirm before rollo
 
 | Bug | Fix | Phase |
 | --- | --- | --- |
-| `ChoiceIndex == -1` builds all choices but never assigns them, so the AI section renders empty (`libs/net/template/ReportEngine.cs:1062-1071`). | Assign the joined choices. | 1 |
+| `ChoiceIndex == -1` builds all choices but never assigns them, so the AI section renders empty (`src/libs/template/ReportEngine.cs:1062-1071`). | Assign the joined choices. | 1 |
 | Quotes attached through the services API are not re-indexed. | Send an index request after attaching quotes. | 2 |
 | Subscriber content delete never removes the Elasticsearch document. | Send `IndexAction.Delete` after the delete commits. | 3 |
-| `tools/indexer` blanks `Body` after building the model, so unapproved AV transcripts reach the published index (`tools/indexer/IndexerManager.cs:158-159`). | Blank before building, and share the rule with the indexing service. | 3 |
+| `src/tools/indexer` blanks `Body` after building the model, so unapproved AV transcripts reach the published index (`src/tools/indexer/IndexerManager.cs:158-159`). | Blank before building, and share the rule with the indexing service. | 3 |
 | Service appsettings use `MaxFailLimit`, but the option is `MaxFailureLimit`, so the setting is never bound. | Rename the appsettings key in every service. | 3 |
 
 ## Accepted risks

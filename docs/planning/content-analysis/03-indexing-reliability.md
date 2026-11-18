@@ -11,7 +11,7 @@ request can never let an older projection replace a newer one.
   versioning. It commits the Kafka offset even when the Elasticsearch write fails.
 - Two indexers run in PROD: the on-prem indexer and an `IndexOnly` indexer writing Elastic Cloud
   (consumer group `IndexingCloud`, index names `content` and `published_content`).
-- `tools/indexer` and the Elasticsearch migration tool also write documents.
+- `src/tools/indexer` and the Elasticsearch migration tool also write documents.
 
 ## Index requests
 
@@ -36,7 +36,7 @@ request can never let an older projection replace a newer one.
   a newer projection is already indexed and counts as success.
 - Deletes and unpublish deletes pass the same version. Raise `index.gc_deletes` so a delete's
   version outlives the longest redelivery delay.
-- Every writer adopts this: the indexing service (on-prem and cloud), `tools/indexer`, and the
+- Every writer adopts this: the indexing service (on-prem and cloud), `src/tools/indexer`, and the
   migration tool's reindex (destination `version_type: external`).
 - Enable versioning only on indexes rebuilt from the database by an Elasticsearch migration, so no
   document carries an internal version. Run it on both clusters.
@@ -63,9 +63,9 @@ Unchanged by this phase unless listed under bug fixes; recorded so the behavior 
 
 ## Bug fixes
 
-- **Subscriber delete** (`api/net/Areas/Subscriber/Controllers/ContentController.cs`): record a
+- **Subscriber delete** (`src/api/Areas/Subscriber/Controllers/ContentController.cs`): record a
   `Delete` index request so the document is removed.
-- **`tools/indexer` transcript leak** (`tools/indexer/IndexerManager.cs:158-159`): blank the body of
+- **`src/tools/indexer` transcript leak** (`src/tools/indexer/IndexerManager.cs:158-159`): blank the body of
   unapproved AudioVideo content before building the published model, using the same rule as the
   indexing service.
 - **`MaxFailLimit`**: rename the key to `MaxFailureLimit` in every service's appsettings and config
@@ -77,4 +77,4 @@ Unchanged by this phase unless listed under bug fixes; recorded so the behavior 
 - Redelivered and out-of-order index messages cannot regress or resurrect a document.
 - Both clusters (on-prem and Elastic Cloud index names) receive ordered writes.
 - A failed Elasticsearch write is retried, then logged.
-- Subscriber delete removes the document; `tools/indexer` never publishes an unapproved transcript.
+- Subscriber delete removes the document; `src/tools/indexer` never publishes an unapproved transcript.

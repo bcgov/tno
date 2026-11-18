@@ -6,7 +6,7 @@ story.
 
 ## Current behavior
 
-- `ReportEngine.GenerateReportAISectionsAsync` (`libs/net/template/ReportEngine.cs:867-1112`)
+- `ReportEngine.GenerateReportAISectionsAsync` (`src/libs/template/ReportEngine.cs:867-1112`)
   builds one JSON list of every story in the report (full `Body`, `Summary` only when the body is
   empty) and sends it, plus each previous instance, in one chat-completions request per AI
   section. There is no token counting, output limit, or truncation.
@@ -43,7 +43,7 @@ Add to the `llm` table (new EF migration):
 - requests-per-minute and tokens-per-minute limits
 
 A direct-model LLM used by an AI section without these values is a configuration error reported
-on the section. Surface the new fields in the admin LLM form (`app/editor/src/features/admin/llms/`).
+on the section. Surface the new fields in the admin LLM form (`src/app/editor/src/features/admin/llms/`).
 
 For every request:
 
@@ -102,8 +102,8 @@ Extend `ReportSectionSettingsModel` for AI sections:
 - output mode: free text, or topic summary (headings with bullet statements and source lists).
 
 Update the AI section editors in both apps
-(`app/subscriber/src/features/my-reports/edit/settings/template/ReportSectionAI.tsx`,
-`app/editor/src/features/admin/reports/components/ReportSectionAI.tsx`).
+(`src/app/subscriber/src/features/my-reports/edit/settings/template/ReportSectionAI.tsx`,
+`src/app/editor/src/features/admin/reports/components/ReportSectionAI.tsx`).
 
 ## Reporting service
 
@@ -114,7 +114,7 @@ Update the AI section editors in both apps
 ## Bug fix
 
 - `ChoiceIndex == -1` builds the joined choices but never assigns them to `sectionData.Data`
-  (`libs/net/template/ReportEngine.cs:1062-1071`). Assign them.
+  (`src/libs/template/ReportEngine.cs:1062-1071`). Assign them.
 
 ## Tests
 

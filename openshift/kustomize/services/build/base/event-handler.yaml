@@ -45,7 +45,7 @@ spec:
     type: Docker
     dockerStrategy:
       imageOptimizationPolicy: SkipLayers
-      dockerfilePath: services/net/event-handler/Dockerfile
+      dockerfilePath: src/services/event-handler/Dockerfile
   output:
     to:
       kind: DockerImage

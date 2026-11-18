@@ -5,15 +5,15 @@ on:
   pull_request:
     branches: [dev, master]
     paths:
-      - services/net/fileupload/**
-      - libs/net/**
+      - src/services/fileupload/**
+      - src/libs/**
       - openshift/kustomize/cron/fileupload/**
       - .github/workflows/fileupload-cronjob-cicd.yml
   push:
     branches: [dev, master]
     paths:
-      - services/net/fileupload/**
-      - libs/net/**
+      - src/services/fileupload/**
+      - src/libs/**
       - openshift/kustomize/cron/fileupload/**
       - .github/workflows/fileupload-cronjob-cicd.yml
 
@@ -29,8 +29,8 @@ env:
   OPENSHIFT_SERVER: https://api.silver.devops.gov.bc.ca:6443
   ACR_URL: bcgov-c4awhwfpcremdbga.azurecr.io
   IMAGE_NAME: fileupload-service
-  CSPROJ_PATH: services/net/fileupload/TNO.Services.FileUpload.csproj
-  DOCKERFILE: services/net/fileupload/Dockerfile
+  CSPROJ_PATH: src/services/fileupload/TNO.Services.FileUpload.csproj
+  DOCKERFILE: src/services/fileupload/Dockerfile
 
 jobs:
   ci:

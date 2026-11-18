@@ -73,7 +73,7 @@ All corresponding `prod-deployment-update.yaml` files regenerated with new limit
 Run verification script:
 
 ```bash
-./tools/scripts/verify-deployment-resources.sh prod
+./src/tools/scripts/verify-deployment-resources.sh prod
 ```
 
 Expected: 7 services will show limit mismatches (this is correct - we're adding limits)

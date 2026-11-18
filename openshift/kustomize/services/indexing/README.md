@@ -16,10 +16,10 @@ Kustomize for the indexing service, which consumes the Kafka `index` topic and w
 
 The cloud and migration overlays share their changes through components:
 
-- [`components/cloud`](./components/cloud): renames everything to `indexing-service-cloud`, uses the `IndexingCloud`
+- [`components/cloud`](components/cloud): renames everything to `indexing-service-cloud`, uses the `IndexingCloud`
   consumer group, the Cloud index names (`content`, `published_content`), `INDEX_ONLY=false` (it is the only indexing
   service once the OpenShift one is retired) and the `elastic-cloud` credentials. Each `cloud-<environment>` overlay sets the cluster URL, replicas, resources and image.
-- [`components/migration`](./components/migration): renames everything to `indexing-service-migration`, with its own
+- [`components/migration`](components/migration): renames everything to `indexing-service-migration`, with its own
   `IndexingMigration` consumer group starting at the latest message, `INDEX_ONLY=true`, placeholder index names and no
   pods. `migration-dev` builds on `dev`, and `migration-test` and `migration-prod` on the cloud overlays. How to use
   it is in the [Elasticsearch migration runbook](../../elastic-migration/README.md#second-indexing-service).

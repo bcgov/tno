@@ -61,7 +61,42 @@ This repository is a mono-repo containing all relevant documentation, code, and 
 
 ## Links
 
-- [Begin Development](./docs/DEVELOPMENT.md) : Get started and help contribute to the project
+- [Begin Development](docs/DEVELOPMENT.md) : Get started and help contribute to the project
 - [Wiki](https://github.com/bcgov/tno/wiki) : Documentation for this repository
-- [Openshift](./openshift/README.md) : Infrastructure and DevOps
-- [Testing](./test/README.md) : Testing resources
+- [Openshift](openshift/README.md) : Infrastructure and DevOps
+- [.NET tests](src/tests/README.md) : Automated tests and coverage
+- [Playwright](src/playwright-automation/README.md) : Browser and API end-to-end tests
+- [Postman](docs/POSTMAN.md) : Import the API collection and request an access token
+
+## Repository layout and local environment migration
+
+Application code and developer tools live in `src/` (`api`, `charts-api`, `app`, `libs`, `services`,
+`tests`, `playwright-automation`, `tools`). Supporting infrastructure lives directly in `dependencies/` (the former
+contents of `db/`, `auth/`, and `network/`). Deployment manifests remain in `openshift/`.
+
+After pulling the folder restructure, run from the repository root:
+
+```bash
+make move
+make setup
+```
+
+`make move` requires Python 3 and moves ignored `.env`, `.env.*`, and `*.env` files
+from the old directories to their matching new locations, preserving contents and
+permissions. API environments move from either `api/net/` or `src/api/net/` to
+`src/api/`; charts API environments move from either `api/node/` or `src/api/node/`
+to `src/charts-api/`. Library and service environments move from `libs/net/` or
+`src/libs/net/` to `src/libs/`, and from `services/net/` or `src/services/net/` to
+`src/services/`. The obsolete `src/libs/npm/` package tree has been removed and its
+environments are not migrated. Kafka UI environments move directly to `dependencies/kafka-ui/`, including
+from the intermediate `dependencies/kafka/kafka-ui/` location. Obsolete Kowl environments
+are left at their old locations and are not used or migrated. It leaves the root `.env` in place and updates its `DB_CONTEXT` and
+`ORACLE_DB_CONTEXT` overrides when they refer to the old `db/` paths. It skips package
+and build directories. If a destination contains different settings, it stops before
+moving any files: resolve that conflict manually and rerun. Identical copies are left
+in place. Repeated runs are safe. `make setup` also runs this migration before creating
+missing environment files.
+
+Run frontend commands from `src/app` (`nvm use`, `npm ci`, `npm run dev`). The root
+`TNO.sln`, Make targets, and Compose configuration use the new paths. Recreate local
+containers with `make up` to apply the updated bind mounts and environment paths.

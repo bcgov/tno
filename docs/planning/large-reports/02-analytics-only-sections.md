@@ -29,7 +29,7 @@ Out: `byline`/`otherSeries` keyword fields and Razor buckets (phase 3); list-pat
 
 ### Filter
 
-Extract from `ReportService.FindContentWithElasticsearchAsync` (`libs/net/dal/Services/ReportService.cs`
+Extract from `ReportService.FindContentWithElasticsearchAsync` (`src/libs/dal/Services/ReportService.cs`
 ~lines 1182–1330) the per-section query construction into a reusable method on `ReportService`:
 
 `BuildSectionQuery(Report report, ReportSection section, SectionQueryContext context)` →
@@ -86,7 +86,7 @@ migration deletes them.
 
 ## Entity and migration
 
-`libs/net/entities/ReportInstanceChart.cs`, `AuditColumns`:
+`src/libs/entities/ReportInstanceChart.cs`, `AuditColumns`:
 
 | Column | Type | Notes |
 | --- | --- | --- |
@@ -99,7 +99,7 @@ migration deletes them.
 | `is_truncated` | boolean | any terms overflow |
 | `generated_on` | timestamptz | |
 
-Configuration `libs/net/dal/Configuration/ReportInstanceChartConfiguration.cs` modelled on
+Configuration `src/libs/dal/Configuration/ReportInstanceChartConfiguration.cs` modelled on
 `ReportInstanceContentConfiguration`. `ReportInstance` gains `ICollection<ReportInstanceChart>
 Charts`. `TNOContext` gains `DbSet<ReportInstanceChart> ReportInstanceCharts`.
 
@@ -122,7 +122,7 @@ Writes go through `ReportInstanceService.SaveCharts(long instanceId, IEnumerable
 
 ## API: services area
 
-`api/net/Areas/Services/Controllers/ReportInstanceController.cs`:
+`src/api/Areas/Services/Controllers/ReportInstanceController.cs`:
 
 | Verb and path | Behaviour |
 | --- | --- |
@@ -138,13 +138,13 @@ the phase 1 GET.
 
 ## API: subscriber area
 
-`api/net/Areas/Subscriber/Controllers/ReportController.cs` (route base `api/[area]/reports`):
+`src/api/Areas/Subscriber/Controllers/ReportController.cs` (route base `api/[area]/reports`):
 
 | Verb and path | Behaviour |
 | --- | --- |
 | `POST {id}/sections/{sectionId}/charts/{chartTemplateId}/data` | Body: `ChartDataPreviewRequestModel`. Computes chart data for the section with the **draft** settings and source in the body; nothing is stored. Authorization: report owner, or `report.IsPublic`. Returns `ChartDataModel` (200), or 204 when the source is `useAllContent`/linked and no instance exists yet (the UI then shows test data). 400 for `byline` in aggregate mode or a legacy template with an analytics-only source |
 
-`ChartDataPreviewRequestModel` (`libs/net/models/Areas/Subscriber/Models/Report/`):
+`ChartDataPreviewRequestModel` (`src/libs/models/Areas/Subscriber/Models/Report/`):
 
 | Member | Meaning |
 | --- | --- |
@@ -153,7 +153,7 @@ the phase 1 GET.
 | `FilterId`, `FolderId`, `LinkedReportId` | the form's current data source (nullable) |
 | `InstanceId` | optional; the unsent instance to take ids from for `useAllContent` (default: current instance of the report for this user) |
 
-`api/net/Areas/Subscriber/Controllers/ReportInstanceController.cs`:
+`src/api/Areas/Subscriber/Controllers/ReportInstanceController.cs`:
 
 | Verb and path | Behaviour |
 | --- | --- |
@@ -162,7 +162,7 @@ the phase 1 GET.
 ## Validation (save time)
 
 In `ReportService.AddAndSave`/`UpdateAndSave` validation of a report (where sections are
-validated today, or a new `ReportValidator` in `libs/net/dal`), for every `MediaAnalytics` section
+validated today, or a new `ReportValidator` in `src/libs/dal`), for every `MediaAnalytics` section
 with `FilterId` or `FolderId`:
 
 - every attached chart template must have `Settings.Aggregate == true`, else
@@ -178,13 +178,13 @@ shows the API message if the save is rejected anyway.
 
 ## Subscriber UI
 
-All under `app/subscriber/src/features/my-reports/edit/`.
+All under `src/app/subscriber/src/features/my-reports/edit/`.
 
 ### Live chart preview (template tab)
 
-- `libs/npm/core/src/hooks/api/subscriber/useApiSubscriberReports.ts`: add
+- `src/libs/npm/core/src/hooks/api/subscriber/useApiSubscriberReports.ts`: add
   `getSectionChartData(reportId, sectionId, chartTemplateId, body)` → `IChartData`.
-  `app/subscriber/src/store/hooks/subscriber/useReports.ts`: expose it.
+  `src/app/subscriber/src/store/hooks/subscriber/useReports.ts`: expose it.
 - `settings/template/ReportSectionMediaAnalyticsChart.tsx`: replace the `convertToChart(...)`
   effect with a debounced (400 ms) call to `getSectionChartData` whenever `section.filterId`,
   `section.folderId`, `section.linkedReportId`, `section.settings.useAllContent` or
@@ -199,7 +199,7 @@ All under `app/subscriber/src/features/my-reports/edit/`.
   branch needs it; otherwise generate test `IChartData` directly in `ReportEditContext.tsx`
   (`testDataConfig`, `regenerateTestData`) and delete `convertToChart.ts` too. Keep
   `generateChartOptions.ts`, `calcAutoSize.ts`, `shouldResizeChart.ts`, colour helpers.
-- Update `app/subscriber/src/test-vitest` tests that import the removed utils.
+- Update `src/app/subscriber/src/test-vitest` tests that import the removed utils.
 
 ### Stories tab (`content/stories/ReportSectionMediaAnalytics.tsx`)
 
@@ -216,12 +216,12 @@ story the filter matches. Stories in this section are not listed in the report."
 
 ### "Report too large" copy
 
-`ReportTooLargeException.UserMessage` (`libs/net/core/Exceptions/ReportTooLargeException.cs`)
+`ReportTooLargeException.UserMessage` (`src/libs/core/Exceptions/ReportTooLargeException.cs`)
 becomes: "This report has grown too large to run. Remove stories or narrow the date range and
 filters, then refresh the report before previewing or sending it again. If a section only feeds a
 chart, point the media analytics section at the filter directly and remove the story section; charts
 have no size limit. Existing stories have not been removed." Update the two tests that assert on
-the message (`libs/net/tests/api/ReportSizeValidationTest.cs`, subscriber vitest files matching
+the message (`src/tests/api/ReportSizeValidationTest.cs`, subscriber vitest files matching
 `Report too large`).
 
 ## Worker changes
@@ -236,21 +236,21 @@ rules.
 
 ## Tests
 
-- `libs/net/tests/dal/Services/ReportChartDataServiceTest.cs`: `Filter` source applies every
+- `src/tests/dal/Services/ReportChartDataServiceTest.cs`: `Filter` source applies every
   exclusion `BuildSectionQuery` applies (compare the query sent with the one
   `FindContentWithElasticsearchAsync` sends for the same section, minus `size`/`sort`/`from`,
   plus `aggs`); `Folder` source ids; `reportSection` buckets across one listed and one
   analytics-only section.
-- `libs/net/tests/dal/Services/ReportServiceTest.cs`: `FindContentWithElasticsearchAsync` and
+- `src/tests/dal/Services/ReportServiceTest.cs`: `FindContentWithElasticsearchAsync` and
   `GenerateReportInstanceAsync` skip `MediaAnalytics` sections; `RegenerateReportInstanceSectionAsync`
   on a `MediaAnalytics` section rewrites its snapshot rows only.
-- `libs/net/tests/dal/Services/ReportSizeEstimateTest.cs`: analytics-only section estimates 0.
-- `libs/net/tests/dal/Integration/`: `report_instance_chart` cascade on instance delete; retention
+- `src/tests/dal/Services/ReportSizeEstimateTest.cs`: analytics-only section estimates 0.
+- `src/tests/dal/Integration/`: `report_instance_chart` cascade on instance delete; retention
   count line.
-- `libs/net/tests/api/`: subscriber draft endpoint authorization (owner, public, other user → 403),
+- `src/tests/api/`: subscriber draft endpoint authorization (owner, public, other user → 403),
   204 without instance, 400 for `byline` and for a legacy template with an own filter; save-time
   validation messages.
-- `libs/net/tests/services/`: worker calls `GenerateReportInstanceChartsAsync` once per generated
+- `src/tests/services/`: worker calls `GenerateReportInstanceChartsAsync` once per generated
   instance and `GetReportInstanceChartsAsync` for an existing instance; a chart without a row falls
   back to legacy.
 - Subscriber vitest: `ReportSectionMediaAnalyticsChart` debounces and calls the endpoint, handles
@@ -267,4 +267,4 @@ rules.
 - Regenerating a section or an instance refreshes the stored rows; resend reuses them.
 - The template tab shows the same numbers as the emailed PNG for the same instance.
 - `make db-update` applies the migration; `dotnet test` green; `yarn lint` and `yarn test` green in
-  `app/subscriber`.
+  `src/app/subscriber`.

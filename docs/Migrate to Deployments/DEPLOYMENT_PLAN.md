@@ -29,13 +29,13 @@ The migration script provides an automated, interactive migration process:
 
 ```bash
 # Migrate all services in an environment
-./tools/scripts/migrate-deployments.sh dev
-./tools/scripts/migrate-deployments.sh test
-./tools/scripts/migrate-deployments.sh prod
+./src/tools/scripts/migrate-deployments.sh dev
+./src/tools/scripts/migrate-deployments.sh test
+./src/tools/scripts/migrate-deployments.sh prod
 
 # Migrate a single service
-./tools/scripts/migrate-deployments.sh dev nginx
-./tools/scripts/migrate-deployments.sh test content-service
+./src/tools/scripts/migrate-deployments.sh dev nginx
+./src/tools/scripts/migrate-deployments.sh test content-service
 
 # The script will:
 # 1. Check if DeploymentConfig exists and get current replicas
@@ -68,9 +68,9 @@ The migration script provides an automated, interactive migration process:
 1. **Extract secrets from cluster:**
 
    ```bash
-   ./tools/scripts/extract-cluster-env-files.sh dev
-   ./tools/scripts/extract-cluster-env-files.sh test
-   ./tools/scripts/extract-cluster-env-files.sh prod
+   ./src/tools/scripts/extract-cluster-env-files.sh dev
+   ./src/tools/scripts/extract-cluster-env-files.sh test
+   ./src/tools/scripts/extract-cluster-env-files.sh prod
    ```
 
    - Creates `.env` files for kustomize secretGenerators
@@ -79,9 +79,9 @@ The migration script provides an automated, interactive migration process:
 2. **Generate deployment YAMLs:**
 
    ```bash
-   ./tools/scripts/generate-all-deployment-yamls.sh dev
-   ./tools/scripts/generate-all-deployment-yamls.sh test
-   ./tools/scripts/generate-all-deployment-yamls.sh prod
+   ./src/tools/scripts/generate-all-deployment-yamls.sh dev
+   ./src/tools/scripts/generate-all-deployment-yamls.sh test
+   ./src/tools/scripts/generate-all-deployment-yamls.sh prod
    ```
 
    - Creates `{env}-deployment-update.yaml` files
@@ -97,7 +97,7 @@ The migration script provides an automated, interactive migration process:
 
 4. **Regenerate deployment YAMLs after fixes:**
    ```bash
-   ./tools/scripts/generate-all-deployment-yamls.sh dev
+   ./src/tools/scripts/generate-all-deployment-yamls.sh dev
    ```
 
 ### Migration Execution
@@ -105,7 +105,7 @@ The migration script provides an automated, interactive migration process:
 **Dev Environment (Completed):**
 
 ```bash
-./tools/scripts/migrate-deployments.sh dev
+./src/tools/scripts/migrate-deployments.sh dev
 ```
 
 - Migrated all 24 services in one run
@@ -132,17 +132,17 @@ These services can run multiple instances simultaneously without issues. Safe fo
 
 - `nginx` (reverse proxy)
 - `nginx-reverse-proxy`
-- `app/editor` (frontend)
-- `app/subscriber` (frontend)
+- `src/app/editor` (frontend)
+- `src/app/subscriber` (frontend)
 - `charts` (API)
 - `api` (API)
 - `api-services` (API)
 - `core-nlp` (NLP processing)
-- `services/nlp` (NLP service)
-- `services/image` (image processing)
-- `services/extract-quotes` (quote extraction)
-- `services/ffmpeg` (video processing)
-- `services/transcription` (transcription service)
+- `src/services/nlp` (NLP service)
+- `src/services/image` (image processing)
+- `src/services/extract-quotes` (quote extraction)
+- `src/services/ffmpeg` (video processing)
+- `src/services/transcription` (transcription service)
 
 **Deployment Strategy:** Standard rolling update
 
@@ -157,10 +157,10 @@ These services consume from Kafka topics. **Important discovery:** Kafka partiti
 
 These services require the old DC to be scaled down before the new Deployment starts:
 
-- `services/scheduler` (scheduled tasks)
-- `services/filemonitor` (file monitoring with PVC)
-- `services/syndication` (syndication)
-- `services/image` (image processing)
+- `src/services/scheduler` (scheduled tasks)
+- `src/services/filemonitor` (file monitoring with PVC)
+- `src/services/syndication` (syndication)
+- `src/services/image` (image processing)
 
 **Deployment Strategy:** Scale down first
 
@@ -177,13 +177,13 @@ Result: Brief downtime (~30-60 seconds), clean migration
 
 These services can safely run old and new pods simultaneously:
 
-- `services/content` (content processing)
-- `services/event-handler` (event processing)
-- `services/notification` (notifications)
-- `services/reporting` (report generation)
-- `services/indexing` (Elasticsearch indexing)
-- `services/folder-collection` (folder collection)
-- `services/ches-retry` (email retry)
+- `src/services/content` (content processing)
+- `src/services/event-handler` (event processing)
+- `src/services/notification` (notifications)
+- `src/services/reporting` (report generation)
+- `src/services/indexing` (Elasticsearch indexing)
+- `src/services/folder-collection` (folder collection)
+- `src/services/ches-retry` (email retry)
 
 **Deployment Strategy:** Rolling update
 
@@ -212,7 +212,7 @@ These services support the infrastructure but aren't part of the main applicatio
 - `kafka/kowl` (Kafka UI)
 - `nginx-editor` (Nginx reverse proxy for editor)
 - `nginx-subscriber` (Nginx reverse proxy for subscriber)
-- `tools/psql` (PostgreSQL CLI utility - dev only)
+- `src/tools/psql` (PostgreSQL CLI utility - dev only)
 - `oracle` (Oracle connector - not in dev)
 
 **Deployment Strategy:** Standard deployment
@@ -265,7 +265,7 @@ These services support the infrastructure but aren't part of the main applicatio
 **Command Used:**
 
 ```bash
-./tools/scripts/migrate-deployments.sh dev
+./src/tools/scripts/migrate-deployments.sh dev
 ```
 
 **Services Migrated (in order):**
@@ -363,7 +363,7 @@ These services support the infrastructure but aren't part of the main applicatio
 **Ready to Migrate:**
 
 ```bash
-./tools/scripts/migrate-deployments.sh test
+./src/tools/scripts/migrate-deployments.sh test
 ```
 
 **Expected Duration:** ~2 hours (same as dev)
@@ -398,7 +398,7 @@ These services support the infrastructure but aren't part of the main applicatio
 **Option 1: Single Automated Run (Recommended)**
 
 ```bash
-./tools/scripts/migrate-deployments.sh prod
+./src/tools/scripts/migrate-deployments.sh prod
 ```
 
 - Same process as dev and test
@@ -411,14 +411,14 @@ If more caution is desired:
 
 ```bash
 # Stage 1: Stateless services (off-peak hours)
-./tools/scripts/migrate-deployments.sh prod nginx
-./tools/scripts/migrate-deployments.sh prod editor
-./tools/scripts/migrate-deployments.sh prod subscriber
+./src/tools/scripts/migrate-deployments.sh prod nginx
+./src/tools/scripts/migrate-deployments.sh prod editor
+./src/tools/scripts/migrate-deployments.sh prod subscriber
 # ... etc
 
 # Stage 2: Kafka consumers (maintenance window)
-./tools/scripts/migrate-deployments.sh prod content-service
-./tools/scripts/migrate-deployments.sh prod indexing-service
+./src/tools/scripts/migrate-deployments.sh prod content-service
+./src/tools/scripts/migrate-deployments.sh prod indexing-service
 # ... etc
 ```
 

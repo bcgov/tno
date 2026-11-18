@@ -5,15 +5,15 @@ on:
   pull_request:
     branches: [dev, master]
     paths:
-      - services/net/transcription/**
-      - libs/net/**
+      - src/services/transcription/**
+      - src/libs/**
       - openshift/kustomize/services/transcription/**
       - .github/workflows/transcription-service-cicd.yml
   push:
     branches: [dev, master, transcription-service]
     paths:
-      - services/net/transcription/**
-      - libs/net/**
+      - src/services/transcription/**
+      - src/libs/**
       - openshift/kustomize/services/transcription/**
       - .github/workflows/transcription-service-cicd.yml
 
@@ -30,8 +30,8 @@ jobs:
     uses: ./.github/workflows/_reusable-dotnet-cicd.yml
     with:
       image_name: transcription-service
-      csproj_path: services/net/transcription/TNO.Services.Transcription.csproj
-      dockerfile: services/net/transcription/Dockerfile
+      csproj_path: src/services/transcription/TNO.Services.Transcription.csproj
+      dockerfile: src/services/transcription/Dockerfile
       component: transcription-service
       deployment_name: transcription-service
       kustomize_dev_path: openshift/kustomize/services/transcription/overlays/dev

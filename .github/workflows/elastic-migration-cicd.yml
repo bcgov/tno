@@ -4,13 +4,13 @@ on:
   push:
     branches: [dev, master]
     paths:
-      - 'tools/elastic/**'
-      - 'libs/net/**'
+      - 'src/tools/elastic/**'
+      - 'src/libs/**'
   pull_request:
     branches: [dev, master]
     paths:
-      - 'tools/elastic/**'
-      - 'libs/net/**'
+      - 'src/tools/elastic/**'
+      - 'src/libs/**'
   workflow_dispatch:
 
 concurrency:
@@ -61,16 +61,16 @@ jobs:
           dotnet-version: 10.x
 
       - name: Restore
-        run: dotnet restore "tools/elastic/TNO.Elastic.sln" --configfile NuGet.Config
+        run: dotnet restore "src/tools/elastic/TNO.Elastic.sln" --configfile NuGet.Config
 
       - name: Build Migration Tool
-        run: dotnet build "tools/elastic/migration/TNO.Elastic.Migration.csproj" --configuration Release --no-restore
+        run: dotnet build "src/tools/elastic/migration/TNO.Elastic.Migration.csproj" --configuration Release --no-restore
 
       - name: Test native migration and database reconciliation
         env:
           MMI_ELASTIC_TEST_URL: http://127.0.0.1:19274
           MMI_MIGRATION_TEST_POSTGRES: Host=127.0.0.1;Port=15439;Database=postgres;Username=postgres;Password=migration-test-only
-        run: dotnet test tools/elastic/tests/ --configuration Release
+        run: dotnet test src/tools/elastic/tests/ --configuration Release
 
       - name: Test deployment scripts
         run: python3 -m unittest discover -s openshift/scripts/tests -v
@@ -90,7 +90,7 @@ jobs:
         uses: ./.github/actions/build-scan-push-image
         with:
           image_name: elastic-migration
-          dockerfile: tools/elastic/migration/Dockerfile
+          dockerfile: src/tools/elastic/migration/Dockerfile
           context: .
           source_tag: ${{ github.sha }}
           image_tag: dev
@@ -111,7 +111,7 @@ jobs:
         uses: ./.github/actions/build-scan-push-image
         with:
           image_name: elastic-migration
-          dockerfile: tools/elastic/migration/Dockerfile
+          dockerfile: src/tools/elastic/migration/Dockerfile
           context: .
           source_tag: ${{ github.sha }}
           image_tag: test

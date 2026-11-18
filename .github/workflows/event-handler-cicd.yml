@@ -5,15 +5,15 @@ on:
   pull_request:
     branches: [dev, master]
     paths:
-      - services/net/event-handler/**
-      - libs/net/**
+      - src/services/event-handler/**
+      - src/libs/**
       - openshift/kustomize/services/event-handler/**
       - .github/workflows/event-handler-cicd.yml
   push:
     branches: [dev, master, event-handler]
     paths:
-      - services/net/event-handler/**
-      - libs/net/**
+      - src/services/event-handler/**
+      - src/libs/**
       - openshift/kustomize/services/event-handler/**
       - .github/workflows/event-handler-cicd.yml
 
@@ -26,8 +26,8 @@ jobs:
     uses: ./.github/workflows/_reusable-dotnet-cicd.yml
     with:
       image_name: event-handler-service
-      csproj_path: services/net/event-handler/TNO.Services.EventHandler.csproj
-      dockerfile: services/net/event-handler/Dockerfile
+      csproj_path: src/services/event-handler/TNO.Services.EventHandler.csproj
+      dockerfile: src/services/event-handler/Dockerfile
       component: event-handler-service
       deployment_name: event-handler-service
       kustomize_dev_path: openshift/kustomize/services/event-handler/overlays/dev

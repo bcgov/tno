@@ -5,16 +5,16 @@ on:
   pull_request:
     branches: [dev, master]
     paths:
-      - api/net/**
-      - libs/net/**
+      - src/api/**
+      - src/libs/**
       - openshift/kustomize/api-services/**
       - openshift/kustomize/api/**
       - .github/workflows/api-services-cicd.yml
   push:
     branches: [dev, master, folder-collection]
     paths:
-      - api/net/**
-      - libs/net/**
+      - src/api/**
+      - src/libs/**
       - openshift/kustomize/api-services/**
       - openshift/kustomize/api/**
       - .github/workflows/api-services-cicd.yml
@@ -32,8 +32,8 @@ jobs:
     uses: ./.github/workflows/_reusable-dotnet-cicd.yml
     with:
       image_name: api
-      csproj_path: api/net/TNO.API.csproj
-      dockerfile: api/net/Dockerfile
+      csproj_path: src/api/TNO.API.csproj
+      dockerfile: src/api/Dockerfile
       component: api-services
       deployment_name: api-services
       kustomize_dev_path: openshift/kustomize/api-services/overlays/dev

@@ -12,7 +12,7 @@ spec:
     - name: CONTEXT
       value: ./tno
     - name: DOCKERFILE
-      value: ./api/net/Dockerfile
+      value: ./src/api/Dockerfile
     - name: IMAGE
       value: api
 

@@ -76,9 +76,9 @@ spec:
         - name: COMPONENT
           value: app
         - name: CONTEXT
-          value: $(params.CONTEXT)/app
+          value: $(params.CONTEXT)/src/app
         - name: DOCKERFILE
-          value: $(params.CONTEXT)/app/Dockerfile.nginx
+          value: $(params.CONTEXT)/src/app/Dockerfile.nginx
         - name: IMAGE
           value: app
         - name: IMAGE_TAG

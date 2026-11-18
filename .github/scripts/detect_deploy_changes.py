@@ -5,75 +5,75 @@ from pathlib import Path
 
 
 BUILD_TARGETS = [
-    {"name": "api", "image": "api", "dockerfile": "api/net/Dockerfile", "context": "."},
-    {"name": "charts-api", "image": "charts-api", "dockerfile": "api/node/Dockerfile", "context": "api/node"},
+    {"name": "api", "image": "api", "dockerfile": "src/api/Dockerfile", "context": "."},
+    {"name": "charts-api", "image": "charts-api", "dockerfile": "src/charts-api/Dockerfile", "context": "src/charts-api"},
     {
         # Both frontend designs (editor and subscriber) are one image; APP_MODE selects the design.
         "name": "app",
         "image": "app",
-        "dockerfile": "app/Dockerfile.nginx",
-        "context": "./app",
+        "dockerfile": "src/app/Dockerfile.nginx",
+        "context": "./src/app",
         "build_arg_name": "APP_VERSION",
     },
-    {"name": "content-service", "image": "content-service", "dockerfile": "services/net/content/Dockerfile", "context": "."},
-    {"name": "indexing-service", "image": "indexing-service", "dockerfile": "services/net/indexing/Dockerfile", "context": "."},
+    {"name": "content-service", "image": "content-service", "dockerfile": "src/services/content/Dockerfile", "context": "."},
+    {"name": "indexing-service", "image": "indexing-service", "dockerfile": "src/services/indexing/Dockerfile", "context": "."},
     {
         "name": "transcription-service",
         "image": "transcription-service",
-        "dockerfile": "services/net/transcription/Dockerfile",
+        "dockerfile": "src/services/transcription/Dockerfile",
         "context": ".",
     },
     {
         "name": "content-analysis-service",
         "image": "content-analysis-service",
-        "dockerfile": "services/net/content-analysis/Dockerfile",
+        "dockerfile": "src/services/content-analysis/Dockerfile",
         "context": ".",
     },
-    {"name": "reporting-service", "image": "reporting-service", "dockerfile": "services/net/reporting/Dockerfile", "context": "."},
+    {"name": "reporting-service", "image": "reporting-service", "dockerfile": "src/services/reporting/Dockerfile", "context": "."},
     {
         "name": "notification-service",
         "image": "notification-service",
-        "dockerfile": "services/net/notification/Dockerfile",
+        "dockerfile": "src/services/notification/Dockerfile",
         "context": ".",
     },
-    {"name": "scheduler-service", "image": "scheduler-service", "dockerfile": "services/net/scheduler/Dockerfile", "context": "."},
-    {"name": "ffmpeg-service", "image": "ffmpeg-service", "dockerfile": "services/net/ffmpeg/Dockerfile", "context": "."},
+    {"name": "scheduler-service", "image": "scheduler-service", "dockerfile": "src/services/scheduler/Dockerfile", "context": "."},
+    {"name": "ffmpeg-service", "image": "ffmpeg-service", "dockerfile": "src/services/ffmpeg/Dockerfile", "context": "."},
     {
         "name": "event-handler-service",
         "image": "event-handler-service",
-        "dockerfile": "services/net/event-handler/Dockerfile",
+        "dockerfile": "src/services/event-handler/Dockerfile",
         "context": ".",
     },
     {
         "name": "ches-retry-service",
         "image": "ches-retry-service",
-        "dockerfile": "services/net/ches-retry/Dockerfile",
+        "dockerfile": "src/services/ches-retry/Dockerfile",
         "context": ".",
     },
     {
         "name": "syndication-service",
         "image": "syndication-service",
-        "dockerfile": "services/net/syndication/Dockerfile",
+        "dockerfile": "src/services/syndication/Dockerfile",
         "context": ".",
     },
-    {"name": "filemonitor-service", "image": "filemonitor-service", "dockerfile": "services/net/filemonitor/Dockerfile", "context": "."},
-    {"name": "image-service", "image": "image-service", "dockerfile": "services/net/image/Dockerfile", "context": "."},
+    {"name": "filemonitor-service", "image": "filemonitor-service", "dockerfile": "src/services/filemonitor/Dockerfile", "context": "."},
+    {"name": "image-service", "image": "image-service", "dockerfile": "src/services/image/Dockerfile", "context": "."},
     {
         "name": "auto-clipper-service",
         "image": "auto-clipper-service",
-        "dockerfile": "services/net/auto-clipper/Dockerfile",
+        "dockerfile": "src/services/auto-clipper/Dockerfile",
         "context": ".",
     },
     {
         "name": "contentmigration-service",
         "image": "contentmigration-service",
-        "dockerfile": "services/net/contentmigration/Dockerfile",
+        "dockerfile": "src/services/contentmigration/Dockerfile",
         "context": ".",
     },
     {
         "name": "folder-collection-service",
         "image": "folder-collection-service",
-        "dockerfile": "services/net/folder-collection/Dockerfile",
+        "dockerfile": "src/services/folder-collection/Dockerfile",
         "context": ".",
     },
 ]
@@ -131,22 +131,22 @@ DOTNET_SERVICE_NAMES = [
 ]
 
 SERVICE_PATHS = {
-    "services/net/content/": "content-service",
-    "services/net/indexing/": "indexing-service",
-    "services/net/transcription/": "transcription-service",
-    "services/net/content-analysis/": "content-analysis-service",
-    "services/net/reporting/": "reporting-service",
-    "services/net/notification/": "notification-service",
-    "services/net/scheduler/": "scheduler-service",
-    "services/net/ffmpeg/": "ffmpeg-service",
-    "services/net/event-handler/": "event-handler-service",
-    "services/net/ches-retry/": "ches-retry-service",
-    "services/net/syndication/": "syndication-service",
-    "services/net/filemonitor/": "filemonitor-service",
-    "services/net/image/": "image-service",
-    "services/net/auto-clipper/": "auto-clipper-service",
-    "services/net/contentmigration/": "contentmigration-service",
-    "services/net/folder-collection/": "folder-collection-service",
+    "src/services/content/": "content-service",
+    "src/services/indexing/": "indexing-service",
+    "src/services/transcription/": "transcription-service",
+    "src/services/content-analysis/": "content-analysis-service",
+    "src/services/reporting/": "reporting-service",
+    "src/services/notification/": "notification-service",
+    "src/services/scheduler/": "scheduler-service",
+    "src/services/ffmpeg/": "ffmpeg-service",
+    "src/services/event-handler/": "event-handler-service",
+    "src/services/ches-retry/": "ches-retry-service",
+    "src/services/syndication/": "syndication-service",
+    "src/services/filemonitor/": "filemonitor-service",
+    "src/services/image/": "image-service",
+    "src/services/auto-clipper/": "auto-clipper-service",
+    "src/services/contentmigration/": "contentmigration-service",
+    "src/services/folder-collection/": "folder-collection-service",
 }
 
 KUSTOMIZE_SERVICE_PATHS = {
@@ -218,13 +218,13 @@ def detect_deploy_changes(changed_files, scope, environment="dev"):
     for raw_path in changed_files:
         path = normalize_path(raw_path)
 
-        if path.startswith("api/net/"):
+        if path.startswith("src/api/"):
             build_names.add("api")
             deploy_api = True
-        elif path.startswith("api/node/") or path.startswith("openshift/kustomize/charts/"):
+        elif path.startswith("src/charts-api/") or path.startswith("openshift/kustomize/charts/"):
             build_names.add("charts-api")
             service_names.add("charts-api")
-        elif path.startswith("app/"):
+        elif path.startswith("src/app/"):
             # One image serves both designs, so both Deployments roll out.
             build_names.add("app")
             frontend_names.update({"editor", "subscriber"})
@@ -232,12 +232,12 @@ def detect_deploy_changes(changed_files, scope, environment="dev"):
             frontend_names.add("editor")
         elif path.startswith("openshift/kustomize/app/subscriber/"):
             frontend_names.add("subscriber")
-        elif path.startswith("libs/net/"):
+        elif path.startswith("src/libs/"):
             build_names.add("api")
             build_names.update(DOTNET_SERVICE_NAMES)
             service_names.update(DOTNET_SERVICE_NAMES)
             deploy_api = True
-            if path.startswith("libs/net/dal/"):
+            if path.startswith("src/libs/dal/"):
                 run_db_migration = True
         elif path.startswith("openshift/kustomize/api/") or path.startswith("openshift/kustomize/api-services/"):
             deploy_api = True

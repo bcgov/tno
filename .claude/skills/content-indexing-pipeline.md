@@ -18,7 +18,7 @@ Then compare the newest content in Postgres vs Elasticsearch — a gap pinpoints
 
 ```bash
 docker exec tno-database psql -U admin -d tno -t -c "SELECT max(id), count(*) FROM content;"
-curl -s -u 'elastic:<ELASTIC_PASSWORD from api/net/.env>' \
+curl -s -u 'elastic:<ELASTIC_PASSWORD from src/api/.env>' \
   "http://localhost:40003/unpublished_content/_search?size=1&sort=id:desc&_source=id"
 ```
 
@@ -30,7 +30,7 @@ real top-level document count.
 Symptom: indexing logs `Could not authenticate with the specified node ... missing authentication
 credentials for REST request`, retries 3x per message, nothing lands in ES.
 
-Cause: `services/net/indexing/.env` generated with `Service__ElasticsearchUri/Username/Password`
+Cause: `src/services/indexing/.env` generated with `Service__ElasticsearchUri/Username/Password`
 keys — **no code reads those**. `IndexingManager` binds the `Elastic` config section, so the env
 vars must be:
 

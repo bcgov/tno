@@ -21,7 +21,7 @@
 ### `n=` takes the compose service name, not the container name
 
 Containers are named `tno-<service>`, but `n=` is always the **service** name — `n=api`, not
-`n=tno-api`. `make refresh` calls `tools/scripts/docker-remove.sh`, which prepends the prefix
+`n=tno-api`. `make refresh` calls `src/tools/scripts/docker-remove.sh`, which prepends the prefix
 itself (`docker rm -f tno-$1` / `docker image rm -f tno:$1`), so a `tno-` prefixed value resolves
 to `tno-tno-api` and fails. Service names live in the four compose files; `make help` and
 `docker-compose ... config --services` both list them.
@@ -52,4 +52,4 @@ name, leaving the others' stale images in place.
 ## Notes
 
 - Makefile scripts assume bash-compatible shell.
-- Many targets call scripts in `tools/scripts/`; inspect there for implementation details.
+- Many targets call scripts in `src/tools/scripts/`; inspect there for implementation details.

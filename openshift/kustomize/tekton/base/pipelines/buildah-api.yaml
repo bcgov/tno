@@ -63,7 +63,7 @@ spec:
         - name: CONTEXT
           value: $(params.CONTEXT)
         - name: DOCKERFILE
-          value: $(params.CONTEXT)/api/net/Dockerfile.openshift
+          value: $(params.CONTEXT)/src/api/Dockerfile.openshift
         - name: IMAGE
           value: api
         - name: IMAGE_TAG

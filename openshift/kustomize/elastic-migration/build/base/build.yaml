@@ -44,7 +44,7 @@ spec:
   strategy:
     dockerStrategy:
       imageOptimizationPolicy: SkipLayers
-      dockerfilePath: tools/elastic/migration/Dockerfile
+      dockerfilePath: src/tools/elastic/migration/Dockerfile
     type: Docker
   output:
     to:

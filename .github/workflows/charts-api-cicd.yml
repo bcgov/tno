@@ -5,13 +5,13 @@ on:
   pull_request:
     branches: [dev, master]
     paths:
-      - api/node/**
+      - src/charts-api/**
       - openshift/kustomize/charts/**
       - .github/workflows/charts-api-cicd.yml
   push:
     branches: [dev, master]
     paths:
-      - api/node/**
+      - src/charts-api/**
       - openshift/kustomize/charts/**
       - .github/workflows/charts-api-cicd.yml
 
@@ -40,15 +40,15 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: 18
-          # api/node is a Yarn project; keep setup-node from caching it as it did before v7.
+          # src/charts-api is a Yarn project; keep setup-node from caching it as it did before v7.
           package-manager-cache: false
 
       - name: Install dependencies
-        working-directory: api/node
+        working-directory: src/charts-api
         run: yarn install --immutable
 
       - name: Compile check
-        working-directory: api/node
+        working-directory: src/charts-api
         run: yarn run build
 
   cd-dev:
@@ -66,9 +66,9 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build \
-            -f api/node/Dockerfile \
+            -f src/charts-api/Dockerfile \
             -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
-            api/node
+            src/charts-api
 
       - name: Trivy Container Scan
         uses: ./.github/actions/trivy-scan
@@ -138,9 +138,9 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build \
-            -f api/node/Dockerfile \
+            -f src/charts-api/Dockerfile \
             -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
-            api/node
+            src/charts-api
 
       - name: Trivy Container Scan
         uses: ./.github/actions/trivy-scan

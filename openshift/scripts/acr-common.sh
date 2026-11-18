@@ -35,14 +35,14 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 # default must always match the BuildConfigs. Components map as follows:
 #
 #   component  image          prod Dockerfile (default)   local Dockerfile            context
-#   api        api            api/net/Dockerfile.openshift api/net/Dockerfile          .
-#   app        app            app/Dockerfile.nginx         app/Dockerfile              app
-#   charts     charts-api     api/node/Dockerfile          api/node/Dockerfile.local   api/node
-#   db-migration db-migration libs/net/Dockerfile          (same for both)             libs/net
-#   elastic-migration elastic-migration tools/elastic/migration/Dockerfile (same)   .
-#   nginx-editor nginx-editor network/reverse-proxy/editor/Dockerfile (same)     network/reverse-proxy/editor
-#   nginx-subscriber nginx-subscriber network/reverse-proxy/subscriber/Dockerfile (same) network/reverse-proxy/subscriber
-#   <name>     <name>-service services/net/<name>/Dockerfile (same for both)           .
+#   api        api            src/api/Dockerfile.openshift src/api/Dockerfile          .
+#   app        app            src/app/Dockerfile.nginx         src/app/Dockerfile              app
+#   charts     charts-api     src/charts-api/Dockerfile          src/charts-api/Dockerfile.local   src/charts-api
+#   db-migration db-migration src/libs/Dockerfile          (same for both)             src/libs
+#   elastic-migration elastic-migration src/tools/elastic/migration/Dockerfile (same)   .
+#   nginx-editor nginx-editor dependencies/reverse-proxy/editor/Dockerfile (same)     dependencies/reverse-proxy/editor
+#   nginx-subscriber nginx-subscriber dependencies/reverse-proxy/subscriber/Dockerfile (same) dependencies/reverse-proxy/subscriber
+#   <name>     <name>-service src/services/<name>/Dockerfile (same for both)           .
 #
 # The 'local' variants are the ones docker-compose builds for development; they are not
 # deployable to OpenShift (dev servers, no nginx runtime, wrong base images).
@@ -67,19 +67,19 @@ resolve_image() {
       IMAGE=${IMAGE:-api}
       CONTEXT=${CONTEXT:-.}
       if [ "$environment" = "local" ]; then
-        DOCKERFILE=${DOCKERFILE:-api/net/Dockerfile}
+        DOCKERFILE=${DOCKERFILE:-src/api/Dockerfile}
       else
-        DOCKERFILE=${DOCKERFILE:-api/net/Dockerfile.openshift}
+        DOCKERFILE=${DOCKERFILE:-src/api/Dockerfile.openshift}
       fi
       ;;
     app)
       # One image serves both the editor and subscriber designs; APP_MODE on each Deployment picks one.
       IMAGE=${IMAGE:-app}
-      CONTEXT=${CONTEXT:-app}
+      CONTEXT=${CONTEXT:-src/app}
       if [ "$environment" = "local" ]; then
-        DOCKERFILE=${DOCKERFILE:-app/Dockerfile}
+        DOCKERFILE=${DOCKERFILE:-src/app/Dockerfile}
       else
-        DOCKERFILE=${DOCKERFILE:-app/Dockerfile.nginx}
+        DOCKERFILE=${DOCKERFILE:-src/app/Dockerfile.nginx}
       fi
       ;;
     editor|subscriber)
@@ -88,40 +88,40 @@ resolve_image() {
       ;;
     charts)
       IMAGE=${IMAGE:-charts-api}
-      CONTEXT=${CONTEXT:-api/node}
+      CONTEXT=${CONTEXT:-src/charts-api}
       if [ "$environment" = "local" ]; then
-        DOCKERFILE=${DOCKERFILE:-api/node/Dockerfile.local}
+        DOCKERFILE=${DOCKERFILE:-src/charts-api/Dockerfile.local}
       else
         # The image CI builds and pushes. Dockerfile.open is for the in-cluster BuildConfig: its
         # base image is in the cluster's internal registry, which is unreachable from elsewhere.
-        DOCKERFILE=${DOCKERFILE:-api/node/Dockerfile}
+        DOCKERFILE=${DOCKERFILE:-src/charts-api/Dockerfile}
       fi
       ;;
     elastic-migration)
       IMAGE=${IMAGE:-elastic-migration}
-      DOCKERFILE=${DOCKERFILE:-tools/elastic/migration/Dockerfile}
+      DOCKERFILE=${DOCKERFILE:-src/tools/elastic/migration/Dockerfile}
       CONTEXT=${CONTEXT:-.}
       ;;
     nginx-editor|nginx-subscriber)
       # The reverse proxies in front of each app and the api pods; the same Dockerfile in both environments.
       IMAGE=${IMAGE:-$name}
-      DOCKERFILE=${DOCKERFILE:-network/reverse-proxy/${name#nginx-}/Dockerfile}
-      CONTEXT=${CONTEXT:-network/reverse-proxy/${name#nginx-}}
+      DOCKERFILE=${DOCKERFILE:-dependencies/reverse-proxy/${name#nginx-}/Dockerfile}
+      CONTEXT=${CONTEXT:-dependencies/reverse-proxy/${name#nginx-}}
       ;;
     db-migration)
       # An EF migrations bundle, not a service; the same Dockerfile in both environments.
       IMAGE=${IMAGE:-db-migration}
-      DOCKERFILE=${DOCKERFILE:-libs/net/Dockerfile}
-      CONTEXT=${CONTEXT:-libs/net}
+      DOCKERFILE=${DOCKERFILE:-src/libs/Dockerfile}
+      CONTEXT=${CONTEXT:-src/libs}
       ;;
     *)
-      if [ -f "$REPO_ROOT/services/net/$name/Dockerfile" ]; then
+      if [ -f "$REPO_ROOT/src/services/$name/Dockerfile" ]; then
         # The services have a single Dockerfile; compose and the BuildConfigs both use it.
         IMAGE=${IMAGE:-$name-service}
-        DOCKERFILE=${DOCKERFILE:-services/net/$name/Dockerfile}
+        DOCKERFILE=${DOCKERFILE:-src/services/$name/Dockerfile}
         CONTEXT=${CONTEXT:-.}
       else
-        echo "ERROR: unknown component '$name' (no services/net/$name/Dockerfile)." >&2
+        echo "ERROR: unknown component '$name' (no src/services/$name/Dockerfile)." >&2
         echo "       Override with IMAGE=, DOCKERFILE=, CONTEXT= for anything unusual." >&2
         return 1
       fi

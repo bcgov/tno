@@ -83,21 +83,21 @@ spec:
           [id]="syndication"
           [image]="syndication-service"
           [context]=""
-          [dockerfile]="/services/net/syndication/Dockerfile"
+          [dockerfile]="/src/services/syndication/Dockerfile"
         )
 
         declare -A COMPONENT1=(
           [id]="filemonitor"
           [image]="filemonitor-service"
           [context]=""
-          [dockerfile]="/services/net/filemonitor/Dockerfile"
+          [dockerfile]="/src/services/filemonitor/Dockerfile"
         )
 
         declare -A COMPONENT2=(
           [id]="image"
           [image]="image-service"
           [context]=""
-          [dockerfile]="/services/net/image/Dockerfile"
+          [dockerfile]="/src/services/image/Dockerfile"
         )
 
         # Processing Services
@@ -106,77 +106,77 @@ spec:
           [id]="content"
           [image]="content-service"
           [context]=""
-          [dockerfile]="/services/net/content/Dockerfile"
+          [dockerfile]="/src/services/content/Dockerfile"
         )
 
         declare -A COMPONENT4=(
           [id]="indexing"
           [image]="indexing-service"
           [context]=""
-          [dockerfile]="/services/net/indexing/Dockerfile"
+          [dockerfile]="/src/services/indexing/Dockerfile"
         )
 
         declare -A COMPONENT5=(
           [id]="transcription"
           [image]="transcription-service"
           [context]=""
-          [dockerfile]="/services/net/transcription/Dockerfile"
+          [dockerfile]="/src/services/transcription/Dockerfile"
         )
 
         declare -A COMPONENT6=(
           [id]="content-analysis"
           [image]="content-analysis-service"
           [context]=""
-          [dockerfile]="/services/net/content-analysis/Dockerfile"
+          [dockerfile]="/src/services/content-analysis/Dockerfile"
         )
 
         declare -A COMPONENT7=(
           [id]="reporting"
           [image]="reporting-service"
           [context]=""
-          [dockerfile]="/services/net/reporting/Dockerfile"
+          [dockerfile]="/src/services/reporting/Dockerfile"
         )
 
         declare -A COMPONENT8=(
           [id]="notification"
           [image]="notification-service"
           [context]=""
-          [dockerfile]="/services/net/notification/Dockerfile"
+          [dockerfile]="/src/services/notification/Dockerfile"
         )
 
         declare -A COMPONENT9=(
           [id]="scheduler"
           [image]="scheduler-service"
           [context]=""
-          [dockerfile]="/services/net/scheduler/Dockerfile"
+          [dockerfile]="/src/services/scheduler/Dockerfile"
         )
 
         declare -A COMPONENT10=(
           [id]="folder-collection"
           [image]="folder-collection-service"
           [context]=""
-          [dockerfile]="/services/net/folder-collection/Dockerfile"
+          [dockerfile]="/src/services/folder-collection/Dockerfile"
         )
 
         declare -A COMPONENT11=(
           [id]="ffmpeg"
           [image]="ffmpeg-service"
           [context]=""
-          [dockerfile]="/services/net/ffmpeg/Dockerfile"
+          [dockerfile]="/src/services/ffmpeg/Dockerfile"
         )
 
         declare -A COMPONENT12=(
           [id]="event-handler"
           [image]="event-handler-service"
           [context]=""
-          [dockerfile]="/services/net/event-handler/Dockerfile"
+          [dockerfile]="/src/services/event-handler/Dockerfile"
         )
 
         declare -A COMPONENT13=(
           [id]="ches-retry"
           [image]="ches-retry-service"
           [context]=""
-          [dockerfile]="/services/net/ches-retry/Dockerfile"
+          [dockerfile]="/src/services/ches-retry/Dockerfile"
         )
 
         # Applications
@@ -185,13 +185,13 @@ spec:
           [id]="api"
           [image]="api"
           [context]=""
-          [dockerfile]="/api/net/Dockerfile.openshift"
+          [dockerfile]="/src/api/Dockerfile.openshift"
         )
 
         declare -A COMPONENT15=(
           [id]="charts-api"
           [image]="charts-api"
-          [context]="/api/node"
+          [context]="/src/charts-api"
           [dockerfile]="/Dockerfile"
         )
 
@@ -199,14 +199,14 @@ spec:
         declare -A COMPONENT16=(
           [id]="app"
           [image]="app"
-          [context]="/app"
+          [context]="/src/app"
           [dockerfile]="/Dockerfile.nginx"
         )
 
         declare -A COMPONENT18=(
           [id]="db"
           [image]="db-migration"
-          [context]="/libs/net"
+          [context]="/src/libs"
           [dockerfile]="/Dockerfile"
         )
 
@@ -214,14 +214,14 @@ spec:
           [id]="elastic"
           [image]="elastic-migration"
           [context]=""
-          [dockerfile]="/tools/elastic/migration/Dockerfile"
+          [dockerfile]="/src/tools/elastic/migration/Dockerfile"
         )
 
         declare -A COMPONENT20=(
           [id]="auto-clipper"
           [image]="auto-clipper-service"
           [context]=""
-          [dockerfile]="/services/net/auto-clipper/Dockerfile"
+          [dockerfile]="/src/services/auto-clipper/Dockerfile"
         )
 
         # Reverse Proxies
@@ -229,14 +229,14 @@ spec:
         declare -A COMPONENT21=(
           [id]="nginx-editor"
           [image]="nginx-editor"
-          [context]="/network/reverse-proxy/editor"
+          [context]="/dependencies/reverse-proxy/editor"
           [dockerfile]="/Dockerfile"
         )
 
         declare -A COMPONENT22=(
           [id]="nginx-subscriber"
           [image]="nginx-subscriber"
-          [context]="/network/reverse-proxy/subscriber"
+          [context]="/dependencies/reverse-proxy/subscriber"
           [dockerfile]="/Dockerfile"
         )
 

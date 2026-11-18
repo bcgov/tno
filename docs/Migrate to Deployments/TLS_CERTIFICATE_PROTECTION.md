@@ -49,7 +49,7 @@ The `migrate-deployments.sh` script now:
 3. **Restores** certificates automatically if they're missing
 4. **Cleans up** temporary backup files
 
-Location: Lines 313-357 in `tools/scripts/migrate-deployments.sh`
+Location: Lines 313-357 in `src/tools/scripts/migrate-deployments.sh`
 
 ### 2. .gitignore Protection
 

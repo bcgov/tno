@@ -5,15 +5,15 @@ on:
   pull_request:
     branches: [dev, master]
     paths:
-      - services/net/folder-collection/**
-      - libs/net/**
+      - src/services/folder-collection/**
+      - src/libs/**
       - openshift/kustomize/services/folder-collection/**
       - .github/workflows/folder-collection-cicd.yml
   push:
     branches: [dev, master, folder-collection]
     paths:
-      - services/net/folder-collection/**
-      - libs/net/**
+      - src/services/folder-collection/**
+      - src/libs/**
       - openshift/kustomize/services/folder-collection/**
       - .github/workflows/folder-collection-cicd.yml
 
@@ -30,8 +30,8 @@ jobs:
     uses: ./.github/workflows/_reusable-dotnet-cicd.yml
     with:
       image_name: folder-collection-service
-      csproj_path: services/net/folder-collection/TNO.Services.FolderCollection.csproj
-      dockerfile: services/net/folder-collection/Dockerfile
+      csproj_path: src/services/folder-collection/TNO.Services.FolderCollection.csproj
+      dockerfile: src/services/folder-collection/Dockerfile
       component: folder-collection-service
       deployment_name: folder-collection-service
       kustomize_dev_path: openshift/kustomize/services/folder-collection/overlays/dev

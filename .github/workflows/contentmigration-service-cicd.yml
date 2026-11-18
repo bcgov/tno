@@ -5,15 +5,15 @@ on:
   pull_request:
     branches: [dev, master]
     paths:
-      - services/net/contentmigration/**
-      - libs/net/**
+      - src/services/contentmigration/**
+      - src/libs/**
       - openshift/kustomize/services/contentmigration-current/**
       - .github/workflows/contentmigration-service-cicd.yml
   push:
     branches: [dev, master, contentmigration-service]
     paths:
-      - services/net/contentmigration/**
-      - libs/net/**
+      - src/services/contentmigration/**
+      - src/libs/**
       - openshift/kustomize/services/contentmigration-current/**
       - .github/workflows/contentmigration-service-cicd.yml
 
@@ -30,8 +30,8 @@ jobs:
     uses: ./.github/workflows/_reusable-dotnet-cicd.yml
     with:
       image_name: contentmigration-service
-      csproj_path: services/net/contentmigration/TNO.Services.ContentMigration.csproj
-      dockerfile: services/net/contentmigration/Dockerfile
+      csproj_path: src/services/contentmigration/TNO.Services.ContentMigration.csproj
+      dockerfile: src/services/contentmigration/Dockerfile
       component: contentmigration-service
       deployment_name: contentmigration-service
       kustomize_dev_path: openshift/kustomize/services/contentmigration-current/overlays/dev

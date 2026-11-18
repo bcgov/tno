@@ -5,15 +5,15 @@ on:
   pull_request:
     branches: [dev, master]
     paths:
-      - services/net/filemonitor/**
-      - libs/net/**
+      - src/services/filemonitor/**
+      - src/libs/**
       - openshift/kustomize/services/filemonitor/**
       - .github/workflows/filemonitor-service-cicd.yml
   push:
     branches: [dev, master, filemonitor-service]
     paths:
-      - services/net/filemonitor/**
-      - libs/net/**
+      - src/services/filemonitor/**
+      - src/libs/**
       - openshift/kustomize/services/filemonitor/**
       - .github/workflows/filemonitor-service-cicd.yml
 
@@ -30,8 +30,8 @@ jobs:
     uses: ./.github/workflows/_reusable-dotnet-cicd.yml
     with:
       image_name: filemonitor-service
-      csproj_path: services/net/filemonitor/TNO.Services.FileMonitor.csproj
-      dockerfile: services/net/filemonitor/Dockerfile
+      csproj_path: src/services/filemonitor/TNO.Services.FileMonitor.csproj
+      dockerfile: src/services/filemonitor/Dockerfile
       component: filemonitor-service
       deployment_name: filemonitor-service
       kustomize_dev_path: openshift/kustomize/services/filemonitor/overlays/dev

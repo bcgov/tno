@@ -27,10 +27,10 @@ oc rollout restart deployment/automation-service -n 9b301c-dev
 
 Handled by `openshift/scripts/acr-common.sh`, mirroring the OpenShift BuildConfigs:
 
-- Any `<name>` with `services/net/<name>/Dockerfile` → image `<name>-service`
+- Any `<name>` with `src/services/<name>/Dockerfile` → image `<name>-service`
   (e.g. `n=automation` → `automation-service`, `n=content-analysis` → `content-analysis-service`,
   `n=notification` → `notification-service`).
-- `api` → `api` (`api/net/Dockerfile.openshift`), `app` → `app` (`app/Dockerfile.nginx`; the one
+- `api` → `api` (`src/api/Dockerfile.openshift`), `app` → `app` (`src/app/Dockerfile.nginx`; the one
   image both the editor and subscriber Deployments run, `APP_MODE` picks the design),
   `charts` → `charts-api`. `n=editor` / `n=subscriber` are rejected with a pointer to `n=app`.
 - Anything unusual: override with env vars `IMAGE=`, `DOCKERFILE=`, `CONTEXT=`

@@ -40,7 +40,7 @@ spec:
     git:
       uri: https://github.com/bcgov/tno.git
       ref: dev
-    contextDir: ./api/node
+    contextDir: ./src/charts-api
   strategy:
     type: Docker
     dockerStrategy:

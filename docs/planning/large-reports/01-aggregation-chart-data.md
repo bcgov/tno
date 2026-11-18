@@ -9,7 +9,7 @@ the groundwork for analytics-only sources (phase 2) exists.
 
 In:
 
-- `ReportChartDataService` in `libs/net/dal` with its request/result models.
+- `ReportChartDataService` in `src/libs/dal` with its request/result models.
 - Services-area API endpoints the worker calls.
 - `ReportEngine` renders a chart from pre-computed data when present.
 - `ReportingManager` and `ReportHelper` compute chart data for `MediaAnalytics` sections whose
@@ -24,8 +24,8 @@ endpoints, UI, `byline`, custom Razor templates on buckets.
 ## Behaviour to reproduce
 
 The aggregate path must produce the same `labels`/`datasets` JSON the `Custom` chart template
-produces today (`libs/net/dal/Migrations/1.0.163/Up/PostUp/00-Chart.sql`) for the same stories.
-The reference implementation is `ReportExtensions` (`libs/net/template/ReportExtensions.cs`):
+produces today (`src/libs/dal/Migrations/1.0.163/Up/PostUp/00-Chart.sql`) for the same stories.
+The reference implementation is `ReportExtensions` (`src/libs/template/ReportExtensions.cs`):
 `GroupContent` (grouping keys and empty-value names), `GetLabels`/`GetLabel` (label formatting),
 `ExtractDatasetValues` (values), `GetColors`/`GetSentimentColorScript` (colours). Keep those
 helpers; the legacy path still uses them.
@@ -107,17 +107,17 @@ Each dataset carries exactly the fields the `Custom` template writes:
 
 `GetColors` returns a JSON fragment: an array of colour strings, the literal `null`, or (for
 `Dataset == ""` with `DatasetValue == "sentiment"`) a **quoted JavaScript arrow function** from
-`GetSentimentColorScript`. The charts API (`api/node`) evaluates that string as a function. The
+`GetSentimentColorScript`. The charts API (`src/charts-api`) evaluates that string as a function. The
 converter stores whatever `GetColors` returns, parsed as JSON, so the string form is preserved.
 Verify by rendering the fixture report in both modes and comparing PNGs byte for byte.
 
-## `ReportChartDataService` (`libs/net/dal/Services/ReportChartDataService.cs`)
+## `ReportChartDataService` (`src/libs/dal/Services/ReportChartDataService.cs`)
 
 Interface `IReportChartDataService : IBaseService` so `AddTNOServices` registers it.
 
 ### Request
 
-`ReportChartDataRequest` (`libs/net/dal/Models/Reports/` or beside the service):
+`ReportChartDataRequest` (`src/libs/dal/Models/Reports/` or beside the service):
 
 | Member | Meaning |
 | --- | --- |
@@ -172,25 +172,25 @@ formatting uses `CultureInfo.InvariantCulture`, and numbers are integers or `nul
 
 ## API: services area
 
-Controller `api/net/Areas/Services/Controllers/ReportInstanceController.cs`
+Controller `src/api/Areas/Services/Controllers/ReportInstanceController.cs`
 (route base `api/[area]/report/instances`):
 
 | Verb and path | Purpose |
 | --- | --- |
 | `GET {id}/charts?requestorId=` | Compute chart data for every enabled `MediaAnalytics` section of instance `{id}` whose chart template is in aggregate mode and whose source is supported in this phase. Source ids come from `report_instance_content` of this instance (`useAllContent`) or of the linked report's current instance (`GetCurrentReportInstance(linkedReportId, ownerId)`). Returns `IEnumerable<ReportInstanceChartModel>`. Phase 2 makes this read the snapshot; in phase 1 it computes. |
 
-`ReportInstanceChartModel` (`libs/net/models/Areas/Services/Models/ReportInstance/`):
+`ReportInstanceChartModel` (`src/libs/models/Areas/Services/Models/ReportInstance/`):
 `InstanceId`, `SectionName`, `SectionId`, `ChartTemplateId`, `Data` (`JsonDocument`, the
 `ChartDataModel`), `DocCount`, `Truncated`, `GeneratedOn`.
 
-`IApiService` / `ApiService` (`libs/net/services/Helpers/`): `GetReportInstanceChartsAsync(long
+`IApiService` / `ApiService` (`src/libs/services/Helpers/`): `GetReportInstanceChartsAsync(long
 instanceId, int? requestorId)` → `IEnumerable<ReportInstanceChartModel>`, following the pattern of
 `GetContentForReportInstanceIdAsync` (`RetryRequestAsync`, `OpenClient.GetAsync`).
 
 ## Engine: render from pre-computed data
 
 `ChartEngineContentModel` gains `JsonDocument? ChartData`. In `ReportEngine.GenerateReportBodyAsync`
-(the `MediaAnalytics` loop, `libs/net/template/ReportEngine.cs` ~lines 492–528):
+(the `MediaAnalytics` loop, `src/libs/template/ReportEngine.cs` ~lines 492–528):
 
 - If `chart.ChartData != null`: build `new ChartRequestModel(chartModel, chart.ChartData)` and call
   `GenerateBase64ImageAsync` (the existing `ChartData` bypass already skips the Razor template).
@@ -202,12 +202,12 @@ section lacks `ChartData`, so a fully aggregated section touches no content.
 
 ## Chart template flag
 
-`ChartTemplateSettingsModel` (`libs/net/models/Settings/ChartTemplateSettingsModel.cs`) gains
+`ChartTemplateSettingsModel` (`src/libs/models/Settings/ChartTemplateSettingsModel.cs`) gains
 `bool Aggregate` (JSON `aggregate`, default `false`). A chart template may be flagged only if its
 Razor body uses exclusively `GroupContent`, `GetLabels`/`GetLabel`, `ExtractDatasetValues`,
 `GetColors`/`GetColor`, and the dataset fields in the "Datasets JSON" table. The implementer
 inspects each seeded template (`Count`, `Sentiment Count`, `Average Sentiment`, `Sentiment`,
-`Custom` in `libs/net/dal/Migrations/1.0.112/Up/PostUp/*.sql` and later updates) and flags only
+`Custom` in `src/libs/dal/Migrations/1.0.112/Up/PostUp/*.sql` and later updates) and flags only
 those that qualify; `Event of the Day` and `Topic Analysis - Topic Score` are **not** flagged
 (they filter and score topics by hand).
 
@@ -215,7 +215,7 @@ Migration: one EF migration (next version after `1.5.15`) with no model change a
 script `00-ChartTemplate-Aggregate.sql`:
 `UPDATE chart_template SET settings = settings || '{"aggregate": true}' WHERE name IN (...)`,
 idempotent. The Down script removes the key. The admin chart template form in the editor app
-(`app/editor/src/features/admin/charts`) gets a checkbox "Data comes from aggregations (no template)" bound to `settings.aggregate`.
+(`src/app/editor/src/features/admin/charts`) gets a checkbox "Data comes from aggregations (no template)" bound to `settings.aggregate`.
 
 ## Worker: `ReportingManager`
 
@@ -241,7 +241,7 @@ On resend/retry the body is reused, so no chart work happens (unchanged).
 
 ## Tests
 
-`libs/net/tests/dal/Services/ReportChartDataServiceTest.cs` with `ITNOElasticClient` mocked
+`src/tests/dal/Services/ReportChartDataServiceTest.cs` with `ITNOElasticClient` mocked
 (`services.AddMockSingleton<ITNOElasticClient>()` as `ReportServiceTest` does). Assert on the
 **query JSON sent** and on the **conversion of canned responses**:
 
@@ -257,11 +257,11 @@ On resend/retry the body is reused, so no chart work happens (unchanged).
 - `byline` rejection.
 - Colours: `GetColors` fragment is preserved as parsed JSON, including the sentiment script string.
 
-`libs/net/tests/ai/` (template engine tests live here): `GenerateReportBodyAsync` renders a chart
+`src/tests/ai/` (template engine tests live here): `GenerateReportBodyAsync` renders a chart
 from `ChartData` without touching content; a section with one aggregate and one legacy chart
 builds content once.
 
-`libs/net/tests/services/`: `ReportingManager` sets `ChartData` from the API rows and logs the
+`src/tests/services/`: `ReportingManager` sets `ChartData` from the API rows and logs the
 path per chart.
 
 Fixture parity test (manual, documented in the PR): a report with the `Custom` template over a
@@ -275,5 +275,5 @@ small listed section rendered legacy and aggregate produces identical `ChartData
 - `useAllContent` and linked-report charts still count exactly the listed stories (which the
   filter's `size` caps). Full counts for a filter that matches more than its `size` arrive with
   own-filter sources in phase 2.
-- `dotnet test libs/net/tests/dal libs/net/tests/ai libs/net/tests/services` green; `dotnet format`
+- `dotnet test src/tests/dal src/tests/ai src/tests/services` green; `dotnet format`
   clean.

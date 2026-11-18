@@ -32,14 +32,14 @@ bash -ic 'command -v node; node --version'
 Source `nvm` and pick the version in the same command:
 
 ```bash
-# Web app (app/): Node 26 and npm, version read from app/.nvmrc
-export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && cd app && nvm use >/dev/null && npm run build
+# Web app (src/app/): Node 26 and npm, version read from src/app/.nvmrc
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && cd src/app && nvm use >/dev/null && npm run build
 ```
 
 ## Notes
 
-- `app/` (editor and subscriber designs) is an npm project on Node 26 (`app/.nvmrc`,
-  `engines` in `app/package.json`). Install with `npm ci`; never use Yarn there.
-- `api/node` (charts API) is separate and still uses Node 18 with Yarn 3:
-  `nvm use 18 >/dev/null && yarn build` from `api/node`.
-- If `nvm use` reports the version is not installed, run `nvm install` in `app/`.
+- `src/app/` (editor and subscriber designs) is an npm project on Node 26 (`src/app/.nvmrc`,
+  `engines` in `src/app/package.json`). Install with `npm ci`; never use Yarn there.
+- `src/charts-api` (charts API) is separate and still uses Node 18 with Yarn 3:
+  `nvm use 18 >/dev/null && yarn build` from `src/charts-api`.
+- If `nvm use` reports the version is not installed, run `nvm install` in `src/app/`.
