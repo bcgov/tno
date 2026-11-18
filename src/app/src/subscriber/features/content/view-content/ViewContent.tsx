@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 import {
   Col,
   ContentTypeName,
+  htmlToPlainText,
   IContentModel,
   IMinisterModel,
   IQuoteModel,
@@ -280,7 +281,10 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, act
   hub.useHubEffect(MessageTargetKey.WorkOrder, onWorkOrder);
 
   //Remove HTML tags, square brackets and line breaks before comparison.
-  const cleanString = (str: string | undefined) => str?.replace(/<[^>]*>?|\[|\]|\n/gm, '').trim();
+  const cleanString = (str: string | undefined) =>
+    htmlToPlainText(str)
+      .replace(/\[|\]|\n/g, '')
+      .trim();
 
   const formattedBody = React.useMemo(
     () => formatSearch(content?.body?.replace(/\n+/g, '<br><br>') ?? '', filter),

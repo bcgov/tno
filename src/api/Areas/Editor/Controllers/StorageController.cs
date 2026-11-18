@@ -167,13 +167,13 @@ public class StorageController : ControllerBase
             }
             else if (dataLocation.Connection == null || dataLocation.Connection?.ConnectionType == ConnectionType.LocalVolume)
             {
-                return Directory.Exists(Path.Combine(_storageOptions.GetCapturePath(), path)) ? new OkResult() : new NoContentResult();
+                return Directory.Exists(StoragePath.Resolve(_storageOptions.GetCapturePath(), path)) ? new OkResult() : new NoContentResult();
             }
             else throw new NotImplementedException($"Location connection type '{dataLocation.Connection?.ConnectionType}' not implemented yet.");
         }
         else
         {
-            return Directory.Exists(Path.Combine(_storageOptions.GetUploadPath(), path)) ? new OkResult() : new NoContentResult();
+            return Directory.Exists(StoragePath.Resolve(_storageOptions.GetUploadPath(), path)) ? new OkResult() : new NoContentResult();
         }
 
     }
@@ -203,7 +203,7 @@ public class StorageController : ControllerBase
         {
             if (dataLocation.Connection == null || dataLocation.Connection?.ConnectionType == ConnectionType.LocalVolume)
             {
-                var safePath = Path.Combine(_storageOptions.GetCapturePath(), path, file.FileName);
+                var safePath = StoragePath.Resolve(_storageOptions.GetCapturePath(), Path.Combine(path, StoragePath.FileName(file.FileName)));
                 if (String.IsNullOrWhiteSpace(Path.GetFileName(safePath))) throw new InvalidOperationException("Filename missing");
                 if (safePath.DirectoryExists()) throw new InvalidOperationException("Invalid path");
 
@@ -217,13 +217,13 @@ public class StorageController : ControllerBase
                 using var stream = System.IO.File.Open(safePath, FileMode.Create);
                 await file.CopyToAsync(stream);
 
-                return new JsonResult(new ItemModel(safePath, true));
+                return new JsonResult(new ItemModel(_storageOptions.GetCapturePath(), safePath, true));
             }
             else throw new NotImplementedException($"Location connection type '{dataLocation.Connection?.ConnectionType}' not implemented yet.");
         }
         else
         {
-            var safePath = Path.Combine(_storageOptions.GetUploadPath(), path, file.FileName);
+            var safePath = StoragePath.Resolve(_storageOptions.GetUploadPath(), Path.Combine(path, StoragePath.FileName(file.FileName)));
             if (String.IsNullOrWhiteSpace(Path.GetFileName(safePath))) throw new InvalidOperationException("Filename missing");
             if (safePath.DirectoryExists()) throw new InvalidOperationException("Invalid path");
 
@@ -237,7 +237,7 @@ public class StorageController : ControllerBase
             using var stream = System.IO.File.Open(safePath, FileMode.Create);
             await file.CopyToAsync(stream);
 
-            return new JsonResult(new ItemModel(safePath, true));
+            return new JsonResult(new ItemModel(_storageOptions.GetUploadPath(), safePath, true));
         }
     }
 
@@ -261,22 +261,22 @@ public class StorageController : ControllerBase
         {
             if (dataLocation.Connection == null || dataLocation.Connection?.ConnectionType == ConnectionType.LocalVolume)
             {
-                var safePath = Path.Combine(_storageOptions.GetCapturePath(), path);
+                var safePath = StoragePath.Resolve(_storageOptions.GetCapturePath(), path);
 
-                return await GetResultAsync(safePath, path);
+                return await GetResultAsync(_storageOptions.GetCapturePath(), safePath, path);
             }
             else throw new NotImplementedException($"Location connection type '{dataLocation.Connection?.ConnectionType}' not implemented yet.");
         }
         else
         {
             _logger.LogInformation("Getting stream for path: {Path}", path);
-            var safePath = Path.Combine(_storageOptions.GetUploadPath(), path);
-            return await GetResultAsync(safePath, path);
+            var safePath = StoragePath.Resolve(_storageOptions.GetUploadPath(), path);
+            return await GetResultAsync(_storageOptions.GetUploadPath(), safePath, path);
         }
     }
 
 
-    private async Task<IActionResult> GetResultAsync(string safePath, string path)
+    private async Task<IActionResult> GetResultAsync(string rootPath, string safePath, string path)
     {
         //find file from s3
         var stream = await _s3StorageService.DownloadFromS3Async(path);
@@ -286,7 +286,7 @@ public class StorageController : ControllerBase
         }
 
         if (!safePath.FileExists()) throw new NoContentException($"Stream does not exist: '{path}'");
-        var info = new ItemModel(safePath, true);
+        var info = new ItemModel(rootPath, safePath, true);
         var fileStream = System.IO.File.OpenRead(safePath);
         return File(fileStream, info.MimeType!);
     }
@@ -311,11 +311,11 @@ public class StorageController : ControllerBase
         {
             if (dataLocation.Connection == null || dataLocation.Connection?.ConnectionType == ConnectionType.LocalVolume)
             {
-                var safePath = Path.Combine(_storageOptions.GetCapturePath(), path);
+                var safePath = StoragePath.Resolve(_storageOptions.GetCapturePath(), path);
                 if (!safePath.FileExists() && !safePath.DirectoryExists()) throw new InvalidOperationException($"File/folder does not exist: '{path}'");
 
                 // TODO: download a full folder as a ZIP
-                var info = new ItemModel(safePath, true);
+                var info = new ItemModel(_storageOptions.GetCapturePath(), safePath, true);
                 var stream = System.IO.File.OpenRead(safePath);
                 return File(stream, contentType: info.MimeType!, fileDownloadName: info.Name, enableRangeProcessing: false);
             }
@@ -323,11 +323,11 @@ public class StorageController : ControllerBase
         }
         else
         {
-            var safePath = Path.Combine(_storageOptions.GetUploadPath(), path);
+            var safePath = StoragePath.Resolve(_storageOptions.GetUploadPath(), path);
             if (!safePath.FileExists() && !safePath.DirectoryExists()) throw new InvalidOperationException($"File/folder does not exist: '{path}'");
 
             // TODO: download a full folder as a ZIP
-            var info = new ItemModel(safePath, true);
+            var info = new ItemModel(_storageOptions.GetUploadPath(), safePath, true);
             var stream = System.IO.File.OpenRead(safePath);
             return File(stream, contentType: info.MimeType!, fileDownloadName: info.Name, enableRangeProcessing: false);
         }
@@ -355,10 +355,10 @@ public class StorageController : ControllerBase
             if (dataLocation.Connection == null || dataLocation.Connection?.ConnectionType == ConnectionType.LocalVolume)
             {
                 var rootPath = _storageOptions.GetCapturePath();
-                var safePath = Path.Combine(rootPath, path.MakeRelativePath());
+                var safePath = StoragePath.Resolve(rootPath, path.MakeRelativePath());
                 if (!safePath.FileExists() && !safePath.DirectoryExists()) throw new InvalidOperationException($"File does not exist: '{path}'");
 
-                var safeDestination = Path.Combine(rootPath, destination.MakeRelativePath());
+                var safeDestination = StoragePath.Resolve(rootPath, destination.MakeRelativePath());
                 if (safeDestination.FileExists()) throw new InvalidOperationException($"File already exists, cannot rename: '{destination}'");
 
                 var directory = Path.GetDirectoryName(safeDestination);
@@ -366,7 +366,7 @@ public class StorageController : ControllerBase
                     Directory.CreateDirectory(directory);
 
                 System.IO.File.Move(safePath, safeDestination);
-                var info = new ItemModel(safeDestination, true);
+                var info = new ItemModel(rootPath, safeDestination, true);
                 return new JsonResult(info);
             }
             else throw new NotImplementedException($"Location connection type '{dataLocation.Connection?.ConnectionType}' not implemented yet.");
@@ -374,10 +374,10 @@ public class StorageController : ControllerBase
         else
         {
             var rootPath = _storageOptions.GetUploadPath();
-            var safePath = Path.Combine(rootPath, path.MakeRelativePath());
+            var safePath = StoragePath.Resolve(rootPath, path.MakeRelativePath());
             if (!safePath.FileExists() && !safePath.DirectoryExists()) throw new InvalidOperationException($"File does not exist: '{path}'");
 
-            var safeDestination = Path.Combine(rootPath, destination.MakeRelativePath());
+            var safeDestination = StoragePath.Resolve(rootPath, destination.MakeRelativePath());
             if (safeDestination.FileExists()) throw new InvalidOperationException($"File already exists, cannot rename: '{destination}'");
 
             var directory = Path.GetDirectoryName(safeDestination);
@@ -385,7 +385,7 @@ public class StorageController : ControllerBase
                 Directory.CreateDirectory(directory);
 
             System.IO.File.Move(safePath, safeDestination);
-            var info = new ItemModel(safeDestination, true);
+            var info = new ItemModel(rootPath, safeDestination, true);
             return new JsonResult(info);
         }
     }
@@ -432,11 +432,11 @@ public class StorageController : ControllerBase
             }
             else if (dataLocation.Connection == null || dataLocation.Connection?.ConnectionType == ConnectionType.LocalVolume)
             {
-                var safePath = Path.Combine(_storageOptions.GetCapturePath(), path.MakeRelativePath());
+                var safePath = StoragePath.Resolve(_storageOptions.GetCapturePath(), path.MakeRelativePath());
                 if (!safePath.FileExists() && !safePath.DirectoryExists()) throw new InvalidOperationException($"File/folder does not exist: '{path}'");
 
                 // TODO: Only certain users should be allowed to delete certain files/folders.
-                var item = new ItemModel(safePath, true);
+                var item = new ItemModel(_storageOptions.GetCapturePath(), safePath, true);
                 if (item.IsDirectory) Directory.Delete(safePath);
                 else System.IO.File.Delete(safePath);
                 return new JsonResult(item);
@@ -445,11 +445,11 @@ public class StorageController : ControllerBase
         }
         else
         {
-            var safePath = Path.Combine(_storageOptions.GetUploadPath(), path.MakeRelativePath());
+            var safePath = StoragePath.Resolve(_storageOptions.GetUploadPath(), path.MakeRelativePath());
             if (!safePath.FileExists() && !safePath.DirectoryExists()) throw new InvalidOperationException($"File/folder does not exist: '{path}'");
 
             // TODO: Only certain users should be allowed to delete certain files/folders.
-            var item = new ItemModel(safePath, true);
+            var item = new ItemModel(_storageOptions.GetUploadPath(), safePath, true);
             if (item.IsDirectory) Directory.Delete(safePath);
             else System.IO.File.Delete(safePath);
             return new JsonResult(item);
@@ -479,17 +479,17 @@ public class StorageController : ControllerBase
         {
             if (dataLocation.Connection == null || dataLocation.Connection?.ConnectionType == ConnectionType.LocalVolume)
             {
-                var safePath = Path.Combine(_storageOptions.GetCapturePath(), path.MakeRelativePath());
-                var file = await FfmpegHelper.CreateClipAsync(safePath, start, end, outputName);
-                return new JsonResult(new ItemModel(file, true));
+                var safePath = StoragePath.Resolve(_storageOptions.GetCapturePath(), path.MakeRelativePath());
+                var file = await FfmpegHelper.CreateClipAsync(safePath, start, end, StoragePath.FileName(outputName));
+                return new JsonResult(new ItemModel(_storageOptions.GetCapturePath(), file, true));
             }
             else throw new NotImplementedException($"Location connection type '{dataLocation.Connection?.ConnectionType}' not implemented yet.");
         }
         else
         {
-            var safePath = Path.Combine(_storageOptions.GetUploadPath(), path.MakeRelativePath());
-            var file = await FfmpegHelper.CreateClipAsync(safePath, start, end, outputName);
-            return new JsonResult(new ItemModel(file, true));
+            var safePath = StoragePath.Resolve(_storageOptions.GetUploadPath(), path.MakeRelativePath());
+            var file = await FfmpegHelper.CreateClipAsync(safePath, start, end, StoragePath.FileName(outputName));
+            return new JsonResult(new ItemModel(_storageOptions.GetUploadPath(), file, true));
         }
     }
 
@@ -514,17 +514,17 @@ public class StorageController : ControllerBase
         {
             if (dataLocation.Connection == null || dataLocation.Connection?.ConnectionType == ConnectionType.LocalVolume)
             {
-                var safePath = Path.Combine(_storageOptions.GetCapturePath(), path.MakeRelativePath());
-                var file = await FfmpegHelper.JoinClipsAsync(safePath, prefix);
-                return new JsonResult(new ItemModel(file, true));
+                var safePath = StoragePath.Resolve(_storageOptions.GetCapturePath(), path.MakeRelativePath());
+                var file = await FfmpegHelper.JoinClipsAsync(safePath, StoragePath.FileName(prefix));
+                return new JsonResult(new ItemModel(_storageOptions.GetCapturePath(), file, true));
             }
             else throw new NotImplementedException($"Location connection type '{dataLocation.Connection?.ConnectionType}' not implemented yet.");
         }
         else
         {
-            var safePath = Path.Combine(_storageOptions.GetUploadPath(), path.MakeRelativePath());
-            var file = await FfmpegHelper.JoinClipsAsync(safePath, prefix);
-            return new JsonResult(new ItemModel(file, true));
+            var safePath = StoragePath.Resolve(_storageOptions.GetUploadPath(), path.MakeRelativePath());
+            var file = await FfmpegHelper.JoinClipsAsync(safePath, StoragePath.FileName(prefix));
+            return new JsonResult(new ItemModel(_storageOptions.GetUploadPath(), file, true));
         }
     }
     /// <summary>

@@ -1,3 +1,4 @@
+import { escape } from 'lodash';
 import React from 'react';
 import { FaCopyright, FaEyeSlash, FaX } from 'react-icons/fa6';
 import { Link } from 'react-router';
@@ -68,7 +69,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
 
   const body = React.useMemo(() => {
     const truncated = truncateTeaser(item.body || item.summary, 250);
-    return filter.inStory ? formatSearch(truncated, filter) : truncated;
+    return filter.inStory ? formatSearch(escape(truncated), filter) : truncated;
   }, [filter, item.body, item.summary]);
   const headline = React.useMemo(() => {
     return filter.inHeadline ? formatSearch(item.headline, filter) : item.headline;

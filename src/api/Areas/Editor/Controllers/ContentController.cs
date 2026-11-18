@@ -601,7 +601,7 @@ public class ContentController : ControllerBase
 
         // find file from local
         path = string.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
-        var safePath = Path.Combine(_storageOptions.GetUploadPath(), path);
+        var safePath = StoragePath.Resolve(_storageOptions.GetUploadPath(), path);
 
         if (!safePath.FileExists())
         {
@@ -611,7 +611,7 @@ public class ContentController : ControllerBase
             else throw new NoContentException("File does not exist");
         }
 
-        var info = new ItemModel(safePath);
+        var info = new ItemModel(_storageOptions.GetUploadPath(), safePath);
         var fileStream = System.IO.File.OpenRead(safePath);
         return File(fileStream, info.MimeType!);
     }

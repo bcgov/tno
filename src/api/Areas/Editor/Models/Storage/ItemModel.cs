@@ -1,4 +1,5 @@
 using FTTLib;
+using TNO.API.Helpers;
 
 namespace TNO.API.Areas.Editor.Models.Storage;
 
@@ -53,10 +54,12 @@ public class ItemModel
     /// <summary>
     /// Creates a new instance of an ItemModel, initializes with specified parameter.
     /// </summary>
+    /// <param name="rootPath">The trusted storage directory.</param>
     /// <param name="path"></param>
     /// <param name="isLocal"></param>
-    public ItemModel(string path, bool isLocal = false)
+    public ItemModel(string rootPath, string path, bool isLocal = false)
     {
+        path = StoragePath.Resolve(rootPath, path);
         this.IsLocal = isLocal;
         this.Name = System.IO.Path.GetFileName(path);
         this.IsDirectory = (System.IO.File.GetAttributes(path) & FileAttributes.Directory) == FileAttributes.Directory;

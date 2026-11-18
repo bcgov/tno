@@ -31,3 +31,4 @@ export * from './setCookie';
 export * from './toTitleCase';
 export * from './validateEmail';
 export * from './fixTooltipResizeObserver';
+export * from './htmlToPlainText';

@@ -342,16 +342,18 @@ public class KeycloakHelper : IKeycloakHelper
 
     #region Location Methods
     /// <summary>
-    /// Remove the specified location.
+    /// Remove the specified location. A nonempty device key is required.
     /// </summary>
     /// <param name="principal"></param>
     /// <param name="deviceKey"></param>
     public void RemoveLocation(ClaimsPrincipal principal, string? deviceKey = null)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(deviceKey);
+
         // CSS uses the preferred_username value as a username, but it's not the actual username...
         var key = principal.GetUid() ?? throw new NotAuthorizedException("The 'sub' is required but missing from token");
         var user = _userService.FindByUserKey(key);
-        if (user != null && deviceKey != null)
+        if (user != null)
         {
             Models.Auth.LocationModel[]? userLocations = null;
             var locations = user.Preferences.GetElementValue<Models.Auth.LocationModel[]>(".locations");

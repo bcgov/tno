@@ -1,3 +1,4 @@
+using TNO.API.Helpers;
 using TNO.Core.Extensions;
 
 namespace TNO.API.Areas.Editor.Models.Storage;
@@ -39,7 +40,7 @@ public class DirectoryModel
     /// <param name="isLocal"></param>
     public DirectoryModel(string rootPath, string path, bool isLocal = false)
     {
-        var safePath = System.IO.Path.Combine(rootPath, path.MakeRelativePath());
+        var safePath = StoragePath.Resolve(rootPath, path.MakeRelativePath());
         if (!safePath.DirectoryExists()) throw new InvalidOperationException($"Folder does not exist '{safePath}'");
 
         this.IsLocal = isLocal;
@@ -51,7 +52,7 @@ public class DirectoryModel
         // Don't include temporary folder.
         foreach (var fullName in files)
         {
-            var item = new ItemModel(fullName, isLocal);
+            var item = new ItemModel(rootPath, fullName, isLocal);
             if (!item.IsDirectory || !item.Name.StartsWith("."))
                 result.Add(item);
         }
@@ -62,14 +63,15 @@ public class DirectoryModel
     /// Creates a new instance of an DirectoryModel, initializes with specified parameter.
     /// Does not include hidden directories.
     /// </summary>
+    /// <param name="rootPath">The trusted storage directory.</param>
     /// <param name="files"></param>
     /// <param name="isLocal"></param>
-    public DirectoryModel(IEnumerable<string> files, bool isLocal = false)
+    public DirectoryModel(string rootPath, IEnumerable<string> files, bool isLocal = false)
     {
         var result = new List<ItemModel>();
         foreach (var fullName in files)
         {
-            var item = new ItemModel(fullName, isLocal);
+            var item = new ItemModel(rootPath, fullName, isLocal);
             if (!item.IsDirectory || !item.Name.StartsWith("."))
                 result.Add(item);
         }

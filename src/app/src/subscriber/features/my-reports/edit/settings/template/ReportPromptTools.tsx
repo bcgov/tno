@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom';
 import { FaCircleInfo, FaCode, FaFlask, FaPaste } from 'react-icons/fa6';
 import styled from 'styled-components';
 
+import { htmlToPlainText } from '@/shared/utils/htmlToPlainText';
+
 import { aiInputFields, defaultAIInputFields } from './aiInputFields';
 
 const Help = styled.dialog`
@@ -65,10 +67,7 @@ const Confirm = styled.dialog`
 `;
 
 /** Rich text as comparable plain text: the browser's parser drops the tags, then whitespace is collapsed. */
-const toText = (html?: string) =>
-  (new DOMParser().parseFromString(html ?? '', 'text/html').body.textContent ?? '')
-    .replace(/\s+/g, ' ')
-    .trim();
+const toText = (html?: string) => htmlToPlainText(html).replace(/\s+/g, ' ').trim();
 
 /** Whether rich text holds anything beyond empty paragraphs. */
 const hasText = (html?: string) => toText(html).length > 0;
