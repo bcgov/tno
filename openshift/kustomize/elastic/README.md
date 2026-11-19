@@ -1,5 +1,13 @@
 # Elasticsearch
 
+Local and DEV target **8.19.25** as of 2026-11-19. Local uses
+`dependencies/elasticsearch/Dockerfile`; DEV pins the image in `overlays/dev/kustomization.yaml`.
+The shared base and TEST/PROD overlays remain unchanged. TEST and PROD use Elastic Cloud.
+
+The 2026-11-19 rollout completed with all three DEV nodes green. Local retained its
+single-node yellow status with all primary shards active. Application alias searches passed
+in both environments; the `pre-8-19-25-20261119` and `post-8-19-25-20261119` snapshots succeeded.
+
 - [Upgrade 7.17.9 → 8.19.21 (Local and DEV)](UPGRADE-8.19.21.md)
 - [Snapshots](SNAPSHOTS.md): `scripts/snapshots.sh` (backup and restore), `scripts/rolling-update.sh` (one node at a time)
 
