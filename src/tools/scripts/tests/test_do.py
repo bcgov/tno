@@ -57,7 +57,7 @@ if name == 'dotnet' and args[:3] == ['ef', 'migrations', 'add']:
                         'public partial class Test : Migration\\n{\\n'
                         '    protected override void Up(MigrationBuilder migrationBuilder)\\n    {\\n'
                         '        migrationBuilder.Sql("SELECT \\"{\\";");\\n    }\\n'
-                        '    protected override void Down(MigrationBuilder migrationBuilder)\\n    {\\n    }\\n}\\n')
+                        '    protected override void Down(MigrationBuilder migrationBuilder)\\n    {\\n    }\\n}\\n', encoding='utf-8')
     migration.write_bytes(migration.read_bytes().replace(b'\\r\\n', b'\\n').replace(b'\\n', b'\\r\\n'))
 PY
 ''')
@@ -86,7 +86,7 @@ PY
                         continue
                     self.assertEqual(name, engine)
                     self.assertEqual(runtime, engine)
-                    self.assertEqual(Path(cwd), self.root)
+                    self.assertTrue(Path(cwd).samefile(self.root))
                     self.assertEqual(args.count('-f'), 5 if 'rm' in args and action == 'refresh' else 4)
                     self.assertIn('src/services/docker-compose.yml', args)
                     self.assertEqual(args[args.index('--profile') + 1], 'main')
@@ -123,7 +123,7 @@ PY
     def test_oc_argument_order_and_empty_slots(self):
         calls = self.run_do('oc', 'deploy', '-n', 'elastic-migration', '-m', '1.0.11', '-p', 'copy')
         self.assertEqual(calls[-1][1], ['dev', 'latest', 'elastic-migration', '1.0.11', '', 'copy'])
-        self.assertEqual(Path(calls[-1][2]), self.root / 'openshift/scripts')
+        self.assertTrue(Path(calls[-1][2]).samefile(self.root / 'openshift/scripts'))
         cases = {
             'build': ['api', 'latest', 'prod'], 'push': ['api', 'latest'],
             'pull': ['api', 'latest'], 'pod': ['api'], 'logs': ['api', '0'],
@@ -189,7 +189,7 @@ PY
         for args, expected in cases:
             calls = self.run_do(*args)
             self.assertTrue(all(c[0] == 'dotnet' for c in calls))
-            self.assertTrue(all(Path(c[2]) == self.root / 'src/libs/dal' for c in calls if c[1] != ['ef', '--version']))
+            self.assertTrue(all(Path(c[2]).samefile(self.root / 'src/libs/dal') for c in calls if c[1] != ['ef', '--version']))
             self.assertEqual([c[1][1:] for c in calls if c[1][0] == 'ef' and c[1] != ['ef', '--version']], expected)
         calls = self.run_do('db-script', '--from', '1.5.14', '--to', '1.5.16', '--output', 'sql/my migration.sql')
         self.assertEqual(calls[-1][1][0:5], ['ef', 'migrations', 'script', '1.5.14', '1.5.16'])
@@ -209,7 +209,7 @@ PY
     def test_generated_seed_hooks_and_recreate_sequence(self):
         for command, version in [('db-add', '1.5.17'), ('db-recreate', '1.5.18')]:
             calls = self.run_do(command, '-n', version)
-            migration = (self.root / ('src/libs/dal/Migrations/20261119000000_' + version + '.cs')).read_text()
+            migration = (self.root / ('src/libs/dal/Migrations/20261119000000_' + version + '.cs')).read_text(encoding='utf-8')
             self.assertIn(': SeedMigration', migration)
             self.assertNotIn('\ufeff', migration)
             for hook in ('PreUp', 'PostUp', 'PreDown', 'PostDown'):
