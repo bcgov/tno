@@ -10,10 +10,10 @@ Other folders contain separate integration utilities; they are not part of the
 
 ## Start the local services
 
-From the repository root, run `make move` if upgrading an existing checkout, then
-`make setup` for missing environment files and `make up n=api`. The API depends on
+From the repository root, run `bash do move` if upgrading an existing checkout, then
+`bash do setup` for missing environment files and `bash do docker up -n api`. The API depends on
 PostgreSQL and Keycloak; requests that use search or messaging also need Elasticsearch
-and Kafka running. Use `make up p=main` for the main application stack.
+and Kafka running. Use `bash do docker up -p main` for the main application stack.
 
 ## Configure a Postman environment
 
@@ -113,7 +113,7 @@ realm, and credentials rather than the local defaults.
   If it persists, inspect `docker logs tno-api` for issuer validation errors. The
   token's `iss` must be accepted by `Keycloak__Issuer` in `src/api/.env`; a token
   requested from local Postman normally has issuer `http://localhost:40001/realms/mmi`.
-  After correcting environment configuration, recreate the API with `make up n=api`.
+  After correcting environment configuration, recreate the API with `bash do docker up -n api`.
 - **API returns 403:** the token is authenticated but lacks permission for that endpoint;
   use the appropriate client or user role for the operation.
 

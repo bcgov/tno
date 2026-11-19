@@ -34,15 +34,35 @@ if [[ "$kind" == statefulset ]]; then
   # Works for both OnDelete and RollingUpdate StatefulSets after a full stop/start.
   seconds=${timeout%s}
   deadline=$((SECONDS + seconds))
+  query_errors=$(mktemp)
+  trap 'rm -f "$query_errors"' EXIT
   while :; do
-    status=$(oc get "$resource" -n "$namespace" -o 'jsonpath={.metadata.generation}{"|"}{.status.observedGeneration}{"|"}{.status.readyReplicas}{"|"}{.status.currentRevision}{"|"}{.status.updateRevision}')
-    IFS='|' read -r generation observed ready current_revision update_revision <<< "$status"
-    if (( ${observed:-0} >= ${generation:-1} && ${ready:-0} == replicas )) &&
-      [[ -n "$update_revision" && "$current_revision" == "$update_revision" ]]; then
-      break
+    request_seconds=$((deadline - SECONDS))
+    (( request_seconds <= 10 )) || request_seconds=10
+    (( request_seconds > 0 )) || request_seconds=1
+    if status=$(oc get "$resource" -n "$namespace" --request-timeout="${request_seconds}s" -o 'jsonpath={.metadata.generation}{"|"}{.status.observedGeneration}{"|"}{.status.readyReplicas}{"|"}{.status.currentRevision}{"|"}{.status.updateRevision}' 2>"$query_errors"); then
+      cat "$query_errors" >&2
+      IFS='|' read -r generation observed ready current_revision update_revision <<< "$status"
+      if (( ${observed:-0} >= ${generation:-1} && ${ready:-0} == replicas )) &&
+        [[ -n "$update_revision" && "$current_revision" == "$update_revision" ]]; then
+        break
+      fi
+    else
+      # A failed observation does not mean the workload failed. Retry transport
+      # errors without replaying the stop/start, but keep permanent errors fatal.
+      error=$(cat "$query_errors")
+      printf '%s\n' "$error" >&2
+      case "$error" in
+        *Forbidden*|*Unauthorized*|*NotFound*|*'x509:'*) exit 1 ;;
+        *'i/o timeout'*|*'TLS handshake timeout'*|*'connection reset by peer'*|*'connection refused'*|*'context deadline exceeded'*|*'Client.Timeout'*|*'unexpected EOF'*)
+          echo "$resource readiness query lost connectivity; retrying within ${timeout}." >&2 ;;
+        *) exit 1 ;;
+      esac
     fi
     (( SECONDS < deadline )) || { echo "$resource readiness timed out" >&2; exit 1; }
-    sleep 5
+    delay=$((deadline - SECONDS))
+    (( delay <= 5 )) || delay=5
+    sleep "$delay"
   done
 elif [[ "$kind" == deployment ]]; then
   if [[ "$name" == api-services ]]; then

@@ -18,7 +18,7 @@ echo ""
 echo "WARNING: $message"
 
 if [[ ! -t 0 ]]; then
-  echo "Aborted: no terminal to confirm on, pass y=1 to proceed without prompting."
+  echo "Aborted: no terminal to confirm on, pass -y to proceed without prompting."
   exit 1
 fi
 

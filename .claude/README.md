@@ -6,7 +6,9 @@ This folder stores Claude-specific local configuration and reusable repository s
 
 - `skills/solution-folder-structure.md`
 - `skills/language-standards-and-requirements.md`
-- `skills/make-commands.md`
+- `skills/do-commands.md` — root Bash command usage; full reference in `docs/DO.md`
+- `skills/db-migrations.md` — local/container EF and migration lifecycle
+- `skills/acr-images.md` — root OpenShift/ACR commands
 - `skills/docker-compose-services.md`
 - `skills/project-service-catalog.md`
 - `skills/keycloak-implementation.md`

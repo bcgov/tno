@@ -7,7 +7,7 @@ is described in the [tool README](../../../src/tools/elastic/migration/README.md
 ## What the Migration Does
 
 1.0.11 adds content analysis to the search indexes and a new evidence index used by report AI. It runs as four
-steps, each a separate Job (`p=<step>`), or all of them in one Job.
+steps, each a separate Job (`-p <step>`), or all of them in one Job.
 
 | Step | What it does |
 | ---- | ------------ |
@@ -120,7 +120,7 @@ For DEV, pass the URL as `localhost:9200/<path>`, e.g. `es 'localhost:9200/_cat/
 4. **Nothing left over.** No `_v1.0.11` indexes, no running reindex task and no `elastic-migration` Job.
 
    ```bash
-   es 'localhost:9200/_cat/indices?v&s=index' | grep -v '^\.'
+   es 'localhost:9200/_cat/indices?v&-s index' | grep -v '^\.'
    es 'localhost:9200/_tasks?actions=*reindex'          # expect "nodes":{}
    oc get jobs -n $N | grep elastic-migration
    ```
@@ -144,23 +144,23 @@ For DEV, pass the URL as `localhost:9200/<path>`, e.g. `es 'localhost:9200/_cat/
 From the repository root, build and push the tool image, then run it in each environment in turn.
 
 ```bash
-make -C openshift build n=elastic-migration t=latest
-make -C openshift push n=elastic-migration t=latest
+bash do oc build -n elastic-migration -t latest
+bash do oc push -n elastic-migration -t latest
 
 # Stepped: one Job per step, the second indexing service running from after prepare until after cutover
-make -C openshift deploy n=elastic-migration e=dev t=latest m=1.0.11 p=prepare
-make -C openshift deploy n=elastic-migration e=dev t=latest m=1.0.11 p=copy
-make -C openshift deploy n=elastic-migration e=dev t=latest m=1.0.11 p=verify
-make -C openshift deploy n=elastic-migration e=dev t=latest m=1.0.11 p=cutover
+bash do oc deploy -n elastic-migration -e dev -t latest -m 1.0.11 -p prepare
+bash do oc deploy -n elastic-migration -e dev -t latest -m 1.0.11 -p copy
+bash do oc deploy -n elastic-migration -e dev -t latest -m 1.0.11 -p verify
+bash do oc deploy -n elastic-migration -e dev -t latest -m 1.0.11 -p cutover
 
 # Single run, with indexing off: every step in one Job
-make -C openshift deploy n=elastic-migration e=dev t=latest m=1.0.11
+bash do oc deploy -n elastic-migration -e dev -t latest -m 1.0.11
 ```
 
 For TEST and PROD add `ELASTIC_MIGRATION_BASELINE=1.0.10` (see [the table above](#state-on-2026-10-09)), and for
 PROD's copy a longer `MIGRATION_ACTIVE_DEADLINE_SECONDS`.
 
-`p=` needs `m=`, and takes `prepare`, `copy`, `verify`, `cutover` or `all` (the default). A rollback (`m=1.0.10`)
+`-p ` needs `-m `, and takes `prepare`, `copy`, `verify`, `cutover` or `all` (the default). A rollback (`-m 1.0.10`)
 always runs as a single run.
 
 `deploy` promotes the image tag to the environment, creates a one-shot Job `elastic-migration-<timestamp>` (or
@@ -177,7 +177,7 @@ retried and are kept for 24 hours.
 
 The GitHub Actions workflow **Elastic Migration CI/CD** never runs a migration. It tests the tool, and a push to
 `dev` or `master` builds the image and pushes it to ACR as `elastic-migration:dev` or `elastic-migration:test`.
-Run the migration itself with `make -C openshift deploy n=elastic-migration ...` as described above.
+Run the migration itself with `bash do oc deploy -n elastic-migration ...` as described above.
 
 ### Second Indexing Service
 
@@ -320,11 +320,11 @@ A Job that fails or times out does not stop the copy running inside Elasticsearc
   rerunning.
 - **A step says an earlier one has not completed.** Run the step it names first.
 - **Cutover waits for replicas.** It waits up to an hour for the new indexes to be as healthy as the ones they
-  replace, then fails with the aliases unchanged. Check disk and `_cat/shards`, then rerun `p=cutover`.
+  replace, then fails with the aliases unchanged. Check disk and `_cat/shards`, then rerun `-p cutover`.
 - **Task missing after a node restart.** The tool clears the task ID and fails; rerun to replay the copy into the
   retained indexes.
 
-Do not run `m=1.0.10` to recover from a failed upgrade. That is a full rollback that copies everything again.
+Do not run `-m 1.0.10` to recover from a failed upgrade. That is a full rollback that copies everything again.
 
 ## DEV Elasticsearch Cluster
 

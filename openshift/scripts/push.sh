@@ -16,7 +16,7 @@ resolve_image "$name"
 image="$ACR_REGISTRY/$IMAGE:$tag"
 
 if ! docker image inspect "$image" &>/dev/null; then
-  echo "ERROR: $image does not exist locally. Build it first: make build n=$name t=$tag" >&2
+  echo "ERROR: $image does not exist locally. Build it first: bash do oc build -n $name -t $tag" >&2
   exit 1
 fi
 

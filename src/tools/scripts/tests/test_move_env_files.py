@@ -28,15 +28,16 @@ class MoveEnvironmentTests(unittest.TestCase):
         file.chmod(0o600)
         return file
 
-    def test_make_move_uses_the_repository_root(self):
+    def test_do_move_uses_the_repository_root(self):
         repo = Path(__file__).resolve().parents[4]
         script = self.root / "src/tools/scripts/move-env-files.py"
         script.parent.mkdir(parents=True)
         shutil.copyfile(repo / "src/tools/scripts/move-env-files.py", script)
-        shutil.copyfile(repo / "Makefile", self.root / "Makefile")
+        shutil.copyfile(repo / "do", self.root / "do")
+        shutil.copytree(repo / "src/tools/scripts/do", self.root / "src/tools/scripts/do")
         self.write("api/net/.env")
         result = subprocess.run(
-            ["make", "move"], cwd=self.root, capture_output=True, text=True
+            ["bash", "do", "move"], cwd=self.root, capture_output=True, text=True
         )
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertFalse((self.root / "api/net/.env").exists())

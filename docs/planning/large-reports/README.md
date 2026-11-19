@@ -214,7 +214,7 @@ Those are kept, so no saved report loses a chart. `Down` restores the deleted te
 
 ### Rollout
 
-1. Deploy the API and worker, then run `make db-update` (EF 1.5.16).
+1. Deploy the API and worker, then run `bash do docker db-apply` (EF 1.5.16).
 2. In each environment, run ES migration 1.0.12 live (`src/tools/elastic/migration/README.md`).
 3. After cutover, set `Reports__ByLineAggregation=true` on the API. It only needs to be set there.
 

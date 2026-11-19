@@ -266,5 +266,5 @@ rules.
   only the story sections.
 - Regenerating a section or an instance refreshes the stored rows; resend reuses them.
 - The template tab shows the same numbers as the emailed PNG for the same instance.
-- `make db-update` applies the migration; `dotnet test` green; `yarn lint` and `yarn test` green in
+- `bash do docker db-apply` applies the migration; `dotnet test` green; `yarn lint` and `yarn test` green in
   `src/app/subscriber`.

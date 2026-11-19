@@ -20,7 +20,7 @@ mode=${4-remote}
 resolve_image "$name"
 
 if [ -z "$from" ] || [ -z "$to" ]; then
-  echo "ERROR: both a from-tag and a to-tag are required (e.g. make tag n=$name f=latest t=dev)." >&2
+  echo "ERROR: both a from-tag and a to-tag are required (e.g. bash do oc tag -n $name -f latest -t dev)." >&2
   exit 1
 fi
 
@@ -54,7 +54,7 @@ case "$mode" in
         --force
     fi
     echo "Tagged $IMAGE:$to in ACR ($IMAGE:$from and $IMAGE:$to now point at the same image)."
-    echo "Deploy: make deploy e=$to n=$IMAGE t=$to"
+    echo "Deploy: bash do oc deploy -e $to -n $IMAGE -t $to"
     ;;
   *)
     echo "ERROR: mode must be 'local' or 'remote' (got '$mode')." >&2
