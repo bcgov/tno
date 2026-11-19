@@ -69,7 +69,8 @@ class MigrationCommands(unittest.TestCase):
         source = Path(__file__).resolve().parents[1]
         self.scripts = self.root / 'openshift' / 'scripts'
         shutil.copytree(source, self.scripts)
-        shutil.copy(source.parent / 'Makefile', self.scripts.parent)
+        shutil.copy(source.parents[1] / 'do', self.root)
+        shutil.copytree(source.parents[1] / 'src/tools/scripts/do', self.root / 'src/tools/scripts/do')
         binary = self.root / 'bin'
         binary.mkdir()
         for command in ('docker', 'oc', 'curl', 'skopeo', 'az', 'sleep'):
@@ -83,8 +84,8 @@ class MigrationCommands(unittest.TestCase):
                         CALLS=str(self.root / 'calls'), MANIFEST=str(self.root / 'job.yaml'),
                         ACR_USERNAME='mock-user', ACR_PASSWORD='mock-password')
 
-    def run_make(self, *args, success=True, **env):
-        result = subprocess.run(['make', *args], cwd=self.scripts.parent,
+    def run_do(self, *args, success=True, **env):
+        result = subprocess.run(['bash', str(self.root / 'do'), 'oc', *args], cwd=self.root,
                                 env={**self.env, **env}, text=True,
                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=15)
         self.assertEqual(result.returncode == 0, success, result.stdout)
@@ -99,10 +100,10 @@ class MigrationCommands(unittest.TestCase):
 
     def test_image_commands(self):
         for target in ('build', 'push', 'pull'):
-            self.run_make(target, 'n=elastic-migration', 't=candidate')
-        self.run_make('tag', 'n=elastic-migration', 'f=candidate', 't=dev', 'r=local')
-        output = self.run_make('tag', 'n=elastic-migration', 'f=candidate', 't=test')
-        self.assertIn('make deploy e=test n=elastic-migration t=test', output)
+            self.run_do(target, '-n', 'elastic-migration', '-t', 'candidate')
+        self.run_do('tag', '-n', 'elastic-migration', '-f', 'candidate', '-t', 'dev', '-r', 'local')
+        output = self.run_do('tag', '-n', 'elastic-migration', '-f', 'candidate', '-t', 'test')
+        self.assertIn('bash do oc deploy -e test -n elastic-migration -t test', output)
         calls = self.calls()
         self.assertIn('docker build --platform linux/amd64 -t ', calls)
         self.assertIn('-f src/tools/elastic/migration/Dockerfile .', calls)
@@ -121,16 +122,16 @@ class MigrationCommands(unittest.TestCase):
 
     def test_up_and_stop_only_scale_the_cloud_indexer_on_cloud_environments(self):
         for env in ('test', 'prod'):
-            self.run_make('up', f'e={env}')
-            self.run_make('stop', f'e={env}')
+            self.run_do('up', '-e', env)
+            self.run_do('stop', '-e', env)
             self.assertNotIn(f'oc scale deployment indexing-service -n 9b301c-{env}', self.calls())
             count = 2 if env == 'test' else 3
             self.assertIn(f'oc scale deployment indexing-service-cloud -n 9b301c-{env} --replicas={count}', self.calls())
             self.assertIn(f'oc scale deployment indexing-service-cloud -n 9b301c-{env} --replicas=0', self.calls())
 
     def test_up_and_stop_fail_when_a_service_cannot_be_scaled(self):
-        self.assertIn('editor', self.run_make('up', 'e=test', success=False, SCALE_FAIL='editor'))
-        self.assertIn('editor', self.run_make('stop', 'e=test', success=False, SCALE_FAIL='editor'))
+        self.assertIn('editor', self.run_do('up', '-e', 'test', success=False, SCALE_FAIL='editor'))
+        self.assertIn('editor', self.run_do('stop', '-e', 'test', success=False, SCALE_FAIL='editor'))
         # The rest of the environment is still started.
         self.assertIn('oc scale deployment subscriber -n 9b301c-test --replicas=2', self.calls())
 
@@ -159,7 +160,7 @@ class MigrationCommands(unittest.TestCase):
         self.assertIn('did not finish rolling out', output)
 
     def test_migration_controls(self):
-        self.run_make('deploy', 'n=elastic-migration', 'e=test',
+        self.run_do('deploy', '-n', 'elastic-migration', '-e', 'test',
                       MIGRATION_ACTIVE_DEADLINE_SECONDS='43200',
                       MIGRATION_STARTUP_TIMEOUT_SECONDS='1200',
                       ELASTIC_MIGRATION_BASELINE='1.0.10',
@@ -174,12 +175,12 @@ class MigrationCommands(unittest.TestCase):
                        {'ELASTIC_MIGRATION_REQUESTS_PER_SECOND': '0'},
                        {'MIGRATION_ACTIVE_DEADLINE_SECONDS': '0'},
                        {'MIGRATION_STARTUP_TIMEOUT_SECONDS': '-1'}):
-            self.run_make('deploy', 'n=elastic-migration', 'e=dev', success=False, **values)
+            self.run_do('deploy', '-n', 'elastic-migration', '-e', 'dev', success=False, **values)
         self.assertNotIn('imagetools create', self.calls())
         self.assertNotIn('oc apply', self.calls())
 
     def test_dev_job(self):
-        self.run_make('deploy', 'n=elastic-migration', 'e=dev', 't=latest')
+        self.run_do('deploy', '-n', 'elastic-migration', '-e', 'dev', '-t', 'latest')
         job = self.manifest()
         for value in ('kind: Job', 'backoffLimit: 0', 'activeDeadlineSeconds: 86400', 'image: example.azurecr.io/elastic-migration:dev',
                       'args: []', 'name: indexing-service', 'name: elastic',
@@ -192,7 +193,7 @@ class MigrationCommands(unittest.TestCase):
 
     def test_cloud_job_and_version(self):
         for environment in ('test', 'prod'):
-            self.run_make('deploy', 'n=elastic-migration', f'e={environment}', 'm=1.0.11', 's=custom-db')
+            self.run_do('deploy', '-n', 'elastic-migration', '-e', environment, '-m', '1.0.11', '-s', 'custom-db')
             job = self.manifest()
             self.assertIn('args: []', job)
             self.assertIn('name: Elastic__MigrationVersion\n              value: "1.0.11"', job)
@@ -205,30 +206,30 @@ class MigrationCommands(unittest.TestCase):
             self.assertNotIn('Elastic__Password', job)
 
     def test_step_job(self):
-        self.run_make('deploy', 'n=elastic-migration', 'e=dev', 'm=1.0.11', 'p=prepare')
+        self.run_do('deploy', '-n', 'elastic-migration', '-e', 'dev', '-m', '1.0.11', '-p', 'prepare')
         job = self.manifest()
         self.assertIn('args: []', job)
         self.assertIn('name: Elastic__MigrationVersion\n              value: "1.0.11"', job)
         self.assertIn('name: Elastic__Step\n              value: "prepare"', job)
         self.assertIn('name: elastic-migration-prepare-', job)
-        self.run_make('deploy', 'n=elastic-migration', 'e=dev', 'm=1.0.11', 'p=all')
+        self.run_do('deploy', '-n', 'elastic-migration', '-e', 'dev', '-m', '1.0.11', '-p', 'all')
         self.assertIn('name: Elastic__Step\n              value: "all"', self.manifest())
 
     def test_invalid_step_before_external_commands(self):
-        for args in (('n=elastic-migration', 'm=1.0.11', 'p=bad'),
-                     ('n=elastic-migration', 'p=copy'),
-                     ('n=db-migration', 'p=copy')):
-            self.run_make('deploy', *args, success=False)
+        for args in (('-n', 'elastic-migration', '-m', '1.0.11', '-p', 'bad'),
+                     ('-n', 'elastic-migration', '-p', 'copy'),
+                     ('-n', 'db-migration', '-p', 'copy')):
+            self.run_do('deploy', *args, success=False)
         self.assertEqual('', self.calls())
 
     def test_database_job_unchanged(self):
-        self.run_make('deploy', 'n=db-migration', 'e=dev', 'm=0')
+        self.run_do('deploy', '-n', 'db-migration', '-e', 'dev', '-m', '0')
         self.assertIn('args: ["0"]', self.manifest())
         self.assertIn('image: example.azurecr.io/db-migration:dev', self.manifest())
         self.assertNotIn('Elastic__', self.manifest())
 
     def test_cluster_overrides(self):
-        self.run_make('deploy', 'n=elastic-migration', 'e=test',
+        self.run_do('deploy', '-n', 'elastic-migration', '-e', 'test',
                       ELASTIC_MIGRATION_CONFIGMAP='alternate-indexing',
                       ELASTIC_MIGRATION_SECRET='alternate-elastic',
                       ELASTIC_MIGRATION_AUTH='basic')
@@ -238,26 +239,26 @@ class MigrationCommands(unittest.TestCase):
         self.assertNotIn('Elastic__ApiKey', self.manifest())
 
     def test_missing_api_key_prevents_promotion(self):
-        self.run_make('deploy', 'n=elastic-migration', 'e=test', success=False,
+        self.run_do('deploy', '-n', 'elastic-migration', '-e', 'test', success=False,
                       MISSING_KEY='ApiKey')
         self.assertNotIn('skopeo copy', self.calls())
         self.assertNotIn('oc apply', self.calls())
 
     def test_invalid_version_before_external_commands(self):
-        self.run_make('deploy', 'n=elastic-migration', 'm=0', success=False)
+        self.run_do('deploy', '-n', 'elastic-migration', '-m', '0', success=False)
         self.assertEqual('', self.calls())
 
     def test_missing_config_prevents_promotion(self):
-        self.run_make('deploy', 'n=elastic-migration', success=False, MISSING_KEY='CONTENT_INDEX')
+        self.run_do('deploy', '-n', 'elastic-migration', success=False, MISSING_KEY='CONTENT_INDEX')
         self.assertNotIn('skopeo copy', self.calls())
         self.assertNotIn('oc apply', self.calls())
 
     def test_apply_failure_stops(self):
-        self.run_make('deploy', 'n=elastic-migration', success=False, APPLY_FAIL='1')
+        self.run_do('deploy', '-n', 'elastic-migration', success=False, APPLY_FAIL='1')
         self.assertNotIn('oc logs', self.calls())
 
     def test_failed_job_is_reported(self):
-        output = self.run_make('deploy', 'n=elastic-migration', success=False, JOB_FAIL='1')
+        output = self.run_do('deploy', '-n', 'elastic-migration', success=False, JOB_FAIL='1')
         self.assertIn('did not succeed', output)
 
 

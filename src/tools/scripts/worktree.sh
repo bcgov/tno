@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+set -eo pipefail
 
 repo_root="$(git rev-parse --show-toplevel)"
 cd "$repo_root"
@@ -31,7 +31,13 @@ set_env_value() {
   local file="$3"
 
   if grep -q -E "^${key}=" "$file"; then
-    sed -i "s|^${key}=.*|${key}=${value}|" "$file"
+    local line temporary
+    temporary=$(mktemp "${file}.XXXXXX")
+    while IFS= read -r line || [[ -n "$line" ]]; do
+      case "$line" in "$key="*) printf '%s=%s\n' "$key" "$value" ;; *) printf '%s\n' "$line" ;; esac
+    done < "$file" > "$temporary"
+    cat "$temporary" > "$file"
+    rm "$temporary"
   else
     if [[ -s "$file" ]]; then
       printf '\n%s=%s\n' "$key" "$value" >> "$file"
@@ -57,7 +63,7 @@ if [[ -z "$global_folder" || ! -d "$global_folder" ]]; then
 fi
 
 declare -a worktree_paths=()
-declare -A seen=()
+
 
 add_worktrees_from_folder() {
   local folder="$1"
@@ -66,11 +72,14 @@ add_worktrees_from_folder() {
     return
   fi
 
-  local dir
+  local dir existing duplicate
   for dir in "$folder"/*; do
-    if [[ -d "$dir" && -e "$dir/.git" && -z "${seen[$dir]:-}" ]] && git -C "$dir" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    duplicate=false
+    for existing in "${worktree_paths[@]}"; do
+      [[ "$existing" != "$dir" ]] || duplicate=true
+    done
+    if [[ -d "$dir" && -e "$dir/.git" && "$duplicate" == false ]] && git -C "$dir" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
       worktree_paths+=("$dir")
-      seen["$dir"]=1
     fi
   done
 }

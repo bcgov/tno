@@ -51,7 +51,7 @@ TNO is a BC Government news aggregation mono-repo. It ingests news from many sou
 │   └── tools/           # Database helper images
 ├── openshift/           # Kubernetes manifests and deployment scripts
 ├── docs/
-└── Makefile
+└── do                  # Bash command entrypoint
 ```
 
 ---
@@ -61,12 +61,18 @@ TNO is a BC Government news aggregation mono-repo. It ingests news from many sou
 ### Start everything (Docker)
 
 ```bash
-make setup      # Generate .env files (first time)
-make up         # Start all containers
-make down       # Stop and remove containers (v=1 also deletes the volumes/database)
+bash do setup      # Generate .env files (first time)
+bash do docker up         # Start all containers
+bash do docker down       # Stop and remove containers (-v also deletes the volumes/database)
 ```
 
-Default ports after `make up`:
+Root `bash do db-*` commands use the local .NET 10 SDK and dotnet-ef 10.0.14;
+`bash do docker db-*` / `bash do podman db-*` run the same commands in an SDK container.
+Run `bash do help db` for options. See [the complete command reference](docs/DO.md) and
+[command skill](.codex/skills/do-commands.md) for configuration, all command groups,
+and platform requirements.
+
+Default ports after `bash do docker up`:
 
 | Service       | Port        |
 | ------------- | ----------- |

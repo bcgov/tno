@@ -7,16 +7,16 @@
 - `dependencies/kafka/docker-compose.yml`
 - `src/services/docker-compose.yml`
 
-## Recommended (Make Wrapper)
+## Recommended (Bash Wrapper)
 
-- Start all: `make up`
-- Start core profile: `make up p=main`
-- Start one service: `make up n=<service>`
-- Stop/remove: `make down` (volumes kept; `make down v=1` also deletes them, wiping the database)
+- Start all: `bash do docker up`
+- Start core profile: `bash do docker up -p main`
+- Start one service: `bash do docker up -n <service>`
+- Stop/remove: `bash do docker down` (volumes kept; `bash do docker down -v` also deletes them, wiping the database)
 
-`n=` is the **compose service** name (`api`, `automation`, `editor`), never the container name.
-Containers are `tno-<service>`; `make refresh` adds that prefix itself, so `n=tno-api` fails. See
-the `make-commands` skill for the full rule.
+`-n` is the **compose service** name (`api`, `automation`, `editor`), never the container name.
+Containers are `tno-<service>`; `bash do docker refresh` selects Compose services, so `-n tno-api` fails. See
+[the do-commands skill](do-commands.md) for the full rule.
 
 ## `.env` Changes Need a Recreate, Not a Restart
 
@@ -69,16 +69,15 @@ docker-compose \
 
 ## Core Startup Order (Local)
 
-1. `make setup`
-2. `make up n=database`
-3. `make up n=keycloak`
-4. `make db-update`
-5. `make up n=broker` and `make kafka-update`
-6. `make up n=elastic` and `make elastic-update`
-7. `make up n=api`
-8. `make up n=indexing`
-9. `make up n="editor subscriber nginx"` (make keeps only the last `n=`, so repeating the flag
-   would start `nginx` alone)
+1. `bash do setup`
+2. `bash do docker up -n database`
+3. `bash do docker up -n keycloak`
+4. `bash do docker db-update`
+5. `bash do docker up -n broker` and `bash do docker kafka-update`
+6. `bash do docker up -n elastic` and `bash do docker elastic-update`
+7. `bash do docker up -n api`
+8. `bash do docker up -n indexing`
+9. `bash do docker up -n editor`, `bash do docker up -n subscriber`, and `bash do docker up -n nginx`
 
 ## Useful Runtime URLs
 
@@ -93,10 +92,10 @@ docker-compose \
 
 | Changed | Rebuild |
 | --- | --- |
-| `src/services/<name>/` | `make refresh n=<name>` |
-| `src/api/` | `make refresh n=api` |
+| `src/services/<name>/` | `bash do docker refresh -n <name>` |
+| `src/api/` | `bash do docker refresh -n api` |
 | `src/libs/**` | `api` plus every service that consumes the change. `src/libs/models/Areas/Admin/**` is served to the UIs *by the API* — an editor-visible change there needs `api`, not `editor`. |
-| `src/app/src/`, `src/app/public/`, `src/app/*.html` | nothing — the `editor` and `subscriber` containers bind-mount them and Vite hot-reloads. Only changes outside those (deps, Dockerfile, `vite.config.mts`) need `make refresh n=editor` / `n=subscriber`. |
+| `src/app/src/`, `src/app/public/`, `src/app/*.html` | nothing — the `editor` and `subscriber` containers bind-mount them and Vite hot-reloads. Only changes outside those (deps, Dockerfile, `vite.config.mts`) need `bash do docker refresh -n editor` / `-n subscriber`. |
 
 Rebuilding `api` takes the API down for several minutes. The .NET services treat that as a
 critical failure — `The service is stopping: 'RequestFailed'`, then a ~120s restart backoff.
@@ -105,6 +104,6 @@ Those errors are expected during an `api` rebuild; confirm recovery with a fresh
 
 ## Troubleshooting
 
-- Rebuild service: `make refresh n=<service>` (one service per call)
-- Full cleanup: `make nuke` (destructive)
-- Verify required `.env` files exist after `make setup`.
+- Rebuild service: `bash do docker refresh -n <service>` (one service per call)
+- Full cleanup: `bash do docker nuke` (destructive)
+- Verify required `.env` files exist after `bash do setup`.

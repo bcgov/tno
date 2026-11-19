@@ -58,7 +58,7 @@ Keycloak needs to be setup manually.
 The simplest way to update the database requires the following steps.
 
 - Update the `/src/libs/dal/.env` with the appropriate configuration for the environment
-- Run the `make db-connect e=test` command in the `/openshift` folder.
+- Run the `bash do oc db-connect -e test` command in the repository root.
 - Run the `make db-update` command in the `/src/libs` folder.
 
 Deploy the services below.

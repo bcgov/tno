@@ -68,8 +68,8 @@ kafka_check_access() {
       return 1
     fi
   elif [ "$KAFKA_TARGET" = "docker" ]; then
-    if ! docker inspect "$KAFKA_CONTAINER" > /dev/null 2>&1; then
-      echo >&2 "Broker container '$KAFKA_CONTAINER' is not running. Start it with 'make up n=broker'."
+    if ! "${CONTAINER_ENGINE:-docker}" inspect "$KAFKA_CONTAINER" > /dev/null 2>&1; then
+      echo >&2 "Broker container '$KAFKA_CONTAINER' is not running. Start it with 'bash do ${CONTAINER_ENGINE:-docker} up -n broker'."
       return 1
     fi
   else
@@ -83,7 +83,7 @@ kafka_exec() {
   if [ "$KAFKA_TARGET" = "openshift" ]; then
     oc exec -n "$KAFKA_NAMESPACE" "$KAFKA_BROKER_POD" -- "$@"
   else
-    docker exec -i "$KAFKA_CONTAINER" "$@"
+    "${CONTAINER_ENGINE:-docker}" exec -i "$KAFKA_CONTAINER" "$@"
   fi
 }
 

@@ -77,11 +77,11 @@ contents of `db/`, `auth/`, and `network/`). Deployment manifests remain in `ope
 After pulling the folder restructure, run from the repository root:
 
 ```bash
-make move
-make setup
+bash do move
+bash do setup
 ```
 
-`make move` requires Python 3 and moves ignored `.env`, `.env.*`, and `*.env` files
+`bash do move` requires Python 3 and moves ignored `.env`, `.env.*`, and `*.env` files
 from the old directories to their matching new locations, preserving contents and
 permissions. API environments move from either `api/net/` or `src/api/net/` to
 `src/api/`; charts API environments move from either `api/node/` or `src/api/node/`
@@ -94,9 +94,16 @@ are left at their old locations and are not used or migrated. It leaves the root
 `ORACLE_DB_CONTEXT` overrides when they refer to the old `db/` paths. It skips package
 and build directories. If a destination contains different settings, it stops before
 moving any files: resolve that conflict manually and rerun. Identical copies are left
-in place. Repeated runs are safe. `make setup` also runs this migration before creating
+in place. Repeated runs are safe. `bash do setup` also runs this migration before creating
 missing environment files.
 
 Run frontend commands from `src/app` (`nvm use`, `npm ci`, `npm run dev`). The root
-`TNO.sln`, Make targets, and Compose configuration use the new paths. Recreate local
-containers with `make up` to apply the updated bind mounts and environment paths.
+`TNO.sln`, Bash commands, and Compose configuration use the new paths. Recreate local
+containers with `bash do docker up` to apply the updated bind mounts and environment paths.
+
+Local development uses `bash do docker ...` or `bash do podman ...`; cluster operations
+use `bash do oc ...` from this directory. Run `bash do <group> help` for all commands.
+See [development setup](docs/DEVELOPMENT.md) for Linux, macOS, and Windows prerequisites.
+
+Database tools run locally with `bash do db-*` or in an SDK container with
+`bash do docker db-*` / `bash do podman db-*`. See [the full command reference](docs/DO.md).

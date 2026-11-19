@@ -4,7 +4,7 @@ The .NET REST API lives in `src/api`. From the repository root:
 
 ```bash
 dotnet build src/api/TNO.API.csproj
-make up n=api
+bash do docker up -n api
 ```
 
 For manual API testing, import [TNO.postman_collection.json](TNO.postman_collection.json)

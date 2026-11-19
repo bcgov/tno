@@ -39,7 +39,7 @@ The local UI binds only to loopback and does not require login. Open http://loca
 existing `KAFKA_KOWL_PORT` settings remain a fallback. No UI-specific `.env` is required.
 The local Kafka UI image is built from `dependencies/kafka-ui/`. Its settings are in
 `dependencies/kafka/docker-compose.yml`; it does not require a local `.env` file.
-`make move` relocates any custom Kafka UI environment files from either the old
+`bash do move` relocates any custom Kafka UI environment files from either the old
 `db/kafka/kafka-ui/` or `dependencies/kafka/kafka-ui/` directory.
 
 Kowl's source directory has been removed. Its old `.env` files are unused and are
@@ -205,15 +205,14 @@ messages). Applying a migration again is safe.
 
 ```bash
 # Local Docker broker
-make kafka-update                    # every migration
-make kafka-update n=1.0.1            # one version
-make kafka-update r=1 n=1.0.1        # roll back one version (asks first; y=1 skips)
+bash do docker kafka-update                    # every migration
+bash do docker kafka-update -n 1.0.1            # one version
+bash do docker kafka-update -r -n 1.0.1        # roll back one version (asks first; -y skips)
 
 # OpenShift (oc login first)
-cd openshift
-make kafka-update e=dev d=1          # dry run: show what would change
-make kafka-update e=dev              # apply (asks first; y=1 skips)
-make kafka-topics e=dev              # list topics with partitions and replication factor
+bash do oc kafka-update -e dev -d          # dry run: show what would change
+bash do oc kafka-update -e dev              # apply (asks first; -y skips)
+bash do oc kafka-topics -e dev              # list topics with partitions and replication factor
 ```
 
 A migration declares each topic with `ensure_topic`, optionally with its own settings:
@@ -242,10 +241,10 @@ variables upper-case the topic name and turn `-` and `.` into `_`:
 | `KAFKA_TOPIC_<TOPIC>_CONFIG` | `KAFKA_TOPIC_ANALYSIS_DLQ_CONFIG=retention.ms=2592000000` |
 
 Precedence: a per-topic override, then the migration's value, then the environment default. Exported
-variables and command line options (`p=` default partitions, `f=` default replication factor) win
+variables and command line options (`-p ` default partitions, `-f ` default replication factor) win
 over the file.
 
-`make kafka-topic-add e=dev t=<topic> p=6` and `make kafka-topic-delete e=dev t=<topic>` change one
+`bash do oc kafka-topic-add -e dev -t <topic> -p 6` and `bash do oc kafka-topic-delete -e dev -t <topic>` change one
 topic with the same settings; prefer a migration for topics a feature needs.
 
 ## Helper scripts

@@ -108,14 +108,14 @@ document counts and aliases were unchanged, and both the 7.17 and 8.19 snapshots
 
 1. Optional backup: take a snapshot first (`openshift/kustomize/elastic/scripts/snapshots.sh --local setup`,
    then `... --local now pre-8.19.21`). The snapshot volume survives the upgrade.
-2. Pull the change and run `make refresh n=elastic`. The data volume upgrades in place on first start.
+2. Pull the change and run `bash do docker refresh -n elastic`. The data volume upgrades in place on first start.
    - A few `failed to retrieve password hash for reserved user [elastic]` errors during the first start are
      expected while the security index recovers.
 3. Check it: `curl -u elastic:<password> localhost:40003` should report `"number" : "8.19.21"`, and the editor
    and subscriber searches should work.
 
 **Going back:** 7.17 cannot start on an upgraded volume. To run an older branch, either restore from a snapshot
-into a 7.17 container, or recreate the data with `make down v=1`, then `make up`, `make elastic-update` and the
+into a 7.17 container, or recreate the data with `bash do docker down -v`, then `bash do docker up`, `bash do docker elastic-update` and the
 indexer.
 
 ## 5. DEV procedure

@@ -7,51 +7,39 @@ oc project 9b301c-tools
 
 # ---------------------------------------------------------------------------
 # Replica counts per service per environment.
-# Key format: "service_env". If no key found, falls back to DEFAULT_REPLICAS
-# for that service, then to 1.
+# Key format: "service_env". Unlisted combinations default to one replica.
 # ---------------------------------------------------------------------------
-declare -A REPLICAS=(
-  # api
-  [api_dev]=2              [api_test]=2             [api_prod]=3
-  [api-services_dev]=2     [api-services_test]=2    [api-services_prod]=3
-
-  # frontends
-  [nginx_dev]=1            [nginx_test]=2           [nginx_prod]=3
-  [editor_dev]=1           [editor_test]=2         [editor_prod]=3
-  [subscriber_dev]=1       [subscriber_test]=2      [subscriber_prod]=3
-  [nginx-editor_dev]=1     [nginx-editor_test]=2    [nginx-editor_prod]=3
-  [nginx-subscriber_dev]=1 [nginx-subscriber_test]=2 [nginx-subscriber_prod]=3
-  [charts-api_dev]=1       [charts-api_test]=2      [charts-api_prod]=3
-
-  # ML / media services
-  [ffmpeg-service_dev]=1   [ffmpeg-service_test]=2  [ffmpeg-service_prod]=6
-  [transcription-service_dev]=1 [transcription-service_test]=2 [transcription-service_prod]=6
-  [auto-clipper-service_dev]=1 [auto-clipper-service_test]=2 [auto-clipper-service_prod]=6
-
-  # Kafka consumers
-  [folder-collection-service_dev]=1 [folder-collection-service_test]=2 [folder-collection-service_prod]=3
-  [content-service_dev]=1   [content-service_test]=2   [content-service_prod]=3
-  [indexing-service_dev]=1  # TEST and PROD have no indexing-service, only indexing-service-cloud
-  [indexing-service-cloud_dev]=1 [indexing-service-cloud_test]=2 [indexing-service-cloud_prod]=3
-  [event-handler-service_dev]=1 [event-handler-service_test]=2 [event-handler-service_prod]=3
-  [notification-service_dev]=1 [notification-service_test]=2 [notification-service_prod]=3
-  [reporting-service_dev]=1 [reporting-service_test]=2 [reporting-service_prod]=3
-
-  # Kafka producers (single-instance — scale with caution)
-  [scheduler-service_dev]=1  [scheduler-service_test]=1  [scheduler-service_prod]=1
-  [filemonitor-service_dev]=1 [filemonitor-service_test]=1 [filemonitor-service_prod]=1
-  [syndication-service_dev]=1 [syndication-service_test]=1 [syndication-service_prod]=1
-  [image-service_dev]=1      [image-service_test]=1      [image-service_prod]=1
-  [ches-retry-service_dev]=1 [ches-retry-service_test]=1 [ches-retry-service_prod]=1
-  [automation-service_dev]=1 [automation-service_test]=1 [automation-service_prod]=1
-  [content-analysis-service_dev]=1 [content-analysis-service_test]=1 [content-analysis-service_prod]=1
-)
-
+# A case table also works with macOS's system Bash 3.2.
 replicas() {
-  local name=$1
-  local env=$2
-  local key="${name}_${env}"
-  echo "${REPLICAS[$key]:-1}"
+  case "${1}_${2}" in
+    nginx_dev|editor_dev|subscriber_dev | \
+    nginx-editor_dev|nginx-subscriber_dev|charts-api_dev | \
+    ffmpeg-service_dev|transcription-service_dev|auto-clipper-service_dev | \
+    folder-collection-service_dev|content-service_dev|indexing-service_dev | \
+    indexing-service-cloud_dev|event-handler-service_dev|notification-service_dev | \
+    reporting-service_dev|scheduler-service_dev|scheduler-service_test | \
+    scheduler-service_prod|filemonitor-service_dev|filemonitor-service_test | \
+    filemonitor-service_prod|syndication-service_dev|syndication-service_test | \
+    syndication-service_prod|image-service_dev|image-service_test | \
+    image-service_prod|ches-retry-service_dev|ches-retry-service_test | \
+    ches-retry-service_prod|automation-service_dev|automation-service_test | \
+    automation-service_prod|content-analysis-service_dev|content-analysis-service_test | \
+    content-analysis-service_prod) echo 1 ;;
+    api_dev|api_test|api-services_dev | \
+    api-services_test|nginx_test|editor_test | \
+    subscriber_test|nginx-editor_test|nginx-subscriber_test | \
+    charts-api_test|ffmpeg-service_test|transcription-service_test | \
+    auto-clipper-service_test|folder-collection-service_test|content-service_test | \
+    indexing-service-cloud_test|event-handler-service_test|notification-service_test | \
+    reporting-service_test) echo 2 ;;
+    api_prod|api-services_prod|nginx_prod | \
+    editor_prod|subscriber_prod|nginx-editor_prod | \
+    nginx-subscriber_prod|charts-api_prod|folder-collection-service_prod | \
+    content-service_prod|indexing-service-cloud_prod|event-handler-service_prod | \
+    notification-service_prod|reporting-service_prod) echo 3 ;;
+    ffmpeg-service_prod|transcription-service_prod|auto-clipper-service_prod) echo 6 ;;
+    *) echo 1 ;;
+  esac
 }
 
 scale() {

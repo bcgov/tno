@@ -51,7 +51,7 @@ def migrate(root: Path) -> int:
                     if old.is_file() and new.is_file() and old.read_bytes() == new.read_bytes():
                         print(f"Already present: {new.relative_to(root)} (original retained)")
                         continue
-                    raise ValueError(f"Destination already exists: {new.relative_to(root)}; resolve it before rerunning make move. No files moved.")
+                    raise ValueError(f"Destination already exists: {new.relative_to(root)}; resolve it before rerunning bash do move. No files moved.")
                 if new in destinations:
                     raise ValueError(f"Multiple environment files map to {new.relative_to(root)}. No files moved.")
                 destinations[new] = old

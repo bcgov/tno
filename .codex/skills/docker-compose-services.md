@@ -7,12 +7,12 @@
 - `dependencies/kafka/docker-compose.yml`
 - `src/services/docker-compose.yml`
 
-## Recommended (Make Wrapper)
+## Recommended (Bash Wrapper)
 
-- Start all: `make up`
-- Start core profile: `make up p=main`
-- Start one service: `make up n=<service>`
-- Stop/remove: `make down` (volumes kept; `make down v=1` also deletes them, wiping the database)
+- Start all: `bash do docker up`
+- Start core profile: `bash do docker up -p main`
+- Start one service: `bash do docker up -n <service>`
+- Stop/remove: `bash do docker down` (volumes kept; `bash do docker down -v` also deletes them, wiping the database)
 
 ## Direct Docker Compose Equivalent
 
@@ -28,15 +28,15 @@ docker-compose \
 
 ## Core Startup Order (Local)
 
-1. `make setup`
-2. `make up n=database`
-3. `make up n=keycloak`
-4. `make db-update`
-5. `make up n=broker` and `make kafka-update`
-6. `make up n=elastic` and `make elastic-update`
-7. `make up n=api`
-8. `make up n=indexing`
-9. `make up n=editor n=subscriber n=nginx`
+1. `bash do setup`
+2. `bash do docker up -n database`
+3. `bash do docker up -n keycloak`
+4. `bash do docker db-update`
+5. `bash do docker up -n broker` and `bash do docker kafka-update`
+6. `bash do docker up -n elastic` and `bash do docker elastic-update`
+7. `bash do docker up -n api`
+8. `bash do docker up -n indexing`
+9. `bash do docker up -n editor`, `bash do docker up -n subscriber`, `bash do docker up -n nginx`
 
 ## Useful Runtime URLs
 
@@ -49,6 +49,6 @@ docker-compose \
 
 ## Troubleshooting
 
-- Rebuild service: `make refresh n=<service>`
-- Full cleanup: `make nuke` (destructive)
-- Verify required `.env` files exist after `make setup`.
+- Rebuild service: `bash do docker refresh -n <service>`
+- Full cleanup: `bash do docker nuke` (destructive)
+- Verify required `.env` files exist after `bash do setup`.
