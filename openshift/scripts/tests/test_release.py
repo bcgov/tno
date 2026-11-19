@@ -31,6 +31,15 @@ if args[0]=='get':
     elif output=='jsonpath={.spec.replicas}': print('3')
     elif output.startswith('go-template='): print('component=api,')
     elif output.startswith('jsonpath={.metadata.generation}'):
+        from pathlib import Path
+        marker = Path(os.environ['CALLS'] + '.readiness')
+        attempts = int(marker.read_text()) if marker.exists() else 0
+        marker.write_text(str(attempts + 1))
+        if attempts < int(os.environ.get('READINESS_FAILURES', '0')):
+            print(os.environ.get('READINESS_ERROR', 'Unable to connect to the server: dial tcp 142.34.194.119:6443: i/o timeout'), file=sys.stderr)
+            sys.exit(1)
+        if os.environ.get('READINESS_WARNING'):
+            print('Warning: test warning', file=sys.stderr)
         print(os.environ.get('READINESS','4|4|3|new|new'))
     elif args[1]=='pods' and output=='name': print('pod/api-0')
 ''')
@@ -78,6 +87,31 @@ if args[0]=='get':
         for kind, name in [('statefulset', 'api'), ('deployment', 'api-services')]:
             result = self.run_script(ROLLOUT, 'test', kind, name, '10s')
             self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_statefulset_retries_transient_readiness_errors_without_restarting(self):
+        result = self.run_script(ROLLOUT, 'test', 'statefulset', 'api', '10s',
+                                 READINESS_FAILURES='2', READINESS_WARNING='1')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        calls = self.calls()
+        queries = [c for c in calls if any('metadata.generation' in a for a in c)]
+        self.assertEqual(len(queries), 3)
+        self.assertTrue(all(any(a.startswith('--request-timeout=') for a in c) for c in queries))
+        self.assertEqual(sum('--replicas=0' in c for c in calls), 1)
+        self.assertEqual(sum('--replicas=3' in c for c in calls), 1)
+        self.assertIn('retrying', result.stderr)
+
+    def test_statefulset_connection_failures_respect_readiness_deadline(self):
+        result = self.run_script(ROLLOUT, 'test', 'statefulset', 'api', '0s', READINESS_FAILURES='100')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('readiness timed out', result.stderr)
+        self.assertFalse(any('wide' in c for c in self.calls()))
+
+    def test_statefulset_permanent_readiness_errors_are_fatal(self):
+        result = self.run_script(ROLLOUT, 'test', 'statefulset', 'api', '10s',
+                                 READINESS_FAILURES='100', READINESS_ERROR='Error from server (Forbidden): access denied')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertNotIn('retrying', result.stderr)
+        self.assertEqual(sum(any('metadata.generation' in a for a in c) for c in self.calls()), 1)
 
     def test_deployment_preserves_replicas_and_requires_rollout_success(self):
         result = self.run_script(ROLLOUT, 'test', 'deployment', 'content-service', FAIL='rollout status')
