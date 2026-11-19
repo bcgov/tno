@@ -28,7 +28,7 @@ class DoCommands(unittest.TestCase):
                         DO_CALLS=str(self.log))
         for name in ('docker', 'docker-compose', 'podman', 'oc', 'dotnet'):
             self.stub(self.bin / name)
-        for name in ('db-update', 'elastic-update', 'db-drop', 'refresh-keycloak', 'nuke', 'switch-project'):
+        for name in ('db-apply', 'elastic-update', 'db-drop', 'refresh-keycloak', 'nuke', 'switch-project'):
             self.stub(scripts / (name + '.sh'))
         for name in ('get-pod-name', 'get-logs', 'rsh', 'port-forward', 'database-connect',
                      'release', 'deploy', 'stop', 'up', 'annotate', 'build', 'push', 'pull', 'tag'):
@@ -113,7 +113,7 @@ PY
 
     def test_local_workflows(self):
         for engine in ('docker', 'podman'):
-            for action in ('db-update', 'db-refresh', 'db-nuke', 'elastic-update',
+            for action in ('db-apply', 'db-refresh', 'db-nuke', 'elastic-update',
                            'refresh-keycloak', 'renew', 'reset-consumer-offset', 'nuke'):
                 options = ['-y'] if action == 'nuke' else []
                 calls = self.run_do(engine, action, *options)
@@ -177,8 +177,8 @@ PY
         cases = [
             (['db-migrations'], [['migrations', 'list']]),
             (['db-migrations', '--offline'], [['migrations', 'list', '--no-connect']]),
-            (['db-update'], [['database', 'update']]),
-            (['db-update', '-n', '1.5.16'], [['database', 'update', '1.5.16']]),
+            (['db-apply'], [['database', 'update']]),
+            (['db-apply', '-n', '1.5.16'], [['database', 'update', '1.5.16']]),
             (['db-rollback', '-n', '0'], [['database', 'update', '0']]),
             (['db-remove'], [['migrations', 'remove', '--force']]),
             (['db-drop'], [['database', 'drop']]),
@@ -199,7 +199,7 @@ PY
         for prefix in ([], ['docker'], ['podman']):
             for args in (['db-add'], ['db-rollback'], ['db-script', '--output', '../outside.sql'],
                          ['db-add', '-n', '../bad'], ['db-script', '--output', r'..\outside.sql'],
-                         ['db-update', '-p', 'all'], ['db-unknown']):
+                         ['db-apply', '-p', 'all'], ['db-unknown']):
                 self.assertEqual(self.run_do(*prefix, *args, success=False), [])
         calls = self.run_do('db-clean', FAIL_COMMAND='drop', success=False)
         self.assertFalse(any('update' in c[1] for c in calls))
@@ -224,7 +224,7 @@ PY
     def test_container_database_commands_forward_options_and_mount_sources(self):
         for engine in ('docker', 'podman'):
             for command, options in [('db-migrations', ['--offline']), ('db-add', ['-n', '1.5.17']),
-                    ('db-update', ['-n', '1.5.16']), ('db-rollback', ['-n', '0']), ('db-remove', []),
+                    ('db-apply', ['-n', '1.5.16']), ('db-rollback', ['-n', '0']), ('db-remove', []),
                     ('db-drop', ['-y']), ('db-refresh', []), ('db-clean', []),
                     ('db-script', ['--from', '0', '--to', '1.5.16', '--output', 'sql/a b.sql']),
                     ('db-recreate', ['-r', '1.5.15', '-n', '1.5.17'])]:

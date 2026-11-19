@@ -56,7 +56,7 @@ and `bash do docker help` / `bash do podman help` / `bash do oc help`.
 bash do setup
 bash do docker up -n database
 bash do docker db-migrations
-bash do docker db-update
+bash do docker db-apply
 bash do docker up -p main
 bash do db-migrations --offline
 bash do db-add -n 1.5.17

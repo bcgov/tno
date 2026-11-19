@@ -8,7 +8,7 @@ database_action() {
   case "$command" in
     db-migrations) allow_options offline ;;
     db-add) allow_options n; [[ -n "$n" ]] || die 'db-add requires -n <migration name>' ;;
-    db-update) allow_options n ;;
+    db-apply) allow_options n ;;
     db-rollback) allow_options n; [[ -n "$n" ]] || die 'db-rollback requires -n <migration or 0>' ;;
     db-remove|db-clean|db-refresh) allow_options ;;
     db-drop) allow_options y ;;
@@ -75,7 +75,7 @@ database_local() (
     db-add)
       dotnet ef migrations add "$n"
       bash "$DO_ROOT/src/tools/scripts/do/seed-migration.sh" "$n" ;;
-    db-update|db-rollback)
+    db-apply|db-rollback)
       [[ -z "$n" ]] || args+=("$n")
       dotnet ef database update "${args[@]}" ;;
     db-remove) dotnet ef migrations remove --force ;;

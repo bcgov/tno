@@ -97,7 +97,7 @@ order) and Kafka topic migration `1.0.1`.
 
 1. Create the Kafka topics: `make kafka-update` locally, `cd openshift && make kafka-update e=<env>`
    on OpenShift (partitions per `dependencies/kafka/environments/<env>.conf`). Deploy the API, indexing service, reporting, event-handler, scheduler, and
-   content-analysis images; apply EF `1.5.6` and `1.5.7` (`make db-update` locally). Requests still
+   content-analysis images; apply EF `1.5.6` and `1.5.7` (`bash do docker db-apply` locally). Requests still
    in `analysis_job` when `1.5.7` drops it are not carried over; run a missing-or-stale backfill over
    the affected range afterwards.
 2. Run Elasticsearch `1.0.11` on **each** cluster, with the indexing service's index names:

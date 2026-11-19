@@ -88,7 +88,7 @@ Containers use tno-net by default; DB_NETWORK overrides it (none omits the netwo
 
 db-migrations            List migrations and applied state (--offline skips database access).
 db-add                   Add migration and TNO seed hooks (-n version required).
-db-update                Apply migrations (-n target optional; default latest; 0 rolls back all).
+db-apply                 Apply migrations (-n target optional; default latest; 0 rolls back all).
 db-rollback              Roll back to -n version or -n 0 (required).
 db-remove                Remove last migration with EF --force; may roll back the database.
 db-drop                  Drop database (EF prompts; -y skips confirmation).

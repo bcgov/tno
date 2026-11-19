@@ -69,7 +69,7 @@ The same EF commands/options run with local tools or inside an SDK container:
 ```bash
 bash do db-migrations --offline
 bash do db-add -n 1.5.17
-bash do db-update -n 1.5.17
+bash do db-apply -n 1.5.17
 bash do docker db-migrations
 bash do docker db-add -n 1.5.17
 bash do docker db-script --from 1.5.16 --to 1.5.17 --output artifacts/migration.sql
@@ -82,7 +82,7 @@ Use only one of the equivalent `db-add` examples for a particular migration.
 | --- | --- |
 | `db-migrations` | List migrations and applied state. `--offline` passes `--no-connect`. |
 | `db-add` | Required `-n <version>`. Generate migration/designer/snapshot, then convert the new migration to `SeedMigration` with `PreUp`, `PostUp`, `PreDown`, `PostDown` hooks. Does not require VS Code. |
-| `db-update` | Optional `-n <target>`; omitted means latest. An older target rolls back; `-n 0` reverts all. |
+| `db-apply` | Optional `-n <target>`; omitted means latest. An older target rolls back; `-n 0` reverts all. |
 | `db-rollback` | Required `-n <target>` or `-n 0`; invokes EF database update to that target. |
 | `db-remove` | Remove the last migration using EF `--force`, including rollback if it is applied and the database is reachable. This is not an offline-only operation. |
 | `db-drop` | EF database drop, with its confirmation prompt. `-y` passes `--force`. |

@@ -133,7 +133,7 @@ bash do docker up -n keycloak
 # Run command line tool
 ./src/tools/scripts/kc-key-update.sh -s {your-mmi-service-account-secret} -id {your-mmi-app-GUID}
 # Setup the database
-bash do docker db-update
+bash do docker db-apply
 
 # Run Kafka.
 bash do docker up -n broker

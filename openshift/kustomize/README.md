@@ -59,7 +59,7 @@ The simplest way to update the database requires the following steps.
 
 - Update the `/src/libs/dal/.env` with the appropriate configuration for the environment
 - Run the `bash do oc db-connect -e test` command in the repository root.
-- Run the `make db-update` command in the `/src/libs` folder.
+- Run the `bash do db-apply` command from the repository root.
 
 Deploy the services below.
 

@@ -62,7 +62,7 @@ container_action() {
       for service in api editor subscriber; do
         n=$service; container_action refresh
       done
-      bash src/tools/scripts/db-update.sh
+      bash src/tools/scripts/db-apply.sh
       bash src/tools/scripts/elastic-update.sh
       n=indexing; container_action refresh ;;
     elastic-update) bash "src/tools/scripts/$command.sh" ;;
@@ -72,7 +72,7 @@ container_action() {
       "$CONTAINER_ENGINE" rm -f -v tno-database
       "$CONTAINER_ENGINE" volume rm -f tno-database-data
       compose up -d
-      bash src/tools/scripts/db-update.sh
+      bash src/tools/scripts/db-apply.sh
       n=keycloak; compose up -d ;;
     reset-consumer-offset) bash dependencies/kafka/scripts/reset-consumer-offset.sh ;;
     nuke)

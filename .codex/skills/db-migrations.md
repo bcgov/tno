@@ -27,7 +27,7 @@ compact reference. All commands below run from the repository root:
 | List applied/pending migrations | `bash do db-migrations` |
 | List without connecting | `bash do db-migrations --offline` |
 | Add migration + seed hooks | `bash do db-add -n <version>` |
-| Apply latest / target | `bash do db-update [-n <version>]` |
+| Apply latest / target | `bash do db-apply [-n <version>]` |
 | Roll back | `bash do db-rollback -n <version-or-0>` |
 | Remove last | `bash do db-remove` (EF `--force`; can roll back an applied migration) |
 | SQL only | `bash do db-script --from <base> --to <target> --output artifacts/migration.sql` |

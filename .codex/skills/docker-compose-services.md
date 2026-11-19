@@ -31,7 +31,7 @@ docker-compose \
 1. `bash do setup`
 2. `bash do docker up -n database`
 3. `bash do docker up -n keycloak`
-4. `bash do docker db-update`
+4. `bash do docker db-apply`
 5. `bash do docker up -n broker` and `bash do docker kafka-update`
 6. `bash do docker up -n elastic` and `bash do docker elastic-update`
 7. `bash do docker up -n api`
