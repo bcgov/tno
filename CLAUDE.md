@@ -60,7 +60,7 @@ assuming it died.
 ### Database
 
 ```bash
-make db-update        # Apply EF Core migrations (runs db-update.sh)
+bash do docker db-apply # Apply EF Core migrations in an SDK container
 make db-refresh       # Drop and reinitialize
 make elastic-update   # Apply Elasticsearch migrations (the target is not es-update)
 make kafka-update     # Apply Kafka topic migrations (n=version, r=1 rollback n, d=1 dry run)
@@ -70,7 +70,7 @@ make kafka-update     # Apply Kafka topic migrations (n=version, r=1 rollback n,
 OpenShift environment (`oc login` first); partitions, replication factor and per-topic settings are
 in `dependencies/kafka/environments/<environment>.conf`.
 
-`db-update` and `elastic-update` each build an image and run it as a one-shot container
+`db-apply` and `elastic-update` each build an image and run it as a one-shot container
 **on `tno-net`**, reaching postgres and elasticsearch by their compose service names
 (`database:5432`, `elastic:9200`). The containers must be up first, and a `.env` pointing at
 `host.docker.internal` will not resolve from inside them.
@@ -149,7 +149,7 @@ Keycloak (local: `host.docker.internal:40001/realms/mmi`, production: `loginprox
 
 ### Database
 
-PostgreSQL via EF Core. Migrations live in `src/libs/dal/Migrations/`. Always run `make db-update` after pulling changes that add migrations. The `TNOContext` in `src/libs/dal/` is the single EF context shared across API and all services.
+PostgreSQL via EF Core. Migrations live in `src/libs/dal/Migrations/`. Always run `bash do docker db-apply` after pulling changes that add migrations. The `TNOContext` in `src/libs/dal/` is the single EF context shared across API and all services.
 
 Migrations derive from `SeedMigration`, not `Migration`. Each one may carry raw SQL beside its
 generated DDL, in `Migrations/<version>/Up/{PreUp,PostUp}/*.sql` (and `Down/{PreDown,PostDown}/`),

@@ -1,0 +1,17 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0
+
+# .NET named mutexes require a passwd entry even when Docker accepts a numeric UID.
+# Match the host on Unix so generated migrations are owned by the developer.
+ARG DB_TOOLS_UID=0
+ARG DB_TOOLS_GID=0
+RUN (getent group "$DB_TOOLS_GID" || groupadd --gid "$DB_TOOLS_GID" dbtools) && \
+    (getent passwd "$DB_TOOLS_UID" || useradd --no-log-init --no-create-home \
+      --home-dir /tmp --uid "$DB_TOOLS_UID" --gid "$DB_TOOLS_GID" \
+      -K UID_MAX=2147483647 dbtools)
+
+RUN dotnet tool install dotnet-ef --tool-path /opt/dotnet-tools --version 10.0.14
+ENV PATH="/opt/dotnet-tools:${PATH}" \
+    DOTNET_CLI_HOME=/tmp \
+    DOTNET_CLI_TELEMETRY_OPTOUT=1 \
+    DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
+WORKDIR /workspace

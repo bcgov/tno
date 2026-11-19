@@ -11,24 +11,24 @@ From the repository root, build and push the migration tool to ACR, then run it 
 [tool README](../src/tools/elastic/migration/README.md).
 
 ```bash
-make -C openshift build n=elastic-migration t=latest
-make -C openshift push n=elastic-migration t=latest
-make -C openshift deploy n=elastic-migration e=dev t=latest
+bash do oc build -n elastic-migration -t latest
+bash do oc push -n elastic-migration -t latest
+bash do oc deploy -n elastic-migration -e dev -t latest
 ```
 
-The image commands also support `pull n=elastic-migration t=latest` and
-`tag n=elastic-migration f=latest t=dev` (add `r=local` to tag locally).
+The image commands also support `pull -n elastic-migration -t latest` and
+`tag -n elastic-migration -f latest -t dev` (add `-r local` to tag locally).
 Build uses `src/tools/elastic/migration/Dockerfile` with the repository root as its context.
-The build option `e=prod` (the default) selects the Dockerfile variant, whereas deploy's
-`e=dev|test|prod` selects the target namespace.
+The build option `-e prod` (the default) selects the Dockerfile variant, whereas deploy's
+`-e dev|test|prod` selects the target namespace.
 
 Deployment promotes the source tag to the environment tag and creates a one-shot Job in
 `9b301c-<environment>`. It follows the logs, reports failure, and retains the Job for 24 hours.
 Jobs are not automatically retried. An unqualified full-environment deployment does not run
-migrations; request `n=elastic-migration` explicitly.
+migrations; request `-n elastic-migration` explicitly.
 
 Database connection references are copied from the API StatefulSet, just as for `db-migration`.
-Use `s=<secret>` to override the database credential secret. Elasticsearch defaults match the
+Use `-s <secret>` to override the database credential secret. Elasticsearch defaults match the
 migration workflow:
 
 | Environment | ConfigMap | Secret | Authentication |
@@ -41,14 +41,14 @@ For a different Elasticsearch target, set `ELASTIC_MIGRATION_CONFIGMAP`,
 `ELASTIC_MIGRATION_SECRET`, and `ELASTIC_MIGRATION_AUTH` (`basic` or `apikey`). Only the
 selected authentication method is passed to the Job. References are validated before promotion.
 
-Omit `m=` to apply pending migrations, or specify `m=1.0.11` to target that version. An earlier
+Omit `-m ` to apply pending migrations, or specify `-m 1.0.11` to target that version. An earlier
 version requests rollback. Unlike EF database migrations, Elasticsearch migrations do not accept
-`m=0`. The tool's existing migration-history checks remain in effect; these scripts do not seed
+`-m 0`. The tool's existing migration-history checks remain in effect; these scripts do not seed
 or override the baseline automatically. For a verified existing 1.0.10 schema without migration
 history (including the inspected TEST/PROD Cloud instances), explicitly pass
 `ELASTIC_MIGRATION_BASELINE=1.0.10`. Do not use a baseline to skip unapplied schema changes.
 
-Add `p=prepare`, `p=copy`, `p=verify` or `p=cutover` (with `m=`) to run one step of a migration as its
+Add `-p prepare`, `-p copy`, `-p verify` or `-p cutover` (with `-m `) to run one step of a migration as its
 own Job, which lets a second indexing service keep the new indexes current with no downtime; see the
 [operations runbook](kustomize/elastic-migration/README.md#run-the-migration).
 
@@ -75,10 +75,10 @@ Apply the Kafka topic migrations (`dependencies/kafka/migrations`) to an environ
 overrides) are in `dependencies/kafka/environments/<environment>.conf`; see `dependencies/kafka/README.md`.
 
 ```bash
-make kafka-update e=dev d=1     # dry run: show what would change
-make kafka-update e=dev         # apply every migration (asks first; y=1 skips)
-make kafka-update e=prod n=1.0.1
-make kafka-topics e=prod        # list topics with partitions and replication factor
+bash do oc kafka-update -e dev -d     # dry run: show what would change
+bash do oc kafka-update -e dev         # apply every migration (asks first; -y skips)
+bash do oc kafka-update -e prod -n 1.0.1
+bash do oc kafka-topics -e prod        # list topics with partitions and replication factor
 ```
 
 ## Platform Registry Services
@@ -197,11 +197,11 @@ Run these from `./openshift`. ACR credentials come from `openshift/.env` (`ACR_U
 
 ```bash
 # Push a locally built image to ACR
-make push n=$component t=latest
+bash do oc push -n $component -t latest
 # Promote a tag inside ACR (no download)
-make tag n=$component f=latest t=dev r=true
+bash do oc tag -n $component -f latest -t dev -r true
 # Pull an image from ACR
-make pull n=$component t=dev
+bash do oc pull -n $component -t dev
 ```
 
 ## Mirror a Third-Party Image into ACR

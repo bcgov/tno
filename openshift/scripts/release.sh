@@ -72,7 +72,8 @@ component_for() {
 }
 
 # Every image the full-environment deploy promotes.
-mapfile -t images < <(grep -E '^acr_tag [a-z0-9-]+$' "$SCRIPTS/deploy.sh" | awk '{print $2}')
+images=()
+while IFS= read -r image; do images+=("$image"); done < <(grep -E '^acr_tag [a-z0-9-]+$' "$SCRIPTS/deploy.sh" | awk '{print $2}')
 if [ ${#images[@]} -eq 0 ]; then
   echo "ERROR: found no 'acr_tag <image>' lines in deploy.sh." >&2
   exit 1
@@ -83,7 +84,7 @@ build=()
 copy=()
 for image in "${images[@]}"; do
   component=$(component_for "$image")
-  if [ -n "$component" ] && { [ ${#requested[@]} -eq 0 ] || contains "$component" "${requested[@]}"; }; then
+  if [ -n "$component" ] && { [ ${#requested[@]} -eq 0 ] || contains "$component" ${requested[@]+"${requested[@]}"}; }; then
     build+=("$component")
   else
     copy+=("$image")
@@ -94,13 +95,13 @@ for image in "${images[@]}"; do
   component=$(component_for "$image")
   [ -n "$component" ] && buildable+=("$component")
 done
-for component in "${requested[@]}"; do
+for component in ${requested[@]+"${requested[@]}"}; do
   if ! contains "$component" "${buildable[@]}"; then
     echo "ERROR: '$component' is not a buildable image that deploy.sh promotes (components: ${buildable[*]})." >&2
     exit 1
   fi
 done
-[ -n "${MIGRATE:-}" ] && build=(db-migration "${build[@]}")
+[ -n "${MIGRATE:-}" ] && build=(db-migration ${build[@]+"${build[@]}"})
 
 echo "Release $branch @ $commit to $env with tag '$tag'"
 echo "  build and push: ${build[*]}"
@@ -124,7 +125,7 @@ if [ -z "$DRY_RUN" ]; then acr_login; fi
 
 # Build and push.
 built=()
-for component in "${build[@]}"; do
+for component in ${build[@]+"${build[@]}"}; do
   echo
   echo "=== $component ==="
   run "$SCRIPTS/build.sh" "$component" "$tag" prod
@@ -133,7 +134,7 @@ for component in "${build[@]}"; do
 done
 
 # Copy the images that were not built onto the tag: from what the environment runs, else latest.
-for image in "${copy[@]}"; do
+for image in ${copy[@]+"${copy[@]}"}; do
   echo
   echo "=== $image (not built) ==="
   source_tag=""

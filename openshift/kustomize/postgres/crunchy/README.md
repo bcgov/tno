@@ -40,7 +40,7 @@ Turn everything off in the environment.
 
 ```bash
 cd openshift
-make stop e=dev
+bash do oc stop -e dev
 ```
 
 ### Step 2: Apply hte latest template

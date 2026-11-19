@@ -40,9 +40,9 @@
 ## Shell (Bash)
 
 - Use `#!/usr/bin/env bash` shebang for new scripts.
-- Use strict mode for new scripts: `set -euo pipefail`.
+- Use `set -eo pipefail` for the Bash 3.2 entrypoint/helpers; Bash 3.2 nounset rejects empty arrays. Initialize options explicitly and propagate failures.
 - Quote paths/variables, especially with spaces.
-- Prefer reusable scripts in `src/tools/scripts/` and call them from `Makefile` targets.
+- Prefer reusable scripts in `src/tools/scripts/` and call them from the root `do` entrypoint.
 
 ## Python
 

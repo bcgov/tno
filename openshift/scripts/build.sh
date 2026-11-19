@@ -75,5 +75,5 @@ docker build --platform linux/amd64 -t "$image" -f "$DOCKERFILE" "$CONTEXT"
 
 echo "Built $image"
 if [ "$environment" = "prod" ]; then
-  echo "Next: make push n=$name t=$tag"
+  echo "Next: bash do oc push -n $name -t $tag"
 fi

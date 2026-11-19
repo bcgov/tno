@@ -23,7 +23,6 @@ These scripts simplify the process of setting up your environment, but can be pe
 | ------------------------------------------------------------ | ------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | [Git Bash](https://git-scm.com/)                             |                                                         | All scripts in this project are `bash` which natively isn't supported by Windows.       |
 | [chocolately](https://chocolatey.org/install)                |                                                         | Package manager for Windows.                                                            |
-| [make](https://community.chocolatey.org/packages/make)       | [make](https://formulae.brew.sh/formula/make)           |
 | We used this tool to speed up common development activities. |
 |                                                              | [coreutils](https://formulae.brew.sh/formula/coreutils) |
 |                                                              | [grep](https://formulae.brew.sh/formula/grep)           | Macos doesn't natively support GNU Grep, so you need to install it. `brew install grep` |
@@ -72,15 +71,27 @@ In order for the various components of the solution to work they require the app
 You can auto generate them with the provided scripts.
 This process will generate `.env` files in the required locations so that the solution and docker containers can run.
 
-If you have installed `make` you can use the helper method.
-If you haven't installed `make` you can use the docker-compose cli.
-Review the `Makefile` and the related scripts `./src/tools/scripts` to understand how to do this.
-
-When using `make` commands you can review the options by using the following command.
+Use the root Bash entrypoint on Linux, macOS (Bash 3.2+), or Windows (Git Bash or WSL).
+Install Python 3 for setup and environment migration. Docker needs Compose v2 or
+`docker-compose`; Podman needs a Compose provider and a running Podman machine on
+macOS/Windows. In WSL, install the tools inside WSL and enable your container engine's WSL integration.
+OpenShift commands require `oc`; image and release commands also use Docker and ACR credentials.
+Run these commands from the repository root; an absolute path to `do` works from any directory.
 
 ```bash
-make
+bash do help
+bash do docker help
+bash do podman help
+bash do oc help
 ```
+
+The old root and OpenShift Makefiles are replaced. Arguments use flags such as `-n api`, `-p main`, and `-v` instead of Make assignments. Database commands run locally as `bash do db-*` or inside the chosen engine as
+`bash do docker db-*` / `bash do podman db-*`. Elasticsearch and Kafka commands live
+under the chosen container engine. See [the complete command reference](DO.md). OpenShift commands run from the root under `oc`, including release,
+build/push/pull/tag, deployment, pod access, and Kafka management. Unrelated project
+Makefiles under `src/` remain available. `bash do oc switch` selects a TNO environment;
+`bash do oc switch-current` preserves the old root `switch` behavior of using the
+current project prefix (`-n tno` returns to TNO tools).
 
 The following containers are hosted in the TNO solution.
 The exposed container ports is configurable, but the defaults are identified below.
@@ -100,19 +111,19 @@ The first time you do this takes a little longer as each container needs to be b
 After the docker containers are ready it becomes much quicker.
 Additionally, there are a number of configuration settings (usernames, passwords, keys, etc) that are created the first time you execute this script.
 
-Many laptops cannot handle running all containers running at one time, so you may want to use the other `make p=$profile` commands specifically to only start what you need.
+Many laptops cannot handle running all containers running at one time, so you may want to use the other `bash do docker up -p $profile` commands specifically to only start what you need.
 Make sure you wait for each command to complete successfully.
 Laptops with low memory will need at least 8GB assigned to Docker Desktop.
 
 ```bash
 # Configure your local environment.
-make setup
+bash do setup
 
 # Run the PostgreSQL database.
-make up n=database
+bash do docker up -n database
 
 # Run Keycloak
-make up n=keycloak
+bash do docker up -n keycloak
 
 # After keycloak starts go to http://localhost:40001 and login to confirm it has successfully initialized.
 # There should be a tno realm.  You can review the predefined user accounts.
@@ -122,44 +133,44 @@ make up n=keycloak
 # Run command line tool
 ./src/tools/scripts/kc-key-update.sh -s {your-mmi-service-account-secret} -id {your-mmi-app-GUID}
 # Setup the database
-make db-update
+bash do docker db-apply
 
 # Run Kafka.
-make up n=broker
+bash do docker up -n broker
 
 # Setup Kafka topics
-make kafka-update
+bash do docker kafka-update
 
 # Run Elasticsearch.
-make up n=elastic
+bash do docker up -n elastic
 
 # Setup the Elastic indexes
-make elastic-update
+bash do docker elastic-update
 
 # Run the API
-make up n=api
+bash do docker up -n api
 
 # Run Indexing service
-make up n=indexing
+bash do docker up -n indexing
 
 # Run the Editor application
-make up n=editor
+bash do docker up -n editor
 
 # Run the Subscriber application
-make up n=subscriber
+bash do docker up -n subscriber
 
 # Run nginx
-make up n=nginx
+bash do docker up -n nginx
 # After the editor application starts go to http://localhost:40080 and login with a predefined keycloak user account.
 # After the subscriber application start go to http:/localhost:40081 and login with a predefined keycloak user account.
 ```
 
 If you choose to only run what you need for specific types of feature development/testing you can use the following commands.
-Or if you choose to run everything use the `make up` command.
+Or if you choose to run everything use the `bash do docker up` command.
 
 ```bash
 # Once the main services are all running you can in the future simply use the following command.
-make up p=main
+bash do docker up -p main
 ```
 
 You can now view the application in your browser.
@@ -191,10 +202,10 @@ Choose the services and utilities you need and run them independently.
 
 ```bash
 # Start up the various utilities to view Kafka, and Elasticsearch.
-make up n=[utility name]
+bash do docker up -n [utility name]
 
 # Start up the various supplementary services for the solution.
-make up n=[service name]
+bash do docker up -n [service name]
 ```
 
 Below is a list of all the additional services and utilities.

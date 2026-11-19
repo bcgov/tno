@@ -1,6 +1,12 @@
 #!/bin/bash
 
-. ./src/tools/scripts/os.sh
+read_env() {
+    [ -f "$2" ] || return 0
+    awk -v key="$1" 'index($0, key "=") == 1 {sub(/^[^=]*=/, ""); sub(/\r$/, ""); print; exit}' "$2"
+}
+random_value() {
+    LC_ALL=C od -An -N24 -tx1 /dev/urandom | tr -d ' \n' | cut -c1-29
+}
 
 ######################################################################
 # Keycloak configuration
@@ -8,7 +14,7 @@
 
 export keycloakDbName="keycloak"
 
-export keycloakUser=$("$GREP" -Po 'KEYCLOAK_ADMIN=\K.*$' ./dependencies/keycloak/.env 2>/dev/null)
+export keycloakUser=$(read_env KEYCLOAK_ADMIN ./dependencies/keycloak/.env)
 if [ -z "$keycloakUser" ]
 then
     echo 'Enter a username for the keycloak realm administrator'
@@ -18,7 +24,7 @@ else
     echo "Your keycloak username: $keycloakUser"
 fi
 
-export keycloakPassword=$("$GREP" -Po 'KEYCLOAK_ADMIN_PASSWORD=\K.*$' ./dependencies/keycloak/.env 2>/dev/null)
+export keycloakPassword=$(read_env KEYCLOAK_ADMIN_PASSWORD ./dependencies/keycloak/.env)
 if [ -z "$keycloakPassword" ]
 then
     echo 'Enter a password for the keycloak realm administrator'
@@ -34,7 +40,7 @@ fi
 
 export dbName="tno"
 
-export dbUser=$("$GREP" -Po 'POSTGRES_USER=\K.*$' ./dependencies/postgres/docker/.env 2>/dev/null)
+export dbUser=$(read_env POSTGRES_USER ./dependencies/postgres/docker/.env)
 if [ -z "$dbUser" ]
 then
     echo 'Enter a username for the Postgres database.'
@@ -44,12 +50,12 @@ else
     echo "Your database username: $dbUser"
 fi
 
-export password=$("$GREP" -Po 'POSTGRES_PASSWORD=\K.*$' ./dependencies/postgres/docker/.env 2>/dev/null)
+export password=$(read_env POSTGRES_PASSWORD ./dependencies/postgres/docker/.env)
 if [ -z "$password" ]
 then
     # Generate a random password that satisfies password requirements.
     echo 'A password is randomly being generated.'
-    password=$(date +%s | sha256sum | base64 | head -c 29)A8!
+    password=$(random_value)A8!
     echo "Your generated password is: $password"
     export password
 else
@@ -60,12 +66,12 @@ fi
 # Oracle Database configuration
 ######################################################################
 
-export oraclePassword=$("$GREP" -Po 'ORACLE_PWD=\K.*$' ./dependencies/oracle/docker/.env 2>/dev/null)
+export oraclePassword=$(read_env ORACLE_PWD ./dependencies/oracle/docker/.env)
 if [ -z "$oraclePassword" ]
 then
     # Generate a random password that satisfies password requirements.
     echo 'A password is randomly being generated for connection to the oracle db.'
-    oraclePassword=$(date +%s | sha256sum | base64 | head -c 29)A8!
+    oraclePassword=$(random_value)A8!
     echo "Your generated password is: $oraclePassword"
     export oraclePassword
 else
@@ -82,7 +88,7 @@ export elasticUser=elastic
 # Asure configuration
 ######################################################################
 
-export azureCognitiveServiceKey=$("$GREP" -Po 'COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY=\K.*$' ./src/api/.env 2>/dev/null)
+export azureCognitiveServiceKey=$(read_env COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY ./src/api/.env)
 if [ -z "$azureCognitiveServiceKey" ]
 then
     echo 'Enter your Azure Cognitive Service subscription key.'
@@ -92,7 +98,7 @@ else
     echo "Your Azure Cognitive Service subscription key: $azureCognitiveServiceKey"
 fi
 
-export azureCognitiveServiceRegion=$("$GREP" -Po 'COGNITIVE_SERVICES_SPEECH_REGION=\K.*$' ./src/api/.env 2>/dev/null)
+export azureCognitiveServiceRegion=$(read_env COGNITIVE_SERVICES_SPEECH_REGION ./src/api/.env)
 if [ -z "$azureCognitiveServiceRegion" ]
 then
     echo 'Enter your Azure Cognitive Service region (i.e. canadacentral).'
@@ -102,7 +108,7 @@ else
     echo "Your Azure Cognitive Service region: $azureCognitiveServiceRegion"
 fi
 
-export azureVideoAnalyzerKey=$("$GREP" -Po 'AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY=\K.*$' ./src/api/.env 2>/dev/null)
+export azureVideoAnalyzerKey=$(read_env AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY ./src/api/.env)
 if [ -z "$azureVideoAnalyzerKey" ]
 then
     echo 'Enter your Azure Video Analyzer subscription key.'
@@ -112,7 +118,7 @@ else
     echo "Your Azure Video Analyzer subscription key: $azureVideoAnalyzerKey"
 fi
 
-export azureVideoAccountId=$("$GREP" -Po 'AZURE_VIDEO_ANALYZER_ACCOUNT_ID=\K.*$' ./src/api/.env 2>/dev/null)
+export azureVideoAccountId=$(read_env AZURE_VIDEO_ANALYZER_ACCOUNT_ID ./src/api/.env)
 if [ -z "$azureVideoAccountId" ]
 then
     echo 'Enter your Azure Video Analyzer account ID.'
@@ -122,7 +128,7 @@ else
     echo "Your Azure Video Analyzer account ID: $azureVideoAccountId"
 fi
 
-export azureVideoLocation=$("$GREP" -Po 'AZURE_VIDEO_ANALYZER_LOCATION=\K.*$' ./src/api/.env 2>/dev/null)
+export azureVideoLocation=$(read_env AZURE_VIDEO_ANALYZER_LOCATION ./src/api/.env)
 if [ -z "$azureVideoLocation" ]
 then
     echo 'Enter your Azure Video Analyzer location (i.e. trial).'
@@ -132,7 +138,7 @@ else
     echo "Your Azure Video Analyzer location: $azureVideoLocation"
 fi
 
-export azureKey=$(date +%s | sha256sum | base64 | head -c 29)
+export azureKey=$(random_value)
 
 # Only required if the Azurite docker container doesn't allow for local domain names.
 # Workaround is to either use 'mcr.microsoft.com/azure-storage/azurite:3.14.0', or use the IP address.

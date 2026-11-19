@@ -471,7 +471,7 @@ if [[ "$name" == "db-migration" || "$name" == "elastic-migration" ]]; then
   if [[ -z "$_user_secret" || -z "$_pass_secret" ]]; then
     echo "ERROR: could not determine the database credential secret for 9b301c-$env."
     echo "       The api StatefulSet has no DB_POSTGRES_USERNAME/PASSWORD reference to copy."
-    echo "       Name it explicitly: make deploy n=$name e=$env s=<secret>"
+    echo "       Name it explicitly: bash do oc deploy -n $name -e $env -s <secret>"
     echo "       Secrets in 9b301c-$env:"
     oc get secret -n "9b301c-$env" -o name 2>/dev/null | sed 's|^|         |'
     exit 1
