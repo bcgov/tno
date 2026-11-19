@@ -100,8 +100,27 @@ spec:
           workspace: conditions
         - name: build
           workspace: build
+    - name: db-migration
+      runAfter:
+        - build-all
+      taskRef:
+        name: db-migration-conditional
+      params:
+        - name: PROJECT_SHORTNAME
+          value: $(params.PROJECT_SHORTNAME)
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+        - name: DEPLOY
+          value: $(params.COMPONENT)
+        - name: DEPLOY_TO
+          value: $(params.DEPLOY_TO)
+      workspaces:
+        - name: conditions
+          workspace: conditions
     - name: deploy-all
       params:
+        - name: CONTEXT
+          value: $(params.CONTEXT)
         - name: PROJECT_SHORTNAME
           value: $(params.PROJECT_SHORTNAME)
         - name: IMAGE_TAG
@@ -113,11 +132,13 @@ spec:
         - name: WAIT
           value: $(params.WAIT)
       runAfter:
-        - build-all
+        - db-migration
       taskRef:
         kind: Task
         name: deploy-all
       workspaces:
+        - name: source
+          workspace: source
         - name: conditions
           workspace: conditions
   workspaces:

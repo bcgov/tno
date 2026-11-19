@@ -1,0 +1,36 @@
+name: Release Pipeline Validation
+on:
+  pull_request:
+    branches: [dev, master]
+    paths: ['.github/**', 'openshift/**']
+  push:
+    branches: [dev, master]
+    paths: ['.github/**', 'openshift/**']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: pip install PyYAML==6.0.3
+      - name: Test release selection, ordering, and failure handling
+        run: |
+          python3 -m unittest discover -s .github/scripts -v
+          python3 -m unittest discover -s openshift/scripts/tests -p 'test_release*.py' -v
+      - name: Lint GitHub workflows
+        run: |
+          docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.12 -shellcheck= \
+            .github/workflows/auto-deploy.yml .github/workflows/deploy-all.yml \
+            .github/workflows/_reusable-db-migration-cd.yml .github/workflows/release-validation.yml \
+            .github/workflows/manual-rollback.yml
+      - uses: ./.github/actions/install-oc
+      - name: Render API overlays
+        run: |
+          for env in dev test prod; do
+            oc kustomize "openshift/kustomize/api-services/overlays/$env" > /dev/null
+          done

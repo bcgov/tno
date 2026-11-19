@@ -40,22 +40,30 @@ spec:
         requests:
           cpu: 250m
           memory: 1Gi
-      image: bcgov-c4awhwfpcremdbga.azurecr.io/openshift-cli:latest
+      image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
       name: run
       script: |
         #!/usr/bin/env bash
-        # set -e
+        set -euo pipefail
 
         # Place config into environment variables.
         if test -f $(workspaces.conditions.path)/build.env; then
-          export $(grep -v '^#' $(workspaces.conditions.path)/build.env | xargs)
+          while IFS= read -r setting; do
+            [[ "$setting" =~ ^BUILD_[A-Z_]+=true$ ]] && export "$setting"
+          done < $(workspaces.conditions.path)/build.env
+          true
         else
           echo 'Workspace conditions build.env not found'
           exit 1;
         fi
 
         # Check if this image needs to run.
-        if [ "${BUILD_DB}" = "true" ] || [ "$(params.DEPLOY)" = "yes" ] || [ "$(params.DEPLOY)" = "all" ] || [ "$(params.DEPLOY)" = "db" ]; then
+        if [ "${BUILD_DB:-false}" = "true" ] || [ "$(params.DEPLOY)" = "yes" ] || [ "$(params.DEPLOY)" = "all" ] || [ "$(params.DEPLOY)" = "db" ]; then
+          case "$(params.DEPLOY_TO)" in
+            dev) DB_SECRET=montford ;;
+            test) DB_SECRET=mooncrest ;;
+            *) echo 'Manual migration supports dev and test only' >&2; exit 1 ;;
+          esac
           echo "Fetching connection information"
 
           PROJECT=$(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
@@ -93,7 +101,7 @@ spec:
                         "name":"DB_POSTGRES_USERNAME",
                         "valueFrom":{
                           "secretKeyRef":{
-                            "name":"montford",
+                            "name":"'"$DB_SECRET"'",
                             "key":"USERNAME"
                           }
                         }
@@ -102,15 +110,12 @@ spec:
                         "name":"DB_POSTGRES_PASSWORD",
                         "valueFrom":{
                           "secretKeyRef":{
-                            "name":"montford",
+                            "name":"'"$DB_SECRET"'",
                             "key":"PASSWORD"
                           }
                         }
                       }
                     ],
-                    "labels":{
-                      "role":"migration","part-of":"tno","component":"database"
-                      },
                     "resources":{
                       "requests":{
                         "memory":"1Gi",

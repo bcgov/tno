@@ -42,7 +42,7 @@ Inputs:
 
 - `environment`: `dev` or `test`
 - `deploy_scope`: `changed` or `all`
-- `skip_db_migration`: `true` or `false`
+- `allow_dev_branch_override`: permit a manual dev release from another branch
 
 Use `deploy_scope: all` carefully. It builds and deploys every supported API,
 service, and frontend image for the selected environment.
@@ -53,17 +53,24 @@ service, and frontend image for the selected environment.
 
 ```text
 Detect Deploy Targets
--> Build Images
--> DB Migration
--> Deploy API
--> Deploy Services
--> Deploy Frontend
+-> Validate Selected Components
+-> Build / Scan / Publish Images
+-> Required DB Migration (must succeed)
+-> API StatefulSet stop/update/start, then API Deployment rolling update (both must be ready)
+-> Other Service and Frontend Deployments (parallel rolling updates)
 -> Deployment Summary
 ```
 
 The build, service deploy, and frontend deploy phases use matrix jobs. Items
-inside the same matrix can run in parallel, but each phase waits for the earlier
-phase through `needs`.
+inside the same matrix can run in parallel. Both the frontend and service matrices
+wait for the migration and API gates, but do not wait for each other. Failed or
+timed-out migration/API/rollout checks fail the release. A failed validation cannot
+be mistaken for an intentionally skipped image build.
+
+Selected React components run lint, formatting, type checking, unit tests, and build
+before image publication. Selected .NET components run formatting and a fresh Release
+build; Charts API runs its compile check. CodeQL and the separate .NET library test
+workflow remain independent checks; they are not gates in this release workflow.
 
 The build phase uses the shared `actions/build-scan-push-image` action. Docker
 build failures retry.
@@ -150,9 +157,9 @@ CronJobs still use their own workflows.
 
 ## DB Migration
 
-In `changed` mode, DB migration runs only when `src/libs/dal/**` changes.
+In `changed` mode, DB migration runs when `src/libs/dal/**` or `src/libs/Dockerfile` changes.
 
-In `all` mode, DB migration runs unless `skip_db_migration` is `true`.
+In `all` mode, DB migration always runs. Required migrations cannot be bypassed with a skip input.
 
 The migration job builds the EF migration bundle from `src/libs` and runs it as
 a temporary OpenShift pod.
@@ -168,8 +175,31 @@ The API deploy phase updates both:
 - `deployment/api-services`
 - `statefulset/api`
 
-This keeps API StatefulSet pods on the same image tag as the existing API
-deployment.
+Both use the API image. `statefulset/api` is a non-rolling exception: record its
+replica count, scale to zero, wait for old pods to disappear, update the image,
+restore the replica count, and require readiness. `deployment/api-services` then
+uses a rolling update. No other selected service deploys until both complete.
+
+The shared `openshift/scripts/release/rollout.sh` enforces `RollingUpdate` with
+`maxUnavailable: 0` and `maxSurge: 1` for Deployments, preserves replica counts,
+and fails on rollout errors. Ensure the namespace has capacity for the surge pod.
+The API StatefulSet can remain stopped if an update fails; investigate and use the
+manual rollback before resuming. Rollback also follows the non-rolling API rule.
+
+General Kustomize changes still require deliberate manifest application. The release
+script enforces rollout strategy but does not reconcile all application manifests,
+secrets, routes, or replica settings. This avoids resetting live capacity from old
+overlays. CronJobs, automation-service, reverse proxies, and Elasticsearch migrations
+retain their separate operational workflows.
+
+## Manual Tekton fallback
+
+GitHub Actions owns automatic dev/test releases. Follow
+[`openshift/kustomize/tekton/README.md`](../openshift/kustomize/tekton/README.md) to
+reconcile the installed Tekton tasks and disable push EventListeners after merge.
+Changing the files in Git alone does not update installed cluster resources.
+Do not run the manual fallback concurrently with a GitHub release to the same
+environment: both publish environment tags.
 
 ## Elasticsearch Migration
 

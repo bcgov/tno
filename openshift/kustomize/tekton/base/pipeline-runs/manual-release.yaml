@@ -1,0 +1,41 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: manual-release-
+  namespace: 9b301c-tools
+spec:
+  pipelineRef:
+    name: buildah-all
+  taskRunTemplate:
+    serviceAccountName: pipeline
+  timeouts:
+    pipeline: 2h0m0s
+  params:
+    - name: GIT_SOURCE
+      value: dev
+    - name: GIT_REF
+      value: REPLACE_WITH_MERGED_COMMIT_SHA
+    - name: IMAGE_TAG
+      value: REPLACE_WITH_UNIQUE_RELEASE_TAG
+    - name: DEPLOY_TO
+      value: dev
+    - name: COMPONENT
+      value: all
+    - name: CONTEXT
+      value: tno
+  workspaces:
+    - name: source
+      persistentVolumeClaim:
+        claimName: repo
+    - name: conditions
+      volumeClaimTemplate:
+        spec:
+          accessModes: [ReadWriteOnce]
+          resources:
+            requests:
+              storage: 50Mi
+          storageClassName: netapp-file-standard
+    - name: build
+      emptyDir: {}
+    - name: owasp-settings
+      emptyDir: {}

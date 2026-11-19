@@ -61,14 +61,17 @@ spec:
       name: build
       script: |
         #!/usr/bin/env bash
-        set -xe
+        set -euo pipefail
 
         # export TMPDIR="$(workspaces.source.path)/tmp/buildah"
         # mkdir -p "${TMPDIR}"
 
         # Place config into environment variables.
         if test -f $(workspaces.conditions.path)/build.env; then
-          export $(grep -v '^#' $(workspaces.conditions.path)/build.env | xargs)
+          while IFS= read -r setting; do
+            [[ "$setting" =~ ^BUILD_[A-Z_]+=true$ ]] && export "$setting"
+          done < $(workspaces.conditions.path)/build.env
+          true
         else
           echo 'Workspace conditions build.env not found'
           exit 1;
@@ -185,7 +188,7 @@ spec:
           [id]="api"
           [image]="api"
           [context]=""
-          [dockerfile]="/src/api/Dockerfile.openshift"
+          [dockerfile]="/src/api/Dockerfile"
         )
 
         declare -A COMPONENT15=(
@@ -211,7 +214,7 @@ spec:
         )
 
         declare -A COMPONENT19=(
-          [id]="elastic"
+          [id]="elastic_migration"
           [image]="elastic-migration"
           [context]=""
           [dockerfile]="/src/tools/elastic/migration/Dockerfile"
@@ -240,6 +243,13 @@ spec:
           [dockerfile]="/Dockerfile"
         )
 
+        declare -A COMPONENT23=(
+          [id]="contentmigration"
+          [image]="contentmigration-service"
+          [context]=""
+          [dockerfile]="/src/services/contentmigration/Dockerfile"
+        )
+
         declare -n component;
 
         # Loop through each component and build if required.
@@ -248,22 +258,21 @@ spec:
           TVAR="BUILD_${component[id]}"
           COMPONENT=${TVAR//\-/_}
           COMPONENT=${COMPONENT^^}
-          echo $COMPONENT=${!COMPONENT}
+          echo $COMPONENT=${!COMPONENT:-}
 
           # Check if this image needs to be built.
           # If the component was auto built by the build step, or all components are to built, or a specific component was requested to be built.
-          if [ "${!COMPONENT}" = true ] || [ "$(params.BUILD)" = "all" ] || [ "$(params.BUILD)" = "${component[id]}" ]; then
+          if [ "${!COMPONENT:-}" = true ] || [ "$(params.BUILD)" = "all" ] || [ "$(params.BUILD)" = "${component[id]}" ]; then
             echo "============================"
             echo "= Building ${component[id]}"
             if [ ! -z "$IMAGE_REGISTRY_USER" ];  then
-              buildah login \
-                -u $IMAGE_REGISTRY_USER \
-                -p $IMAGE_REGISTRY_PASS $(params.IMAGE_REGISTRY) > /dev/null
+              printf '%s' "$IMAGE_REGISTRY_PASS" | buildah login \
+                -u "$IMAGE_REGISTRY_USER" --password-stdin "$(params.IMAGE_REGISTRY)" > /dev/null
             fi
 
             # Build the image.
             buildah --storage-driver=$(params.STORAGE_DRIVER) bud \
-              --no-cache -f ${component[dockerfile]} -t $(params.IMAGE_REGISTRY)/${component[image]}:$(params.IMAGE_TAG) --isolation chroot $(params.CONTEXT)${component[context]}
+              --no-cache -f "$(params.CONTEXT)${component[context]}${component[dockerfile]}" -t $(params.IMAGE_REGISTRY)/${component[image]}:$(params.IMAGE_TAG) --isolation chroot $(params.CONTEXT)${component[context]}
 
             # Push the image to the registry.
             buildah --storage-driver=$(params.STORAGE_DRIVER) push $(params.IMAGE_REGISTRY)/${component[image]}:$(params.IMAGE_TAG)
