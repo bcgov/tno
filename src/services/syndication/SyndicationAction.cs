@@ -755,47 +755,127 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         }
 
         var data = await response.Content.ReadAsStringAsync() ?? "";
+        data = NormalizeXmlDeclaration(data);
+        var document = LoadFeed(data);
+        NormalizeUpdatedDates(document);
         if (!manager.Ingest.Configuration.GetDictionaryJsonValue("customFeed", false))
         {
             try
             {
-                var settings = new XmlReaderSettings()
-                {
-                    IgnoreComments = false,
-                    IgnoreWhitespace = true,
-                    DtdProcessing = DtdProcessing.Parse,
-                };
-                using var xmlr = XmlReader.Create(new StringReader(data), settings);
+                using var xmlr = document.CreateReader();
                 var feed = SyndicationFeed.Load(xmlr);
                 return feed;
             }
             catch (Exception ex)
             {
                 this.Logger.LogWarning(ex, "Syndication feed for ingest '{name}' is invalid.", manager.Ingest.Name);
-                return GetCustomFeed(data);
+                return GetCustomFeed(document);
             }
         }
         else
         {
-            return GetCustomFeed(data);
+            return GetCustomFeed(document);
         }
     }
 
     /// <summary>
-    /// Make AJAX request to fetch syndication feed.
+    /// Load an XML feed with comments and DTD processing enabled.
     /// </summary>
-    /// <param name="data"></param>
-    /// <returns></returns>
-    static SyndicationFeed GetCustomFeed(string data)
+    /// <param name="data">The feed response.</param>
+    /// <returns>The parsed XML document.</returns>
+    private static XDocument LoadFeed(string data)
     {
         var settings = new XmlReaderSettings()
         {
             IgnoreComments = false,
-            IgnoreWhitespace = true,
+            IgnoreWhitespace = false,
             DtdProcessing = DtdProcessing.Parse,
         };
-        var xmlr = XmlReader.Create(new StringReader(data), settings);
-        var document = XDocument.Load(xmlr);
+        using var reader = XmlReader.Create(new StringReader(data), settings);
+        return XDocument.Load(reader, LoadOptions.PreserveWhitespace);
+    }
+
+    /// <summary>
+    /// Move an XML declaration ahead of leading whitespace and comments.
+    /// Some publishers emit theme debug comments before the declaration, which makes the document invalid XML.
+    /// </summary>
+    /// <param name="data">The feed response.</param>
+    /// <returns>The normalized document, or the original response when the declaration is not solely preceded by comments and whitespace.</returns>
+    internal static string NormalizeXmlDeclaration(string data)
+    {
+        const string declaration = "<?xml";
+        var offset = 0;
+
+        while (offset < data.Length)
+        {
+            if (Char.IsWhiteSpace(data[offset]))
+            {
+                offset++;
+                continue;
+            }
+
+            if (data.AsSpan(offset).StartsWith("<!--", StringComparison.Ordinal))
+            {
+                var commentEnd = data.IndexOf("-->", offset + 4, StringComparison.Ordinal);
+                if (commentEnd < 0) return data;
+                offset = commentEnd + 3;
+                continue;
+            }
+
+            if (offset > 0 &&
+                data.AsSpan(offset).StartsWith(declaration, StringComparison.Ordinal) &&
+                offset + declaration.Length < data.Length &&
+                Char.IsWhiteSpace(data[offset + declaration.Length]))
+            {
+                var declarationEnd = data.IndexOf("?>", offset + declaration.Length, StringComparison.Ordinal);
+                if (declarationEnd < 0) return data;
+                declarationEnd += 2;
+                return data[offset..declarationEnd] + data[..offset] + data[declarationEnd..];
+            }
+
+            return data;
+        }
+
+        return data;
+    }
+
+    /// <summary>
+    /// Convert invalid Atom updated dates in RSS feeds to ISO 8601.
+    /// Some publishers emit RFC 822 dates, which the syndication reader rejects when LastUpdatedTime is read.
+    /// Omit an invalid date that cannot be parsed while retaining a valid publication date.
+    /// </summary>
+    /// <param name="document">The feed document.</param>
+    internal static void NormalizeUpdatedDates(XDocument document)
+    {
+        if (document.Root?.Name.LocalName != "rss") return;
+
+        XNamespace atom = "http://www.w3.org/2005/Atom";
+        foreach (var updated in document.Descendants(atom + "updated").ToArray())
+        {
+            try
+            {
+                XmlConvert.ToDateTimeOffset(updated.Value);
+                continue;
+            }
+            catch (FormatException)
+            {
+                if (!DateTimeOffset.TryParse(updated.Value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+                {
+                    updated.Remove();
+                    continue;
+                }
+                updated.Value = XmlConvert.ToString(date.UtcDateTime, XmlDateTimeSerializationMode.Utc);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Get a feed with the permissive RSS reader.
+    /// </summary>
+    /// <param name="document">The parsed feed document.</param>
+    /// <returns>The syndication feed.</returns>
+    private static SyndicationFeed GetCustomFeed(XDocument document)
+    {
         var isRss = RssFeed.IsRssFeed(document);
         return isRss ? RssFeed.Load(document, false) : AtomFeed.Load(document);
     }
