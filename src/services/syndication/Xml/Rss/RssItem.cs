@@ -16,6 +16,7 @@ public class RssItem
     // this namespace is for iPolitics syndication content format
     private static XNamespace contentXNamespace = "http://purl.org/rss/1.0/modules/content/";
     private static XNamespace dcXNamespace = "http://purl.org/dc/elements/1.1/";
+    private static XNamespace atomXNamespace = "http://www.w3.org/2005/Atom";
     #region Properties
     /// <summary>
     /// get/set - The title of the item.
@@ -78,6 +79,12 @@ public class RssItem
     public DateTimeOffset? PublishedOn { get; set; }
 
     /// <summary>
+    /// get/set - Indicates when the item was last updated.
+    /// </summary>
+    [XmlIgnore]
+    public DateTimeOffset? UpdatedOn { get; set; }
+
+    /// <summary>
     /// get/set - The RSS channel that the item came from. More.
     /// </summary>
     [XmlElement("source")]
@@ -137,6 +144,9 @@ public class RssItem
 
         if (element.Element("pubDate")?.Value.TryParseDateTimeExact(CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out DateTime pubDate, RssFeed.PUB_DATE_FORMATS) == true)
             this.PublishedOn = pubDate;
+        var updated = element.Element(atomXNamespace + "updated")?.Value;
+        if (!String.IsNullOrWhiteSpace(updated) && DateTimeOffset.TryParse(updated, CultureInfo.InvariantCulture, DateTimeStyles.None, out var updatedDate))
+            this.UpdatedOn = updatedDate;
     }
     #endregion
 
@@ -192,6 +202,7 @@ public class RssItem
             }
         }
         if (item.PublishedOn != null) result.PublishDate = item.PublishedOn.Value;
+        if (item.UpdatedOn != null) result.LastUpdatedTime = item.UpdatedOn.Value;
         result.Links.Add(new SyndicationLink(item.Link, "alternate", null, null, 0));
         if (item.Enclosure != null) result.Links.Add(item.Enclosure);
         if (item.Comments != null) result.Links.Add(new SyndicationLink(item.Comments, "comments", null, null, 0));
