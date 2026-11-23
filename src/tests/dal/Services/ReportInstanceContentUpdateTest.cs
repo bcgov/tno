@@ -10,6 +10,57 @@ namespace TNO.Test.DAL;
 
 public class ReportInstanceContentUpdateTest
 {
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public void RemovedOrMovedPrivateStoriesRemainAvailableForOtherReports(bool includeContent, bool moveSection)
+    {
+        using var helper = new TestHelper();
+        helper.Build(services => services.AddTNOContext("private-report-content-" + Guid.NewGuid()));
+        var context = helper.Provider.GetRequiredService<TNOContext>();
+        var story = new Content("private-story", "Private headline", "Source", ContentType.Internet, 1, 1)
+        { Id = 1, IsPrivate = true, OwnerId = 1, Status = ContentStatus.Published };
+        context.Contents.Add(story);
+        context.ReportInstances.AddRange(new ReportInstance(31, 12, 1), new ReportInstance(32, 13, 1));
+        context.ReportInstanceContents.Add(new ReportInstanceContent(31, 1, "first", 0));
+        context.SaveChanges();
+        context.ChangeTracker.Clear();
+        var service = new ReportInstanceService(context, new ClaimsPrincipal(), helper.Provider, NullLogger<ReportInstanceService>.Instance);
+
+        // Retain a second story so both hydrated and ID-only report payloads exercise removal.
+        context.Contents.Add(new Content("other-story", "Other headline", "Source", ContentType.Internet, 1, 1) { Id = 2 });
+        context.ReportInstanceContents.Add(new ReportInstanceContent(31, 2, "first", 1));
+        context.SaveChanges();
+        context.ChangeTracker.Clear();
+        var retained = new ReportInstanceContent(31, 2, "first", 0)
+        {
+            Content = includeContent ? context.Contents.Find(2L) : null,
+        };
+        var update = new ReportInstance(31, 12, 1, [retained]);
+        if (moveSection)
+            update.ContentManyToMany.Add(new ReportInstanceContent(31, 1, "second", 0)
+            { Content = includeContent ? context.Contents.Find(1L) : null });
+        context.ChangeTracker.Clear();
+        service.UpdateAndSave(update, true);
+        context.ChangeTracker.Clear();
+
+        var saved = Assert.Single(context.Contents.Where(c => c.Id == 1));
+        Assert.True(saved.IsPrivate);
+        Assert.Equal(1, saved.OwnerId);
+        Assert.Equal(ContentStatus.Published, saved.Status);
+        Assert.Empty(context.TakeIndexRequests());
+        Assert.False(context.ReportInstanceContents.Any(c => c.InstanceId == 31 && c.ContentId == 1 && c.SectionName == "first"));
+        Assert.Equal(moveSection, context.ReportInstanceContents.Any(c => c.InstanceId == 31 && c.ContentId == 1 && c.SectionName == "second"));
+
+        // The owner can reuse the same article in another report after removing it.
+        service.UpdateAndSave(new ReportInstance(32, 13, 1, [new ReportInstanceContent(32, 1, "first", 0)]), true);
+        context.ChangeTracker.Clear();
+        Assert.True(context.ReportInstanceContents.Any(c => c.InstanceId == 32 && c.ContentId == 1));
+        Assert.True(context.Contents.Any(c => c.Id == 1));
+    }
+
     [Fact]
     public void UpdatingStoriesAddsRemovesAndReordersByContentAndSection()
     {

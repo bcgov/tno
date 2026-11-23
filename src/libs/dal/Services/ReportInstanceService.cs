@@ -394,10 +394,6 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
                 query = query.Include(ri => ri.ContentManyToMany).ThenInclude(ric => ric.Content);
             var original = query.FirstOrDefault(ri => ri.Id == entity.Id)
                 ?? throw new InvalidOperationException("Report instance does not exist");
-            // Private stories removed from a collection still need their existing deletion semantics.
-            var removedIds = original.ContentManyToMany.Except(entity.ContentManyToMany).Select(c => c.ContentId).ToArray();
-            var removedPrivate = this.Context.Contents.Where(c => removedIds.Contains(c.Id) && c.IsPrivate).ToArray();
-            this.Context.Contents.RemoveRange(removedPrivate);
             var originalInstanceContents = original.ContentManyToMany.ToArray();
             // Look the original stories up once; an instance can hold tens of thousands of them.
             // The first copy wins, as content can be in more than one section.
@@ -419,13 +415,10 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
                 : this.Context.Contents.Where(c => linkedIds.Contains(c.Id)).Select(c => c.Id).ToHashSet();
 
             var updatedContent = new Dictionary<long, Content>();
-            // Delete removed content and add new content.
+            // Remove report links only. Private stories remain available for reuse in other reports.
             originalInstanceContents.Except(entity.ContentManyToMany).ForEach(ric =>
             {
                 this.Context.Entry(ric).State = EntityState.Deleted;
-                // Content that is private will only exist on a single report.
-                // If it's removed from the report we can remove it from the database.
-                if (ric.Content?.IsPrivate == true) this.Context.Entry(ric.Content).State = EntityState.Deleted;
             });
             entity.ContentManyToMany.ForEach(ric =>
             {
