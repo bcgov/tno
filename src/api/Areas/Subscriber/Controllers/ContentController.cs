@@ -278,6 +278,7 @@ public class ContentController : ControllerBase
         var newContent = (Entities.Content)model;
         newContent.OwnerId = user.Id;
         newContent.PostedOn = DateTime.UtcNow;
+        _contentService.RequestIndex(newContent, requestorId: user.Id);
         var content = _contentService.AddAndSave(newContent);
 
         return CreatedAtAction(nameof(FindById), new { id = content.Id }, new ContentModel(content));
@@ -324,6 +325,7 @@ public class ContentController : ControllerBase
                     currentTonePool.Value = tonePool.Value;
             }
             content.Version = model.Version ?? 0;
+            _contentService.RequestIndex(content, requestorId: user.Id);
             content = _contentService.UpdateAndSave(content);
         }
         else
