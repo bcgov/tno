@@ -6,4 +6,5 @@ export interface IContentSearchResult extends IContentModel {
   displayMedia?: boolean;
   ministerName?: string;
   ministerMentions?: string[];
+  ministerIds?: number[];
 }

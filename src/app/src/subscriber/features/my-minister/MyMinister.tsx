@@ -28,10 +28,19 @@ export const MyMinister: React.FC = () => {
   const [{ impersonate }] = useProfileStore();
 
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
-  const [filteredContent, setFilteredContent] = React.useState<IContentSearchResult[]>([]);
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [ministers, setMinisters] = React.useState<IMinisterModel[]>([]);
   const [userMinisters, setUserMinisters] = React.useState<IMinisterModel[]>([]);
+
+  const getAliases = (minister: IMinisterModel) =>
+    (minister.aliases ?? '')
+      .split(',')
+      .map((a) => a.trim())
+      .filter((a) => !!a);
+
+  const getSearchTerms = (minister: IMinisterModel) => [...getAliases(minister), minister.name];
+
+  const getMentionLabel = (minister: IMinisterModel) => getAliases(minister)[0] ?? minister.name;
 
   const makeSimpleQueryString = (terms: string[]) => {
     if (terms.length === 1) return `"${terms[0]}"`;
@@ -75,116 +84,83 @@ export const MyMinister: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
-    const fillMentions = (r: IContentSearchResult, ministerName: string) => {
-      const mentions: string[] = [];
-      ministers
-        .filter((m) => userInfo?.preferences?.myMinisters?.includes(m.id))
-        // eslint-disable-next-line array-callback-return
-        .map((m: IMinisterModel) => {
-          let includeMention = false;
-          const aliases = m.aliases.split(',');
-          for (let i = 0; i <= aliases.length; i++) {
-            if (r.summary.includes(aliases[i]) || r.body.includes(aliases[i])) {
-              includeMention = true;
-            }
-          }
-          if (r.summary.includes(m.name) || r.body.includes(m.name)) {
-            includeMention = true;
-          }
-          if (includeMention) {
-            mentions.push(!!aliases ? aliases[0] : m.name);
-          }
-        });
-      return mentions;
-    };
-
     const displayData = async () => {
-      const contentList: IContentSearchResult[] = [];
-      if (
-        userInfo?.preferences?.myMinisters?.length > 0 ||
-        (impersonate?.preferences?.myMinisters?.length > 0 && ministers.length > 0)
-      ) {
-        const baseProfile = impersonate ?? userInfo;
-        let ministerModels = ministers
-          .filter((m) => baseProfile?.preferences?.myMinisters?.includes(m.id))
-          .map((m) => {
-            return { ...m, contentCount: 0 };
-          })
-          .sort((a: IMinisterModel, b: IMinisterModel) => (`${a.name}` > `${b.name}` ? 1 : -1));
-        const startDate = filter.startDate
-          ? filter.startDate
-          : dayjs(new Date()).startOf('day').toISOString();
-        const endDate = filter.endDate
-          ? filter.endDate
-          : dayjs(new Date()).endOf('day').toISOString();
-        if (ministerModels) {
-          for (let j = 0; j < ministerModels.length; j++) {
-            const res = await fetchResults(
-              generateQuery(
-                filterFormat({
-                  ...filter,
-                  search: makeSimpleQueryString([
-                    ...ministerModels[j].aliases.split(','),
-                    ministerModels[j].name,
-                  ]),
-                  startDate,
-                  endDate,
-                  inByline: true,
-                  inHeadline: true,
-                  inStory: true,
-                  defaultOperator: 'or',
-                }),
-              ),
-            );
-            if (!!res && res.length > 0) {
-              for (let i = 0; i < res.length; i++) {
-                res[i].ministerName = ministerModels[j].name;
-                res[i].ministerMentions = await fillMentions(res[i], ministerModels[j].name);
-                ministerModels[j].contentCount += 1;
-                contentList.push(res[i]);
-              }
-            }
+      const baseProfile = impersonate ?? userInfo;
+      const ministerIds: number[] = baseProfile?.preferences?.myMinisters ?? [];
+      if (!ministerIds.length || !ministers.length) return;
+
+      const ministerModels = ministers
+        .filter((m) => ministerIds.includes(m.id))
+        .map((m) => ({ ...m, contentCount: 0 }))
+        .sort((a, b) => (`${a.name}` > `${b.name}` ? 1 : -1));
+      const startDate = filter.startDate
+        ? filter.startDate
+        : dayjs(new Date()).startOf('day').toISOString();
+      const endDate = filter.endDate
+        ? filter.endDate
+        : dayjs(new Date()).endOf('day').toISOString();
+
+      // A content item is associated with every minister whose search returned it.
+      const contentById = new Map<number, IContentSearchResult>();
+      for (const minister of ministerModels) {
+        const res = await fetchResults(
+          generateQuery(
+            filterFormat({
+              ...filter,
+              search: makeSimpleQueryString(getSearchTerms(minister)),
+              startDate,
+              endDate,
+              inByline: true,
+              inHeadline: true,
+              inStory: true,
+              defaultOperator: 'or',
+            }),
+          ),
+        );
+        res?.forEach((item) => {
+          const existing = contentById.get(item.id);
+          const result = existing ?? { ...item, ministerName: minister.name, ministerIds: [] };
+          if (!result.ministerIds?.includes(minister.id)) {
+            result.ministerIds = [...(result.ministerIds ?? []), minister.id];
+            result.ministerMentions = [
+              ...(result.ministerMentions ?? []),
+              getMentionLabel(minister),
+            ];
+            minister.contentCount += 1;
           }
-          const ids = contentList.map(({ id }) => id);
-          const grouped = contentList.filter(({ id }, index) => !ids.includes(id, index + 1));
-          setContent(grouped);
-          setUserMinisters(ministerModels);
-        }
+          if (!existing) contentById.set(item.id, result);
+        });
       }
+
+      setContent(Array.from(contentById.values()));
+      // Keep the SHOW selections when the date changes.
+      setUserMinisters((current) =>
+        ministerModels.map((m) => ({
+          ...m,
+          hide: current.find((c) => c.id === m.id)?.hide,
+        })),
+      );
     };
     displayData().catch(() => {});
     // only fire when filter changes or ministers updated
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userInfo?.preferences?.myMinisters, ministers, fetchResults, filter]);
+  }, [
+    userInfo?.preferences?.myMinisters,
+    impersonate?.preferences?.myMinisters,
+    ministers,
+    fetchResults,
+    filter,
+  ]);
 
-  React.useEffect(() => {
-    setFilteredContent(content);
-  }, [content]);
+  // Only show content associated with at least one of the ministers that are checked.
+  const filteredContent = React.useMemo(() => {
+    const hiddenIds = userMinisters.filter((m) => m.hide).map((m) => m.id);
+    if (!hiddenIds.length) return content;
+    return content.filter((c) => c.ministerIds?.some((id) => !hiddenIds.includes(id)));
+  }, [content, userMinisters]);
 
   const hideGroup = (minister: IMinisterModel, hide: boolean) => {
-    const ministersList = [...userMinisters];
-    const m = ministersList.find((m) => m.id === minister.id);
-    if (m) {
-      m.hide = hide;
-    }
-    setUserMinisters(ministersList);
-    let filteredContent = [...content];
-    const mentionsToHide = ministersList
-      .filter((m) => m.hide)
-      .map((m) => {
-        const aliases = m.aliases.split(',');
-        return !!aliases ? aliases[0] : m.name;
-      });
-    filteredContent = filteredContent.filter((c) => {
-      let count = 0;
-      mentionsToHide.forEach((h) => {
-        if (c.ministerMentions?.includes(h)) {
-          count++;
-        }
-      });
-      return count !== c.ministerMentions?.length;
-    });
-    setFilteredContent(filteredContent);
+    setUserMinisters((current) => current.map((m) => (m.id === minister.id ? { ...m, hide } : m)));
   };
 
   return (
