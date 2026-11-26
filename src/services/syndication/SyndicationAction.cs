@@ -762,7 +762,9 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         {
             try
             {
-                using var xmlr = document.CreateReader();
+                // XDocument's reader exposes preserved indentation as Text, which the Atom formatter rejects.
+                // Re-read serialized XML to classify whitespace correctly without stripping content whitespace.
+                using var xmlr = XmlReader.Create(new StringReader(document.Root!.ToString(SaveOptions.DisableFormatting)));
                 var feed = SyndicationFeed.Load(xmlr);
                 return feed;
             }
