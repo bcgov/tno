@@ -120,7 +120,33 @@ if args[0]=='get':
         patch = next(c for c in self.calls() if c[0] == 'patch')
         strategy = json.loads(patch[patch.index('-p') + 1])['spec']['strategy']
         self.assertEqual(strategy['type'], 'RollingUpdate')
-        self.assertEqual(strategy['rollingUpdate']['maxUnavailable'], 0)
+        self.assertEqual(strategy['rollingUpdate'], {'maxSurge': 1, 'maxUnavailable': 0})
+
+    def test_deployment_surge_and_timeout_preserve_availability(self):
+        for surge in ['1', '2']:
+            with self.subTest(surge=surge):
+                self.log.write_text('')
+                result = self.run_script(ROLLOUT, 'test', 'deployment', 'content-service',
+                                         '600s', MAX_SURGE=surge)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                calls = self.calls()
+                patch = next(c for c in calls if c[0] == 'patch')
+                spec = json.loads(patch[patch.index('-p') + 1])['spec']
+                self.assertEqual(spec['strategy']['rollingUpdate'],
+                                 {'maxSurge': int(surge), 'maxUnavailable': 0})
+                self.assertNotIn('replicas', spec)
+                status = next(c for c in calls if c[:2] == ['rollout', 'status'])
+                self.assertIn('--timeout=600s', status)
+
+    def test_invalid_surge_is_rejected_before_cluster_changes(self):
+        for surge in ['0', '-1', '2.5', '25%', '01', '1,"maxUnavailable":6']:
+            with self.subTest(surge=surge):
+                self.log.write_text('')
+                result = self.run_script(ROLLOUT, 'test', 'deployment', 'content-service',
+                                         MAX_SURGE=surge)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn('MAX_SURGE must be a positive integer', result.stderr)
+                self.assertEqual(self.calls(), [])
 
     def test_github_migration_timeout_and_failed_pod_block_release(self):
         workflow = yaml.safe_load((ROOT / '.github/workflows/_reusable-db-migration-cd.yml').read_text())

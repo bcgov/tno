@@ -8,7 +8,7 @@ namespace TNO.Services.Syndication.Xml;
 /// <summary>
 /// AtomFeed class, provides an object to read and write Atom syndication feed.
 /// </summary>
-[XmlRoot("atom")]
+[XmlRoot("feed", Namespace = "http://www.w3.org/2005/Atom")]
 public class AtomFeed
 {
     #region Variables
@@ -86,7 +86,7 @@ public class AtomFeed
     /// <returns></returns>
     public static bool IsAtomFeed(XDocument document)
     {
-        return document.Root?.Name == "atom";
+        return document.Root?.Name == XName.Get("feed", "http://www.w3.org/2005/Atom");
     }
 
     /// <summary>
@@ -129,7 +129,7 @@ public class AtomFeed
     {
         var document = XDocument.Load(reader);
         if (!IsAtomFeed(document)) throw new XmlException("Not a valid Atom feed.");
-        return new AtomFeed(reader, enforceSpec);
+        return new AtomFeed(document, enforceSpec);
     }
 
     /// <summary>
@@ -138,7 +138,9 @@ public class AtomFeed
     /// <param name="feed"></param>
     public static implicit operator SyndicationFeed(AtomFeed feed)
     {
-        return new SyndicationFeed();
+        // Use a text reader so preserved indentation is classified as whitespace, not text.
+        using var reader = XmlReader.Create(new StringReader(feed.Document.Root!.ToString(SaveOptions.DisableFormatting)));
+        return SyndicationFeed.Load(reader);
     }
     #endregion
 }

@@ -336,7 +336,8 @@ jobs:
           namespace: ${{ env.OPENSHIFT_NAMESPACE }}
           resource_type: deployment
           resource_name: ${{ matrix.deployment }}
-          rollout_timeout: 300s
+          rollout_timeout: 600s
+          max_surge: ${{ matrix.deployment == 'content-service' && '2' || '1' }}
 
   # ---------------------------------------------------------------------------
   # Phase 4 — Deploy frontend alongside backend services

@@ -16,6 +16,10 @@ inputs:
     description: Rollout status timeout.
     required: false
     default: 300s
+  max_surge:
+    description: Maximum extra Deployment replicas during rollout (positive integer).
+    required: false
+    default: '1'
   continue_on_error_verify:
     description: Deprecated. Verification is always required; this input is ignored.
     required: false
@@ -66,4 +70,5 @@ runs:
         KIND: ${{ inputs.resource_type }}
         NAME: ${{ inputs.resource_name }}
         TIMEOUT: ${{ inputs.rollout_timeout }}
+        MAX_SURGE: ${{ inputs.max_surge }}
       run: bash openshift/scripts/release/rollout.sh "$NAMESPACE" "$KIND" "$NAME" "$TIMEOUT"

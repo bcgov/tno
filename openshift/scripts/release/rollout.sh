@@ -65,13 +65,15 @@ if [[ "$kind" == statefulset ]]; then
     sleep "$delay"
   done
 elif [[ "$kind" == deployment ]]; then
+  max_surge=${MAX_SURGE:-1}
+  [[ "$max_surge" =~ ^[1-9][0-9]*$ ]] || { echo "MAX_SURGE must be a positive integer" >&2; exit 1; }
   if [[ "$name" == api-services ]]; then
     replicas=$(oc get "$resource" -n "$namespace" -o 'jsonpath={.spec.replicas}')
     (( replicas > 0 )) || { echo "$resource has no desired replicas; cannot verify API readiness" >&2; exit 1; }
   fi
   # Merge patch removes Recreate and preserves replica counts and other settings.
   oc patch "$resource" -n "$namespace" --type=merge \
-    -p '{"spec":{"strategy":{"type":"RollingUpdate","rollingUpdate":{"maxSurge":1,"maxUnavailable":0}}}}'
+    -p '{"spec":{"strategy":{"type":"RollingUpdate","rollingUpdate":{"maxSurge":'"$max_surge"',"maxUnavailable":0}}}}'
   if [[ -n "$image" ]]; then
     oc set image "$resource" "$container=$image" -n "$namespace"
   fi
