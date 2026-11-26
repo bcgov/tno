@@ -25,6 +25,7 @@ import {
 import { dayjs } from '@/shared/utils/date';
 
 import { defaultMinister } from './constants';
+import { MaxAliasesLength, MinisterAliases } from './MinisterAliases';
 import * as styled from './styled';
 
 /**
@@ -87,7 +88,7 @@ const MinisterForm: React.FC = () => {
               <FormikText width={FieldSize.Large} name="name" label="Name" />
               <FormikTextArea name="description" label="Description" width={FieldSize.Large} />
               <FormikTextArea name="position" label="Position" width={FieldSize.Large} />
-              {/* <FormikText name="aliases" label="Aliases" width={FieldSize.Large} /> */}
+              <MinisterAliases />
               <FormikText
                 width={FieldSize.Tiny}
                 name="sortOrder"
@@ -136,7 +137,10 @@ const MinisterForm: React.FC = () => {
               </Show>
             </Col>
             <Row justifyContent="center" className="form-inputs">
-              <Button type="submit" disabled={isSubmitting}>
+              <Button
+                type="submit"
+                disabled={isSubmitting || (values.aliases ?? '').length > MaxAliasesLength}
+              >
                 Save
               </Button>
               <Show visible={!!values.id}>
