@@ -7,8 +7,11 @@ covers Local (`dependencies/elasticsearch`) and the DEV StatefulSet (`9b301c-dev
 | ----------- | -------------------------------------------------------- | --------------------- | --------- |
 | Local       | `tno-elastic` container                                  | 8.19.25               | **9.5.7** |
 | DEV         | `elastic` StatefulSet, 3 nodes, `9b301c-dev`             | 8.19.25               | **9.5.7** |
-| TEST        | Elastic Cloud (local StatefulSet scaled to 0)            | 8.19.26               | Cloud     |
-| PROD        | Elastic Cloud (local StatefulSet scaled to 0)            | 8.19.21               | Cloud     |
+| TEST        | Elastic Cloud (local StatefulSet scaled to 0)            | 8.19.26               | **9.5.7** (Cloud) |
+| PROD        | Elastic Cloud (local StatefulSet scaled to 0)            | 8.19.21               | **9.5.7** (Cloud) |
+
+Every environment targets 9.5.7 (decided 2026-11-27). TEST and PROD are upgraded through Elastic Cloud, not with
+this plan, but the client changes and the 7.x-created index checks in section 1 apply to them too.
 
 ## Why 9.5.7 and not 9.5.5
 
@@ -21,13 +24,15 @@ Elastic only supports upgrading to a release that was **published after** the on
 | 8.19.21 | 2026-09-01 |
 | 9.5.5   | 2026-10-06 |
 | 8.19.25 | 2026-11-10 |
+| 8.19.26 | 2026-11-23 |
 | 9.5.7   | 2026-11-23 |
 
 Local and DEV run 8.19.25, which is newer than 9.5.5, so 9.5.5 is not a supported target. 9.5.7 is, and it also
 carries the 9.5.6/9.5.7 security fixes and the `simple_pattern` tokenizer fix (shards failed to open on 9.x).
-For TEST/PROD on Elastic Cloud, apply the same rule: the Cloud target must be published after their current 8.19
-patch. PROD (8.19.21) can move to 9.5.5. TEST runs 8.19.26, which was published after 9.5.5, so 9.5.5 is not a
-supported target for TEST.
+The same rule applies on Elastic Cloud. TEST runs 8.19.26, published after 9.5.5, so 9.5.5 is not a supported
+target for TEST; PROD (8.19.21) could have taken it. TEST and PROD therefore also go to 9.5.7, so every environment
+runs one version. Elastic Cloud may offer a later 9.5 patch by the time TEST and PROD are upgraded; the target must
+still be published after 8.19.26.
 
 ## 1. Blockers: resolve before any 9.x node starts
 
@@ -166,8 +171,8 @@ prepared and upgraded on Local (section 3).
 
 **Related, not changed here (decide separately):**
 
-- `.github/workflows/elastic-migration-cicd.yml` now tests 8.19.25, 9.5.5 and 9.5.7 (7.17.9 dropped). It does not
-  test what Elastic Cloud runs today (TEST 8.19.26, PROD 8.19.21); which versions to test for them is undecided.
+- `.github/workflows/elastic-migration-cicd.yml` now tests 8.19.21 (PROD), 8.19.25 (Local, DEV), 8.19.26 (TEST)
+  and 9.5.7 (every environment's target). 7.17.9 and 9.5.5 are no longer tested.
 - `src/app` `@elastic/elasticsearch` 8.19.2 is only a type import (`esTypes.ts`); no runtime effect.
 - `elasticsearch-mcp` (`docker.elastic.co/mcp/elasticsearch:0.4.6`) states 8.x and 9.x support, but the project is
   deprecated (security fixes only); Elastic's replacement is the Agent Builder MCP endpoint in 9.2+.

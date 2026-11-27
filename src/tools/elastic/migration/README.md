@@ -194,8 +194,8 @@ concrete indexes to aliases, restart after cutover, and rollback, and run the st
 order with a simulated second indexing service writing and deleting between them, then drop only
 those test databases.
 It requires `MMI_MIGRATION_TEST_POSTGRES` with a local role allowed to create/drop databases.
-CI runs the suite on Elasticsearch 8.19.25 (every environment before the 9.x upgrade), 9.5.5 (the Elastic
-Cloud target for TEST and PROD) and 9.5.7 (the Local and DEV target).
+CI runs the suite on every version an environment runs before the 9.x upgrade, 8.19.21 (PROD), 8.19.25
+(Local, DEV) and 8.19.26 (TEST), and on 9.5.7, the target for every environment.
 
 The comparison checks membership and revisions, not every original document field. Legacy revision
 zero assumes the old indexed document was correct before revision tracking; equal-revision body

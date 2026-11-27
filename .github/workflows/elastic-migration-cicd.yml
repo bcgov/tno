@@ -32,15 +32,10 @@ jobs:
     timeout-minutes: 20
     strategy:
       matrix:
-        # 8.19.25: the version Local and DEV are upgraded from. No job tests the versions Elastic Cloud runs
-        #          today: TEST 8.19.26 and PROD 8.19.21.
-        # 9.5.5:   the version the business named for the Elastic Cloud upgrade. PROD (8.19.21) can move to it.
-        #          TEST cannot: 9.5.5 was released before 8.19.26, and Elastic only supports upgrading to a
-        #          release published after the one that is running.
-        # 9.5.7:   the Local and DEV target.
-        # 7.17 is no longer tested: no environment runs it.
-        # Which versions to test for TEST and PROD is an open decision; the list is unchanged until it is made.
-        elasticsearch: ['8.19.25', '9.5.5', '9.5.7']
+        # What each environment runs before the upgrade: 8.19.21 PROD, 8.19.25 Local and DEV, 8.19.26 TEST.
+        # 9.5.7: the target for every environment (TEST and PROD through Elastic Cloud).
+        # 7.17 and 9.5.5 are no longer tested: no environment runs or targets them.
+        elasticsearch: ['8.19.21', '8.19.25', '8.19.26', '9.5.7']
     services:
       elasticsearch:
         image: docker.elastic.co/elasticsearch/elasticsearch:${{ matrix.elasticsearch }}
