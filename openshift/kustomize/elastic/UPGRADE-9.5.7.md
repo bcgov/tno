@@ -5,8 +5,8 @@ covers Local (`dependencies/elasticsearch`) and the DEV StatefulSet (`9b301c-dev
 
 | Environment | Cluster                                                  | Version on 2026-11-27 | Target    |
 | ----------- | -------------------------------------------------------- | --------------------- | --------- |
-| Local       | `tno-elastic` container                                  | 8.19.25               | **9.5.7** |
-| DEV         | `elastic` StatefulSet, 3 nodes, `9b301c-dev`             | 8.19.25               | **9.5.7** |
+| Local       | `tno-elastic` container                                  | 8.19.25               | **9.5.7**, done 2026-11-27 |
+| DEV         | `elastic` StatefulSet, 3 nodes, `9b301c-dev`             | 8.19.25               | **9.5.7**, done 2026-11-27 ([record](#dev-upgrade-record-2026-11-27)) |
 | TEST        | Elastic Cloud (local StatefulSet scaled to 0)            | 8.19.26               | **9.5.7** (Cloud) |
 | PROD        | Elastic Cloud (local StatefulSet scaled to 0)            | 8.19.21               | **9.5.7** (Cloud) |
 
@@ -361,6 +361,11 @@ end. The rehearsal must also prove the two things DEV cannot be used to find out
 Do not touch DEV until this passes. The one-node equivalent of item 2 passed on 2026-11-27 (see
 [Going back to 8.19.25 (Local)](#going-back-to-81925-local)); the 3-node case is not verified yet.
 
+**DEV on 2026-11-27:** DEV was upgraded before this rehearsal finished, by decision. The rehearsal reached the
+rollback step (a new 3-node 8.19.25 cluster restoring from the shared snapshot volume) and was stopped there to
+publish the DEV results, so neither item above was recorded as passing. Until it is rerun, row a of section 5 is
+untested on three nodes; row b (rebuild from PostgreSQL) remains the fallback.
+
 ### Phase 2: clear the blockers on 8.19.25 (reversible)
 
 1. Deploy the 1.1 client change (API, services, migration tool image) to DEV and confirm searches, publishing, reports,
@@ -417,6 +422,12 @@ oc kustomize overlays/dev | oc apply -f -
 NS=9b301c-dev scripts/rolling-update.sh run
 ```
 
+`oc kustomize overlays/dev` needs the gitignored `secret.env` and `route.env`, and applying it also replaces the
+`elastic` Secret and Route. Without those files, or to change nothing but the nodes, apply only the StatefulSet:
+render the overlay in a temporary copy with stub `secret.env` and `route.env` files, keep the `StatefulSet` document,
+confirm the image is its only difference from the live object (compare `.spec` with `oc get sts elastic -o json`),
+and `oc apply` that one document between `hold` and `run`. This is what was done on DEV on 2026-11-27.
+
 Elastic recommends upgrading the elected master last. All three nodes are master-eligible; if `elastic-0` is not the
 elected master (`_cat/nodes`, `master` column `*`), consider moving the master first or accept the extra election.
 
@@ -432,6 +443,20 @@ elected master (`_cat/nodes`, `master` column `*`), consider moving the master f
    shows the next nightly. Do not delete `pre-9-5-7`: it is the only snapshot that 8.19 can restore.
 7. After a few stable days: `scripts/snapshots.sh volume-delete pre-9-5-7` if volume snapshots were taken. Delete
    `pre-9-5-7` itself (`scripts/snapshots.sh delete pre-9-5-7`) only when going back to 8.19 is no longer wanted.
+
+### DEV upgrade record (2026-11-27)
+
+| Phase | Result |
+| ----- | ------ |
+| 0 | Green, 3 nodes on 8.19.25, `elastic-2` elected master. Blockers: `migrations` (11 documents, no alias) and `content_evidence_v1.0.11-…` (3,446 documents; 13,228 including nested; alias `content_evidence`), the data streams `ilm-history-5` and `.logs-deprecation.elasticsearch-default`, and system features `tasks` and `geoip`. No unaliased leftovers and no `simple_pattern` tokenizer. Data volumes 39% used; the snapshot volume 88% (6.1 GB free). |
+| 1 | Started, not finished: stopped at the rollback step (see phase 1). |
+| 2 | Deleted the old snapshots `pre-8-19-25-20261119`, `post-8-19-25-20261119` and the 2026-11-26 nightly: the snapshot volume went to 47% (27 GB free). `pre-9-5-7-cleanup` taken. Both data streams deleted. `indexing-service` scaled to 0, both indexes rebuilt: document IDs and `_version` values identical to the baseline (hash compared), aliases unchanged. System features migrated; `check` clean. Indexing scaled back to 1. |
+| 3 | `pre-9-5-7` (4 indexes, 4/4 shards). Volume snapshots `data-elastic-{0,1,2}-pre-9-5-7` ready, with fresh creation times. |
+| 4 | Only the StatefulSet applied (the overlay's secret and route files were not available); its image was the only difference. `rolling-update.sh run` replaced `elastic-2`, `elastic-1`, `elastic-0` in that order; green after each. `elastic-1` is the elected master afterwards. |
+| 5 | Green, 3 nodes on 9.5.7, roles `cdfhilmrstw`. Aliases unchanged (plus the system alias `.tasks` → `.tasks-reindexed-for-9` from the system-feature migration). `migrations` and `content_evidence` identical to the baseline. Searches through all three aliases work; no Elasticsearch errors in the indexing, API, `api-services` and reporting logs. `post-9-5-7` taken; the nightly policy runs next on 2026-11-28 09:30 UTC. On 9.5.7 the deprecation API lists every 8.x-created index and data stream as critical, and `upgrade-9.sh check` again shows `MIGRATION_NEEDED` for the system features: on 9.x these are what a future 10.x upgrade needs, and nothing blocks 9.x. DEV was confirmed reachable in a browser afterwards; the full functional checks in phase 5 item 3 are still to be recorded. |
+
+Keep `pre-9-5-7`: it is the only snapshot 8.19 can restore. `pre-9-5-7-cleanup` and the volume snapshots can be
+deleted after a few stable days.
 
 ## 5. Rollback
 
