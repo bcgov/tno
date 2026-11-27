@@ -69,13 +69,14 @@ time DEV had 5 indexes created on 7.x and 7 with date-format patterns that 9.x r
 [UPGRADE-8.19.21.md](UPGRADE-8.19.21.md) section 6). Migrations 1.0.12 and 1.0.13 (2026-11-06) replaced some of them,
 but this has not been re-checked. Phase 0 lists what remains.
 
-For each one, choose:
+`scripts/upgrade-9.sh [--local] check` lists every blocker. For each one, choose:
 
 | Index kind                                                | Action                                                                                    |
 | --------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| Behind a live alias (`content`, `unpublished_content`, `content_evidence`) or written by the app (`migrations`) | Reindex through a new Elasticsearch migration version (versioned copy, second indexer, alias cutover), run on 8.19. |
-| Unused leftover (old versions, `*-backup-*`)              | Delete it, or mark it read-only with `PUT /<index>/_block/write` (sets `index.verified_read_only`; it stays read-only on 9.x). |
-| System index (`.security-7`, …)                           | `GET /_migration/system_features`, then `POST /_migration/system_features` if it reports `MIGRATION_NEEDED`. |
+| Behind a live alias (`content_evidence`) or written by the app (`migrations`) | `upgrade-9.sh rebuild <index>`: recreates it under the same name with the same mappings, settings, aliases and document versions (`_create_from` + `_reindex` with external versions, through a temporary copy that serves reads meanwhile). Stop the indexing service first. |
+| Unused leftover (old versions, `*-rollback-*`, `*-backup-*`) | `upgrade-9.sh delete-index <index>` (refuses an index with an alias), or mark it read-only with `PUT /<index>/_block/write` (sets `index.verified_read_only`; it stays read-only on 9.x). |
+| Data stream from 7.x (`ilm-history-5`, `.logs-deprecation.elasticsearch-default`) | `upgrade-9.sh delete-data-stream <name>`. Both are Elasticsearch's own history and logs and are recreated on demand. |
+| System index (`.security-7`, `.tasks`, …)                 | `upgrade-9.sh system-features` (runs `POST /_migration/system_features` and waits).       |
 
 Restoring a 7.x-created index into 9.x needs the Enterprise-licensed archive feature, so **snapshots taken on 7.17
 cannot be restored on 9.x**. Delete the 7.17 snapshots (`initial-2026-11-01`, `pre-8-19-21`) or accept that they are
@@ -104,8 +105,8 @@ image runs as `1000:0` with the same entrypoint (Red Hat UBI 9 base instead of U
   the transient `failed to retrieve password hash for reserved user [elastic]` messages while `.security` recovers,
   the same as on 8.19.
 
-**Not yet verified:** a 3-node rolling upgrade with DEV's ConfigMap (rehearse it in phase 1), and 7.x-created data
-(the rehearsal volume was created on 8.19.25).
+**Not yet verified:** a 3-node rolling upgrade with DEV's ConfigMap (rehearse it in phase 1). Data from 7.x was
+prepared and upgraded on Local (section 3).
 
 **Related, not changed here (decide separately):**
 
@@ -116,16 +117,96 @@ image runs as `1000:0` with the same entrypoint (Red Hat UBI 9 base instead of U
 
 ## 3. Local procedure (every developer)
 
-1. If your volume dates from 7.17 (any developer who upgraded on 2026-11-01 rather than recreating), check for
-   blockers first, on 8.19.25:
-   `curl -s -u elastic:<password> 'localhost:40003/_migration/deprecations?pretty'`. Delete or rebuild any
-   7.x-created index, or simply recreate the data (below).
-2. Optional backup: `openshift/kustomize/elastic/scripts/snapshots.sh --local now pre-9-5-7` (restorable on 8.19 only).
-3. `make refresh n=elastic`. The volume upgrades in place on first start.
-4. `curl -u elastic:<password> localhost:40003` reports `"number" : "9.5.7"`; editor and subscriber searches work.
+Run from the repository root on this branch, with the Local stack up (`tno-elastic` on 8.19.25). Every step before
+step 6 runs on 8.19 and can be undone from the snapshot. Performed on 2026-11-27 against a volume upgraded from 7.17.9
+on 2026-11-01; the results are under [Local upgrade record](#local-upgrade-record-2026-11-27).
 
-**Going back:** 8.19 cannot start on an upgraded volume. Restore the snapshot into an 8.19 container, or recreate:
-`make down v=1`, `make up`, `bash do docker db-apply`, `make elastic-update`, then the indexer.
+```bash
+S=openshift/kustomize/elastic/scripts
+```
+
+1. **List the blockers** (read-only):
+
+   ```bash
+   $S/upgrade-9.sh --local check
+   ```
+
+   Nothing listed under the three headings means the volume is ready: go to step 6.
+
+2. **Snapshot** the application indexes (`content*`, `unpublished_content*`, `migrations`). The snapshot restores on
+   8.19 only, so it is the way back if a later step goes wrong.
+
+   ```bash
+   $S/snapshots.sh --local setup        # only if 'snapshots.sh --local list' says the repository is missing
+   $S/snapshots.sh --local now pre-9-5-7 && $S/snapshots.sh --local wait pre-9-5-7
+   ```
+
+3. **Delete the unused 7.x indexes and data streams** that `check` listed without an alias. On a volume from
+   2026-11-01 these are:
+
+   ```bash
+   for index in content_v1.0.10 content_v1.0.10-rollback-from-1.0.11 unpublished_content_v1.0.10 \
+                unpublished_content_v1.0.10-rollback-from-1.0.11 \
+                content_v1.0.11-<suffix> unpublished_content_v1.0.11-<suffix>; do
+     $S/upgrade-9.sh --local delete-index "$index"
+   done
+   $S/upgrade-9.sh --local delete-data-stream ilm-history-5
+   $S/upgrade-9.sh --local delete-data-stream .logs-deprecation.elasticsearch-default
+   ```
+
+   Use the names `check` printed. `<suffix>` is the 1.0.11 generation, e.g. `d39c00372638898aaad34724`. Never delete
+   an index that an alias points at; `delete-index` refuses one.
+
+4. **Rebuild the live 7.x indexes** with the indexing service stopped, so nothing writes to them during the copy.
+   Kafka keeps its messages until it restarts.
+
+   ```bash
+   docker stop tno-indexing
+   $S/upgrade-9.sh --local rebuild migrations
+   $S/upgrade-9.sh --local rebuild content_evidence_v1.0.11-<suffix>
+   ```
+
+   Each copy is checked by document count, and the script stops on a mismatch.
+
+5. **Migrate the system indexes**, then check again. All three headings must be empty.
+
+   ```bash
+   $S/upgrade-9.sh --local system-features
+   $S/upgrade-9.sh --local check
+   ```
+
+6. **Upgrade.** Elasticsearch, then the API and the indexing service, whose old builds still use NEST and fail
+   against 9.x. Then start the rest as usual.
+
+   ```bash
+   bash do docker refresh -n elastic
+   bash do docker refresh -n api
+   bash do docker refresh -n indexing
+   ```
+
+7. **Verify:**
+   - `curl -u elastic:<password> localhost:40003` reports `"number" : "9.5.7"`, and `_cluster/health` is yellow
+     (single node; replicas cannot be assigned) with every primary active.
+   - `_cat/aliases` and the `content`, `unpublished_content` and `content_evidence` counts match what you had before.
+   - `tno-indexing` logs `Subscribing to topics: index`, and editor and subscriber searches work.
+   - `$S/snapshots.sh --local policy` shows the next nightly run.
+
+**Going back:** 8.19 cannot start on an upgraded volume. Either restore `pre-9-5-7` into an 8.19.25 container on an
+empty volume (`snapshots.sh --local restore-in-place pre-9-5-7 <indices>`, then re-create the aliases), or recreate
+the data: `bash do docker down -v`, `bash do docker up`, `bash do docker db-apply`, `bash do docker elastic-update`,
+then the indexer (hours).
+
+### Local upgrade record (2026-11-27)
+
+| Step | Result |
+| ---- | ------ |
+| 1 | 8 indexes and 2 data streams with *compatibility version < 8.0*; system features `MIGRATION_NEEDED` (`geoip`, `tasks`). The live `content` (1.0.13) and `unpublished_content` (1.0.12) indexes were created on 8.x and needed nothing. |
+| 2 | `pre-9-5-7`: 11 indexes, 1.6 s. |
+| 3 | Deleted the six unaliased 1.0.10/1.0.11 leftovers (about 640 MB) and both data streams. |
+| 4 | `migrations` (11 documents) and `content_evidence_v1.0.11-…` (11,937 documents; 43,208 including nested) rebuilt. Every evidence document's `_version` matched a restored copy of the snapshot (0 mismatches, 0 missing). |
+| 5 | No critical deprecations; `NO_MIGRATION_NEEDED`. |
+| 6 | Started on 9.5.7: the same 15 primary shards active, and only the transient `.security` password-hash warnings while it recovered. API and indexing rebuilt and healthy. |
+| 7 | Index and alias document counts identical before and after. The client's request shapes (point-in-time read, mapping, search, count, `_doc`, `_explain`, delete, HEAD) all answered as expected on 9.5.7 with security enabled. |
 
 ## 4. DEV procedure
 
@@ -160,9 +241,11 @@ end. Do not touch DEV until this passes.
 
 1. Deploy the 1.1 client change (API, services, migration tool image) to DEV and confirm searches, publishing, reports,
    Filter AI and the orphan scan still work on 8.19.25.
-2. Run the Elasticsearch migration(s) that reindex the live 7.x-created indexes, then delete or `_block/write` the
-   rest. Run `POST /_migration/system_features` if needed.
-3. Re-run phase 0: `_migration/deprecations` must have no `critical` items.
+2. Take the phase 3 Elasticsearch snapshot now, before anything is deleted.
+3. Same as the Local steps 3–5, without `--local` (`NS=9b301c-dev`): delete the unaliased leftovers and old data
+   streams, then scale the indexing services to 0 and `rebuild` each live 7.x index (expect `migrations` and
+   `content_evidence_v1.0.11-…`), then `system-features`. Scale indexing back up afterwards.
+4. `scripts/upgrade-9.sh check` must list nothing.
 
 ### Phase 3: back up
 
