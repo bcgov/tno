@@ -1,5 +1,4 @@
 using System.Text.Json;
-using Elasticsearch.Net;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Content;
@@ -54,7 +53,7 @@ public class ReportEvidenceService : IReportEvidenceService
         var ids = contentIds.Distinct().ToArray();
         if (ids.Length == 0 || String.IsNullOrWhiteSpace(_options.EvidenceIndex)) return result;
 
-        var open = await _client.LowLevel.OpenPointInTimeAsync<StringResponse>(_options.EvidenceIndex, new OpenPointInTimeRequestParameters() { KeepAlive = KeepAlive }, cancellationToken);
+        var open = await _client.RequestAsync(HttpMethod.Post, $"{_options.EvidenceIndex}/_pit?keep_alive={KeepAlive}", cancellationToken: cancellationToken);
         if (!open.Success)
         {
             // An environment without the evidence index synthesizes from story text.
@@ -88,7 +87,7 @@ public class ReportEvidenceService : IReportEvidenceService
                     };
                     if (searchAfter != null) body["search_after"] = searchAfter;
 
-                    var response = await _client.LowLevel.SearchAsync<StringResponse>(PostData.String(JsonSerializer.Serialize(body)), ctx: cancellationToken);
+                    var response = await _client.RequestAsync(HttpMethod.Post, "_search", JsonSerializer.Serialize(body), cancellationToken: cancellationToken);
                     if (!response.Success) throw new InvalidOperationException($"Failed to read evidence: {response.Body}");
 
                     using var document = JsonDocument.Parse(response.Body);
@@ -108,7 +107,7 @@ public class ReportEvidenceService : IReportEvidenceService
         }
         finally
         {
-            var close = await _client.LowLevel.ClosePointInTimeAsync<StringResponse>(PostData.String(JsonSerializer.Serialize(new { id = pitId })), ctx: CancellationToken.None);
+            var close = await _client.RequestAsync(HttpMethod.Delete, "_pit", JsonSerializer.Serialize(new { id = pitId }), cancellationToken: CancellationToken.None);
             if (!close.Success) _logger.LogDebug("Failed to close point in time: {error}", close.Body);
         }
         return result;

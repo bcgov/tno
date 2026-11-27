@@ -1,5 +1,4 @@
 using System.Text.Json;
-using Elasticsearch.Net;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using TNO.Core.Exceptions;
@@ -239,8 +238,7 @@ public class OrphanScanService(TNOContext context, OrphanedContentService conten
         {
             if (job.PitId == null)
             {
-                var opened = await elastic.LowLevel.OpenPointInTimeAsync<StringResponse>(content.Index(job.Index),
-                    new OpenPointInTimeRequestParameters { KeepAlive = "2m" }, ct);
+                var opened = await elastic.RequestAsync(HttpMethod.Post, $"{content.Index(job.Index)}/_pit?keep_alive=2m", cancellationToken: ct);
                 using var openedResponse = Read(opened);
                 job.PitId = openedResponse.RootElement.GetProperty("id").GetString() ?? throw new InvalidOperationException("Missing snapshot ID.");
             }
@@ -261,7 +259,7 @@ public class OrphanScanService(TNOContext context, OrphanedContentService conten
                 },
             };
             if (job.SearchAfter != null) query["search_after"] = JsonSerializer.Deserialize<JsonElement>(job.SearchAfter);
-            using var response = Read(await elastic.LowLevel.SearchAsync<StringResponse>(PostData.String(JsonSerializer.Serialize(query)), ctx: ct));
+            using var response = Read(await elastic.RequestAsync(HttpMethod.Post, "_search", JsonSerializer.Serialize(query), cancellationToken: ct));
             var root = response.RootElement;
             if (root.TryGetProperty("pit_id", out var pit)) job.PitId = pit.GetString();
             var hits = root.GetProperty("hits").GetProperty("hits").EnumerateArray().ToArray();
@@ -373,7 +371,7 @@ public class OrphanScanService(TNOContext context, OrphanedContentService conten
                 }
             }
         };
-        using var response = Read(await elastic.LowLevel.SearchAsync<StringResponse>(content.Index(index), PostData.String(JsonSerializer.Serialize(query)), ctx: ct));
+        using var response = Read(await elastic.RequestAsync(HttpMethod.Post, $"{content.Index(index)}/_search", JsonSerializer.Serialize(query), cancellationToken: ct));
         return response.RootElement.GetProperty("hits").GetProperty("hits").EnumerateArray().Select(x => x.Clone()).ToArray();
     }
 
@@ -390,7 +388,7 @@ public class OrphanScanService(TNOContext context, OrphanedContentService conten
             ? ((ContentStatus)status.GetInt32()).ToString() : status.GetString() ?? "");
     }
 
-    private static JsonDocument Read(StringResponse response)
+    private static JsonDocument Read(TNO.Elastic.ElasticResponse response)
     {
         if (!response.Success) throw new InvalidOperationException("Elasticsearch reconciliation request failed.", response.OriginalException);
         var document = JsonDocument.Parse(response.Body);
@@ -409,7 +407,7 @@ public class OrphanScanService(TNOContext context, OrphanedContentService conten
         if (job.PitId == null) return;
         try
         {
-            var response = await elastic.LowLevel.ClosePointInTimeAsync<StringResponse>(PostData.String(JsonSerializer.Serialize(new { id = job.PitId })), ctx: ct);
+            var response = await elastic.RequestAsync(HttpMethod.Delete, "_pit", JsonSerializer.Serialize(new { id = job.PitId }), cancellationToken: ct);
             if (!response.Success) logger.LogWarning("Could not close orphan scan snapshot {ScanId}; it will expire automatically.", job.Id);
         }
         catch (Exception ex) { logger.LogWarning(ex, "Could not close orphan scan snapshot {ScanId}; it will expire automatically.", job.Id); }

@@ -1,5 +1,4 @@
 using System.Text.Json.Nodes;
-using Elasticsearch.Net;
 using Microsoft.Extensions.Logging;
 
 namespace TNO.Elastic.Migration;
@@ -9,28 +8,21 @@ public sealed class NativeReindex(MigrationBuilder builder)
 {
     internal const string Owner = "tno-native-1.0.11";
 
-    internal async Task<JsonNode> ReadAsync(string path, IRequestParameters? parameters = null)
+    internal async Task<JsonNode> ReadAsync(string path)
     {
-        var response = await RequestAsync(Elasticsearch.Net.HttpMethod.GET, path, parameters: parameters);
+        var response = await RequestAsync(HttpMethod.Get, path);
         return JsonNode.Parse(response.Body)!;
     }
 
-    private async Task<StringResponse> RequestAsync(Elasticsearch.Net.HttpMethod method, string path,
-        JsonNode? body = null, IRequestParameters? parameters = null)
+    private async Task<ElasticResponse> RequestAsync(HttpMethod method, string path,
+        JsonNode? body = null, string? opaqueId = null)
     {
-        parameters ??= new SearchRequestParameters();
-        parameters.RequestConfiguration = new RequestConfiguration
-        {
-            ThrowExceptions = false,
-            OpaqueId = parameters.RequestConfiguration?.OpaqueId,
-        };
-        var response = await builder.Client.LowLevel.DoRequestAsync<StringResponse>(method, path,
-            CancellationToken.None, body == null ? null : PostData.String(body.ToJsonString()), parameters);
+        var response = await builder.Client.RequestAsync(method, path, body?.ToJsonString(), opaqueId);
         if (!response.Success) throw new InvalidOperationException($"Elasticsearch {method} {path} failed: {response.Body}", response.OriginalException);
         return response;
     }
 
-    private Task SaveAsync(string destination, JsonObject state) => RequestAsync(Elasticsearch.Net.HttpMethod.PUT,
+    private Task SaveAsync(string destination, JsonObject state) => RequestAsync(HttpMethod.Put,
         $"{destination}/_mapping", new JsonObject { ["_meta"] = state.DeepClone() });
 
     /// <summary>The migration state kept in an owned destination's mapping _meta.</summary>
@@ -87,7 +79,7 @@ public sealed class NativeReindex(MigrationBuilder builder)
         if (taskId == null)
         {
             // Recover the narrow crash window between launching a task and saving its ID.
-            var tasks = await ReadAsync("_tasks", new Elasticsearch.Net.Specification.TasksApi.ListTasksRequestParameters { Actions = new[] { "*reindex" }, Detailed = true });
+            var tasks = await ReadAsync("_tasks?actions=*reindex&detailed=true");
             var matches = tasks["nodes"]?.AsObject().SelectMany(n => n.Value?["tasks"]?.AsObject() ?? new JsonObject())
                 .Where(t => t.Value?["headers"]?["X-Opaque-Id"]?.GetValue<string>() == opaqueId)
                 .Select(t => t.Key).ToArray() ?? [];
@@ -97,13 +89,8 @@ public sealed class NativeReindex(MigrationBuilder builder)
             {
                 // Replays are safe: external versions stop older revisions replacing newer writes.
                 var body = CreateRequest(source, destination, published, includeAnalysis, keepAnalysis);
-                var response = await RequestAsync(Elasticsearch.Net.HttpMethod.POST, "_reindex", body,
-                    new ReindexOnServerRequestParameters
-                    {
-                        WaitForCompletion = false,
-                        RequestsPerSecond = builder.MigrationOptions.ReindexRequestsPerSecond,
-                        RequestConfiguration = new RequestConfiguration { OpaqueId = opaqueId },
-                    });
+                var response = await RequestAsync(HttpMethod.Post,
+                    $"_reindex?wait_for_completion=false&requests_per_second={builder.MigrationOptions.ReindexRequestsPerSecond}", body, opaqueId);
                 taskId = JsonNode.Parse(response.Body)!["task"]!.GetValue<string>();
             }
             state["task"] = taskId;
@@ -112,9 +99,7 @@ public sealed class NativeReindex(MigrationBuilder builder)
         builder.Logger.LogInformation("Following native reindex task {task}: {source} -> {destination}", taskId, source, destination);
         while (true)
         {
-            var response = await builder.Client.LowLevel.DoRequestAsync<StringResponse>(Elasticsearch.Net.HttpMethod.GET,
-                $"_tasks/{taskId}", CancellationToken.None, null, new SearchRequestParameters
-                { RequestConfiguration = new RequestConfiguration { ThrowExceptions = false } });
+            var response = await builder.Client.RequestAsync(HttpMethod.Get, $"_tasks/{taskId}");
             if (response.HttpStatusCode == 404)
             {
                 state.Remove("task");

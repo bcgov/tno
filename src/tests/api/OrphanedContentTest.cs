@@ -1,8 +1,6 @@
 using System.Runtime.CompilerServices;
 using System.Security.Claims;
-using System.Text;
 using System.Text.Json;
-using Elasticsearch.Net;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -11,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
-using Nest;
 using Npgsql;
 using TNO.API.Areas.Admin.Controllers;
 using TNO.API.Areas.Services.Models.Content;
@@ -92,10 +89,7 @@ public partial class OrphanedContentTest : IAsyncLifetime
     private (OrphanedContentService Service, Mock<ITNOElasticClient> Elastic) Service(TNOContext context, object[] documents, bool timedOut = false, ILogger<OrphanedContentService>? logger = null)
     {
         var body = JsonSerializer.Serialize(new { timed_out = timedOut, _shards = new { failed = 0 }, hits = new { hits = documents } }, _json);
-        var connection = new InMemoryConnection(Encoding.UTF8.GetBytes(body));
-        var client = new ElasticClient(new ConnectionSettings(new SingleNodeConnectionPool(new Uri("http://localhost:9200")), connection).DisablePing());
-        var elastic = new Mock<ITNOElasticClient>();
-        elastic.SetupGet(c => c.LowLevel).Returns(client.LowLevel);
+        var elastic = Elastic(_ => JsonDocument.Parse(body).RootElement.Clone());
         var contentService = new ContentService(context, _user, _services, elastic.Object, NullLogger<ContentService>.Instance);
         return (new OrphanedContentService(context, contentService, elastic.Object, Options.Create(new ElasticOptions()), Options.Create(_json), logger ?? NullLogger<OrphanedContentService>.Instance), elastic);
     }
@@ -144,7 +138,7 @@ public partial class OrphanedContentTest : IAsyncLifetime
         await Assert.ThrowsAsync<BadRequestException>(() => service.RestoreAsync(content.Id, "content", default));
         await Assert.ThrowsAsync<BadRequestException>(() => service.DeleteAsync(content.Id, "elasticsearch", "content", default));
         Assert.True(await context.Contents.AnyAsync(c => c.Id == content.Id));
-        Assert.DoesNotContain(elastic.Invocations, i => i.Method.Name == "DeleteAsync");
+        Assert.DoesNotContain(elastic.Invocations, i => i.Method.Name == nameof(ITNOElasticClient.RequestAsync) && (HttpMethod)i.Arguments[0] == HttpMethod.Delete);
     }
 
     [DatabaseFact]

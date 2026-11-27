@@ -1,6 +1,5 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Elasticsearch.Net;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.DAL;
@@ -152,14 +151,10 @@ public class Migration_1013 : TNOMigration
         return new MigrationTarget(alias, $"{alias}{suffix}", generation, direction);
     }
 
-    private static async Task<StringResponse> RequestAsync(MigrationBuilder builder, Elasticsearch.Net.HttpMethod method, string path, string? body = null, IRequestParameters? parameters = null)
-    {
-        parameters ??= new SearchRequestParameters();
-        parameters.RequestConfiguration = new RequestConfiguration { ThrowExceptions = false };
-        return await builder.Client.LowLevel.DoRequestAsync<StringResponse>(method, path, CancellationToken.None, body == null ? null : PostData.String(body), parameters);
-    }
+    private static Task<ElasticResponse> RequestAsync(MigrationBuilder builder, HttpMethod method, string path, string? body = null)
+        => builder.Client.RequestAsync(method, path, body);
 
-    private static InvalidOperationException Fail(MigrationBuilder builder, string message, StringResponse response)
+    private static InvalidOperationException Fail(MigrationBuilder builder, string message, ElasticResponse response)
     {
         builder.Logger.LogError(response.OriginalException, "{message}  Error: {error}", message, response.Body);
         return new InvalidOperationException($"{message} {response.Body}", response.OriginalException);
@@ -171,7 +166,7 @@ public class Migration_1013 : TNOMigration
     private async Task CreateIndexAsync(MigrationBuilder builder, MigrationTarget target, string file)
     {
         var native = new NativeReindex(builder);
-        if ((await RequestAsync(builder, Elasticsearch.Net.HttpMethod.HEAD, target.Index)).HttpStatusCode == 200)
+        if ((await RequestAsync(builder, HttpMethod.Head, target.Index)).HttpStatusCode == 200)
         {
             var meta = (await native.ReadAsync($"{target.Index}/_mapping"))[target.Index]?["mappings"]?["_meta"];
             if (meta?["owner"]?.GetValue<string>() != NativeReindex.Owner)
@@ -197,7 +192,7 @@ public class Migration_1013 : TNOMigration
         indexSettings["number_of_replicas"] = 0;
         indexSettings["refresh_interval"] = "-1";
         indexSettings["gc_deletes"] = LoadingGcDeletes;
-        var response = await builder.Client.LowLevel.Indices.CreateAsync<StringResponse>(target.Index, PostData.String(data.ToJsonString()));
+        var response = await builder.Client.RequestAsync(HttpMethod.Put, target.Index, data.ToJsonString());
         if (!response.Success) throw Fail(builder, $"Failed to create index '{target.Index}'.", response);
     }
 
@@ -207,9 +202,9 @@ public class Migration_1013 : TNOMigration
     /// </summary>
     private static async Task CopyDynamicMappingsAsync(MigrationBuilder builder, MigrationTarget target)
     {
-        var existing = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.GET, $"{target.Alias}/_mapping");
+        var existing = await RequestAsync(builder, HttpMethod.Get, $"{target.Alias}/_mapping");
         if (!existing.Success) throw Fail(builder, $"Failed to read the mapping of '{target.Alias}'.", existing);
-        var created = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.GET, $"{target.Index}/_mapping");
+        var created = await RequestAsync(builder, HttpMethod.Get, $"{target.Index}/_mapping");
         if (!created.Success) throw Fail(builder, $"Failed to read the mapping of '{target.Index}'.", created);
 
         var oldProperties = JsonNode.Parse(existing.Body)!.AsObject().First().Value?["mappings"]?["properties"]?.AsObject();
@@ -220,7 +215,7 @@ public class Migration_1013 : TNOMigration
             if (newProperties == null || !newProperties.ContainsKey(name)) missing[name] = mapping?.DeepClone();
         if (missing.Count == 0) return;
 
-        var response = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.PUT, $"{target.Index}/_mapping", new JsonObject { ["properties"] = missing }.ToJsonString());
+        var response = await RequestAsync(builder, HttpMethod.Put, $"{target.Index}/_mapping", new JsonObject { ["properties"] = missing }.ToJsonString());
         if (!response.Success) throw Fail(builder, $"Failed to copy the dynamic mappings of '{target.Alias}' to '{target.Index}'.", response);
         builder.Logger.LogInformation("Copied {count} field mapping(s) from '{alias}' to '{index}': {fields}", missing.Count, target.Alias, target.Index, String.Join(", ", missing.Select(p => p.Key)));
     }
@@ -231,7 +226,7 @@ public class Migration_1013 : TNOMigration
     private static async Task RequireStepAsync(MigrationBuilder builder, MigrationTarget target, string key, MigrationStepName step)
     {
         var name = step.ToString().ToLowerInvariant();
-        if ((await RequestAsync(builder, Elasticsearch.Net.HttpMethod.HEAD, target.Index)).HttpStatusCode == 404)
+        if ((await RequestAsync(builder, HttpMethod.Head, target.Index)).HttpStatusCode == 404)
             throw new InvalidOperationException($"Index '{target.Index}' does not exist. Run step '{name}' first; nothing was changed.");
         var state = await new NativeReindex(builder).ReadStateAsync(target.Index);
         if (state[key]?.GetValue<bool>() != true)
@@ -251,25 +246,19 @@ public class Migration_1013 : TNOMigration
             settings["index.number_of_replicas"] = state["replicas"]!.DeepClone();
             settings["index.gc_deletes"] = state["gcDeletes"]?.DeepClone();
         }
-        var response = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.PUT, $"{target.Index}/_settings", settings.ToJsonString());
+        var response = await RequestAsync(builder, HttpMethod.Put, $"{target.Index}/_settings", settings.ToJsonString());
         if (!response.Success) throw Fail(builder, $"Failed to restore the settings of '{target.Index}'; the alias is unchanged.", response);
 
-        var current = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.GET, $"_cluster/health/{target.Alias}");
+        var current = await RequestAsync(builder, HttpMethod.Get, $"_cluster/health/{target.Alias}");
         if (!current.Success) throw Fail(builder, $"Failed to read the health of '{target.Alias}'.", current);
-        var wanted = JsonNode.Parse(current.Body)?["status"]?.GetValue<string>() == "green" ? Elasticsearch.Net.WaitForStatus.Green : Elasticsearch.Net.WaitForStatus.Yellow;
+        var wanted = JsonNode.Parse(current.Body)?["status"]?.GetValue<string>() == "green" ? "green" : "yellow";
         for (var minute = 1; ; minute++)
         {
-            var health = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.GET, $"_cluster/health/{target.Index}",
-                parameters: new Elasticsearch.Net.Specification.ClusterApi.ClusterHealthRequestParameters
-                {
-                    WaitForStatus = wanted,
-                    WaitForNoInitializingShards = true,
-                    Timeout = TimeSpan.FromMinutes(1),
-                });
+            var health = await RequestAsync(builder, HttpMethod.Get, $"_cluster/health/{target.Index}?wait_for_status={wanted}&wait_for_no_initializing_shards=true&timeout=1m");
             var body = String.IsNullOrEmpty(health.Body) ? null : JsonNode.Parse(health.Body);
             if (body?["timed_out"]?.GetValue<bool>() == false) break;
             if (minute >= 60)
-                throw new InvalidOperationException($"The replicas of {target.Index} are not {wanted.ToString().ToLowerInvariant()} after an hour; the alias is unchanged. Rerun cutover once the cluster is healthy.");
+                throw new InvalidOperationException($"The replicas of {target.Index} are not {wanted} after an hour; the alias is unchanged. Rerun cutover once the cluster is healthy.");
             builder.Logger.LogInformation("Waiting for the replicas of {index}: {status}, {initializing} initializing, {unassigned} unassigned", target.Index, body?["status"], body?["initializing_shards"], body?["unassigned_shards"]);
         }
         builder.Logger.LogInformation("Restored the settings of {index}", target.Index);
@@ -281,7 +270,7 @@ public class Migration_1013 : TNOMigration
     /// </summary>
     private static async Task VerifyAsync(MigrationBuilder builder, MigrationTarget target)
     {
-        await RequestAsync(builder, Elasticsearch.Net.HttpMethod.POST, $"{target.Index}/_refresh");
+        await RequestAsync(builder, HttpMethod.Post, $"{target.Index}/_refresh");
         var source = await CountAsync(builder, target.Alias, null);
         var destination = await CountAsync(builder, target.Index, null);
         var allowed = Math.Max(MinCountDifference, source / 1000);
@@ -296,7 +285,7 @@ public class Migration_1013 : TNOMigration
 
     private static async Task<long> CountAsync(MigrationBuilder builder, string index, string? body)
     {
-        var response = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.POST, $"{index}/_count", body);
+        var response = await RequestAsync(builder, HttpMethod.Post, $"{index}/_count", body);
         if (!response.Success) throw Fail(builder, $"Failed to count '{index}'.", response);
         return JsonNode.Parse(response.Body)!["count"]!.GetValue<long>();
     }
@@ -304,14 +293,14 @@ public class Migration_1013 : TNOMigration
     /// <returns>The indexes the alias pointed to before (kept).</returns>
     private static async Task<List<string>> SwitchAliasAsync(MigrationBuilder builder, MigrationTarget target)
     {
-        var alias = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.GET, $"_alias/{target.Alias}");
+        var alias = await RequestAsync(builder, HttpMethod.Get, $"_alias/{target.Alias}");
         if (!alias.Success) throw Fail(builder, $"'{target.Alias}' must be an alias; it is unchanged.", alias);
         var previous = JsonNode.Parse(alias.Body)!.AsObject().Select(p => p.Key).Where(n => n != target.Index).ToList();
         var actions = new JsonArray();
         foreach (var index in previous)
             actions.Add(new JsonObject { ["remove"] = new JsonObject { ["index"] = index, ["alias"] = target.Alias } });
         actions.Add(new JsonObject { ["add"] = new JsonObject { ["index"] = target.Index, ["alias"] = target.Alias } });
-        var response = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.POST, "_aliases", new JsonObject { ["actions"] = actions }.ToJsonString());
+        var response = await RequestAsync(builder, HttpMethod.Post, "_aliases", new JsonObject { ["actions"] = actions }.ToJsonString());
         if (!response.Success) throw Fail(builder, "Failed to move the alias; it is unchanged.", response);
         builder.Logger.LogInformation("Moved the alias: {alias} -> {index}", target.Alias, target.Index);
         return previous;

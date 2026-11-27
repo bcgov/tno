@@ -10,7 +10,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using Nest;
+using TNO.Core.Http;
 using TNO.Elastic.Migration;
 using Xunit;
 
@@ -49,12 +49,22 @@ public sealed class NativeReindexTests : IAsyncLifetime
         var url = new Uri(Environment.GetEnvironmentVariable("MMI_ELASTIC_TEST_URL") ?? "http://localhost:19274");
         if (!url.IsLoopback) throw new InvalidOperationException("Tests require a disposable loopback Elasticsearch endpoint.");
         _http = new HttpClient { BaseAddress = url };
-        var builder = new MigrationBuilder(new ElasticClient(new ConnectionSettings(url).EnableApiVersioningHeader().ThrowExceptions()),
+        var builder = new MigrationBuilder(LowLevelClient(url),
             new global::Elastic.Clients.Elasticsearch.ElasticsearchClient(url),
             Options.Create(new ElasticMigrationOptions { ReindexDelay = 1 }),
             Options.Create(new JsonSerializerOptions()), NullLogger<MigrationBuilder>.Instance);
         _copy = new NativeReindex(builder);
     }
+
+    private sealed class HttpClients : IHttpClientFactory
+    {
+        public HttpClient CreateClient(string name) => new();
+    }
+
+    /// <summary>The client the API, the services and the migration tool use.</summary>
+    private static ITNOElasticClient LowLevelClient(Uri url) => new TNO.Elastic.TNOElasticClient(
+        new HttpRequestClient(new HttpClients(), null!, NullLogger<HttpRequestClient>.Instance),
+        Options.Create(new ElasticOptions { Url = url }), NullLogger<TNO.Elastic.TNOElasticClient>.Instance);
 
     private async Task<JsonNode> Request(HttpMethod method, string path, JsonNode? body = null)
     {
@@ -283,7 +293,7 @@ public sealed class NativeReindexTests : IAsyncLifetime
             Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() },
         });
         var url = _http.BaseAddress!;
-        var builder = new MigrationBuilder(new ElasticClient(new ConnectionSettings(url).EnableApiVersioningHeader().ThrowExceptions()),
+        var builder = new MigrationBuilder(LowLevelClient(url),
             new TNO.Elastic.Migration.TNOElasticClient(Options.Create<TNO.Elastic.ElasticOptions>(new TNO.Elastic.ElasticOptions { Url = url }), serializer), Options.Create(options),
             serializer, NullLogger<MigrationBuilder>.Instance);
         var services = new ServiceCollection().BuildServiceProvider();

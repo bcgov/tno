@@ -8,6 +8,7 @@ The 2026-11-19 rollout completed with all three DEV nodes green. Local retained 
 single-node yellow status with all primary shards active. Application alias searches passed
 in both environments; the `pre-8-19-25-20261119` and `post-8-19-25-20261119` snapshots succeeded.
 
+- [Upgrade 8.19.25 → 9.5.7 (Local and DEV), planned](UPGRADE-9.5.7.md): needs 7.x-created indexes cleared first
 - [Upgrade 7.17.9 → 8.19.21 (Local and DEV)](UPGRADE-8.19.21.md)
 - [Snapshots](SNAPSHOTS.md): `scripts/snapshots.sh` (backup and restore), `scripts/rolling-update.sh` (one node at a time)
 

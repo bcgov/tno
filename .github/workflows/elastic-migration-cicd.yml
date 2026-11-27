@@ -28,7 +28,9 @@ jobs:
     timeout-minutes: 20
     strategy:
       matrix:
-        elasticsearch: ['7.17.9', '8.19.21']
+        # 8.19.25: what every environment runs before the upgrade. 9.5.5: the Elastic Cloud (TEST, PROD) target.
+        # 9.5.7: the Local and DEV target. 7.17 is no longer tested: no environment runs it.
+        elasticsearch: ['8.19.25', '9.5.5', '9.5.7']
     services:
       elasticsearch:
         image: docker.elastic.co/elasticsearch/elasticsearch:${{ matrix.elasticsearch }}
