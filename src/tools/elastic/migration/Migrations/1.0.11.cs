@@ -2,7 +2,6 @@ using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Elastic.Clients.Elasticsearch.Core.Bulk;
-using Elasticsearch.Net;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -221,17 +220,13 @@ public class Migration_1011 : TNOMigration
         return rollback ? targets with { Evidence = null } : targets;
     }
 
-    private static async Task<StringResponse> RequestAsync(MigrationBuilder builder, Elasticsearch.Net.HttpMethod method, string path, string? body = null, IRequestParameters? parameters = null)
-    {
-        parameters ??= new SearchRequestParameters();
-        parameters.RequestConfiguration = new RequestConfiguration { ThrowExceptions = false };
-        return await builder.Client.LowLevel.DoRequestAsync<StringResponse>(method, path, CancellationToken.None, body == null ? null : PostData.String(body), parameters);
-    }
+    private static Task<ElasticResponse> RequestAsync(MigrationBuilder builder, HttpMethod method, string path, string? body = null)
+        => builder.Client.RequestAsync(method, path, body);
 
-    private static InvalidOperationException Fail(MigrationBuilder builder, string message, StringResponse response)
+    private static InvalidOperationException Fail(MigrationBuilder builder, string message, ElasticResponse response)
     {
-        builder.Logger.LogError(response.OriginalException, "{message}  Error: {error}", message, response.Body);
-        return new InvalidOperationException($"{message} {response.Body}", response.OriginalException);
+        builder.Logger.LogError(response.OriginalException, "{message}  Error: {error}", message, response);
+        return new InvalidOperationException($"{message} {response}", response.OriginalException);
     }
 
     /// <summary>
@@ -240,7 +235,7 @@ public class Migration_1011 : TNOMigration
     private async Task CreateIndexFromFileAsync(MigrationBuilder builder, string? index, string file, MigrationTargets targets, string? sourceAlias = null)
     {
         if (index == null) return;
-        if ((await RequestAsync(builder, Elasticsearch.Net.HttpMethod.HEAD, index)).HttpStatusCode == 200)
+        if ((await RequestAsync(builder, HttpMethod.Head, index)).HttpStatusCode == 200)
         {
             var mapping = await new NativeReindex(builder).ReadAsync($"{index}/_mapping");
             if (mapping[index]?["mappings"]?["_meta"]?["owner"]?.GetValue<string>() != NativeReindex.Owner)
@@ -270,7 +265,7 @@ public class Migration_1011 : TNOMigration
         indexSettings["number_of_replicas"] = 0;
         indexSettings["refresh_interval"] = "-1";
         indexSettings["gc_deletes"] = LoadingGcDeletes;
-        var response = await builder.Client.LowLevel.Indices.CreateAsync<StringResponse>(index, PostData.String(data.ToJsonString()));
+        var response = await builder.Client.RequestAsync(HttpMethod.Put, index, data.ToJsonString());
         if (!response.Success) throw Fail(builder, $"Failed to create index '{index}'.", response);
     }
 
@@ -280,10 +275,10 @@ public class Migration_1011 : TNOMigration
     /// </summary>
     private static async Task CopyDynamicMappingsAsync(MigrationBuilder builder, IndexTarget target)
     {
-        var existing = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.GET, $"{target.Alias}/_mapping");
+        var existing = await RequestAsync(builder, HttpMethod.Get, $"{target.Alias}/_mapping");
         if (existing.HttpStatusCode == 404) return;
         if (!existing.Success) throw Fail(builder, $"Failed to read the mapping of '{target.Alias}'.", existing);
-        var created = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.GET, $"{target.Index}/_mapping");
+        var created = await RequestAsync(builder, HttpMethod.Get, $"{target.Index}/_mapping");
         if (!created.Success) throw Fail(builder, $"Failed to read the mapping of '{target.Index}'.", created);
 
         var oldProperties = JsonNode.Parse(existing.Body)!.AsObject().First().Value?["mappings"]?["properties"]?.AsObject();
@@ -294,7 +289,7 @@ public class Migration_1011 : TNOMigration
             if (newProperties == null || !newProperties.ContainsKey(name)) missing[name] = mapping?.DeepClone();
         if (missing.Count == 0) return;
 
-        var response = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.PUT, $"{target.Index}/_mapping", new JsonObject { ["properties"] = missing }.ToJsonString());
+        var response = await RequestAsync(builder, HttpMethod.Put, $"{target.Index}/_mapping", new JsonObject { ["properties"] = missing }.ToJsonString());
         if (!response.Success) throw Fail(builder, $"Failed to copy the dynamic mappings of '{target.Alias}' to '{target.Index}'.", response);
         builder.Logger.LogInformation("Copied {count} field mapping(s) from '{alias}' to '{index}': {fields}", missing.Count, target.Alias, target.Index, String.Join(", ", missing.Select(p => p.Key)));
     }
@@ -308,7 +303,7 @@ public class Migration_1011 : TNOMigration
         var native = new NativeReindex(builder);
         foreach (var target in targets)
         {
-            if ((await RequestAsync(builder, Elasticsearch.Net.HttpMethod.HEAD, target.Index)).HttpStatusCode == 404)
+            if ((await RequestAsync(builder, HttpMethod.Head, target.Index)).HttpStatusCode == 404)
                 throw new InvalidOperationException($"Index '{target.Index}' does not exist. Run step '{name}' first; nothing was changed.");
             var state = await native.ReadStateAsync(target.Index);
             if (state[key]?.GetValue<bool>() != true)
@@ -332,27 +327,27 @@ public class Migration_1011 : TNOMigration
                 settings["index.number_of_replicas"] = state["replicas"]!.DeepClone();
                 settings["index.gc_deletes"] = state["gcDeletes"]?.DeepClone();
             }
-            var response = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.PUT, $"{target.Index}/_settings", settings.ToJsonString());
+            var response = await RequestAsync(builder, HttpMethod.Put, $"{target.Index}/_settings", settings.ToJsonString());
             if (!response.Success) throw Fail(builder, $"Failed to restore the settings of '{target.Index}'; the aliases are unchanged.", response);
         }
 
-        var current = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.GET, $"_cluster/health/{targets.Content.Alias}");
+        var current = await RequestAsync(builder, HttpMethod.Get, $"_cluster/health/{targets.Content.Alias}");
         if (!current.Success) throw Fail(builder, $"Failed to read the health of '{targets.Content.Alias}'.", current);
-        var wanted = JsonNode.Parse(current.Body)?["status"]?.GetValue<string>() == "green" ? Elasticsearch.Net.WaitForStatus.Green : Elasticsearch.Net.WaitForStatus.Yellow;
+        var wanted = JsonNode.Parse(current.Body)?["status"]?.GetValue<string>() == "green" ? "green" : "yellow";
         var indexes = String.Join(",", targets.All.Select(t => t.Index));
         for (var minute = 1; ; minute++)
         {
-            var health = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.GET, $"_cluster/health/{indexes}",
-                parameters: new Elasticsearch.Net.Specification.ClusterApi.ClusterHealthRequestParameters
-                {
-                    WaitForStatus = wanted,
-                    WaitForNoInitializingShards = true,
-                    Timeout = TimeSpan.FromMinutes(1),
-                });
-            var body = String.IsNullOrEmpty(health.Body) ? null : JsonNode.Parse(health.Body);
+            var health = await RequestAsync(builder, HttpMethod.Get, $"_cluster/health/{indexes}?wait_for_status={wanted}&wait_for_no_initializing_shards=true&timeout=1m");
+            // 200, or 408 when the wait timed out; anything else (a gateway's HTML 502 page) is not health JSON.
+            var body = (health.Success || health.HttpStatusCode == 408) && !String.IsNullOrEmpty(health.Body) ? JsonNode.Parse(health.Body) : null;
+            if (body == null)
+            {
+                builder.Logger.LogWarning("Failed to read cluster health; retrying in a minute.  Error: {error}", health);
+                await Task.Delay(TimeSpan.FromMinutes(1));
+            }
             if (body?["timed_out"]?.GetValue<bool>() == false) break;
             if (minute >= 60)
-                throw new InvalidOperationException($"The replicas of {indexes} are not {wanted.ToString().ToLowerInvariant()} after an hour; the aliases are unchanged. Rerun cutover once the cluster is healthy.");
+                throw new InvalidOperationException($"The replicas of {indexes} are not {wanted} after an hour; the aliases are unchanged. Rerun cutover once the cluster is healthy.");
             builder.Logger.LogInformation("Waiting for the replicas of {indexes}: {status}, {initializing} initializing, {unassigned} unassigned", indexes, body?["status"], body?["initializing_shards"], body?["unassigned_shards"]);
         }
         builder.Logger.LogInformation("Restored the settings of {indexes}", indexes);
@@ -509,9 +504,9 @@ public class Migration_1011 : TNOMigration
     /// </summary>
     private static async IAsyncEnumerable<(long Id, long? Revision, long? Version)> IndexIdsAsync(MigrationBuilder builder, string index, string idField = "id", [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var refresh = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.POST, $"{index}/_refresh");
+        var refresh = await RequestAsync(builder, HttpMethod.Post, $"{index}/_refresh");
         if (!refresh.Success) throw Fail(builder, $"Failed to refresh '{index}'.", refresh);
-        var open = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.POST, $"{index}/_pit", null, new OpenPointInTimeRequestParameters() { KeepAlive = "5m" });
+        var open = await RequestAsync(builder, HttpMethod.Post, $"{index}/_pit?keep_alive=5m");
         if (!open.Success) throw Fail(builder, $"Failed to open '{index}'.", open);
         var pitId = JsonNode.Parse(open.Body)!["id"]!.GetValue<string>();
         try
@@ -530,7 +525,7 @@ public class Migration_1011 : TNOMigration
                     ["sort"] = new JsonArray(new JsonObject { [idField] = "asc" }),
                 };
                 if (searchAfter != null) body["search_after"] = searchAfter.DeepClone();
-                var response = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.POST, "_search", body.ToJsonString());
+                var response = await RequestAsync(builder, HttpMethod.Post, "_search", body.ToJsonString());
                 if (!response.Success) throw Fail(builder, $"Failed to read the IDs in '{index}'.", response);
                 var root = JsonNode.Parse(response.Body)!;
                 pitId = root["pit_id"]?.GetValue<string>() ?? pitId;
@@ -546,7 +541,7 @@ public class Migration_1011 : TNOMigration
         }
         finally
         {
-            await RequestAsync(builder, Elasticsearch.Net.HttpMethod.DELETE, "_pit", new JsonObject { ["id"] = pitId }.ToJsonString());
+            await RequestAsync(builder, HttpMethod.Delete, "_pit", new JsonObject { ["id"] = pitId }.ToJsonString());
         }
     }
 
@@ -658,14 +653,14 @@ public class Migration_1011 : TNOMigration
         try
         {
             await AddAliasActionsAsync(builder, targets, previous, actions, blocked);
-            var response = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.POST, "_aliases", new JsonObject { ["actions"] = actions }.ToJsonString());
+            var response = await RequestAsync(builder, HttpMethod.Post, "_aliases", new JsonObject { ["actions"] = actions }.ToJsonString());
             if (!response.Success) throw Fail(builder, "Failed to move the aliases; they are unchanged.", response);
         }
         catch
         {
             // Indexes blocked for their backup take writes again.
             foreach (var index in blocked)
-                await RequestAsync(builder, Elasticsearch.Net.HttpMethod.PUT, $"{index}/_settings", new JsonObject { ["index.blocks.write"] = null }.ToJsonString());
+                await RequestAsync(builder, HttpMethod.Put, $"{index}/_settings", new JsonObject { ["index.blocks.write"] = null }.ToJsonString());
             throw;
         }
         builder.Logger.LogInformation("Moved the aliases: {aliases}", String.Join(", ", new[] { targets.Published, targets.Content, targets.Evidence }.OfType<IndexTarget>().Select(t => $"{t.Alias} -> {t.Index}")));
@@ -678,7 +673,7 @@ public class Migration_1011 : TNOMigration
         if (targets.Evidence == null && !String.IsNullOrWhiteSpace(builder.MigrationOptions.EvidenceIndex))
         {
             var alias = builder.MigrationOptions.EvidenceIndex;
-            var response = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.GET, $"_alias/{alias}");
+            var response = await RequestAsync(builder, HttpMethod.Get, $"_alias/{alias}");
             if (response.HttpStatusCode != 404)
             {
                 if (!response.Success) throw Fail(builder, $"Failed to read alias '{alias}'.", response);
@@ -691,7 +686,7 @@ public class Migration_1011 : TNOMigration
         }
         foreach (var target in new[] { targets.Published, targets.Content, targets.Evidence }.OfType<IndexTarget>())
         {
-            var aliasResponse = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.GET, $"_alias/{target.Alias}");
+            var aliasResponse = await RequestAsync(builder, HttpMethod.Get, $"_alias/{target.Alias}");
             if (aliasResponse.Success && aliasResponse.HttpStatusCode == 200)
             {
                 foreach (var index in JsonNode.Parse(aliasResponse.Body)!.AsObject().Select(p => p.Key).Where(n => n != target.Index))
@@ -700,7 +695,7 @@ public class Migration_1011 : TNOMigration
                     actions.Add(new JsonObject { ["remove"] = new JsonObject { ["index"] = index, ["alias"] = target.Alias } });
                 }
             }
-            else if ((await RequestAsync(builder, Elasticsearch.Net.HttpMethod.HEAD, target.Alias)).HttpStatusCode == 200)
+            else if ((await RequestAsync(builder, HttpMethod.Head, target.Alias)).HttpStatusCode == 200)
             {
                 blocked.Add(target.Alias);
                 previous.Add(await BackupConcreteIndexAsync(builder, target.Alias));
@@ -726,21 +721,16 @@ public class Migration_1011 : TNOMigration
         if (sourceSettings["auto_expand_replicas"] != null)
             cloneSettings["index.auto_expand_replicas"] = sourceSettings["auto_expand_replicas"]!.DeepClone();
         // The dedicated block API waits for in-flight writes to finish before cloning.
-        var block = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.PUT, $"{index}/_block/write");
+        var block = await RequestAsync(builder, HttpMethod.Put, $"{index}/_block/write");
         if (!block.Success) throw Fail(builder, $"Failed to block writes to '{index}' for its backup.", block);
-        var clone = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.POST, $"{index}/_clone/{backup}",
+        var clone = await RequestAsync(builder, HttpMethod.Post, $"{index}/_clone/{backup}",
             new JsonObject { ["settings"] = cloneSettings }.ToJsonString());
         if (!clone.Success) throw Fail(builder, $"Failed to back up '{index}'; nothing was changed.", clone);
-        var health = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.GET,
-            $"_cluster/health/{backup}", parameters: new Elasticsearch.Net.Specification.ClusterApi.ClusterHealthRequestParameters
-            {
-                WaitForStatus = Elasticsearch.Net.WaitForStatus.Yellow,
-                WaitForNoInitializingShards = true,
-                Timeout = TimeSpan.FromMinutes(5),
-            });
+        var health = await RequestAsync(builder, HttpMethod.Get,
+            $"_cluster/health/{backup}?wait_for_status=yellow&wait_for_no_initializing_shards=true&timeout=5m");
         if (!health.Success || JsonNode.Parse(health.Body)?["timed_out"]?.GetValue<bool>() != false)
             throw new InvalidOperationException($"Backup '{backup}' is not ready; source '{index}' was not removed.");
-        var unblock = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.PUT, $"{backup}/_settings",
+        var unblock = await RequestAsync(builder, HttpMethod.Put, $"{backup}/_settings",
             new JsonObject { ["index.blocks.write"] = null }.ToJsonString());
         if (!unblock.Success) throw Fail(builder, $"Failed to unblock backup '{backup}'.", unblock);
         builder.Logger.LogWarning("'{index}' is an index, not an alias; backed it up to '{backup}' before replacing it with an alias.", index, backup);
@@ -749,9 +739,9 @@ public class Migration_1011 : TNOMigration
 
     private static async Task DeleteAliasAsync(MigrationBuilder builder, string index, string alias)
     {
-        var response = await RequestAsync(builder, Elasticsearch.Net.HttpMethod.DELETE, $"{index}/_alias/{alias}");
+        var response = await RequestAsync(builder, HttpMethod.Delete, $"{index}/_alias/{alias}");
         if (!response.Success && response.HttpStatusCode != 404)
-            builder.Logger.LogWarning("Failed to delete alias '{alias}' from '{index}'.  Error: {error}", alias, index, response.Body);
+            builder.Logger.LogWarning("Failed to delete alias '{alias}' from '{index}'.  Error: {error}", alias, index, response);
     }
     #endregion
     #endregion

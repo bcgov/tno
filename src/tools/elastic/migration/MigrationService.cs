@@ -1,9 +1,9 @@
 using System.Reflection;
-using Elasticsearch.Net;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Nest;
 using TNO.Elastic.Migration.Models;
 
 namespace TNO.Elastic.Migration;
@@ -17,7 +17,7 @@ namespace TNO.Elastic.Migration;
 public class MigrationService
 {
     #region Variables
-    private readonly IElasticClient _elasticClient;
+    private readonly ITNOElasticClient _elasticClient;
     private readonly ElasticMigrationOptions _options;
     private readonly IServiceProvider _provider;
     private readonly ILogger _logger;
@@ -34,7 +34,7 @@ public class MigrationService
     /// <param name="logger"></param>
     public MigrationService(
         IOptions<ElasticMigrationOptions> options,
-        IElasticClient elasticClient,
+        ITNOElasticClient elasticClient,
         IServiceProvider provider,
         ILogger<MigrationService> logger)
     {
@@ -95,43 +95,39 @@ public class MigrationService
     /// <returns></returns>
     private async Task CreateMigrationIndexAsync(CancellationToken cancellationToken)
     {
-        // Check if migration index exists.
-        try
+        var gatewayFailures = 0;
+        while (true)
         {
-            var exists = await _elasticClient.Indices.ExistsAsync(Indices.Index(_options.MigrationIndex), ied => ied.ErrorTrace(true), cancellationToken);
-
-            // If the index does not exist, create it.
-            if (!exists.Exists)
+            // Check if migration index exists.
+            var exists = await _elasticClient.RequestAsync(HttpMethod.Head, _options.MigrationIndex, cancellationToken: cancellationToken);
+            if (exists.HttpStatusCode == 200) return;
+            if (exists.HttpStatusCode == 404)
             {
-                var model = new MigrationVersion();
-                var descriptor = new CreateIndexDescriptor(_options.MigrationIndex)
-                    .Map(tmd => tmd.AutoMap());
-
-                var createResponse = await _elasticClient.Indices.CreateAsync(
-                    _options.MigrationIndex,
-                    cir => cir.Map<MigrationVersion>(m => m.AutoMap())
-                        .Settings(s => s
-                            .NumberOfReplicas(_options.NumberOfReplicas)
-                            .NumberOfShards(_options.NumberOfShards)),
-                    cancellationToken);
-
-                if (!createResponse.IsValid)
+                var settings = new JsonObject();
+                if (_options.NumberOfReplicas != null) settings["number_of_replicas"] = _options.NumberOfReplicas;
+                if (_options.NumberOfShards != null) settings["number_of_shards"] = _options.NumberOfShards;
+                var index = new JsonObject
                 {
-                    _logger.LogError(createResponse.OriginalException, "Failed to create migration index.");
-                    throw createResponse.OriginalException;
-                }
+                    ["settings"] = settings,
+                    ["mappings"] = new JsonObject
+                    {
+                        ["properties"] = new JsonObject
+                        {
+                            ["version"] = new JsonObject { ["type"] = "keyword" },
+                            ["description"] = new JsonObject { ["type"] = "text", ["index"] = false },
+                        },
+                    },
+                };
+                var created = await _elasticClient.RequestAsync(HttpMethod.Put, _options.MigrationIndex, index.ToJsonString(), cancellationToken: cancellationToken);
+                if (created.Success) return;
+                exists = created;
             }
-        }
-        catch (ElasticsearchClientException ex)
-        {
-            _logger.LogError(ex, "Failure to create index");
-            if (ex.Response.HttpStatusCode == 502)
-            {
-                Thread.Sleep(5000);
-                await CreateMigrationIndexAsync(cancellationToken);
-            }
-            else
-                throw;
+
+            _logger.LogError(exists.OriginalException, "Failed to create migration index. Error: {error}", exists);
+            // A gateway in front of Elasticsearch Cloud intermittently answers 502.
+            if (exists.HttpStatusCode != 502 || ++gatewayFailures >= _options.GatewayRetryLimit)
+                throw new InvalidOperationException($"Failed to create migration index '{_options.MigrationIndex}'. {exists}", exists.OriginalException);
+            await Task.Delay(5000, cancellationToken);
         }
     }
 
@@ -145,18 +141,17 @@ public class MigrationService
     {
         // Determine what the current version in Elasticsearch is.
         await CreateMigrationIndexAsync(cancellationToken);
-        var response = await _elasticClient.SearchAsync<MigrationVersion>(sd => sd
-            .Index(_options.MigrationIndex)
-            .Size(1000)
-            , cancellationToken);
-
-        if (!response.IsValid)
+        var response = await _elasticClient.RequestAsync(HttpMethod.Post, $"{_options.MigrationIndex}/_search", "{\"size\":1000}", cancellationToken: cancellationToken);
+        if (!response.Success)
         {
-            _logger.LogError(response.OriginalException, "Failed to determine migration version. Error: {error}", response.ServerError);
-            throw response.OriginalException;
+            _logger.LogError(response.OriginalException, "Failed to determine migration version. Error: {error}", response);
+            throw new InvalidOperationException($"Failed to determine migration version. {response}", response.OriginalException);
         }
 
-        return response.Documents.OrderByDescending(ss => GenerateVersionKey(ss.Version)).FirstOrDefault()?.Version ?? "";
+        using var document = JsonDocument.Parse(response.Body);
+        return document.RootElement.GetProperty("hits").GetProperty("hits").EnumerateArray()
+            .Select(hit => hit.GetProperty("_source").Deserialize<MigrationVersion>()!)
+            .OrderByDescending(ss => GenerateVersionKey(ss.Version)).FirstOrDefault()?.Version ?? "";
     }
 
     /// <summary>
@@ -171,8 +166,12 @@ public class MigrationService
         var existing = new List<string>();
         foreach (var name in new[] { _options.ContentIndex, _options.PublishedIndex }.Where(n => !String.IsNullOrWhiteSpace(n)))
         {
-            var exists = await _elasticClient.Indices.ExistsAsync(Indices.Index(name), null, cancellationToken);
-            if (exists.Exists) existing.Add(name);
+            var exists = await _elasticClient.RequestAsync(HttpMethod.Head, name, cancellationToken: cancellationToken);
+            if (exists.Success) existing.Add(name);
+            // Anything but a clear "missing" stops: treating an unknown answer as missing would run every
+            // migration from the start against a populated cluster.
+            else if (!exists.NotFound)
+                throw new InvalidOperationException($"Cannot tell whether index '{name}' exists; nothing was changed. {exists}", exists.OriginalException);
         }
 
         if (String.IsNullOrWhiteSpace(_options.BaselineVersion))
@@ -188,8 +187,9 @@ public class MigrationService
         foreach (var type in types.Take(baselineIndex + 1))
         {
             var version = type.GetCustomAttribute<MigrationAttribute>()!.Id;
-            var response = await _elasticClient.IndexAsync(new MigrationVersion(version, "baseline"), i => i.Index(_options.MigrationIndex).Id(version).Refresh(Refresh.WaitFor), cancellationToken);
-            if (!response.IsValid) throw response.OriginalException;
+            var response = await _elasticClient.RequestAsync(HttpMethod.Put, $"{_options.MigrationIndex}/_doc/{version}?refresh=wait_for",
+                JsonSerializer.Serialize(new MigrationVersion(version, "baseline")), cancellationToken: cancellationToken);
+            if (!response.Success) throw new InvalidOperationException($"Failed to record baseline migration '{version}'. {response}", response.OriginalException);
         }
         _logger.LogWarning("Recorded baseline migration version '{version}'; earlier migrations were not run.", _options.BaselineVersion);
         return _options.BaselineVersion;

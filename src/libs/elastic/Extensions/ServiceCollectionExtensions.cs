@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Nest;
 using TNO.Core.Http;
 
 namespace TNO.Elastic;
@@ -24,7 +23,6 @@ public static class ServiceCollectionExtensions
         var options = config.GetSection("Elastic");
         services
             .AddTransient<IHttpRequestClient, HttpRequestClient>()
-            .AddScoped<IElasticClient, TNOElasticClient>()
             .AddScoped<ITNOElasticClient, TNOElasticClient>()
             .Configure<ElasticOptions>(options)
             .AddOptions<ElasticOptions>()
@@ -48,7 +46,6 @@ public static class ServiceCollectionExtensions
         var options = config.GetSection("Elastic");
         services
             .AddSingleton<IHttpRequestClient, HttpRequestClient>()
-            .AddSingleton<IElasticClient, TNOElasticClient>()
             .AddSingleton<ITNOElasticClient, TNOElasticClient>()
             .Configure<ElasticOptions>(options)
             .AddOptions<ElasticOptions>()

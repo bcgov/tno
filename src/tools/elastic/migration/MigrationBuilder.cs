@@ -1,7 +1,6 @@
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Nest;
 using Elastic.Clients.Elasticsearch;
 
 namespace TNO.Elastic.Migration;
@@ -15,10 +14,10 @@ public class MigrationBuilder
     /// <summary>
     /// get - Elastic client.
     /// </summary>
-    public IElasticClient Client { get; }
+    public ITNOElasticClient Client { get; }
 
     /// <summary>
-    /// get - Elastic client for indexing because the IElasticClient does not use System.Text.Json.
+    /// get - Typed Elastic client for indexing, which serializes documents with System.Text.Json.
     /// </summary>
     public ElasticsearchClient IndexingClient { get; }
 
@@ -48,7 +47,7 @@ public class MigrationBuilder
     /// <param name="serializerOptions"></param>
     /// <param name="logger"></param>
     public MigrationBuilder(
-        IElasticClient client,
+        ITNOElasticClient client,
         ElasticsearchClient indexingClient,
         IOptions<ElasticMigrationOptions> migrationOptions,
         IOptions<JsonSerializerOptions> serializerOptions,

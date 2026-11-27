@@ -1,5 +1,4 @@
 using System.Text.Json;
-using Elasticsearch.Net;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Content;
@@ -54,13 +53,15 @@ public class ReportEvidenceService : IReportEvidenceService
         var ids = contentIds.Distinct().ToArray();
         if (ids.Length == 0 || String.IsNullOrWhiteSpace(_options.EvidenceIndex)) return result;
 
-        var open = await _client.LowLevel.OpenPointInTimeAsync<StringResponse>(_options.EvidenceIndex, new OpenPointInTimeRequestParameters() { KeepAlive = KeepAlive }, cancellationToken);
-        if (!open.Success)
+        var open = await _client.RequestAsync(HttpMethod.Post, $"{_options.EvidenceIndex}/_pit?keep_alive={KeepAlive}", cancellationToken: cancellationToken);
+        if (open.NotFound)
         {
             // An environment without the evidence index synthesizes from story text.
-            _logger.LogWarning("Failed to open the evidence index '{index}': {error}", _options.EvidenceIndex, open.Body);
+            _logger.LogWarning("The evidence index '{index}' does not exist; continuing without evidence: {error}", _options.EvidenceIndex, open.Body);
             return result;
         }
+        // Any other failure stops the caller: a summary silently built without the approved evidence is wrong.
+        if (!open.Success) throw new InvalidOperationException($"Failed to open the evidence index '{_options.EvidenceIndex}': {open}");
         var pitId = JsonDocument.Parse(open.Body).RootElement.GetProperty("id").GetString()!;
         try
         {
@@ -88,8 +89,8 @@ public class ReportEvidenceService : IReportEvidenceService
                     };
                     if (searchAfter != null) body["search_after"] = searchAfter;
 
-                    var response = await _client.LowLevel.SearchAsync<StringResponse>(PostData.String(JsonSerializer.Serialize(body)), ctx: cancellationToken);
-                    if (!response.Success) throw new InvalidOperationException($"Failed to read evidence: {response.Body}");
+                    var response = await _client.RequestAsync(HttpMethod.Post, "_search", JsonSerializer.Serialize(body), cancellationToken: cancellationToken);
+                    if (!response.Success) throw new InvalidOperationException($"Failed to read evidence: {response}");
 
                     using var document = JsonDocument.Parse(response.Body);
                     var root = document.RootElement;
@@ -108,8 +109,9 @@ public class ReportEvidenceService : IReportEvidenceService
         }
         finally
         {
-            var close = await _client.LowLevel.ClosePointInTimeAsync<StringResponse>(PostData.String(JsonSerializer.Serialize(new { id = pitId })), ctx: CancellationToken.None);
-            if (!close.Success) _logger.LogDebug("Failed to close point in time: {error}", close.Body);
+            var close = await _client.RequestAsync(HttpMethod.Delete, "_pit", JsonSerializer.Serialize(new { id = pitId }), cancellationToken: CancellationToken.None);
+            // 404: the point in time has already expired.
+            if (!close.Success && !close.NotFound) _logger.LogDebug("Failed to close point in time: {error}", close);
         }
         return result;
     }

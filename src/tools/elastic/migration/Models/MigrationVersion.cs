@@ -1,24 +1,23 @@
-using Nest;
+using System.Text.Json.Serialization;
 
 namespace TNO.Elastic.Migration.Models;
 
 /// <summary>
 /// MigrationVersion class, provides a model to serialize migration version information.
 /// </summary>
-[ElasticsearchType(IdProperty = nameof(Version))]
 public class MigrationVersion
 {
     #region Properties
     /// <summary>
     /// get/set - The version name.
     /// </summary>
-    [Keyword]
+    [JsonPropertyName("version")]
     public string Version { get; set; } = "";
 
     /// <summary>
     /// get/set - A description of the migration.
     /// </summary>
-    [Text(Index = false)]
+    [JsonPropertyName("description")]
     public string Description { get; set; } = "";
     #endregion
 
