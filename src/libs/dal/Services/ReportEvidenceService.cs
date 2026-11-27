@@ -54,12 +54,14 @@ public class ReportEvidenceService : IReportEvidenceService
         if (ids.Length == 0 || String.IsNullOrWhiteSpace(_options.EvidenceIndex)) return result;
 
         var open = await _client.RequestAsync(HttpMethod.Post, $"{_options.EvidenceIndex}/_pit?keep_alive={KeepAlive}", cancellationToken: cancellationToken);
-        if (!open.Success)
+        if (open.NotFound)
         {
             // An environment without the evidence index synthesizes from story text.
-            _logger.LogWarning("Failed to open the evidence index '{index}': {error}", _options.EvidenceIndex, open.Body);
+            _logger.LogWarning("The evidence index '{index}' does not exist; continuing without evidence: {error}", _options.EvidenceIndex, open.Body);
             return result;
         }
+        // Any other failure stops the caller: a summary silently built without the approved evidence is wrong.
+        if (!open.Success) throw new InvalidOperationException($"Failed to open the evidence index '{_options.EvidenceIndex}': {open}");
         var pitId = JsonDocument.Parse(open.Body).RootElement.GetProperty("id").GetString()!;
         try
         {
@@ -88,7 +90,7 @@ public class ReportEvidenceService : IReportEvidenceService
                     if (searchAfter != null) body["search_after"] = searchAfter;
 
                     var response = await _client.RequestAsync(HttpMethod.Post, "_search", JsonSerializer.Serialize(body), cancellationToken: cancellationToken);
-                    if (!response.Success) throw new InvalidOperationException($"Failed to read evidence: {response.Body}");
+                    if (!response.Success) throw new InvalidOperationException($"Failed to read evidence: {response}");
 
                     using var document = JsonDocument.Parse(response.Body);
                     var root = document.RootElement;
@@ -108,7 +110,8 @@ public class ReportEvidenceService : IReportEvidenceService
         finally
         {
             var close = await _client.RequestAsync(HttpMethod.Delete, "_pit", JsonSerializer.Serialize(new { id = pitId }), cancellationToken: CancellationToken.None);
-            if (!close.Success) _logger.LogDebug("Failed to close point in time: {error}", close.Body);
+            // 404: the point in time has already expired.
+            if (!close.Success && !close.NotFound) _logger.LogDebug("Failed to close point in time: {error}", close);
         }
         return result;
     }

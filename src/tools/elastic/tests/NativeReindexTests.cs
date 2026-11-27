@@ -22,7 +22,7 @@ public sealed class ElasticFactAttribute : FactAttribute
     public ElasticFactAttribute()
     {
         if (Environment.GetEnvironmentVariable("MMI_ELASTIC_TEST_URL") == null)
-            Skip = "Set MMI_ELASTIC_TEST_URL to a disposable local Elasticsearch 7.17 or 8.x cluster.";
+            Skip = "Set MMI_ELASTIC_TEST_URL to a disposable local Elasticsearch 8.19 or 9.x cluster.";
     }
 }
 

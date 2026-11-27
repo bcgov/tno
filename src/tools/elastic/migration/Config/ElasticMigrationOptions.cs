@@ -44,6 +44,13 @@ public class ElasticMigrationOptions : ElasticOptions
     public int ReindexFailureLimit { get; set; } = 5;
 
     /// <summary>
+    /// get/set - Maximum number of consecutive 502 (bad gateway) answers to retry before giving up.
+    /// The gateway in front of Elastic Cloud answers 502 intermittently, so these are retried apart
+    /// from ReindexFailureLimit, but a gateway that keeps failing stops the migration.
+    /// </summary>
+    public int GatewayRetryLimit { get; set; } = 60;
+
+    /// <summary>
     /// get/set - For a cluster whose indexes exist but whose migrations index has no history (the
     /// indexes were created some other way): the version the cluster is treated as already at.
     /// Recorded before migrating, so earlier migrations are not run against existing indexes.

@@ -95,6 +95,7 @@ public class MigrationService
     /// <returns></returns>
     private async Task CreateMigrationIndexAsync(CancellationToken cancellationToken)
     {
+        var gatewayFailures = 0;
         while (true)
         {
             // Check if migration index exists.
@@ -122,10 +123,10 @@ public class MigrationService
                 exists = created;
             }
 
-            _logger.LogError(exists.OriginalException, "Failed to create migration index. Error: {error}", exists.Body);
+            _logger.LogError(exists.OriginalException, "Failed to create migration index. Error: {error}", exists);
             // A gateway in front of Elasticsearch Cloud intermittently answers 502.
-            if (exists.HttpStatusCode != 502)
-                throw new InvalidOperationException($"Failed to create migration index '{_options.MigrationIndex}'. {exists.Body}", exists.OriginalException);
+            if (exists.HttpStatusCode != 502 || ++gatewayFailures >= _options.GatewayRetryLimit)
+                throw new InvalidOperationException($"Failed to create migration index '{_options.MigrationIndex}'. {exists}", exists.OriginalException);
             await Task.Delay(5000, cancellationToken);
         }
     }
@@ -143,8 +144,8 @@ public class MigrationService
         var response = await _elasticClient.RequestAsync(HttpMethod.Post, $"{_options.MigrationIndex}/_search", "{\"size\":1000}", cancellationToken: cancellationToken);
         if (!response.Success)
         {
-            _logger.LogError(response.OriginalException, "Failed to determine migration version. Error: {error}", response.Body);
-            throw new InvalidOperationException($"Failed to determine migration version. {response.Body}", response.OriginalException);
+            _logger.LogError(response.OriginalException, "Failed to determine migration version. Error: {error}", response);
+            throw new InvalidOperationException($"Failed to determine migration version. {response}", response.OriginalException);
         }
 
         using var document = JsonDocument.Parse(response.Body);
@@ -166,7 +167,11 @@ public class MigrationService
         foreach (var name in new[] { _options.ContentIndex, _options.PublishedIndex }.Where(n => !String.IsNullOrWhiteSpace(n)))
         {
             var exists = await _elasticClient.RequestAsync(HttpMethod.Head, name, cancellationToken: cancellationToken);
-            if (exists.HttpStatusCode == 200) existing.Add(name);
+            if (exists.Success) existing.Add(name);
+            // Anything but a clear "missing" stops: treating an unknown answer as missing would run every
+            // migration from the start against a populated cluster.
+            else if (!exists.NotFound)
+                throw new InvalidOperationException($"Cannot tell whether index '{name}' exists; nothing was changed. {exists}", exists.OriginalException);
         }
 
         if (String.IsNullOrWhiteSpace(_options.BaselineVersion))
@@ -184,7 +189,7 @@ public class MigrationService
             var version = type.GetCustomAttribute<MigrationAttribute>()!.Id;
             var response = await _elasticClient.RequestAsync(HttpMethod.Put, $"{_options.MigrationIndex}/_doc/{version}?refresh=wait_for",
                 JsonSerializer.Serialize(new MigrationVersion(version, "baseline")), cancellationToken: cancellationToken);
-            if (!response.Success) throw new InvalidOperationException($"Failed to record baseline migration '{version}'. {response.Body}", response.OriginalException);
+            if (!response.Success) throw new InvalidOperationException($"Failed to record baseline migration '{version}'. {response}", response.OriginalException);
         }
         _logger.LogWarning("Recorded baseline migration version '{version}'; earlier migrations were not run.", _options.BaselineVersion);
         return _options.BaselineVersion;

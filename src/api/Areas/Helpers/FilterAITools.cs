@@ -195,7 +195,8 @@ public class FilterAITools : IFilterAITools
     {
         var body = new JsonObject() { ["query"] = query.DeepClone() };
         var response = await _elasticClient.RequestAsync(HttpMethod.Post, $"{_index}/_explain/{id}", body.ToJsonString(), cancellationToken: cancellationToken);
-        if (!response.Success)
+        // 404 with '{"matched":false}' means the story is gone (deleted since it was read): not a match, not an error.
+        if (!response.Success && !(response.NotFound && !String.IsNullOrWhiteSpace(response.Body) && ElasticError(response.Body) == null))
             throw new FilterAIException(ElasticError(response.Body) ?? response.OriginalException?.Message ?? "Elasticsearch could not explain the match.");
         return response.Body;
     }

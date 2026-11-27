@@ -206,8 +206,8 @@ public class Migration_1012 : TNOMigration
 
     private static InvalidOperationException Fail(MigrationBuilder builder, string message, ElasticResponse response)
     {
-        builder.Logger.LogError(response.OriginalException, "{message}  Error: {error}", message, response.Body);
-        return new InvalidOperationException($"{message} {response.Body}", response.OriginalException);
+        builder.Logger.LogError(response.OriginalException, "{message}  Error: {error}", message, response);
+        return new InvalidOperationException($"{message} {response}", response.OriginalException);
     }
 
     /// <summary>
@@ -319,7 +319,13 @@ public class Migration_1012 : TNOMigration
         for (var minute = 1; ; minute++)
         {
             var health = await RequestAsync(builder, HttpMethod.Get, $"_cluster/health/{indexes}?wait_for_status={wanted}&wait_for_no_initializing_shards=true&timeout=1m");
-            var body = String.IsNullOrEmpty(health.Body) ? null : JsonNode.Parse(health.Body);
+            // 200, or 408 when the wait timed out; anything else (a gateway's HTML 502 page) is not health JSON.
+            var body = (health.Success || health.HttpStatusCode == 408) && !String.IsNullOrEmpty(health.Body) ? JsonNode.Parse(health.Body) : null;
+            if (body == null)
+            {
+                builder.Logger.LogWarning("Failed to read cluster health; retrying in a minute.  Error: {error}", health);
+                await Task.Delay(TimeSpan.FromMinutes(1));
+            }
             if (body?["timed_out"]?.GetValue<bool>() == false) break;
             if (minute >= 60)
                 throw new InvalidOperationException($"The replicas of {indexes} are not {wanted} after an hour; the aliases are unchanged. Rerun cutover once the cluster is healthy.");
@@ -464,7 +470,7 @@ public class Migration_1012 : TNOMigration
     {
         var response = await RequestAsync(builder, HttpMethod.Delete, $"{index}/_alias/{alias}");
         if (!response.Success && response.HttpStatusCode != 404)
-            builder.Logger.LogWarning("Failed to delete alias '{alias}' from '{index}'.  Error: {error}", alias, index, response.Body);
+            builder.Logger.LogWarning("Failed to delete alias '{alias}' from '{index}'.  Error: {error}", alias, index, response);
     }
     #endregion
     #endregion

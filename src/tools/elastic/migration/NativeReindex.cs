@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
 
@@ -18,7 +19,7 @@ public sealed class NativeReindex(MigrationBuilder builder)
         JsonNode? body = null, string? opaqueId = null)
     {
         var response = await builder.Client.RequestAsync(method, path, body?.ToJsonString(), opaqueId);
-        if (!response.Success) throw new InvalidOperationException($"Elasticsearch {method} {path} failed: {response.Body}", response.OriginalException);
+        if (!response.Success) throw new InvalidOperationException($"Elasticsearch {method} {path} failed: {response}", response.OriginalException);
         return response;
     }
 
@@ -90,7 +91,7 @@ public sealed class NativeReindex(MigrationBuilder builder)
                 // Replays are safe: external versions stop older revisions replacing newer writes.
                 var body = CreateRequest(source, destination, published, includeAnalysis, keepAnalysis);
                 var response = await RequestAsync(HttpMethod.Post,
-                    $"_reindex?wait_for_completion=false&requests_per_second={builder.MigrationOptions.ReindexRequestsPerSecond}", body, opaqueId);
+                    $"_reindex?wait_for_completion=false&requests_per_second={builder.MigrationOptions.ReindexRequestsPerSecond.ToString(CultureInfo.InvariantCulture)}", body, opaqueId);
                 taskId = JsonNode.Parse(response.Body)!["task"]!.GetValue<string>();
             }
             state["task"] = taskId;
@@ -106,15 +107,11 @@ public sealed class NativeReindex(MigrationBuilder builder)
                 await SaveAsync(destination, state);
                 throw new InvalidOperationException($"Reindex task '{taskId}' is missing (possibly a node restart). Rerun to replay the copy into the retained destination.");
             }
-            if (!response.Success) throw new InvalidOperationException($"Cannot read task '{taskId}'; rerun to reconnect. {response.Body}");
+            if (!response.Success) throw new InvalidOperationException($"Cannot read task '{taskId}'; rerun to reconnect. {response}");
             var result = JsonNode.Parse(response.Body)!;
             if (result["completed"]?.GetValue<bool>() == true)
             {
-                // A cancelled task completes without an error; it copied only part of the source.
-                if (result["error"] != null || result["response"] == null ||
-                    result["response"]?["canceled"] != null ||
-                    result["response"]?["timed_out"]?.GetValue<bool>() == true ||
-                    result["response"]?["failures"]?.AsArray().Count > 0)
+                if (TaskFailed(result))
                 {
                     state.Remove("task");
                     await SaveAsync(destination, state);
@@ -131,7 +128,19 @@ public sealed class NativeReindex(MigrationBuilder builder)
         }
     }
 
-    /// <summary>Build the ES 7/8 compatible transformation, including external revision zero for legacy data.</summary>
+    /// <summary>
+    /// Whether a completed reindex task stopped short. A cancelled task completes without an error and a
+    /// version conflict ('conflicts': 'abort') ends it early with failures; either copied only part of the source.
+    /// </summary>
+    /// <param name="result">The GET _tasks/{id} response of a completed task.</param>
+    /// <returns></returns>
+    public static bool TaskFailed(JsonNode result) =>
+        result["error"] != null || result["response"] == null ||
+        result["response"]?["canceled"] != null ||
+        result["response"]?["timed_out"]?.GetValue<bool>() == true ||
+        result["response"]?["failures"]?.AsArray().Count > 0;
+
+    /// <summary>Build the transformation (Elasticsearch 8.19 and 9.x), including external revision zero for legacy data.</summary>
     public static JsonObject CreateRequest(string source, string destination, bool published, bool includeAnalysis, bool keepAnalysis = false) => new()
     {
         ["source"] = new JsonObject { ["index"] = source },

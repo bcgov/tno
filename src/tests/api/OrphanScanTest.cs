@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -28,7 +29,11 @@ public partial class OrphanedContentTest
         var elastic = new Mock<ITNOElasticClient>();
         elastic.Setup(x => x.RequestAsync(It.IsAny<HttpMethod>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((HttpMethod method, string path, string? body, string? _, CancellationToken _) =>
-                new ElasticResponse(200, JsonSerializer.Serialize(respond(new ElasticRequest(method, path, body)))));
+            {
+                // A responder may answer with a status of its own (a 404, a 500); anything else is a 200 body.
+                var answer = respond(new ElasticRequest(method, path, body));
+                return answer as ElasticResponse ?? new ElasticResponse(200, JsonSerializer.Serialize(answer));
+            });
         return elastic;
     }
 
@@ -216,6 +221,27 @@ public partial class OrphanedContentTest
         Assert.Equal("Cancelled", (await service.LatestAsync(default))!.Status);
         Assert.Null((await next.OrphanScans.SingleAsync()).PitId);
         Assert.NotEqual(id, (await service.StartAsync(new(), default)).Id);
+    }
+
+    [DatabaseFact]
+    public async Task ClosingAnExpiredSnapshotIsNotAWarning()
+    {
+        Guid id;
+        await using (var context = Context())
+        {
+            id = (await Scans(context).StartAsync(new(), default)).Id;
+            await context.OrphanScans.ExecuteUpdateAsync(s => s.SetProperty(x => x.PitId, "expired-snapshot"));
+            await Scans(context).CancelAsync(id, default);
+        }
+        await using var next = Context();
+        var logger = new Mock<ILogger<OrphanScanService>>();
+        var elastic = Elastic(r => new ElasticResponse(404, "{\"succeeded\":false,\"num_freed\":0}"));
+        var (repair, _) = Service(next, []);
+        var service = new OrphanScanService(next, repair, elastic.Object, Options.Create(new OrphanScanOptions
+        { BatchSize = 2, BatchDelayMilliseconds = 0, GracePeriodSeconds = 0 }), logger.Object);
+        await service.ProcessBatchAsync(default);
+        Assert.Equal("Cancelled", (await service.LatestAsync(default))!.Status);
+        Assert.DoesNotContain(logger.Invocations, i => i.Method.Name == "Log" && (LogLevel)i.Arguments[0] >= LogLevel.Warning);
     }
 
     [DatabaseFact]

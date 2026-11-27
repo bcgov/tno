@@ -97,8 +97,8 @@ public abstract class Migration
         var response = await _builder.Client.RequestAsync(HttpMethod.Put, $"{_builder.MigrationOptions.MigrationIndex}/_doc/{this.Version}?refresh=wait_for", JsonSerializer.Serialize(version));
         if (!response.Success)
         {
-            _builder.Logger.LogError(response.OriginalException, "Failed to add migration {version} to index.  Error: {error}", this.Version, response.Body);
-            throw new InvalidOperationException($"Failed to add migration {this.Version} to index. {response.Body}", response.OriginalException);
+            _builder.Logger.LogError(response.OriginalException, "Failed to add migration {version} to index.  Error: {error}", this.Version, response);
+            throw new InvalidOperationException($"Failed to add migration {this.Version} to index. {response}", response.OriginalException);
         }
     }
 
@@ -117,8 +117,8 @@ public abstract class Migration
         var response = await _builder.Client.RequestAsync(HttpMethod.Delete, $"{_builder.MigrationOptions.MigrationIndex}/_doc/{this.Version}?refresh=wait_for");
         if (!response.Success && response.HttpStatusCode != 404)
         {
-            _builder.Logger.LogError(response.OriginalException, "Failed to remove migration {version} from index.  Error: {error}", this.Version, response.Body);
-            throw new InvalidOperationException($"Failed to remove migration {this.Version} from index. {response.Body}", response.OriginalException);
+            _builder.Logger.LogError(response.OriginalException, "Failed to remove migration {version} from index.  Error: {error}", this.Version, response);
+            throw new InvalidOperationException($"Failed to remove migration {this.Version} from index. {response}", response.OriginalException);
         }
     }
 
@@ -196,8 +196,8 @@ public abstract class Migration
         var response = await builder.Client.RequestAsync(method, path, body);
         if (!response.Success)
         {
-            builder.Logger.LogError(response.OriginalException, "{failure}  Error: {error}", failure, response.Body);
-            throw new InvalidOperationException($"{failure} {response.Body}", response.OriginalException);
+            builder.Logger.LogError(response.OriginalException, "{failure}  Error: {error}", failure, response);
+            throw new InvalidOperationException($"{failure} {response}", response.OriginalException);
         }
         return response;
     }
@@ -256,23 +256,32 @@ public abstract class Migration
         var task = JsonNode.Parse(started.Body)?["task"]?.GetValue<string>();
         if (task == null) return;
 
+        var gatewayFailures = 0;
         while (true)
         {
             var response = await builder.Client.RequestAsync(HttpMethod.Get, $"_tasks/{task}");
             if (!response.Success)
             {
-                this.Failures++;
-                builder.Logger.LogError(response.OriginalException, "Reindex task failure.  Error: {error}", response.Body);
-                // Ignore 502 because we don't know why this is happening intermittently.
-                if (response.HttpStatusCode != 502 && this.Failures >= builder.MigrationOptions.ReindexFailureLimit)
-                    throw new InvalidOperationException($"Failed to reindex '{source}' to '{dest}'. {response.Body}", response.OriginalException);
+                builder.Logger.LogError(response.OriginalException, "Reindex task failure.  Error: {error}", response);
+                // 502 is retried apart from other failures: the gateway in front of Elastic Cloud answers it intermittently.
+                var exhausted = response.HttpStatusCode == 502
+                    ? ++gatewayFailures >= builder.MigrationOptions.GatewayRetryLimit
+                    : ++this.Failures >= builder.MigrationOptions.ReindexFailureLimit;
+                if (exhausted)
+                    throw new InvalidOperationException($"Failed to reindex '{source}' to '{dest}'; reading task '{task}' failed. {response}", response.OriginalException);
                 Thread.Sleep(builder.MigrationOptions.ReindexDelay);
                 continue;
             }
 
             this.Failures = 0;
+            gatewayFailures = 0;
             var result = JsonNode.Parse(response.Body)!;
-            if (result["completed"]?.GetValue<bool>() == true) return;
+            if (result["completed"]?.GetValue<bool>() == true)
+            {
+                if (NativeReindex.TaskFailed(result))
+                    throw new InvalidOperationException($"Reindex '{source}' to '{dest}' (task '{task}') did not copy every document. {result}");
+                return;
+            }
             builder.Logger.LogDebug("Reindex task not complete {count} of {total}", result["task"]?["status"]?["created"], result["task"]?["status"]?["total"]);
             Thread.Sleep(builder.MigrationOptions.ReindexDelay);
         }

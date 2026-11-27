@@ -198,6 +198,42 @@ public partial class OrphanedContentTest : IAsyncLifetime
         }
     }
 
+    [Theory]
+    [InlineData(404, true)]
+    [InlineData(500, false)]
+    [InlineData(503, false)]
+    public async Task ElasticsearchDeleteSkipsMissingDocumentsAndFailsOnErrors(int status, bool succeeds)
+    {
+        if (String.IsNullOrWhiteSpace(_admin)) Assert.Skip("Set TNO_ORPHAN_TEST_POSTGRES to a PostgreSQL admin connection for disposable test databases.");
+        await using var context = Context();
+        const long id = 987654321;
+        var body = JsonSerializer.Serialize(new { timed_out = false, _shards = new { failed = 0 }, hits = new { hits = new[] { Hit(new ContentModel { Id = id }) } } }, _json);
+        var deletes = 0;
+        var elastic = Elastic(r =>
+        {
+            if (r.Method != HttpMethod.Delete) return JsonDocument.Parse(body).RootElement.Clone();
+            deletes++;
+            return new ElasticResponse(status, "{\"result\":\"not_found\"}");
+        });
+        var contentService = new ContentService(context, _user, _services, elastic.Object, NullLogger<ContentService>.Instance);
+        var service = new OrphanedContentService(context, contentService, elastic.Object, Options.Create(new ElasticOptions()), Options.Create(_json), NullLogger<OrphanedContentService>.Instance);
+
+        var act = () => service.DeleteAsync(id, "elasticsearch", "content", default);
+
+        if (succeeds)
+        {
+            await act();
+            // Every index is tried; a document already gone from one is not a failure.
+            Assert.Equal(3, deletes);
+        }
+        else
+        {
+            var error = await Assert.ThrowsAsync<InvalidOperationException>(act);
+            Assert.Contains("Retry the operation", error.Message);
+            Assert.Equal(1, deletes);
+        }
+    }
+
     [DatabaseFact]
     public async Task LookupGuardsAndDatabaseConstraintsPreserveContent()
     {

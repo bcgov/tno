@@ -408,7 +408,8 @@ public class OrphanScanService(TNOContext context, OrphanedContentService conten
         try
         {
             var response = await elastic.RequestAsync(HttpMethod.Delete, "_pit", JsonSerializer.Serialize(new { id = job.PitId }), cancellationToken: ct);
-            if (!response.Success) logger.LogWarning("Could not close orphan scan snapshot {ScanId}; it will expire automatically.", job.Id);
+            // 404: the snapshot has already expired, which is what closing it is for.
+            if (!response.Success && !response.NotFound) logger.LogWarning("Could not close orphan scan snapshot {ScanId}; it will expire automatically.", job.Id);
         }
         catch (Exception ex) { logger.LogWarning(ex, "Could not close orphan scan snapshot {ScanId}; it will expire automatically.", job.Id); }
         job.PitId = null;

@@ -27,6 +27,11 @@ public sealed class ElasticResponse
     /// get - Whether Elasticsearch answered with a 2xx status.
     /// </summary>
     public bool Success => this.HttpStatusCode is >= 200 and < 300;
+
+    /// <summary>
+    /// get - Whether Elasticsearch answered 404.
+    /// </summary>
+    public bool NotFound => this.HttpStatusCode == 404;
     #endregion
 
     #region Constructors
@@ -41,6 +46,18 @@ public sealed class ElasticResponse
         this.HttpStatusCode = httpStatusCode;
         this.Body = body ?? "";
         this.OriginalException = originalException;
+    }
+    #endregion
+
+    #region Methods
+    /// <summary>
+    /// Describe the response for an error message: the status and the body, or why no response arrived.
+    /// </summary>
+    /// <returns></returns>
+    public override string ToString()
+    {
+        if (this.HttpStatusCode == null) return $"no response ({this.OriginalException?.Message ?? "unknown error"})";
+        return String.IsNullOrWhiteSpace(this.Body) ? $"HTTP {this.HttpStatusCode}" : $"HTTP {this.HttpStatusCode}: {this.Body}";
     }
     #endregion
 }

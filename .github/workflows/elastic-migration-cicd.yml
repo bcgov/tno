@@ -6,11 +6,15 @@ on:
     paths:
       - 'src/tools/elastic/**'
       - 'src/libs/**'
+      - 'dependencies/elasticsearch/**'
+      - '.github/workflows/elastic-migration-cicd.yml'
   pull_request:
     branches: [dev, master]
     paths:
       - 'src/tools/elastic/**'
       - 'src/libs/**'
+      - 'dependencies/elasticsearch/**'
+      - '.github/workflows/elastic-migration-cicd.yml'
   workflow_dispatch:
 
 concurrency:
@@ -28,8 +32,14 @@ jobs:
     timeout-minutes: 20
     strategy:
       matrix:
-        # 8.19.25: what every environment runs before the upgrade. 9.5.5: the Elastic Cloud (TEST, PROD) target.
-        # 9.5.7: the Local and DEV target. 7.17 is no longer tested: no environment runs it.
+        # 8.19.25: the version Local and DEV are upgraded from. No job tests the versions Elastic Cloud runs
+        #          today: TEST 8.19.26 and PROD 8.19.21.
+        # 9.5.5:   the version the business named for the Elastic Cloud upgrade. PROD (8.19.21) can move to it.
+        #          TEST cannot: 9.5.5 was released before 8.19.26, and Elastic only supports upgrading to a
+        #          release published after the one that is running.
+        # 9.5.7:   the Local and DEV target.
+        # 7.17 is no longer tested: no environment runs it.
+        # Which versions to test for TEST and PROD is an open decision; the list is unchanged until it is made.
         elasticsearch: ['8.19.25', '9.5.5', '9.5.7']
     services:
       elasticsearch:
