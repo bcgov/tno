@@ -1,7 +1,6 @@
 using System.Collections.Concurrent;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Elasticsearch.Net;
 using TNO.API.Models.Settings;
 using TNO.DAL.Services;
 using TNO.Elastic;
@@ -19,6 +18,9 @@ public class FilterAITools : IFilterAITools
     #region Variables
     /// <summary>How long an index's described mapping is reused before it is read again.</summary>
     private static readonly TimeSpan MappingLifetime = TimeSpan.FromMinutes(30);
+
+    /// <summary>The large collections left out of a story read by GetStoryAsync.</summary>
+    private const string StorySourceExcludes = "versions,fileReferences,links,labels,timeTrackings,notifications,userNotifications,quotes";
 
     /// <summary>The read mapping of each index, with when it was read.</summary>
     private static readonly ConcurrentDictionary<string, (DateTime ReadOn, FilterAIIndexSchema Schema)> Mappings = new();
@@ -114,7 +116,7 @@ public class FilterAITools : IFilterAITools
     {
         if (Mappings.TryGetValue(_index, out var cached) && DateTime.UtcNow - cached.ReadOn < MappingLifetime) return cached.Schema;
 
-        var response = await _elasticClient.LowLevel.Indices.GetMappingAsync<StringResponse>(_index, ctx: cancellationToken);
+        var response = await _elasticClient.RequestAsync(HttpMethod.Get, $"{_index}/_mapping", cancellationToken: cancellationToken);
         if (!response.Success)
             throw new FilterAIException(ElasticError(response.Body) ?? response.OriginalException?.Message ?? "Elasticsearch did not return the mapping.");
         var schema = FilterAISchema.Read(response.Body);
@@ -132,7 +134,7 @@ public class FilterAITools : IFilterAITools
     public async Task<string> SearchAsync(JsonObject body, CancellationToken cancellationToken)
     {
         body["query"] = Restrict(body["query"]);
-        var response = await _elasticClient.LowLevel.SearchAsync<StringResponse>(_index, PostData.String(body.ToJsonString()), ctx: cancellationToken);
+        var response = await _elasticClient.RequestAsync(HttpMethod.Post, $"{_index}/_search", body.ToJsonString(), cancellationToken: cancellationToken);
         if (!response.Success)
             throw new FilterAIException(ElasticError(response.Body) ?? response.OriginalException?.Message ?? "Elasticsearch rejected the search.");
         return response.Body;
@@ -154,7 +156,7 @@ public class FilterAITools : IFilterAITools
     {
         if (_unpublishedIndex == null) return null;
         var count = new JsonObject() { ["query"] = Restrict(body["query"]) };
-        var response = await _elasticClient.LowLevel.CountAsync<StringResponse>(_unpublishedIndex, PostData.String(count.ToJsonString()), ctx: cancellationToken);
+        var response = await _elasticClient.RequestAsync(HttpMethod.Post, $"{_unpublishedIndex}/_count", count.ToJsonString(), cancellationToken: cancellationToken);
         if (!response.Success) return null;
         using var document = JsonDocument.Parse(response.Body);
         return document.RootElement.TryGetProperty("count", out var c) && c.TryGetInt64(out var n) ? n : null;
@@ -170,8 +172,7 @@ public class FilterAITools : IFilterAITools
     /// <exception cref="FilterAIException"></exception>
     public async Task<string?> GetStoryAsync(long id, CancellationToken cancellationToken)
     {
-        var parameters = new GetRequestParameters() { SourceExcludes = ["versions", "fileReferences", "links", "labels", "timeTrackings", "notifications", "userNotifications", "quotes"] };
-        var response = await _elasticClient.LowLevel.GetAsync<StringResponse>(_index, id.ToString(), parameters, ctx: cancellationToken);
+        var response = await _elasticClient.RequestAsync(HttpMethod.Get, $"{_index}/_doc/{id}?_source_excludes={StorySourceExcludes}", cancellationToken: cancellationToken);
         if (response.HttpStatusCode == 404) return null;
         if (!response.Success)
             throw new FilterAIException(ElasticError(response.Body) ?? response.OriginalException?.Message ?? "Elasticsearch did not return the story.");
@@ -193,8 +194,9 @@ public class FilterAITools : IFilterAITools
     public async Task<string> ExplainAsync(long id, JsonObject query, CancellationToken cancellationToken)
     {
         var body = new JsonObject() { ["query"] = query.DeepClone() };
-        var response = await _elasticClient.LowLevel.ExplainAsync<StringResponse>(_index, id.ToString(), PostData.String(body.ToJsonString()), ctx: cancellationToken);
-        if (!response.Success)
+        var response = await _elasticClient.RequestAsync(HttpMethod.Post, $"{_index}/_explain/{id}", body.ToJsonString(), cancellationToken: cancellationToken);
+        // 404 with '{"matched":false}' means the story is gone (deleted since it was read): not a match, not an error.
+        if (!response.Success && !(response.NotFound && !String.IsNullOrWhiteSpace(response.Body) && ElasticError(response.Body) == null))
             throw new FilterAIException(ElasticError(response.Body) ?? response.OriginalException?.Message ?? "Elasticsearch could not explain the match.");
         return response.Body;
     }

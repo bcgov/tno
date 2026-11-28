@@ -1,10 +1,11 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Collections.Concurrent;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Elasticsearch.Net;
+using Elastic.Clients.Elasticsearch;
+using Elastic.Transport;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Nest;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Core.Http;
@@ -15,9 +16,26 @@ namespace TNO.Elastic
     /// <summary>
     /// The TNOElasticClient class
     /// </summary>
-    public class TNOElasticClient : ElasticClient, ITNOElasticClient
+    public class TNOElasticClient : ITNOElasticClient
     {
         #region Variables
+        /// <summary>
+        /// Makes the requests that RequestAsync passes through. Its 8.x version sends
+        /// 'compatible-with=8', which Elasticsearch 8.19 and 9.x both accept.
+        /// </summary>
+        private readonly ElasticsearchClient _client;
+
+        /// <summary>
+        /// One ElasticsearchClient per cluster and credentials, shared by every TNOElasticClient.
+        /// The API registers TNOElasticClient per request scope; building a client each time opened
+        /// a new connection pool per request that was never disposed.
+        /// </summary>
+        private static readonly ConcurrentDictionary<ClientKey, ElasticsearchClient> Clients = new();
+
+        /// <summary>
+        /// What makes two ElasticsearchClient instances interchangeable.
+        /// </summary>
+        private sealed record ClientKey(Uri Url, string ContentIndex, string? Username, string? Password, string? ApiKey);
         #endregion
 
         #region Properties
@@ -33,8 +51,9 @@ namespace TNO.Elastic
         /// <param name="httpClient"></param>
         /// <param name="options"></param>
         /// <param name="logger"></param>
-        public TNOElasticClient(IHttpRequestClient httpClient, IOptions<ElasticOptions> options, ILogger<TNOElasticClient> logger) : base(GetConnectionSettings(options.Value))
+        public TNOElasticClient(IHttpRequestClient httpClient, IOptions<ElasticOptions> options, ILogger<TNOElasticClient> logger)
         {
+            _client = GetClient(options.Value);
             this.Client = httpClient;
             this.Options = options.Value;
             this.Logger = logger;
@@ -65,7 +84,7 @@ namespace TNO.Elastic
         /// <param name="config"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        private static ConnectionSettings GetConnectionSettings(ElasticOptions options)
+        private static ElasticsearchClient GetClient(ElasticOptions options)
         {
             if (options.Url == null) throw new ConfigurationException("Elastic configuration property 'Elastic:Url' is required'");
             var username = !String.IsNullOrWhiteSpace(options.Username)
@@ -74,24 +93,59 @@ namespace TNO.Elastic
             var password = !String.IsNullOrWhiteSpace(options.Password)
                 ? options.Password
                 : Environment.GetEnvironmentVariable("ELASTIC_PASSWORD");
+            var basic = !String.IsNullOrWhiteSpace(username) && !String.IsNullOrWhiteSpace(password);
+            var apiKey = !basic && !String.IsNullOrWhiteSpace(options.ApiKey) ? options.ApiKey : null;
+            var key = new ClientKey(options.Url, options.ContentIndex, basic ? username : null, basic ? password : null, apiKey);
 
-            var connection = new ConnectionSettings(options.Url)
-                .DefaultIndex(options.ContentIndex)
-                .EnableApiVersioningHeader()
-                .RequestTimeout(new TimeSpan(0, 30, 0))
-                .ThrowExceptions();
-
-            if (!String.IsNullOrWhiteSpace(username) && !String.IsNullOrWhiteSpace(password))
+            return Clients.GetOrAdd(key, static key =>
             {
-                connection.BasicAuthentication(username, password);
-            }
-            else if (!String.IsNullOrWhiteSpace(options.ApiKey))
-            {
-                connection.ApiKeyAuthentication(new ApiKeyAuthenticationCredentials(options.ApiKey));
-            }
+                var settings = new ElasticsearchClientSettings(new SingleNodePool(key.Url))
+                    .DefaultIndex(key.ContentIndex)
+                    .RequestTimeout(new TimeSpan(0, 30, 0));
 
-            return connection;
+                if (key.Username != null && key.Password != null)
+                    settings.Authentication(new BasicAuthentication(key.Username, key.Password));
+                else if (key.ApiKey != null)
+                    settings.Authentication(new ApiKey(key.ApiKey));
+
+                return new ElasticsearchClient(settings);
+            });
         }
+
+        /// <summary>
+        /// Make any request to Elasticsearch and return the unparsed response.
+        /// An unsuccessful status, or no response at all, is returned rather than thrown; a cancelled
+        /// 'cancellationToken' throws OperationCanceledException.
+        /// Every segment of 'path' must be trusted or escaped with Uri.EscapeDataString: it is sent as given.
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="path"></param>
+        /// <param name="body"></param>
+        /// <param name="opaqueId"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task<ElasticResponse> RequestAsync(System.Net.Http.HttpMethod method, string path, string? body = null, string? opaqueId = null, CancellationToken cancellationToken = default)
+        {
+            var configuration = opaqueId == null ? null : new RequestConfiguration { OpaqueId = opaqueId };
+            // Relative to the cluster URL, which may carry a path of its own (a proxy route).
+            var endpoint = new EndpointPath(ToTransportMethod(method), path.TrimStart('/'));
+            var response = await _client.Transport.RequestAsync<StringResponse>(endpoint,
+                body == null ? null : PostData.String(body), null, configuration, cancellationToken);
+            // The transport reports a cancelled request as a failed response; callers stop on cancellation.
+            if (cancellationToken.IsCancellationRequested)
+                throw new OperationCanceledException($"Elasticsearch request '{method} {path}' was cancelled.", response.ApiCallDetails?.OriginalException, cancellationToken);
+            return new ElasticResponse(response.ApiCallDetails?.HttpStatusCode, response.Body, response.ApiCallDetails?.OriginalException);
+        }
+
+        private static global::Elastic.Transport.HttpMethod ToTransportMethod(System.Net.Http.HttpMethod method) => method.Method switch
+        {
+            "GET" => global::Elastic.Transport.HttpMethod.GET,
+            "POST" => global::Elastic.Transport.HttpMethod.POST,
+            "PUT" => global::Elastic.Transport.HttpMethod.PUT,
+            "DELETE" => global::Elastic.Transport.HttpMethod.DELETE,
+            "HEAD" => global::Elastic.Transport.HttpMethod.HEAD,
+            _ => throw new NotSupportedException($"HTTP method '{method}' is not supported by Elasticsearch."),
+        };
 
         /// <summary>
         /// Make a request to Elasticsearch 'index' with the specified 'query'.

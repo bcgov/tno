@@ -1,12 +1,10 @@
-using System.Text;
 using System.Text.Json;
-using Elasticsearch.Net;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
-using Nest;
 using TNO.API.Helpers;
 using TNO.Core.Exceptions;
 using TNO.DAL;
@@ -18,22 +16,31 @@ namespace TNO.Test.API;
 
 public partial class OrphanedContentTest
 {
-    private sealed class ScanConnection(Func<RequestData, object> respond) : InMemoryConnection
+    /// <summary>A request the service made through ITNOElasticClient.RequestAsync.</summary>
+    private sealed record ElasticRequest(HttpMethod Method, string Path, string? Body)
     {
-        public override Task<TResponse> RequestAsync<TResponse>(RequestData requestData, CancellationToken cancellationToken)
-        {
-            var payload = JsonSerializer.Serialize(respond(requestData));
-            return new InMemoryConnection(Encoding.UTF8.GetBytes(payload)).RequestAsync<TResponse>(requestData, cancellationToken);
-        }
+        /// <summary>The path without its query string, as a URL path.</summary>
+        public string AbsolutePath => "/" + Path.Split('?')[0];
+    }
+
+    /// <summary>Answer every RequestAsync call with what 'respond' returns, serialized.</summary>
+    private static Mock<ITNOElasticClient> Elastic(Func<ElasticRequest, object> respond)
+    {
+        var elastic = new Mock<ITNOElasticClient>();
+        elastic.Setup(x => x.RequestAsync(It.IsAny<HttpMethod>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((HttpMethod method, string path, string? body, string? _, CancellationToken _) =>
+            {
+                // A responder may answer with a status of its own (a 404, a 500); anything else is a 200 body.
+                var answer = respond(new ElasticRequest(method, path, body));
+                return answer as ElasticResponse ?? new ElasticResponse(200, JsonSerializer.Serialize(answer));
+            });
+        return elastic;
     }
 
     private static object Hits(params object[] hits) => new { _shards = new { failed = 0 }, timed_out = false, hits = new { hits } };
-    private OrphanScanService Scans(TNOContext context, Func<RequestData, object>? respond = null, int grace = 0, int batch = 2)
+    private OrphanScanService Scans(TNOContext context, Func<ElasticRequest, object>? respond = null, int grace = 0, int batch = 2)
     {
-        var connection = new ScanConnection(respond ?? (_ => Hits()));
-        var client = new ElasticClient(new ConnectionSettings(new SingleNodeConnectionPool(new Uri("http://localhost:9200")), connection).DisablePing());
-        var elastic = new Mock<ITNOElasticClient>();
-        elastic.SetupGet(x => x.LowLevel).Returns(client.LowLevel);
+        var elastic = Elastic(respond ?? (_ => Hits()));
         var (repair, _) = Service(context, []);
         return new OrphanScanService(context, repair, elastic.Object, Options.Create(new OrphanScanOptions
         { BatchSize = batch, BatchDelayMilliseconds = 0, GracePeriodSeconds = grace }), NullLogger<OrphanScanService>.Instance);
@@ -128,9 +135,7 @@ public partial class OrphanedContentTest
         var requests = new List<JsonElement>();
         var service = Scans(context, request =>
         {
-            using var stream = new MemoryStream();
-            request.PostData!.Write(stream, request.ConnectionSettings);
-            using var body = JsonDocument.Parse(stream.ToArray());
+            using var body = JsonDocument.Parse(request.Body!);
             requests.Add(body.RootElement.Clone());
             return Hits(new { _id = "9001", _source = new { otherSource = "Vancouver Sun" } }, new { _id = "9002", _source = new { } });
         });
@@ -210,7 +215,7 @@ public partial class OrphanedContentTest
         }
         var closed = false;
         await using var next = Context();
-        var service = Scans(next, r => { Assert.Contains("_pit", r.Uri.AbsolutePath); closed = true; return new { succeeded = true }; });
+        var service = Scans(next, r => { Assert.Contains("_pit", r.AbsolutePath); closed = true; return new { succeeded = true }; });
         await service.ProcessBatchAsync(default);
         Assert.True(closed);
         Assert.Equal("Cancelled", (await service.LatestAsync(default))!.Status);
@@ -219,17 +224,36 @@ public partial class OrphanedContentTest
     }
 
     [DatabaseFact]
+    public async Task ClosingAnExpiredSnapshotIsNotAWarning()
+    {
+        Guid id;
+        await using (var context = Context())
+        {
+            id = (await Scans(context).StartAsync(new(), default)).Id;
+            await context.OrphanScans.ExecuteUpdateAsync(s => s.SetProperty(x => x.PitId, "expired-snapshot"));
+            await Scans(context).CancelAsync(id, default);
+        }
+        await using var next = Context();
+        var logger = new Mock<ILogger<OrphanScanService>>();
+        var elastic = Elastic(r => new ElasticResponse(404, "{\"succeeded\":false,\"num_freed\":0}"));
+        var (repair, _) = Service(next, []);
+        var service = new OrphanScanService(next, repair, elastic.Object, Options.Create(new OrphanScanOptions
+        { BatchSize = 2, BatchDelayMilliseconds = 0, GracePeriodSeconds = 0 }), logger.Object);
+        await service.ProcessBatchAsync(default);
+        Assert.Equal("Cancelled", (await service.LatestAsync(default))!.Status);
+        Assert.DoesNotContain(logger.Invocations, i => i.Method.Name == "Log" && (LogLevel)i.Arguments[0] >= LogLevel.Warning);
+    }
+
+    [DatabaseFact]
     public async Task SnapshotUsesIdOnlySearchAfterAndRechecksLiveBeforeConfirmation()
     {
         var requests = new List<JsonElement>();
         var traversal = 0;
-        object Respond(RequestData r)
+        object Respond(ElasticRequest r)
         {
-            if (r.Uri.AbsolutePath.EndsWith("/_pit") && r.Method == Elasticsearch.Net.HttpMethod.POST) return new { id = "snapshot-1" };
-            if (r.Method == Elasticsearch.Net.HttpMethod.DELETE) return new { succeeded = true };
-            using var stream = new MemoryStream();
-            r.PostData!.Write(stream, r.ConnectionSettings);
-            var body = JsonDocument.Parse(stream.ToArray()).RootElement.Clone();
+            if (r.AbsolutePath.EndsWith("/_pit") && r.Method == HttpMethod.Post) return new { id = "snapshot-1" };
+            if (r.Method == HttpMethod.Delete) return new { succeeded = true };
+            var body = JsonDocument.Parse(r.Body!).RootElement.Clone();
             requests.Add(body);
             if (body.TryGetProperty("pit", out _))
             {
@@ -327,13 +351,11 @@ public partial class OrphanedContentTest
     public async Task ElasticsearchPostedDateFilterUsesPacificBoundsOnDiscoveryAndConfirmation()
     {
         var requests = new List<JsonElement>();
-        object Respond(RequestData r)
+        object Respond(ElasticRequest r)
         {
-            if (r.Uri.AbsolutePath.EndsWith("/_pit") && r.Method == Elasticsearch.Net.HttpMethod.POST) return new { id = "snapshot" };
-            if (r.Method == Elasticsearch.Net.HttpMethod.DELETE) return new { succeeded = true };
-            using var stream = new MemoryStream();
-            r.PostData!.Write(stream, r.ConnectionSettings);
-            var body = JsonDocument.Parse(stream.ToArray()).RootElement.Clone();
+            if (r.AbsolutePath.EndsWith("/_pit") && r.Method == HttpMethod.Post) return new { id = "snapshot" };
+            if (r.Method == HttpMethod.Delete) return new { succeeded = true };
+            var body = JsonDocument.Parse(r.Body!).RootElement.Clone();
             requests.Add(body);
             return body.TryGetProperty("pit", out _) ? Hits(new { _id = "9001", sort = new[] { 41 } }) : Hits();
         }

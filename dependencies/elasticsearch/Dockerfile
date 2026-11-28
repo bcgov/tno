@@ -1,4 +1,4 @@
-FROM docker.elastic.co/elasticsearch/elasticsearch:8.19.25
+FROM docker.elastic.co/elasticsearch/elasticsearch:9.5.7
 
 COPY ./elasticsearch.yml /usr/share/elasticsearch/config/elasticsearch.yml
 

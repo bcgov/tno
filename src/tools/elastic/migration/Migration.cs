@@ -1,8 +1,7 @@
 using System.Reflection;
 using System.Text.Json;
-using Elasticsearch.Net;
+using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
-using Nest;
 using TNO.Elastic.Migration.Models;
 using TNO.Models.Extensions;
 
@@ -95,11 +94,11 @@ public abstract class Migration
         await RunScriptsAsync(_builder, $"up{Path.DirectorySeparatorChar}post");
 
         var version = new MigrationVersion(this.Version, "");
-        var response = await _builder.Client.IndexAsync(version, id => id.Index(_builder.MigrationOptions.MigrationIndex).Id(this.Version).Refresh(Refresh.WaitFor));
-        if (!response.IsValid)
+        var response = await _builder.Client.RequestAsync(HttpMethod.Put, $"{_builder.MigrationOptions.MigrationIndex}/_doc/{this.Version}?refresh=wait_for", JsonSerializer.Serialize(version));
+        if (!response.Success)
         {
-            _builder.Logger.LogError(response.OriginalException, "Failed to add migration {version} to index.  Error: {error}", this.Version, response.ServerError);
-            throw response.OriginalException;
+            _builder.Logger.LogError(response.OriginalException, "Failed to add migration {version} to index.  Error: {error}", this.Version, response);
+            throw new InvalidOperationException($"Failed to add migration {this.Version} to index. {response}", response.OriginalException);
         }
     }
 
@@ -115,13 +114,11 @@ public abstract class Migration
         await RunScriptsAsync(_builder, "down");
         await RunScriptsAsync(_builder, $"down{Path.DirectorySeparatorChar}post");
 
-        var response = await _builder.Client.DeleteAsync<MigrationVersion>(this.Version, dd => dd.Index(_builder.MigrationOptions.MigrationIndex).Refresh(Refresh.WaitFor)
-            .RequestConfiguration(r => r.ThrowExceptions(false)));
-        if (!response.IsValid && response.ApiCall.HttpStatusCode != 404)
+        var response = await _builder.Client.RequestAsync(HttpMethod.Delete, $"{_builder.MigrationOptions.MigrationIndex}/_doc/{this.Version}?refresh=wait_for");
+        if (!response.Success && response.HttpStatusCode != 404)
         {
-            var error = response.OriginalException ?? new ElasticsearchClientException("Failed to perform delete");
-            _builder.Logger.LogError(error, "Failed to remove migration {version} from index.  Error: {error}", this.Version, response.ServerError);
-            throw error;
+            _builder.Logger.LogError(response.OriginalException, "Failed to remove migration {version} from index.  Error: {error}", this.Version, response);
+            throw new InvalidOperationException($"Failed to remove migration {this.Version} from index. {response}", response.OriginalException);
         }
     }
 
@@ -165,10 +162,9 @@ public abstract class Migration
                     else if (step.Action == MigrationAction.UpdateByQuery)
                         await UpdateByQueryAsync(builder, step, path);
                 }
-                catch (ElasticsearchClientException ex)
+                catch (InvalidOperationException ex)
                 {
-                    var body = ex.Response.RequestBodyInBytes != null ? System.Text.Encoding.UTF8.GetString(ex.Response.ResponseBodyInBytes) : "";
-                    builder.Logger.LogError(ex, "Failed to run step '{file}'.  Error: {error}", file, body);
+                    builder.Logger.LogError(ex, "Failed to run step '{file}'.", file);
                     throw;
                 }
             }
@@ -192,17 +188,28 @@ public abstract class Migration
     }
 
     #region Elastic actions
+    /// <summary>
+    /// Send a request and throw when Elasticsearch does not answer with success.
+    /// </summary>
+    private static async Task<ElasticResponse> SendAsync(MigrationBuilder builder, HttpMethod method, string path, string? body, string failure)
+    {
+        var response = await builder.Client.RequestAsync(method, path, body);
+        if (!response.Success)
+        {
+            builder.Logger.LogError(response.OriginalException, "{failure}  Error: {error}", failure, response);
+            throw new InvalidOperationException($"{failure} {response}", response.OriginalException);
+        }
+        return response;
+    }
+
+    private static string Serialize(MigrationBuilder builder, object data) => JsonSerializer.Serialize(data, builder.SerializerOptions);
+
     private static async Task CreateIndexAsync(MigrationBuilder builder, MigrationStep step, string path)
     {
         var name = step.Settings.GetDictionaryJsonValue<string>("indexName") ?? throw new InvalidOperationException($"Migration step '{path}' is missing required property 'settings.indexName'.");
         if (step.Data == null) throw new InvalidOperationException($"Migration step '{path}' is missing required property 'data'.");
 
-        var response = await builder.Client.LowLevel.Indices.CreateAsync<StringResponse>(name, PostData.String(JsonSerializer.Serialize(step.Data, builder.SerializerOptions)));
-        if (!response.Success)
-        {
-            builder.Logger.LogError(response.OriginalException, "Failed to create index '{index}'.  Error: {error}", name, response.Body);
-            throw response.OriginalException;
-        }
+        await SendAsync(builder, HttpMethod.Put, name, Serialize(builder, step.Data), $"Failed to create index '{name}'.");
     }
 
     private static async Task UpdateMappingAsync(MigrationBuilder builder, MigrationStep step, string path)
@@ -210,12 +217,7 @@ public abstract class Migration
         var name = step.Settings.GetDictionaryJsonValue<string>("indexName") ?? throw new InvalidOperationException($"Migration step '{path}' is missing required property 'settings.indexName'.");
         if (step.Data == null) throw new InvalidOperationException($"Migration step '{path}' is missing required property 'data'.");
 
-        var response = await builder.Client.LowLevel.Indices.PutMappingAsync<StringResponse>(name, PostData.String(JsonSerializer.Serialize(step.Data, builder.SerializerOptions)));
-        if (!response.Success)
-        {
-            builder.Logger.LogError(response.OriginalException, "Failed to update index '{index}' mapping.  Error: {error}", name, response.Body);
-            throw response.OriginalException;
-        }
+        await SendAsync(builder, HttpMethod.Put, $"{name}/_mapping", Serialize(builder, step.Data), $"Failed to update index '{name}' mapping.");
     }
 
     private async Task ReindexAsync(MigrationBuilder builder, MigrationStep step, string path)
@@ -223,25 +225,17 @@ public abstract class Migration
         var source = step.Settings.GetDictionaryJsonValue<string>("sourceIndexName");
         var dest = step.Settings.GetDictionaryJsonValue<string>("destIndexName");
 
-        TaskId? task = null;
-
+        JsonNode request;
         // you can not use these settings to identify the to/from if you want
         // to also run a script.  You must use the RAW method...
         if (!String.IsNullOrWhiteSpace(source) && !String.IsNullOrWhiteSpace(dest))
         {
-            var response = await builder.Client.ReindexOnServerAsync(s => s
-                .Source(s => s.Index(source))
-                // Keep the source documents' versions, so a copy never regresses a newer write.
-                .Destination(s => s.Index(dest).VersionType(Elasticsearch.Net.VersionType.External))
-                .WaitForCompletion(false)
-                .Timeout(new TimeSpan(0, 5, 0)));
-            if (!response.IsValid)
+            request = new JsonObject
             {
-                builder.Logger.LogError(response.OriginalException, "Failed to reindex '{source}' to '{dest}'.  Error: {error}", source, dest, response.ServerError);
-                throw response.OriginalException;
-            }
-
-            task = response.Task;
+                ["source"] = new JsonObject { ["index"] = source },
+                // Keep the source documents' versions, so a copy never regresses a newer write.
+                ["dest"] = new JsonObject { ["index"] = dest, ["version_type"] = "external" },
+            };
         }
         else
         {
@@ -249,71 +243,47 @@ public abstract class Migration
             // https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-reindex.html
             if (step.Data == null) throw new InvalidOperationException($"Migration step '{path}' is missing required property 'data'.");
 
-            var json = System.Text.Json.Nodes.JsonNode.Parse(JsonSerializer.Serialize(step.Data, builder.SerializerOptions))!;
+            request = JsonNode.Parse(Serialize(builder, step.Data))!;
             // Keep the source documents' versions unless the step says otherwise ('create' only
             // supports internal versioning, so older steps that use it are left as they are).
-            if (json["dest"] is System.Text.Json.Nodes.JsonObject destination && destination["version_type"] == null
+            if (request["dest"] is JsonObject destination && destination["version_type"] == null
                 && destination["op_type"]?.GetValue<string>() != "create")
                 destination["version_type"] = "external";
-            var data = PostData.String(json.ToJsonString());
-            var response = await builder.Client.LowLevel.ReindexOnServerAsync<ReindexOnServerResponse>(data, new ReindexOnServerRequestParameters()
-            {
-                Timeout = new TimeSpan(0, 5, 0),
-                WaitForCompletion = false
-            });
-            if (!response.IsValid)
-            {
-                builder.Logger.LogError(response.OriginalException, "Failed to reindex '{source}' to '{dest}'.  Error: {error}", source, dest, response.ServerError.Error.Reason);
-                throw response.OriginalException;
-            }
-            task = response.Task;
         }
 
-        if (task != null)
-        {
-            var completed = false;
-            while (!completed)
-            {
-                try
-                {
-                    var response = await builder.Client.Tasks.GetTaskAsync(task);
-                    if (!response.IsValid)
-                    {
-                        if (response.ServerError.Status == 502)
-                        {
-                            builder.Logger.LogError(response.OriginalException, "Reindex task 502 gateway error");
-                            this.Failures++;
-                            if (this.Failures >= builder.MigrationOptions.ReindexFailureLimit)
-                                throw response.OriginalException;
-                        }
-                        else
-                        {
-                            builder.Logger.LogError(response.OriginalException, "Failed to reindex '{source}' to '{dest}'.  Error: {error}", source, dest, response.ServerError.Error.Reason);
-                            throw response.OriginalException;
-                        }
-                    }
+        var started = await SendAsync(builder, HttpMethod.Post, "_reindex?wait_for_completion=false&timeout=5m", request.ToJsonString(),
+            $"Failed to reindex '{source}' to '{dest}'.");
+        var task = JsonNode.Parse(started.Body)?["task"]?.GetValue<string>();
+        if (task == null) return;
 
-                    completed = response.Completed;
-                    this.Failures = 0;
-                    if (!completed)
-                    {
-                        builder.Logger.LogDebug("Reindex task not complete {count} of {total}", response.Task.Status.Created, response.Task.Status.Total);
-                        Thread.Sleep(builder.MigrationOptions.ReindexDelay);
-                    }
-                }
-                catch (ElasticsearchClientException ex)
-                {
-                    this.Failures++;
-                    builder.Logger.LogError(ex, "Reindex task failure");
-                    // Ignore 502 because we don't know why this is happening intermittently.
-                    if (ex.Response.HttpStatusCode != 502)
-                    {
-                        if (this.Failures >= builder.MigrationOptions.ReindexFailureLimit)
-                            throw;
-                    }
-                    Thread.Sleep(builder.MigrationOptions.ReindexDelay);
-                }
+        var gatewayFailures = 0;
+        while (true)
+        {
+            var response = await builder.Client.RequestAsync(HttpMethod.Get, $"_tasks/{task}");
+            if (!response.Success)
+            {
+                builder.Logger.LogError(response.OriginalException, "Reindex task failure.  Error: {error}", response);
+                // 502 is retried apart from other failures: the gateway in front of Elastic Cloud answers it intermittently.
+                var exhausted = response.HttpStatusCode == 502
+                    ? ++gatewayFailures >= builder.MigrationOptions.GatewayRetryLimit
+                    : ++this.Failures >= builder.MigrationOptions.ReindexFailureLimit;
+                if (exhausted)
+                    throw new InvalidOperationException($"Failed to reindex '{source}' to '{dest}'; reading task '{task}' failed. {response}", response.OriginalException);
+                Thread.Sleep(builder.MigrationOptions.ReindexDelay);
+                continue;
             }
+
+            this.Failures = 0;
+            gatewayFailures = 0;
+            var result = JsonNode.Parse(response.Body)!;
+            if (result["completed"]?.GetValue<bool>() == true)
+            {
+                if (NativeReindex.TaskFailed(result))
+                    throw new InvalidOperationException($"Reindex '{source}' to '{dest}' (task '{task}') did not copy every document. {result}");
+                return;
+            }
+            builder.Logger.LogDebug("Reindex task not complete {count} of {total}", result["task"]?["status"]?["created"], result["task"]?["status"]?["total"]);
+            Thread.Sleep(builder.MigrationOptions.ReindexDelay);
         }
     }
 
@@ -321,12 +291,7 @@ public abstract class Migration
     {
         var name = step.Settings.GetDictionaryJsonValue<string>("indexName") ?? throw new InvalidOperationException($"Migration step '{path}' is missing required property 'settings.indexName'.");
 
-        var response = await builder.Client.Indices.DeleteAsync(name);
-        if (!response.IsValid)
-        {
-            builder.Logger.LogError(response.OriginalException, "Failed to delete index '{index}'.  Error: {error}", name, response.ServerError);
-            throw response.OriginalException;
-        }
+        await SendAsync(builder, HttpMethod.Delete, name, null, $"Failed to delete index '{name}'.");
     }
 
     private static async Task CreateOrUpdateAliasAsync(MigrationBuilder builder, MigrationStep step, string path)
@@ -334,13 +299,8 @@ public abstract class Migration
         var name = step.Settings.GetDictionaryJsonValue<string>("indexName") ?? throw new InvalidOperationException($"Migration step '{path}' is missing required property 'settings.indexName'.");
         var alias = step.Settings.GetDictionaryJsonValue<string>("aliasName") ?? throw new InvalidOperationException($"Migration step '{path}' is missing required property 'settings.aliasName'.");
 
-        var data = step.Data == null ? PostData.Empty : PostData.String(JsonSerializer.Serialize(step.Data, builder.SerializerOptions));
-        var response = await builder.Client.LowLevel.Indices.PutAliasAsync<StringResponse>(name, alias, data);
-        if (!response.Success)
-        {
-            builder.Logger.LogError(response.OriginalException, "Failed to create/update index '{index}' alias '{alias}'.  Error: {error}", name, alias, response.Body);
-            throw response.OriginalException;
-        }
+        var data = step.Data == null ? null : Serialize(builder, step.Data);
+        await SendAsync(builder, HttpMethod.Put, $"{name}/_alias/{alias}", data, $"Failed to create/update index '{name}' alias '{alias}'.");
     }
 
     private static async Task DeleteAliasAsync(MigrationBuilder builder, MigrationStep step, string path)
@@ -348,37 +308,23 @@ public abstract class Migration
         var name = step.Settings.GetDictionaryJsonValue<string>("indexName") ?? throw new InvalidOperationException($"Migration step '{path}' is missing required property 'settings.indexName'.");
         var alias = step.Settings.GetDictionaryJsonValue<string>("aliasName") ?? throw new InvalidOperationException($"Migration step '{path}' is missing required property 'settings.aliasName'.");
 
-        var response = await builder.Client.Indices.DeleteAliasAsync(name, alias);
-        if (!response.IsValid)
-        {
-            builder.Logger.LogError(response.OriginalException, "Failed to delete index '{index}' alias '{alias}'.  Error: {error}", name, alias, response.ServerError);
-            throw response.OriginalException;
-        }
+        await SendAsync(builder, HttpMethod.Delete, $"{name}/_alias/{alias}", null, $"Failed to delete index '{name}' alias '{alias}'.");
     }
 
     private static async Task CreateOrUpdatePipelineAsync(MigrationBuilder builder, MigrationStep step, string path)
     {
         var name = step.Settings.GetDictionaryJsonValue<string>("pipelineName") ?? throw new InvalidOperationException($"Migration step '{path}' is missing required property 'settings.pipelineName'.");
-        var data = step.Data == null ? PostData.Empty : PostData.String(JsonSerializer.Serialize(step.Data, builder.SerializerOptions));
+        var data = step.Data == null ? null : Serialize(builder, step.Data);
 
-        var response = await builder.Client.LowLevel.Ingest.PutPipelineAsync<StringResponse>(name, data);
-        if (!response.Success)
-        {
-            builder.Logger.LogError(response.OriginalException, "Failed to create/update pipeline '{index}'.  Error: {error}", name, response.Body);
-            throw response.OriginalException;
-        }
+        await SendAsync(builder, HttpMethod.Put, $"_ingest/pipeline/{name}", data, $"Failed to create/update pipeline '{name}'.");
     }
+
     private static async Task UpdateByQueryAsync(MigrationBuilder builder, MigrationStep step, string path)
     {
         var name = step.Settings.GetDictionaryJsonValue<string>("indexName") ?? throw new InvalidOperationException($"Migration step '{path}' is missing required property 'settings.indexName'.");
         if (step.Data == null) throw new InvalidOperationException($"Migration step '{path}' is missing required property 'data'.");
 
-        var response = await builder.Client.LowLevel.UpdateByQueryAsync<StringResponse>(name, PostData.String(JsonSerializer.Serialize(step.Data, builder.SerializerOptions)));
-        if (!response.Success)
-        {
-            builder.Logger.LogError(response.OriginalException, "Failed to update index '{index}' using query.  Error: {error}", name, response.Body);
-            throw response.OriginalException;
-        }
+        await SendAsync(builder, HttpMethod.Post, $"{name}/_update_by_query", Serialize(builder, step.Data), $"Failed to update index '{name}' using query.");
     }
     #endregion
     #endregion

@@ -5,7 +5,7 @@ namespace: 9b301c-dev
 
 images:
   - name: docker.elastic.co/elasticsearch/elasticsearch
-    newTag: 8.19.25
+    newTag: 9.5.7
 
 resources:
   - ../../base

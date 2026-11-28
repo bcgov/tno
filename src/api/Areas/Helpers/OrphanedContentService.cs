@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
-using Elasticsearch.Net;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Content;
@@ -55,7 +54,7 @@ public class OrphanedContentService(TNOContext context, IContentService contents
             track_total_hits = false,
             _source = fullDocument ? (object)true : new[] { "id", "headline", "status" },
         });
-        var response = await elastic.LowLevel.SearchAsync<StringResponse>(Index(index), PostData.String(body), ctx: cancellationToken);
+        var response = await elastic.RequestAsync(HttpMethod.Post, $"{Index(index)}/_search", body, cancellationToken: cancellationToken);
         if (!response.Success) throw new InvalidOperationException($"Unable to read the {index} index. No changes were made.", response.OriginalException);
         using var document = JsonDocument.Parse(response.Body);
         var root = document.RootElement;
@@ -168,8 +167,8 @@ public class OrphanedContentService(TNOContext context, IContentService contents
         {
             foreach (var name in new[] { _options.PublishedIndex, _options.ContentIndex, _options.EvidenceIndex }.Where(n => !String.IsNullOrWhiteSpace(n)).Distinct())
             {
-                var response = await elastic.DeleteAsync<ContentModel>(id, d => d.Index(name).Refresh(Elasticsearch.Net.Refresh.WaitFor), cancellationToken);
-                if (!response.IsValid && response.ApiCall.HttpStatusCode != 404)
+                var response = await elastic.RequestAsync(HttpMethod.Delete, $"{name}/_doc/{id}?refresh=wait_for", cancellationToken: cancellationToken);
+                if (!response.Success && response.HttpStatusCode != 404)
                     throw new InvalidOperationException($"Failed to delete content {id} from index '{name}'. Retry the operation.", response.OriginalException);
             }
         }
