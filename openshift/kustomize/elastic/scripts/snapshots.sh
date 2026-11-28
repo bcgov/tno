@@ -48,45 +48,94 @@ if [ "${1:-}" = "--local" ]; then
   shift
 fi
 
+# env_value <file> <NAME> - the value of NAME=value in an env file. One pair of matching quotes around the
+# whole value is removed, as docker-compose does; any other quote character is part of the value.
+env_value() {
+  local value
+  value="$(sed -n "s/^$2=//p" "$1" | tail -n 1)"
+  value="${value%$'\r'}"
+  if [ "${#value}" -ge 2 ]; then
+    case "$value" in
+      \"*\" | \'*\') value="${value:1:${#value}-2}" ;;
+    esac
+  fi
+  printf '%s' "$value"
+}
+
 if $LOCAL && [ -z "${ELASTIC_PASSWORD+x}" ]; then
   ENV_FILE="$(git rev-parse --show-toplevel 2>/dev/null || pwd)/dependencies/elasticsearch/.env"
   if [ -f "$ENV_FILE" ]; then
-    ELASTIC_PASSWORD="$(grep -E '^ELASTIC_PASSWORD=' "$ENV_FILE" | cut -d= -f2- | tr -d "'\"")"
+    ELASTIC_PASSWORD="$(env_value "$ENV_FILE" ELASTIC_PASSWORD)"
   fi
 fi
 
+# curl_quote <text> - quote a value for a curl config file (curl -K).
+curl_quote() {
+  local text="$1"
+  text="${text//\\/\\\\}"
+  text="${text//\"/\\\"}"
+  text="${text//$'\t'/\\t}"
+  text="${text//$'\n'/\\n}"
+  text="${text//$'\r'/\\r}"
+  printf '"%s"' "$text"
+}
+
 # es <METHOD> <path> [json body] - call Elasticsearch from inside the container/pod.
-# Prints the response body and fails (exit 1) when Elasticsearch answers with HTTP 400 or above.
+# Prints the response body. Returns 1 when Elasticsearch answers with HTTP 400 or above, and 2 when no complete
+# response arrived (the container or pod is not running, the connection is refused, the call times out).
 es() {
-  local method="$1" path="$2" body="${3:-}" output status
+  local method="$1" path="$2" body="${3:-}" output status code=0
   local args=(curl -sS -m 600 -w '\n%{http_code}' -X "$method" -H 'Content-Type: application/json' "http://localhost:9200$path")
   [ -n "$body" ] && args+=(-d "$body")
   if $LOCAL; then
     if [ -n "${ELASTIC_PASSWORD:-}" ]; then
-      # Pass the credentials through the environment so they never appear in a process list.
-      output="$(docker exec -e "ES_AUTH=elastic:$ELASTIC_PASSWORD" "$LOCAL_CONTAINER" sh -c 'exec "$@" -u "$ES_AUTH"' sh "${args[@]}")"
+      # The credentials reach curl as a config file on standard input (curl -K -), so they are in no argument
+      # list and no environment, on this host or in the container.
+      output="$(printf 'user = %s\n' "$(curl_quote "elastic:$ELASTIC_PASSWORD")" \
+        | docker exec -i "$LOCAL_CONTAINER" "${args[@]}" -K -)" || code=$?
     else
-      output="$(docker exec "$LOCAL_CONTAINER" "${args[@]}")"
+      output="$(docker exec "$LOCAL_CONTAINER" "${args[@]}")" || code=$?
     fi
   else
-    output="$(oc exec -n "$NS" "$POD" -c elastic -- "${args[@]}")"
+    output="$(oc exec -n "$NS" "$POD" -c elastic -- "${args[@]}")" || code=$?
   fi
+  # curl writes the status after the body. It is 000, or missing, when no response arrived.
   status="${output##*$'\n'}"
+  if [ "$code" -ne 0 ] || ! [[ "$status" =~ ^[1-5][0-9][0-9]$ ]]; then
+    echo "ERROR: $method $path got no complete response from Elasticsearch (exit $code)." >&2
+    return 2
+  fi
   printf '%s\n' "${output%$'\n'*}"
-  if [ "$status" -ge 400 ] 2>/dev/null; then
+  if [ "$status" -ge 400 ]; then
     echo "ERROR: $method $path returned HTTP $status" >&2
     return 1
   fi
 }
 
-# Wait for a snapshot to finish; fail unless it succeeded.
+# Wait for a snapshot to finish; fail unless it succeeded. It also fails when Elasticsearch says the snapshot
+# cannot be read (a wrong name, a missing repository), and when its state cannot be read three times in a row.
 wait_for() {
-  local name="$1" state
+  local name="$1" response state code unread=0
   while true; do
-    state="$(es GET "/_snapshot/$REPOSITORY/$name?filter_path=snapshots.state" | grep -o '"state":"[A-Z_]*"' | cut -d'"' -f4 || true)"
+    code=0
+    response="$(es GET "/_snapshot/$REPOSITORY/$name?filter_path=snapshots.state")" || code=$?
+    if [ "$code" -eq 1 ]; then
+      printf '%s\n' "$response" >&2
+      echo "ERROR: snapshot '$name' cannot be read from repository '$REPOSITORY'. Check the name with 'list'." >&2
+      return 1
+    fi
+    state="$(grep -o '"state":"[A-Z_]*"' <<<"$response" | cut -d'"' -f4 || true)"
     case "$state" in
       SUCCESS) echo "Snapshot '$name' succeeded."; return 0 ;;
-      IN_PROGRESS|"") sleep 10 ;;
+      IN_PROGRESS) unread=0; sleep 10 ;;
+      "")
+        unread=$((unread + 1))
+        if [ "$unread" -ge 3 ]; then
+          echo "ERROR: the state of snapshot '$name' could not be read $unread times in a row. It may still be running: run 'wait $name' again once Elasticsearch answers." >&2
+          return 1
+        fi
+        sleep 10
+        ;;
       *) echo "ERROR: snapshot '$name' finished with state $state." >&2; es GET "/_snapshot/$REPOSITORY/$name" >&2; return 1 ;;
     esac
   done
@@ -190,7 +239,8 @@ EOF
     oc delete volumesnapshot -n "$NS" -l "snapshot-label=$2"
     ;;
   *)
-    sed -n '2,31p' "$0" | sed 's/^# \{0,1\}//'
+    # The comment block at the top of this file.
+    awk 'NR > 1 && /^#/ { sub(/^# ?/, ""); print; next } NR > 1 { exit }' "$0"
     exit 1
     ;;
 esac

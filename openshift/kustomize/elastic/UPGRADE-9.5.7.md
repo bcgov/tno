@@ -5,8 +5,8 @@ covers Local (`dependencies/elasticsearch`) and the DEV StatefulSet (`9b301c-dev
 
 | Environment | Cluster                                                  | Version on 2026-11-27 | Target    |
 | ----------- | -------------------------------------------------------- | --------------------- | --------- |
-| Local       | `tno-elastic` container                                  | 8.19.25               | **9.5.7** |
-| DEV         | `elastic` StatefulSet, 3 nodes, `9b301c-dev`             | 8.19.25               | **9.5.7** |
+| Local       | `tno-elastic` container                                  | 8.19.25               | **9.5.7**, done 2026-11-27 |
+| DEV         | `elastic` StatefulSet, 3 nodes, `9b301c-dev`             | 8.19.25               | **9.5.7**, done 2026-11-27 ([record](#dev-upgrade-record-2026-11-27)) |
 | TEST        | Elastic Cloud (local StatefulSet scaled to 0)            | 8.19.26               | **9.5.7** (Cloud) |
 | PROD        | Elastic Cloud (local StatefulSet scaled to 0)            | 8.19.21               | **9.5.7** (Cloud) |
 
@@ -166,8 +166,8 @@ image runs as `1000:0` with the same entrypoint (Red Hat UBI 9 base instead of U
   the transient `failed to retrieve password hash for reserved user [elastic]` messages while `.security` recovers,
   the same as on 8.19.
 
-**Not yet verified:** a 3-node rolling upgrade with DEV's ConfigMap (rehearse it in phase 1). Data from 7.x was
-prepared and upgraded on Local (section 3).
+A 3-node rolling upgrade with DEV's ConfigMap was rehearsed on 2026-11-27
+([rehearsal record](#rehearsal-record-2026-11-27)). Data from 7.x was prepared and upgraded on Local (section 3).
 
 **Related, not changed here (decide separately):**
 
@@ -207,8 +207,8 @@ S=openshift/kustomize/elastic/scripts
    curl -s -u elastic 'localhost:40003/_cat/aliases?h=alias,index&s=alias'    # keep this list
    ```
 
-   `wait` fails unless the snapshot succeeded. Aliases are not part of a snapshot, so keep the alias list: going
-   back needs it. `curl -u elastic` asks for the password instead of putting it on the command line.
+   `wait` fails unless the snapshot succeeded. `snapshots.sh restore-in-place` restores indexes without
+   their aliases, so keep the alias list: going back needs it. `curl -u elastic` asks for the password instead of putting it on the command line.
 
 3. **Delete the unused 7.x indexes and data streams** that `check` listed without an alias. On a volume from
    2026-11-01 these are:
@@ -358,8 +358,46 @@ end. The rehearsal must also prove the two things DEV cannot be used to find out
    the upgrade. Write down the exact commands that worked, including how the new cluster was bootstrapped; they
    are the rollback procedure.
 
-Do not touch DEV until this passes. The one-node equivalent of item 2 passed on 2026-11-27 (see
-[Going back to 8.19.25 (Local)](#going-back-to-81925-local)); the 3-node case is not verified yet.
+Do not touch DEV until this passes. Both items passed on three nodes on 2026-11-27; the record follows.
+DEV was upgraded earlier that day, by decision, before the rehearsal had finished. The rehearsal was then run again
+from the start, so the record describes one complete run.
+
+#### Rehearsal record (2026-11-27)
+
+**Set-up.** Throwaway Docker containers, volumes and network, removed afterwards. Three nodes named `elastic-0`,
+`elastic-1` and `elastic-2`, on the stock `elasticsearch:8.19.25` and `elasticsearch:9.5.7` images. Every node ran
+the `elasticsearch.yml` of `base/config-map.yaml` unchanged, with the StatefulSet's environment (`CLUSTER_NAME`,
+`NODE_NAME`, `DISCOVERY_SEED_HOSTS=elastic-headless`, `path.repo`) and security off. Each node had its own data
+volume, and all three mounted one snapshot volume. The indexes were created from the migration tool's own
+definitions (1 shard, 2 replicas), each behind its alias:
+
+| Index | Alias | Documents |
+| ----- | ----- | --------- |
+| `content_v1.0.13-…` | `content` | 20,000 |
+| `unpublished_content_v1.0.12-…` | `unpublished_content` | 30,000 |
+| `content_evidence_v1.0.11-…` | `content_evidence` | 150,000 (525,000 including nested) |
+| `migrations` | none | 11 |
+
+The three content indexes were written through their aliases with `version_type=external`; 92% of their documents
+have a version above 1 (the highest is 33). All four indexes were created on 8.19.25: `rebuild` treats an index the
+same whichever version created it, and the 7.x-created case was run on Local and on DEV. "Identical" below means,
+for every index, the same document count and the same SHA-256 over every (`_id`, `_version`) pair.
+
+| What | Result |
+| ---- | ------ |
+| 8.19.25 cluster | Formed on empty volumes with `cluster.initial_master_nodes` set for the first start (see [the bootstrap setting](#the-bootstrap-setting)): green, three nodes, roles `cdfhilmrstw`. `snapshots.sh setup`: all three nodes verified the repository. `upgrade-9.sh check`: nothing to do. |
+| **Item 1: an interrupted rebuild resumes** | **Passed.** `upgrade-9.sh --local rebuild content_evidence_v1.0.11-…` was killed twice with `SIGKILL` to its whole process group. *Before the original was deleted*, 30,000 documents into the first copy: the original was intact, write-blocked and still behind the alias. A rerun refused to start while the orphaned `_reindex` task was still running and named the task; once the task had ended, the next run deleted the unused copy and started again. *After the original was deleted*, 30,000 documents into the copy back: `…-rebuild-9` held the alias and its write block. A rerun again refused while the task ran. The task was then cancelled, which left the recreated original with 40,000 of 150,000 documents; the next run said so, copied it again from `…-rebuild-9` and ended with `Rebuilt`. Afterwards all four indexes were identical to the baseline, and the index's mappings, settings and alias were unchanged. |
+| Phase 3 | `pre-9-5-7`: 4 indexes, 4/4 shards. Counts, version hashes and the alias list recorded. |
+| Phase 4 | One node at a time, by hand, in the steps of `rolling-update.sh run`: allocation `primaries`, flush, replace the container with 9.5.7 on the same data volume, wait for it to rejoin, re-enable allocation, wait for green. Order: `elastic-2`, `elastic-0`, then the elected master `elastic-1`. Green after every node, also while the versions were mixed. On 9.5.7 the indexes were identical to the recorded state and the aliases unchanged. |
+| Phase 5 | On 9.5.7, documents were added, updated to higher versions and deleted. `post-9-5-7` (`snapshots.sh now`) and a nightly snapshot (`snapshots.sh run-policy`) were written to the same repository. |
+| **Item 2: the rollback works** | **Passed**, with the `docker` equivalents of the steps under [Rollback a](#rollback-a-restore-pre-9-5-7-on-a-new-81925-cluster). The 9.5.7 nodes were stopped. 8.19.25 started on one of their data volumes exited with `fatal exception while booting Elasticsearch` (`indexCreatedVersionMajor is in the future: 10`). The three data volumes were deleted and recreated empty; the snapshot volume was kept. A new three-node 8.19.25 cluster formed with the bootstrap setting and held no index. `snapshots.sh setup` named all three nodes; `list` showed `pre-9-5-7-cleanup`, `pre-9-5-7`, `post-9-5-7` and the nightly. `restore-in-place post-9-5-7` was refused with HTTP 500, `snapshot_restore_exception … the snapshot was created with version [8.19.26-[9111002]] which is higher than the version of this node [8.19.9-8.19.25]`, and created nothing. `restore-in-place pre-9-5-7` with the four index names: green with every replica assigned, and no alias. After the aliases were re-created, the indexes were identical to the recorded state and the alias list matched. |
+| The bootstrap setting removed | A node restarted with the setting still present only logged `this node is locked into cluster UUID […] but [cluster.initial_master_nodes] is set to […]; remove this setting to avoid possible data loss caused by subsequent cluster bootstrap attempts`. Each node was then replaced in turn (`elastic-2`, `elastic-1`, `elastic-0`) by one without the setting: green after each, no node reported the setting and no log mentioned it. A full cold restart followed (all three stopped, then started together): the same cluster UUID, green, indexes identical to the recorded state, aliases unchanged. |
+| After the rollback | Writes through the aliases were accepted. 8.19.25 took a new snapshot (`post-rollback`, 4/4 shards) into the repository that also holds the 9.5.7 snapshots, and `snapshots.sh policy` showed the next nightly run. |
+
+Not covered: the OpenShift commands themselves (no `oc` command was run; see
+[Rollback a](#rollback-a-restore-pre-9-5-7-on-a-new-81925-cluster) for what each one stands on), DEV's data size
+(about 24 GB) and therefore how long its restore takes, the real writers (indexing service, API), and a cluster
+with security enabled.
 
 ### Phase 2: clear the blockers on 8.19.25 (reversible)
 
@@ -417,6 +455,12 @@ oc kustomize overlays/dev | oc apply -f -
 NS=9b301c-dev scripts/rolling-update.sh run
 ```
 
+`oc kustomize overlays/dev` needs the gitignored `secret.env` and `route.env`, and applying it also replaces the
+`elastic` Secret and Route. Without those files, or to change nothing but the nodes, apply only the StatefulSet:
+render the overlay in a temporary copy with stub `secret.env` and `route.env` files, keep the `StatefulSet` document,
+confirm the image is its only difference from the live object (compare `.spec` with `oc get sts elastic -o json`),
+and `oc apply` that one document between `hold` and `run`. This is what was done on DEV on 2026-11-27.
+
 Elastic recommends upgrading the elected master last. All three nodes are master-eligible; if `elastic-0` is not the
 elected master (`_cat/nodes`, `master` column `*`), consider moving the master first or accept the extra election.
 
@@ -433,6 +477,20 @@ elected master (`_cat/nodes`, `master` column `*`), consider moving the master f
 7. After a few stable days: `scripts/snapshots.sh volume-delete pre-9-5-7` if volume snapshots were taken. Delete
    `pre-9-5-7` itself (`scripts/snapshots.sh delete pre-9-5-7`) only when going back to 8.19 is no longer wanted.
 
+### DEV upgrade record (2026-11-27)
+
+| Phase | Result |
+| ----- | ------ |
+| 0 | Green, 3 nodes on 8.19.25, `elastic-2` elected master. Blockers: `migrations` (11 documents, no alias) and `content_evidence_v1.0.11-…` (3,446 documents; 13,228 including nested; alias `content_evidence`), the data streams `ilm-history-5` and `.logs-deprecation.elasticsearch-default`, and system features `tasks` and `geoip`. No unaliased leftovers and no `simple_pattern` tokenizer. Data volumes 39% used; the snapshot volume 88% (6.1 GB free). |
+| 1 | Not finished before the upgrade, by decision. Run again from the start later the same day; both items passed ([rehearsal record](#rehearsal-record-2026-11-27)). |
+| 2 | Deleted the old snapshots `pre-8-19-25-20261119`, `post-8-19-25-20261119` and the 2026-11-26 nightly: the snapshot volume went to 47% (27 GB free). `pre-9-5-7-cleanup` taken. Both data streams deleted. `indexing-service` scaled to 0, both indexes rebuilt: document IDs and `_version` values identical to the baseline (hash compared), aliases unchanged. System features migrated; `check` clean. Indexing scaled back to 1. |
+| 3 | `pre-9-5-7` (4 indexes, 4/4 shards). Volume snapshots `data-elastic-{0,1,2}-pre-9-5-7` ready, with fresh creation times. |
+| 4 | Only the StatefulSet applied (the overlay's secret and route files were not available); its image was the only difference. `rolling-update.sh run` replaced `elastic-2`, `elastic-1`, `elastic-0` in that order; green after each. `elastic-1` is the elected master afterwards. |
+| 5 | Green, 3 nodes on 9.5.7, roles `cdfhilmrstw`. Aliases unchanged (plus the system alias `.tasks` → `.tasks-reindexed-for-9` from the system-feature migration). `migrations` and `content_evidence` identical to the baseline. Searches through all three aliases work; no Elasticsearch errors in the indexing, API, `api-services` and reporting logs. `post-9-5-7` taken; the nightly policy runs next on 2026-11-28 09:30 UTC. On 9.5.7 the deprecation API lists every 8.x-created index and data stream as critical, and `upgrade-9.sh check` again shows `MIGRATION_NEEDED` for the system features: on 9.x these are what a future 10.x upgrade needs, and nothing blocks 9.x. The functional checks in phase 5 item 3 were done in the browser and passed. |
+
+Keep `pre-9-5-7`: it is the only snapshot 8.19 can restore. `pre-9-5-7-cleanup` and the volume snapshots can be
+deleted after a few stable days.
+
 ## 5. Rollback
 
 Elasticsearch has no downgrade: 8.19 does not start on a data volume that 9.x has opened, and 8.19 refuses to
@@ -444,6 +502,217 @@ restore a snapshot taken on 9.x. Once any node runs 9.x, going back means new, e
 | Phase 2                              | Nothing upgraded. A rebuild that stopped: rerun it (or abandon it, see [Rebuilding an index](#rebuilding-an-index)). An index deleted by mistake: `snapshots.sh restore-in-place pre-9-5-7-cleanup <index>`, then re-create its aliases. Revert the client change if needed. |
 | Phase 3                              | Nothing upgraded.                                                                         |
 | Phase 4, a node fails to start       | Stop. The other nodes keep serving. Read the pod log, fix, then `hold` → apply → `run` (resumes). |
-| After any node runs 9.x              | **a. Elasticsearch snapshot (the supported rollback).** Rehearsed in phase 1; follow the commands recorded there. In outline: stop the writers (indexing services to 0), scale `elastic` to 0, delete the three `data-elastic-N` PVCs and keep the `elastic-snapshots` PVC, set `newTag: 8.19.25` in `overlays/dev`, and start a new cluster. A new cluster needs `cluster.initial_master_nodes` for its first start, which the ConfigMap no longer sets; add it for that start and remove it afterwards. Then `snapshots.sh setup` (all three nodes must verify), `snapshots.sh restore-in-place pre-9-5-7 <indices>`, re-create the aliases from the phase 0 list, compare the counts, and start the writers. Writes since the snapshot are lost; run the indexer for that window. |
+| After any node runs 9.x              | **a. Elasticsearch snapshot (the supported rollback).** Stop the writers and Elasticsearch, replace the three data volumes with empty ones, start a new 8.19.25 cluster and restore `pre-9-5-7` into it. The commands are under [Rollback a](#rollback-a-restore-pre-9-5-7-on-a-new-81925-cluster). Their Elasticsearch side was rehearsed on three nodes on 2026-11-27; the `oc` commands are a translation and were not run. Writes since the snapshot are lost; run the indexer for that window. |
 |                                      | **b. Rebuild from PostgreSQL.** DEV search data is a projection of PostgreSQL. On the same new 8.19.25 cluster: create the indexes with the migration tool, then run the indexer (hours). Use it when the snapshot cannot be restored. |
 |                                      | **c. Volume snapshots (best effort, only if they were taken).** Scale `elastic` to 0, recreate each `data-elastic-N` PVC from `data-elastic-N-pre-9-5-7`, restore the 8.19.25 image, scale to 3. They were taken from running nodes at different moments, so the cluster may not form or may recover with missing or stale shards. It is a last resort for when a cannot be used; be ready to fall back to b. |
+
+### Rollback a: restore `pre-9-5-7` on a new 8.19.25 cluster
+
+**What is verified and what is not.** Every step was carried out on 2026-11-27 on a local three-node cluster
+([rehearsal record](#rehearsal-record-2026-11-27)), with `docker` commands standing in for `oc`. The lines that talk
+to Elasticsearch (`snapshots.sh`, every line that starts with `$E`, and the two that build `INDICES` and `ALIASES`)
+were run as written here against that cluster. **No `oc` command below has been run on OpenShift.** They are a
+translation of the `docker` commands that worked. [What each step stands on](#what-each-step-stands-on) lists the
+local equivalent of each one and what stays untested until this is done on DEV.
+
+As a last check, every `bash` block of this section was run unchanged, in order, with a stand-in for `oc` first in
+`PATH`. The stand-in turned `oc exec` into `docker exec` on the rehearsal node, applied `oc patch`, `oc scale` and
+`oc get` of the StatefulSet to a local copy of the one rendered from `overlays/dev` (`kubectl patch --local`), and
+only printed every other `oc` command. `rolling-update.sh` was replaced by a stub. That run restored `pre-9-5-7`
+once more with the same counts, version hashes and aliases, and the two patches and their check lines produced
+the output described in steps 4 and 9. It shows that the commands are well formed; it says nothing about OpenShift.
+
+Work from `openshift/kustomize/elastic`, logged in with `oc login`:
+
+```bash
+export NS=9b301c-dev
+E="oc exec -n $NS elastic-0 -c elastic -- curl -sS"
+```
+
+**1. Stop the writers.** Note how many replicas the indexing service runs (1 on 2026-11-27); step 10 scales it back.
+
+```bash
+oc get deployment -n $NS -o custom-columns=NAME:.metadata.name,REPLICAS:.spec.replicas | grep -E 'NAME|indexing'
+oc scale deployment/indexing-service -n $NS --replicas=0
+oc get pods -n $NS -l name=indexing-service          # repeat until: No resources found
+```
+
+Scale every other indexing deployment that points at this cluster the same way (`indexing-service-migration`, if a
+stepped migration left one running). Run no `elastic-migration` Job and no indexer, and make sure no administrator
+uses the *Orphaned Content* page until step 10. The indexing service must stay stopped until the aliases exist
+again: started earlier, it would create plain indexes named like the aliases.
+
+**2. Stop Elasticsearch.**
+
+```bash
+oc scale statefulset/elastic -n $NS --replicas=0
+oc get pods -n $NS -l statefulset=elastic-cluster    # repeat until: No resources found (a pod has 120 s to stop)
+```
+
+**3. Delete the three data volumes and keep the snapshot volume.** 8.19.25 does not start on a volume that 9.5.7
+has opened, so the data volumes cannot be reused.
+
+```bash
+oc get pvc -n $NS | grep -E 'NAME|elastic'           # data-elastic-0, data-elastic-1, data-elastic-2, elastic-snapshots
+oc delete pvc data-elastic-0 data-elastic-1 data-elastic-2 -n $NS
+oc get pvc -n $NS | grep -E 'NAME|elastic'           # only elastic-snapshots is left
+```
+
+Name the three claims. Never delete by label or with `--all`: `elastic-snapshots` carries the same
+`component=elastic` label, and it holds `pre-9-5-7`, the only way back.
+
+**4. Set the image to 8.19.25 and add the bootstrap setting**, while the StatefulSet has no pods. In the repository,
+so that the overlay says what DEV runs and the next apply does not upgrade it again (commit this change):
+
+```bash
+sed -i 's/newTag: 9.5.7/newTag: 8.19.25/' overlays/dev/kustomization.yaml
+```
+
+On DEV, in one patch: no rollout hold left over (`partition: 0`), the image, and `cluster.initial_master_nodes`
+(see [The bootstrap setting](#the-bootstrap-setting)):
+
+```bash
+oc patch statefulset elastic -n $NS --type json -p '[
+  {"op":"replace","path":"/spec/updateStrategy","value":{"type":"RollingUpdate","rollingUpdate":{"partition":0}}},
+  {"op":"replace","path":"/spec/template/spec/containers/0/image","value":"docker.elastic.co/elasticsearch/elasticsearch:8.19.25"},
+  {"op":"add","path":"/spec/template/spec/containers/0/env/-","value":{"name":"cluster.initial_master_nodes","value":"elastic-0,elastic-1,elastic-2"}}]'
+oc get statefulset elastic -n $NS -o jsonpath='{.spec.replicas}{" replica(s), partition "}{.spec.updateStrategy.rollingUpdate.partition}{"\n"}{.spec.template.spec.containers[0].image}{"\n"}{range .spec.template.spec.containers[0].env[*]}{.name}={.value}{"\n"}{end}'
+```
+
+The second command must print `0 replica(s), partition 0`, the 8.19.25 image, and
+`cluster.initial_master_nodes=elastic-0,elastic-1,elastic-2` as the last variable. Do not `oc apply` the overlay
+during the rollback: it sets `replicas: 3` and has no bootstrap setting, so it starts three nodes that wait for a
+cluster that does not exist.
+
+**5. Start the new cluster.**
+
+```bash
+oc scale statefulset/elastic -n $NS --replicas=3
+oc rollout status statefulset/elastic -n $NS --timeout=15m
+oc get pvc -n $NS | grep -E 'NAME|elastic'           # three new data-elastic-N claims, Bound, and elastic-snapshots
+scripts/rolling-update.sh status                     # three pods on the 8.19.25 image; three nodes on 8.19.25; green
+$E 'localhost:9200/_cat/indices?h=index'             # prints nothing: a new, empty cluster
+```
+
+Ready pods do not show that a cluster formed: the readiness probe answers before a master is elected. The proof is
+the node list in `status`. If it shows an error instead of three nodes, read `oc logs elastic-0 -n $NS -c elastic
+--tail=50`. `master not discovered yet … [cluster.initial_master_nodes] is empty on this node` means the patch in
+step 4 did not reach the pods.
+
+**6. Register the snapshot repository.** The snapshots are still in the volume; the new cluster does not know the
+repository yet.
+
+```bash
+scripts/snapshots.sh setup       # its second line, {"nodes":{…}}, must name elastic-0, elastic-1 and elastic-2
+scripts/snapshots.sh list        # pre-9-5-7: SUCCESS, failed_shards 0
+```
+
+`setup` also re-creates the nightly policy. The snapshots taken on 9.5.7 (`post-9-5-7`, the nightlies) are listed
+too. 8.19.25 refuses to restore them (`the snapshot was created with version […] which is higher than the version
+of this node`), and a refused restore creates nothing.
+
+**7. Restore `pre-9-5-7`** under the original index names, taken from the snapshot itself, and wait for green.
+
+```bash
+INDICES="$($E 'localhost:9200/_snapshot/snapshots/pre-9-5-7?filter_path=snapshots.indices' \
+  | python3 -c 'import json, sys; print(",".join(sorted(json.load(sys.stdin)["snapshots"][0]["indices"])))')"
+echo "$INDICES"                  # four names: content_evidence_v…, content_v…, migrations, unpublished_content_v…
+scripts/snapshots.sh restore-in-place pre-9-5-7 "$INDICES"
+$E 'localhost:9200/_cluster/health?wait_for_status=green&wait_for_no_initializing_shards=true&timeout=60m&filter_path=status,timed_out,unassigned_shards'
+$E 'localhost:9200/_cat/recovery?v&active_only=true&h=index,shard,type,stage,bytes_percent,target_node'
+```
+
+The health call returns when the cluster is green or after 60 minutes: it must say `"status":"green"` and
+`"timed_out":false`. If the connection drops first, run it again. The last line shows what is still being copied,
+from another terminal or afterwards (nothing listed means nothing is in progress).
+
+**8. Re-create the aliases and compare.** `restore-in-place` restores the indexes without their aliases. DEV has
+three (`content`, `unpublished_content`, `content_evidence`), and the migration tool names the index behind each
+one `<alias>_v<version>…`; `migrations` has none. The first command stops with an error unless every alias matches
+exactly one of the restored indexes; if it does, write the `_aliases` request by hand from the phase 0 list.
+
+```bash
+ALIASES="$(python3 -c '
+import json, re, sys
+indices, actions = sys.argv[1].split(","), []
+for alias in ("content", "unpublished_content", "content_evidence"):
+    found = [i for i in indices if re.match(re.escape(alias) + r"_v[0-9]", i)]
+    if len(found) != 1:
+        sys.exit(f"ERROR: expected exactly one index for alias {alias}, found {found}")
+    actions.append({"add": {"index": found[0], "alias": alias}})
+print(json.dumps({"actions": actions}))' "$INDICES")"
+echo "$ALIASES"
+$E -X POST -H 'Content-Type: application/json' localhost:9200/_aliases -d "$ALIASES"
+$E 'localhost:9200/_cat/aliases?h=alias,index&s=alias'
+$E 'localhost:9200/_cat/indices/content*,unpublished_content*,migrations?v&h=health,index,pri,rep,docs.count&s=index'
+for name in content unpublished_content content_evidence migrations; do
+  printf '%s ' "$name"; $E "localhost:9200/$name/_count?filter_path=count"; echo
+done
+```
+
+The alias list must equal the one kept in phase 0, and the four counts the ones from before the upgrade (on
+2026-11-27: `migrations` 11, `content_evidence` 3,446). The `.tasks` alias in the DEV upgrade record belonged to the
+9.5.7 cluster's own system indexes and is not re-created.
+
+**9. Remove the bootstrap setting** with a rolling restart. `hold` comes first: without it the StatefulSet restarts
+the pods by itself, one after another, without waiting for green.
+
+```bash
+scripts/rolling-update.sh hold
+oc patch statefulset elastic -n $NS --type strategic -p '{"spec":{"template":{"spec":{"containers":[{"name":"elastic","env":[{"name":"cluster.initial_master_nodes","$patch":"delete"}]}]}}}}'
+scripts/rolling-update.sh run
+oc get statefulset elastic -n $NS -o jsonpath='{range .spec.template.spec.containers[0].env[*]}{.name}{"\n"}{end}'
+$E 'localhost:9200/_nodes/settings?filter_path=nodes.*.settings.cluster.initial_master_nodes'
+```
+
+`run` must end with three nodes on 8.19.25 and green. The fourth command must not list
+`cluster.initial_master_nodes`, and the last must print `{}`: no node has the setting.
+
+**10. Start the writers and check.**
+
+```bash
+oc scale deployment/indexing-service -n $NS --replicas=1      # the number noted in step 1
+oc logs deployment/indexing-service -n $NS --tail=50          # Subscribing to topics: …; no Elasticsearch errors
+scripts/snapshots.sh policy                                   # the next nightly run
+```
+
+Then check editor and subscriber searches. Content indexed after `pre-9-5-7` was taken is missing: run the indexer
+for that window. Before upgrading again, run `scripts/upgrade-9.sh check`.
+
+#### The bootstrap setting
+
+A node on an empty data volume never starts a cluster by itself. It joins one that exists, or it forms one with the
+nodes named in `cluster.initial_master_nodes`. DEV's ConfigMap has not set that since the 8.19.21 upgrade, because a
+cluster that has formed must not keep it. Rehearsed without it: three 8.19.25 nodes on empty volumes all answered
+the readiness probe (`/_cluster/health?local=true`, HTTP 200) while `/_cat/nodes` answered 503 and the log repeated
+`master not discovered yet, this node has not previously joined a bootstrapped cluster, and
+[cluster.initial_master_nodes] is empty on this node`. Restarted with the setting, the same nodes formed a cluster.
+
+It can go in `elasticsearch.yml` (the ConfigMap) or in the pod's environment. Both formed a cluster in the
+rehearsal. This procedure uses an **environment variable on the StatefulSet**:
+
+- The Elasticsearch image turns a lowercase, dotted environment variable into a setting. `path.repo` is already set
+  this way by `components/snapshots`, and the rehearsal used exactly this name and value on 8.19.25.
+- It is one patch entry to add and one to remove, and `oc get statefulset elastic -o yaml` shows whether it is
+  there. The ConfigMap holds `elasticsearch.yml` as one string, so adding a line means replacing the whole file.
+- Removing it changes the pod template, so it goes through `rolling-update.sh`, and that restart proves that every
+  node starts without it. The pods mount the ConfigMap with `subPath`, which is read only when a pod starts:
+  removing the line there restarts nothing, and each node keeps the setting until whenever it next restarts.
+
+The price is one more rolling restart, and the variable has to be removed with the patch in step 9. Do not count
+on a later `oc apply` of the overlay to remove it: apply only removes what an earlier apply added. A node that
+restarts while the variable is still set only logs a warning (`this node is locked into cluster UUID […] but
+[cluster.initial_master_nodes] is set […]; remove this setting`), so an unplanned pod restart between steps 5 and 9
+does no harm.
+
+#### What each step stands on
+
+| Step | Run locally in its place | Not covered until it is run on OpenShift |
+| ---- | ------------------------ | ---------------------------------------- |
+| 1, 10 | Nothing wrote during the rehearsal. After the restore, writes through the aliases with external versions were accepted. | Everything about the indexing service, the API and Kafka. |
+| 2 | `docker stop -t 120` and `docker rm` of the three 9.5.7 containers. | The `oc` commands themselves. |
+| 3 | `docker volume rm` of the three data volumes and `docker volume create` of three empty ones; the snapshot volume untouched. | That the StatefulSet's `volumeClaimTemplates` create new claims when it scales up, and what the storage class does with the old volumes and with the `data-elastic-N-pre-9-5-7` volume snapshots taken from them (row c may no longer be possible afterwards). |
+| 4 | Each node started as `docker run -e cluster.initial_master_nodes=elastic-0,elastic-1,elastic-2 … elasticsearch:8.19.25`; the nodes reported the setting. Both patches were applied with `kubectl patch --local` to the StatefulSet rendered from `overlays/dev`, and gave the intended image, variables and partition; with `newTag: 8.19.25` the overlay renders the 8.19.25 image. | That the live StatefulSet accepts the patches, and that pods created by scaling up from 0 use the patched template. |
+| 5 | The three containers started together and formed a green three-node cluster within a minute. | `oc rollout status`, scheduling and volume provisioning. `rolling-update.sh` was not run locally (it needs `oc`); it carried out the DEV upgrade on 2026-11-27. |
+| 6, 7, 8 | The same commands, with `snapshots.sh --local` and `E="docker exec <node> curl -sS"`. | DEV's own index names, and how long about 24 GB takes to restore (the rehearsal's four indexes were small and restored in seconds). |
+| 9 | Each node replaced in turn (`elastic-2`, `elastic-1`, `elastic-0`) by a container without the variable, in the steps of `rolling-update.sh run`; then a full cold restart. | `rolling-update.sh hold` and `run` around this patch. |

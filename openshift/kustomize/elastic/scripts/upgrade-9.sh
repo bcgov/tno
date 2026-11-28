@@ -321,10 +321,22 @@ import json, sys
 for name, v in sorted(json.load(sys.stdin).items()):
     if int(v["settings"]["index.version.created"]) < 8000099:
         print(name)' <<<"$response")" || exit 1
+    # A data stream's backing indexes have no aliases of their own (the lookup answers {}): name their data stream.
+    response="$(es GET '/_data_stream?expand_wildcards=all')" || exit 1
+    streams="$(python3 -c '
+import json, sys
+for stream in json.load(sys.stdin).get("data_streams", []):
+    for index in stream.get("indices", []):
+        print(index["index_name"], stream["name"])' <<<"$response")" || exit 1
     if [ -z "$old" ]; then
       echo "  none"
     else
       while IFS= read -r index; do
+        stream="$(awk -v i="$index" '$1 == i { print $2 }' <<<"$streams")"
+        if [ -n "$stream" ]; then
+          echo "  $index  backing index of data stream: $stream (delete-data-stream $stream)"
+          continue
+        fi
         current="$(aliases "$index")" || exit 1
         echo "  $index  aliases: $current"
       done <<<"$old"

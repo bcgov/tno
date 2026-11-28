@@ -24,6 +24,18 @@ STS="${STS:-elastic}"
 GREEN_TIMEOUT="${GREEN_TIMEOUT:-60m}"
 POD_TIMEOUT="${POD_TIMEOUT:-900}"
 
+# Print the comment block at the top of this file.
+usage() {
+  awk 'NR > 1 && /^#/ { sub(/^# ?/, ""); print; next } NR > 1 { exit }' "$0"
+  exit 1
+}
+
+# A missing or unknown command prints the usage before anything calls `oc`.
+case "${1:-}" in
+  config | restart | hold | run | status) ;;
+  *) usage ;;
+esac
+
 replicas="$(oc get statefulset "$STS" -n "$NS" -o jsonpath='{.spec.replicas}')"
 
 # es <pod> <METHOD> <path> [body] - call Elasticsearch through a pod that is not being restarted.
@@ -129,7 +141,6 @@ case "${1:-}" in
     status
     ;;
   *)
-    sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'
-    exit 1
+    usage
     ;;
 esac
